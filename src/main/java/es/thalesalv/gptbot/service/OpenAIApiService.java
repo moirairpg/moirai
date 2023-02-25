@@ -1,6 +1,8 @@
 package es.thalesalv.gptbot.service;
 
 import es.thalesalv.gptbot.data.ContextDatastore;
+import es.thalesalv.gptbot.model.gpt.GptRequestEntity;
+import es.thalesalv.gptbot.model.gpt.GptResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +13,6 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import es.thalesalv.gptbot.model.GptRequestEntity;
-import es.thalesalv.gptbot.model.GptResponseEntity;
 import reactor.core.publisher.Mono;
 
 @Service

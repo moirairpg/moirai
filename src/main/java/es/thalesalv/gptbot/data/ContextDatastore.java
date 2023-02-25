@@ -1,7 +1,8 @@
 package es.thalesalv.gptbot.data;
 
-import es.thalesalv.gptbot.model.ChannelSettings;
 import org.springframework.stereotype.Component;
+
+import es.thalesalv.gptbot.model.bot.ChannelSettings;
 
 @Component
 public class ContextDatastore {

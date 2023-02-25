@@ -1,10 +1,11 @@
-package es.thalesalv.gptbot.model;
+package es.thalesalv.gptbot.model.gpt;
 
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,11 +29,11 @@ public class GptResponseEntity {
     private String model;
 
     @JsonProperty("choices")
-    private List<GptModelResponseChoice> choices;
+    private List<GptModelResponseChoiceEntity> choices;
 
     @JsonProperty("usage")
-    private GptModelResponseUsage usage;
+    private GptModelResponseUsageEntity usage;
 
     @JsonProperty("error")
-    private GptModelResponseError error;
+    private GptModelResponseErrorEntity error;
 }

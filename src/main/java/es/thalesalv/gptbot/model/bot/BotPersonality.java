@@ -1,4 +1,4 @@
-package es.thalesalv.gptbot.model;
+package es.thalesalv.gptbot.model.bot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,14 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptModelResponseChoice {
+public class BotPersonality {
 
-    @JsonProperty("text")
-    private String text;
+    @JsonProperty("behavior")
+    private String behavior;
 
-    @JsonProperty("finish_reason")
-    private String finishReason;
-
-    @JsonProperty("index")
-    private int index;
+    @JsonProperty("species")
+    private String species;
 }

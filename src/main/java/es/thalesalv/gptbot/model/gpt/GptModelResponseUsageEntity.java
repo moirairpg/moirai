@@ -1,4 +1,4 @@
-package es.thalesalv.gptbot.model;
+package es.thalesalv.gptbot.model.gpt;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptModelResponseUsage {
+public class GptModelResponseUsageEntity {
 
     @JsonProperty("prompt_tokens")
     private int promptTokens;

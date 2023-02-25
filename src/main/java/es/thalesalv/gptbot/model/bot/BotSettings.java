@@ -1,7 +1,11 @@
-package es.thalesalv.gptbot.model;
+package es.thalesalv.gptbot.model.bot;
+
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,10 +17,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptModelResponseError {
+public class BotSettings {
 
-    private String message;
-    private String type;
-    private String param;
-    private String code;
+    @JsonProperty("channel_settings")
+    private Map<String, ChannelSettings> channelSettings;
 }

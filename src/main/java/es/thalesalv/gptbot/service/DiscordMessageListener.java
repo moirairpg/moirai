@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.thalesalv.gptbot.data.ContextDatastore;
-import es.thalesalv.gptbot.model.BotSettings;
+import es.thalesalv.gptbot.model.bot.BotSettings;
 import es.thalesalv.gptbot.usecases.ReplyQuoteUseCase;
 import es.thalesalv.gptbot.usecases.TextGenerationUseCase;
 import lombok.RequiredArgsConstructor;
