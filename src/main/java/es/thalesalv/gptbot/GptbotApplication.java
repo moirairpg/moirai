@@ -9,5 +9,4 @@ public class GptbotApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(GptbotApplication.class, args);
 	}
-
 }

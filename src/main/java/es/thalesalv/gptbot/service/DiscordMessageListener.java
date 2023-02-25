@@ -1,15 +1,11 @@
 package es.thalesalv.gptbot.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import es.thalesalv.gptbot.data.ContextDatastore;
-import es.thalesalv.gptbot.model.BotSettings;
-import es.thalesalv.gptbot.model.ChannelSettings;
-import es.thalesalv.gptbot.usecases.ReplyQuoteUseCase;
-import es.thalesalv.gptbot.usecases.TextGenerationUseCase;
-import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +13,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import es.thalesalv.gptbot.data.ContextDatastore;
+import es.thalesalv.gptbot.model.BotSettings;
+import es.thalesalv.gptbot.usecases.ReplyQuoteUseCase;
+import es.thalesalv.gptbot.usecases.TextGenerationUseCase;
+import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @Service
 @RequiredArgsConstructor

@@ -2,19 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.1.0-SNAPSHOT</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath />
 	</parent>
 
 	<groupId>es.thalesalv</groupId>
-	<artifactId>gptbot</artifactId>
+	<artifactId>malaquias</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>gptbot</name>
-	<description>Demo project for Spring Boot</description>
+	<name>Malaquias</name>
+	<description>A Discord bot powered by GPT</description>
 
 	<properties>
 		<java.version>19</java.version>
@@ -40,11 +41,6 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.discord4j</groupId>
-			<artifactId>discord4j-core</artifactId>
-			<version>3.2.3</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -58,11 +54,6 @@
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
 			<version>5.0.0-beta.4</version>
-		</dependency>
-		<dependency>
-			<groupId>com.theokanning.openai-gpt3-java</groupId>
-			<artifactId>service</artifactId>
-			<version>0.10.0</version>
 		</dependency>
 	</dependencies>
 
@@ -83,7 +74,7 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<repositories>
 		<repository>
 			<id>spring-milestones</id>
@@ -102,6 +93,7 @@
 			</releases>
 		</repository>
 	</repositories>
+
 	<pluginRepositories>
 		<pluginRepository>
 			<id>spring-milestones</id>
