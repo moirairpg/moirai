@@ -1,5 +1,7 @@
 package es.thalesalv.gptbot.service;
 
+import es.thalesalv.gptbot.data.ContextDatastore;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,16 +16,13 @@ import es.thalesalv.gptbot.model.GptResponseEntity;
 import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class OpenAIApiService {
 
     @Value("${config.openai.api-token}")
     private String openAiToken;
 
-    @Value("${config.openai.settings.temperature}")
-    private double temperature;
-
-    @Value("${config.openai.settings.max-tokens}")
-    private int maxTokens;
+    private final ContextDatastore contextDatastore;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAIApiService.class);
 
@@ -41,8 +40,8 @@ public class OpenAIApiService {
                 .bodyValue(GptRequestEntity.builder()
                         .model(model)
                         .prompt(prompt)
-                        .temperature(temperature)
-                        .maxTokens(maxTokens)
+                        .temperature(contextDatastore.getCurrentChannel().getTemperature())
+                        .maxTokens(contextDatastore.getCurrentChannel().getMaxTokens())
                         .build())
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, this::handleClientError)

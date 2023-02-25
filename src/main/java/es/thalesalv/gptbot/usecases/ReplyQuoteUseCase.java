@@ -14,7 +14,7 @@ public class ReplyQuoteUseCase {
 
     public void generateResponse(List<String> messages, User author, Message message, Message replyMessage) {
 
-        messages.add(replyMessage.getAuthor().getAsTag() + " said: " + replyMessage.getContentDisplay());
-        messages.add(author.getAsTag() + " replied to " + replyMessage.getAuthor().getAsTag() + ": " + message.getContentDisplay());
+        messages.add(replyMessage.getAuthor().getAsTag() + " said earlier: " + replyMessage.getContentDisplay());
+        messages.add(author.getAsTag() + " replied to that message of " + replyMessage.getAuthor().getAsTag() + "'s with: " + message.getContentDisplay());
     }
 }
