@@ -2,6 +2,7 @@ package es.thalesalv.gptbot.service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,11 +65,6 @@ public class DiscordMessageListener extends ListenerAdapter {
 
                 if (rpgChannel.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id))) {
                     contextDatastore.setCurrentChannel(rpgChannel);
-                    // textGenerationUseCase.generateResponse(messages, channel);
-                    // if (replyMessage != null) {
-                    //     replyQuoteUseCase.generateResponse(messages, author, message, replyMessage);
-                    // }
-
                     rpgUseCase.generateResponse(messages, author, message.getMentions(), channel);
                 } else if (chatChannel.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id))) {
                     contextDatastore.setCurrentChannel(chatChannel);
@@ -106,10 +102,7 @@ public class DiscordMessageListener extends ListenerAdapter {
                 .replace("<personality.duties>", contextDatastore.getCurrentChannel().getPersonality().getBehavior()));
 
 
-        return new StringBuilder()
-                .append(messages.stream().collect(Collectors.joining("\n")))
-                .append(StringUtils.LF)
-                .append(bot.getAsTag() + " said: ")
-                .toString().trim();
+        return MessageFormat.format("{0}\n{1} said: ",
+                messages.stream().collect(Collectors.joining("\n")), bot.getAsTag());
     }
 }
