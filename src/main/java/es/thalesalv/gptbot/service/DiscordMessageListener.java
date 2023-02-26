@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.thalesalv.gptbot.data.ContextDatastore;
 import es.thalesalv.gptbot.model.bot.BotSettings;
+import es.thalesalv.gptbot.usecases.RPGUseCase;
 import es.thalesalv.gptbot.usecases.ReplyQuoteUseCase;
 import es.thalesalv.gptbot.usecases.TextGenerationUseCase;
 import lombok.RequiredArgsConstructor;
@@ -28,12 +29,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 @RequiredArgsConstructor
 public class DiscordMessageListener extends ListenerAdapter {
 
-    @Value("#{'${config.discord.bot-channel-id}'.split(',')}")
-    private List<String> botChannelId;
-
-    @Value("${config.discord.bot-instructions}")
-    private String botInstructions;
-
     @Value("classpath:bot-settings.json")
     private Resource botSettingsFile;
 
@@ -42,6 +37,7 @@ public class DiscordMessageListener extends ListenerAdapter {
     private final ReplyQuoteUseCase replyQuoteUseCase;
     private final TextGenerationUseCase textGenerationUseCase;
     private final ContextDatastore contextDatastore;
+    private final RPGUseCase rpgUseCase;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordMessageListener.class);
 
@@ -68,10 +64,12 @@ public class DiscordMessageListener extends ListenerAdapter {
 
                 if (rpgChannel.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id))) {
                     contextDatastore.setCurrentChannel(rpgChannel);
-                    textGenerationUseCase.generateResponse(messages, channel);
-                    if (replyMessage != null) {
-                        replyQuoteUseCase.generateResponse(messages, author, message, replyMessage);
-                    }
+                    // textGenerationUseCase.generateResponse(messages, channel);
+                    // if (replyMessage != null) {
+                    //     replyQuoteUseCase.generateResponse(messages, author, message, replyMessage);
+                    // }
+
+                    rpgUseCase.generateResponse(messages, author, message.getMentions(), channel);
                 } else if (chatChannel.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id))) {
                     contextDatastore.setCurrentChannel(chatChannel);
                     if (replyMessage != null) {
@@ -104,7 +102,8 @@ public class DiscordMessageListener extends ListenerAdapter {
                 .replace("<BOT.NAME>", bot.getAsTag())
                 .replace("<BOT.NICK>", bot.getName())
                 .replace("<personality.species>", contextDatastore.getCurrentChannel().getPersonality().getSpecies())
-                .replace("<personality.behavior>", contextDatastore.getCurrentChannel().getPersonality().getBehavior()));
+                .replace("<personality.behavior>", contextDatastore.getCurrentChannel().getPersonality().getBehavior())
+                .replace("<personality.duties>", contextDatastore.getCurrentChannel().getPersonality().getBehavior()));
 
 
         return new StringBuilder()

@@ -12,6 +12,7 @@ import java.util.List;
 public class TextGenerationUseCase {
 
     public void generateResponse(List<String> messages, MessageChannelUnion channel) {
+
         channel.getHistory()
                 .retrievePast(5)
                 .complete()
