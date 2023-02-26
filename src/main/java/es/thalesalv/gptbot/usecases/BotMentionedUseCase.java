@@ -22,9 +22,8 @@ public class BotMentionedUseCase {
     public void generateResponse(Message message, MessageChannelUnion channel, SelfUser bot) {
 
         var messages = new ArrayList<String>();
-        channel.getHistory()
-                .retrievePast(5).complete()
-                .forEach(m -> {
+        channel.getHistory().retrievePast(10)
+                .complete().forEach(m -> {
                     messages.add(MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()));
                 });

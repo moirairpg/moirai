@@ -2,7 +2,6 @@ package es.thalesalv.gptbot.service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +40,9 @@ public class DiscordMessageListener extends ListenerAdapter {
     private final ContextDatastore contextDatastore;
     private final ObjectMapper objectMapper;
 
-    private static final String BOT_TOKENS_PROMPT = "------\n**Prompt:** {0}";
-    private static final String BOT_TOKENS_REPLY = "**Text generated:** {0}";
-    private static final String BOT_TOKENS_DETAILS = "**Prompt tokens:** {0}\n**Generation tokens:** {1}\n**Model:** {2}";
+    // private static final String BOT_TOKENS_PROMPT = "------\n**Prompt:** {0}";
+    // private static final String BOT_TOKENS_REPLY = "**Text generated:** {0}";
+    // private static final String BOT_TOKENS_DETAILS = "**Prompt tokens:** {0}\n**Generation tokens:** {1}\n**Model:** {2}";
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordMessageListener.class);
 
     @Override

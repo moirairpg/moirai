@@ -24,9 +24,8 @@ public class TextGenerationUseCase {
     public void generateResponse(SelfUser bot, Message message, MessageChannelUnion channel) {
 
         var messages = new ArrayList<String>();
-        channel.getHistory()
-                .retrievePast(5).complete()
-                .forEach(m -> {
+        channel.getHistory().retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory())
+                .complete().forEach(m -> {
                     messages.add(MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()));
                 });

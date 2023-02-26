@@ -8,6 +8,7 @@
       "channel_instructions": "I am <BOT.NICK>, and I am <personality.species>. My behavior is <personality.behavior>. I must act according to these traits. I am a GPT-3 artificial inteligence language model. I must speak with internet slang and not be too professional.",
       "max_tokens": 100,
       "temperature": 0.6,
+      "chat_history_memory": 10,
       "personality": {
         "behavior": "sassy, sarcastic, passive-aggressive, funny, likes to talk",
         "species": "chatbot, artificial intelligence"
@@ -21,6 +22,7 @@
       "channel_instructions": "My name is <BOT.NICK> and I am <personality.species>. I behave like <personality.behavior> and never stray from that behavior. My duties are <personality.duties>.",
       "max_tokens": 500,
       "temperature": 0.8,
+      "chat_history_memory": 10,
       "personality": {
         "behavior": "creative, fun, vivid writing style",
         "species": "RPG dungeon master",

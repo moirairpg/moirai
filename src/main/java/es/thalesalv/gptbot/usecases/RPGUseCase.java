@@ -36,7 +36,7 @@ public class RPGUseCase {
 
         var messages = new ArrayList<String>();
         channel.getHistory()
-            .retrievePast(5).complete()
+            .retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory()).complete()
             .forEach(m -> {
                 messages.add(MessageFormat.format("{0} said: {1}",
                     m.getAuthor().getName(), m.getContentDisplay().trim()));

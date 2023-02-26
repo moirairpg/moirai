@@ -20,16 +20,8 @@ public class GptService {
 
     public Mono<GptResponseEntity> callModel(String prompt, String model) {
 
+        LOGGER.debug("Sending prompt to model. Model -> {}, Prompt -> {}", model, prompt);
         return openAiService.callGptApi(prompt, model);
-        //         .map(response -> {
-        //             try {
-        //                 LOGGER.debug("Bot response -> {}", response);
-        //                 return response.getChoices().get(0).getText().trim();
-        //             } catch (Exception e) {
-        //                 LOGGER.error("Error processing JSON.", e);
-        //                 throw new RuntimeException(e);
-        //             }
-        //         });
     }
 
     public Mono<GptResponseEntity> callDaVinci(String prompt) {

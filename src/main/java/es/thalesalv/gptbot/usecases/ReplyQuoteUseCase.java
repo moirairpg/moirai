@@ -25,7 +25,8 @@ public class ReplyQuoteUseCase {
 
         var messages = new ArrayList<String>();
         replyMessage.getChannel()
-                .getHistoryBefore(replyMessage, 5).complete().getRetrievedHistory()
+                .getHistoryBefore(replyMessage, contextDatastore.getCurrentChannel().getChatHistoryMemory())
+                .complete().getRetrievedHistory()
                 .forEach(m -> {
                     messages.add(MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()));

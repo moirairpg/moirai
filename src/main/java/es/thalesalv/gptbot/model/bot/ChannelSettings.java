@@ -30,6 +30,9 @@ public class ChannelSettings {
     @JsonProperty("max_tokens")
     private int maxTokens;
 
+    @JsonProperty("chat_history_memory")
+    private int chatHistoryMemory;
+
     @JsonProperty("temperature")
     private double temperature;
 
