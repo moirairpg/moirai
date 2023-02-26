@@ -36,4 +36,6 @@ public class GptResponseEntity {
 
     @JsonProperty("error")
     private GptModelResponseErrorEntity error;
+
+    private String prompt;
 }

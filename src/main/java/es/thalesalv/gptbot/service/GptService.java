@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import es.thalesalv.gptbot.model.gpt.GptResponseEntity;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -17,26 +18,26 @@ public class GptService {
     private static final String MODEL_DAVINCI = "text-davinci-003";
     private static final Logger LOGGER = LoggerFactory.getLogger(GptService.class);
 
-    public Mono<String> callModel(String prompt, String model) {
+    public Mono<GptResponseEntity> callModel(String prompt, String model) {
 
-        return openAiService.callGptApi(prompt, model)
-                .map(response -> {
-                    try {
-                        LOGGER.debug("Bot response -> {}", response);
-                        return response.getChoices().get(0).getText().trim();
-                    } catch (Exception e) {
-                        LOGGER.error("Error processing JSON.", e);
-                        throw new RuntimeException(e);
-                    }
-                });
+        return openAiService.callGptApi(prompt, model);
+        //         .map(response -> {
+        //             try {
+        //                 LOGGER.debug("Bot response -> {}", response);
+        //                 return response.getChoices().get(0).getText().trim();
+        //             } catch (Exception e) {
+        //                 LOGGER.error("Error processing JSON.", e);
+        //                 throw new RuntimeException(e);
+        //             }
+        //         });
     }
 
-    public Mono<String> callDaVinci(String prompt) {
+    public Mono<GptResponseEntity> callDaVinci(String prompt) {
 
         return callModel(prompt, MODEL_DAVINCI);
     }
 
-    public Mono<String> callAda(String prompt) {
+    public Mono<GptResponseEntity> callAda(String prompt) {
 
         return callModel(prompt, MODEL_ADA);
     }

@@ -1,5 +1,7 @@
 package es.thalesalv.gptbot.data;
 
+import java.util.Objects;
+
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.gptbot.model.bot.ChannelSettings;
@@ -19,5 +21,9 @@ public class ContextDatastore {
 
     public void cleanCurrentChannel() {
         this.currentChannel.remove();
+    }
+
+    public boolean isCurrentChannel() {
+        return !Objects.isNull(currentChannel.get());
     }
 }

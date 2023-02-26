@@ -1,5 +1,6 @@
 config:
     discord:
+        bot-technical-channel-id: 1079413053289926706
         api-token: ${DISCORD_BOT_API_TOKEN}
     openai:
         api-token: ${OPENAI_API_TOKEN}

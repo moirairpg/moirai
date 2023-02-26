@@ -37,9 +37,9 @@ public class GptRequestEntity {
 //    @JsonProperty("top_p")
 //    private double topP;
 
-//    @JsonProperty("presence_penalty")
-//    private double presencePenalty;
+   @JsonProperty("presence_penalty")
+   private double presencePenalty;
 
-//    @JsonProperty("frequency_penalty")
-//    private double frequencyPenalty;
+   @JsonProperty("frequency_penalty")
+   private double frequencyPenalty;
 }

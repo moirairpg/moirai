@@ -21,24 +21,12 @@ public class CharacterProfileEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
     
-    @Column(name = "player_discord_id")
+    @Column(name = "player_discord_id", unique = true, nullable = true)
     private String playerDiscordId;
 
     @Column(name = "character_name")
     private String name;
 
-    @Column(name = "character_class")
-    private String classType;
-
-    @Column(name = "personality_traits")
-    private String personalityTraits;
-
-    @Column(name = "physical_description")
-    private String physicalDescription;
-
-    @Column(name = "character_pronouns")
-    private String genderPronoun;
-
-    @Column(name = "character_race")
-    private String race;
+    @Column(name = "character_description", length = 1000)
+    private String description;
 }

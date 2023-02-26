@@ -6,40 +6,37 @@ import java.util.Collections;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.gptbot.data.ContextDatastore;
 import es.thalesalv.gptbot.service.GptService;
 import es.thalesalv.gptbot.util.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 @Component
 @RequiredArgsConstructor
-public class ReplyQuoteUseCase {
+public class BotMentionedUseCase {
 
     private final GptService gptService;
-    private final ContextDatastore contextDatastore;
-
-    public void generateResponse(SelfUser bot, User author, Message message, Message replyMessage) {
+    
+    public void generateResponse(Message message, MessageChannelUnion channel, SelfUser bot) {
 
         var messages = new ArrayList<String>();
-        replyMessage.getChannel()
-                .getHistoryBefore(replyMessage, 5).complete().getRetrievedHistory()
+        channel.getHistory()
+                .retrievePast(5).complete()
                 .forEach(m -> {
                     messages.add(MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()));
                 });
 
         Collections.reverse(messages);
-        messages.add(MessageFormat.format("{0} said earlier: {1}",
-                replyMessage.getAuthor().getName(), replyMessage.getContentDisplay()));
 
-        messages.add(MessageFormat.format("{0} quoted the message from {1} with: {2}",
-                author.getName(), replyMessage.getAuthor().getName(), replyMessage.getContentDisplay()));
+        var botInstructions = MessageFormat.format("I am {0}, and my nickname is {1}. I am a GPT-3 chatbot that is part of this chat on Discord. "
+                + "I speak only in the language of the internet. "
+                + "Although I'm a polite bot, I won't take things very seriously because I'm a prankster and very playful.",
+                bot.getAsTag(), bot.getName());
 
-
-        MessageUtils.formatPersonality(messages, contextDatastore.getCurrentChannel(), bot);
+        messages.add(botInstructions);
         gptService.callDaVinci(MessageUtils.chatifyMessages(bot, messages))
                 .filter(r -> !r.getChoices().get(0).getText().isBlank())
                 .map(response -> {

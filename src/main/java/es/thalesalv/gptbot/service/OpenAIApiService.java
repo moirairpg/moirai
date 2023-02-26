@@ -1,9 +1,7 @@
 package es.thalesalv.gptbot.service;
 
-import es.thalesalv.gptbot.data.ContextDatastore;
-import es.thalesalv.gptbot.model.gpt.GptRequestEntity;
-import es.thalesalv.gptbot.model.gpt.GptResponseEntity;
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +11,10 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import es.thalesalv.gptbot.data.ContextDatastore;
+import es.thalesalv.gptbot.model.gpt.GptRequestEntity;
+import es.thalesalv.gptbot.model.gpt.GptResponseEntity;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -28,6 +30,9 @@ public class OpenAIApiService {
 
     public Mono<GptResponseEntity> callGptApi(String prompt, String model) {
 
+        var temperature = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getTemperature() : 0.6;
+        var maxTokens = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getMaxTokens() : 100;
+
         return WebClient.builder()
                 .baseUrl("https://api.openai.com")
                 .build()
@@ -40,12 +45,18 @@ public class OpenAIApiService {
                 .bodyValue(GptRequestEntity.builder()
                         .model(model)
                         .prompt(prompt)
-                        .temperature(contextDatastore.getCurrentChannel().getTemperature())
-                        .maxTokens(contextDatastore.getCurrentChannel().getMaxTokens())
+                        .temperature(temperature)
+                        .maxTokens(maxTokens)
+                        .frequencyPenalty(0.2)
+                        .presencePenalty(0.2)
                         .build())
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, this::handleClientError)
-                .bodyToMono(GptResponseEntity.class);
+                .bodyToMono(GptResponseEntity.class)
+                .map(response -> {
+                    response.setPrompt(prompt);
+                    return response;
+                });
     }
 
     private Mono<? extends Throwable> handleClientError(ClientResponse response) {

@@ -16,8 +16,16 @@ public class DiscordEventListener implements EventListener {
     @Override
     public void onEvent(GenericEvent event) {
 
-        var bot = event.getJDA().getSelfUser();
-        if (event instanceof ReadyEvent)
-            LOGGER.info(bot.getName() + " is ready to chat!");
+        try {
+            var bot = event.getJDA().getSelfUser();
+            if (event instanceof ReadyEvent)
+                LOGGER.info(bot.getName() + " is ready to chat!");
+        } catch (IllegalStateException e) {
+            if (e.getMessage().contains("Session is not yet ready!")) {
+                LOGGER.warn("Waiting for Discord session...");
+            } else {
+                LOGGER.error("Error during event -> {}", e);
+            }
+        }
     }
 }
