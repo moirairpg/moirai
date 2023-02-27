@@ -11,19 +11,19 @@ public class ContextDatastore {
 
     public ThreadLocal<ChannelConfig> currentChannel = new ThreadLocal<>();
 
-    public void setCurrentChannel(final ChannelConfig ChannelConfig) {
-        this.currentChannel.set(ChannelConfig);
+    public void setCurrentChannel(final ChannelConfig currentChannel) {
+        this.currentChannel.set(currentChannel);
     }
 
     public ChannelConfig getCurrentChannel() {
         return this.currentChannel.get();
     }
 
-    public void cleanCurrentChannel() {
-        this.currentChannel.remove();
-    }
-
     public boolean isCurrentChannel() {
         return !Objects.isNull(currentChannel.get());
+    }
+
+    public void clearContext() {
+        this.currentChannel.remove();
     }
 }

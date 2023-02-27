@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.BotConfig;
-import es.thalesalv.gptbot.application.usecases.BotMentionedUseCase;
 import es.thalesalv.gptbot.application.usecases.RPGUseCase;
 import es.thalesalv.gptbot.application.usecases.ReplyQuoteUseCase;
 import es.thalesalv.gptbot.application.usecases.TextGenerationUseCase;
@@ -27,7 +26,6 @@ public class DiscordMessageListener extends ListenerAdapter {
     private final BotConfig botConfig;
     private final RPGUseCase rpgUseCase;
     private final ReplyQuoteUseCase replyQuoteUseCase;
-    private final BotMentionedUseCase botMentionedUseCase;
     private final TextGenerationUseCase textGenerationUseCase;
     private final ContextDatastore contextDatastore;
 
@@ -44,7 +42,7 @@ public class DiscordMessageListener extends ListenerAdapter {
 
         if (!author.isBot()) {
             final Message replyMessage = message.getReferencedMessage();
-            botConfig.getChannels().stream().map(channelConfig -> {
+            botConfig.getChannels().forEach(channelConfig -> {
                 final boolean isCurrentChannel = channelConfig.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id));
                 if (isCurrentChannel) {
                     contextDatastore.setCurrentChannel(channelConfig);
@@ -57,18 +55,7 @@ public class DiscordMessageListener extends ListenerAdapter {
                             textGenerationUseCase.generateResponse(bot, message, channel);
                         }
                     }
-
-                    return true;
                 }
-
-                return false;
-            })
-            .filter(wasMessageSent -> !wasMessageSent && message.getMentions().isMentioned(bot, Message.MentionType.USER))
-            .findFirst()
-            .map(a -> {
-                contextDatastore.cleanCurrentChannel();
-                botMentionedUseCase.generateResponse(message, channel, bot);
-                return a;
             });
         }
     }

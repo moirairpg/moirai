@@ -21,12 +21,7 @@ public class MessageUtils {
 
     public static void formatPersonality(List<String> messages, ChannelConfig currentChannel, SelfUser bot) {
 
-        messages.add(0, currentChannel.getChannelInstructions()
-                .replace("<BOT.NAME>", bot.getAsTag())
-                .replace("<BOT.NICK>", bot.getName())
-                .replace("<personality.species>", currentChannel.getPersonality().getSpecies())
-                .replace("<personality.behavior>", currentChannel.getPersonality().getBehavior())
-                .replace("<personality.duties>", currentChannel.getPersonality().getBehavior())
+        messages.add(0, MessageFormat.format(currentChannel.getChannelInstructions(), bot.getName())
                 .replace("@" + bot.getName(), StringUtils.EMPTY).trim());
     }
 }
