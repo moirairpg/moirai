@@ -44,7 +44,7 @@ public class DiscordMessageListener extends ListenerAdapter {
 
         if (!author.isBot()) {
             final Message replyMessage = message.getReferencedMessage();
-            botConfig.getChannels().forEach(channelConfig -> {
+            botConfig.getChannels().stream().map(channelConfig -> {
                 final boolean isCurrentChannel = channelConfig.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id));
                 if (isCurrentChannel) {
                     contextDatastore.setCurrentChannel(channelConfig);
@@ -57,7 +57,18 @@ public class DiscordMessageListener extends ListenerAdapter {
                             textGenerationUseCase.generateResponse(bot, message, channel);
                         }
                     }
+
+                    return true;
                 }
+
+                return false;
+            })
+            .filter(wasMessageSent -> !wasMessageSent && message.getMentions().isMentioned(bot, Message.MentionType.USER))
+            .findFirst()
+            .map(a -> {
+                contextDatastore.cleanCurrentChannel();
+                botMentionedUseCase.generateResponse(message, channel, bot);
+                return a;
             });
         }
     }
