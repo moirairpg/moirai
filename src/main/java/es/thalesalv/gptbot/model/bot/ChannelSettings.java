@@ -36,6 +36,12 @@ public class ChannelSettings {
     @JsonProperty("temperature")
     private double temperature;
 
+    @JsonProperty("presence_penalty")
+    private double presencePenalty;
+
+    @JsonProperty("frequency_penalty")
+    private double frequencyPenalty;
+
     @JsonProperty("personality")
     private BotPersonality personality;
 }

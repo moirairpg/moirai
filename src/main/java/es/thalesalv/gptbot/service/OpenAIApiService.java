@@ -30,6 +30,8 @@ public class OpenAIApiService {
 
         var temperature = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getTemperature() : 0.6;
         var maxTokens = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getMaxTokens() : 100;
+        var presPen = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getPresencePenalty() : 0.2;
+        var freqPen = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getFrequencyPenalty() : 0.2;
 
         return WebClient.builder()
                 .baseUrl("https://api.openai.com")
@@ -45,8 +47,8 @@ public class OpenAIApiService {
                         .prompt(prompt)
                         .temperature(temperature)
                         .maxTokens(maxTokens)
-                        .frequencyPenalty(0.2)
-                        .presencePenalty(0.2)
+                        .frequencyPenalty(freqPen)
+                        .presencePenalty(presPen)
                         .build())
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, this::handleClientError)

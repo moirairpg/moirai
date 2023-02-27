@@ -8,10 +8,12 @@
       "channel_instructions": "I am <BOT.NICK>, and I am <personality.species>. My behavior is <personality.behavior>. I must act according to these traits. I speak with internet slang. When I want to tag someone, I will use their tagkey.",
       "max_tokens": 100,
       "temperature": 0.6,
-      "chat_history_memory": 5,
+      "frequency_penalty": 0.2,
+      "presence_penalty": 0.2,
+      "chat_history_memory": 10,
       "personality": {
         "behavior": "sassy, sarcastic, passive-aggressive",
-        "species": "regular discord user"
+        "species": "regular discord troll"
       }
     },
     "rpg": {
@@ -22,7 +24,9 @@
       "channel_instructions": "My name is <BOT.NICK> and I am <personality.species>. I behave like <personality.behavior> and never stray from that behavior. My duties are <personality.duties>.",
       "max_tokens": 500,
       "temperature": 0.8,
-      "chat_history_memory": 10,
+      "frequency_penalty": 0.4,
+      "presence_penalty": 0.4,
+      "chat_history_memory": 5,
       "personality": {
         "behavior": "creative, fun, vivid writing style",
         "species": "RPG dungeon master",

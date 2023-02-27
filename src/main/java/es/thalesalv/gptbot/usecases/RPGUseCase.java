@@ -31,13 +31,13 @@ public class RPGUseCase {
     private final CharacterProfileRepository characterProfileRepository;
 
     private static final String RPG_DM_INSTRUCTIONS = "I will remember to never act or speak on behalf of {0}. I will not repeat what {0} just said. I will only describe the world around {0}.";
-    private static final String CHARACTER_DESCRIPTION = "{1}''s description is: {2}";
+    private static final String CHARACTER_DESCRIPTION = "{0}''s description is: {1}";
     private static final Logger LOGGER = LoggerFactory.getLogger(RPGUseCase.class);
     
     public void generateResponse(SelfUser bot, User player, Mentions mentions, MessageChannelUnion channel) {
         
+        channel.sendTyping().complete();
         LOGGER.debug("Entered generation of response for RPG");
-
         var messages = new ArrayList<String>();
         channel.getHistory()
             .retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory()).complete()
@@ -51,7 +51,7 @@ public class RPGUseCase {
             })
             .filter(m -> !m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$"))
             .forEach(m -> {
-                messages.add(MessageFormat.format("{0} said: {2}",
+                messages.add(MessageFormat.format("{0} said: {1}",
                     m.getAuthor().getName(),
                     m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
             });

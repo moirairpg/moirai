@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 @Component
 @RequiredArgsConstructor
@@ -26,8 +27,9 @@ public class ReplyQuoteUseCase {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(RPGUseCase.class);
 
-    public void generateResponse(SelfUser bot, User author, Message message, Message replyMessage) {
+    public void generateResponse(SelfUser bot, User author, Message message, Message replyMessage, MessageChannelUnion channel) {
 
+        channel.sendTyping().complete();
         LOGGER.debug("Entered generation for replies.");
         var messages = new ArrayList<String>();
         replyMessage.getChannel()

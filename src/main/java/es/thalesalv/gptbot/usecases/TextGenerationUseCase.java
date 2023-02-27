@@ -28,6 +28,7 @@ public class TextGenerationUseCase {
 
     public void generateResponse(SelfUser bot, Message message, MessageChannelUnion channel) {
 
+        channel.sendTyping().complete();
         LOGGER.debug("Entered generation for normal text.");
         var messages = new ArrayList<String>();
         channel.getHistory().retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory())

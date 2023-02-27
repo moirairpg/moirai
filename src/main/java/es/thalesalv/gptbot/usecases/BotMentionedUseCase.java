@@ -26,6 +26,7 @@ public class BotMentionedUseCase {
     
     public void generateResponse(Message message, MessageChannelUnion channel, SelfUser bot) {
 
+        channel.sendTyping().complete();
         LOGGER.debug("Entered genration for mentions");
         var messages = new ArrayList<String>();
         channel.getHistory().retrievePast(10)

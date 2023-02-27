@@ -38,8 +38,6 @@ public class DiscordMessageListener extends ListenerAdapter {
     private final TextGenerationUseCase textGenerationUseCase;
     private final RPGUseCase rpgUseCase;
 
-    private final CharacterProfileRepository characterProfileRepository;
-
     private final ContextDatastore contextDatastore;
     private final ObjectMapper objectMapper;
 
@@ -71,7 +69,7 @@ public class DiscordMessageListener extends ListenerAdapter {
                 } else if (chatChannel.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id))) {
                     contextDatastore.setCurrentChannel(chatChannel);
                     if (replyMessage != null) {
-                        replyQuoteUseCase.generateResponse(bot, author, message, replyMessage);
+                        replyQuoteUseCase.generateResponse(bot, author, message, replyMessage, channel);
                     } else {
                         textGenerationUseCase.generateResponse(bot, message, channel);
                     }
