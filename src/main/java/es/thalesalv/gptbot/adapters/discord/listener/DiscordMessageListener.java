@@ -57,8 +57,6 @@ public class DiscordMessageListener extends ListenerAdapter {
                             textGenerationUseCase.generateResponse(bot, message, channel);
                         }
                     }
-                } else if (message.getMentions().isMentioned(bot, Message.MentionType.USER)) {
-                    botMentionedUseCase.generateResponse(message, channel, bot);
                 }
             });
         }

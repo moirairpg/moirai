@@ -53,7 +53,7 @@ public class RPGUseCase {
             })
             .filter(m -> !m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$"))
             .forEach(m -> {
-                messages.add(MessageFormat.format("{0} said: {1}",
+                messages.add(MessageFormat.format("{0}: {1}",
                     m.getAuthor().getName(),
                     m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
             });
@@ -91,7 +91,10 @@ public class RPGUseCase {
         });
 
         MessageUtils.formatPersonality(messages, contextDatastore.getCurrentChannel(), bot);
-        final String chatifiedMessage = MessageUtils.chatifyMessages(bot, messages);
+        final String chatifiedMessage = MessageUtils.chatifyMessages(bot, messages)
+                .replace(bot.getName() + " (ID " + bot.getId() + ")", "Dungeon Master")
+                .replace(bot.getName(), "Dungeon Master");
+
         gptService.callDaVinci(chatifiedMessage)
                 .filter(r -> !r.getChoices().get(0).getText().isBlank())
                 .map(response -> {
