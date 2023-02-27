@@ -1,5 +1,7 @@
 package es.thalesalv.gptbot.adapters.discord.listener;
 
+import javax.annotation.Nonnull;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +35,7 @@ public class DiscordMessageListener extends ListenerAdapter {
     private static final String CHAT_CHANNEL = "chat";
 
     @Override
-    public void onMessageReceived(final MessageReceivedEvent event) {
+    public void onMessageReceived(final @Nonnull MessageReceivedEvent event) {
 
         final SelfUser bot = event.getJDA().getSelfUser();
         final Message message = event.getMessage();
