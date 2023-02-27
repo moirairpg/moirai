@@ -11,3 +11,8 @@ spring:
         url: jdbc:postgresql://${POSTGRES_HOST}/${POSTGRES_DB}
         username: ${POSTGRES_USER}
         password: ${POSTGRES_PASSWORD}
+
+logging:
+    level:
+        org.hibernate.SQL: DEBUG
+        org.hibernate.type.descriptor.sql.BasicBinder: TRACE

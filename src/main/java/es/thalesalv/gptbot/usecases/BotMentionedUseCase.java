@@ -4,6 +4,9 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.gptbot.service.GptService;
@@ -19,14 +22,19 @@ public class BotMentionedUseCase {
 
     private final GptService gptService;
     
+    private static final Logger LOGGER = LoggerFactory.getLogger(RPGUseCase.class);
+    
     public void generateResponse(Message message, MessageChannelUnion channel, SelfUser bot) {
 
+        LOGGER.debug("Entered genration for mentions");
         var messages = new ArrayList<String>();
         channel.getHistory().retrievePast(10)
-                .complete().forEach(m -> {
-                    messages.add(MessageFormat.format("{0} said: {1}",
-                        m.getAuthor().getName(), m.getContentDisplay().trim()));
-                });
+            .complete().forEach(m -> {
+                var mAuthorUser = m.getAuthor();
+                messages.add(MessageFormat.format("{0} (tagkey: {1}) said: {2}",
+                    mAuthorUser.getName(), mAuthorUser.getAsMention(),
+                    m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
+            });
 
         Collections.reverse(messages);
 
@@ -37,11 +45,11 @@ public class BotMentionedUseCase {
 
         messages.add(botInstructions);
         gptService.callDaVinci(MessageUtils.chatifyMessages(bot, messages))
-                .filter(r -> !r.getChoices().get(0).getText().isBlank())
-                .map(response -> {
-                    var responseText = response.getChoices().get(0).getText();
-                    message.getChannel().sendMessage(responseText.trim()).queue();
-                    return response;
-                }).subscribe();
+            .filter(r -> !r.getChoices().get(0).getText().isBlank())
+            .map(response -> {
+                var responseText = response.getChoices().get(0).getText();
+                message.getChannel().sendMessage(responseText.trim()).queue();
+                return response;
+            }).subscribe();
     }
 }

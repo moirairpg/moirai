@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.thalesalv.gptbot.data.ContextDatastore;
+import es.thalesalv.gptbot.data.db.repository.CharacterProfileRepository;
 import es.thalesalv.gptbot.model.bot.BotSettings;
 import es.thalesalv.gptbot.usecases.BotMentionedUseCase;
 import es.thalesalv.gptbot.usecases.RPGUseCase;
@@ -36,6 +37,8 @@ public class DiscordMessageListener extends ListenerAdapter {
     private final ReplyQuoteUseCase replyQuoteUseCase;
     private final TextGenerationUseCase textGenerationUseCase;
     private final RPGUseCase rpgUseCase;
+
+    private final CharacterProfileRepository characterProfileRepository;
 
     private final ContextDatastore contextDatastore;
     private final ObjectMapper objectMapper;

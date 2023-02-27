@@ -5,13 +5,13 @@
         "1079019808068210698"
       ],
       "channel_purpose": "chatting",
-      "channel_instructions": "I am <BOT.NICK>, and I am <personality.species>. My behavior is <personality.behavior>. I must act according to these traits. I am a GPT-3 artificial inteligence language model. I must speak with internet slang and not be too professional.",
+      "channel_instructions": "I am <BOT.NICK>, and I am <personality.species>. My behavior is <personality.behavior>. I must act according to these traits. I speak with internet slang. When I want to tag someone, I will use their tagkey.",
       "max_tokens": 100,
       "temperature": 0.6,
-      "chat_history_memory": 10,
+      "chat_history_memory": 5,
       "personality": {
-        "behavior": "sassy, sarcastic, passive-aggressive, funny, likes to talk",
-        "species": "chatbot, artificial intelligence"
+        "behavior": "sassy, sarcastic, passive-aggressive",
+        "species": "regular discord user"
       }
     },
     "rpg": {

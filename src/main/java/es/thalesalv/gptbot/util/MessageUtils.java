@@ -15,8 +15,8 @@ public class MessageUtils {
     public static String chatifyMessages(User bot, List<String> messages) {
 
         messages.replaceAll(message -> message.replaceAll("@" + bot.getName(), StringUtils.EMPTY).trim());
-        return MessageFormat.format("{0}\n{1} said: ",
-                messages.stream().collect(Collectors.joining("\n")), bot.getAsTag()).trim();
+        return MessageFormat.format("{0}\n{1} (ID {2}) said: ",
+                messages.stream().collect(Collectors.joining("\n")), bot.getName(), bot.getId()).trim();
     }
 
     public static void formatPersonality(List<String> messages, ChannelSettings currentChannel, SelfUser bot) {

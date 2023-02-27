@@ -26,7 +26,7 @@ public class JDAConfigurationBean {
 
         return JDABuilder.createDefault(discordApiToken)
                 .addEventListeners(discordBotEventListener, discordBotMessageListener)
-                .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS)
                 .build();
     }
 }
