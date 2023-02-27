@@ -4,18 +4,18 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.gptbot.domain.model.bot.ChannelSettings;
+import es.thalesalv.gptbot.application.config.ChannelConfig;
 
 @Component
 public class ContextDatastore {
 
-    public ThreadLocal<ChannelSettings> currentChannel = new ThreadLocal<>();
+    public ThreadLocal<ChannelConfig> currentChannel = new ThreadLocal<>();
 
-    public void setCurrentChannel(ChannelSettings channelSettings) {
-        this.currentChannel.set(channelSettings);
+    public void setCurrentChannel(final ChannelConfig ChannelConfig) {
+        this.currentChannel.set(ChannelConfig);
     }
 
-    public ChannelSettings getCurrentChannel() {
+    public ChannelConfig getCurrentChannel() {
         return this.currentChannel.get();
     }
 

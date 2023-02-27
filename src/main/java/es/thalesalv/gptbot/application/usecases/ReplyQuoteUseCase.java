@@ -3,6 +3,7 @@ package es.thalesalv.gptbot.application.usecases;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,16 +28,16 @@ public class ReplyQuoteUseCase {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(RPGUseCase.class);
 
-    public void generateResponse(SelfUser bot, User author, Message message, Message replyMessage, MessageChannelUnion channel) {
+    public void generateResponse(final SelfUser bot, final User author, final Message message, final Message replyMessage, final MessageChannelUnion channel) {
 
         channel.sendTyping().complete();
         LOGGER.debug("Entered generation for replies.");
-        var messages = new ArrayList<String>();
+        final List<String> messages = new ArrayList<>();
         replyMessage.getChannel()
             .getHistoryBefore(replyMessage, contextDatastore.getCurrentChannel().getChatHistoryMemory())
             .complete().getRetrievedHistory()
             .forEach(m -> {
-                var mAuthorUser = m.getAuthor();
+                final User mAuthorUser = m.getAuthor();
                 messages.add(MessageFormat.format("{0} (tagkey: {1}) said: {2}",
                         mAuthorUser.getName(), mAuthorUser.getAsMention(),
                         m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
@@ -53,7 +54,7 @@ public class ReplyQuoteUseCase {
         gptService.callDaVinci(MessageUtils.chatifyMessages(bot, messages))
             .filter(r -> !r.getChoices().get(0).getText().isBlank())
             .map(response -> {
-                var responseText = response.getChoices().get(0).getText();
+                final String responseText = response.getChoices().get(0).getText();
                 message.getChannel().sendMessage(responseText.trim()).queue();
                 return response;
             }).subscribe();

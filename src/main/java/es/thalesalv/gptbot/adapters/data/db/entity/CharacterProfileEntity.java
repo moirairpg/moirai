@@ -16,11 +16,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "character_profile")
 public class CharacterProfileEntity {
-    
+
     @Id
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
-    
+
     @Column(name = "player_discord_id", unique = true, nullable = true)
     private String playerDiscordId;
 

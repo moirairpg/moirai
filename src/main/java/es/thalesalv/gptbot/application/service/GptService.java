@@ -18,18 +18,18 @@ public class GptService {
     private static final String MODEL_DAVINCI = "text-davinci-003";
     private static final Logger LOGGER = LoggerFactory.getLogger(GptService.class);
 
-    public Mono<GptResponseEntity> callModel(String prompt, String model) {
+    public Mono<GptResponseEntity> callModel(final String prompt, final String model) {
 
         LOGGER.debug("Sending prompt to model. Model -> {}, Prompt -> {}", model, prompt);
         return openAiService.callGptApi(prompt, model);
     }
 
-    public Mono<GptResponseEntity> callDaVinci(String prompt) {
+    public Mono<GptResponseEntity> callDaVinci(final String prompt) {
 
         return callModel(prompt, MODEL_DAVINCI);
     }
 
-    public Mono<GptResponseEntity> callAda(String prompt) {
+    public Mono<GptResponseEntity> callAda(final String prompt) {
 
         return callModel(prompt, MODEL_ADA);
     }

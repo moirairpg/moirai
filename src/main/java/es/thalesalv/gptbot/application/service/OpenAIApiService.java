@@ -26,12 +26,12 @@ public class OpenAIApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAIApiService.class);
 
-    public Mono<GptResponseEntity> callGptApi(String prompt, String model) {
+    public Mono<GptResponseEntity> callGptApi(final String prompt, final String model) {
 
-        var temperature = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getTemperature() : 0.6;
-        var maxTokens = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getMaxTokens() : 100;
-        var presPen = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getPresencePenalty() : 0.2;
-        var freqPen = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getFrequencyPenalty() : 0.2;
+        final int maxTokens = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getMaxTokens() : 100;
+        final double temperature = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getTemperature() : 0.6;
+        final double presPen = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getPresencePenalty() : 0.2;
+        final double freqPen = contextDatastore.isCurrentChannel() ? contextDatastore.getCurrentChannel().getFrequencyPenalty() : 0.2;
 
         return WebClient.builder()
                 .baseUrl("https://api.openai.com")
@@ -59,7 +59,7 @@ public class OpenAIApiService {
                 });
     }
 
-    private Mono<? extends Throwable> handleClientError(ClientResponse response) {
+    private Mono<? extends Throwable> handleClientError(final ClientResponse response) {
         
         return response.bodyToMono(String.class)
                 .flatMap(body -> {

@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import edu.stanford.nlp.simple.Sentence;
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
+import es.thalesalv.gptbot.adapters.data.db.entity.CharacterProfileEntity;
 import es.thalesalv.gptbot.adapters.data.db.repository.CharacterProfileRepository;
 import es.thalesalv.gptbot.application.service.GptService;
 import es.thalesalv.gptbot.application.util.MessageUtils;
@@ -34,11 +36,11 @@ public class RPGUseCase {
     private static final String CHARACTER_DESCRIPTION = "{0}''s description is: {1}";
     private static final Logger LOGGER = LoggerFactory.getLogger(RPGUseCase.class);
     
-    public void generateResponse(SelfUser bot, User player, Mentions mentions, MessageChannelUnion channel) {
+    public void generateResponse(final SelfUser bot, final User player, final Mentions mentions, final MessageChannelUnion channel) {
         
         channel.sendTyping().complete();
         LOGGER.debug("Entered generation of response for RPG");
-        var messages = new ArrayList<String>();
+        final List<String> messages = new ArrayList<>();
         channel.getHistory()
             .retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory()).complete()
             .stream()
@@ -58,7 +60,7 @@ public class RPGUseCase {
         
         Collections.reverse(messages);
 
-        var characterProfile = characterProfileRepository.findByPlayerDiscordId(player.getId());
+        final CharacterProfileEntity characterProfile = characterProfileRepository.findByPlayerDiscordId(player.getId());
         if (characterProfile != null) {
             messages.replaceAll(message -> message.replaceAll(player.getAsTag(), characterProfile.getName())
                     .replaceAll("(@|)" + player.getName(), characterProfile.getName()));
@@ -66,21 +68,21 @@ public class RPGUseCase {
 
         mentions.getUsers().stream()
             .forEach(mention -> {
-                final var mentionedProfile = characterProfileRepository.findByPlayerDiscordId(mention.getId());
+                final CharacterProfileEntity mentionedProfile = characterProfileRepository.findByPlayerDiscordId(mention.getId());
                 if (mentionedProfile != null) {
                     messages.replaceAll(message -> message.replaceAll(mention.getAsTag(), mentionedProfile.getName())
                             .replaceAll("(@|)" + mention.getName(), mentionedProfile.getName()));
                 }
             });
 
-        var namesMentioned = new HashSet<String>(new Sentence(messages.stream().collect(Collectors.joining("\n"))).mentions());
-        var charactersMentioned = characterProfileRepository.findByNameIn(namesMentioned);
+        final Sentence sentence = new Sentence(messages.stream().collect(Collectors.joining("\n")));
+        final HashSet<String> namesMentioned = new HashSet<String>(sentence.mentions());
+        final HashSet<CharacterProfileEntity> charactersMentioned = characterProfileRepository.findByNameIn(namesMentioned);
         charactersMentioned.stream().forEach(character -> {
             messages.add(0, MessageFormat.format(RPG_DM_INSTRUCTIONS, character.getName()));
-            messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, 
-                    character.getName(), character.getDescription()));
+            messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, character.getName(), character.getDescription()));
 
-            var characterPlayer = channel.getJDA().retrieveUserById(character.getPlayerDiscordId()).complete();
+            final User characterPlayer = channel.getJDA().retrieveUserById(character.getPlayerDiscordId()).complete();
             if (characterPlayer != null) {
                 messages.replaceAll(message -> message.replaceAll(characterPlayer.getAsTag(), character.getName())
                         .replaceAll("(@|)" + characterPlayer.getName(), character.getName()));
@@ -89,11 +91,11 @@ public class RPGUseCase {
         });
 
         MessageUtils.formatPersonality(messages, contextDatastore.getCurrentChannel(), bot);
-        var chatifiedMessage = MessageUtils.chatifyMessages(bot, messages);
+        final String chatifiedMessage = MessageUtils.chatifyMessages(bot, messages);
         gptService.callDaVinci(chatifiedMessage)
                 .filter(r -> !r.getChoices().get(0).getText().isBlank())
                 .map(response -> {
-                    var responseText = response.getChoices().get(0).getText();
+                    final String responseText = response.getChoices().get(0).getText();
                     channel.sendMessage(responseText.trim()).queue();
                     return response;
                 }).subscribe();
