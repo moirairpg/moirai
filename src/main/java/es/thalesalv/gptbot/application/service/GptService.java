@@ -1,11 +1,13 @@
 package es.thalesalv.gptbot.application.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.rest.OpenAIApiService;
 import es.thalesalv.gptbot.application.translator.GptRequestTranslator;
+import es.thalesalv.gptbot.domain.exception.ModelResponseBlankException;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +33,17 @@ public class GptService {
         return openAiService.callGptApi(request);
     }
 
-    public Mono<GptResponse> callDaVinci(final String prompt) {
+    public Mono<String> callDaVinci(final String prompt) {
 
         LOGGER.debug("Called inference with Davinci");
-        return callModel(prompt, MODEL_DAVINCI);
+        return callModel(prompt, MODEL_DAVINCI).map(response -> {
+            final String responseText = response.getChoices().get(0).getText();
+            if (StringUtils.isBlank(responseText)) {
+                throw new ModelResponseBlankException();
+            }
+
+            return responseText.trim();
+        });
     }
 
     public Mono<GptResponse> callAda(final String prompt) {
