@@ -3,7 +3,7 @@
 Malaquias is a Discord bot powered by JDA that is connected to OpenAI's GPT-3 API. It is cabaple of generating text using base or finetuned models, and was made to act primarily as a chatbot and as an RPG dungeon master. I was inspired by AI Dungeon, for which I developed a lot of scenarios and scripts, as well as KoboldAI, another GPT-powered API compatible with other GPT models. For a Discord bot that works with KoboldAI, please see [Jurandir](https://github.com/thaalesalves/jurandir.git), Malaquia's elder brother.
 
 ## Technologies used
-* Java 18
+* Java 19
 * Spring Boot
 * Spring WebFlux
 * Spring Data

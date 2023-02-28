@@ -17,9 +17,12 @@ import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.adapters.data.db.entity.CharacterProfileEntity;
 import es.thalesalv.gptbot.adapters.data.db.repository.CharacterProfileRepository;
 import es.thalesalv.gptbot.application.service.GptService;
+import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.util.MessageUtils;
+import es.thalesalv.gptbot.domain.exception.ModerationException;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
@@ -30,50 +33,54 @@ public class RPGUseCase {
 
     private final GptService gptService;
     private final ContextDatastore contextDatastore;
+    private final ModerationService moderationService;
     private final CharacterProfileRepository characterProfileRepository;
 
     private static final String RPG_DM_INSTRUCTIONS = "I will remember to never act or speak on behalf of {0}. I will not repeat what {0} just said. I will only describe the world around {0}.";
     private static final String CHARACTER_DESCRIPTION = "{0}''s description is: {1}";
+    private static final String MESSAGE_FLAGGED = "The message you sent has content that was flagged by OpenAI''s moderation. Message content: \n{0}";
     private static final Logger LOGGER = LoggerFactory.getLogger(RPGUseCase.class);
-    
-    public void generateResponse(final SelfUser bot, final User player, final Mentions mentions, final MessageChannelUnion channel) {
-        
+
+    public void generateResponse(final SelfUser bot, Message message, final User player, final Mentions mentions, final MessageChannelUnion channel) {
+
         channel.sendTyping().complete();
         LOGGER.debug("Entered generation of response for RPG");
         final List<String> messages = new ArrayList<>();
         channel.getHistory()
-            .retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory()).complete()
-            .stream()
-            .map(m -> {
-                if (m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$")) {
-                    channel.deleteMessageById(m.getId()).complete();
-                }
+                .retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory()).complete()
+                .stream()
+                .map(m -> {
+                    if (m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$")) {
+                        channel.deleteMessageById(m.getId()).complete();
+                    }
 
-                return m;
-            })
-            .filter(m -> !m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$"))
-            .forEach(m -> {
-                messages.add(MessageFormat.format("{0}: {1}",
-                    m.getAuthor().getName(),
-                    m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
-            });
-        
+                    return m;
+                })
+                .filter(m -> !m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$"))
+                .forEach(m -> {
+                    messages.add(MessageFormat.format("{0}: {1}", m.getAuthor().getName(), 
+                            m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
+                });
+
         Collections.reverse(messages);
 
         final CharacterProfileEntity characterProfile = characterProfileRepository.findByPlayerDiscordId(player.getId());
         if (characterProfile != null) {
-            messages.replaceAll(message -> message.replaceAll(player.getAsTag(), characterProfile.getName())
-                    .replaceAll("(@|)" + player.getName(), characterProfile.getName()));
+            messages.replaceAll(m -> {
+                return m.replaceAll(player.getAsTag(), characterProfile.getName())
+                    .replaceAll("(@|)" + player.getName(), characterProfile.getName());
+            });
         }
 
-        mentions.getUsers().stream()
-            .forEach(mention -> {
-                final CharacterProfileEntity mentionedProfile = characterProfileRepository.findByPlayerDiscordId(mention.getId());
-                if (mentionedProfile != null) {
-                    messages.replaceAll(message -> message.replaceAll(mention.getAsTag(), mentionedProfile.getName())
-                            .replaceAll("(@|)" + mention.getName(), mentionedProfile.getName()));
-                }
-            });
+        mentions.getUsers().stream().forEach(mention -> {
+            final CharacterProfileEntity mentionedProfile = characterProfileRepository.findByPlayerDiscordId(mention.getId());
+            if (mentionedProfile != null) {
+                messages.replaceAll(m -> {
+                    return m.replaceAll(mention.getAsTag(), mentionedProfile.getName())
+                            .replaceAll("(@|)" + mention.getName(), mentionedProfile.getName());
+                });
+            }
+        });
 
         final Sentence sentence = new Sentence(messages.stream().collect(Collectors.joining("\n")));
         final HashSet<String> namesMentioned = new HashSet<String>(sentence.mentions());
@@ -84,10 +91,9 @@ public class RPGUseCase {
 
             final User characterPlayer = channel.getJDA().retrieveUserById(character.getPlayerDiscordId()).complete();
             if (characterPlayer != null) {
-                messages.replaceAll(message -> message.replaceAll(characterPlayer.getAsTag(), character.getName())
+                messages.replaceAll(m -> m.replaceAll(characterPlayer.getAsTag(), character.getName())
                         .replaceAll("(@|)" + characterPlayer.getName(), character.getName()));
             }
-
         });
 
         MessageUtils.formatPersonality(messages, contextDatastore.getCurrentChannel(), bot);
@@ -95,12 +101,20 @@ public class RPGUseCase {
                 .replace(bot.getName() + " (ID " + bot.getId() + ")", "Dungeon Master")
                 .replace(bot.getName(), "Dungeon Master");
 
-        gptService.callDaVinci(chatifiedMessage)
-                .filter(r -> !r.getChoices().get(0).getText().isBlank())
-                .map(response -> {
-                    final String responseText = response.getChoices().get(0).getText();
-                    channel.sendMessage(responseText.trim()).queue();
-                    return response;
-                }).subscribe();
+        moderationService.moderate(chatifiedMessage).map(moderationResult -> {
+            gptService.callDaVinci(chatifiedMessage).map(textResponse -> {
+                channel.sendMessage(textResponse).queue();
+                return textResponse;
+            }).subscribe();
+
+            return moderationResult;
+        }).doOnError(ModerationException.class, e -> {
+            message.getAuthor()
+                    .openPrivateChannel()
+                    .queue(privateChannel -> {
+                        message.delete().queue();
+                        privateChannel.sendMessage(MessageFormat.format(MESSAGE_FLAGGED, message.getContentDisplay())).queue();
+                    });
+        }).subscribe();
     }
 }

@@ -1,4 +1,4 @@
-package es.thalesalv.gptbot.domain.model.gpt;
+package es.thalesalv.gptbot.domain.model.openai.gpt;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptModelResponseErrorEntity {
+public class GptModelResponseError {
 
     @JsonProperty("message")
     private String message;
