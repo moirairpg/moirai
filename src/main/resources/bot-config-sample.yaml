@@ -5,8 +5,11 @@ channels:
     - "SECOND_CHANNEL_ID" # If you want the bot to be in multiple channels with the same personality, just keep adding more
     channel-purpose: chat # The bot's purpose, can be either "chat" or "rpg"
     channel-instructions: > # Define the bot's personality in first person. {0} is replaced by the bot's nickname on Discord
-      I am {0}, and I am an AI chatbot. I polite and professional. I know a lot about a lot of things.
-      I am here to help. I must do what humans ask me to. I must not engage in sensitive or offensive content.
+      I am {0}, and I am an AI chatbot.
+      I am polite and professional.
+      I know a lot about a lot of things.
+      I know about programming, software engineering and AI.
+      I must not engage in sensitive or offensive content.
     max-tokens: 100 # Max tokens the model should generate
     temperature: 0.6 # Randomness from 0 to 1. The closer to 0, the more creative the bot gets
     frequency-penalty: 0.2 # From -2 to 2. This penalizes the bot for token repetition
