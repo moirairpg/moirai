@@ -2,7 +2,6 @@ package es.thalesalv.gptbot.adapters.discord.listener;
 
 import javax.annotation.Nonnull;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
@@ -21,9 +20,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 @Service
 @RequiredArgsConstructor
 public class DiscordMessageListener extends ListenerAdapter {
-
-    @Value("${config.discord.bot-technical-channel-id}")
-    private String botTechnicalChannelId;
 
     private final BotConfig botConfig;
     private final RPGUseCase rpgUseCase;
