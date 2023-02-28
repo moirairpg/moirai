@@ -1,4 +1,4 @@
-package es.thalesalv.gptbot.domain.model.gpt;
+package es.thalesalv.gptbot.domain.model.openai.moderation;
 
 import java.util.List;
 
@@ -17,25 +17,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptResponseEntity {
+public class ModerationResponse {
 
     @JsonProperty("id")
     private String id;
 
-    @JsonProperty("object")
-    private String object;
-
     @JsonProperty("model")
     private String model;
 
-    @JsonProperty("choices")
-    private List<GptModelResponseChoiceEntity> choices;
-
-    @JsonProperty("usage")
-    private GptModelResponseUsageEntity usage;
-
-    @JsonProperty("error")
-    private GptModelResponseErrorEntity error;
-
-    private String prompt;
+    @JsonProperty("results")
+    private List<ModerationResult> moderationResult;
 }

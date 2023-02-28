@@ -1,8 +1,9 @@
-package es.thalesalv.gptbot.domain.model.gpt;
+package es.thalesalv.gptbot.domain.model.openai.moderation;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,16 +13,16 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptModelResponseChoiceEntity {
+public class ModerationResult {
 
-    @JsonProperty("text")
-    private String text;
+    @JsonProperty("categories")
+    private ResultCategory categories;
 
-    @JsonProperty("finish_reason")
-    private String finishReason;
+    @JsonProperty("category_scores")
+    private ResultCategoryScores categoryScores;
 
-    @JsonProperty("index")
-    private int index;
+    @JsonProperty("flagged")
+    private boolean flagged;
 }

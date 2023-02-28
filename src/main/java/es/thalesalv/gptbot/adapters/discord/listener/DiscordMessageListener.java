@@ -45,7 +45,7 @@ public class DiscordMessageListener extends ListenerAdapter {
                 if (isCurrentChannel) {
                     contextDatastore.setCurrentChannel(channelConfig);
                     if (channelConfig.getChannelPurpose().equals(RPG_CHANNEL) && message.getMentions().isMentioned(bot, Message.MentionType.USER)) {
-                        rpgUseCase.generateResponse(bot, author, message.getMentions(), channel);
+                        rpgUseCase.generateResponse(bot, message, author, message.getMentions(), channel);
                     } else if (channelConfig.getChannelPurpose().equals(CHAT_CHANNEL)) {
                         if (replyMessage != null) {
                             replyQuoteUseCase.generateResponse(bot, author, message, replyMessage, channel);
