@@ -1,4 +1,4 @@
-package es.thalesalv.gptbot.domain.model.gpt;
+package es.thalesalv.gptbot.domain.model.openai.gpt;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptRequestEntity {
+public class GptRequest {
 
     @JsonProperty("model")
     private String model;

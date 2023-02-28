@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import es.thalesalv.gptbot.domain.model.gpt.GptRequestEntity;
-import es.thalesalv.gptbot.domain.model.gpt.GptResponseEntity;
+import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
+import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
+import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationRequest;
+import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationResponse;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -30,20 +32,39 @@ public class OpenAIApiService {
                 .build();
     }
 
-    public Mono<GptResponseEntity> callGptApi(final GptRequestEntity request) {
+    public Mono<GptResponse> callGptApi(final GptRequest request) {
 
-        LOGGER.debug("Making request to GPT API -> {}", request);
+        LOGGER.debug("Making request to OpenAI GPT API -> {}", request);
         return webClient.post()
                 .uri("/v1/completions")
                 .headers(headers -> {
                     headers.add("Authorization", "Bearer " + openAiToken);
                     headers.add("Content-Type", MimeTypeUtils.APPLICATION_JSON_VALUE);
-                })                .bodyValue(request)
+                })
+                .bodyValue(request)
                 .retrieve()
-                .bodyToMono(GptResponseEntity.class)
+                .bodyToMono(GptResponse.class)
                 .map(response -> {
-                    LOGGER.debug("Received response from GPT API -> {}", response);
+                    LOGGER.debug("Received response from OpenAI GPT API -> {}", response);
                     response.setPrompt(request.getPrompt());
+                    return response;
+                });
+    }
+
+    public Mono<ModerationResponse> callModerationApi(final ModerationRequest request) {
+
+        LOGGER.debug("Making request to OpenAI moderation API -> {}", request);
+        return webClient.post()
+                .uri("/v1/moderations")
+                .headers(headers -> {
+                    headers.add("Authorization", "Bearer " + openAiToken);
+                    headers.add("Content-Type", MimeTypeUtils.APPLICATION_JSON_VALUE);
+                })
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(ModerationResponse.class)
+                .map(response -> {
+                    LOGGER.debug("Received response from OpenAI moderation API -> {}", response);
                     return response;
                 });
     }
