@@ -23,13 +23,11 @@ public class ModerationService {
 
         final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
         return openAIApiService.callModerationApi(request)
-                .map(response -> {
+                .doOnNext(response -> {
                     if (response.getModerationResult().stream().anyMatch(result -> result.isFlagged())) {
                         LOGGER.warn("Unsafe content detected -> {}", prompt);
                         throw new ModerationException("Unsafe content detected", prompt);
                     }
-
-                    return response;
                 });
     }
 }
