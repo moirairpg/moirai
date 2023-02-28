@@ -34,22 +34,17 @@ public class ChatbotUseCase implements BotUseCase {
     @Override
     public void generateResponse(final SelfUser bot, final User messageAuthor, final Message message, final MessageChannelUnion channel, final Mentions mentions) {
 
+        LOGGER.debug("Entered generation for normal text.");
         channel.sendTyping().queue(a -> {
-            LOGGER.debug("Entered generation for normal text.");
             final List<String> messages = new ArrayList<>();
-            channel.getHistory()
-                    .retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory())
-                    .queue(ms -> {
-                        ms.forEach(m -> {
-                            final User mAuthorUser = m.getAuthor();
-                            messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
-                                    m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
-                        });
-                    });
-    
-            Collections.reverse(messages);
-            MessageUtils.formatPersonality(messages, contextDatastore.getCurrentChannel(), bot);
-    
+            final Message replyMessage = message.getReferencedMessage();
+
+            if (replyMessage == null) {
+                formatContextForQuotedMessage(messages, replyMessage, bot, messageAuthor, channel);
+            } else {
+                formatContext(messages, bot, channel);
+            }
+
             final String chatifiedMessage = MessageUtils.chatifyMessages(bot, messages);
             moderationService.moderate(chatifiedMessage).map(moderationResult -> {
                     gptService.callDaVinci(chatifiedMessage).map(textResponse -> {
@@ -60,5 +55,41 @@ public class ChatbotUseCase implements BotUseCase {
                 return moderationResult;
             }).subscribe();
         });
+    }
+
+    private void formatContextForQuotedMessage(final List<String> messages, final Message replyMessage, final SelfUser bot, final User messageAuthor, final MessageChannelUnion channel) {
+
+        channel.getHistoryBefore(replyMessage, contextDatastore.getCurrentChannel().getChatHistoryMemory())
+                .complete()
+                .getRetrievedHistory()
+                .forEach(m -> {
+                    final User mAuthorUser = m.getAuthor();
+                    messages.add(MessageFormat.format("{0} said: {2}",
+                            mAuthorUser.getName(), mAuthorUser.getAsMention(),
+                            m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
+                });
+
+        Collections.reverse(messages);
+        messages.add(MessageFormat.format("{0} said earlier: {1}",
+                replyMessage.getAuthor().getName(), replyMessage.getContentDisplay()));
+
+        messages.add(MessageFormat.format("{0} quoted the message from {1} with: {2}",
+                messageAuthor.getName(), replyMessage.getAuthor().getName(), replyMessage.getContentDisplay()));
+    }
+
+    private void formatContext(final List<String> messages, final SelfUser bot, final MessageChannelUnion channel) {
+
+        channel.getHistory()
+                .retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory())
+                .queue(ms -> {
+                    ms.forEach(m -> {
+                        final User mAuthorUser = m.getAuthor();
+                        messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
+                                m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
+                    });
+                });
+
+        Collections.reverse(messages);
+        MessageUtils.formatPersonality(messages, contextDatastore.getCurrentChannel(), bot);
     }
 }

@@ -57,11 +57,7 @@ public class DiscordMessageListener extends ListenerAdapter {
                                 && mentions.isMentioned(bot, Message.MentionType.USER)) {
                             dungeonMasterUseCase.generateResponse(bot, messageAuthor, message, channel, mentions);
                         } else if (channelConfig.getChannelPurpose().equals(CHAT_CHANNEL)) {
-                            if (replyMessage != null) {
-                                replyQuoteUseCase.generateResponse(bot, messageAuthor, message, channel, mentions);
-                            } else {
-                                chatbotUseCase.generateResponse(bot, messageAuthor, message, channel, mentions);
-                            }
+                            chatbotUseCase.generateResponse(bot, messageAuthor, message, channel, mentions);
                         }
                     }
                 });
