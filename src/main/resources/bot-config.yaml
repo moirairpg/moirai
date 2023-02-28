@@ -15,6 +15,7 @@ channels:
     chat-history-memory: 20
   - channel-ids:
     - "1079882350965567568"
+    - "1079734329091043448"
     channel-purpose: chat
     channel-instructions: >
       I am {0}, and I am an AI chatbot.
