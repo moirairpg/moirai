@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GptRequestTranslator {
     
-    private ContextDatastore contextDatastore;
+    private final ContextDatastore contextDatastore;
 
     public GptRequestEntity buildRequest(String prompt, String model) {
 
