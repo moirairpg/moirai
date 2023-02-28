@@ -27,10 +27,6 @@ public class OpenAIApiService {
         this.webClient = WebClient
                 .builder()
                 .baseUrl(OPENAI_API_BASE_URL)
-                .defaultHeaders(headers -> {
-                    headers.add("Authorization", "Bearer " + openAiToken);
-                    headers.add("Content-Type", MimeTypeUtils.APPLICATION_JSON_VALUE);
-                })
                 .build();
     }
 
@@ -39,6 +35,10 @@ public class OpenAIApiService {
         LOGGER.debug("Making request to GPT API -> {}", request);
         return webClient.post()
                 .uri("/v1/completions")
+                .headers(headers -> {
+                    headers.add("Authorization", "Bearer " + openAiToken);
+                    headers.add("Content-Type", MimeTypeUtils.APPLICATION_JSON_VALUE);
+                })
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(GptResponseEntity.class)
