@@ -36,9 +36,8 @@ public class TextGenerationUseCase {
         channel.getHistory().retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory())
             .complete().forEach(m -> {
                 final User mAuthorUser = m.getAuthor();
-                messages.add(MessageFormat.format("{0} (tagkey: {1}) said: {2}",
-                    mAuthorUser.getName(), mAuthorUser.getAsMention(),
-                    m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
+                messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
+                        m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
             });
 
         Collections.reverse(messages);
