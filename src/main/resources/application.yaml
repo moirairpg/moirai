@@ -1,4 +1,10 @@
 config:
+    bot:
+        generation:
+            default-max-tokens: 100
+            default-temperature: 0.6
+            default-presence-penalty: 0.2
+            default-frequency-penalty: 0.2
     discord:
         api-token: ${DISCORD_BOT_API_TOKEN}
     openai:
