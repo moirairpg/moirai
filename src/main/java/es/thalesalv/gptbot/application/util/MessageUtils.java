@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import es.thalesalv.gptbot.application.config.ChannelConfig;
+import es.thalesalv.gptbot.application.config.Persona;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
@@ -19,9 +19,9 @@ public class MessageUtils {
                 messages.stream().collect(Collectors.joining("\n")), bot.getName()).trim();
     }
 
-    public static void formatPersonality(List<String> messages, ChannelConfig currentChannel, SelfUser bot) {
+    public static void formatPersonality(List<String> messages, Persona persona, SelfUser bot) {
 
-        messages.add(0, MessageFormat.format(currentChannel.getChannelInstructions(), bot.getName())
+        messages.add(0, MessageFormat.format(persona.getPersonality(), bot.getName())
                 .replace("@" + bot.getName(), StringUtils.EMPTY).trim());
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import es.thalesalv.gptbot.domain.exception.ErrorBotResponseException;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationRequest;
@@ -47,6 +48,12 @@ public class OpenAIApiService {
                 .map(response -> {
                     LOGGER.debug("Received response from OpenAI GPT API -> {}", response);
                     response.setPrompt(request.getPrompt());
+
+                    if (response.getError() != null) {
+                        LOGGER.error("Bot response contains an error -> {}", response.getError());
+                        throw new ErrorBotResponseException("Bot response contains an error", response);
+                    }
+
                     return response;
                 });
     }
