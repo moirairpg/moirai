@@ -4,12 +4,15 @@ import java.text.MessageFormat;
 
 import javax.annotation.Nonnull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.BotConfig;
 import es.thalesalv.gptbot.application.service.usecases.BotUseCase;
+import es.thalesalv.gptbot.domain.exception.ErrorBotResponseException;
 import es.thalesalv.gptbot.domain.exception.ModerationException;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -30,10 +33,12 @@ public class DiscordMessageListener extends ListenerAdapter {
 
     private static final String USE_CASE = "UseCase";
     private static final String MESSAGE_FLAGGED = "The message you sent has content that was flagged by OpenAI''s moderation. Message content: \n{0}";
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscordMessageListener.class);
 
     @Override
     public void onMessageReceived(final @Nonnull MessageReceivedEvent event) {
 
+        LOGGER.debug("Message received -> {}", event);
         final SelfUser bot = event.getJDA().getSelfUser();
         final Message message = event.getMessage();
         final MessageChannelUnion channel = event.getChannel();
@@ -57,6 +62,10 @@ public class DiscordMessageListener extends ListenerAdapter {
                         message.delete().queue();
                         privateChannel.sendMessage(MessageFormat.format(MESSAGE_FLAGGED, message.getContentDisplay())).queue();
                     });
+        } catch (ErrorBotResponseException e) {
+            channel.sendMessage("An error occured and the message could not be sent to the mode. Please try again.").queue();
+        } catch (Exception e) {
+            LOGGER.error("Unknown exception thrown -> {}", e);
         }
     }
 }
