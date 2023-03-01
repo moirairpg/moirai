@@ -1,5 +1,6 @@
 package es.thalesalv.gptbot.application.service.usecases;
 
+import es.thalesalv.gptbot.application.service.models.gpt.GptModel;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -16,6 +17,7 @@ public interface BotUseCase {
      * @param message Last message sent to the channel
      * @param channel Channel where the conversation is happening
      * @param mentions List of Discord users mentioned in the conversation
+     * @param model Model to be used for generation
      */
-    void generateResponse(final SelfUser bot, final User messageAuthor, final Message message, final MessageChannelUnion channel, final Mentions mentions);
+    void generateResponse(final SelfUser bot, final User messageAuthor, final Message message, final MessageChannelUnion channel, final Mentions mentions, final GptModel model);
 }

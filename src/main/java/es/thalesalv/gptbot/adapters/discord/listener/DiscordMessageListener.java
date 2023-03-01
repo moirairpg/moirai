@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.BotConfig;
+import es.thalesalv.gptbot.application.service.models.gpt.GptModel;
 import es.thalesalv.gptbot.application.service.usecases.BotUseCase;
 import es.thalesalv.gptbot.domain.exception.ErrorBotResponseException;
 import es.thalesalv.gptbot.domain.exception.ModelResponseBlankException;
@@ -32,6 +33,7 @@ public class DiscordMessageListener extends ListenerAdapter {
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
 
+    private static final String MODEL = "Model";
     private static final String USE_CASE = "UseCase";
     private static final String MESSAGE_FLAGGED = "The message you sent has content that was flagged by OpenAI''s moderation. Your message has been deleted from the conversation channel. Message content: \n{0}";
     private static final String MESSAGE_EMPTY_RESPONSE = "The AI generated no output for your message. Your message has been deleted from the conversation channel. Please write a longer message and try again. Message content: \n{0}";
@@ -53,8 +55,9 @@ public class DiscordMessageListener extends ListenerAdapter {
                     final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id));
                     if (isCurrentChannel) {
                         contextDatastore.setPersona(persona);
+                        final GptModel model = (GptModel) applicationContext.getBean(persona.getModel() + MODEL);
                         final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-                        useCase.generateResponse(bot, messageAuthor, message, channel, mentions);
+                        useCase.generateResponse(bot, messageAuthor, message, channel, mentions, model);
                     }
                 });
             }
