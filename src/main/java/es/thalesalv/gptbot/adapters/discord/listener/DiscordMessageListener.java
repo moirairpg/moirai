@@ -4,12 +4,12 @@ import java.text.MessageFormat;
 
 import javax.annotation.Nonnull;
 
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.BotConfig;
-import es.thalesalv.gptbot.application.usecases.BotUseCase;
+import es.thalesalv.gptbot.application.service.usecases.BotUseCase;
 import es.thalesalv.gptbot.domain.exception.ModerationException;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -26,7 +26,7 @@ public class DiscordMessageListener extends ListenerAdapter {
 
     private final BotConfig botConfig;
     private final ContextDatastore contextDatastore;
-    private final BeanFactory factory;
+    private final ApplicationContext applicationContext;
 
     private static final String USE_CASE = "UseCase";
     private static final String MESSAGE_FLAGGED = "The message you sent has content that was flagged by OpenAI''s moderation. Message content: \n{0}";
@@ -46,7 +46,7 @@ public class DiscordMessageListener extends ListenerAdapter {
                     final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id));
                     if (isCurrentChannel) {
                         contextDatastore.setPersona(persona);
-                        final BotUseCase useCase = (BotUseCase) factory.getBean(persona.getIntent() + USE_CASE);
+                        final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                         useCase.generateResponse(bot, messageAuthor, message, channel, mentions);
                     }
                 });
@@ -55,8 +55,7 @@ public class DiscordMessageListener extends ListenerAdapter {
             messageAuthor.openPrivateChannel()
                     .queue(privateChannel -> {
                         message.delete().queue();
-                        privateChannel.sendMessage(MessageFormat.format(MESSAGE_FLAGGED, message.getContentDisplay()))
-                                .queue();
+                        privateChannel.sendMessage(MessageFormat.format(MESSAGE_FLAGGED, message.getContentDisplay())).queue();
                     });
         }
     }
