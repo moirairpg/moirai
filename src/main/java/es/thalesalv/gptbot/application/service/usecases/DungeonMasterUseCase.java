@@ -46,55 +46,10 @@ public class DungeonMasterUseCase implements BotUseCase {
         if (mentions.isMentioned(bot, Message.MentionType.USER)) {
             channel.sendTyping().complete();
             final List<String> messages = new ArrayList<>();
-            channel.getHistory()
-                    .retrievePast(contextDatastore.getPersona().getChatHistoryMemory()).complete()
-                    .stream()
-                    .map(m -> {
-                        if (m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$")) {
-                            channel.deleteMessageById(m.getId()).complete();
-                        }
 
-                        return m;
-                    })
-                    .filter(m -> !m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$"))
-                    .forEach(m -> {
-                        messages.add(MessageFormat.format("{0}: {1}", m.getAuthor().getName(), 
-                                m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
-                    });
-
-            Collections.reverse(messages);
-
-            final CharacterProfileEntity characterProfile = characterProfileRepository.findByPlayerDiscordId(player.getId());
-            if (characterProfile != null) {
-                messages.replaceAll(m -> {
-                    return m.replaceAll(player.getAsTag(), characterProfile.getName())
-                        .replaceAll("(@|)" + player.getName(), characterProfile.getName());
-                });
-            }
-
-            mentions.getUsers().stream().forEach(mention -> {
-                final CharacterProfileEntity mentionedProfile = characterProfileRepository.findByPlayerDiscordId(mention.getId());
-                if (mentionedProfile != null) {
-                    messages.replaceAll(m -> {
-                        return m.replaceAll(mention.getAsTag(), mentionedProfile.getName())
-                                .replaceAll("(@|)" + mention.getName(), mentionedProfile.getName());
-                    });
-                }
-            });
-
-            final Sentence sentence = new Sentence(messages.stream().collect(Collectors.joining("\n")));
-            final HashSet<String> namesMentioned = new HashSet<String>(sentence.mentions());
-            final HashSet<CharacterProfileEntity> charactersMentioned = characterProfileRepository.findByNameIn(namesMentioned);
-            charactersMentioned.stream().forEach(character -> {
-                messages.add(0, MessageFormat.format(RPG_DM_INSTRUCTIONS, character.getName()));
-                messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, character.getName(), character.getDescription()));
-
-                final User characterPlayer = channel.getJDA().retrieveUserById(character.getPlayerDiscordId()).complete();
-                if (characterPlayer != null) {
-                    messages.replaceAll(m -> m.replaceAll(characterPlayer.getAsTag(), character.getName())
-                            .replaceAll("(@|)" + characterPlayer.getName(), character.getName()));
-                }
-            });
+            handleMessageHistory(messages, bot, channel);
+            handlePlayerCharacters(messages, player, mentions);
+            handleCharactersMentioned(messages, channel);
 
             MessageUtils.formatPersonality(messages, contextDatastore.getPersona(), bot);
             final String chatifiedMessage = MessageUtils.chatifyMessages(bot, messages)
@@ -110,5 +65,81 @@ public class DungeonMasterUseCase implements BotUseCase {
                 return moderationResult;
             }).subscribe();
         }
+    }
+    /**
+     * Formats last messages history to give the AI context on the adventure
+     * @param messages List messages before the one sent
+     * @param bot Bot user
+     * @param channel Channel where the conversation is happening
+     */
+    private void handleMessageHistory(List<String> messages, SelfUser bot, MessageChannelUnion channel) {
+    
+        LOGGER.debug("Entered history handling for RPG");
+        channel.getHistory()
+                .retrievePast(contextDatastore.getPersona().getChatHistoryMemory()).complete()
+                .stream()
+                .map(m -> {
+                    if (m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$")) {
+                        channel.deleteMessageById(m.getId()).complete();
+                    }
+
+                    return m;
+                })
+                .filter(m -> !m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$"))
+                .forEach(m -> messages.add(MessageFormat.format("{0}: {1}", m.getAuthor().getName(), 
+                            m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim())));
+
+        Collections.reverse(messages);
+    }
+
+    /**
+     * Extracts characters from database given the player's Discord user ID
+     * @param messages List of messages in the channel
+     * @param player Player user
+     * @param mentions Mentioned users (their characters are extracted too)
+     */
+    private void handlePlayerCharacters(List<String> messages, User player, Mentions mentions) {
+
+        LOGGER.debug("Entered player character handling");
+        final CharacterProfileEntity characterProfile = characterProfileRepository.findByPlayerDiscordId(player.getId());
+        if (characterProfile != null) {
+            messages.replaceAll(m -> {
+                return m.replaceAll(player.getAsTag(), characterProfile.getName())
+                    .replaceAll("(@|)" + player.getName(), characterProfile.getName());
+            });
+        }
+
+        mentions.getUsers().stream().forEach(mention -> {
+            final CharacterProfileEntity mentionedProfile = characterProfileRepository.findByPlayerDiscordId(mention.getId());
+            if (mentionedProfile != null) {
+                messages.replaceAll(m -> {
+                    return m.replaceAll(mention.getAsTag(), mentionedProfile.getName())
+                            .replaceAll("(@|)" + mention.getName(), mentionedProfile.getName());
+                });
+            }
+        });
+    }
+
+    /**
+     * Extracts character profiles from the conversation when their Discord user is not mentioned
+     * @param messages List of messages in the channel
+     * @param channel Channel where the conversation is happening
+     */
+    private void handleCharactersMentioned(List<String> messages, MessageChannelUnion channel) {
+
+        LOGGER.debug("Entered mentioned characters handling");
+        final Sentence sentence = new Sentence(messages.stream().collect(Collectors.joining("\n")));
+        final HashSet<String> namesMentioned = new HashSet<String>(sentence.mentions());
+        final HashSet<CharacterProfileEntity> charactersMentioned = characterProfileRepository.findByNameIn(namesMentioned);
+        charactersMentioned.stream().forEach(character -> {
+            messages.add(0, MessageFormat.format(RPG_DM_INSTRUCTIONS, character.getName()));
+            messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, character.getName(), character.getDescription()));
+
+            final User characterPlayer = channel.getJDA().retrieveUserById(character.getPlayerDiscordId()).complete();
+            if (characterPlayer != null) {
+                messages.replaceAll(m -> m.replaceAll(characterPlayer.getAsTag(), character.getName())
+                        .replaceAll("(@|)" + characterPlayer.getName(), character.getName()));
+            }
+        });
     }
 }

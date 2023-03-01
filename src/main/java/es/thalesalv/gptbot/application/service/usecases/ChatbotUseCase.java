@@ -40,9 +40,9 @@ public class ChatbotUseCase implements BotUseCase {
         final Message replyMessage = message.getReferencedMessage();
 
         if (replyMessage != null) {
-            formatContextForQuotedMessage(messages, message, replyMessage, bot, messageAuthor, channel);
+            handleMessageHistoryForReplies(messages, message, replyMessage, bot, messageAuthor, channel);
         } else {
-            formatContext(messages, bot, channel);
+            handleMessageHistory(messages, bot, channel);
         }
 
         MessageUtils.formatPersonality(messages, contextDatastore.getPersona(), bot);
@@ -57,15 +57,24 @@ public class ChatbotUseCase implements BotUseCase {
         }).subscribe();
     }
 
-    private void formatContextForQuotedMessage(final List<String> messages, final Message message, final Message replyMessage, final SelfUser bot, final User messageAuthor, final MessageChannelUnion channel) {
+    /**
+     * Formats last messages history on replied to give the AI context on the past conversation
+     * @param messages List of messages before the one replied to
+     * @param message Message sent as a reply to the quoted message
+     * @param replyMessage Quoted message
+     * @param bot Bot user
+     * @param messageAuthor User who wrote the reply
+     * @param channel Channel where the conversation is happening
+     */
+    private void handleMessageHistoryForReplies(final List<String> messages, final Message message, final Message replyMessage, final SelfUser bot, final User messageAuthor, final MessageChannelUnion channel) {
 
+        LOGGER.debug("Entered quoted message history handling for chatbot");
         channel.getHistoryBefore(replyMessage, contextDatastore.getPersona().getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
                 .forEach(m -> {
                     final User mAuthorUser = m.getAuthor();
-                    messages.add(MessageFormat.format("{0} said: {2}",
-                            mAuthorUser.getName(), mAuthorUser.getAsMention(),
+                    messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
                             m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
                 });
 
@@ -77,8 +86,15 @@ public class ChatbotUseCase implements BotUseCase {
                 messageAuthor.getName(), replyMessage.getAuthor().getName(), message.getContentDisplay()));
     }
 
-    private void formatContext(final List<String> messages, final SelfUser bot, final MessageChannelUnion channel) {
+    /**
+     * Formats last messages history to give the AI context on the current conversation
+     * @param messages List messages before the one sent
+     * @param bot Bot user
+     * @param channel Channel where the conversation is happening
+     */
+    private void handleMessageHistory(final List<String> messages, final SelfUser bot, final MessageChannelUnion channel) {
 
+        LOGGER.debug("Entered message history handling for chatbot");
         channel.getHistory()
                 .retrievePast(contextDatastore.getPersona().getChatHistoryMemory())
                 .complete().forEach(m -> {
