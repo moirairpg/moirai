@@ -12,6 +12,7 @@ public class Persona {
     private List<String> channelIds;
     private String intent;
     private String personality;
+    private String model;
     private int maxTokens;
     private double temperature;
     private double frequencyPenalty;
