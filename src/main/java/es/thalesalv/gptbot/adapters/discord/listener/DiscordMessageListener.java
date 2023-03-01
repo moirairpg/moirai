@@ -13,6 +13,7 @@ import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.BotConfig;
 import es.thalesalv.gptbot.application.service.usecases.BotUseCase;
 import es.thalesalv.gptbot.domain.exception.ErrorBotResponseException;
+import es.thalesalv.gptbot.domain.exception.ModelResponseBlankException;
 import es.thalesalv.gptbot.domain.exception.ModerationException;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -32,7 +33,8 @@ public class DiscordMessageListener extends ListenerAdapter {
     private final ApplicationContext applicationContext;
 
     private static final String USE_CASE = "UseCase";
-    private static final String MESSAGE_FLAGGED = "The message you sent has content that was flagged by OpenAI''s moderation. Message content: \n{0}";
+    private static final String MESSAGE_FLAGGED = "The message you sent has content that was flagged by OpenAI''s moderation. Your message has been deleted from the conversation channel. Message content: \n{0}";
+    private static final String MESSAGE_EMPTY_RESPONSE = "The AI generated no output for your message. Your message has been deleted from the conversation channel. Please write a longer message and try again. Message content: \n{0}";
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordMessageListener.class);
 
     @Override
@@ -64,7 +66,14 @@ public class DiscordMessageListener extends ListenerAdapter {
                     });
         } catch (ErrorBotResponseException e) {
             channel.sendMessage("An error occured and the message could not be sent to the mode. Please try again.").queue();
-        } catch (Exception e) {
+        } catch (ModelResponseBlankException e) {
+            LOGGER.error("The bot generated no text in response to the prompt -> {}", e);
+            messageAuthor.openPrivateChannel()
+                    .queue(privateChannel -> {
+                        message.delete().queue();
+                        privateChannel.sendMessage(MessageFormat.format(MESSAGE_EMPTY_RESPONSE, message.getContentDisplay())).queue();
+                    });
+        }catch (Exception e) {
             LOGGER.error("Unknown exception thrown -> {}", e);
         }
     }
