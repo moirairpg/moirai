@@ -59,7 +59,7 @@ public class ChatbotUseCase implements BotUseCase {
 
     private void formatContextForQuotedMessage(final List<String> messages, final Message replyMessage, final SelfUser bot, final User messageAuthor, final MessageChannelUnion channel) {
 
-        channel.getHistoryBefore(replyMessage, contextDatastore.getCurrentChannel().getChatHistoryMemory())
+        channel.getHistoryBefore(replyMessage, contextDatastore.getPersona().getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
                 .forEach(m -> {
@@ -80,7 +80,7 @@ public class ChatbotUseCase implements BotUseCase {
     private void formatContext(final List<String> messages, final SelfUser bot, final MessageChannelUnion channel) {
 
         channel.getHistory()
-                .retrievePast(contextDatastore.getCurrentChannel().getChatHistoryMemory())
+                .retrievePast(contextDatastore.getPersona().getChatHistoryMemory())
                 .queue(ms -> {
                     ms.forEach(m -> {
                         final User mAuthorUser = m.getAuthor();
@@ -90,6 +90,6 @@ public class ChatbotUseCase implements BotUseCase {
                 });
 
         Collections.reverse(messages);
-        MessageUtils.formatPersonality(messages, contextDatastore.getCurrentChannel(), bot);
+        MessageUtils.formatPersonality(messages, contextDatastore.getPersona(), bot);
     }
 }
