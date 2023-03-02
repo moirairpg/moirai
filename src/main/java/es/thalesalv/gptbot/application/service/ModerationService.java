@@ -79,7 +79,7 @@ public class ModerationService {
 
         if (flaggedTopics != null) {
             final String flaggedTopicsString = flaggedTopics.stream().collect(Collectors.joining(", "));
-            flaggedMessage += MessageFormat.format(FLAGGED_TOPICS, message.getContentDisplay(), flaggedTopics);
+            flaggedMessage += MessageFormat.format(FLAGGED_TOPICS, message.getContentDisplay(), flaggedTopicsString);
         }
 
         messageAuthor.openPrivateChannel().complete()
