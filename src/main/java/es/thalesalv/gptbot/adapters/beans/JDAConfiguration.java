@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 
 @Configuration
 @RequiredArgsConstructor
-public class JDAConfigurationBean {
+public class JDAConfiguration {
 
     @Value("${config.discord.api-token}")
     private String discordApiToken;

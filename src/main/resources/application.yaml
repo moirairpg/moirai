@@ -15,13 +15,16 @@ spring:
         banner-mode: off
     data:
         mongodb:
+            uri: mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}/${MONGODB_DB}?authSource=admin&authMechanism=SCRAM-SHA-1
             database: ${MONGODB_DB}
-            host: ${MONGODB_USER}
             username: ${MONGODB_USER}
             password: ${MONGODB_PASSWORD}
+            host: ${MONGODB_HOST}
 
 logging:
     level:
-        org.hibernate.SQL: DEBUG
-        org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-        ch.qos.logback: OFF
+        root: INFO
+        org.mongodb: ERROR
+        net.dv8tion.jda: ERROR
+        org.springframework: ERROR
+        ch.qos.logback: ERROR

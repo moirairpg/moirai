@@ -1,7 +1,6 @@
 package es.thalesalv.gptbot.adapters.data.db.document;
 
-import java.util.UUID;
-
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class CharacterProfile {
 
     @Id
-    private UUID id;
+    private ObjectId id;
     private String playerDiscordId;
     private String name;
     private String description;
