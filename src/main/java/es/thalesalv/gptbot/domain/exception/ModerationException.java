@@ -1,15 +1,23 @@
 package es.thalesalv.gptbot.domain.exception;
 
+import java.util.List;
+
 import lombok.Getter;
 
+@Getter
 public class ModerationException extends RuntimeException {
 
-    @Getter
-    private final String prompt;
+    private final List<String> flaggedTopics;
 
-    public ModerationException(String msg, String prompt) {
+    public ModerationException(String msg, List<String> flaggedTopics) {
 
         super(msg);
-        this.prompt = prompt;
+        this.flaggedTopics = flaggedTopics;
+    }
+
+    public ModerationException(String msg) {
+
+        super(msg);
+        this.flaggedTopics = null;
     }
 }

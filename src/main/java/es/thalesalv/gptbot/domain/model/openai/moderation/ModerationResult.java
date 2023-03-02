@@ -1,5 +1,7 @@
 package es.thalesalv.gptbot.domain.model.openai.moderation;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,10 +20,10 @@ import lombok.NoArgsConstructor;
 public class ModerationResult {
 
     @JsonProperty("categories")
-    private ResultCategory categories;
+    private Map<String, Boolean> categories;
 
     @JsonProperty("category_scores")
-    private ResultCategoryScores categoryScores;
+    private Map<String, Double> categoryScores;
 
     @JsonProperty("flagged")
     private boolean flagged;

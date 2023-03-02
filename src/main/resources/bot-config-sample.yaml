@@ -23,6 +23,15 @@ personas:
     presence-penalty: 0.2 # -2 to 2. This penalizes the bot for token presence
     chat-history-memory: 10 # The amount of messages on Discord used for the bot's memory
     model: davinci # The model you want to use for this persona. Can be "davinci", "ada", "curie", "babbage" or "chatGpt"
+    moderation-absolute: true ## This toggles OpenAI's own flagging system and overrides the rules below
+    moderation-rules: ## Threshold for each topic that might be flagged. For more info check OpenAI's documentation
+      hate: 0.5
+      hate-threatening: 0.5
+      self-harm: 0.5
+      sexual: 0.5
+      sexual-minors: 0.5
+      violence: 0.5
+      violence-graphic: 0.5
   
   # Default configs for RPG bot
   - channel-ids:
@@ -42,3 +51,12 @@ personas:
     presence-penalty: 0.4
     chat-history-memory: 10
     model: chatGpt # Proper capitalization is required
+    moderation-absolute: false # If it's set to false, the values below will be used instead
+    moderation-rules: ## Threshold for each topic that might be flagged. For more info check OpenAI's documentation
+      hate: 0.5
+      hate-threatening: 0.5
+      self-harm: 0.5
+      sexual: 0.5
+      sexual-minors: 0.5
+      violence: 0.5
+      violence-graphic: 0.5
