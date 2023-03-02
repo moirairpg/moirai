@@ -11,6 +11,8 @@ config:
         api-token: ${OPENAI_API_TOKEN}
 
 spring:
+  main:
+    banner-mode: "off"
     jpa.hibernate.ddl-auto: update
     datasource:
         url: jdbc:postgresql://${POSTGRES_HOST}/${POSTGRES_DB}
@@ -21,3 +23,4 @@ logging:
     level:
         org.hibernate.SQL: DEBUG
         org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+        ch.qos.logback: OFF
