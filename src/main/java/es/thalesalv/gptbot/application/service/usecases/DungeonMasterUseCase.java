@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import edu.stanford.nlp.simple.Sentence;
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
-import es.thalesalv.gptbot.adapters.data.db.entity.CharacterProfileEntity;
+import es.thalesalv.gptbot.adapters.data.db.document.CharacterProfile;
 import es.thalesalv.gptbot.adapters.data.db.repository.CharacterProfileRepository;
 import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.service.models.gpt.GptModel;
@@ -95,7 +95,7 @@ public class DungeonMasterUseCase implements BotUseCase {
     private void handlePlayerCharacters(List<String> messages, User player, Mentions mentions) {
 
         LOGGER.debug("Entered player character handling");
-        final CharacterProfileEntity characterProfile = characterProfileRepository.findByPlayerDiscordId(player.getId());
+        final CharacterProfile characterProfile = characterProfileRepository.findByPlayerDiscordId(player.getId());
         if (characterProfile != null) {
             messages.replaceAll(m -> {
                 return m.replaceAll(player.getAsTag(), characterProfile.getName())
@@ -104,7 +104,7 @@ public class DungeonMasterUseCase implements BotUseCase {
         }
 
         mentions.getUsers().stream().forEach(mention -> {
-            final CharacterProfileEntity mentionedProfile = characterProfileRepository.findByPlayerDiscordId(mention.getId());
+            final CharacterProfile mentionedProfile = characterProfileRepository.findByPlayerDiscordId(mention.getId());
             if (mentionedProfile != null) {
                 messages.replaceAll(m -> {
                     return m.replaceAll(mention.getAsTag(), mentionedProfile.getName())
@@ -124,7 +124,7 @@ public class DungeonMasterUseCase implements BotUseCase {
         LOGGER.debug("Entered mentioned characters handling");
         final Sentence sentence = new Sentence(messages.stream().collect(Collectors.joining("\n")));
         final HashSet<String> namesMentioned = new HashSet<String>(sentence.mentions());
-        final HashSet<CharacterProfileEntity> charactersMentioned = characterProfileRepository.findByNameIn(namesMentioned);
+        final HashSet<CharacterProfile> charactersMentioned = characterProfileRepository.findByNameIn(namesMentioned);
         charactersMentioned.stream().forEach(character -> {
             messages.add(0, MessageFormat.format(RPG_DM_INSTRUCTIONS, character.getName()));
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, character.getName(), character.getDescription()));

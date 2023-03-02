@@ -2,15 +2,13 @@ version: "3"
 networks:
   ? dockerlan
 services:
-  postgresql:
-    container_name: postgresql
-    hostname: postgresql
-    image: postgres:15-alpine
-    networks:
-      - dockerlan
+  mongo:
+    container_name: mongo
+    hostname: mongo
+    image: mongo
+    restart: always
     ports:
-      - "5432:5432"
+      - 27017:27017
     environment:
-      POSTGRES_USER: malaquias
-      POSTGRES_PASSWORD: malaquias
-      POSTGRES_DB: malaquias
+      MONGO_INITDB_ROOT_USERNAME: malaquias
+      MONGO_INITDB_ROOT_PASSWORD: malaquias

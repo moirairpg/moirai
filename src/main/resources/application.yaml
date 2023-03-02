@@ -11,13 +11,14 @@ config:
         api-token: ${OPENAI_API_TOKEN}
 
 spring:
-  main:
-    banner-mode: "off"
-    jpa.hibernate.ddl-auto: update
-    datasource:
-        url: jdbc:postgresql://${POSTGRES_HOST}/${POSTGRES_DB}
-        username: ${POSTGRES_USER}
-        password: ${POSTGRES_PASSWORD}
+    main:
+        banner-mode: off
+    data:
+        mongodb:
+            database: ${MONGODB_DB}
+            host: ${MONGODB_USER}
+            username: ${MONGODB_USER}
+            password: ${MONGODB_PASSWORD}
 
 logging:
     level:
