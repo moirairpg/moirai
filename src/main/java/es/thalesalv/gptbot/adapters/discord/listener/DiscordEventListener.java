@@ -22,12 +22,12 @@ public class DiscordEventListener implements EventListener {
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
             if (event instanceof ReadyEvent)
-                LOGGER.info(bot.getName() + " is ready to chat!");
+                LOGGER.info("{} is ready to chat!", bot.getName());
         } catch (IllegalStateException e) {
             if (e.getMessage().contains("Session is not yet ready!")) {
                 LOGGER.warn("Waiting for Discord session...");
             } else {
-                LOGGER.error("Error during event -> {}", e);
+                LOGGER.error("Error during event", e);
             }
         }
     }
