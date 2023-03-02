@@ -16,8 +16,8 @@ import edu.stanford.nlp.simple.Sentence;
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.adapters.data.db.entity.CharacterProfileEntity;
 import es.thalesalv.gptbot.adapters.data.db.repository.CharacterProfileRepository;
-import es.thalesalv.gptbot.application.service.GptService;
 import es.thalesalv.gptbot.application.service.ModerationService;
+import es.thalesalv.gptbot.application.service.models.gpt.GptModel;
 import es.thalesalv.gptbot.application.util.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 @RequiredArgsConstructor
 public class DungeonMasterUseCase implements BotUseCase {
 
-    private final GptService gptService;
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final CharacterProfileRepository characterProfileRepository;
@@ -40,7 +39,7 @@ public class DungeonMasterUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DungeonMasterUseCase.class);
 
     @Override
-    public void generateResponse(SelfUser bot, User player, Message message, MessageChannelUnion channel, final Mentions mentions) {
+    public void generateResponse(SelfUser bot, User player, Message message, MessageChannelUnion channel, final Mentions mentions, final GptModel model) {
 
         LOGGER.debug("Entered generation of response for RPG");
         if (mentions.isMentioned(bot, Message.MentionType.USER)) {
@@ -56,14 +55,9 @@ public class DungeonMasterUseCase implements BotUseCase {
                     .replace(bot.getName() + " (ID " + bot.getId() + ")", "Dungeon Master")
                     .replace(bot.getName(), "Dungeon Master");
 
-            moderationService.moderate(chatifiedMessage).map(moderationResult -> {
-                gptService.callDaVinci(chatifiedMessage).map(textResponse -> {
-                    channel.sendMessage(textResponse).queue();
-                    return textResponse;
-                }).subscribe();
-
-                return moderationResult;
-            }).subscribe();
+            moderationService.moderate(chatifiedMessage)
+                    .subscribe(moderationResult -> model.generate(chatifiedMessage)
+                    .subscribe(textResponse -> channel.sendMessage(textResponse).queue()));
         }
     }
     /**
