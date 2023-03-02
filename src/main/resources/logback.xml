@@ -4,22 +4,6 @@
     <appender name="stdout-json" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider">
-                <timestamp>
-                    <timeZone>America/Sao_Paulo</timeZone>
-                </timestamp>
-                <pattern>
-                    <pattern>
-                        {
-                        "level": "%level",
-                        "service": "YourApp",
-                        "traceId": "%X{X-B3-TraceId:-}",
-                        "spanId": "%X{X-B3-SpanId:-}",
-                        "thread": "%thread",
-                        "class": "%logger{40}",
-                        "message": "%message"
-                        }
-                    </pattern>
-                </pattern>
                 <customFields>{"customer":"X", "appname":"Y", "environment":"dev"}</customFields>
                 <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
                     <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
@@ -48,22 +32,6 @@
         </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider">
-                <timestamp>
-                    <timeZone>America/Sao_Paulo</timeZone>
-                </timestamp>
-                <pattern>
-                    <pattern>
-                        {
-                        "level": "%level",
-                        "service": "YourApp",
-                        "traceId": "%X{X-B3-TraceId:-}",
-                        "spanId": "%X{X-B3-SpanId:-}",
-                        "thread": "%thread",
-                        "class": "%logger{40}",
-                        "message": "%message"
-                        }
-                    </pattern>
-                </pattern>
                 <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
                     <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
                         <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
@@ -83,12 +51,17 @@
 
     <appender name="stdout-plain" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd' 'HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd' 'HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
         </encoder>
     </appender>
 
     <root>
-        <appender-ref ref="stdout-plain" />
+        <springProfile name="!json-logs">
+            <appender-ref ref="stdout-plain" />
+        </springProfile>
+        <springProfile name="json-logs">
+            <appender-ref ref="stdout-json" />
+        </springProfile>
         <appender-ref ref="file" />
     </root>
 </configuration>
