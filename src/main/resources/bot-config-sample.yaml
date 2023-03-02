@@ -10,7 +10,7 @@ personas:
   - channel-ids: # WARNING: as of now, environment variables do not work here
     - "DISCORD_CHANNEL_ID" # Insert the ID of the channel the bot will have access to here
     - "SECOND_CHANNEL_ID" # If you want the bot to be in multiple channels with the same personality, just keep adding more
-    intent: chatbot # The bot's intent on this channel, can be either "Chatbot" or "DungeonMaster"
+    intent: chatbot # The bot's intent on this channel, can be either "chatbot" or "dungeonMaster"
     personality: > # Define the bot's personality in first person. {0} is replaced by the bot's nickname on Discord
       I am {0}, and I am an AI chatbot.
       I am polite and professional.
@@ -22,6 +22,16 @@ personas:
     frequency-penalty: 0.2 # From -2 to 2. This penalizes the bot for token repetition
     presence-penalty: 0.2 # -2 to 2. This penalizes the bot for token presence
     chat-history-memory: 10 # The amount of messages on Discord used for the bot's memory
+    model: davinci # The model you want to use for this persona. Can be "davinci", "ada", "curie", "babbage" or "chatGpt"
+    moderation-absolute: true ## This toggles OpenAI's own flagging system and overrides the rules below
+    moderation-rules: ## Threshold for each topic that might be flagged. For more info check OpenAI's documentation
+      hate: 0.5
+      hate-threatening: 0.5
+      self-harm: 0.5
+      sexual: 0.5
+      sexual-minors: 0.5
+      violence: 0.5
+      violence-graphic: 0.5
   
   # Default configs for RPG bot
   - channel-ids:
@@ -40,3 +50,13 @@ personas:
     frequency-penalty: 0.4
     presence-penalty: 0.4
     chat-history-memory: 10
+    model: chatGpt # Proper capitalization is required
+    moderation-absolute: false # If it's set to false, the values below will be used instead
+    moderation-rules: ## Threshold for each topic that might be flagged. For more info check OpenAI's documentation
+      hate: 0.5
+      hate-threatening: 0.5
+      self-harm: 0.5
+      sexual: 0.5
+      sexual-minors: 0.5
+      violence: 0.5
+      violence-graphic: 0.5
