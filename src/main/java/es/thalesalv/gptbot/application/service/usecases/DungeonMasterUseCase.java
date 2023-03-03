@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
-import es.thalesalv.gptbot.adapters.data.db.entity.CharacterProfileEntity;
-import es.thalesalv.gptbot.adapters.data.db.entity.CharacterRegexEntity;
-import es.thalesalv.gptbot.adapters.data.db.repository.CharacterProfileRepository;
-import es.thalesalv.gptbot.adapters.data.db.repository.CharacterRegexRepository;
+import es.thalesalv.gptbot.adapters.data.db.entity.LorebookEntry;
+import es.thalesalv.gptbot.adapters.data.db.entity.LorebookRegex;
+import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
+import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.service.interfaces.GptModel;
@@ -40,11 +40,11 @@ public class DungeonMasterUseCase implements BotUseCase {
     private final JDA jda;
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
-    private final CharacterProfileRepository characterProfileRepository;
-    private final CharacterRegexRepository characterRegexRepository;
+    private final LorebookRepository lorebookRepository;
+    private final LorebookRegexRepository lorebookRegexRepository;
 
     private static final String RPG_DM_INSTRUCTIONS = "I will remember to never act or speak on behalf of {0}. I will not repeat what {0} just said. I will only describe the world around {0}.";
-    private static final String CHARACTER_DESCRIPTION = "{0}''s description is: {1}";
+    private static final String CHARACTER_DESCRIPTION = "{0} description: {1}";
     private static final Logger LOGGER = LoggerFactory.getLogger(DungeonMasterUseCase.class);
 
     @Override
@@ -54,19 +54,22 @@ public class DungeonMasterUseCase implements BotUseCase {
         if (mentions.isMentioned(bot, Message.MentionType.USER)) {
             channel.sendTyping().complete();
             final List<String> messages = new ArrayList<>();
-            final Set<CharacterProfileEntity> charactersFound = new HashSet<>();
+            final Set<LorebookEntry> entriesFound = new HashSet<>();
 
             handleMessageHistory(messages, bot, channel);
-            handlePlayerCharacters(charactersFound, messages, player, mentions);
-            handleCharactersMentioned(messages, charactersFound);
+            handlePlayerCharacterEntries(entriesFound, messages, player, mentions);
+            handleEntriesMentioned(messages, entriesFound);
 
-            charactersFound.stream().forEach(character -> {
-                messages.add(0, MessageFormat.format(RPG_DM_INSTRUCTIONS, character.getName()));
-                messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, character.getName(), character.getDescription()));
-                Optional.ofNullable(character.getPlayerDiscordId()).ifPresent(id -> {
+            entriesFound.stream().forEach(entry -> {
+                if (StringUtils.isNotBlank(entry.getPlayerDiscordId())) {
+                    messages.add(0, MessageFormat.format(RPG_DM_INSTRUCTIONS, entry.getName()));
+                }
+
+                messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription()));
+                Optional.ofNullable(entry.getPlayerDiscordId()).ifPresent(id -> {
                     final User p = jda.retrieveUserById(id).complete();
-                    messages.replaceAll(m -> m.replaceAll(p.getAsTag(), character.getName())
-                            .replaceAll("(@|)" + p.getName(), character.getName()));
+                    messages.replaceAll(m -> m.replaceAll(p.getAsTag(), entry.getName())
+                            .replaceAll("(@|)" + p.getName(), entry.getName()));
                 });
             });
 
@@ -99,52 +102,53 @@ public class DungeonMasterUseCase implements BotUseCase {
                     return m;
                 })
                 .filter(m -> !m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$"))
-                .forEach(m -> messages.add(MessageFormat.format("{0}: {1}", m.getAuthor().getName(), 
+                .forEach(m -> messages.add(MessageFormat.format("{0} says: {1}", m.getAuthor().getName(), 
                             m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim())));
 
         Collections.reverse(messages);
     }
 
     /**
-     * Extracts characters from database given the player's Discord user ID
+     * Extracts player characters entries from database given the player's Discord user ID
+     * @param entriesFound List of entries found in the messages until now
      * @param messages List of messages in the channel
      * @param player Player user
      * @param mentions Mentioned users (their characters are extracted too)
      */
-    private void handlePlayerCharacters(Set<CharacterProfileEntity> charactersFound, List<String> messages, User player, Mentions mentions) {
+    private void handlePlayerCharacterEntries(Set<LorebookEntry> entriesFound, List<String> messages, User player, Mentions mentions) {
 
-        LOGGER.debug("Entered player character handling");
-        characterProfileRepository.findByPlayerDiscordId(player.getId())
-                .ifPresent(characterProfile -> {
-                    charactersFound.add(characterProfile);
-                    messages.replaceAll(m -> m.replaceAll(player.getAsTag(), characterProfile.getName())
-                            .replaceAll("(@|)" + player.getName(), characterProfile.getName()));
+        LOGGER.debug("Entered player character entry handling");
+        lorebookRepository.findByPlayerDiscordId(player.getId())
+                .ifPresent(entry -> {
+                    entriesFound.add(entry);
+                    messages.replaceAll(m -> m.replaceAll(player.getAsTag(), entry.getName())
+                            .replaceAll("(@|)" + player.getName(), entry.getName()));
                 });
 
         mentions.getUsers().stream()
-                .forEach(mention -> characterProfileRepository.findByPlayerDiscordId(mention.getId())
-                        .ifPresent(characterProfile -> {
-                            charactersFound.add(characterProfile);
-                            messages.replaceAll(m -> m.replaceAll(mention.getAsTag(), characterProfile.getName())
-                                    .replaceAll("(@|)" + mention.getName(), characterProfile.getName()));
+                .forEach(mention -> lorebookRepository.findByPlayerDiscordId(mention.getId())
+                        .ifPresent(entry -> {
+                            entriesFound.add(entry);
+                            messages.replaceAll(m -> m.replaceAll(mention.getAsTag(), entry.getName())
+                                    .replaceAll("(@|)" + mention.getName(), entry.getName()));
                         }));
     }
 
     /**
-     * Extracts character profiles from the conversation when their Discord user is not mentioned
+     * Extracts lore entries from the conversation when they're mentioned by name
      * @param messages List of messages in the channel
-     * @param charactersFound List of characters found in the messages until now
+     * @param entriesFound List of entries found in the messages until now
      */
-    private void handleCharactersMentioned(List<String> messageList, Set<CharacterProfileEntity> charactersFound) {
+    private void handleEntriesMentioned(List<String> messageList, Set<LorebookEntry> entriesFound) {
 
-        LOGGER.debug("Entered mentioned characters handling");
+        LOGGER.debug("Entered mentioned entries handling");
         final String messages = messageList.stream().collect(Collectors.joining("\n"));
-        List<CharacterRegexEntity> charRegex = characterRegexRepository.findAll();
-        charRegex.forEach(c -> {
-            Pattern p = Pattern.compile(Pattern.quote(c.getRegex()));
+        List<LorebookRegex> charRegex = lorebookRegexRepository.findAll();
+        charRegex.forEach(e -> {
+            Pattern p = Pattern.compile(e.getRegex());
             Matcher matcher = p.matcher(messages);
             if (matcher.find()) {
-                characterProfileRepository.findById(c.getCharacterProfile().getId()).ifPresent(charactersFound::add);
+                lorebookRepository.findById(e.getLorebookEntry().getId()).ifPresent(entriesFound::add);
             }
         });
     }
@@ -152,9 +156,10 @@ public class DungeonMasterUseCase implements BotUseCase {
     private String formatAdventureForPrompt(List<String> messages, SelfUser bot) {
 
         LOGGER.debug("Entered RPG conversation formatter");
-        messages.replaceAll(message -> message.replaceAll("@" + bot.getName(), StringUtils.EMPTY).trim());
-        return messages.stream().collect(Collectors.joining("\n")).trim()
-                .replace(bot.getName() + " (ID " + bot.getId() + ")", "Dungeon Master")
-                .replace(bot.getName(), "Dungeon Master").trim();
+        messages.add("Dungeon Master says:");
+        messages.replaceAll(message -> message.replaceAll("@" + bot.getName(), StringUtils.EMPTY)
+                .replaceAll(bot.getName(), "Dungeon Master").trim());
+
+        return messages.stream().collect(Collectors.joining("\n"));
     }
 }
