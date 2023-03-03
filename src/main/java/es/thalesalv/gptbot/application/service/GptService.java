@@ -1,12 +1,8 @@
 package es.thalesalv.gptbot.application.service;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.thalesalv.gptbot.adapters.rest.OpenAIApiService;
 import es.thalesalv.gptbot.application.config.Persona;
@@ -20,7 +16,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GptService {
 
-    private final ObjectMapper objectMapper;
     private final GptRequestTranslator gptRequestTranslator;
     private final OpenAIApiService openAiService;
 
