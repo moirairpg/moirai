@@ -1,7 +1,6 @@
 package es.thalesalv.gptbot.application.service;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,7 +63,7 @@ public class ModerationService {
             throw new ModerationException("Unsafe content detected");
         
         final List<String> flaggedTopics = moderationResult.getCategoryScores().entrySet().stream()
-        		.filter(entry -> entry.getValue() >= Optional.ofNullable(persona.getModerationRules().get(entry.getKey())).orElse(defaultThreshold))
+        		.filter(entry -> entry.getValue() > Optional.ofNullable(persona.getModerationRules().get(entry.getKey())).orElse(defaultThreshold))
         		.map(Map.Entry::getKey)
         		.collect(Collectors.toList());
 
