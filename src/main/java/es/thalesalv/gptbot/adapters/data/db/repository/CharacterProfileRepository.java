@@ -1,10 +1,10 @@
 package es.thalesalv.gptbot.adapters.data.db.repository;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import es.thalesalv.gptbot.adapters.data.db.entity.CharacterProfileEntity;
@@ -18,7 +18,7 @@ public interface CharacterProfileRepository extends CrudRepository<CharacterProf
      * @param userId Player's Discord ID
      * @return Player's character profile
      */
-    CharacterProfileEntity findByPlayerDiscordId(String userId);
+    Optional<CharacterProfileEntity> findByPlayerDiscordId(String userId);
 
     /**
      * Retrieves all characters that match the list of names provided
@@ -26,5 +26,5 @@ public interface CharacterProfileRepository extends CrudRepository<CharacterProf
      * @param names List containing names to look up
      * @return Character profiles with those names
      */
-    HashSet<CharacterProfileEntity> findByNameIn(@Param("names") HashSet<String> names);
+    HashSet<CharacterProfileEntity> findByNameIn(HashSet<String> names);
 }

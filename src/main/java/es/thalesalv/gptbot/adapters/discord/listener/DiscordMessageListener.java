@@ -2,8 +2,6 @@ package es.thalesalv.gptbot.adapters.discord.listener;
 
 import java.text.MessageFormat;
 
-import javax.annotation.Nonnull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -41,7 +39,7 @@ public class DiscordMessageListener extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordMessageListener.class);
 
     @Override
-    public void onMessageReceived(final @Nonnull MessageReceivedEvent event) {
+    public void onMessageReceived(MessageReceivedEvent event) {
 
         LOGGER.debug("Message received -> {}", event);
         final SelfUser bot = event.getJDA().getSelfUser();
