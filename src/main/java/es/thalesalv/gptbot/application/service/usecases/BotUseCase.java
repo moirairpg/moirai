@@ -1,6 +1,6 @@
 package es.thalesalv.gptbot.application.service.usecases;
 
-import es.thalesalv.gptbot.application.service.models.gpt.GptModel;
+import es.thalesalv.gptbot.application.service.interfaces.GptModel;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;

@@ -1,4 +1,4 @@
-package es.thalesalv.gptbot.application.service.models.gpt;
+package es.thalesalv.gptbot.application.service.interfaces;
 
 import es.thalesalv.gptbot.application.config.Persona;
 import reactor.core.publisher.Mono;

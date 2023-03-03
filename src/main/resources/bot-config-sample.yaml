@@ -22,7 +22,8 @@ personas:
     frequency-penalty: 0.2 # From -2 to 2. This penalizes the bot for token repetition
     presence-penalty: 0.2 # -2 to 2. This penalizes the bot for token presence
     chat-history-memory: 10 # The amount of messages on Discord used for the bot's memory
-    model: davinci # The model you want to use for this persona. Can be "davinci", "ada", "curie", "babbage" or "chatGpt"
+    model-name: text-davinci-003 # The model you want to use for this persona. Check OpenAI API to see available models
+    model-family: gpt3 # The family of the model. More details on OpenAI API. Can be either "gpt3" or "chatGpt"
     moderation-absolute: true ## This toggles OpenAI's own flagging system and overrides the rules below
     moderation-rules: ## Threshold for each topic that might be flagged. For more info check OpenAI's documentation
       hate: 0.5
@@ -50,7 +51,8 @@ personas:
     frequency-penalty: 0.4
     presence-penalty: 0.4
     chat-history-memory: 5 # Not recommended to use more than 5 so the AI's context doesn't break
-    model: chatGpt # Proper capitalization is required
+    model-name: text-davinci-003 # The model you want to use for this persona. Check OpenAI API to see available models
+    model-family: chatGpt # Proper capitalization is required
     moderation-absolute: false # If it's set to false, the values below will be used instead
     moderation-rules: ## Threshold for each topic that might be flagged. For more info check OpenAI's documentation
       hate: 0.5
