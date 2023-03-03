@@ -34,3 +34,4 @@ build/
 
 ### Project Files ###
 src/main/resources/bot-config.yaml
+logs/
