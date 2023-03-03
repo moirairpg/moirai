@@ -3,12 +3,10 @@ package es.thalesalv.gptbot.application.translator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.gptbot.adapters.data.ContextDatastore;
+import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
-import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 public class GptRequestTranslator {
 
     @Value("${config.bot.generation.default-max-tokens}")
@@ -23,14 +21,12 @@ public class GptRequestTranslator {
     @Value("${config.bot.generation.default-frequency-penalty}")
     private double defaultFrequencyPenalty;
 
-    private final ContextDatastore contextDatastore;
+    public GptRequest buildRequest(String prompt, String model, Persona persona) {
 
-    public GptRequest buildRequest(String prompt, String model) {
-
-        final int maxTokens = contextDatastore.isPersonaNull() ? defaultMaxTokens : contextDatastore.getPersona().getMaxTokens();
-        final double temperature = contextDatastore.isPersonaNull() ? defaultTemperature : contextDatastore.getPersona().getTemperature();
-        final double presencePenalty = contextDatastore.isPersonaNull() ? defaultPresencePenalty : contextDatastore.getPersona().getPresencePenalty();
-        final double frequencyPenalty = contextDatastore.isPersonaNull() ? defaultFrequencyPenalty : contextDatastore.getPersona().getFrequencyPenalty();
+        final int maxTokens = persona == null ? defaultMaxTokens : persona.getMaxTokens();
+        final double temperature = persona == null ? defaultTemperature : persona.getTemperature();
+        final double presencePenalty = persona == null ? defaultPresencePenalty : persona.getPresencePenalty();
+        final double frequencyPenalty = persona == null ? defaultFrequencyPenalty : persona.getFrequencyPenalty();
 
         return GptRequest.builder()
             .prompt(prompt)
