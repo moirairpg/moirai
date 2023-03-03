@@ -113,6 +113,7 @@ public class OpenAIApiService {
         LOGGER.debug("Exception caught while calling OpenAI API");
         return clientResponse.bodyToMono(GptResponse.class)
             .map(errorResponse -> {
+                // TODO if the error is because the prompt exceeds max tokens, user needs to be notified by discord
                 LOGGER.error("Error while calling OpenAI API. Message -> {}", errorResponse.getError().getMessage());
                 return new OpenAiApiException("Error while calling OpenAI API.", errorResponse);
             });
