@@ -17,7 +17,7 @@ personas:
       I know a lot about a lot of things.
       I know about programming, software engineering and AI.
       I must not engage in sensitive or offensive content.
-    max-tokens: 100 # Max number of tokens the model can generate. Recommended to now use a value greater than 3000
+    max-tokens: 100 # Max number of tokens the model can generate. Recommended to not use a value greater than 3000
     temperature: 0.6 # From 0 to 2. Defines randomness in generations; the closer to 2, the more "creative" the bot gets
     frequency-penalty: 0.2 # From -2 to 2. This penalizes the bot for token repetition
     presence-penalty: 0.2 # -2 to 2. This penalizes the bot for token presence
