@@ -11,6 +11,9 @@ config:
         api-token: ${OPENAI_API_TOKEN}
 
 spring:
+    profiles.active: default
+    main:
+        banner-mode: "off"
     jpa.hibernate.ddl-auto: update
     datasource:
         url: jdbc:postgresql://${POSTGRES_HOST}/${POSTGRES_DB}
@@ -19,5 +22,10 @@ spring:
 
 logging:
     level:
-        org.hibernate.SQL: DEBUG
-        org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+        root: INFO
+        es.thalesalv: DEBUG
+        org.hibernate: ERROR
+        com.zaxxer.hikari: ERROR
+        net.dv8tion.jda: ERROR
+        org.springframework: ERROR
+        ch.qos.logback: ERROR
