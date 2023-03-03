@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -57,13 +58,11 @@ public class ModerationService {
 
         if (Boolean.parseBoolean(persona.getModerationAbsolute()) && moderationResult.isFlagged())
             throw new ModerationException("Unsafe content detected");
-
-        final List<String> flaggedTopics = new ArrayList<>();
-        final Map<String, Double> scores = moderationResult.getCategoryScores();
-        scores.forEach((scoreTopic, scoreValue) -> persona.getModerationRules().entrySet().stream()
-                .filter(moderationEntry -> moderationEntry.getKey().equals(scoreTopic))
-                .filter(moderationEntry -> scoreValue.doubleValue() > moderationEntry.getValue().doubleValue())
-                .forEach(moderationEntry -> flaggedTopics.add(moderationEntry.getKey())));
+        
+        final List<String> flaggedTopics = moderationResult.getCategoryScores().entrySet().stream()
+        		.filter(entry -> entry.getValue() >= Optional.ofNullable(persona.getModerationRules().get(entry.getKey())).orElse((double) 1))
+        		.map(Map.Entry::getKey)
+        		.collect(Collectors.toList());
 
         if (!flaggedTopics.isEmpty())
             throw new ModerationException("Unsafe content detected", flaggedTopics);
