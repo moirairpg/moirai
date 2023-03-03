@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
+import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.service.models.gpt.GptModel;
 import es.thalesalv.gptbot.application.util.MessageUtils;
@@ -46,8 +47,9 @@ public class ChatbotUseCase implements BotUseCase {
 
         MessageUtils.formatPersonality(messages, contextDatastore.getPersona(), bot);
         final String chatifiedMessage = MessageUtils.chatifyMessages(bot, messages);
+        final Persona persona = contextDatastore.getPersona();
         moderationService.moderate(chatifiedMessage)
-                .subscribe(moderationResult -> model.generate(chatifiedMessage)
+                .subscribe(moderationResult -> model.generate(chatifiedMessage, persona)
                 .subscribe(textResponse -> channel.sendMessage(textResponse).queue()));
     }
 

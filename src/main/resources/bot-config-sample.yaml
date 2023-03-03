@@ -17,8 +17,8 @@ personas:
       I know a lot about a lot of things.
       I know about programming, software engineering and AI.
       I must not engage in sensitive or offensive content.
-    max-tokens: 100 # Max number of tokens the model can generate
-    temperature: 0.6 # From 0 to 1. Defines randomness in generations; the closer to 0, the more "creative" the bot gets
+    max-tokens: 100 # Max number of tokens the model can generate. Recommended to now use a value greater than 3000
+    temperature: 0.6 # From 0 to 2. Defines randomness in generations; the closer to 2, the more "creative" the bot gets
     frequency-penalty: 0.2 # From -2 to 2. This penalizes the bot for token repetition
     presence-penalty: 0.2 # -2 to 2. This penalizes the bot for token presence
     chat-history-memory: 10 # The amount of messages on Discord used for the bot's memory
@@ -45,11 +45,11 @@ personas:
       Do not speak or act on behalf of characters, instead offer descriptions of options or environments.
       Above all I am the game master for this adventure.
       Describe characters and environments naturally.
-    max-tokens: 500
+    max-tokens: 500 # With RPG, take extra care with tokens; the AI has a maximum number it can handle, and it's 4097 INCLUDING its response
     temperature: 0.8
     frequency-penalty: 0.4
     presence-penalty: 0.4
-    chat-history-memory: 10
+    chat-history-memory: 5 # Not recommended to use more than 5 so the AI's context doesn't break
     model: chatGpt # Proper capitalization is required
     moderation-absolute: false # If it's set to false, the values below will be used instead
     moderation-rules: ## Threshold for each topic that might be flagged. For more info check OpenAI's documentation

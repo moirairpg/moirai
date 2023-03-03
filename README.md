@@ -9,7 +9,6 @@ Malaquias is a Discord bot powered by JDA that is connected to OpenAI's GPT-3 AP
 * Spring Data
 * JDA
 * PostgreSQL
-* Stamford CoreNLP
 
 ## What does it do?
 Well, pretty much the same as ChatGPT, but for Discord. Same as Jurandir, but with GPT-3. Same as KoboldAI and AI Dungeon, but on Discord. Not much to say here.

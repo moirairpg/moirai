@@ -1,7 +1,5 @@
 package es.thalesalv.gptbot.adapters.discord.listener;
 
-import javax.annotation.Nonnull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,7 +15,7 @@ public class DiscordEventListener implements EventListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordEventListener.class);
 
     @Override
-    public void onEvent(final @Nonnull GenericEvent event) {
+    public void onEvent(GenericEvent event) {
 
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
