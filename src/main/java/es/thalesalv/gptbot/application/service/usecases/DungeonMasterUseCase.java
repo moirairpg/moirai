@@ -44,7 +44,7 @@ public class DungeonMasterUseCase implements BotUseCase {
     private final LorebookRegexRepository lorebookRegexRepository;
 
     private static final String RPG_DM_INSTRUCTIONS = "I will remember to never act or speak on behalf of {0}. I will not repeat what {0} just said. I will only describe the world around {0}.";
-    private static final String CHARACTER_DESCRIPTION = "{0}''s description is: {1}";
+    private static final String CHARACTER_DESCRIPTION = "{0} description: {1}";
     private static final Logger LOGGER = LoggerFactory.getLogger(DungeonMasterUseCase.class);
 
     @Override
@@ -102,7 +102,7 @@ public class DungeonMasterUseCase implements BotUseCase {
                     return m;
                 })
                 .filter(m -> !m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$"))
-                .forEach(m -> messages.add(MessageFormat.format("{0}: {1}", m.getAuthor().getName(), 
+                .forEach(m -> messages.add(MessageFormat.format("{0} says: {1}", m.getAuthor().getName(), 
                             m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim())));
 
         Collections.reverse(messages);
@@ -156,7 +156,7 @@ public class DungeonMasterUseCase implements BotUseCase {
     private String formatAdventureForPrompt(List<String> messages, SelfUser bot) {
 
         LOGGER.debug("Entered RPG conversation formatter");
-        messages.add("Dungeon Master:");
+        messages.add("Dungeon Master says:");
         messages.replaceAll(message -> message.replaceAll("@" + bot.getName(), StringUtils.EMPTY)
                 .replaceAll(bot.getName(), "Dungeon Master").trim());
 
