@@ -3,11 +3,13 @@ package es.thalesalv.gptbot.application.config;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 public class Persona {
 
     private List<String> channelIds;
