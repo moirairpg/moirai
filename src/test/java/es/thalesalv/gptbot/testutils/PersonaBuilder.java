@@ -25,7 +25,8 @@ public class PersonaBuilder {
         return Persona.builder()
                 .maxTokens(100)
                 .intent("rpg")
-                .model("text-davinch-003")
+                .modelName("text-davinch-003")
+                .modelFamily("gpt3")
                 .moderationAbsolute("false")
                 .moderationRules(thresholds)
                 .build();
