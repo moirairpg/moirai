@@ -6,10 +6,10 @@ import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import es.thalesalv.gptbot.adapters.data.db.entity.CharacterRegexEntity;
+import es.thalesalv.gptbot.adapters.data.db.entity.LorebookRegex;
 
 @Repository
-public interface CharacterRegexRepository extends CrudRepository<CharacterRegexEntity, UUID> {
+public interface LorebookRegexRepository extends CrudRepository<LorebookRegex, UUID> {
 
-    List<CharacterRegexEntity> findAll();
+    List<LorebookRegex> findAll();
 }
