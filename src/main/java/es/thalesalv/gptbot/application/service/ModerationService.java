@@ -4,10 +4,12 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
@@ -32,6 +34,9 @@ public class ModerationService {
     private final JDA jda;
     private final ContextDatastore contextDatastore;
     private final OpenAIApiService openAIApiService;
+    
+    @Value("${config.bot.generation.default-threshold}")
+    private double defaultThreshold;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModerationService.class);
     private static final String FLAGGED_MESSAGE = "The message you sent has content that was flagged by OpenAI''s moderation. Your message has been deleted from the conversation channel.";
@@ -57,13 +62,11 @@ public class ModerationService {
 
         if (Boolean.parseBoolean(persona.getModerationAbsolute()) && moderationResult.isFlagged())
             throw new ModerationException("Unsafe content detected");
-
-        final List<String> flaggedTopics = new ArrayList<>();
-        final Map<String, Double> scores = moderationResult.getCategoryScores();
-        scores.forEach((scoreTopic, scoreValue) -> persona.getModerationRules().entrySet().stream()
-                .filter(moderationEntry -> moderationEntry.getKey().equals(scoreTopic))
-                .filter(moderationEntry -> scoreValue.doubleValue() > moderationEntry.getValue().doubleValue())
-                .forEach(moderationEntry -> flaggedTopics.add(moderationEntry.getKey())));
+        
+        final List<String> flaggedTopics = moderationResult.getCategoryScores().entrySet().stream()
+        		.filter(entry -> entry.getValue() >= Optional.ofNullable(persona.getModerationRules().get(entry.getKey())).orElse(defaultThreshold))
+        		.map(Map.Entry::getKey)
+        		.collect(Collectors.toList());
 
         if (!flaggedTopics.isEmpty())
             throw new ModerationException("Unsafe content detected", flaggedTopics);
