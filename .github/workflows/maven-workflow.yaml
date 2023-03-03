@@ -16,6 +16,7 @@ jobs:
         run: mvn test
       - name: Code coverage
         uses: paambaati/codeclimate-action@v3.2.0
+        if: github.ref == 'refs/heads/master'
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
           JACOCO_SOURCE_PATH: "${{github.workspace}}/src/main/java"
