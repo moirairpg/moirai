@@ -7,9 +7,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import es.thalesalv.gptbot.application.config.Persona;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MessageUtils {
 
     public static String chatifyMessages(final User bot, final List<String> messages) {
