@@ -3,7 +3,7 @@ package es.thalesalv.gptbot.application.service;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.rest.OpenAIApiService;
 import es.thalesalv.gptbot.application.config.Persona;
@@ -14,7 +14,7 @@ import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class ChatGptModel implements GptModel {
 
