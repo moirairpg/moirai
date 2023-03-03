@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "character_regex")
-public class CharacterRegexEntity {
+@Table(name = "lorebook_regex")
+public class LorebookRegex {
 
     @Id
     private UUID id;
@@ -26,6 +26,6 @@ public class CharacterRegexEntity {
     private String regex;
 
     @OneToOne
-    @JoinColumn(name="character_id", referencedColumnName="id")
-    private CharacterProfileEntity characterProfile;
+    @JoinColumn(name = "lorebook_id", referencedColumnName = "id")
+    private LorebookEntry lorebookEntry;
 }

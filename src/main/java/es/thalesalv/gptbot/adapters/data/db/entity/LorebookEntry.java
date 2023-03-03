@@ -14,19 +14,22 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "character_profile")
-public class CharacterProfileEntity {
+@Table(name = "lorebook")
+public class LorebookEntry {
 
     @Id
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-    @Column(name = "player_discord_id", unique = true, nullable = true)
-    private String playerDiscordId;
-
-    @Column(name = "character_name")
+    @Column(name = "entry_name")
     private String name;
 
-    @Column(name = "character_description", length = 1000)
+    @Column(name = "entry_description", length = 1000)
     private String description;
+
+    /**
+     * ID of the Discord user who "owns" this entry, when it's a PC
+     */
+    @Column(name = "player_discord_id", unique = true, nullable = true)
+    private String playerDiscordId;
 }
