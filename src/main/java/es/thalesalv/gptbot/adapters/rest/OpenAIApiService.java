@@ -4,11 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import es.thalesalv.gptbot.domain.exception.ErrorBotResponseException;
+import es.thalesalv.gptbot.domain.exception.OpenAiApiException;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationRequest;
@@ -46,6 +49,7 @@ public class OpenAIApiService {
                 })
                 .bodyValue(request)
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, this::handle4xxError)
                 .bodyToMono(GptResponse.class)
                 .map(response -> {
                     LOGGER.debug("Received response from OpenAI GPT API -> {}", response);
@@ -71,6 +75,7 @@ public class OpenAIApiService {
                 })
                 .bodyValue(request)
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, this::handle4xxError)
                 .bodyToMono(GptResponse.class)
                 .map(response -> {
                     LOGGER.debug("Received response from OpenAI GPT API -> {}", response);
@@ -101,5 +106,16 @@ public class OpenAIApiService {
                     LOGGER.debug("Received response from OpenAI moderation API -> {}", response);
                     return response;
                 });
+    }
+
+    private Mono<Throwable> handle4xxError(final ClientResponse clientResponse) {
+
+        LOGGER.debug("Exception caught while calling OpenAI API");
+        return clientResponse.bodyToMono(GptResponse.class)
+            .map(errorResponse -> {
+                // TODO if the error is because the prompt exceeds max tokens, user needs to be notified by discord
+                LOGGER.error("Error while calling OpenAI API. Message -> {}", errorResponse.getError().getMessage());
+                return new OpenAiApiException("Error while calling OpenAI API.", errorResponse);
+            });
     }
 }

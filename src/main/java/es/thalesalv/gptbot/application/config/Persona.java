@@ -15,7 +15,8 @@ public class Persona {
     private List<String> channelIds;
     private String intent;
     private String personality;
-    private String model;
+    private String modelName;
+    private String modelFamily;
     private int maxTokens;
     private int chatHistoryMemory;
     private double temperature;
