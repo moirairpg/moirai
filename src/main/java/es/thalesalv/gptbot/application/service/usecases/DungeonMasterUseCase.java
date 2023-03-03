@@ -145,7 +145,7 @@ public class DungeonMasterUseCase implements BotUseCase {
         final String messages = messageList.stream().collect(Collectors.joining("\n"));
         List<LorebookRegex> charRegex = lorebookRegexRepository.findAll();
         charRegex.forEach(e -> {
-            Pattern p = Pattern.compile(Pattern.quote(e.getRegex()));
+            Pattern p = Pattern.compile(e.getRegex());
             Matcher matcher = p.matcher(messages);
             if (matcher.find()) {
                 lorebookRepository.findById(e.getLorebookEntry().getId()).ifPresent(entriesFound::add);
@@ -156,9 +156,10 @@ public class DungeonMasterUseCase implements BotUseCase {
     private String formatAdventureForPrompt(List<String> messages, SelfUser bot) {
 
         LOGGER.debug("Entered RPG conversation formatter");
-        messages.replaceAll(message -> message.replaceAll("@" + bot.getName(), StringUtils.EMPTY).trim());
-        return messages.stream().collect(Collectors.joining("\n")).trim()
-                .replace(bot.getName() + " (ID " + bot.getId() + ")", "Dungeon Master")
-                .replace(bot.getName(), "Dungeon Master").trim();
+        messages.add("Dungeon Master:");
+        messages.replaceAll(message -> message.replaceAll("@" + bot.getName(), StringUtils.EMPTY)
+                .replaceAll(bot.getName(), "Dungeon Master").trim());
+
+        return messages.stream().collect(Collectors.joining("\n"));
     }
 }
