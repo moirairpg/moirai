@@ -23,7 +23,7 @@ import es.thalesalv.gptbot.adapters.data.db.repository.CharacterProfileRepositor
 import es.thalesalv.gptbot.adapters.data.db.repository.CharacterRegexRepository;
 import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.service.ModerationService;
-import es.thalesalv.gptbot.application.service.models.gpt.GptModel;
+import es.thalesalv.gptbot.application.service.interfaces.GptModel;
 import es.thalesalv.gptbot.application.util.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;

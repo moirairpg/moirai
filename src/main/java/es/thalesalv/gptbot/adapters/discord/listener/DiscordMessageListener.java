@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.BotConfig;
-import es.thalesalv.gptbot.application.service.models.gpt.GptModel;
+import es.thalesalv.gptbot.application.service.interfaces.GptModel;
 import es.thalesalv.gptbot.application.service.usecases.BotUseCase;
 import es.thalesalv.gptbot.application.translator.MessageEventDataTranslator;
 import es.thalesalv.gptbot.domain.exception.ErrorBotResponseException;
@@ -55,7 +55,7 @@ public class DiscordMessageListener extends ListenerAdapter {
                     if (isCurrentChannel) {
                         contextDatastore.setPersona(persona);
                         contextDatastore.setMessageEventData(messageEventDataTranslator.translate(bot, messageAuthor, message, channel));
-                        final GptModel model = (GptModel) applicationContext.getBean(persona.getModel() + MODEL);
+                        final GptModel model = (GptModel) applicationContext.getBean(persona.getModelFamily() + MODEL);
                         final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                         useCase.generateResponse(bot, messageAuthor, message, channel, mentions, model);
                     }
