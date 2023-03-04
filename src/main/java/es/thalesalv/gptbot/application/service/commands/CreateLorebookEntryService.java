@@ -76,8 +76,9 @@ public class CreateLorebookEntryService implements CommandService {
             objectMapper.setSerializationInclusion(Include.NON_NULL);
             final PrivateChannel privateChannel = author.openPrivateChannel().complete();
             final String loreEntryJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(insertedEntry);
-            event.reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getName(), loreEntryJson)).complete();
             privateChannel.sendMessage(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getName(), loreEntryJson)).complete();
+            event.reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getName(), loreEntryJson))
+                        .setEphemeral(true).complete();
         } catch (JsonProcessingException e) {
             LOGGER.error("Error serializing lore entry object", e);
         }
