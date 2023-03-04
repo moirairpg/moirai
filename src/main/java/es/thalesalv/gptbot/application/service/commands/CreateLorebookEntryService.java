@@ -38,7 +38,7 @@ public class CreateLorebookEntryService implements CommandService {
 
     private static final String ERROR_CREATE = "There was an error parsing your request. Please try again.";
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookEntryService.class);
-    private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don't forget to save this ID!\n```json\n{1}\n```";
+    private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don''t forget to save this ID!\n```json\n{1}\n```";
 
     @Override
     public void handle(final SlashCommandInteractionEvent event) {
@@ -54,7 +54,6 @@ public class CreateLorebookEntryService implements CommandService {
         try {
             LOGGER.debug("Received data from character creation modal -> {}", event.getValues());
             event.deferReply();
-
             final User author = event.getMember().getUser();
             final String entryName = event.getValue("lorebook-entry-name").getAsString();
             final String entryRegex = event.getValue("lorebook-entry-regex").getAsString();
@@ -67,7 +66,7 @@ public class CreateLorebookEntryService implements CommandService {
                     entryDescription, lorebookEntryId, lorebookRegexId, isPlayerCharacter);
 
             final LorebookDTO loreItem = lorebookEntryToDTOTranslator.apply(insertedEntry);
-            final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_NULL)
+            final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
 
             event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
