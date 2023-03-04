@@ -52,6 +52,7 @@ public class CreateLorebookEntryService implements CommandService {
         try {
             LOGGER.debug("Received data from character creation modal -> {}", event.getValues());
             event.deferReply();
+
             final User author = event.getMember().getUser();
             final String entryName = event.getValue("lorebook-entry-name").getAsString();
             final String entryRegex = event.getValue("lorebook-entry-regex").getAsString();
