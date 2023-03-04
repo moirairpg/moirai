@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.Generators;
 
@@ -17,9 +16,10 @@ import es.thalesalv.gptbot.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.gptbot.adapters.data.db.entity.LorebookRegex;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.gptbot.application.translator.LorebookEntryToDTOTranslator;
+import es.thalesalv.gptbot.domain.model.openai.dto.LorebookDTO;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -34,12 +34,13 @@ public class CreateLorebookEntryService implements CommandService {
     private final ObjectMapper objectMapper;
     private final LorebookRepository lorebookRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
+    private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookEntryService.class);
-    private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created.\n```json\n{1}\n```";
+    private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don't forget to save this ID!\n```json\n{1}\n```";
 
     @Override
-    public void handle(SlashCommandInteractionEvent event) {
+    public void handle(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Showing modal for character creation");
         final Modal modal = buildEntryCreationModal();
@@ -47,7 +48,7 @@ public class CreateLorebookEntryService implements CommandService {
     }
 
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void handle(final ModalInteractionEvent event) {
 
         try {
             LOGGER.debug("Received data from character creation modal -> {}", event.getValues());
@@ -60,28 +61,19 @@ public class CreateLorebookEntryService implements CommandService {
             final String entryPlayerCharacter = event.getValue("lorebook-entry-player").getAsString();
             final boolean isPlayerCharacter = entryPlayerCharacter.equals("y");
             final UUID lorebookEntryId = Generators.randomBasedGenerator().generate();
-            final LorebookEntry insertedEntry = lorebookRepository.save(LorebookEntry.builder()
-                    .id(lorebookEntryId)
-                    .name(entryName)
-                    .description(entryDescription)
-                    .playerDiscordId(Optional.of(author.getId()).filter(a -> isPlayerCharacter).orElse(null))
-                    .build());
-
             final UUID lorebookRegexId = Generators.randomBasedGenerator().generate();
-            lorebookRegexRepository.save(LorebookRegex.builder()
-                    .id(lorebookRegexId)
-                    .regex(Optional.ofNullable(entryRegex).orElse(entryName))
-                    .lorebookEntry(insertedEntry)
-                    .build());
+            final LorebookRegex insertedEntry = insertEntry(author, entryName, entryRegex,
+                    entryDescription, lorebookEntryId, lorebookRegexId, isPlayerCharacter);
 
-            objectMapper.setSerializationInclusion(Include.NON_NULL);
-            final PrivateChannel privateChannel = author.openPrivateChannel().complete();
-            final String loreEntryJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(insertedEntry);
-            privateChannel.sendMessage(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getName(), loreEntryJson)).complete();
-            event.reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getName(), loreEntryJson))
-                        .setEphemeral(true).complete();
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Error serializing lore entry object", e);
+            final LorebookDTO loreItem = lorebookEntryToDTOTranslator.apply(insertedEntry);
+            final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_NULL)
+                    .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
+
+            event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
+                            insertedEntry.getLorebookEntry().getName(), loreEntryJson))
+                    .setEphemeral(true).complete();
+        } catch (Exception e) {
+            LOGGER.error("Error processing entry object", e);
         }
     }
 
@@ -111,11 +103,31 @@ public class CreateLorebookEntryService implements CommandService {
                 .create("lorebook-entry-player", "Is this a player character?", TextInputStyle.SHORT)
                 .setPlaceholder("y or n")
                 .setMaxLength(1)
+                .setRequired(true)
                 .build();
 
         return Modal.create("create-lorebook-entry-data", "Lorebook Entry Creation")
                 .addComponents(ActionRow.of(lorebookEntryName), ActionRow.of(lorebookEntryRegex),
                         ActionRow.of(lorebookEntryDescription), ActionRow.of(lorebookEntryPlayer))
                 .build();
+    }
+
+    private LorebookRegex insertEntry(final User author, final String entryName, final String entryRegex,
+            final String entryDescription, final UUID lorebookEntryId, final UUID lorebookRegexId, final boolean isPlayerCharacter) {
+
+        final LorebookEntry insertedEntry = lorebookRepository.save(LorebookEntry.builder()
+                .id(lorebookEntryId)
+                .name(entryName)
+                .description(entryDescription)
+                .playerDiscordId(Optional.of(author.getId())
+                        .filter(a -> isPlayerCharacter)
+                        .orElse(null))
+                .build());
+
+        return lorebookRegexRepository.save(LorebookRegex.builder()
+                .id(lorebookRegexId)
+                .regex(Optional.ofNullable(entryRegex).orElse(entryName))
+                .lorebookEntry(insertedEntry)
+                .build());
     }
 }

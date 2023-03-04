@@ -1,6 +1,7 @@
 package es.thalesalv.gptbot.adapters.data.db.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;
@@ -14,4 +15,5 @@ public interface LorebookRegexRepository extends CrudRepository<LorebookRegex, U
 
     List<LorebookRegex> findAll();
     void deleteByLorebookEntry(LorebookEntry lorebookEntry);
+    Optional<LorebookRegex> findByLorebookEntry(LorebookEntry lorebookEntry);
 }

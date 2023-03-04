@@ -5,6 +5,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 public interface CommandService {
 
-    void handle(SlashCommandInteractionEvent event);
-    void handle(ModalInteractionEvent event);
+    void handle(final SlashCommandInteractionEvent event);
+    void handle(final ModalInteractionEvent event);
 }

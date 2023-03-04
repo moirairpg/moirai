@@ -19,6 +19,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
     private final BeanFactory beanFactory;
 
+    private static final String NON_EXISTING_COMMAND = "The command you tried to use does not exist. Please use `create`, `delete` or `update` as the argument.";
     private static final String LOREBOOK_ENTRY_SERVICE = "LorebookEntryService";
     private static final Logger LOGGER = LoggerFactory.getLogger(SlashCommandListener.class);
 
@@ -36,7 +37,7 @@ public class SlashCommandListener extends ListenerAdapter {
             }
         } catch (NoSuchBeanDefinitionException e) {
             LOGGER.debug("User tried a command that does not exist");
-            event.reply("The command you tried to use does not exist. Please use `create`, `delete` or `update` as the argument.").complete();
+            event.reply(NON_EXISTING_COMMAND).setEphemeral(true).complete();
         }
     }
 
