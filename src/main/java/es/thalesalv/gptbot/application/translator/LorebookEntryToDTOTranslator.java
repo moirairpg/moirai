@@ -14,10 +14,10 @@ public class LorebookEntryToDTOTranslator implements Function<LorebookRegex, Lor
     public LorebookDTO apply(LorebookRegex t) {
 
         return LorebookDTO.builder()
-                .loreEntryDescription(t.getLorebookEntry().getDescription())
-                .loreEntryName(t.getLorebookEntry().getName())
-                .loreEntryRegex(t.getRegex())
-                .loreEntryId(t.getLorebookEntry().getId())
+                .id(t.getLorebookEntry().getId())
+                .description(t.getLorebookEntry().getDescription())
+                .name(t.getLorebookEntry().getName())
+                .regex(t.getRegex())
                 .build();
     }
 }
