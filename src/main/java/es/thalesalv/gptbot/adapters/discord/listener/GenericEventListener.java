@@ -41,7 +41,7 @@ public class GenericEventListener implements EventListener {
         LOGGER.debug("Registering slash commands.");
         final JDA jda = event.getJDA();
         final SlashCommandData lorebook = Commands.slash("lorebook", "Manages lorebook entries.")
-                .addOption(OptionType.STRING, "action", "One of the following: create, update, delete", true)
+                .addOption(OptionType.STRING, "action", "One of the following: create, retrieve, update, delete", true)
                 .addOption(OptionType.STRING, "lorebook-entry-id", "UUID of the entry to be managed. Usable for delete, update and retrieve.", false);
 
         jda.updateCommands().addCommands(lorebook).complete();

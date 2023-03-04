@@ -9,9 +9,9 @@ import lombok.Data;
 @Builder
 public class LorebookDTO {
 
-    private UUID loreEntryId;
-    private String loreEntryName;
-    private String loreEntryRegex;
-    private String loreEntryDescription;
+    private UUID id;
+    private String name;
+    private String regex;
+    private String description;
     private String playerDiscordId;
 }
