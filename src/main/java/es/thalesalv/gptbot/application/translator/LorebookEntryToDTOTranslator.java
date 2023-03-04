@@ -16,6 +16,7 @@ public class LorebookEntryToDTOTranslator implements Function<LorebookRegex, Lor
         return LorebookDTO.builder()
                 .id(t.getLorebookEntry().getId())
                 .description(t.getLorebookEntry().getDescription())
+                .playerDiscordId(t.getLorebookEntry().getPlayerDiscordId())
                 .name(t.getLorebookEntry().getName())
                 .regex(t.getRegex())
                 .build();
