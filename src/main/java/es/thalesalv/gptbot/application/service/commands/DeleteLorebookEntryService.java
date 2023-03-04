@@ -14,6 +14,7 @@ import es.thalesalv.gptbot.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.gptbot.application.config.CommandEventData;
+import es.thalesalv.gptbot.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.gptbot.domain.exception.MissingRequiredSlashCommandOptionException;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -45,11 +46,17 @@ public class DeleteLorebookEntryService implements CommandService {
         try {
             LOGGER.debug("Showing modal for character deletion");
             final UUID entryId = retrieveEntryId(event.getOption("lorebook-entry-id"));
+
+            lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
+                    .orElseThrow(LorebookEntryNotFoundException::new);
             contextDatastore.setCommandEventData(CommandEventData.builder()
                     .lorebookEntryId(entryId).build());
 
             final Modal modal = buildEntryDeletionModal();
             event.replyModal(modal).queue();
+        } catch (LorebookEntryNotFoundException e) {
+            LOGGER.debug("User tried to delete an entry that does not exist");
+            event.reply("The entry queried does not exist.").setEphemeral(true).complete();
         } catch (MissingRequiredSlashCommandOptionException e) {
             LOGGER.debug("User tried to use update command without ID");
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true).complete();
