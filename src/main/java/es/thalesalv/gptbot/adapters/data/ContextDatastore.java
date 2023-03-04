@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import es.thalesalv.gptbot.application.config.CommandEventData;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.config.Persona;
 
@@ -11,6 +12,7 @@ import es.thalesalv.gptbot.application.config.Persona;
 public class ContextDatastore {
 
     private ThreadLocal<MessageEventData> messageEventData = new ThreadLocal<>();
+    private ThreadLocal<CommandEventData> commandEventData = new ThreadLocal<>();
     private ThreadLocal<Persona> persona = new ThreadLocal<>();
 
     public void setPersona(final Persona persona) {
@@ -37,8 +39,21 @@ public class ContextDatastore {
         return Objects.isNull(messageEventData.get());
     }
 
+    public void setCommandEventData(final CommandEventData commandEventData) {
+        this.commandEventData.set(commandEventData);
+    }
+
+    public CommandEventData getCommandEventData() {
+        return this.commandEventData.get();
+    }
+
+    public boolean isCommandEventDataNull() {
+        return Objects.isNull(commandEventData.get());
+    }
+
     public void clearContext() {
         this.persona.remove();
         this.messageEventData.remove();
+        this.commandEventData.remove();
     }
 }
