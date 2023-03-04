@@ -90,7 +90,7 @@ public class UpdateLorebookEntryService implements CommandService {
                     updatedEntryName, playerId, updatedEntryRegex);
 
             final LorebookDTO entry = lorebookEntryToDTOTranslator.apply(updatedEntry);
-            final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_NULL)
+            final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(entry);
 
             event.reply(MessageFormat.format(ENTRY_UPDATED, updatedEntry.getLorebookEntry().getName(), loreEntryJson))
@@ -152,9 +152,13 @@ public class UpdateLorebookEntryService implements CommandService {
                 .setRequired(true)
                 .build();
 
+        final String regex = Optional.ofNullable(lorebookRegex.getRegex())
+                .filter(StringUtils::isNotBlank)
+                .orElse(lorebookRegex.getLorebookEntry().getName());
+
         final TextInput lorebookEntryRegex = TextInput
                 .create("lorebook-entry-regex", "Regular Expression (optional)", TextInputStyle.SHORT)
-                .setValue(lorebookRegex.getRegex())
+                .setValue(regex)
                 .setRequired(false)
                 .build();
 
