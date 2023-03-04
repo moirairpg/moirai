@@ -3,6 +3,7 @@ package es.thalesalv.gptbot.adapters.discord.listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.application.service.commands.CommandService;
@@ -24,13 +25,18 @@ public class SlashCommandListener extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Received slash command event -> {}", event);
-        final String eventName = event.getName();
-        if (eventName.equals("lorebook")) {
+        try {
+            LOGGER.debug("Received slash command event -> {}", event);
             event.deferReply();
-            final String command = event.getOption("action").getAsString();
-            final CommandService commandService = (CommandService) beanFactory.getBean(command + LOREBOOK_ENTRY_SERVICE);
-            commandService.handle(event);
+            final String eventName = event.getName();
+            if (eventName.equals("lorebook")) {
+                final String command = event.getOption("action").getAsString();
+                final CommandService commandService = (CommandService) beanFactory.getBean(command + LOREBOOK_ENTRY_SERVICE);
+                commandService.handle(event);
+            }
+        } catch (NoSuchBeanDefinitionException e) {
+            LOGGER.debug("User tried a command that does not exist");
+            event.reply("The command you tried to use does not exist. Please use `create`, `delete` or `update` as the argument.").complete();
         }
     }
 
