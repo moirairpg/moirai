@@ -51,6 +51,7 @@ public class DeleteLorebookEntryService implements CommandService {
             LOGGER.debug("User tried to use update command without ID");
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true).complete();
         } catch (Exception e) {
+            LOGGER.error("An error occurred while deleting the lore entry", e);
             event.reply(ERROR_DELETE).setEphemeral(true).complete();
         }
     }
