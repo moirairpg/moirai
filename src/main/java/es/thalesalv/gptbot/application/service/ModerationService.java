@@ -84,9 +84,8 @@ public class ModerationService {
             flaggedMessage += MessageFormat.format(FLAGGED_TOPICS, message.getContentDisplay(), flaggedTopicsString);
         }
 
+        message.delete().complete();
         messageAuthor.openPrivateChannel().complete()
                 .sendMessage(flaggedMessage).complete();
-
-        message.delete().complete();
     }
 }
