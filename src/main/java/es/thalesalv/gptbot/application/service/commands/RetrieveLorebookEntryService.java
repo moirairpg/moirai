@@ -81,7 +81,7 @@ public class RetrieveLorebookEntryService implements CommandService {
             event.replyFiles(fileUpload).setEphemeral(true).complete();
             fileUpload.close();
         } catch (Exception e) {
-            LOGGER.error("Error retrieving enrty data.", e);
+            LOGGER.error("An error occurred while retrieving lorebook data", e);
             event.reply(ERROR_RETRIEVE).setEphemeral(true).complete();
         }
     }

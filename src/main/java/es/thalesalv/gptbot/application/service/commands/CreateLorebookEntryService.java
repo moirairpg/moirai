@@ -36,6 +36,7 @@ public class CreateLorebookEntryService implements CommandService {
     private final LorebookRegexRepository lorebookRegexRepository;
     private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
 
+    private static final String ERROR_CREATE = "There was an error parsing your request. Please try again.";
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookEntryService.class);
     private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don't forget to save this ID!\n```json\n{1}\n```";
 
@@ -73,7 +74,8 @@ public class CreateLorebookEntryService implements CommandService {
                             insertedEntry.getLorebookEntry().getName(), loreEntryJson))
                     .setEphemeral(true).complete();
         } catch (Exception e) {
-            LOGGER.error("Error processing entry object", e);
+            LOGGER.error("An error occurred while creating lore entry", e);
+            event.reply(ERROR_CREATE).setEphemeral(true).complete();
         }
     }
 
