@@ -25,7 +25,7 @@ import reactor.test.StepVerifier;
 
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
-public class Gpt3ModelTest {
+public class Gpt3ModelServiceTest {
 
     @Mock
     private ContextDatastore contextDatastore;
@@ -40,7 +40,7 @@ public class Gpt3ModelTest {
     private OpenAIApiService openAiService;
 
     @InjectMocks
-    private Gpt3Model gpt3Model;
+    private Gpt3ModelService gpt3ModelService;
 
     @Test
     public void testGenerate_shouldProceed() {
@@ -55,7 +55,7 @@ public class Gpt3ModelTest {
         Mockito.when(openAiService.callGptApi(request))
                 .thenReturn(monoResponse);
 
-        StepVerifier.create(gpt3Model.generate(prompt, persona, new ArrayList<String>()))
+        StepVerifier.create(gpt3ModelService.generate(prompt, persona, new ArrayList<String>()))
                 .assertNext(resp -> {
                     Assertions.assertEquals("AI response text", resp);
                 }).verifyComplete();
@@ -74,7 +74,7 @@ public class Gpt3ModelTest {
         Mockito.when(openAiService.callGptApi(request))
                 .thenReturn(monoResponse);
 
-        StepVerifier.create(gpt3Model.generate(prompt, persona, new ArrayList<String>()))
+        StepVerifier.create(gpt3ModelService.generate(prompt, persona, new ArrayList<String>()))
                 .verifyError(ModelResponseBlankException.class);
     }
 }
