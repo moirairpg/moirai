@@ -65,10 +65,10 @@ public class UpdateLorebookEntryService implements CommandService {
             final Modal modalEntry = buildEntryUpdateModal(entry);
             event.replyModal(modalEntry).queue();
         } catch (MissingRequiredSlashCommandOptionException e) {
-            LOGGER.debug("User tried to use update command without ID");
+            LOGGER.info("User tried to use update command without ID");
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true).complete();
         } catch (LorebookEntryNotFoundException e) {
-            LOGGER.debug("User tried to update an entry that does not exist");
+            LOGGER.info("User tried to update an entry that does not exist");
             event.reply("The entry queried does not exist.").setEphemeral(true).complete();
         } catch (Exception e) {
             LOGGER.error("Exception caught while updating lorebook entry", e);

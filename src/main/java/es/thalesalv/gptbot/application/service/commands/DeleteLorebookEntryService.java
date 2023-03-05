@@ -55,7 +55,7 @@ public class DeleteLorebookEntryService implements CommandService {
             final Modal modal = buildEntryDeletionModal();
             event.replyModal(modal).queue();
         } catch (LorebookEntryNotFoundException e) {
-            LOGGER.debug("User tried to delete an entry that does not exist");
+            LOGGER.info("User tried to delete an entry that does not exist");
             event.reply("The entry queried does not exist.").setEphemeral(true).complete();
         } catch (MissingRequiredSlashCommandOptionException e) {
             LOGGER.info("User tried to use update command without ID");
