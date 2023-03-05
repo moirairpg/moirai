@@ -16,7 +16,6 @@ config:
         api-token: ${OPENAI_API_TOKEN}
 
 spring:
-    profiles.active: default
     main:
         banner-mode: "off"
     jpa.hibernate.ddl-auto: update
