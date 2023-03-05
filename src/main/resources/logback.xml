@@ -3,15 +3,14 @@
     <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>logs/bot.log</File>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <fieldNames>
-                <timestamp>timestamp</timestamp>
-                <message>message</message>
-                <thread>thread</thread>
-                <levelValue>[ignore]</levelValue>
-                <logger>logger</logger>
-                <version>[ignore]</version>
-            </fieldNames>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="es.thalesalv.gptbot.application.util.JsonLoggerFormatter">
+                <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                    <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
+                </jsonFormatter>
+                <appendLineSeparator>true</appendLineSeparator>
+            </layout>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>logs/archived/bot-%d{yyyy-MM-dd}.log</fileNamePattern>
