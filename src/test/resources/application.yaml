@@ -1,0 +1,33 @@
+config:
+    bot:
+        generation:
+            default-max-tokens: 100
+            default-temperature: 0.6
+            default-presence-penalty: 0.2
+            default-frequency-penalty: 0.2
+            default-threshold: 1.0
+    discord:
+        api-token: aaaaaa
+    openai:
+        api-token: aaaaaa
+
+spring:
+    profiles.active: default
+    main:
+        banner-mode: "off"
+    jpa:
+        database-platform: org.hibernate.dialect.H2Dialect
+        hibernate.ddl-auto: update
+    datasource:
+        username: malaquias
+        password: malaquias
+
+logging:
+    level:
+        root: INFO
+        es.thalesalv: INFO
+        org.hibernate: ERROR
+        com.zaxxer.hikari: ERROR
+        net.dv8tion.jda: ERROR
+        org.springframework: ERROR
+        ch.qos.logback: ERROR

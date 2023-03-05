@@ -25,10 +25,33 @@ public class PersonaBuilder {
         return Persona.builder()
                 .maxTokens(100)
                 .intent("rpg")
-                .modelName("text-davinch-003")
+                .modelName("text-davinci-003")
                 .modelFamily("gpt3")
                 .moderationAbsolute("false")
                 .moderationRules(thresholds)
+                .personality("I am a robot")
+                .build();
+    }
+    
+    public static Persona personaAbsoluteModeration() {
+
+        final Map<String, Double> thresholds = new HashMap<>();
+        thresholds.put("hate", 0.0);
+        thresholds.put("hate/threatening", 0.0);
+        thresholds.put("self/harm", 0.0);
+        thresholds.put("sexual", 0.0);
+        thresholds.put("sexual/minors", 0.0);
+        thresholds.put("violence", 0.0);
+        thresholds.put("violence/graphic", 0.0);
+
+        return Persona.builder()
+                .maxTokens(100)
+                .intent("rpg")
+                .modelName("text-davinci-003")
+                .modelFamily("gpt3")
+                .moderationAbsolute("true")
+                .moderationRules(thresholds)
+                .personality("I am a robot")
                 .build();
     }
 

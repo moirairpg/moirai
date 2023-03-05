@@ -52,6 +52,18 @@ public class ModerationResponseBuilder {
                 .build();
     }
 
+    public static ModerationResponse moderationResponseSexualFlag() {
+
+        List<ModerationResult> moderationResults = new ArrayList<>();
+        moderationResults.add(moderationResultSexualFlag());
+
+        return ModerationResponse.builder()
+                .id("534545")
+                .model("text-davinci-003")
+                .moderationResult(moderationResults)
+                .build();
+    }
+
     public static ModerationResult moderationResultSexualFlag() {
 
         final Map<String, Boolean> categories = new HashMap<>();

@@ -115,6 +115,9 @@
                 <configuration>
                     <excludes>
                         <exclude>**/GptbotApplication*</exclude>
+                        <exclude>**/ContextDatastore*</exclude>
+                        <exclude>**/YamlPropertySourceFactory*</exclude>
+                        <exclude>**/application/config/*</exclude>
                         <exclude>**/dto/*</exclude>
                         <exclude>**/model/**</exclude>
                         <exclude>**/exception/*</exclude>
@@ -122,7 +125,7 @@
                         <exclude>**/repository/*</exclude>
                         <exclude>**/entity/*</exclude>
                         <exclude>**/translator/*</exclude>
-                        <exclude>**/application/config/*</exclude>
+                        <exclude>**/listener/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
