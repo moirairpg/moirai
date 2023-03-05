@@ -1,67 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
-    <appender name="stdout-json" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider">
-                <customFields>{"customer":"X", "appname":"Y", "environment":"dev"}</customFields>
-                <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
-                    <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
-                        <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
-                        <appendLineSeparator>true</appendLineSeparator>
-                        <prettyPrint>true</prettyPrint>
-                    </jsonFormatter>
-                </layout>
-                <stackTrace>
-                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
-                        <maxDepthPerThrowable>30</maxDepthPerThrowable>
-                        <maxLength>2048</maxLength>
-                        <shortenedClassNameLength>20</shortenedClassNameLength>
-                        <rootCauseFirst>true</rootCauseFirst>
-                    </throwableConverter>
-                </stackTrace>
-            </provider>
-        </encoder>
-    </appender>
-
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/bot.log</file>
+        <File>logs/bot.log</File>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="es.thalesalv.gptbot.application.util.JsonLoggerFormatter">
+                <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                    <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
+                </jsonFormatter>
+                <appendLineSeparator>true</appendLineSeparator>
+            </layout>
+        </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>logs/archived/bot-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>1</maxHistory>
         </rollingPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider">
-                <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
-                    <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
-                        <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
-                    </jsonFormatter>
-                </layout>
-                <stackTrace>
-                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
-                        <maxDepthPerThrowable>30</maxDepthPerThrowable>
-                        <maxLength>2048</maxLength>
-                        <shortenedClassNameLength>20</shortenedClassNameLength>
-                        <rootCauseFirst>true</rootCauseFirst>
-                    </throwableConverter>
-                </stackTrace>
-            </provider>
-        </encoder>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>100MB</MaxFileSize>
+        </triggeringPolicy>
     </appender>
 
-    <appender name="stdout-plain" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd' 'HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd' 'HH:mm:ss} [%thread] [%logger] - %msg%n</pattern>
         </encoder>
     </appender>
 
     <root>
-        <springProfile name="!json-logs">
-            <appender-ref ref="stdout-plain" />
-        </springProfile>
-        <springProfile name="json-logs">
-            <appender-ref ref="stdout-json" />
-        </springProfile>
+        <appender-ref ref="stdout" />
         <appender-ref ref="file" />
     </root>
 </configuration>
