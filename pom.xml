@@ -28,6 +28,15 @@
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>
             <version>4.1.0</version>
+        </dependency><dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-json-classic</artifactId>
+            <version>0.1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-jackson</artifactId>
+            <version>0.1.5</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
@@ -124,6 +133,7 @@
                         <exclude>**/GptbotApplication*</exclude>
                         <exclude>**/ContextDatastore*</exclude>
                         <exclude>**/YamlPropertySourceFactory*</exclude>
+                        <exclude>**/JsonLoggerFormatter*</exclude>
                         <exclude>**/application/config/*</exclude>
                         <exclude>**/dto/*</exclude>
                         <exclude>**/model/**</exclude>
