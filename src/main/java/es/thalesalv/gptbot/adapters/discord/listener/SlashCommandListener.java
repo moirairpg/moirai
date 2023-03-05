@@ -36,7 +36,7 @@ public class SlashCommandListener extends ListenerAdapter {
                 commandService.handle(event);
             }
         } catch (NoSuchBeanDefinitionException e) {
-            LOGGER.debug("User tried a command that does not exist");
+            LOGGER.info("User tried a command that does not exist");
             event.reply(NON_EXISTING_COMMAND).setEphemeral(true).complete();
         }
     }

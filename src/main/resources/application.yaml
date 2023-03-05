@@ -9,10 +9,13 @@ config:
     discord:
         api-token: ${DISCORD_BOT_API_TOKEN}
     openai:
+        moderation-uri: /v1/moderations
+        completions-uri: /v1/completions
+        chat-completions-uri: /v1/chat/completions
+        api-base-url: https://api.openai.com
         api-token: ${OPENAI_API_TOKEN}
 
 spring:
-    profiles.active: default
     main:
         banner-mode: "off"
     jpa.hibernate.ddl-auto: update

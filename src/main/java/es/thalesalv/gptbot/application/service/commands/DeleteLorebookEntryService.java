@@ -55,13 +55,13 @@ public class DeleteLorebookEntryService implements CommandService {
             final Modal modal = buildEntryDeletionModal();
             event.replyModal(modal).queue();
         } catch (LorebookEntryNotFoundException e) {
-            LOGGER.debug("User tried to delete an entry that does not exist");
+            LOGGER.info("User tried to delete an entry that does not exist");
             event.reply("The entry queried does not exist.").setEphemeral(true).complete();
         } catch (MissingRequiredSlashCommandOptionException e) {
-            LOGGER.debug("User tried to use update command without ID");
+            LOGGER.info("User tried to use update command without ID");
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true).complete();
         } catch (Exception e) {
-            LOGGER.error("An error occurred while deleting the lore entry", e);
+            LOGGER.error("Exception caught while deleting lorebook entry", e);
             event.reply(ERROR_DELETE).setEphemeral(true).complete();
         }
     }

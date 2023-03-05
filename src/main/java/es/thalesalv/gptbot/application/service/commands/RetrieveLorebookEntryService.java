@@ -81,7 +81,7 @@ public class RetrieveLorebookEntryService implements CommandService {
             LOGGER.error("Error serializing entry data.", e);
             event.reply(ERROR_RETRIEVE).setEphemeral(true).complete();
         } catch (LorebookEntryNotFoundException e) {
-            LOGGER.debug("User tried to retrieve an entry that does not exist");
+            LOGGER.info("User tried to retrieve an entry that does not exist");
             event.reply("The entry queried does not exist.").setEphemeral(true).complete();
         } catch (Exception e) {
             LOGGER.error("An error occurred while retrieving lorebook data", e);
