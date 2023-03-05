@@ -16,7 +16,7 @@ import es.thalesalv.gptbot.adapters.rest.OpenAIApiService;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.domain.exception.ModerationException;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationResponse;
-import es.thalesalv.gptbot.testutils.ModerationResponseBuilder;
+import es.thalesalv.gptbot.testutils.ModerationBuilder;
 import es.thalesalv.gptbot.testutils.PersonaBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
@@ -52,7 +52,7 @@ public class ModerationServiceTest {
         Mockito.when(contextDatastore.getMessageEventData()).thenReturn(PersonaBuilder.messageEventData());
         Mockito.when(contextDatastore.getPersona()).thenReturn(PersonaBuilder.persona());
 
-        final Mono<ModerationResponse> response = Mono.just(ModerationResponseBuilder.moderationResponse());
+        final Mono<ModerationResponse> response = Mono.just(ModerationBuilder.moderationResponse());
         final String prompt = "This is a prompt";
 
         Mockito.when(openAIApiService.callModerationApi(Mockito.any())).thenReturn(response);
@@ -75,7 +75,7 @@ public class ModerationServiceTest {
         Mockito.when(contextDatastore.getPersona()).thenReturn(PersonaBuilder.persona());
     
         final String prompt = "This is a prompt";
-        final Mono<ModerationResponse> response = Mono.just(ModerationResponseBuilder.moderationResponseSexualFlag());
+        final Mono<ModerationResponse> response = Mono.just(ModerationBuilder.moderationResponseSexualFlag());
         final TextChannel textChannel = Mockito.mock(TextChannel.class);
         final Message message = Mockito.mock(Message.class);
         final User user = Mockito.mock(User.class);
@@ -102,7 +102,7 @@ public class ModerationServiceTest {
         Mockito.when(contextDatastore.getPersona()).thenReturn(PersonaBuilder.personaAbsoluteModeration());
     
         final String prompt = "This is a prompt";
-        final Mono<ModerationResponse> response = Mono.just(ModerationResponseBuilder.moderationResponseSexualFlag());
+        final Mono<ModerationResponse> response = Mono.just(ModerationBuilder.moderationResponseSexualFlag());
         final TextChannel textChannel = Mockito.mock(TextChannel.class);
         final Message message = Mockito.mock(Message.class);
         final User user = Mockito.mock(User.class);

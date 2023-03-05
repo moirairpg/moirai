@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationResponse;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationResult;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ModerationResponseBuilder {
+public class ModerationBuilder {
 
     public static ModerationResponse moderationResponse() {
 
@@ -88,6 +89,13 @@ public class ModerationResponseBuilder {
                 .flagged(true)
                 .categories(categories)
                 .categoryScores(scores)
+                .build();
+    }
+
+    public static ModerationRequest buildRequest() {
+
+        return ModerationRequest.builder()
+                .input("This is a prompt!")
                 .build();
     }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptModelResponseChoice;
+import es.thalesalv.gptbot.domain.model.openai.gpt.GptModelResponseError;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 
@@ -49,6 +50,23 @@ public class OpenAiApiBuilder {
                 .model("text-davinci-003")
                 .prompt("This is a prompt!")
                 .choices(choices)
+                .build();
+    }
+
+    public static GptResponse buildGptResponse4xx() {
+
+        final GptModelResponseChoice choice = GptModelResponseChoice.builder().build();
+        List<GptModelResponseChoice> choices = new ArrayList<>();
+        choices.add(choice);
+
+        return GptResponse.builder()
+                .id("fsdf")
+                .model("text-davinci-003")
+                .prompt("This is a prompt!")
+                .error(GptModelResponseError.builder()
+                        .message("0 is less than the minimum of 1 - 'n'")
+                        .type("invalid_request_error")
+                        .build())
                 .build();
     }
 }
