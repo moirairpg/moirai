@@ -8,8 +8,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.adapters.rest.OpenAIApiService;
 import es.thalesalv.gptbot.application.config.Persona;
+import es.thalesalv.gptbot.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.gptbot.application.translator.GptRequestTranslator;
 import es.thalesalv.gptbot.domain.exception.ModelResponseBlankException;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
@@ -22,6 +24,12 @@ import reactor.test.StepVerifier;
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
 public class Gpt3ModelTest {
+
+    @Mock
+    private ContextDatastore contextDatastore;
+
+    @Mock
+    private CommonErrorHandler commonErrorHandler;
 
     @Mock
     private GptRequestTranslator gptRequestTranslator;

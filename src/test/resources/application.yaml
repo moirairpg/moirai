@@ -9,6 +9,10 @@ config:
     discord:
         api-token: aaaaaa
     openai:
+        moderation-uri: /v1/moderations
+        completions-uri: /v1/chat/completions
+        chat-completions-uri: /v1/completions
+        api-base-url: http://localhost
         api-token: aaaaaa
 
 spring:
