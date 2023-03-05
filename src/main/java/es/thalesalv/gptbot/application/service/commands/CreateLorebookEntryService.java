@@ -16,6 +16,7 @@ import es.thalesalv.gptbot.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.gptbot.adapters.data.db.entity.LorebookRegex;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.gptbot.domain.model.openai.dto.LorebookDTO;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @RequiredArgsConstructor
 public class CreateLorebookEntryService implements CommandService {
 
+    private final ModerationService moderationService;
     private final ObjectMapper objectMapper;
     private final LorebookRepository lorebookRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
@@ -69,9 +71,11 @@ public class CreateLorebookEntryService implements CommandService {
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
 
-            event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
-                            insertedEntry.getLorebookEntry().getName(), loreEntryJson))
-                    .setEphemeral(true).complete();
+            moderationService.moderate(loreEntryJson).subscribe(response -> {
+                event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
+                                insertedEntry.getLorebookEntry().getName(), loreEntryJson))
+                        .setEphemeral(true).complete();
+            });
         } catch (Exception e) {
             LOGGER.error("An error occurred while creating lore entry", e);
             event.reply(ERROR_CREATE).setEphemeral(true).complete();

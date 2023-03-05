@@ -13,7 +13,8 @@ import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.gptbot.domain.exception.ErrorBotResponseException;
-import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
+import es.thalesalv.gptbot.domain.model.openai.gpt.ChatGptRequest;
+import es.thalesalv.gptbot.domain.model.openai.gpt.Gpt3Request;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationResponse;
@@ -49,7 +50,7 @@ public class OpenAIApiService {
         this.webClient = webClientBuilder.baseUrl(openAiBaseUrl).build();
     }
 
-    public Mono<GptResponse> callGptChatApi(final GptRequest request) {
+    public Mono<GptResponse> callGptChatApi(final ChatGptRequest request) {
 
         LOGGER.info("Making request to OpenAI ChatGPT API -> {}", request);
         final MessageEventData messageEventData = contextDatastore.getMessageEventData();
@@ -64,8 +65,6 @@ public class OpenAIApiService {
                 .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, messageEventData))
                 .bodyToMono(GptResponse.class).map(response -> {
                     LOGGER.info("Received response from OpenAI GPT API -> {}", response);
-                    response.setPrompt(request.getPrompt());
-
                     if (response.getError() != null) {
                         LOGGER.error("Bot response contains an error -> {}", response.getError());
                         throw new ErrorBotResponseException("Bot response contains an error", response);
@@ -76,7 +75,7 @@ public class OpenAIApiService {
                 .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(messageEventData));
     }
 
-    public Mono<GptResponse> callGptApi(final GptRequest request) {
+    public Mono<GptResponse> callGptApi(final Gpt3Request request) {
 
         LOGGER.info("Making request to OpenAI GPT API -> {}", request);
         final MessageEventData messageEventData = contextDatastore.getMessageEventData();

@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptRequest {
+public class Gpt3Request {
 
     @JsonProperty("model")
     private String model;
@@ -26,20 +26,20 @@ public class GptRequest {
     private String stop;
 
     @JsonProperty("max_tokens")
-    private int maxTokens;
+    private Integer maxTokens;
 
-//    @JsonProperty("n")
-//    private int n;
+    @JsonProperty("n")
+    private Integer n;
 
     @JsonProperty("temperature")
-    private double temperature;
+    private Double temperature;
 
-//    @JsonProperty("top_p")
-//    private double topP;
+    @JsonProperty("top_p")
+    private Double topP;
 
-   @JsonProperty("presence_penalty")
-   private double presencePenalty;
+    @JsonProperty("presence_penalty")
+    private Double presencePenalty;
 
-   @JsonProperty("frequency_penalty")
-   private double frequencyPenalty;
+    @JsonProperty("frequency_penalty")
+    private Double frequencyPenalty;
 }
