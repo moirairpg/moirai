@@ -117,6 +117,6 @@ public class ModerationService {
             flaggedMessage += MessageFormat.format(FLAGGED_TOPICS_LOREBOOK, flaggedTopicsString, content);
         }
 
-        event.reply(flaggedMessage).setEphemeral(false).complete();
+        event.reply(flaggedMessage).setEphemeral(true).complete();
     }
 }
