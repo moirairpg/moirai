@@ -21,6 +21,7 @@ import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.gptbot.application.config.CommandEventData;
 import es.thalesalv.gptbot.application.translator.LorebookEntryToDTOTranslator;
+import es.thalesalv.gptbot.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.gptbot.domain.exception.MissingRequiredSlashCommandOptionException;
 import es.thalesalv.gptbot.domain.model.openai.dto.LorebookDTO;
 import lombok.RequiredArgsConstructor;
@@ -54,19 +55,21 @@ public class UpdateLorebookEntryService implements CommandService {
 
         try {
             LOGGER.debug("Showing modal for character update");
-            event.deferReply();
             final UUID entryId = retrieveEntryId(event.getOption("lorebook-entry-id"));
             contextDatastore.setCommandEventData(CommandEventData.builder()
                     .lorebookEntryId(entryId).build());
 
-            lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
-                    .ifPresent(entry -> {
-                        final Modal modalEntry = buildEntryUpdateModal(entry);
-                        event.replyModal(modalEntry).queue();
-                    });
+            final var entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
+                    .orElseThrow(LorebookEntryNotFoundException::new);
+
+            final Modal modalEntry = buildEntryUpdateModal(entry);
+            event.replyModal(modalEntry).queue();
         } catch (MissingRequiredSlashCommandOptionException e) {
             LOGGER.debug("User tried to use update command without ID");
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true).complete();
+        } catch (LorebookEntryNotFoundException e) {
+            LOGGER.debug("User tried to update an entry that does not exist");
+            event.reply("The entry queried does not exist.").setEphemeral(true).complete();
         } catch (Exception e) {
             LOGGER.error("Exception caught while updating lorebook entry", e);
             event.reply(ERROR_UPDATE).setEphemeral(true).complete();
@@ -83,14 +86,14 @@ public class UpdateLorebookEntryService implements CommandService {
             final String updatedEntryName = event.getValue("lorebook-entry-name").getAsString();
             final String updatedEntryRegex = event.getValue("lorebook-entry-regex").getAsString();
             final String updatedEntryDescription = event.getValue("lorebook-entry-desc").getAsString();
-            final String playerId = retrieveDiscordPlayerId(event.getValue("lorebook-entry-name"),
+            final String playerId = retrieveDiscordPlayerId(event.getValue("lorebook-entry-player"),
                     event.getUser().getId());
             
             final LorebookRegex updatedEntry = updateEntry(updatedEntryDescription, entryId,
                     updatedEntryName, playerId, updatedEntryRegex);
 
             final LorebookDTO entry = lorebookEntryToDTOTranslator.apply(updatedEntry);
-            final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_NULL)
+            final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(entry);
 
             event.reply(MessageFormat.format(ENTRY_UPDATED, updatedEntry.getLorebookEntry().getName(), loreEntryJson))
@@ -98,8 +101,6 @@ public class UpdateLorebookEntryService implements CommandService {
         } catch (JsonProcessingException e) {
             LOGGER.error("Error parsing entry data into JSON", e);
             event.reply(ERROR_UPDATE).setEphemeral(true).complete();
-        } finally {
-            contextDatastore.clearContext();
         }
     }
 
@@ -152,9 +153,13 @@ public class UpdateLorebookEntryService implements CommandService {
                 .setRequired(true)
                 .build();
 
+        final String regex = Optional.ofNullable(lorebookRegex.getRegex())
+                .filter(StringUtils::isNotBlank)
+                .orElse(lorebookRegex.getLorebookEntry().getName());
+
         final TextInput lorebookEntryRegex = TextInput
                 .create("lorebook-entry-regex", "Regular Expression (optional)", TextInputStyle.SHORT)
-                .setValue(lorebookRegex.getRegex())
+                .setValue(regex)
                 .setRequired(false)
                 .build();
 
