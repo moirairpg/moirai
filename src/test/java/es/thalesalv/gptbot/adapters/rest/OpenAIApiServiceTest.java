@@ -64,14 +64,14 @@ public class OpenAIApiServiceTest {
     static void beforeAll() throws IOException {
 
         mockWebServer = new MockWebServer();
-        mockWebServer.start(80);
+        mockWebServer.start(8080);
     }
 
     @BeforeEach
     void beforeEach() {
 
-        commonErrorHandler = new CommonErrorHandler(contextDatastore, jda);
-        openAiApiService = new OpenAIApiService("http://" + mockWebServer.getHostName(), WebClient.builder(), contextDatastore, commonErrorHandler);
+        commonErrorHandler = new CommonErrorHandler(jda);
+        openAiApiService = new OpenAIApiService("http://" + mockWebServer.getHostName() + ":8080", WebClient.builder(), contextDatastore, commonErrorHandler);
         ReflectionTestUtils.setField(openAiApiService, "completionsUri", "/");
         ReflectionTestUtils.setField(openAiApiService, "chatCompletionsUri", "/");
         ReflectionTestUtils.setField(openAiApiService, "moderationUri", "/");

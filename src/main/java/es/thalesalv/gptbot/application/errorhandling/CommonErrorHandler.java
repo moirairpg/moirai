@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 
-import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.domain.exception.OpenAiApiException;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
@@ -20,7 +19,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CommonErrorHandler {
 
-    private final ContextDatastore contextDatastore;
     private final JDA jda;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommonErrorHandler.class);
@@ -30,20 +28,20 @@ public class CommonErrorHandler {
     
     public void handleEmptyResponse(final MessageEventData messageEventData) {
 
-        final Message message = createMessage();
-        notifyUser(EMPTY_RESPONSE, message);
+        final Message message = createMessage(messageEventData);
+        notifyUser(EMPTY_RESPONSE, message, messageEventData);
         message.delete().complete();
     }
 
-    public Message createMessage() {
+    public Message createMessage(final MessageEventData messageEventData) {
 
-        return jda.getTextChannelById(contextDatastore.getMessageEventData().getChannelId())
-                .retrieveMessageById(contextDatastore.getMessageEventData().getMessageId()).complete();
+        return jda.getTextChannelById(messageEventData.getChannelId())
+                .retrieveMessageById(messageEventData.getMessageId()).complete();
     }
 
-    public void notifyUser(final String notification, final Message message) {
+    public void notifyUser(final String notification, final Message message, final MessageEventData messageEventData) {
 
-        jda.getUserById(contextDatastore.getMessageEventData().getMessageAuthorId()).openPrivateChannel()
+        jda.getUserById(messageEventData.getMessageAuthorId()).openPrivateChannel()
                 .complete().sendMessage(MessageFormat.format(notification, message.getContentRaw())).complete();
     }
 
@@ -53,8 +51,8 @@ public class CommonErrorHandler {
         return clientResponse.bodyToMono(GptResponse.class)
             .map(errorResponse -> {
                 LOGGER.error("Error while calling OpenAI API. Message -> {}", errorResponse.getError().getMessage());
-                final Message message = createMessage();
-                notifyUser(MESSAGE_TOO_LONG, message);
+                final Message message = createMessage(messageEventData);
+                notifyUser(MESSAGE_TOO_LONG, message, messageEventData);
                 message.delete().complete();
                 return new OpenAiApiException("Error while calling OpenAI API.", errorResponse);
             });
@@ -62,8 +60,8 @@ public class CommonErrorHandler {
 
     public void handleResponseError(final MessageEventData messageEventData) {
 
-        final Message message = createMessage();
-        notifyUser(UNKNOWN_ERROR, message);
+        final Message message = createMessage(messageEventData);
+        notifyUser(UNKNOWN_ERROR, message, messageEventData);
         message.delete().complete();
     }
 }
