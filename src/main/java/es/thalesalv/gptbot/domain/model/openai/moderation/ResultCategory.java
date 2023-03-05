@@ -13,28 +13,28 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResultCategory {
 
     @JsonProperty("hate")
-    private boolean hate;
+    private Boolean hate;
 
     @JsonProperty("hate/threatening")
-    private boolean hateThreatening;
+    private Boolean hateThreatening;
 
     @JsonProperty("self-harm")
-    private boolean selfHarm;
+    private Boolean selfHarm;
 
     @JsonProperty("sexual")
-    private boolean sexual;
+    private Boolean sexual;
 
     @JsonProperty("sexual/minors")
-    private boolean sexualMinors;
+    private Boolean sexualMinors;
 
     @JsonProperty("violence")
-    private boolean violence;
+    private Boolean violence;
 
     @JsonProperty("violence/graphic")
-    private boolean violenceGraphic;
+    private Boolean violenceGraphic;
 }

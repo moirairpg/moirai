@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -13,8 +14,7 @@ import org.springframework.stereotype.Component;
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.service.ModerationService;
-import es.thalesalv.gptbot.application.service.interfaces.GptModel;
-import es.thalesalv.gptbot.application.util.MessageUtils;
+import es.thalesalv.gptbot.application.service.interfaces.GptModelService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
@@ -32,7 +32,7 @@ public class ChatbotUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
 
     @Override
-    public void generateResponse(final SelfUser bot, final User messageAuthor, final Message message, final MessageChannelUnion channel, final Mentions mentions, final GptModel model) {
+    public void generateResponse(final SelfUser bot, final User messageAuthor, final Message message, final MessageChannelUnion channel, final Mentions mentions, final GptModelService model) {
 
         LOGGER.debug("Entered generation for normal text.");
         channel.sendTyping().complete();
@@ -45,11 +45,10 @@ public class ChatbotUseCase implements BotUseCase {
             handleMessageHistory(messages, bot, channel);
         }
 
-        MessageUtils.formatPersonality(messages, contextDatastore.getPersona(), bot);
-        final String chatifiedMessage = MessageUtils.chatifyMessages(bot, messages);
+        final String chatifiedMessage = chatifyMessages(bot, messages);
         final Persona persona = contextDatastore.getPersona();
         moderationService.moderate(chatifiedMessage)
-                .subscribe(moderationResult -> model.generate(chatifiedMessage, persona)
+                .subscribe(moderationResult -> model.generate(chatifiedMessage, persona, messages)
                 .subscribe(textResponse -> channel.sendMessage(textResponse).queue()));
     }
 
@@ -100,5 +99,11 @@ public class ChatbotUseCase implements BotUseCase {
                 });;
 
         Collections.reverse(messages);
+    }
+
+    private static String chatifyMessages(final User bot, final List<String> messages) {
+
+        return MessageFormat.format("{0}\n{1} said: ",
+                messages.stream().collect(Collectors.joining("\n")), bot.getName()).trim();
     }
 }

@@ -56,7 +56,7 @@ public class RetrieveLorebookEntryService implements CommandService {
                         .orElseThrow(LorebookEntryNotFoundException::new);
 
                 final LorebookDTO dto = lorebookEntryToDTOTranslator.apply(entry);
-                final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_NULL)
+                final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                         .writerWithDefaultPrettyPrinter().writeValueAsString(dto);
 
                 event.reply(MessageFormat.format(ENTRY_RETRIEVED, dto.getName(), loreEntryJson))
@@ -69,7 +69,7 @@ public class RetrieveLorebookEntryService implements CommandService {
                     .map(entry -> lorebookEntryToDTOTranslator.apply(entry))
                     .collect(Collectors.toList());
 
-            final String entriesJson = objectMapper.setSerializationInclusion(Include.NON_NULL)
+            final String entriesJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(entries);
 
             final File file = File.createTempFile("lore-entries-", ".json");

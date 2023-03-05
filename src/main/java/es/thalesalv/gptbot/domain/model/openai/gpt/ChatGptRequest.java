@@ -17,25 +17,32 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptResponse {
-
-    @JsonProperty("id")
-    private String id;
-
-    @JsonProperty("object")
-    private String object;
+public class ChatGptRequest {
 
     @JsonProperty("model")
     private String model;
 
-    @JsonProperty("choices")
-    private List<GptModelResponseChoice> choices;
+    @JsonProperty("messages")
+    private List<ChatGptMessage> messages;
 
-    @JsonProperty("usage")
-    private GptModelResponseUsage usage;
+    @JsonProperty("stop")
+    private String stop;
 
-    @JsonProperty("error")
-    private GptModelResponseError error;
+    @JsonProperty("max_tokens")
+    private Integer maxTokens;
 
-    private String prompt;
+    @JsonProperty("n")
+    private Integer n;
+
+    @JsonProperty("temperature")
+    private Double temperature;
+
+    @JsonProperty("top_p")
+    private Double topP;
+
+    @JsonProperty("presence_penalty")
+    private Double presencePenalty;
+
+    @JsonProperty("frequency_penalty")
+    private Double frequencyPenalty;
 }

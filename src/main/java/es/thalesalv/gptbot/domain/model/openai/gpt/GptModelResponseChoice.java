@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GptModelResponseChoice {
 
@@ -24,4 +24,7 @@ public class GptModelResponseChoice {
 
     @JsonProperty("index")
     private int index;
+
+    @JsonProperty("message")
+    private ChatGptMessage message;
 }
