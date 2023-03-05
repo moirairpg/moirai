@@ -47,15 +47,16 @@ public class ChatGptRequestTranslator {
         final double presencePenalty = persona == null ? defaultPresencePenalty : persona.getPresencePenalty();
         final double frequencyPenalty = persona == null ? defaultFrequencyPenalty : persona.getFrequencyPenalty();
 
+        messages.remove(messages.size() - 1);
+        messages.replaceAll(msg -> msg.replace(bot.getName() + " said: ", StringUtils.EMPTY)
+                .replaceAll("Dungeon Master says: ", StringUtils.EMPTY));
+
         List<ChatGptMessage> chatGptMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((bot.getName() + " said:").trim()))
                 .map(msg -> {
                     String fMsg = msg.trim();
                     String role = StringUtils.EMPTY;
                     if (fMsg.startsWith(bot.getName()) || fMsg.startsWith(DUNGEON_MASTER)) {
-                        fMsg = fMsg.replace(bot.getName() + " said: ", StringUtils.EMPTY)
-                                .replace("Dungeon Master says: ", StringUtils.EMPTY);
-
                         role = ROLE_ASSISTANT;
                     } else {
                         role = ROLE_USER;
