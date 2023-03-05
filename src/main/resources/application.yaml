@@ -9,6 +9,10 @@ config:
     discord:
         api-token: ${DISCORD_BOT_API_TOKEN}
     openai:
+        moderation-uri: /v1/moderations
+        completions-uri: /v1/chat/completions
+        chat-completions-uri: /v1/completions
+        api-base-url: https://api.openai.com
         api-token: ${OPENAI_API_TOKEN}
 
 spring:

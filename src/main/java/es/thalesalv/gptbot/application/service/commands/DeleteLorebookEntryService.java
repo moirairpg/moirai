@@ -48,9 +48,10 @@ public class DeleteLorebookEntryService implements CommandService {
             final Modal modal = buildEntryDeletionModal();
             event.replyModal(modal).queue();
         } catch (MissingRequiredSlashCommandOptionException e) {
-            LOGGER.debug("User tried to use update command without ID");
+            LOGGER.info("User tried to use update command without ID");
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true).complete();
         } catch (Exception e) {
+            LOGGER.error("Exception caught while deleting lorebook entry", e);
             event.reply(ERROR_DELETE).setEphemeral(true).complete();
         }
     }

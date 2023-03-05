@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import es.thalesalv.gptbot.adapters.discord.listener.AutoCompleteListener;
 import es.thalesalv.gptbot.adapters.discord.listener.GenericEventListener;
 import es.thalesalv.gptbot.adapters.discord.listener.MessageListener;
 import es.thalesalv.gptbot.adapters.discord.listener.SlashCommandListener;
@@ -23,14 +22,13 @@ public class JDAConfigurationBean {
     private final SlashCommandListener slashCommandListener;
     private final GenericEventListener discordBotEventListener;
     private final MessageListener discordBotMessageListener;
-    private final AutoCompleteListener autoCompleteListener;
 
     @Bean
     public JDA jda() {
 
         final Object[] eventListeners = {
             discordBotEventListener, discordBotMessageListener,
-            slashCommandListener, autoCompleteListener
+            slashCommandListener
         };
 
         return JDABuilder.createDefault(discordApiToken)
