@@ -51,7 +51,7 @@ public class OpenAIApiService {
 
     public Mono<GptResponse> callGptChatApi(final GptRequest request) {
 
-        LOGGER.debug("Making request to OpenAI ChatGPT API -> {}", request);
+        LOGGER.info("Making request to OpenAI ChatGPT API -> {}", request);
         final MessageEventData messageEventData = contextDatastore.getMessageEventData();
         return webClient.post()
                 .uri(chatCompletionsUri)
@@ -63,7 +63,7 @@ public class OpenAIApiService {
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, messageEventData))
                 .bodyToMono(GptResponse.class).map(response -> {
-                    LOGGER.debug("Received response from OpenAI GPT API -> {}", response);
+                    LOGGER.info("Received response from OpenAI GPT API -> {}", response);
                     response.setPrompt(request.getPrompt());
 
                     if (response.getError() != null) {
@@ -78,7 +78,7 @@ public class OpenAIApiService {
 
     public Mono<GptResponse> callGptApi(final GptRequest request) {
 
-        LOGGER.debug("Making request to OpenAI GPT API -> {}", request);
+        LOGGER.info("Making request to OpenAI GPT API -> {}", request);
         final MessageEventData messageEventData = contextDatastore.getMessageEventData();
         return webClient.post()
                 .uri(completionsUri)
@@ -91,7 +91,7 @@ public class OpenAIApiService {
                 .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, messageEventData))
                 .bodyToMono(GptResponse.class)
                 .map(response -> {
-                    LOGGER.debug("Received response from OpenAI GPT API -> {}", response);
+                    LOGGER.info("Received response from OpenAI GPT API -> {}", response);
                     response.setPrompt(request.getPrompt());
 
                     if (response.getError() != null) {
@@ -106,7 +106,7 @@ public class OpenAIApiService {
 
     public Mono<ModerationResponse> callModerationApi(final ModerationRequest request) {
 
-        LOGGER.debug("Making request to OpenAI moderation API -> {}", request);
+        LOGGER.info("Making request to OpenAI moderation API -> {}", request);
         return webClient.post()
                 .uri(moderationUri)
                 .headers(headers -> {
@@ -117,7 +117,7 @@ public class OpenAIApiService {
                 .retrieve()
                 .bodyToMono(ModerationResponse.class)
                 .map(response -> {
-                    LOGGER.debug("Received response from OpenAI moderation API -> {}", response);
+                    LOGGER.info("Received response from OpenAI moderation API -> {}", response);
                     return response;
                 });
     }
