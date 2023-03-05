@@ -13,6 +13,8 @@ public class JsonLoggerFormatter extends JsonLayout {
 
         Stream.of(event.getArgumentArray())
                 .filter(arg -> !(arg instanceof String))
+                .filter(arg -> !(arg instanceof Number))
+                .filter(arg -> !(arg instanceof Boolean))
                 .forEach(arg -> {
                     map.put(arg.getClass().getSimpleName(), arg);
                 });
