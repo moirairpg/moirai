@@ -56,12 +56,11 @@ public class PersonaBuilder {
     }
 
     public static MessageEventData messageEventData() {
-
         return MessageEventData.builder()
                 .botId("4234235")
                 .channelId("4235235")
                 .messageAuthorId("4234234")
-                .messageId("45345345")
+                .message(MessageBuilder.getMessage())
                 .build();
     }
 }
