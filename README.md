@@ -1,7 +1,7 @@
 # Malaquias: a virtual Dungeon Master for RPG adventures
 [![Maintainability](https://api.codeclimate.com/v1/badges/9c5b99e778dc1b68830a/maintainability)](https://codeclimate.com/github/thaalesalves/malaquias/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/9c5b99e778dc1b68830a/test_coverage)](https://codeclimate.com/github/thaalesalves/malaquias/test_coverage) ![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/thaalesalves/malaquias/maven-workflow.yaml?branch=master) ![GitHub issues](https://img.shields.io/github/issues/thaalesalves/malaquias) ![GitHub](https://img.shields.io/github/license/thaalesalves/malaquias)
 
-Malaquias is a Discord bot powered by JDA that is connected to OpenAI's GPT-3 API. It is cabaple of generating text using base or finetuned models, and was made to act primarily as a chatbot and as an RPG dungeon master. I was inspired by AI Dungeon, for which I developed a lot of scenarios and scripts, as well as KoboldAI, another GPT-powered API compatible with other GPT models. For a Discord bot that works with KoboldAI, please see [Jurandir](https://github.com/thaalesalves/jurandir.git), Malaquia's elder brother.
+Malaquias is a Discord bot powered by JDA that is connected to OpenAI's GPT-3 API. It is cabaple of generating text using base or finetuned models, and was made to act primarily as a chatbot and as an RPG dungeon master. Developed by veteran AI Dungeon and NovelAI players and contributors, aimed to make text-based RPGs more flexible and easier to use on Discord.
 
 ## Technologies used
 * Java 19
