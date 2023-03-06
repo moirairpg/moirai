@@ -70,7 +70,7 @@ public class OpenAIApiServiceTest {
     void beforeEach() {
 
         commonErrorHandler = new CommonErrorHandler(jda);
-        openAiApiService = new OpenAIApiService("http://" + mockWebServer.getHostName() + ":8080", WebClient.builder(), contextDatastore, commonErrorHandler);
+        openAiApiService = new OpenAIApiService("http://" + mockWebServer.getHostName() + ":3434", WebClient.builder(), contextDatastore, commonErrorHandler);
         ReflectionTestUtils.setField(openAiApiService, "completionsUri", "/");
         ReflectionTestUtils.setField(openAiApiService, "chatCompletionsUri", "/");
         ReflectionTestUtils.setField(openAiApiService, "moderationUri", "/");
@@ -89,8 +89,6 @@ public class OpenAIApiServiceTest {
         final MessageEventData eventData = PersonaBuilder.messageEventData();
         final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
         final GptResponse response = OpenAiApiBuilder.buildGptResponse();
-
-        Mockito.when(contextDatastore.getMessageEventData()).thenReturn(eventData);
 
         mockWebServer.enqueue(new MockResponse()
                 .setBody(new ObjectMapper().writeValueAsString(response))
@@ -112,8 +110,6 @@ public class OpenAIApiServiceTest {
         final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
         final GptResponse response = OpenAiApiBuilder.buildGptResponseEmptyText();
 
-        Mockito.when(contextDatastore.getMessageEventData()).thenReturn(eventData);
-
         mockWebServer.enqueue(new MockResponse()
                 .setBody(new ObjectMapper().writeValueAsString(response))
                 .addHeader("Content-Type", "application/json"));
@@ -134,8 +130,6 @@ public class OpenAIApiServiceTest {
         final MessageEventData eventData = PersonaBuilder.messageEventData();
         final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
         final GptResponse response = OpenAiApiBuilder.buildGptResponse4xx();
-
-        Mockito.when(contextDatastore.getMessageEventData()).thenReturn(eventData);
     
         final Message message = Mockito.mock(Message.class);
         Mockito.when(jda.getTextChannelById(Mockito.anyString())).thenReturn(Mockito.mock(TextChannel.class));
@@ -188,8 +182,6 @@ public class OpenAIApiServiceTest {
         final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
         final GptResponse response = OpenAiApiBuilder.buildGptResponse4xx();
         final ResponseSpec responseSpec = Mockito.mock(ResponseSpec.class);
-
-        Mockito.when(contextDatastore.getMessageEventData()).thenReturn(eventData);
 
         final Message message = Mockito.mock(Message.class);
         Mockito.when(jda.getTextChannelById(Mockito.anyString())).thenReturn(Mockito.mock(TextChannel.class));
