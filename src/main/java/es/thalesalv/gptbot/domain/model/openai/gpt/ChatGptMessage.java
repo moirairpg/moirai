@@ -1,6 +1,4 @@
-package es.thalesalv.gptbot.domain.model.openai.moderation;
-
-import java.util.List;
+package es.thalesalv.gptbot.domain.model.openai.gpt;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -17,14 +15,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ModerationResponse {
+public class ChatGptMessage {
 
-    @JsonProperty("id")
-    private String id;
+    @JsonProperty("role")
+    private String role;
 
-    @JsonProperty("model")
-    private String model;
-
-    @JsonProperty("results")
-    private List<ModerationResult> moderationResult;
+    @JsonProperty("content")
+    private String content;
 }

@@ -12,16 +12,16 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GptModelResponseUsage {
 
     @JsonProperty("prompt_tokens")
-    private int promptTokens;
+    private Integer promptTokens;
 
     @JsonProperty("completion_tokens")
-    private int completionTokens;
+    private Integer completionTokens;
 
     @JsonProperty("total_tokens")
-    private int totalTokens;
+    private Integer totalTokens;
 }

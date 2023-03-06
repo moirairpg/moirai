@@ -1,5 +1,7 @@
 package es.thalesalv.gptbot.application.service;
 
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,9 +14,9 @@ import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.adapters.rest.OpenAIApiService;
 import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.errorhandling.CommonErrorHandler;
-import es.thalesalv.gptbot.application.translator.GptRequestTranslator;
+import es.thalesalv.gptbot.application.translator.Gpt3RequestTranslator;
 import es.thalesalv.gptbot.domain.exception.ModelResponseBlankException;
-import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
+import es.thalesalv.gptbot.domain.model.openai.gpt.Gpt3Request;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 import es.thalesalv.gptbot.testutils.OpenAiApiBuilder;
 import es.thalesalv.gptbot.testutils.PersonaBuilder;
@@ -23,7 +25,7 @@ import reactor.test.StepVerifier;
 
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
-public class Gpt3ModelTest {
+public class Gpt3ModelServiceTest {
 
     @Mock
     private ContextDatastore contextDatastore;
@@ -32,28 +34,28 @@ public class Gpt3ModelTest {
     private CommonErrorHandler commonErrorHandler;
 
     @Mock
-    private GptRequestTranslator gptRequestTranslator;
+    private Gpt3RequestTranslator gpt3RequestTranslator;
 
     @Mock
     private OpenAIApiService openAiService;
 
     @InjectMocks
-    private Gpt3Model gpt3Model;
+    private Gpt3ModelService gpt3ModelService;
 
     @Test
     public void testGenerate_shouldProceed() {
 
-        final GptRequest request = OpenAiApiBuilder.buildGptRequest();
+        final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
         final String prompt = "This is a prompt!";
         final Persona persona = PersonaBuilder.persona();
         final Mono<GptResponse> monoResponse = Mono.just(OpenAiApiBuilder.buildGptResponse());
-        Mockito.when(gptRequestTranslator.buildRequest(prompt, "text-davinci-003", persona))
+        Mockito.when(gpt3RequestTranslator.buildRequest(prompt, "text-davinci-003", persona))
                 .thenReturn(request);
 
         Mockito.when(openAiService.callGptApi(request))
                 .thenReturn(monoResponse);
 
-        StepVerifier.create(gpt3Model.generate(prompt, persona))
+        StepVerifier.create(gpt3ModelService.generate(prompt, persona, new ArrayList<String>()))
                 .assertNext(resp -> {
                     Assertions.assertEquals("AI response text", resp);
                 }).verifyComplete();
@@ -62,17 +64,17 @@ public class Gpt3ModelTest {
     @Test
     public void testGenerate_emptyAiResponse_shouldThrowError() {
 
-        final GptRequest request = OpenAiApiBuilder.buildGptRequest();
+        final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
         final String prompt = "This is a prompt!";
         final Persona persona = PersonaBuilder.persona();
         final Mono<GptResponse> monoResponse = Mono.just(OpenAiApiBuilder.buildGptResponseEmptyText());
-        Mockito.when(gptRequestTranslator.buildRequest(prompt, "text-davinci-003", persona))
+        Mockito.when(gpt3RequestTranslator.buildRequest(prompt, "text-davinci-003", persona))
                 .thenReturn(request);
 
         Mockito.when(openAiService.callGptApi(request))
                 .thenReturn(monoResponse);
 
-        StepVerifier.create(gpt3Model.generate(prompt, persona))
+        StepVerifier.create(gpt3ModelService.generate(prompt, persona, new ArrayList<String>()))
                 .verifyError(ModelResponseBlankException.class);
     }
 }

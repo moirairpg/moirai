@@ -12,10 +12,13 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.Generators;
 
+import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.gptbot.adapters.data.db.entity.LorebookRegex;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.gptbot.application.config.BotConfig;
+import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.gptbot.domain.model.openai.dto.LorebookDTO;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,9 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @RequiredArgsConstructor
 public class CreateLorebookEntryService implements CommandService {
 
+    private final ContextDatastore contextDatastore;
+    private final BotConfig botConfig;
+    private final ModerationService moderationService;
     private final ObjectMapper objectMapper;
     private final LorebookRepository lorebookRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
@@ -44,8 +50,17 @@ public class CreateLorebookEntryService implements CommandService {
     public void handle(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Showing modal for character creation");
-        final Modal modal = buildEntryCreationModal();
-        event.replyModal(modal).queue();
+        botConfig.getPersonas().forEach(persona -> {
+            final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
+            if (isCurrentChannel) {
+                contextDatastore.setPersona(persona);
+                final Modal modal = buildEntryCreationModal();
+                event.replyModal(modal).queue();
+                return;
+            }
+
+            event.reply("This command cannot be issued from this channel.").setEphemeral(true).complete();
+        });
     }
 
     @Override
@@ -69,9 +84,11 @@ public class CreateLorebookEntryService implements CommandService {
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
 
-            event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
-                            insertedEntry.getLorebookEntry().getName(), loreEntryJson))
-                    .setEphemeral(true).complete();
+            moderationService.moderate(loreEntryJson, event).subscribe(response -> {
+                event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
+                                insertedEntry.getLorebookEntry().getName(), loreEntryJson))
+                        .setEphemeral(true).complete();
+            });
         } catch (Exception e) {
             LOGGER.error("An error occurred while creating lore entry", e);
             event.reply(ERROR_CREATE).setEphemeral(true).complete();
