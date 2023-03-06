@@ -1,5 +1,6 @@
 package es.thalesalv.gptbot.application.service.usecases;
 
+import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.service.interfaces.GptModelService;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
@@ -19,5 +20,5 @@ public interface BotUseCase {
      * @param mentions List of Discord users mentioned in the conversation
      * @param model Model to be used for generation
      */
-    void generateResponse(final SelfUser bot, final User messageAuthor, final Message message, final MessageChannelUnion channel, final Mentions mentions, final GptModelService model);
+    void generateResponse(final SelfUser bot, final User messageAuthor, final MessageEventData messageEventData, final MessageChannelUnion channel, final Mentions mentions, final GptModelService model);
 }

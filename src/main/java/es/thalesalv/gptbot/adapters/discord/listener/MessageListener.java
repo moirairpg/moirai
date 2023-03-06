@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.BotConfig;
+import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.service.interfaces.GptModelService;
 import es.thalesalv.gptbot.application.service.usecases.BotUseCase;
 import es.thalesalv.gptbot.application.translator.MessageEventDataTranslator;
@@ -46,11 +47,12 @@ public class MessageListener extends ListenerAdapter {
             botConfig.getPersonas().forEach(persona -> {
                 final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id));
                 if (isCurrentChannel) {
+                	MessageEventData messageEventData = messageEventDataTranslator.translate(bot, messageAuthor, message, channel);
                     contextDatastore.setPersona(persona);
-                    contextDatastore.setMessageEventData(messageEventDataTranslator.translate(bot, messageAuthor, message, channel));
+                    contextDatastore.setMessageEventData(messageEventData);
                     final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
                     final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-                    useCase.generateResponse(bot, messageAuthor, message, channel, mentions, model);
+                    useCase.generateResponse(bot, messageAuthor, messageEventData, channel, mentions, model);
                 }
             });
         }

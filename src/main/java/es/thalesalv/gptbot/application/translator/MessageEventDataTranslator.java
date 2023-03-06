@@ -17,7 +17,7 @@ public class MessageEventDataTranslator {
         return MessageEventData.builder()
                 .botId(bot.getId())
                 .messageAuthorId(messageAuthor.getId())
-                .messageId(message.getId())
+                .message(message)
                 .channelId(channel.getId())
                 .build();
     }
