@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.gptbot.adapters.data.ContextDatastore;
+import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.service.interfaces.GptModelService;
@@ -32,15 +33,15 @@ public class ChatbotUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
 
     @Override
-    public void generateResponse(final SelfUser bot, final User messageAuthor, final Message message, final MessageChannelUnion channel, final Mentions mentions, final GptModelService model) {
+    public void generateResponse(final SelfUser bot, final User messageAuthor, final MessageEventData messageEventData, final MessageChannelUnion channel, final Mentions mentions, final GptModelService model) {
 
         LOGGER.debug("Entered generation for normal text.");
         channel.sendTyping().complete();
         final List<String> messages = new ArrayList<>();
-        final Message replyMessage = message.getReferencedMessage();
+        final Message replyMessage = messageEventData.getMessage().getReferencedMessage();
 
         if (replyMessage != null) {
-            handleMessageHistoryForReplies(messages, message, replyMessage, bot, messageAuthor, channel);
+            handleMessageHistoryForReplies(messages, messageEventData.getMessage(), bot, messageAuthor, channel);
         } else {
             handleMessageHistory(messages, bot, channel);
         }
@@ -48,7 +49,7 @@ public class ChatbotUseCase implements BotUseCase {
         final String chatifiedMessage = chatifyMessages(bot, messages);
         final Persona persona = contextDatastore.getPersona();
         moderationService.moderate(chatifiedMessage)
-                .subscribe(moderationResult -> model.generate(chatifiedMessage, persona, messages)
+                .subscribe(moderationResult -> model.generate(messageEventData, chatifiedMessage, persona, messages)
                 .subscribe(textResponse -> channel.sendMessage(textResponse).queue()));
     }
 
@@ -61,10 +62,11 @@ public class ChatbotUseCase implements BotUseCase {
      * @param messageAuthor User who wrote the reply
      * @param channel Channel where the conversation is happening
      */
-    private void handleMessageHistoryForReplies(final List<String> messages, final Message message, final Message replyMessage, final SelfUser bot, final User messageAuthor, final MessageChannelUnion channel) {
+    private void handleMessageHistoryForReplies(final List<String> messages, final Message message, final SelfUser bot, final User messageAuthor, final MessageChannelUnion channel) {
 
         LOGGER.debug("Entered quoted message history handling for chatbot");
-        channel.getHistoryBefore(replyMessage, contextDatastore.getPersona().getChatHistoryMemory())
+        Message reply = message.getReferencedMessage();
+        channel.getHistoryBefore(reply, contextDatastore.getPersona().getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
                 .forEach(m -> {
@@ -75,10 +77,10 @@ public class ChatbotUseCase implements BotUseCase {
 
         Collections.reverse(messages);
         messages.add(MessageFormat.format("{0} said earlier: {1}",
-                replyMessage.getAuthor().getName(), replyMessage.getContentDisplay()));
+                reply.getAuthor().getName(), reply.getContentDisplay()));
 
         messages.add(MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
-                messageAuthor.getName(), replyMessage.getAuthor().getName(), message.getContentDisplay()));
+                messageAuthor.getName(), reply.getAuthor().getName(), message.getContentDisplay()));
     }
 
     /**

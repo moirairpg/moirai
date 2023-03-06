@@ -21,6 +21,7 @@ import es.thalesalv.gptbot.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.gptbot.adapters.data.db.entity.LorebookRegex;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.service.interfaces.GptModelService;
@@ -47,7 +48,7 @@ public class DungeonMasterUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DungeonMasterUseCase.class);
 
     @Override
-    public void generateResponse(SelfUser bot, User player, Message message, MessageChannelUnion channel, final Mentions mentions, final GptModelService model) {
+    public void generateResponse(SelfUser bot, User player, MessageEventData messageEventData, MessageChannelUnion channel, final Mentions mentions, final GptModelService model) {
 
         LOGGER.debug("Entered generation of response for RPG");
         if (mentions.isMentioned(bot, Message.MentionType.USER)) {
@@ -75,7 +76,7 @@ public class DungeonMasterUseCase implements BotUseCase {
             final String chatifiedMessage = formatAdventureForPrompt(messages, bot);
             final Persona persona = contextDatastore.getPersona();
             moderationService.moderate(chatifiedMessage)
-                    .subscribe(moderationResult -> model.generate(chatifiedMessage, persona, messages)
+                    .subscribe(moderationResult -> model.generate(messageEventData, chatifiedMessage, persona, messages)
                     .subscribe(textResponse -> channel.sendMessage(textResponse).queue()));
         }
     }

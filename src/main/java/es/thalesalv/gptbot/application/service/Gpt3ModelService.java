@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.adapters.rest.OpenAIApiService;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.config.Persona;
@@ -23,7 +22,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class Gpt3ModelService implements GptModelService {
 
-    private final ContextDatastore contextDatastore;
     private final CommonErrorHandler commonErrorHandler;
     private final Gpt3RequestTranslator gptRequestTranslator;
     private final OpenAIApiService openAiService;
@@ -31,12 +29,11 @@ public class Gpt3ModelService implements GptModelService {
     private static final Logger LOGGER = LoggerFactory.getLogger(Gpt3ModelService.class);
 
     @Override
-    public Mono<String> generate(final String prompt, final Persona persona, final List<String> messages) {
+    public Mono<String> generate(final MessageEventData messageEventData, final String prompt, final Persona persona, final List<String> messages) {
 
         LOGGER.debug("Called inference for GPT3. Persona -> {}", persona);
-        final MessageEventData messageEventData = contextDatastore.getMessageEventData();
         final Gpt3Request request = gptRequestTranslator.buildRequest(prompt, persona.getModelName(), persona);
-        return openAiService.callGptApi(request).map(response -> {
+        return openAiService.callGptApi(request, messageEventData).map(response -> {
             final String responseText = response.getChoices().get(0).getText();
             if (StringUtils.isBlank(responseText)) {
                 throw new ModelResponseBlankException();
