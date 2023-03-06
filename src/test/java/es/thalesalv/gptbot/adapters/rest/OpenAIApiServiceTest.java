@@ -24,7 +24,6 @@ import es.thalesalv.gptbot.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.gptbot.domain.exception.ErrorBotResponseException;
 import es.thalesalv.gptbot.domain.exception.OpenAiApiException;
 import es.thalesalv.gptbot.domain.model.openai.gpt.Gpt3Request;
-import es.thalesalv.gptbot.domain.model.openai.gpt.Gpt3Request;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationResponse;
@@ -64,7 +63,7 @@ public class OpenAIApiServiceTest {
     static void beforeAll() throws IOException {
 
         mockWebServer = new MockWebServer();
-        mockWebServer.start(8080);
+        mockWebServer.start(3434);
     }
 
     @BeforeEach
@@ -97,7 +96,7 @@ public class OpenAIApiServiceTest {
                 .setBody(new ObjectMapper().writeValueAsString(response))
                 .addHeader("Content-Type", "application/json"));
 
-        StepVerifier.create(openAiApiService.callGptApi(request))
+        StepVerifier.create(openAiApiService.callGptApi(request, eventData))
                 .assertNext(resp -> {
                     Assertions.assertNotNull(resp);
                     Assertions.assertNull(resp.getError());
@@ -119,7 +118,7 @@ public class OpenAIApiServiceTest {
                 .setBody(new ObjectMapper().writeValueAsString(response))
                 .addHeader("Content-Type", "application/json"));
 
-        Mono<GptResponse> underTest = openAiApiService.callGptApi(request);
+        Mono<GptResponse> underTest = openAiApiService.callGptApi(request, eventData);
         StepVerifier.create(underTest)
                 .assertNext(resp -> {
                     Assertions.assertNotNull(resp);
@@ -178,7 +177,7 @@ public class OpenAIApiServiceTest {
                 .setBody(new ObjectMapper().writeValueAsString(response))
                 .addHeader("Content-Type", "application/json"));
 
-        StepVerifier.create(openAiApiService.callGptApi(request))
+        StepVerifier.create(openAiApiService.callGptApi(request, eventData))
                 .verifyError(OpenAiApiException.class);
     }
 
@@ -232,7 +231,7 @@ public class OpenAIApiServiceTest {
                 .setBody(new ObjectMapper().writeValueAsString(response))
                 .addHeader("Content-Type", "application/json"));
 
-        Mono<GptResponse> underTest = openAiApiService.callGptApi(request);
+        Mono<GptResponse> underTest = openAiApiService.callGptApi(request, eventData);
         StepVerifier.create(underTest)
                 .expectErrorSatisfies(t -> {
                     Assertions.assertTrue(t instanceof ErrorBotResponseException);
