@@ -54,17 +54,10 @@ public class ChatGptRequestTranslator {
         List<ChatGptMessage> chatGptMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((bot.getName() + " said:").trim()))
                 .map(msg -> {
-                    String fMsg = msg.trim();
-                    String role = StringUtils.EMPTY;
-                    if (fMsg.startsWith(bot.getName()) || fMsg.startsWith(DUNGEON_MASTER)) {
-                        role = ROLE_ASSISTANT;
-                    } else {
-                        role = ROLE_USER;
-                    }
-
+                    String role = determineRole(personality, bot);
                     return ChatGptMessage.builder()
                             .role(role)
-                            .content(fMsg)
+                            .content(msg)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -83,5 +76,14 @@ public class ChatGptRequestTranslator {
             .presencePenalty(presencePenalty)
             .frequencyPenalty(frequencyPenalty)
             .build();
+    }
+
+    private String determineRole(String message, SelfUser bot) {
+        
+        if (message.startsWith(bot.getName()) || message.startsWith(DUNGEON_MASTER)) {
+            return ROLE_ASSISTANT;
+        } else {
+            return ROLE_USER;
+        }
     }
 }
