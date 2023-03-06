@@ -36,7 +36,7 @@ public class CommonErrorHandler {
     public Message createMessage(final MessageEventData messageEventData) {
 
         return jda.getTextChannelById(messageEventData.getChannelId())
-                .retrieveMessageById(messageEventData.getMessageId()).complete();
+                .retrieveMessageById(messageEventData.getMessage().getId()).complete();
     }
 
     public void notifyUser(final String notification, final Message message, final MessageEventData messageEventData) {

@@ -93,7 +93,7 @@ public class ModerationService {
 
         LOGGER.warn("Unsafe content detected in a message.", flaggedTopics);
         final TextChannel channel = jda.getTextChannelById(messageEventData.getChannelId());
-        final Message message = channel.retrieveMessageById(messageEventData.getMessageId()).complete();
+        final Message message = channel.retrieveMessageById(messageEventData.getMessage().getId()).complete();
         final User messageAuthor = jda.getUserById(messageEventData.getMessageAuthorId());
         String flaggedMessage = FLAGGED_MESSAGE;
 
