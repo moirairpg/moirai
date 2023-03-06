@@ -3,7 +3,6 @@ package es.thalesalv.gptbot.application.service.usecases;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.service.interfaces.GptModelService;
 import net.dv8tion.jda.api.entities.Mentions;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
