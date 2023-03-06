@@ -1,6 +1,7 @@
 package es.thalesalv.gptbot.adapters.data;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,9 @@ public class ContextDatastore {
     }
 
     public Persona getPersona() {
-        return this.persona.get();
+        return Optional.ofNullable(this.persona)
+        		.map(ThreadLocal::get)
+        		.orElseThrow(() -> new NullPointerException("persona not set on thread"));
     }
 
     public boolean isPersonaNull() {
@@ -32,7 +35,9 @@ public class ContextDatastore {
     }
 
     public MessageEventData getMessageEventData() {
-        return this.messageEventData.get();
+        return Optional.ofNullable(this.messageEventData)
+        		.map(ThreadLocal::get)
+        		.orElseThrow(()-> new NullPointerException("messageEventData not set on thread"));
     }
 
     public boolean isMessageEventDataNull() {
@@ -44,7 +49,9 @@ public class ContextDatastore {
     }
 
     public CommandEventData getCommandEventData() {
-        return this.commandEventData.get();
+        return Optional.ofNullable(this.commandEventData)
+        		.map(ThreadLocal::get)
+        		.orElseThrow(()-> new NullPointerException("commandEventData not set on thread"));
     }
 
     public boolean isCommandEventDataNull() {
