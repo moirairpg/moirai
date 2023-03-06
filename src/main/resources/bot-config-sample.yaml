@@ -4,6 +4,11 @@
 ## configurations are done as this simple shows. You can alter these values to create a different
 ## personality for each channel your bot will have access to.
 
+## Do note that the personality has to be written differently depending on the model.
+## Things that work for one don't necessarily work for another.
+## Try to write personalities in second person and in a way that's not "telling the bot what to do" when it's ChatGPT
+## For other families of models, writing it in first person ~might~ expand on results
+
 ---
 personas:
   # Default configs for chatbot
@@ -11,6 +16,7 @@ personas:
     - "DISCORD_CHANNEL_ID" # Insert the ID of the channel the bot will have access to here
     - "SECOND_CHANNEL_ID" # If you want the bot to be in multiple channels with the same personality, just keep adding more
     intent: chatbot # The bot's intent on this channel, can be either "chatbot" or "dungeonMaster"
+    name: Helpful Chatbot # A name for this persona, preferrably has to do with its intent
     personality: > # Define the bot's personality in first person. {0} is replaced by the bot's nickname on Discord
       I am {0}, and I am an AI chatbot.
       I am polite and professional.
@@ -38,6 +44,7 @@ personas:
   - channel-ids:
     - "DISCORD_CHANNEL_ID"
     intent: dungeonMaster # Proper capitalization is required
+    name: RPG DM
     personality: >
       I am the Dungeon Master, and I am an RPG narrator.
       I am creative, fun with a vivid writing style and never stray from that behavior.

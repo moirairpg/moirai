@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ModerationResult {
 
@@ -26,5 +26,5 @@ public class ModerationResult {
     private Map<String, Double> categoryScores;
 
     @JsonProperty("flagged")
-    private boolean flagged;
+    private Boolean flagged;
 }

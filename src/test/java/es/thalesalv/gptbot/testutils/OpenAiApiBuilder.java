@@ -5,14 +5,14 @@ import java.util.List;
 
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptModelResponseChoice;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptModelResponseError;
-import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
+import es.thalesalv.gptbot.domain.model.openai.gpt.Gpt3Request;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 
 public class OpenAiApiBuilder {
 
-    public static GptRequest buildGptRequest() {
+    public static Gpt3Request buildGpt3Request() {
 
-        return GptRequest.builder()
+        return Gpt3Request.builder()
                 .maxTokens(100)
                 .frequencyPenalty(0.2)
                 .presencePenalty(0.2)

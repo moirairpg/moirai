@@ -22,9 +22,9 @@ import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.gptbot.domain.exception.ErrorBotResponseException;
-import es.thalesalv.gptbot.domain.exception.ModelResponseBlankException;
 import es.thalesalv.gptbot.domain.exception.OpenAiApiException;
-import es.thalesalv.gptbot.domain.model.openai.gpt.GptRequest;
+import es.thalesalv.gptbot.domain.model.openai.gpt.Gpt3Request;
+import es.thalesalv.gptbot.domain.model.openai.gpt.Gpt3Request;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationResponse;
@@ -88,7 +88,7 @@ public class OpenAIApiServiceTest {
     public void testCompletionsApi_shouldWork() throws JsonProcessingException {
 
         final MessageEventData eventData = PersonaBuilder.messageEventData();
-        final GptRequest request = OpenAiApiBuilder.buildGptRequest();
+        final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
         final GptResponse response = OpenAiApiBuilder.buildGptResponse();
 
         Mockito.when(contextDatastore.getMessageEventData()).thenReturn(eventData);
@@ -110,7 +110,7 @@ public class OpenAIApiServiceTest {
     public void testCompletionsApi_shouldThrowError_emptyResponse() throws JsonProcessingException {
 
         final MessageEventData eventData = PersonaBuilder.messageEventData();
-        final GptRequest request = OpenAiApiBuilder.buildGptRequest();
+        final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
         final GptResponse response = OpenAiApiBuilder.buildGptResponseEmptyText();
 
         Mockito.when(contextDatastore.getMessageEventData()).thenReturn(eventData);
@@ -133,7 +133,7 @@ public class OpenAIApiServiceTest {
     public void testCompletionsApi_shouldThrowError_error4xx() throws JsonProcessingException {
 
         final MessageEventData eventData = PersonaBuilder.messageEventData();
-        final GptRequest request = OpenAiApiBuilder.buildGptRequest();
+        final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
         final GptResponse response = OpenAiApiBuilder.buildGptResponse4xx();
 
         Mockito.when(contextDatastore.getMessageEventData()).thenReturn(eventData);
@@ -186,7 +186,7 @@ public class OpenAIApiServiceTest {
     public void testCompletionsApi_shouldThrowError_apiError() throws JsonProcessingException {
 
         final MessageEventData eventData = PersonaBuilder.messageEventData();
-        final GptRequest request = OpenAiApiBuilder.buildGptRequest();
+        final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
         final GptResponse response = OpenAiApiBuilder.buildGptResponse4xx();
         final ResponseSpec responseSpec = Mockito.mock(ResponseSpec.class);
 
@@ -254,7 +254,7 @@ public class OpenAIApiServiceTest {
         StepVerifier.create(underTest)
                 .assertNext(resp -> {
                     Assertions.assertEquals("text-davinci-003", resp.getModel());
-                    Assertions.assertFalse(resp.getModerationResult().get(0).isFlagged());
+                    Assertions.assertFalse(resp.getModerationResult().get(0).getFlagged());
                 }).verifyComplete();
     }
 
@@ -272,7 +272,7 @@ public class OpenAIApiServiceTest {
         StepVerifier.create(underTest)
                 .assertNext(resp -> {
                     Assertions.assertEquals("text-davinci-003", resp.getModel());
-                    Assertions.assertTrue(resp.getModerationResult().get(0).isFlagged());
+                    Assertions.assertTrue(resp.getModerationResult().get(0).getFlagged());
                 }).verifyComplete();
     }
 }

@@ -23,8 +23,7 @@ import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.service.ModerationService;
-import es.thalesalv.gptbot.application.service.interfaces.GptModel;
-import es.thalesalv.gptbot.application.util.MessageUtils;
+import es.thalesalv.gptbot.application.service.interfaces.GptModelService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -48,7 +47,7 @@ public class DungeonMasterUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DungeonMasterUseCase.class);
 
     @Override
-    public void generateResponse(SelfUser bot, User player, Message message, MessageChannelUnion channel, final Mentions mentions, final GptModel model) {
+    public void generateResponse(SelfUser bot, User player, Message message, MessageChannelUnion channel, final Mentions mentions, final GptModelService model) {
 
         LOGGER.debug("Entered generation of response for RPG");
         if (mentions.isMentioned(bot, Message.MentionType.USER)) {
@@ -73,11 +72,10 @@ public class DungeonMasterUseCase implements BotUseCase {
                 });
             });
 
-            MessageUtils.formatPersonality(messages, contextDatastore.getPersona(), bot);
             final String chatifiedMessage = formatAdventureForPrompt(messages, bot);
             final Persona persona = contextDatastore.getPersona();
             moderationService.moderate(chatifiedMessage)
-                    .subscribe(moderationResult -> model.generate(chatifiedMessage, persona)
+                    .subscribe(moderationResult -> model.generate(chatifiedMessage, persona, messages)
                     .subscribe(textResponse -> channel.sendMessage(textResponse).queue()));
         }
     }

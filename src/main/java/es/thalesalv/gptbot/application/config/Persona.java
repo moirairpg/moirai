@@ -13,7 +13,9 @@ import lombok.Setter;
 public class Persona {
 
     private List<String> channelIds;
+    private String name;
     private String intent;
+    private String owner;
     private String personality;
     private String modelName;
     private String modelFamily;

@@ -19,7 +19,9 @@ import es.thalesalv.gptbot.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.gptbot.adapters.data.db.entity.LorebookRegex;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.gptbot.application.config.BotConfig;
 import es.thalesalv.gptbot.application.config.CommandEventData;
+import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.gptbot.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.gptbot.domain.exception.MissingRequiredSlashCommandOptionException;
@@ -39,6 +41,8 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 @RequiredArgsConstructor
 public class UpdateLorebookEntryService implements CommandService {
 
+    private final BotConfig botConfig;
+    private final ModerationService moderationService;
     private final ContextDatastore contextDatastore;
     private final ObjectMapper objectMapper;
     private final LorebookRepository lorebookRepository;
@@ -55,15 +59,24 @@ public class UpdateLorebookEntryService implements CommandService {
 
         try {
             LOGGER.debug("Showing modal for character update");
-            final UUID entryId = retrieveEntryId(event.getOption("lorebook-entry-id"));
-            contextDatastore.setCommandEventData(CommandEventData.builder()
-                    .lorebookEntryId(entryId).build());
+            botConfig.getPersonas().forEach(persona -> {
+                final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
+                if (isCurrentChannel) {
+                    contextDatastore.setPersona(persona);
+                    final UUID entryId = retrieveEntryId(event.getOption("lorebook-entry-id"));
+                    contextDatastore.setCommandEventData(CommandEventData.builder()
+                            .lorebookEntryId(entryId).build());
 
-            final var entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
-                    .orElseThrow(LorebookEntryNotFoundException::new);
+                    final var entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
+                            .orElseThrow(LorebookEntryNotFoundException::new);
 
-            final Modal modalEntry = buildEntryUpdateModal(entry);
-            event.replyModal(modalEntry).queue();
+                    final Modal modalEntry = buildEntryUpdateModal(entry);
+                    event.replyModal(modalEntry).queue();
+                    return;
+                }
+
+                event.reply("This command cannot be issued from this channel.").setEphemeral(true).complete();
+            });
         } catch (MissingRequiredSlashCommandOptionException e) {
             LOGGER.info("User tried to use update command without ID");
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true).complete();
@@ -96,8 +109,11 @@ public class UpdateLorebookEntryService implements CommandService {
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(entry);
 
-            event.reply(MessageFormat.format(ENTRY_UPDATED, updatedEntry.getLorebookEntry().getName(), loreEntryJson))
-                    .setEphemeral(true).complete();
+            moderationService.moderate(loreEntryJson, event).subscribe(response -> {
+                event.reply(MessageFormat.format(ENTRY_UPDATED,
+                updatedEntry.getLorebookEntry().getName(), loreEntryJson))
+                        .setEphemeral(true).complete();
+            });
         } catch (JsonProcessingException e) {
             LOGGER.error("Error parsing entry data into JSON", e);
             event.reply(ERROR_UPDATE).setEphemeral(true).complete();
