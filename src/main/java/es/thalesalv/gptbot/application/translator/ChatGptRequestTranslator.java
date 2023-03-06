@@ -47,7 +47,6 @@ public class ChatGptRequestTranslator {
         final double presencePenalty = persona == null ? defaultPresencePenalty : persona.getPresencePenalty();
         final double frequencyPenalty = persona == null ? defaultFrequencyPenalty : persona.getFrequencyPenalty();
 
-        messages.remove(messages.size() - 1);
         messages.replaceAll(msg -> msg.replace(bot.getName() + " said: ", StringUtils.EMPTY)
                 .replaceAll("Dungeon Master says: ", StringUtils.EMPTY));
 
