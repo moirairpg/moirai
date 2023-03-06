@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.adapters.rest.OpenAIApiService;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.config.Persona;
@@ -23,7 +22,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ChatGptModelService implements GptModelService {
 
-    private final ContextDatastore contextDatastore;
     private final CommonErrorHandler commonErrorHandler;
     private final ChatGptRequestTranslator chatGptRequestTranslator;
     private final OpenAIApiService openAiService;
@@ -31,12 +29,11 @@ public class ChatGptModelService implements GptModelService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatGptModelService.class);
 
     @Override
-    public Mono<String> generate(final String prompt, final Persona persona, final List<String> messages) {
+    public Mono<String> generate(MessageEventData messageEventData, final String prompt, final Persona persona, final List<String> messages) {
 
         LOGGER.debug("Called inference for ChatGPT. Persona -> {}", persona);
-        final MessageEventData messageEventData = contextDatastore.getMessageEventData();
         final ChatGptRequest request = chatGptRequestTranslator.buildRequest(messages, persona.getModelName(), persona);
-        return openAiService.callGptChatApi(request).map(response -> {
+        return openAiService.callGptChatApi(request, messageEventData).map(response -> {
             final String responseText = response.getChoices().get(0).getMessage().getContent();
             if (StringUtils.isBlank(responseText)) {
                 throw new ModelResponseBlankException();

@@ -50,10 +50,9 @@ public class OpenAIApiService {
         this.webClient = webClientBuilder.baseUrl(openAiBaseUrl).build();
     }
 
-    public Mono<GptResponse> callGptChatApi(final ChatGptRequest request) {
+    public Mono<GptResponse> callGptChatApi(final ChatGptRequest request, final MessageEventData messageEventData) {
 
         LOGGER.info("Making request to OpenAI ChatGPT API -> {}", request);
-        final MessageEventData messageEventData = contextDatastore.getMessageEventData();
         return webClient.post()
                 .uri(chatCompletionsUri)
                 .headers(headers -> {
@@ -75,10 +74,9 @@ public class OpenAIApiService {
                 .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(messageEventData));
     }
 
-    public Mono<GptResponse> callGptApi(final Gpt3Request request) {
+    public Mono<GptResponse> callGptApi(final Gpt3Request request, final MessageEventData messageEventData) {
 
         LOGGER.info("Making request to OpenAI GPT API -> {}", request);
-        final MessageEventData messageEventData = contextDatastore.getMessageEventData();
         return webClient.post()
                 .uri(completionsUri)
                 .headers(headers -> {
