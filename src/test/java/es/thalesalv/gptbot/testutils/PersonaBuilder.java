@@ -57,9 +57,9 @@ public class PersonaBuilder {
 
     public static MessageEventData messageEventData() {
         return MessageEventData.builder()
-                .botId("4234235")
-                .channelId("4235235")
-                .messageAuthorId("4234234")
+                .bot(DiscordMocker.buildSelfUser())
+                .channel(DiscordMocker.buildChannel())
+                .messageAuthor(DiscordMocker.buildUser())
                 .message(MessageBuilder.getMessage())
                 .build();
     }
