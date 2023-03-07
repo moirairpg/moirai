@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +56,8 @@ public class ChatbotUseCase implements BotUseCase {
         MessageChannelUnion channel = messageEventData.getChannel();
         int limit = persona.getChatHistoryMemory();
         String botName = messageEventData.getBot().getName();
-        List<String> messages = List.of(formatLastMessage(message, botName));
+        List<String> messages = new ArrayList<>();
+        messages.add(formatLastMessage(message, botName));
         Optional.ofNullable(referenceMessage)
                 .map(r -> channel.getHistoryBefore(r, limit).complete().getRetrievedHistory())
                 .orElseGet(() -> channel.getHistory().retrievePast(limit).complete())
