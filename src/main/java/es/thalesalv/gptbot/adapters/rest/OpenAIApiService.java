@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.gptbot.domain.exception.ErrorBotResponseException;
@@ -36,17 +35,15 @@ public class OpenAIApiService {
     private String moderationUri;
 
     private final WebClient webClient;
-    private final ContextDatastore contextDatastore;
     private final CommonErrorHandler commonErrorHandler;
 
     private static final String BEARER = "Bearer ";
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAIApiService.class);
 
     public OpenAIApiService(@Value("${config.openai.api-base-url}") final String openAiBaseUrl,
-            final WebClient.Builder webClientBuilder, final ContextDatastore contextDatastore, final CommonErrorHandler commonErrorHandler) {
+            final WebClient.Builder webClientBuilder, final CommonErrorHandler commonErrorHandler) {
 
         this.commonErrorHandler = commonErrorHandler;
-        this.contextDatastore = contextDatastore;
         this.webClient = webClientBuilder.baseUrl(openAiBaseUrl).build();
     }
 
