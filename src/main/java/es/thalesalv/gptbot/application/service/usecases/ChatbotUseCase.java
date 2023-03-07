@@ -51,12 +51,12 @@ public class ChatbotUseCase implements BotUseCase {
 
         LOGGER.debug("Entered generation for normal text.");
         messageEventData.getChannel().sendTyping().complete();
-        Message message = messageEventData.getMessage();
-        Message referenceMessage = message.getReferencedMessage();
-        MessageChannelUnion channel = messageEventData.getChannel();
-        int limit = persona.getChatHistoryMemory();
-        String botName = messageEventData.getBot().getName();
-        List<String> messages = new ArrayList<>();
+        final Message message = messageEventData.getMessage();
+        final Message referenceMessage = message.getReferencedMessage();
+        final MessageChannelUnion channel = messageEventData.getChannel();
+        final int limit = persona.getChatHistoryMemory();
+        final String botName = messageEventData.getBot().getName();
+        final List<String> messages = new ArrayList<>();
         messages.add(formatLastMessage(message, botName));
         Optional.ofNullable(referenceMessage)
                 .map(r -> channel.getHistoryBefore(r, limit).complete().getRetrievedHistory())
