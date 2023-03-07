@@ -1,6 +1,7 @@
 package es.thalesalv.gptbot.domain.model.openai.gpt;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 @Data
 @Builder
@@ -26,13 +28,16 @@ public class ChatGptRequest {
     private List<ChatGptMessage> messages;
 
     @JsonProperty("stop")
-    private String stop;
+    private List<String> stop;
 
     @JsonProperty("max_tokens")
     private Integer maxTokens;
 
     @JsonProperty("n")
     private Integer n;
+
+    @JsonProperty("best_of")
+    private Integer bestOf;
 
     @JsonProperty("temperature")
     private Double temperature;
@@ -45,4 +50,7 @@ public class ChatGptRequest {
 
     @JsonProperty("frequency_penalty")
     private Double frequencyPenalty;
+
+    @JsonProperty("logit_bias")
+    private Map<String,Integer> logitBias;
 }
