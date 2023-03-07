@@ -53,7 +53,7 @@ public class Gpt3ModelServiceTest {
         final String prompt = "This is a prompt!";
         final Persona persona = PersonaBuilder.persona();
         final Message message = Mockito.mock(Message.class);
-        final MessageEventData eventData = MessageEventData.builder().botId("1231432").channelId("54623562").messageAuthorId("1234").message(message).build();
+        final MessageEventData eventData = PersonaBuilder.messageEventData();
         Mockito.when(gpt3RequestTranslator.buildRequest(anyString(), anyString(), any(Persona.class)))
                 .thenReturn(request);
 
@@ -73,7 +73,7 @@ public class Gpt3ModelServiceTest {
         final String prompt = "This is a prompt!";
         final Persona persona = PersonaBuilder.persona();
         final Message message = Mockito.mock(Message.class);
-        final MessageEventData eventData = MessageEventData.builder().botId("1231432").channelId("54623562").messageAuthorId("1234").message(message).build();
+        final MessageEventData eventData = PersonaBuilder.messageEventData();
 
         Mockito.when(gpt3RequestTranslator.buildRequest(prompt, "text-davinci-003", persona))
                 .thenReturn(request);
