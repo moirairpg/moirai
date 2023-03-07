@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.gptbot.adapters.data.db.entity.LorebookRegex;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
@@ -38,7 +37,6 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 public class DungeonMasterUseCase implements BotUseCase {
 
     private final JDA jda;
-    private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final LorebookRepository lorebookRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
@@ -48,16 +46,16 @@ public class DungeonMasterUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DungeonMasterUseCase.class);
 
     @Override
-    public void generateResponse(SelfUser bot, User player, MessageEventData messageEventData, MessageChannelUnion channel, final Mentions mentions, final GptModelService model) {
+    public void generateResponse(final Persona persona, final MessageEventData messageEventData, final Mentions mentions, final GptModelService model) {
 
         LOGGER.debug("Entered generation of response for RPG");
-        if (mentions.isMentioned(bot, Message.MentionType.USER)) {
-            channel.sendTyping().complete();
+        if (mentions.isMentioned(messageEventData.getBot(), Message.MentionType.USER)) {
+            messageEventData.getChannel().sendTyping().complete();
             final List<String> messages = new ArrayList<>();
             final Set<LorebookEntry> entriesFound = new HashSet<>();
 
-            handleMessageHistory(messages, bot, channel);
-            handlePlayerCharacterEntries(entriesFound, messages, player, mentions);
+            handleMessageHistory(persona, messages, messageEventData.getBot(), messageEventData.getChannel());
+            handlePlayerCharacterEntries(entriesFound, messages, messageEventData.getMessageAuthor(), mentions);
             handleEntriesMentioned(messages, entriesFound);
 
             entriesFound.stream().forEach(entry -> {
@@ -73,25 +71,25 @@ public class DungeonMasterUseCase implements BotUseCase {
                 });
             });
 
-            final String chatifiedMessage = formatAdventureForPrompt(messages, bot);
-            final Persona persona = contextDatastore.getPersona();
-            moderationService.moderate(chatifiedMessage)
+            final String chatifiedMessage = formatAdventureForPrompt(messages, messageEventData.getBot());
+            moderationService.moderate(messageEventData, persona, chatifiedMessage)
                     .subscribe(moderationResult -> model.generate(messageEventData, chatifiedMessage, persona, messages)
-                    .subscribe(textResponse -> channel.sendMessage(textResponse).queue()));
+                    .subscribe(textResponse -> messageEventData.getChannel().sendMessage(textResponse).queue()));
         }
     }
     
     /**
      * Formats last messages history to give the AI context on the adventure
+     * @param persona Persona with current bot settings
      * @param messages List messages before the one sent
      * @param bot Bot user
      * @param channel Channel where the conversation is happening
      */
-    private void handleMessageHistory(List<String> messages, SelfUser bot, MessageChannelUnion channel) {
+    private void handleMessageHistory(final Persona persona, List<String> messages, SelfUser bot, MessageChannelUnion channel) {
     
         LOGGER.debug("Entered history handling for RPG");
         channel.getHistory()
-                .retrievePast(contextDatastore.getPersona().getChatHistoryMemory()).complete()
+                .retrievePast(persona.getChatHistoryMemory()).complete()
                 .stream()
                 .map(m -> {
                     if (m.getContentDisplay().matches(("@" + bot.getName()).trim() + "$")) {

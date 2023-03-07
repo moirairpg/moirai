@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.service.ModerationService;
@@ -27,34 +26,34 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 @RequiredArgsConstructor
 public class ChatbotUseCase implements BotUseCase {
 
-    private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
 
     @Override
-    public void generateResponse(final SelfUser bot, final User messageAuthor, final MessageEventData messageEventData, final MessageChannelUnion channel, final Mentions mentions, final GptModelService model) {
+    public void generateResponse(final Persona persona, final MessageEventData messageEventData, final Mentions mentions, final GptModelService model) {
 
         LOGGER.debug("Entered generation for normal text.");
-        channel.sendTyping().complete();
+        messageEventData.getChannel().sendTyping().complete();
         final List<String> messages = new ArrayList<>();
         final Message replyMessage = messageEventData.getMessage().getReferencedMessage();
 
         if (replyMessage != null) {
-            handleMessageHistoryForReplies(messages, messageEventData.getMessage(), bot, messageAuthor, channel);
+            handleMessageHistoryForReplies(persona, messages, messageEventData.getMessage(),
+                    messageEventData.getBot(), messageEventData.getMessageAuthor(), messageEventData.getChannel());
         } else {
-            handleMessageHistory(messages, bot, channel);
+            handleMessageHistory(persona, messages, messageEventData.getBot(), messageEventData.getChannel());
         }
 
-        final String chatifiedMessage = chatifyMessages(bot, messages);
-        final Persona persona = contextDatastore.getPersona();
-        moderationService.moderate(chatifiedMessage)
+        final String chatifiedMessage = chatifyMessages(messageEventData.getBot(), messages);
+        moderationService.moderate(messageEventData, persona, chatifiedMessage)
                 .subscribe(moderationResult -> model.generate(messageEventData, chatifiedMessage, persona, messages)
-                .subscribe(textResponse -> channel.sendMessage(textResponse).queue()));
+                .subscribe(textResponse -> messageEventData.getChannel().sendMessage(textResponse).queue()));
     }
 
     /**
      * Formats last messages history on replied to give the AI context on the past conversation
+     * @param persona Persona containing the current bot settings
      * @param messages List of messages before the one replied to
      * @param message Message sent as a reply to the quoted message
      * @param replyMessage Quoted message
@@ -62,11 +61,12 @@ public class ChatbotUseCase implements BotUseCase {
      * @param messageAuthor User who wrote the reply
      * @param channel Channel where the conversation is happening
      */
-    private void handleMessageHistoryForReplies(final List<String> messages, final Message message, final SelfUser bot, final User messageAuthor, final MessageChannelUnion channel) {
+    private void handleMessageHistoryForReplies(final Persona persona, final List<String> messages,
+            final Message message, final SelfUser bot, final User messageAuthor, final MessageChannelUnion channel) {
 
         LOGGER.debug("Entered quoted message history handling for chatbot");
         Message reply = message.getReferencedMessage();
-        channel.getHistoryBefore(reply, contextDatastore.getPersona().getChatHistoryMemory())
+        channel.getHistoryBefore(reply, persona.getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
                 .forEach(m -> {
@@ -85,15 +85,16 @@ public class ChatbotUseCase implements BotUseCase {
 
     /**
      * Formats last messages history to give the AI context on the current conversation
+     * @param persona Persona with the current bot settings
      * @param messages List messages before the one sent
      * @param bot Bot user
      * @param channel Channel where the conversation is happening
      */
-    private void handleMessageHistory(final List<String> messages, final SelfUser bot, final MessageChannelUnion channel) {
+    private void handleMessageHistory(final Persona persona, final List<String> messages, final SelfUser bot, final MessageChannelUnion channel) {
 
         LOGGER.debug("Entered message history handling for chatbot");
         channel.getHistory()
-                .retrievePast(contextDatastore.getPersona().getChatHistoryMemory())
+                .retrievePast(persona.getChatHistoryMemory())
                 .complete().forEach(m -> {
                     final User mAuthorUser = m.getAuthor();
                     messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),

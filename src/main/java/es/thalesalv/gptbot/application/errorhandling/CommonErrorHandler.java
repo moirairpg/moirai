@@ -11,15 +11,12 @@ import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.domain.exception.OpenAiApiException;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
 public class CommonErrorHandler {
-
-    private final JDA jda;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommonErrorHandler.class);
     private static final String EMPTY_RESPONSE = "The model did not generate an output due to a problem. Please try again. Your message will be removed.\n**Message content:** {0}";
@@ -35,13 +32,13 @@ public class CommonErrorHandler {
 
     public Message createMessage(final MessageEventData messageEventData) {
 
-        return jda.getTextChannelById(messageEventData.getChannelId())
+        return messageEventData.getChannel()
                 .retrieveMessageById(messageEventData.getMessage().getId()).complete();
     }
 
     public void notifyUser(final String notification, final Message message, final MessageEventData messageEventData) {
 
-        jda.getUserById(messageEventData.getMessageAuthorId()).openPrivateChannel()
+        messageEventData.getMessageAuthor().openPrivateChannel()
                 .complete().sendMessage(MessageFormat.format(notification, message.getContentRaw())).complete();
     }
 
