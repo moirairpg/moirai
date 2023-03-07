@@ -18,7 +18,9 @@ config:
 spring:
     main:
         banner-mode: "off"
-    jpa.hibernate.ddl-auto: update
+    jpa:
+        hibernate:
+            ddl-auto: update
     datasource:
         url: jdbc:postgresql://${POSTGRES_HOST}/${POSTGRES_DB}
         username: ${POSTGRES_USER}
