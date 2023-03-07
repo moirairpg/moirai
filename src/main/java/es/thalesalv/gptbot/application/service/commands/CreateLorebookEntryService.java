@@ -18,6 +18,7 @@ import es.thalesalv.gptbot.adapters.data.db.entity.LorebookRegex;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.gptbot.application.config.BotConfig;
+import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.gptbot.domain.model.openai.dto.LorebookDTO;
@@ -80,11 +81,12 @@ public class CreateLorebookEntryService implements CommandService {
             final LorebookRegex insertedEntry = insertEntry(author, entryName, entryRegex,
                     entryDescription, lorebookEntryId, lorebookRegexId, isPlayerCharacter);
 
+            final Persona persona = contextDatastore.getPersona();
             final LorebookDTO loreItem = lorebookEntryToDTOTranslator.apply(insertedEntry);
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
 
-            moderationService.moderate(loreEntryJson, event).subscribe(response -> {
+            moderationService.moderate(persona, loreEntryJson, event).subscribe(response -> {
                 event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
                                 insertedEntry.getLorebookEntry().getName(), loreEntryJson))
                         .setEphemeral(true).complete();

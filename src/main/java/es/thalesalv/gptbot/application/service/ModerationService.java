@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.gptbot.adapters.data.ContextDatastore;
 import es.thalesalv.gptbot.adapters.rest.OpenAIApiService;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.config.Persona;
@@ -20,7 +19,6 @@ import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationResponse;
 import es.thalesalv.gptbot.domain.model.openai.moderation.ModerationResult;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -31,10 +29,8 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ModerationService {
 
-    private final JDA jda;
-    private final ContextDatastore contextDatastore;
     private final OpenAIApiService openAIApiService;
-    
+
     @Value("${config.bot.generation.default-threshold}")
     private double defaultThreshold;
 
@@ -44,9 +40,8 @@ public class ModerationService {
     private static final String FLAGGED_TOPICS_MESSAGE = "\n**Message content:** {0}\n**Flagged topics:** {1}";
     private static final String FLAGGED_TOPICS_LOREBOOK = "\n**Flagged topics:** {0}\n```json\n{1}```";
 
-    public Mono<ModerationResponse> moderate(final String prompt, final ModalInteractionEvent event) {
+    public Mono<ModerationResponse> moderate(final Persona persona, final String prompt, final ModalInteractionEvent event) {
 
-        final Persona persona = contextDatastore.getPersona();
         final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
@@ -59,10 +54,8 @@ public class ModerationService {
                 });
     }
 
-    public Mono<ModerationResponse> moderate(final String prompt) {
+    public Mono<ModerationResponse> moderate(final MessageEventData messageEventData, final Persona persona, final String prompt) {
 
-        final MessageEventData messageEventData = contextDatastore.getMessageEventData();
-        final Persona persona = contextDatastore.getPersona();
         final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
@@ -92,9 +85,9 @@ public class ModerationService {
     private void handleFlags(final List<String> flaggedTopics, final MessageEventData messageEventData) {
 
         LOGGER.warn("Unsafe content detected in a message.", flaggedTopics);
-        final TextChannel channel = jda.getTextChannelById(messageEventData.getChannelId());
+        final TextChannel channel = messageEventData.getChannel().asTextChannel();
         final Message message = channel.retrieveMessageById(messageEventData.getMessage().getId()).complete();
-        final User messageAuthor = jda.getUserById(messageEventData.getMessageAuthorId());
+        final User messageAuthor = messageEventData.getMessageAuthor();
         String flaggedMessage = FLAGGED_MESSAGE;
 
         if (flaggedTopics != null) {
