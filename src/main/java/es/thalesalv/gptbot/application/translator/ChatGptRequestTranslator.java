@@ -2,6 +2,7 @@ package es.thalesalv.gptbot.application.translator;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,13 +48,12 @@ public class ChatGptRequestTranslator {
         final double presencePenalty = persona == null ? defaultPresencePenalty : persona.getPresencePenalty();
         final double frequencyPenalty = persona == null ? defaultFrequencyPenalty : persona.getFrequencyPenalty();
 
-        messages.replaceAll(msg -> msg.replace(bot.getName() + " said: ", StringUtils.EMPTY)
-                .replaceAll("Dungeon Master says: ", StringUtils.EMPTY));
-
         List<ChatGptMessage> chatGptMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((bot.getName() + " said:").trim()))
                 .map(msg -> {
-                    String role = determineRole(personality, bot);
+                    String role = determineRole(msg, bot);
+                    msg = msg.replace(bot.getName() + " said: ", StringUtils.EMPTY)
+                    .replaceAll("Dungeon Master says: ", StringUtils.EMPTY);
                     return ChatGptMessage.builder()
                             .role(role)
                             .content(msg)
