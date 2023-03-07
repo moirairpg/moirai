@@ -21,6 +21,7 @@ import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.gptbot.application.config.BotConfig;
 import es.thalesalv.gptbot.application.config.CommandEventData;
+import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.gptbot.domain.exception.LorebookEntryNotFoundException;
@@ -101,7 +102,8 @@ public class UpdateLorebookEntryService implements CommandService {
             final String updatedEntryDescription = event.getValue("lorebook-entry-desc").getAsString();
             final String playerId = retrieveDiscordPlayerId(event.getValue("lorebook-entry-player"),
                     event.getUser().getId());
-            
+
+            final Persona persona = contextDatastore.getPersona();
             final LorebookRegex updatedEntry = updateEntry(updatedEntryDescription, entryId,
                     updatedEntryName, playerId, updatedEntryRegex);
 
@@ -109,7 +111,7 @@ public class UpdateLorebookEntryService implements CommandService {
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(entry);
 
-            moderationService.moderate(loreEntryJson, event).subscribe(response -> {
+            moderationService.moderate(persona, loreEntryJson, event).subscribe(response -> {
                 event.reply(MessageFormat.format(ENTRY_UPDATED,
                 updatedEntry.getLorebookEntry().getName(), loreEntryJson))
                         .setEphemeral(true).complete();

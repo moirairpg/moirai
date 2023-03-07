@@ -4,21 +4,20 @@ import org.springframework.stereotype.Component;
 
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @Component
 @RequiredArgsConstructor
 public class MessageEventDataTranslator {
 
-    public MessageEventData translate(final SelfUser bot, final User messageAuthor, final Message message, final MessageChannelUnion channel) {
+    public MessageEventData translate(final MessageReceivedEvent event) {
+
         return MessageEventData.builder()
-                .botId(bot.getId())
-                .messageAuthorId(messageAuthor.getId())
-                .message(message)
-                .channelId(channel.getId())
+                .bot(event.getJDA().getSelfUser())
+                .messageAuthor(event.getAuthor())
+                .message(event.getMessage())
+                .channel(event.getChannel())
+                .guild(event.getGuild())
                 .build();
     }
 }
