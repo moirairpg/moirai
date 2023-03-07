@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -34,13 +33,16 @@ public class ChatbotUseCase implements BotUseCase {
                 message.getContentDisplay().replaceAll("(@|)" + botName, StringUtils.EMPTY).trim());
     }
 
-    private static String formatMessageWithReply(Message message) {
-        return MessageFormat.format("{0} said earlier: {1}\n{2} quoted the message from {3} and replied with: {4}",
-                Optional.ofNullable(message.getReferencedMessage()).map(Message::getAuthor).map(User::getName).orElse(""),
-                Optional.ofNullable(message.getReferencedMessage()).map(Message::getContentDisplay).orElse(""),
-                message.getAuthor().getName(),
-                Optional.ofNullable(message.getReferencedMessage()).map(Message::getAuthor).map(User::getName).orElse(""),
-                message.getContentDisplay());
+    private static String formatLastMessage(Message message, String botName) {
+        Message referenceMessage = message.getReferencedMessage();
+        return null == referenceMessage ?
+                formatMessage(message, botName) :
+                MessageFormat.format("{0} said earlier: {1}\n{2} quoted the message from {3} and replied with: {4}",
+                        referenceMessage.getAuthor().getName(),
+                        referenceMessage.getContentDisplay(),
+                        message.getAuthor().getName(),
+                        referenceMessage.getAuthor().getName(),
+                        message.getContentDisplay());
     }
 
     @Override
@@ -53,25 +55,14 @@ public class ChatbotUseCase implements BotUseCase {
         MessageChannelUnion channel = messageEventData.getChannel();
         int limit = persona.getChatHistoryMemory();
         String botName = messageEventData.getBot().getName();
-        final List<String> messages = Optional.ofNullable(referenceMessage)
+        List<String> messages = List.of(formatLastMessage(message, botName));
+        Optional.ofNullable(referenceMessage)
                 .map(r -> channel.getHistoryBefore(r, limit).complete().getRetrievedHistory())
                 .orElseGet(() -> channel.getHistory().retrievePast(limit).complete())
-                .stream().map(m ->
-                        null == m.getReferencedMessage() ?
-                                formatMessage(m, botName) :
-                                formatMessageWithReply(m)
-                )
-                .collect(Collectors.toList());
+                .stream()
+                .map(m -> formatMessage(m, botName))
+                .forEach(messages::add);
         Collections.reverse(messages);
-
-        if (null != referenceMessage) {
-            messages.addAll(Arrays.asList(
-                    MessageFormat.format("{0} said earlier: {1}",
-                            referenceMessage.getAuthor().getName(), referenceMessage.getContentDisplay()),
-                    MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
-                            message.getAuthor().getName(), referenceMessage.getAuthor().getName(), message.getContentDisplay())
-            ));
-        }
 
         final String chatifiedMessage = chatifyMessages(messageEventData.getBot(), messages);
 
