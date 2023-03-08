@@ -31,10 +31,11 @@ public class ChatbotUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
 
     @Override
-    public void generateResponse(final Persona persona, final MessageEventData messageEventData, final Mentions mentions, final GptModelService model) {
+    public void generateResponse(final MessageEventData messageEventData, final Mentions mentions, final GptModelService model) {
 
         LOGGER.debug("Entered generation for normal text.");
         messageEventData.getChannel().sendTyping().complete();
+        final Persona persona = messageEventData.getPersona();
         final List<String> messages = new ArrayList<>();
         final Message replyMessage = messageEventData.getMessage().getReferencedMessage();
 
@@ -46,8 +47,8 @@ public class ChatbotUseCase implements BotUseCase {
         }
 
         final String chatifiedMessage = chatifyMessages(messageEventData.getBot(), messages);
-        moderationService.moderate(messageEventData, persona, chatifiedMessage)
-                .subscribe(moderationResult -> model.generate(messageEventData, chatifiedMessage, persona, messages)
+        moderationService.moderate(chatifiedMessage, messageEventData)
+                .subscribe(moderationResult -> model.generate(chatifiedMessage, messages, messageEventData)
                 .subscribe(textResponse -> messageEventData.getChannel().sendMessage(textResponse).queue()));
     }
 

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.gptbot.adapters.rest.OpenAIApiService;
+import es.thalesalv.gptbot.application.config.CommandEventData;
 import es.thalesalv.gptbot.application.config.MessageEventData;
 import es.thalesalv.gptbot.application.config.Persona;
 import es.thalesalv.gptbot.domain.exception.ModerationException;
@@ -40,13 +41,13 @@ public class ModerationService {
     private static final String FLAGGED_TOPICS_MESSAGE = "\n**Message content:** {0}\n**Flagged topics:** {1}";
     private static final String FLAGGED_TOPICS_LOREBOOK = "\n**Flagged topics:** {0}\n```json\n{1}```";
 
-    public Mono<ModerationResponse> moderate(final Persona persona, final String prompt, final ModalInteractionEvent event) {
+    public Mono<ModerationResponse> moderate(final String prompt, final CommandEventData commandEventData, final ModalInteractionEvent event) {
 
         final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, persona);
+                    checkModerationThresholds(moderationResult, commandEventData.getPersona());
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
@@ -54,13 +55,13 @@ public class ModerationService {
                 });
     }
 
-    public Mono<ModerationResponse> moderate(final MessageEventData messageEventData, final Persona persona, final String prompt) {
+    public Mono<ModerationResponse> moderate(final String prompt, final MessageEventData messageEventData) {
 
         final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, persona);
+                    checkModerationThresholds(moderationResult, messageEventData.getPersona());
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;

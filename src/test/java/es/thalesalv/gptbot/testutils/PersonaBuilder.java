@@ -56,11 +56,13 @@ public class PersonaBuilder {
     }
 
     public static MessageEventData messageEventData() {
+
         return MessageEventData.builder()
                 .bot(DiscordMocker.buildSelfUser())
                 .channel(DiscordMocker.buildChannel())
                 .messageAuthor(DiscordMocker.buildUser())
                 .message(MessageBuilder.getMessage())
+                .persona(persona())
                 .build();
     }
 }
