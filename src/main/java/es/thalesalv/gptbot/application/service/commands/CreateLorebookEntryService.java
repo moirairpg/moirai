@@ -59,9 +59,9 @@ public class CreateLorebookEntryService implements CommandService {
                 event.replyModal(modal).queue();
                 return;
             }
-
-            event.reply("This command cannot be issued from this channel.").setEphemeral(true).complete();
         });
+
+        event.reply("This command cannot be issued from this channel.").setEphemeral(true).complete();
     }
 
     @Override
