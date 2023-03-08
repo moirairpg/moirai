@@ -57,9 +57,9 @@ public class ModerationServiceTest {
         final MessageEventData eventData = PersonaBuilder.messageEventData();
 
         Mockito.when(openAIApiService.callModerationApi(any(ModerationRequest.class))).thenReturn(Mono.just(ModerationBuilder.moderationResponse()));
-        Mockito.when(moderationService.moderate(eventData, persona, prompt)).thenReturn(Mono.just(ModerationBuilder.moderationResponse()));
+        Mockito.when(moderationService.moderate(prompt, eventData)).thenReturn(Mono.just(ModerationBuilder.moderationResponse()));
 
-        StepVerifier.create(moderationService.moderate(eventData, persona, prompt))
+        StepVerifier.create(moderationService.moderate(prompt, eventData))
                 .assertNext(r -> {
                     Assertions.assertEquals("text-davinci-003", r.getModel());
                     r.getModerationResult().get(0).getCategoryScores()
@@ -90,9 +90,9 @@ public class ModerationServiceTest {
         Mockito.when(user.openPrivateChannel().complete().sendMessage(anyString())).thenReturn(Mockito.mock(MessageCreateAction.class));
         Mockito.when(user.openPrivateChannel().complete().sendMessage(anyString()).complete()).thenReturn(Mockito.mock(Message.class));
         Mockito.when(openAIApiService.callModerationApi(any(ModerationRequest.class))).thenReturn(response);
-        Mockito.when(moderationService.moderate(eventData, persona, prompt)).thenReturn(response);
+        Mockito.when(moderationService.moderate(prompt, eventData)).thenReturn(response);
 
-        StepVerifier.create(moderationService.moderate(eventData, persona, prompt))
+        StepVerifier.create(moderationService.moderate(prompt, eventData))
                 .verifyError(ModerationException.class);
     }
 
@@ -117,9 +117,9 @@ public class ModerationServiceTest {
         Mockito.when(user.openPrivateChannel().complete().sendMessage(anyString())).thenReturn(Mockito.mock(MessageCreateAction.class));
         Mockito.when(user.openPrivateChannel().complete().sendMessage(anyString()).complete()).thenReturn(Mockito.mock(Message.class));
         Mockito.when(openAIApiService.callModerationApi(any())).thenReturn(response);
-        Mockito.when(moderationService.moderate(eventData, persona, prompt)).thenReturn(response);
+        Mockito.when(moderationService.moderate(prompt, eventData)).thenReturn(response);
 
-        StepVerifier.create(moderationService.moderate(eventData, persona, prompt))
+        StepVerifier.create(moderationService.moderate(prompt, eventData))
                 .verifyError(ModerationException.class);
     }
 }

@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import net.dv8tion.jda.api.entities.SelfUser;
 
 @Getter
 @Setter
@@ -13,5 +14,6 @@ public class CommandEventData {
 
     private UUID lorebookEntryId;
     private UUID lorebookEntryRegexId;
-    private String discordUserId;
+    private SelfUser discordUser;
+    private Persona persona;
 }

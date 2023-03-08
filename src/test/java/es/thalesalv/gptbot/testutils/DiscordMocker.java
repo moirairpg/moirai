@@ -3,6 +3,8 @@ package es.thalesalv.gptbot.testutils;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.mockito.Mockito;
+
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -92,7 +94,7 @@ public class DiscordMocker {
 
             @Override
             public JDA getJDA() {
-                throw new UnsupportedOperationException("Unimplemented method 'getJDA'");
+                return Mockito.mock(JDA.class);
             }
 
             @Override
