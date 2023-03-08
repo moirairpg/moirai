@@ -73,9 +73,9 @@ public class UpdateLorebookEntryService implements CommandService {
                     event.replyModal(modalEntry).queue();
                     return;
                 }
-
-                event.reply("This command cannot be issued from this channel.").setEphemeral(true).complete();
             });
+
+            event.reply("This command cannot be issued from this channel.").setEphemeral(true).complete();
         } catch (MissingRequiredSlashCommandOptionException e) {
             LOGGER.info("User tried to use update command without ID");
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true).complete();
