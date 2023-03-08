@@ -42,12 +42,13 @@ public class Gpt3ModelService implements GptModelService {
         final User author = eventData.getMessageAuthor();
         final Set<LorebookEntry> entriesFound = new HashSet<>();
 
+        lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
         if (eventData.getPersona().getIntent().equals("dungeonMaster")) {
             lorebookEntryExtractionHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
+            lorebookEntryExtractionHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
+        } else {
+            lorebookEntryExtractionHelper.processEntriesFoundForChat(entriesFound, messages, author.getJDA());
         }
-
-        lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
-        lorebookEntryExtractionHelper.processEntriesFound(entriesFound, messages, author.getJDA());
 
         final Gpt3Request request = gptRequestTranslator.buildRequest(prompt, eventData.getPersona());
         return openAiService.callGptApi(request, eventData).map(response -> {

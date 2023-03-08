@@ -86,7 +86,7 @@ public class MessageFormatHelper {
         });
     }
 
-    public void processEntriesFound(final Set<LorebookEntry> entriesFound, final List<String> messages, final JDA jda) {
+    public void processEntriesFoundForRpg(final Set<LorebookEntry> entriesFound, final List<String> messages, final JDA jda) {
 
         entriesFound.stream().forEach(entry -> {
             if (StringUtils.isNotBlank(entry.getPlayerDiscordId())) {
@@ -99,6 +99,13 @@ public class MessageFormatHelper {
                 messages.replaceAll(m -> m.replaceAll(p.getAsTag(), entry.getName())
                         .replaceAll("(@|)" + p.getName(), entry.getName()));
             });
+        });
+    }
+
+    public void processEntriesFoundForChat(final Set<LorebookEntry> entriesFound, final List<String> messages, final JDA jda) {
+
+        entriesFound.stream().forEach(entry -> {
+            messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription()));
         });
     }
 
