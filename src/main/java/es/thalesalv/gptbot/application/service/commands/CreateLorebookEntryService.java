@@ -18,7 +18,7 @@ import es.thalesalv.gptbot.adapters.data.db.entity.LorebookRegex;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.gptbot.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.gptbot.application.config.BotConfig;
-import es.thalesalv.gptbot.application.config.Persona;
+import es.thalesalv.gptbot.application.config.CommandEventData;
 import es.thalesalv.gptbot.application.service.ModerationService;
 import es.thalesalv.gptbot.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.gptbot.domain.model.openai.dto.LorebookDTO;
@@ -54,7 +54,7 @@ public class CreateLorebookEntryService implements CommandService {
         botConfig.getPersonas().forEach(persona -> {
             final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
             if (isCurrentChannel) {
-                contextDatastore.setPersona(persona);
+                contextDatastore.setCommandEventData(CommandEventData.builder().persona(persona).build());
                 final Modal modal = buildEntryCreationModal();
                 event.replyModal(modal).queue();
                 return;
@@ -81,12 +81,11 @@ public class CreateLorebookEntryService implements CommandService {
             final LorebookRegex insertedEntry = insertEntry(author, entryName, entryRegex,
                     entryDescription, lorebookEntryId, lorebookRegexId, isPlayerCharacter);
 
-            final Persona persona = contextDatastore.getPersona();
             final LorebookDTO loreItem = lorebookEntryToDTOTranslator.apply(insertedEntry);
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
 
-            moderationService.moderate(persona, loreEntryJson, event).subscribe(response -> {
+            moderationService.moderate(loreEntryJson, contextDatastore.getCommandEventData(), event).subscribe(response -> {
                 event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
                                 insertedEntry.getLorebookEntry().getName(), loreEntryJson))
                         .setEphemeral(true).complete();
@@ -107,13 +106,13 @@ public class CreateLorebookEntryService implements CommandService {
                 .build();
 
         final TextInput lorebookEntryRegex = TextInput
-                .create("lorebook-entry-regex", "Regular Expression (optional)", TextInputStyle.SHORT)
+                .create("lorebook-entry-regex", "Regular expression (optional)", TextInputStyle.SHORT)
                 .setPlaceholder("/(Rain|)Forest of the (Talking|Speaking) Trees/gi")
                 .setRequired(false)
                 .build();
 
         final TextInput lorebookEntryDescription = TextInput
-                .create("lorebook-entry-desc", "Lorebook Entry Name", TextInputStyle.PARAGRAPH)
+                .create("lorebook-entry-desc", "Description", TextInputStyle.PARAGRAPH)
                 .setPlaceholder("The Forest of the Talking Trees is located in the west of the country.")
                 .setMaxLength(150)
                 .setRequired(true)
