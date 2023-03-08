@@ -3,6 +3,7 @@ package es.thalesalv.gptbot.application.translator;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.gptbot.application.config.MessageEventData;
+import es.thalesalv.gptbot.application.config.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -10,7 +11,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 @RequiredArgsConstructor
 public class MessageEventDataTranslator {
 
-    public MessageEventData translate(final MessageReceivedEvent event) {
+    public MessageEventData translate(final MessageReceivedEvent event, final Persona persona) {
 
         return MessageEventData.builder()
                 .bot(event.getJDA().getSelfUser())
@@ -18,6 +19,7 @@ public class MessageEventDataTranslator {
                 .message(event.getMessage())
                 .channel(event.getChannel())
                 .guild(event.getGuild())
+                .persona(persona)
                 .build();
     }
 }

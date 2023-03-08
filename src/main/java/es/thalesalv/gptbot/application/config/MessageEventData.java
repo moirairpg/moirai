@@ -19,4 +19,5 @@ public class MessageEventData {
     private User messageAuthor;
     private Message message;
     private MessageChannelUnion channel;
+    private Persona persona;
 }
