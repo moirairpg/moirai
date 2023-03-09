@@ -61,6 +61,7 @@ public class RetrieveLorebookEntryService implements CommandService {
 
                 event.reply(MessageFormat.format(ENTRY_RETRIEVED, dto.getName(), loreEntryJson))
                             .setEphemeral(true).complete();
+
                 return;
             }
 
@@ -69,13 +70,25 @@ public class RetrieveLorebookEntryService implements CommandService {
                     .map(entry -> lorebookEntryToDTOTranslator.apply(entry))
                     .collect(Collectors.toList());
 
+            if (entries.isEmpty()) {
+                event.reply("There are no lorebook entries saved")
+                        .setEphemeral(true)
+                        .complete();
+
+                return;
+            }
+
             final String entriesJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(entries);
 
             final File file = File.createTempFile("lore-entries-", ".json");
             Files.write(file.toPath(), entriesJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
             final FileUpload fileUpload = FileUpload.fromData(file);
-            event.replyFiles(fileUpload).setEphemeral(true).complete();
+
+            event.replyFiles(fileUpload)
+                    .setEphemeral(true)
+                    .complete();
+
             fileUpload.close();
         } catch (JsonProcessingException e) {
             LOGGER.error("Error serializing entry data.", e);

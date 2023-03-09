@@ -133,7 +133,9 @@ public class UpdateLorebookEntryService implements CommandService {
                 .map(re -> {
                     final LorebookRegex lorebookRegex = LorebookRegex.builder()
                             .id(re.getId())
-                            .regex(Optional.ofNullable(entryRegex).orElse(name))
+                            .regex(Optional.ofNullable(entryRegex)
+                                    .filter(StringUtils::isNotBlank)
+                                    .orElse(name))
                             .lorebookEntry(lorebookEntry)
                             .build();
 
