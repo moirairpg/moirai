@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -145,7 +146,9 @@ public class CreateLorebookEntryService implements CommandService {
 
         return lorebookRegexRepository.save(LorebookRegex.builder()
                 .id(lorebookRegexId)
-                .regex(Optional.ofNullable(entryRegex).orElse(entryName))
+                .regex(Optional.ofNullable(entryRegex)
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(entryName))
                 .lorebookEntry(insertedEntry)
                 .build());
     }
