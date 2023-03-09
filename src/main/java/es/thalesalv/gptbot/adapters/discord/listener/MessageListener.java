@@ -12,11 +12,10 @@ import es.thalesalv.gptbot.application.service.usecases.BotUseCase;
 import es.thalesalv.gptbot.application.translator.MessageEventDataTranslator;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @Service
 @RequiredArgsConstructor
-public class MessageListener extends ListenerAdapter {
+public class MessageListener {
 
     private final BotConfig botConfig;
     private final ApplicationContext applicationContext;
@@ -26,7 +25,6 @@ public class MessageListener extends ListenerAdapter {
     private static final String USE_CASE = "UseCase";
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageListener.class);
 
-    @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 
         LOGGER.debug("Message received -> {}", event);
