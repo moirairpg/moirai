@@ -43,6 +43,7 @@ public class ChatGptModelService implements GptModelService {
         final User author = eventData.getMessageAuthor();
         final Set<LorebookEntry> entriesFound = new HashSet<>();
 
+        lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
         if (eventData.getPersona().getIntent().equals("dungeonMaster")) {
             lorebookEntryExtractionHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
             lorebookEntryExtractionHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
@@ -50,7 +51,6 @@ public class ChatGptModelService implements GptModelService {
             lorebookEntryExtractionHelper.processEntriesFoundForChat(entriesFound, messages, author.getJDA());
         }
 
-        lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
         final List<ChatGptMessage> chatGptMessages = lorebookEntryExtractionHelper.formatMessagesForChatGpt(entriesFound, messages, eventData);
         final ChatGptRequest request = chatGptRequestTranslator.buildRequest(messages, eventData.getPersona(), chatGptMessages);
         return openAiService.callGptChatApi(request, eventData).map(response -> {
