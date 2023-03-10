@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -77,10 +76,9 @@ public class DungeonMasterUseCase implements BotUseCase {
     private String formatAdventureForPrompt(final List<String> messages, final SelfUser bot) {
 
         LOGGER.debug("Entered RPG conversation formatter");
-        messages.add("Dungeon Master says:");
         messages.replaceAll(message -> message.replaceAll("@" + bot.getName(), StringUtils.EMPTY)
                 .replaceAll(bot.getName(), "Dungeon Master").trim());
 
-        return messages.stream().collect(Collectors.joining("\n"));
+        return String.join("\n", messages);
     }
 }

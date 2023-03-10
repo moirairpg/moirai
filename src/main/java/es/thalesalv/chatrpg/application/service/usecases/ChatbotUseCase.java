@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -43,7 +42,7 @@ public class ChatbotUseCase implements BotUseCase {
             handleMessageHistoryForReplies(persona, messages, messageEventData.getMessage(),
                     messageEventData.getBot(), messageEventData.getMessageAuthor(), messageEventData.getChannel());
         } else {
-            handleMessageHistory(persona, messages, messageEventData.getBot(), messageEventData.getChannel());
+            handleMessageHistory(persona, messages, messageEventData.getChannel());
         }
 
         final String chatifiedMessage = chatifyMessages(messageEventData.getBot(), messages);
@@ -57,7 +56,6 @@ public class ChatbotUseCase implements BotUseCase {
      * @param persona Persona containing the current bot settings
      * @param messages List of messages before the one replied to
      * @param message Message sent as a reply to the quoted message
-     * @param replyMessage Quoted message
      * @param bot Bot user
      * @param messageAuthor User who wrote the reply
      * @param channel Channel where the conversation is happening
@@ -88,10 +86,9 @@ public class ChatbotUseCase implements BotUseCase {
      * Formats last messages history to give the AI context on the current conversation
      * @param persona Persona with the current bot settings
      * @param messages List messages before the one sent
-     * @param bot Bot user
      * @param channel Channel where the conversation is happening
      */
-    private void handleMessageHistory(final Persona persona, final List<String> messages, final SelfUser bot, final MessageChannelUnion channel) {
+    private void handleMessageHistory(final Persona persona, final List<String> messages, final MessageChannelUnion channel) {
 
         LOGGER.debug("Entered message history handling for chatbot");
         channel.getHistory()
@@ -99,8 +96,8 @@ public class ChatbotUseCase implements BotUseCase {
                 .complete().forEach(m -> {
                     final User mAuthorUser = m.getAuthor();
                     messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
-                            m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
-                });;
+                            m.getContentDisplay().trim()));
+                });
 
         Collections.reverse(messages);
     }
@@ -108,6 +105,6 @@ public class ChatbotUseCase implements BotUseCase {
     private static String chatifyMessages(final User bot, final List<String> messages) {
 
         return MessageFormat.format("{0}\n{1} said: ",
-                messages.stream().collect(Collectors.joining("\n")), bot.getName()).trim();
+                String.join("\n", messages), bot.getName()).trim();
     }
 }
