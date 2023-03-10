@@ -34,6 +34,9 @@ import reactor.test.StepVerifier;
 public class Gpt3ModelServiceTest {
 
     @Mock
+    private ModerationService moderationService;
+
+    @Mock
     private MessageFormatHelper messageFormatHelper;
 
     @Mock
