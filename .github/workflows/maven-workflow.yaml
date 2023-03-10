@@ -23,6 +23,8 @@ jobs:
         with:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
+      - name: Install pack CLI
+        uses: buildpacks/github-actions/setup-pack@v4.8.1
       - name: Build image
         run: |
           pack build ghcr.io/jonashackt/spring-boot-flyio:latest \
@@ -33,7 +35,7 @@ jobs:
               --env "BP_NATIVE_IMAGE=true" \
               --cache-image ghcr.io/jonashackt/spring-boot-flyio-paketo-cache-image:latest \
               --publish
-      - name: Install flyctl via https://github.com/superfly/flyctl-actions
+      - name: Install flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy our Spring Boot app to fly.io
         run: flyctl deploy --image ghcr.io/jonashackt/spring-boot-flyio:latest
