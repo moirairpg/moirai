@@ -11,15 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.application.config.MessageEventData;
-import es.thalesalv.chatrpg.application.config.Persona;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 @Component
 @RequiredArgsConstructor
@@ -34,15 +31,13 @@ public class ChatbotUseCase implements BotUseCase {
 
         LOGGER.debug("Entered generation for normal text.");
         messageEventData.getChannel().sendTyping().complete();
-        final Persona persona = messageEventData.getPersona();
         final List<String> messages = new ArrayList<>();
         final Message replyMessage = messageEventData.getMessage().getReferencedMessage();
 
         if (replyMessage != null) {
-            handleMessageHistoryForReplies(persona, messages, messageEventData.getMessage(),
-                    messageEventData.getBot(), messageEventData.getMessageAuthor(), messageEventData.getChannel());
+            handleMessageHistoryForReplies(messages, messageEventData);
         } else {
-            handleMessageHistory(persona, messages, messageEventData.getChannel());
+            handleMessageHistory(messages, messageEventData);
         }
 
         final String chatifiedMessage = chatifyMessages(messageEventData.getBot(), messages);
@@ -60,18 +55,18 @@ public class ChatbotUseCase implements BotUseCase {
      * @param messageAuthor User who wrote the reply
      * @param channel Channel where the conversation is happening
      */
-    private void handleMessageHistoryForReplies(final Persona persona, final List<String> messages,
-            final Message message, final SelfUser bot, final User messageAuthor, final MessageChannelUnion channel) {
+    private void handleMessageHistoryForReplies(final List<String> messages, final MessageEventData messageEventData) {
 
         LOGGER.debug("Entered quoted message history handling for chatbot");
-        Message reply = message.getReferencedMessage();
-        channel.getHistoryBefore(reply, persona.getChatHistoryMemory())
+        final Message message = messageEventData.getMessage();
+        final Message reply = message.getReferencedMessage();
+        messageEventData.getChannel().getHistoryBefore(reply, messageEventData.getPersona().getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
                 .forEach(m -> {
                     final User mAuthorUser = m.getAuthor();
                     messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
-                            m.getContentDisplay().replaceAll("(@|)" + bot.getName(), StringUtils.EMPTY).trim()));
+                            m.getContentDisplay().replaceAll("(@|)" + messageEventData.getBot().getName(), StringUtils.EMPTY).trim()));
                 });
 
         Collections.reverse(messages);
@@ -79,7 +74,7 @@ public class ChatbotUseCase implements BotUseCase {
                 reply.getAuthor().getName(), reply.getContentDisplay()));
 
         messages.add(MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
-                messageAuthor.getName(), reply.getAuthor().getName(), message.getContentDisplay()));
+                messageEventData.getMessageAuthor().getName(), reply.getAuthor().getName(), message.getContentDisplay()));
     }
 
     /**
@@ -88,11 +83,11 @@ public class ChatbotUseCase implements BotUseCase {
      * @param messages List messages before the one sent
      * @param channel Channel where the conversation is happening
      */
-    private void handleMessageHistory(final Persona persona, final List<String> messages, final MessageChannelUnion channel) {
+    private void handleMessageHistory(final List<String> messages, final MessageEventData messageEventData) {
 
         LOGGER.debug("Entered message history handling for chatbot");
-        channel.getHistory()
-                .retrievePast(persona.getChatHistoryMemory())
+        messageEventData.getChannel().getHistory()
+                .retrievePast(messageEventData.getPersona().getChatHistoryMemory())
                 .complete().forEach(m -> {
                     final User mAuthorUser = m.getAuthor();
                     messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
