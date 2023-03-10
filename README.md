@@ -1,7 +1,7 @@
-# Malaquias: a virtual Dungeon Master for RPG adventures
-[![Maintainability](https://api.codeclimate.com/v1/badges/9c5b99e778dc1b68830a/maintainability)](https://codeclimate.com/github/thaalesalves/malaquias/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/9c5b99e778dc1b68830a/test_coverage)](https://codeclimate.com/github/thaalesalves/malaquias/test_coverage) ![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/thaalesalves/malaquias/maven-workflow.yaml?branch=master) ![GitHub issues](https://img.shields.io/github/issues/thaalesalves/malaquias) ![GitHub](https://img.shields.io/github/license/thaalesalves/malaquias)
+# ChatRPG: a virtual Dungeon Master for RPG adventures
+[![Maintainability](https://api.codeclimate.com/v1/badges/9c5b99e778dc1b68830a/maintainability)](https://codeclimate.com/github/thaalesalves/chatrpg/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/9c5b99e778dc1b68830a/test_coverage)](https://codeclimate.com/github/thaalesalves/chatrpg/test_coverage) ![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/thaalesalves/chatrpg/maven-workflow.yaml?branch=master) ![GitHub issues](https://img.shields.io/github/issues/thaalesalves/chatrpg) ![GitHub](https://img.shields.io/github/license/thaalesalves/chatrpg)
 
-Malaquias is a Discord bot powered by JDA that is connected to OpenAI's GPT-3 API. It is cabaple of generating text using base or finetuned models, and was made to act primarily as a chatbot and as an RPG dungeon master. Developed by veteran AI Dungeon and NovelAI players and contributors, aimed to make text-based RPGs more flexible and easier to use on Discord.
+ChatRPG is a Discord bot powered by JDA that is connected to OpenAI's GPT-3 API. It is cabaple of generating text using base or finetuned models, and was made to act primarily as a chatbot and as an RPG dungeon master. Developed by veteran AI Dungeon and NovelAI players and contributors, aimed to make text-based RPGs more flexible and easier to use on Discord.
 
 ## Technologies used
 * Java 19
@@ -13,22 +13,22 @@ Malaquias is a Discord bot powered by JDA that is connected to OpenAI's GPT-3 AP
 * PostgreSQL
 
 ## What does it do?
-Malaquias is mainly focused on RPG DM'ing, but it can also be used as a normal chatbot. It has the ability to work with different Personas, which are configs that are bound to specific channels so the bot behaves in specific ways given the Persona described to it. Personas can be set with two intents, which are `chatbot` and `dungeonMaster`, and the bot will behave accordingly.
+ChatRPG is mainly focused on RPG DM'ing, but it can also be used as a normal chatbot. It has the ability to work with different Personas, which are configs that are bound to specific channels so the bot behaves in specific ways given the Persona described to it. Personas can be set with two intents, which are `chatbot` and `dungeonMaster`, and the bot will behave accordingly.
 
 ## Is it free?
-Yes and no. The code is free for usage, and so is Discord's API. But OpenAI's completion APIs are not free. You pay by usage, and you're charged for every 1K tokens processed by the API. Do take that into consideration before running Malaquias or choosing a model to run it.
+Yes and no. The code is free for usage, and so is Discord's API. But OpenAI's completion APIs are not free. You pay by usage, and you're charged for every 1K tokens processed by the API. Do take that into consideration before running ChatRPG or choosing a model to run it.
 
 ## Does it work with other GPT models?
-For now, only the ones in the GPT-3 and ChatGPT model families in OpenAI's API. Malaquias does not support Eleuther AI's models as of now, nor does it support usage of OpenAI's GPT-2 models locally.
+For now, only the ones in the GPT-3 and ChatGPT model families in OpenAI's API. ChatRPG does not support Eleuther AI's models as of now, nor does it support usage of OpenAI's GPT-2 models locally.
 
 ## Building from source
-To run Malaquias, you can clone the code and execute him locally. To do so, you'll need to have JDK 19 (preferrably OpenJDK), a PostgreSQL database (Malaquias comes with a `docker-compose.yaml` for convenience) and Maven. You will also need to have a Discord Developer account set up with an app create with the proper permissions, as well as an OpenAI API account.
+To run ChatRPG, you can clone the code and execute him locally. To do so, you'll need to have JDK 19 (preferrably OpenJDK), a PostgreSQL database (ChatRPG comes with a `docker-compose.yaml` for convenience) and Maven. You will also need to have a Discord Developer account set up with an app create with the proper permissions, as well as an OpenAI API account.
 
 ### Discord app permissions
-To have Malaquias work, your Discord app needs to have both the `Server Members` and `Message Content` intents allowed in the `Bot` menu of the Discord Developer dashboard. When inviting the bot to your server, make sure to add the `bot` and `applications.commands` scopes added in the `OAuth > URL Generator` menu of the Discord Developer dashboard. The bot also needs to have permission to read, send and delete messages in the channels specified in its personas, because when a comment is problematic, it will try to delete it.
+To have ChatRPG work, your Discord app needs to have both the `Server Members` and `Message Content` intents allowed in the `Bot` menu of the Discord Developer dashboard. When inviting the bot to your server, make sure to add the `bot` and `applications.commands` scopes added in the `OAuth > URL Generator` menu of the Discord Developer dashboard. The bot also needs to have permission to read, send and delete messages in the channels specified in its personas, because when a comment is problematic, it will try to delete it.
 
 ### API keys
-You need to have both yout Discord API Key and your OpenAI API key in hand to set up Malaquias.
+You need to have both yout Discord API Key and your OpenAI API key in hand to set up ChatRPG.
 
 ### Building
 1. Clone the repo
@@ -47,10 +47,10 @@ You need to have both yout Discord API Key and your OpenAI API key in hand to se
 9. Run the bot
     - Through the IDE of your choice
     - Through the console with Maven by running `mvn spring-boot:run` on the bot's root folder
-    - Through the console by running the JAR file directly with `java -jar malaquias-0.0.1-SNAPSHOT.jar`
+    - Through the console by running the JAR file directly with `java -jar chatrpg-0.0.1-SNAPSHOT.jar`
 
 ## Features
-Malaquias was made with RPG DM'ing in mind, so we're striving to add commands and features that make that experience richer.
+ChatRPG was made with RPG DM'ing in mind, so we're striving to add commands and features that make that experience richer.
 
 * Slash commands
 * Custom personas with their own model settings
