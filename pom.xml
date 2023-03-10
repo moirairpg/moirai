@@ -18,7 +18,7 @@
     <description>An RPG Discord bot powered by GPT</description>
 
     <properties>
-        <java.version>19</java.version>
+        <java.version>17</java.version>
         <logback.version>1.4.5</logback.version>
         <test.webserver.version>4.0.1</test.webserver.version>
     </properties>
