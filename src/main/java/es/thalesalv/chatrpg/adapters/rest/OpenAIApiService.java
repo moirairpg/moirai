@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.adapters.rest;
 
+import java.time.Duration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,12 +14,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.domain.exception.ErrorBotResponseException;
+import es.thalesalv.chatrpg.domain.exception.ModerationException;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptRequest;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.Gpt3Request;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.GptResponse;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResponse;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Service
 public class OpenAIApiService {
@@ -33,6 +37,18 @@ public class OpenAIApiService {
 
     @Value("${config.openai.moderation-uri}")
     private String moderationUri;
+
+    @Value("${config.discord.retry.error-attempts}")
+    private int errorAttemps;
+
+    @Value("${config.discord.retry.error-delay}")
+    private int errorDelay;
+
+    @Value("${config.discord.retry.moderation-attempts}")
+    private int moderationAttempts;
+
+    @Value("${config.discord.retry.moderation-delay}")
+    private int moderationDelay;
 
     private final WebClient webClient;
     private final CommonErrorHandler commonErrorHandler;
@@ -59,7 +75,8 @@ public class OpenAIApiService {
                 .bodyValue(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, messageEventData))
-                .bodyToMono(GptResponse.class).map(response -> {
+                .bodyToMono(GptResponse.class)
+                .map(response -> {
                     LOGGER.info("Received response from OpenAI GPT API -> {}", response);
                     if (response.getError() != null) {
                         LOGGER.error("Bot response contains an error -> {}", response.getError());
@@ -68,7 +85,10 @@ public class OpenAIApiService {
 
                     return response;
                 })
-                .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(messageEventData));
+                .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(messageEventData))
+                .retryWhen(Retry.fixedDelay(moderationAttempts, Duration.ofSeconds(moderationDelay))
+                        .filter(t -> t instanceof ModerationException))
+                .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
     }
 
     public Mono<GptResponse> callGptApi(final Gpt3Request request, final MessageEventData messageEventData) {
@@ -95,7 +115,10 @@ public class OpenAIApiService {
 
                     return response;
                 })
-                .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(messageEventData));
+                .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(messageEventData))
+                .retryWhen(Retry.fixedDelay(moderationAttempts, Duration.ofSeconds(moderationDelay))
+                        .filter(t -> t instanceof ModerationException))
+                .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
     }
 
     public Mono<ModerationResponse> callModerationApi(final ModerationRequest request) {
@@ -113,6 +136,7 @@ public class OpenAIApiService {
                 .map(response -> {
                     LOGGER.info("Received response from OpenAI moderation API -> {}", response);
                     return response;
-                });
+                })
+                .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
     }
 }
