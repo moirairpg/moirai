@@ -4,7 +4,7 @@
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>logs/bot.log</File>
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-            <layout class="es.thalesalv.gptbot.application.util.JsonLoggerFormatter">
+            <layout class="es.thalesalv.chatrpg.application.util.JsonLoggerFormatter">
                 <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
                 <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
                     <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
