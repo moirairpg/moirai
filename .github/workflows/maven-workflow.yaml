@@ -35,9 +35,9 @@ jobs:
         run: |
           pack build quay.io/thaalesalves/chatrpg:latest \
               --builder paketobuildpacks/builder:tiny \
-              --buildpack paketo-buildpacks/java-native-image@5.12.0 \
+              --buildpack paketo-buildpacks/java-native-image@7.46.0 \
               --path . \
-              --env "BP_JVM_VERSION=19" \
+              --env "BP_JVM_VERSION=17" \
               --env "BP_NATIVE_IMAGE=true" \
               --cache-image quay.io/thaalesalves/chatrpg-cache:latest \
               --publish
