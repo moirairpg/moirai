@@ -23,6 +23,12 @@ jobs:
         with:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
+      - name: Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io/thaalesalves
+          username: ${{ secrets.QUAY_LOGIN }}
+          password: ${{ secrets.QUAY_TOKEN }}
       - name: Install pack CLI
         uses: buildpacks/github-actions/setup-pack@v4.8.1
       - name: Build image
@@ -31,7 +37,7 @@ jobs:
               --builder paketobuildpacks/builder:tiny \
               --buildpack paketo-buildpacks/java-native-image@5.12.0 \
               --path . \
-              --env "BP_JVM_VERSION=17" \
+              --env "BP_JVM_VERSION=19" \
               --env "BP_NATIVE_IMAGE=true" \
               --cache-image ghcr.io/jonashackt/spring-boot-flyio-paketo-cache-image:latest \
               --publish
