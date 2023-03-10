@@ -130,7 +130,7 @@
                 </executions>
                 <configuration>
                     <excludes>
-                        <exclude>**/GptbotApplication*</exclude>
+                        <exclude>**/ChatRpgApplication*</exclude>
                         <exclude>**/ContextDatastore*</exclude>
                         <exclude>**/YamlPropertySourceFactory*</exclude>
                         <exclude>**/JsonLoggerFormatter*</exclude>
