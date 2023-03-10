@@ -11,6 +11,6 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: malaquias
-      POSTGRES_PASSWORD: malaquias
-      POSTGRES_DB: malaquias
+      POSTGRES_USER: chatrpg
+      POSTGRES_PASSWORD: chatrpg
+      POSTGRES_DB: chatrpg
