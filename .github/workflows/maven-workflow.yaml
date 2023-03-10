@@ -23,24 +23,13 @@ jobs:
         with:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
-      - name: Container registry
-        uses: docker/login-action@v1
+      - name: Create image
+        uses: redhat-actions/push-to-registry@v2.7
         with:
           registry: quay.io/thaalesalves
+          image: chatrpg
           username: ${{ secrets.QUAY_LOGIN }}
           password: ${{ secrets.QUAY_TOKEN }}
-      - name: Install pack CLI
-        uses: buildpacks/github-actions/setup-pack@v4.8.1
-      - name: Build image
-        run: |
-          pack build quay.io/thaalesalves/chatrpg:latest \
-              --builder paketobuildpacks/builder:tiny \
-              --buildpack paketo-buildpacks/adoptium@10.9.1 \
-              --path . \
-              --env "BP_JVM_VERSION=17" \
-              --env "BP_NATIVE_IMAGE=true" \
-              --cache-image quay.io/thaalesalves/chatrpg-cache:latest \
-              --publish
       - name: Install flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy our Spring Boot app to fly.io
