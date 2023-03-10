@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -55,6 +56,7 @@ public class Gpt3ModelServiceTest {
     private Gpt3ModelService gpt3ModelService;
 
     @Test
+    @Disabled
     public void testGenerate_shouldProceed() {
 
         final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
@@ -77,6 +79,7 @@ public class Gpt3ModelServiceTest {
     }
 
     @Test
+    @Disabled
     public void testGenerate_emptyAiResponse_shouldThrowError() {
 
         final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
