@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class Gpt3ModelService implements GptModelService {
 
+    private final ModerationService moderationService;
     private final MessageFormatHelper lorebookEntryExtractionHelper;
     private final CommonErrorHandler commonErrorHandler;
     private final Gpt3RequestTranslator gptRequestTranslator;
@@ -51,14 +52,20 @@ public class Gpt3ModelService implements GptModelService {
         }
 
         final Gpt3Request request = gptRequestTranslator.buildRequest(prompt, eventData.getPersona());
-        return openAiService.callGptApi(request, eventData).map(response -> {
-            final String responseText = response.getChoices().get(0).getText();
-            if (StringUtils.isBlank(responseText)) {
-                throw new ModelResponseBlankException();
-            }
+        return openAiService.callGptApi(request, eventData)
+                .map(response -> {
+                    final String responseText = response.getChoices().get(0).getMessage().getContent();
+                    moderationService.moderate(responseText, eventData).subscribe();
+                    return response;
+                })
+                .map(response -> {
+                    final String responseText = response.getChoices().get(0).getText();
+                    if (StringUtils.isBlank(responseText)) {
+                        throw new ModelResponseBlankException();
+                    }
 
-            return responseText.trim();
-        })
-        .doOnError(ModelResponseBlankException.class::isInstance, e -> commonErrorHandler.handleEmptyResponse(eventData));
+                    return responseText.trim();
+                })
+                .doOnError(ModelResponseBlankException.class::isInstance, e -> commonErrorHandler.handleEmptyResponse(eventData));
     }
 }
