@@ -12,10 +12,10 @@
     </parent>
 
     <groupId>es.thalesalv</groupId>
-    <artifactId>malaquias</artifactId>
+    <artifactId>chatrpg</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Malaquias</name>
-    <description>A Discord bot powered by GPT</description>
+    <name>ChatRPG</name>
+    <description>An RPG Discord bot powered by GPT</description>
 
     <properties>
         <java.version>19</java.version>
