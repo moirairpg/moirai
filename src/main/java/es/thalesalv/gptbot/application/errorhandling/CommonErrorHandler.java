@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 
 import es.thalesalv.gptbot.application.config.MessageEventData;
+import es.thalesalv.gptbot.domain.exception.DiscordFunctionException;
 import es.thalesalv.gptbot.domain.exception.OpenAiApiException;
 import es.thalesalv.gptbot.domain.model.openai.gpt.GptResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +39,14 @@ public class CommonErrorHandler {
 
     public void notifyUser(final String notification, final Message message, final MessageEventData messageEventData) {
 
-        messageEventData.getMessageAuthor().openPrivateChannel()
-                .complete().sendMessage(MessageFormat.format(notification, message.getContentRaw())).complete();
+        messageEventData.getMessageAuthor().openPrivateChannel().submit()
+                .thenCompose(c -> c.sendMessage(MessageFormat.format(notification, message.getContentRaw())).submit())
+                .whenComplete((msg, error) -> {
+                    if (error != null) {
+                        LOGGER.error("Error sending PM to user", error);
+                        throw new DiscordFunctionException("Error sending PM to user", error);
+                    }
+                });
     }
 
     public Mono<Throwable> handle4xxError(final ClientResponse clientResponse, final MessageEventData messageEventData) {
