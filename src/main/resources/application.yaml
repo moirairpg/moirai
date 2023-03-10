@@ -8,6 +8,11 @@ config:
             default-threshold: 1.0
     discord:
         api-token: ${DISCORD_BOT_API_TOKEN}
+        retry:
+            error-attempts: 3
+            error-delay: 3
+            moderation-attempts: 1
+            moderation-delay: 3
     openai:
         moderation-uri: /v1/moderations
         completions-uri: /v1/completions
