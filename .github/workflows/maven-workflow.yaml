@@ -33,17 +33,17 @@ jobs:
         uses: buildpacks/github-actions/setup-pack@v4.8.1
       - name: Build image
         run: |
-          pack build ghcr.io/jonashackt/spring-boot-flyio:latest \
+          pack build quay.io/thaalesalves/chatrpg:latest \
               --builder paketobuildpacks/builder:tiny \
               --buildpack paketo-buildpacks/java-native-image@5.12.0 \
               --path . \
               --env "BP_JVM_VERSION=19" \
               --env "BP_NATIVE_IMAGE=true" \
-              --cache-image ghcr.io/jonashackt/spring-boot-flyio-paketo-cache-image:latest \
+              --cache-image quay.io/thaalesalves/chatrpg-cache:latest \
               --publish
       - name: Install flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy our Spring Boot app to fly.io
-        run: flyctl deploy --image ghcr.io/jonashackt/spring-boot-flyio:latest
+        run: flyctl deploy --image quay.io/thaalesalves/chatrpg:latest
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
