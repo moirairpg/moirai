@@ -60,12 +60,8 @@ public class ChatbotUseCase implements BotUseCase {
 
     /**
      * Formats last messages history on replied to give the AI context on the past conversation
-     * @param persona Persona containing the current bot settings
      * @param messages List of messages before the one replied to
-     * @param message Message sent as a reply to the quoted message
-     * @param bot Bot user
-     * @param messageAuthor User who wrote the reply
-     * @param channel Channel where the conversation is happening
+     * @param eventData Object containing the event's important data to be processed
      */
     private void handleMessageHistoryForReplies(final List<String> messages, final MessageEventData eventData) {
 
@@ -99,9 +95,8 @@ public class ChatbotUseCase implements BotUseCase {
 
     /**
      * Formats last messages history to give the AI context on the current conversation
-     * @param persona Persona with the current bot settings
      * @param messages List messages before the one sent
-     * @param channel Channel where the conversation is happening
+     * @param eventData Object containing the event's important data to be processed
      */
     private void handleMessageHistory(final List<String> messages, final MessageEventData eventData) {
 

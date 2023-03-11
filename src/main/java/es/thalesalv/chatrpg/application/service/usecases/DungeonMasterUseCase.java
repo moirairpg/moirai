@@ -60,10 +60,8 @@ public class DungeonMasterUseCase implements BotUseCase {
     
     /**
      * Formats last messages history to give the AI context on the adventure
-     * @param persona Persona with current bot settings
+     * @param eventData Object containing the event's important data to be processed
      * @param messages List messages before the one sent
-     * @param bot Bot user
-     * @param channel Channel where the conversation is happening
      */
     private void handleMessageHistory(final MessageEventData eventData, final List<String> messages) {
 
