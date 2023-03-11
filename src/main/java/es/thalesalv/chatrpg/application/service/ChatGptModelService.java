@@ -28,7 +28,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ChatGptModelService implements GptModelService {
 
-    private final ModerationService moderationService;
     private final MessageFormatHelper lorebookEntryExtractionHelper;
     private final CommonErrorHandler commonErrorHandler;
     private final ChatGptRequestTranslator chatGptRequestTranslator;
@@ -55,11 +54,6 @@ public class ChatGptModelService implements GptModelService {
         final List<ChatGptMessage> chatGptMessages = lorebookEntryExtractionHelper.formatMessagesForChatGpt(entriesFound, messages, eventData);
         final ChatGptRequest request = chatGptRequestTranslator.buildRequest(messages, eventData.getPersona(), chatGptMessages);
         return openAiService.callGptChatApi(request, eventData)
-            .map(response -> {
-                final String responseText = response.getChoices().get(0).getMessage().getContent();
-                moderationService.moderate(responseText, eventData).subscribe();
-                return response;
-            })
             .map(response -> {
                 final String responseText = response.getChoices().get(0).getMessage().getContent();
                 if (StringUtils.isBlank(responseText)) {
