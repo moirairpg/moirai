@@ -52,8 +52,9 @@ public class DungeonMasterUseCase implements BotUseCase {
 
             final String chatifiedMessage = formatAdventureForPrompt(messages, eventData);
             moderationService.moderate(chatifiedMessage, eventData)
-                    .subscribe(moderationResult -> model.generate(chatifiedMessage, messages, eventData)
-                    .subscribe(textResponse -> eventData.getChannel().sendMessage(textResponse).queue()));
+                    .subscribe(inputModeration -> model.generate(chatifiedMessage, messages, eventData)
+                    .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
+                    .subscribe(outputModeration -> eventData.getChannel().sendMessage(textResponse).queue())));
         }
     }
     
