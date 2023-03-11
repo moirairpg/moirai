@@ -1,7 +1,7 @@
 name: Java CI
 on: [push]
 jobs:
-  ChatRPG:
+  ChatRPG-Build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -14,15 +14,24 @@ jobs:
         run: mvn package -DskipTests
       - name: Unit tests
         run: mvn test
+
+  ChatRPG-Quality:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
       - name: Code coverage
         uses: paambaati/codeclimate-action@v3.2.0
-        if: github.ref == 'refs/heads/master'
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
           JACOCO_SOURCE_PATH: "${{github.workspace}}/src/main/java"
         with:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
+
+  ChatRPG-Deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
       - name: Build Image
         id: build-image
         uses: redhat-actions/buildah-build@v2
@@ -42,7 +51,7 @@ jobs:
       - name: Install flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy to fly.io
-        run: flyctl deploy -a chatrpg --image quay.io/thaalesalves/chatrpg:latest
+        run: flyctl deploy -a chatrpg --force-nomad --image quay.io/thaalesalves/chatrpg:latest
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           POSTGRES_HOST: chatrpg-db.internal:5432
