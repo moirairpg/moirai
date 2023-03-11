@@ -7,9 +7,9 @@ primary_region = "sjc"
 processes = []
 
 [env]
-    POSTGRES_HOST = "chatrpg-db.internal:5432"
-    POSTGRES_USER = "chatrpg"
-    POSTGRES_DB = "chatrpg"
+  POSTGRES_HOST = "chatrpg-db.internal:5432"
+  POSTGRES_USER = "chatrpg"
+  POSTGRES_DB = "chatrpg"
 
 [experimental]
   auto_rollback = true
