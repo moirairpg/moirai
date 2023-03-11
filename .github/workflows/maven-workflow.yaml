@@ -10,16 +10,16 @@ jobs:
         with:
           java-version: "19"
           distribution: "adopt"
+      - name: Create Persona
+        if: github.ref == 'refs/heads/master'
+        uses: finnp/create-file-action@1.0.0
+        env:
+          FILE_NAME: src/main/resources/bot-config.yaml
+          FILE_DATA: ${{env.KAELIN_CONFIG_FILE}}
       - name: Build with Maven
         run: mvn package -DskipTests
       - name: Unit tests
         run: mvn test
-
-  # ChatRPG-Quality:
-    # needs: ChatRPG-Build
-    # runs-on: ubuntu-latest
-    # if: github.ref == 'refs/heads/master'
-    # steps:
       - name: Code coverage
         if: github.ref == 'refs/heads/master'
         uses: paambaati/codeclimate-action@v3.2.0
@@ -29,12 +29,6 @@ jobs:
         with:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
-
-  # ChatRPG-Deploy:
-  #   needs: [ChatRPG-Build,ChatRPG-Quality]
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/master'
-  #   steps:
       - name: Install flyctl
         if: github.ref == 'refs/heads/master'
         uses: superfly/flyctl-actions/setup-flyctl@master

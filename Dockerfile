@@ -4,7 +4,6 @@ WORKDIR /opt/chatrpg
 ADD ./pom.xml pom.xml
 ADD ./src src/
 RUN apk add -u maven &&\
-    mv src/main/resources/bot-config-sample.yaml src/main/resources/bot-config.yaml &&\
     mvn clean package -e
 
 FROM openjdk:19-alpine
