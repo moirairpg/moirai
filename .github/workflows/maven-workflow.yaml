@@ -12,10 +12,7 @@ jobs:
           distribution: "adopt"
       - name: Create Persona
         if: github.ref == 'refs/heads/master'
-        uses: finnp/create-file-action@1.0.0
-        env:
-          FILE_NAME: "${{github.workspace}}/src/main/resources/bot-config.yaml"
-          FILE_DATA: ${{secrets.KAELIN_CONFIG_FILE}}
+        run: wget ${{secrets.PERSONA_FILE}} -O ${{github.workspace}}/src/main/resources/bot-config.yaml
       - name: Build with Maven
         run: mvn package -DskipTests
       - name: Unit tests
