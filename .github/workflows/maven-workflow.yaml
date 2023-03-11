@@ -23,11 +23,20 @@ jobs:
         with:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
-      - name: Create image
+      - name: Build Image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: chatrpg
+          tags: latest ${{ github.sha }}
+          containerfiles: |
+            ./Dockerfile
+      - name: Publish image
         uses: redhat-actions/push-to-registry@v2.7
         with:
           registry: quay.io/thaalesalves
-          image: chatrpg
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
           username: ${{ secrets.QUAY_LOGIN }}
           password: ${{ secrets.QUAY_TOKEN }}
       - name: Install flyctl
@@ -36,3 +45,9 @@ jobs:
         run: flyctl deploy --image quay.io/thaalesalves/chatrpg:latest
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          POSTGRES_HOST: chatrpg-db.internal:5432
+          POSTGRES_USER: chatrpg
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: chatrpg
+          DISCORD_BOT_API_TOKEN: ${{ secrets.DISCORD_BOT_API_TOKEN }}
+          OPENAI_API_TOKEN: ${{ secrets.OPENAI_API_TOKEN }}
