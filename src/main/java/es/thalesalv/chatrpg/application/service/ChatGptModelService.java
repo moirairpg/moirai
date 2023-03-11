@@ -49,10 +49,10 @@ public class ChatGptModelService implements GptModelService {
             lorebookEntryExtractionHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
             lorebookEntryExtractionHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else {
-            lorebookEntryExtractionHelper.processEntriesFoundForChat(entriesFound, messages, author.getJDA());
+            lorebookEntryExtractionHelper.processEntriesFoundForChat(entriesFound, messages);
         }
 
-        final List<ChatGptMessage> chatGptMessages = lorebookEntryExtractionHelper.formatMessagesForChatGpt(entriesFound, messages, eventData);
+        final List<ChatGptMessage> chatGptMessages = lorebookEntryExtractionHelper.formatMessagesForChatGpt(messages, eventData);
         final ChatGptRequest request = chatGptRequestTranslator.buildRequest(messages, eventData.getPersona(), chatGptMessages);
         return openAiService.callGptChatApi(request, eventData)
             .map(response -> {

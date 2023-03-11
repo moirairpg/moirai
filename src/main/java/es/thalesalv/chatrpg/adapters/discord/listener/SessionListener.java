@@ -36,8 +36,8 @@ public class SessionListener {
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is disconnected.", bot.getName());
-        } catch (Throwable t) {
-            LOGGER.error("Error during disconnect: ", t);
+        } catch (Exception e) {
+            LOGGER.error("Error during disconnect: ", e);
         }
     }
 
@@ -45,8 +45,8 @@ public class SessionListener {
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is shutdown.", bot.getName());
-        } catch (Throwable t) {
-            LOGGER.error("Error during shutdown: ", t);
+        } catch (Exception e) {
+            LOGGER.error("Error during shutdown: ", e);
         }
     }
 
