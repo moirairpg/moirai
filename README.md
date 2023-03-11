@@ -4,7 +4,7 @@
 ChatRPG is a Discord bot powered by JDA that is connected to OpenAI's GPT-3 API. It is cabaple of generating text using base or finetuned models, and was made to act primarily as a chatbot and as an RPG dungeon master. Developed by veteran AI Dungeon and NovelAI players and contributors, aimed to make text-based RPGs more flexible and easier to use on Discord.
 
 ## Technologies used
-* Java 17
+* Java 19
 * Maven
 * Spring Boot
 * Spring WebFlux
