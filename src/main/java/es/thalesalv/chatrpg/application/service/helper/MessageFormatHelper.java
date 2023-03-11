@@ -23,7 +23,6 @@ import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptMessage;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Mentions;
-import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
 @Component
@@ -111,13 +110,12 @@ public class MessageFormatHelper {
     public List<ChatGptMessage> formatMessagesForChatGpt(final List<String> messages, final MessageEventData eventData) {
 
         final Persona persona = eventData.getPersona();
-        final SelfUser bot = eventData.getBot();
         final String personality = persona.getPersonality().replace("{0}", persona.getName());
         final List<ChatGptMessage> chatGptMessages = messages.stream()
-                .filter(msg -> !msg.trim().equals((bot.getName() + " said:").trim()))
+                .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))
                 .map(msg -> ChatGptMessage.builder()
-                            .role(determineRole(msg, bot))
-                            .content(formatBotName(msg, bot, persona))
+                            .role(determineRole(msg, persona))
+                            .content(formatBotName(msg, persona))
                             .build())
                 .collect(Collectors.toList());
 
@@ -129,16 +127,15 @@ public class MessageFormatHelper {
         return chatGptMessages;
     }
 
-    private String formatBotName(final String msg, final SelfUser bot, final Persona persona) {
+    private String formatBotName(final String msg, final Persona persona) {
 
-        return msg.replace(bot.getName() + " said: ", StringUtils.EMPTY)
-                .replace("@" + bot.getName(), "@" + persona.getName());
+        return msg.replaceAll(persona.getName() + " said: ", StringUtils.EMPTY);
     }
 
-    private String determineRole(final String message, final SelfUser bot) {
+    private String determineRole(final String message, final Persona persona) {
 
         final boolean isChat = message.matches("^(.*) (says|said|quoted|replied).*");
-        if (message.startsWith(bot.getName())) {
+        if (message.startsWith(persona.getName())) {
             return ROLE_ASSISTANT;
         } else if (isChat && !message.startsWith("I will remember to never")) {
             return ROLE_USER;
