@@ -1,7 +1,7 @@
 name: Java CI
 on: [push]
 jobs:
-  build:
+  ChatRPG:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -41,8 +41,8 @@ jobs:
           password: ${{ secrets.QUAY_TOKEN }}
       - name: Install flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: Deploy our Spring Boot app to fly.io
-        run: flyctl deploy --image quay.io/thaalesalves/chatrpg:latest
+      - name: Deploy to fly.io
+        run: flyctl deploy -a chatrpg --image quay.io/thaalesalves/chatrpg:latest
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           POSTGRES_HOST: chatrpg-db.internal:5432
