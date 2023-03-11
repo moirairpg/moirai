@@ -10,7 +10,7 @@ public class Gpt3RequestTranslator {
 
     public Gpt3Request buildRequest(final String prompt, final Persona persona) {
 
-        final String formattedPrompt = persona.getPersonality().replace("{0}", persona.getName())
+        final String formattedPrompt = persona.getPersonality().replaceAll("\\{0\\}", persona.getName())
                 + "\n" + prompt;
 
         return Gpt3Request.builder()

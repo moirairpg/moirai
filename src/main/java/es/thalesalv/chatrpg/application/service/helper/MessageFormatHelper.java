@@ -57,7 +57,7 @@ public class MessageFormatHelper {
                             .replaceAll("(@|)" + player.getName(), entry.getName()));
                 });
 
-        mentions.getUsers().stream()
+        mentions.getUsers()
                 .forEach(mention -> lorebookRepository.findByPlayerDiscordId(mention.getId())
                         .ifPresent(entry -> {
                             entriesFound.add(entry);
@@ -68,13 +68,13 @@ public class MessageFormatHelper {
 
     /**
      * Extracts lore entries from the conversation when they're mentioned by name
-     * @param messages List of messages in the channel
+     * @param messageList List of messages in the channel
      * @param entriesFound List of entries found in the messages until now
      */
     public void handleEntriesMentioned(final List<String> messageList, final Set<LorebookEntry> entriesFound) {
 
         LOGGER.debug("Entered mentioned entries handling");
-        final String messages = messageList.stream().collect(Collectors.joining("\n"));
+        final String messages = String.join("\n", messageList);
         List<LorebookRegex> charRegex = lorebookRegexRepository.findAll();
         charRegex.forEach(e -> {
             Pattern p = Pattern.compile(e.getRegex());
@@ -87,7 +87,7 @@ public class MessageFormatHelper {
 
     public void processEntriesFoundForRpg(final Set<LorebookEntry> entriesFound, final List<String> messages, final JDA jda) {
 
-        entriesFound.stream().forEach(entry -> {
+        entriesFound.forEach(entry -> {
             if (StringUtils.isNotBlank(entry.getPlayerDiscordId())) {
                 messages.add(0, MessageFormat.format(RPG_DM_INSTRUCTIONS, entry.getName()));
             }
@@ -103,7 +103,7 @@ public class MessageFormatHelper {
 
     public void processEntriesFoundForChat(final Set<LorebookEntry> entriesFound, final List<String> messages) {
 
-        entriesFound.stream().forEach(entry -> 
+        entriesFound.forEach(entry ->
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
     }
 
@@ -121,7 +121,7 @@ public class MessageFormatHelper {
 
         chatGptMessages.add(0, ChatGptMessage.builder()
                 .role(ROLE_SYSTEM)
-                .content(MessageFormat.format(personality, persona.getName()).trim())
+                .content(personality.replaceAll("\\{0\\}", persona.getName()).trim())
                 .build());
             
         return chatGptMessages;
