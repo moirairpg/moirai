@@ -3,6 +3,7 @@ networks:
   ? dockerlan
 services:
   postgresql:
+    restart: always
     container_name: postgresql
     hostname: postgresql
     image: postgres:15-alpine
