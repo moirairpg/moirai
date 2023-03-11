@@ -87,7 +87,7 @@ public class OpenAIApiService {
                 })
                 .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(messageEventData))
                 .retryWhen(Retry.fixedDelay(moderationAttempts, Duration.ofSeconds(moderationDelay))
-                        .filter(t -> t instanceof ModerationException))
+                        .filter(ModerationException.class::isInstance))
                 .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
     }
 
@@ -117,7 +117,7 @@ public class OpenAIApiService {
                 })
                 .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(messageEventData))
                 .retryWhen(Retry.fixedDelay(moderationAttempts, Duration.ofSeconds(moderationDelay))
-                        .filter(t -> t instanceof ModerationException))
+                        .filter(ModerationException.class::isInstance))
                 .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
     }
 
