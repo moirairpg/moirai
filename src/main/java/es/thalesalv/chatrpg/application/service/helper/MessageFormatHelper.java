@@ -18,11 +18,11 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
+import es.thalesalv.chatrpg.application.config.Persona;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptMessage;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Mentions;
-import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
 @Component
@@ -32,7 +32,6 @@ public class MessageFormatHelper {
     private static final String ROLE_SYSTEM = "system";
     private static final String ROLE_ASSISTANT = "assistant";
     private static final String ROLE_USER = "user";
-    private static final String DUNGEON_MASTER = "Dungeon Master";
     private static final String CHARACTER_DESCRIPTION = "{0} description: {1}";
     private static final String RPG_DM_INSTRUCTIONS = "I will remember to never act or speak on behalf of {0}. I will not repeat what {0} just said. I will only describe the world around {0}.";
 
@@ -102,48 +101,41 @@ public class MessageFormatHelper {
         });
     }
 
-    public void processEntriesFoundForChat(final Set<LorebookEntry> entriesFound, final List<String> messages, final JDA jda) {
+    public void processEntriesFoundForChat(final Set<LorebookEntry> entriesFound, final List<String> messages) {
 
-        entriesFound.stream().forEach(entry -> {
-            messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription()));
-        });
+        entriesFound.stream().forEach(entry -> 
+            messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
     }
 
-    public List<ChatGptMessage> formatMessagesForChatGpt(final Set<LorebookEntry> entriesFound, final List<String> messages, final MessageEventData eventData) {
+    public List<ChatGptMessage> formatMessagesForChatGpt(final List<String> messages, final MessageEventData eventData) {
 
-        final SelfUser bot = eventData.getBot();
-        final String personality = eventData.getPersona().getPersonality().replace("{0}", bot.getName());
+        final Persona persona = eventData.getPersona();
+        final String personality = persona.getPersonality().replace("{0}", persona.getName());
         final List<ChatGptMessage> chatGptMessages = messages.stream()
-                .filter(msg -> !msg.trim().equals((bot.getName() + " said:").trim()))
-                .map(msg -> {
-                    String role = determineRole(msg, bot);
-                    msg = formatBotName(msg, bot);
-                    return ChatGptMessage.builder()
-                            .role(role)
-                            .content(msg)
-                            .build();
-                })
+                .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))
+                .map(msg -> ChatGptMessage.builder()
+                            .role(determineRole(msg, persona))
+                            .content(formatBotName(msg, persona))
+                            .build())
                 .collect(Collectors.toList());
 
         chatGptMessages.add(0, ChatGptMessage.builder()
                 .role(ROLE_SYSTEM)
-                .content(MessageFormat.format(personality, bot.getName())
-                        .replace("@" + bot.getName(), StringUtils.EMPTY).trim())
+                .content(MessageFormat.format(personality, persona.getName()).trim())
                 .build());
             
         return chatGptMessages;
     }
 
-    private String formatBotName(String msg, SelfUser bot) {
+    private String formatBotName(final String msg, final Persona persona) {
 
-        return msg.replace(bot.getName() + " said: ", StringUtils.EMPTY)
-                .replaceAll("Dungeon Master says: ", StringUtils.EMPTY);
+        return msg.replaceAll(persona.getName() + " said: ", StringUtils.EMPTY);
     }
 
-    private String determineRole(String message, SelfUser bot) {
+    private String determineRole(final String message, final Persona persona) {
 
-        final boolean isChat = message.matches("^(.*) (says|said|quoted|replied).*((.|\n)*)");
-        if (message.startsWith(bot.getName()) || message.startsWith(DUNGEON_MASTER)) {
+        final boolean isChat = message.matches("^(.*) (says|said|quoted|replied).*");
+        if (message.startsWith(persona.getName())) {
             return ROLE_ASSISTANT;
         } else if (isChat && !message.startsWith("I will remember to never")) {
             return ROLE_USER;

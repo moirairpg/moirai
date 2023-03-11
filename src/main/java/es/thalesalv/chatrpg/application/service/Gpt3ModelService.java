@@ -48,7 +48,7 @@ public class Gpt3ModelService implements GptModelService {
             lorebookEntryExtractionHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
             lorebookEntryExtractionHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else {
-            lorebookEntryExtractionHelper.processEntriesFoundForChat(entriesFound, messages, author.getJDA());
+            lorebookEntryExtractionHelper.processEntriesFoundForChat(entriesFound, messages);
         }
 
         final Gpt3Request request = gptRequestTranslator.buildRequest(prompt, eventData.getPersona());
