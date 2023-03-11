@@ -52,7 +52,7 @@ public class ChatbotUseCase implements BotUseCase {
             handleMessageHistory(messages, eventData);
         }
 
-        final String chatifiedMessage = chatifyMessages(eventData.getPersona(), messages);
+        final String chatifiedMessage = chatifyMessages(messages, eventData);
         moderationService.moderate(chatifiedMessage, eventData)
                 .subscribe(moderationResult -> model.generate(chatifiedMessage, messages, eventData)
                 .subscribe(textResponse -> eventData.getChannel().sendMessage(textResponse).queue()));
@@ -79,18 +79,15 @@ public class ChatbotUseCase implements BotUseCase {
                 .forEach(m -> {
                     final User mAuthorUser = m.getAuthor();
                     messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
-                            m.getContentDisplay()).replace("@" + bot.getName(), "@" + persona.getName()).trim());
+                            m.getContentDisplay()).trim());
                 });
 
         Collections.reverse(messages);
         messages.add(MessageFormat.format("{0} said earlier: {1}",
-                reply.getAuthor().getName(), reply.getContentDisplay()
-                .replace("@" + bot.getName(), "@" + persona.getName())));
+                reply.getAuthor().getName(), reply.getContentDisplay()));
 
         messages.add(MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
-                eventData.getMessageAuthor().getName().replace(bot.getName(), persona.getName()),
-                reply.getAuthor().getName(), message.getContentDisplay()
-                .replace("@" + bot.getName(), "@" + persona.getName())));
+                eventData.getMessageAuthor().getName(), reply.getAuthor().getName(), message.getContentDisplay()));
     }
 
     /**
@@ -110,17 +107,25 @@ public class ChatbotUseCase implements BotUseCase {
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
                 .forEach(m -> {
                     final User mAuthorUser = m.getAuthor();
-                    messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName()
-                            .replace(bot.getName(), persona.getName()), m.getContentDisplay().trim()
-                            .replace("@" + bot.getName(), "@" + persona.getName())));
+                    messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
+                            m.getContentDisplay().trim()));
                 });
 
         Collections.reverse(messages);
     }
 
-    private static String chatifyMessages(final Persona persona, final List<String> messages) {
+    /**
+     * Stringifies messages and turns them into a prompt format
+     * 
+     * @param messages Messages in the chat room
+     * @param eventData Object containing event data
+     * @return Stringified messages for prompt
+     */
+    private static String chatifyMessages(final List<String> messages, final MessageEventData eventData) {
 
+        LOGGER.debug("Entered chatbot conversation formatter");
+        messages.replaceAll(m -> m.replace(eventData.getBot().getName(), eventData.getPersona().getName()));
         return MessageFormat.format("{0}\n{1} said: ",
-                String.join("\n", messages), persona.getName()).trim();
+                String.join("\n", messages), eventData.getPersona().getName()).trim();
     }
 }

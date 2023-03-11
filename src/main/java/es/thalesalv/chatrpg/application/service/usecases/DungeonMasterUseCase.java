@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -51,7 +50,7 @@ public class DungeonMasterUseCase implements BotUseCase {
             final List<String> messages = new ArrayList<>();
             handleMessageHistory(eventData, messages);
 
-            final String chatifiedMessage = formatAdventureForPrompt(messages, eventData.getPersona());
+            final String chatifiedMessage = formatAdventureForPrompt(messages, eventData);
             moderationService.moderate(chatifiedMessage, eventData)
                     .subscribe(moderationResult -> model.generate(chatifiedMessage, messages, eventData)
                     .subscribe(textResponse -> eventData.getChannel().sendMessage(textResponse).queue()));
@@ -73,17 +72,24 @@ public class DungeonMasterUseCase implements BotUseCase {
                 .retrievePast(persona.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
-                .forEach(m -> messages.add(MessageFormat.format("{0} said: {1}", m.getAuthor().getName(), 
-                            m.getContentDisplay().replaceAll("(@|)" + persona.getName(), StringUtils.EMPTY).trim())));
+                .forEach(m -> messages.add(MessageFormat.format("{0} said: {1}",
+                        m.getAuthor().getName(), m.getContentDisplay().trim())));
 
         Collections.reverse(messages);
     }
 
-    private String formatAdventureForPrompt(final List<String> messages, final Persona persona) {
+    /**
+     * Stringifies messages and turns them into a prompt format
+     * 
+     * @param messages Messages in the chat room
+     * @param eventData Object containing event data
+     * @return Stringified messages for prompt
+     */
+    private String formatAdventureForPrompt(final List<String> messages, final MessageEventData eventData) {
 
         LOGGER.debug("Entered RPG conversation formatter");
-        messages.replaceAll(message -> message.replaceAll("@" + persona.getName(), StringUtils.EMPTY));
-
-        return String.join("\n", messages);
+        messages.replaceAll(message -> message.replace(eventData.getBot().getName(), eventData.getPersona().getName()).trim());
+        return MessageFormat.format("{0}\n{1} said: ",
+                String.join("\n", messages), eventData.getPersona().getName()).trim();
     }
 }
