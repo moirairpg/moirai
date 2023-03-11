@@ -16,12 +16,8 @@ jobs:
       - name: Build with Maven
         run: mvn package -DskipTests
       - name: Unit tests
+        if: github.ref != 'refs/heads/master'
         run: mvn test
-      # - uses: actions/upload-artifact@v1
-      #   if: github.ref == 'refs/heads/master'
-      #   with:
-      #     name: chatrpg-0.0.1-SNAPSHOT
-      #     path: target/
       - name: Code coverage
         if: github.ref == 'refs/heads/master'
         uses: paambaati/codeclimate-action@v3.2.0
@@ -31,11 +27,6 @@ jobs:
         with:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
-      # - uses: actions/download-artifact@v1
-      #   if: github.ref == 'refs/heads/master'
-      #   with:
-      #     name: chatrpg-0.0.1-SNAPSHOT
-      #     path: target/
       - name: Install flyctl
         if: github.ref == 'refs/heads/master'
         uses: superfly/flyctl-actions/setup-flyctl@master
