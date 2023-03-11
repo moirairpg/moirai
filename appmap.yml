@@ -1,5 +1,0 @@
-name: ChatRPG
-packages:
-  - path: es.thalesalv.chatrpg
-language: java
-appmap_dir: target/appmap
