@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +48,7 @@ public class ModerationService {
 
     public Mono<ModerationResponse> moderate(final String prompt, final CommandEventData commandEventData, final ModalInteractionEvent event) {
 
+        if (StringUtils.isBlank(prompt)) Mono.empty();
         final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
@@ -61,6 +63,7 @@ public class ModerationService {
 
     public Mono<ModerationResponse> moderate(final String prompt, final MessageEventData messageEventData) {
 
+        if (StringUtils.isBlank(prompt)) Mono.empty();
         final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {

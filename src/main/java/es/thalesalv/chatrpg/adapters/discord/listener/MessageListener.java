@@ -35,7 +35,7 @@ public class MessageListener {
                 	MessageEventData messageEventData = messageEventDataTranslator.translate(event, persona);
                     final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
                     final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-                    useCase.generateResponse(messageEventData, event.getMessage().getMentions(), model);
+                    useCase.generateResponse(messageEventData, model);
                 }
             });
         }
