@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 
 @Service
 @RequiredArgsConstructor
@@ -47,9 +48,10 @@ public class RetryDMAssistService implements CommandService {
                     final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
                     final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
-                    event.reply("Re-generating output...").setEphemeral(true).complete();
+                    final InteractionHook hook = event.reply("Re-generating output...").setEphemeral(true).complete();
                     botMessage.delete().complete();
                     useCase.generateResponse(messageEventData, model);
+                    hook.deleteOriginal().complete();
                 }
             });
         } catch (Exception e) {
