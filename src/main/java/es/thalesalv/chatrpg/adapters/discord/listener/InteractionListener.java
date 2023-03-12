@@ -21,6 +21,7 @@ public class InteractionListener {
 
     private final BeanFactory beanFactory;
 
+    private static final String SOMETHING_WENT_WRONG_ERROR = "Something went wrong with the command. Please try again.";
     private static final String NON_EXISTING_COMMAND = "The command you tried to use does not exist. Please use `create`, `retrieve`, `delete` or `update` as the argument.";
     private static final String LOREBOOK_ENTRY_SERVICE = "LorebookEntryService";
     private static final String DM_ASSIST_SERVICE = "DMAssistService";
@@ -44,22 +45,46 @@ public class InteractionListener {
             }
 
             Optional.ofNullable(commandService)
-                    .orElseThrow(() -> new RuntimeException("Command is null"))
+                    .orElseThrow(() -> new NullPointerException("Command is null"))
                     .handle(event);
         } catch (NoSuchBeanDefinitionException e) {
             LOGGER.info("User tried a command that does not exist");
             event.reply(NON_EXISTING_COMMAND).setEphemeral(true).complete();
+        } catch (NullPointerException e) {
+            LOGGER.error("Something went wrong when running the command. Null pointer.", e);
+            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).complete();
+        } catch (Exception e) {
+            LOGGER.error("Unknown exception caught while running commands", e);
+            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).complete();
         }
     }
 
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
 
-        LOGGER.debug("Received modal interaction event -> {}", event);
-        final String modalId = event.getModalId();
-        if (modalId.contains("lorebook")) {
+        try {
+            LOGGER.debug("Received modal interaction event -> {}", event);
+            event.deferReply();
+            final String modalId = event.getModalId();
             final String command = modalId.split("-")[0];
-            final CommandService commandService = (CommandService) beanFactory.getBean(command + LOREBOOK_ENTRY_SERVICE);
-            commandService.handle(event);
+            CommandService commandService = null;
+            if (modalId.contains("lorebook")) {
+                commandService = (CommandService) beanFactory.getBean(command + LOREBOOK_ENTRY_SERVICE);
+            }  else if (modalId.contains("dmassist")) {
+                commandService = (CommandService) beanFactory.getBean(command + DM_ASSIST_SERVICE);
+            }
+
+            Optional.ofNullable(commandService)
+                    .orElseThrow(() -> new NullPointerException("Command is null"))
+                    .handle(event);
+        } catch (NoSuchBeanDefinitionException e) {
+            LOGGER.info("User tried a command that does not exist");
+            event.reply(NON_EXISTING_COMMAND).setEphemeral(true).complete();
+        } catch (NullPointerException e) {
+            LOGGER.info("Something went wrong when running the command. Null pointer.", e);
+            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).complete();
+        } catch (Exception e) {
+            LOGGER.error("Unknown exception caught while running commands", e);
+            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).complete();
         }
     }
 }
