@@ -49,13 +49,13 @@ public class InteractionListener {
                     .handle(event);
         } catch (NoSuchBeanDefinitionException e) {
             LOGGER.info("User tried a command that does not exist");
-            event.reply(NON_EXISTING_COMMAND).setEphemeral(true).complete();
+            event.reply(NON_EXISTING_COMMAND).setEphemeral(true).queue();
         } catch (NullPointerException e) {
             LOGGER.error("Something went wrong when running the command. Null pointer.", e);
-            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).complete();
+            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).queue();
         } catch (Exception e) {
             LOGGER.error("Unknown exception caught while running commands", e);
-            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).complete();
+            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).queue();
         }
     }
 
@@ -78,13 +78,13 @@ public class InteractionListener {
                     .handle(event);
         } catch (NoSuchBeanDefinitionException e) {
             LOGGER.info("User tried a command that does not exist");
-            event.reply(NON_EXISTING_COMMAND).setEphemeral(true).complete();
+            event.reply(NON_EXISTING_COMMAND).setEphemeral(true).queue();
         } catch (NullPointerException e) {
             LOGGER.info("Something went wrong when running the command. Null pointer.", e);
-            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).complete();
+            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).queue();
         } catch (Exception e) {
             LOGGER.error("Unknown exception caught while running commands", e);
-            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).complete();
+            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true).queue();
         }
     }
 }

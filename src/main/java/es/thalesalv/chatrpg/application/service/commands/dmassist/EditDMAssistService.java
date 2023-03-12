@@ -1,7 +1,6 @@
 package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +11,6 @@ import es.thalesalv.chatrpg.application.config.BotConfig;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
-import es.thalesalv.chatrpg.domain.exception.BotSlashCommandException;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
@@ -51,19 +49,10 @@ public class EditDMAssistService implements CommandService {
                         .filter(a -> a != null)
                         .map(opt -> {
                             final String messageId = opt.getAsString();
-                            try {
-                                return event.getChannel().retrieveMessageById(messageId).submit()
-                                        .whenComplete((msg, error) -> {
-                                            if (error != null)
-                                                throw new DiscordFunctionException("Failed to retrieve message for editing", error);
-
-                                            final Modal editMessageModal = buildEditMessageModal(msg);
-                                            event.replyModal(editMessageModal).queue();
-                                        }).get();
-                            } catch (InterruptedException | ExecutionException e) {
-                                LOGGER.error(ERROR_EDITING, e);
-                                throw new BotSlashCommandException(e);
-                            }
+                            final Message msg = event.getChannel().retrieveMessageById(messageId).complete();
+                            final Modal editMessageModal = buildEditMessageModal(msg);
+                            event.replyModal(editMessageModal).queue();
+                            return msg;
                         })
                         .orElseGet(() -> {
                             final MessageChannelUnion channel = event.getChannel();
@@ -71,8 +60,7 @@ public class EditDMAssistService implements CommandService {
                             final MessageHistory history = MessageHistory.getHistoryFromBeginning(channel).complete();
                             final Message msg = history.getRetrievedHistory().stream()
                                     .filter(a -> a.getAuthor().getId().equals(bot.getId()))
-                                    .findFirst()
-                                    .get();
+                                    .findFirst().get();
 
                             final Modal editMessageModal = buildEditMessageModal(msg);
                             event.replyModal(editMessageModal).queue();

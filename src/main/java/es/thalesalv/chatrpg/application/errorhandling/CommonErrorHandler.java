@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.errorhandling;
 
 import java.text.MessageFormat;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +29,18 @@ public class CommonErrorHandler {
 
         final Message message = createMessage(messageEventData);
         notifyUser(EMPTY_RESPONSE, message, messageEventData);
-        message.delete().complete();
+        message.delete().queue();
     }
 
     public Message createMessage(final MessageEventData messageEventData) {
 
-        return messageEventData.getChannel()
-                .retrieveMessageById(messageEventData.getMessage().getId()).complete();
+        try {
+            return messageEventData.getChannel()
+                    .retrieveMessageById(messageEventData.getMessage().getId()).submit().get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error("Error retrieving message data", e);
+            throw new DiscordFunctionException("Error retrieving message data", e);
+        }
     }
 
     public void notifyUser(final String notification, final Message message, final MessageEventData messageEventData) {
@@ -57,7 +63,7 @@ public class CommonErrorHandler {
                 LOGGER.error("Error while calling OpenAI API. Message -> {}", errorResponse.getError().getMessage());
                 final Message message = createMessage(messageEventData);
                 notifyUser(MESSAGE_TOO_LONG, message, messageEventData);
-                message.delete().complete();
+                message.delete().queue();
                 return new OpenAiApiException("Error while calling OpenAI API.", errorResponse);
             });
     }
@@ -66,6 +72,6 @@ public class CommonErrorHandler {
 
         final Message message = createMessage(messageEventData);
         notifyUser(UNKNOWN_ERROR, message, messageEventData);
-        message.delete().complete();
+        message.delete().queue();
     }
 }

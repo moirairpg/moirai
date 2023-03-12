@@ -32,7 +32,7 @@ spring:
 logging:
     level:
         root: INFO
-        es.thalesalv: INFO
+        es.thalesalv: DEBUG
         org.hibernate: ERROR
         com.zaxxer.hikari: ERROR
         net.dv8tion.jda: INFO
