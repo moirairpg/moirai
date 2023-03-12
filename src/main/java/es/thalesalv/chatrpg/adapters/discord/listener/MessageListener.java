@@ -27,11 +27,11 @@ public class MessageListener {
 
     public void onMessageReceived(MessageReceivedEvent event) {
 
-        LOGGER.debug("Message received -> {}", event);
         if (!event.getAuthor().isBot()) {
             botConfig.getPersonas().forEach(persona -> {
                 final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
                 if (isCurrentChannel) {
+                    LOGGER.debug("Message received -> {}", event);
                 	MessageEventData messageEventData = messageEventDataTranslator.translate(event, persona);
                     final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
                     final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
