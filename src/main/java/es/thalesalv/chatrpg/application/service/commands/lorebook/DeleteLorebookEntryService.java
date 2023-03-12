@@ -44,7 +44,7 @@ public class DeleteLorebookEntryService implements CommandService {
     public void handle(final SlashCommandInteractionEvent event) {
 
         try {
-            LOGGER.debug("Showing modal for character deletion");
+            LOGGER.debug("Received slash command for lore entry deletion");
             final UUID entryId = retrieveEntryId(event.getOption("lorebook-entry-id"));
 
             lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
@@ -69,7 +69,7 @@ public class DeleteLorebookEntryService implements CommandService {
     @Override
     public void handle(final ModalInteractionEvent event) {
 
-        LOGGER.debug("Received data from character deletion modal");
+        LOGGER.debug("Received data from lore entry deletion modal");
         event.deferReply();
         final boolean isUserSure = Optional.ofNullable(event.getValue("lorebook-entry-delete"))
                 .filter(a -> a.getAsString().equals("y"))
