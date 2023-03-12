@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands;
+package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
