@@ -39,18 +39,19 @@ public class EditDMAssistService implements CommandService {
                 final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
                 if (isCurrentChannel) {
                     final String messageId = event.getOption("message-id").getAsString();
-                    event.getChannel().retrieveMessageById(messageId).submit()
+                    final Message message = event.getChannel().retrieveMessageById(messageId).submit()
                             .whenComplete((msg, error) -> {
                                 if (error != null)
                                     throw new DiscordFunctionException("Failed to retrieve message for editing", error);
 
-                                contextDatastore.setCommandEventData(CommandEventData.builder()
-                                        .messageToBeEdited(msg)
-                                        .build());
-
                                 final Modal editMessageModal = buildEditMessageModal(msg);
                                 event.replyModal(editMessageModal).queue();
-                            });
+                            }).get();
+
+                    contextDatastore.setCommandEventData(CommandEventData.builder()
+                            .messageToBeEdited(message)
+                            .persona(persona)
+                            .build());
                 }
             } catch (Exception e) {
                 LOGGER.error("Error editing message", e);
@@ -95,7 +96,7 @@ public class EditDMAssistService implements CommandService {
                 .setRequired(true)
                 .build();
 
-        return Modal.create("message-edit-modal", "Edit message content")
+        return Modal.create("edit-message-dmassist-modal", "Edit message content")
                 .addComponents(ActionRow.of(messageContent)).build();
     }
 }
