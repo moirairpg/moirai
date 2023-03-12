@@ -47,7 +47,7 @@ public class RetrieveLorebookEntryService implements CommandService {
     public void handle(SlashCommandInteractionEvent event) {
 
         try {
-            LOGGER.debug("Entered command for retrieving lore entry");
+            LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
             final OptionMapping entryId = event.getOption("lorebook-entry-id");
             if (entryId != null) {
@@ -105,6 +105,6 @@ public class RetrieveLorebookEntryService implements CommandService {
     @Override
     public void handle(ModalInteractionEvent event) {
 
-        throw new UnsupportedOperationException("Unimplemented method 'handle'");
+        throw new UnsupportedOperationException("Retrieval of lore entries does not have modals implemented");
     }
 }
