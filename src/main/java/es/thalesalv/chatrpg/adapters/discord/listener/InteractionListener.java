@@ -9,7 +9,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.application.service.commands.CommandService;
+import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 

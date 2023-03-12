@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands;
+package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.text.MessageFormat;
 import java.util.Optional;
