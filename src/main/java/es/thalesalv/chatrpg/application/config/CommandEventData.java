@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 @Getter
 @Setter
@@ -18,4 +19,5 @@ public class CommandEventData {
     private UUID lorebookEntryRegexId;
     private SelfUser discordUser;
     private Persona persona;
+    private MessageChannelUnion channel;
 }
