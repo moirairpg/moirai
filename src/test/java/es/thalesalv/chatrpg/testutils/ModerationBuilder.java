@@ -37,14 +37,14 @@ public class ModerationBuilder {
         categories.put("violence", false);
         categories.put("violence/graphic", false);
 
-        final Map<String, Double> scores = new HashMap<>();
-        scores.put("hate", 0.0);
-        scores.put("hate/threatening", 0.0);
-        scores.put("self/harm", 0.0);
-        scores.put("sexual", 0.0);
-        scores.put("sexual/minors", 0.0);
-        scores.put("violence", 0.0);
-        scores.put("violence/graphic", 0.0);
+        final Map<String, String> scores = new HashMap<>();
+        scores.put("hate", "0.0");
+        scores.put("hate/threatening", "0.0");
+        scores.put("self/harm", "0.0");
+        scores.put("sexual", "0.0");
+        scores.put("sexual/minors", "0.0");
+        scores.put("violence", "0.0");
+        scores.put("violence/graphic", "0.0");
 
         return ModerationResult.builder()
                 .flagged(false)
@@ -76,14 +76,15 @@ public class ModerationBuilder {
         categories.put("violence", false);
         categories.put("violence/graphic", false);
 
-        final Map<String, Double> scores = new HashMap<>();
-        scores.put("hate", 0.0);
-        scores.put("hate/threatening", 0.0);
-        scores.put("self/harm", 0.0);
-        scores.put("sexual", 10.0);
-        scores.put("sexual/minors", 0.0);
-        scores.put("violence", 0.0);
-        scores.put("violence/graphic", 0.0);
+
+        final Map<String, String> scores = new HashMap<>();
+        scores.put("hate", "0.0");
+        scores.put("hate/threatening", "0.0");
+        scores.put("self/harm", "0.0");
+        scores.put("sexual", "10.0");
+        scores.put("sexual/minors", "0.0");
+        scores.put("violence", "0.0");
+        scores.put("violence/graphic", "0.0");
 
         return ModerationResult.builder()
                 .flagged(true)

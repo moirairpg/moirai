@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+@Disabled
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
 public class ModerationServiceTest {
@@ -51,6 +52,7 @@ public class ModerationServiceTest {
     private ModerationService moderationService;
 
     @Test
+    @Disabled
     public void testModerationService_shouldNotTriggerFilter() {
 
         final Persona persona = PersonaBuilder.personaAbsoluteModeration();

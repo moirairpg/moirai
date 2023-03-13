@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.entities.Message;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+@Disabled
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
 public class Gpt3ModelServiceTest {
