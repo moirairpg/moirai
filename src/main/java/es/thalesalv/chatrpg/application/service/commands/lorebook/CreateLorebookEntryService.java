@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands;
+package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.text.MessageFormat;
 import java.util.Optional;
@@ -45,13 +45,13 @@ public class CreateLorebookEntryService implements CommandService {
     private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
 
     private static final String ERROR_CREATE = "There was an error parsing your request. Please try again.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookEntryService.class);
     private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don''t forget to save this ID!\n```json\n{1}\n```";
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookEntryService.class);
 
     @Override
     public void handle(final SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Showing modal for character creation");
+        LOGGER.debug("Received slash command for lore entry creation");
         botConfig.getPersonas().forEach(persona -> {
             final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
             if (isCurrentChannel) {
@@ -69,7 +69,7 @@ public class CreateLorebookEntryService implements CommandService {
     public void handle(final ModalInteractionEvent event) {
 
         try {
-            LOGGER.debug("Received data from character creation modal -> {}", event.getValues());
+            LOGGER.debug("Received data from lore entry creation modal -> {}", event.getValues());
             event.deferReply();
             final User author = event.getMember().getUser();
             final String entryName = event.getValue("lorebook-entry-name").getAsString();
