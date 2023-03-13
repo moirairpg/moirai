@@ -1,11 +1,5 @@
 package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import es.thalesalv.chatrpg.adapters.data.ContextDatastore;
 import es.thalesalv.chatrpg.application.config.BotConfig;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
@@ -14,15 +8,20 @@ import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.requests.RestAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,44 +39,31 @@ public class EditDMAssistService implements CommandService {
     public void handle(SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for message edition");
-        event.deferReply();
-        botConfig.getPersonas().forEach(persona -> {
-            try {
-                final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
-                if (isCurrentChannel) {
-                    final Message message = Optional.ofNullable(event.getOption("message-id"))
-                        .filter(a -> a != null)
-                        .map(opt -> {
-                            final String messageId = opt.getAsString();
-                            final Message msg = event.getChannel().retrieveMessageById(messageId).complete();
-                            final Modal editMessageModal = buildEditMessageModal(msg);
-                            event.replyModal(editMessageModal).queue();
-                            return msg;
-                        })
-                        .orElseGet(() -> {
-                            final MessageChannelUnion channel = event.getChannel();
-                            final SelfUser bot = event.getJDA().getSelfUser();
-                            final MessageHistory history = MessageHistory.getHistoryFromBeginning(channel).complete();
-                            final Message msg = history.getRetrievedHistory().stream()
-                                    .filter(a -> a.getAuthor().getId().equals(bot.getId()))
-                                    .findFirst().get();
-
-                            final Modal editMessageModal = buildEditMessageModal(msg);
-                            event.replyModal(editMessageModal).queue();
-                            return msg;
-                        });
-
-                    contextDatastore.setCommandEventData(CommandEventData.builder()
-                            .messageToBeEdited(message)
-                            .persona(persona)
-                            .build());
-                }
-            } catch (Exception e) {
-                LOGGER.error(ERROR_EDITING, e);
-                event.reply(SOMETHING_WRONG_TRY_AGAIN)
-                        .setEphemeral(true).queue();
-            }
-        });
+        try {
+            event.deferReply();
+            final SelfUser bot = event.getJDA().getSelfUser();
+            botConfig.getPersonas().stream()
+                    .filter(p -> p.getChannelIds().contains(event.getChannel().getId()))
+                    .findFirst().ifPresent(persona -> {
+                        Message message = Optional.ofNullable(event.getOption("message-id"))
+                                .map(OptionMapping::getAsString)
+                                .map(event.getChannel()::retrieveMessageById)
+                                .map(RestAction::complete)
+                                .orElseGet(() -> event.getChannel().getHistory().retrievePast(persona.getChatHistoryMemory()).complete().stream()
+                                        .filter(a -> a.getAuthor().getId().equals(bot.getId()))
+                                        .findFirst().orElseThrow(() -> new ArrayIndexOutOfBoundsException("No bot message found.")));
+                        final Modal editMessageModal = buildEditMessageModal(message);
+                        event.replyModal(editMessageModal).queue();
+                        contextDatastore.setCommandEventData(CommandEventData.builder()
+                                .messageToBeEdited(message)
+                                .persona(persona)
+                                .build());
+                    });
+        } catch (Exception e) {
+            LOGGER.error(ERROR_EDITING, e);
+            event.reply(SOMETHING_WRONG_TRY_AGAIN)
+                    .setEphemeral(true).queue();
+        }
     }
 
     @Override
