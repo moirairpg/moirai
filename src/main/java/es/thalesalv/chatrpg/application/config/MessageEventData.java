@@ -17,6 +17,7 @@ public class MessageEventData {
     private Guild guild;
     private SelfUser bot;
     private User messageAuthor;
+    private Message responseMessage;
     private Message message;
     private MessageChannelUnion channel;
     private Persona persona;
