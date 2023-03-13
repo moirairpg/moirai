@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
+import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -29,6 +30,9 @@ public class RetryDMAssistService implements CommandService {
     private static final String MODEL_SERVICE = "ModelService";
     private static final String USE_CASE = "UseCase";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
+    private static final String BOT_MESSAGE_NOT_FOUND = "No bot message found.";
+    private static final String USER_MESSAGE_NOT_FOUND = "No user message found.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RetryDMAssistService.class);
 
     @Override
@@ -38,21 +42,24 @@ public class RetryDMAssistService implements CommandService {
 
         try {
             event.deferReply();
-            botConfig.getPersonas().forEach(persona -> {
-                final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
-                if (isCurrentChannel) {
-                    final MessageChannelUnion channel = event.getChannel();
-                    final Message botMessage = channel.retrieveMessageById(channel.getLatestMessageId()).complete();
-                    final Message userMessage = channel.getHistoryBefore(botMessage, 1).complete().getRetrievedHistory().get(0);
-                    final MessageEventData messageEventData = messageEventDataTranslator.translate(event, persona, userMessage);
-                    final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
-                    final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
+            User bot = event.getJDA().getSelfUser();
+            final MessageChannelUnion channel = event.getChannel();
+            botConfig.getPersonas().stream().filter(persona -> persona.getChannelIds().contains(channel.getId())).findAny().ifPresent(persona -> {
+                final Message botMessage = channel.getHistory().retrievePast(persona.getChatHistoryMemory()).complete().stream()
+                        .filter(m -> m.getAuthor().getId().equals(bot.getId()))
+                        .findFirst()
+                        .orElseThrow(() -> new IndexOutOfBoundsException(BOT_MESSAGE_NOT_FOUND));
+                final Message userMessage = channel.getHistoryBefore(botMessage, 1).complete().getRetrievedHistory().stream()
+                        .findAny()
+                        .orElseThrow(() -> new IndexOutOfBoundsException(USER_MESSAGE_NOT_FOUND));
+                final MessageEventData messageEventData = messageEventDataTranslator.translate(event, persona, userMessage);
+                final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
+                final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
-                    final InteractionHook hook = event.reply("Re-generating output...").setEphemeral(true).complete();
-                    botMessage.delete().complete();
-                    useCase.generateResponse(messageEventData, model);
-                    hook.deleteOriginal().complete();
-                }
+                final InteractionHook hook = event.reply("Re-generating output...").setEphemeral(true).complete();
+                botMessage.delete().complete();
+                useCase.generateResponse(messageEventData, model);
+                hook.deleteOriginal().complete();
             });
         } catch (Exception e) {
             LOGGER.error("Error regenerating output", e);
