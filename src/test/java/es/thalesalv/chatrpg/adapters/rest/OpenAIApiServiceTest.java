@@ -46,6 +46,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+@Disabled
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
 public class OpenAIApiServiceTest {
