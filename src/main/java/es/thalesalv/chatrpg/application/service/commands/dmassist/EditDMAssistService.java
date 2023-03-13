@@ -1,13 +1,9 @@
 package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.ContextDatastore;
@@ -50,6 +46,7 @@ public class EditDMAssistService implements CommandService {
                 final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
                 if (isCurrentChannel) {
                     final Message message = Optional.ofNullable(event.getOption("message-id"))
+                        .filter(a -> a != null)
                         .map(opt -> {
                             final String messageId = opt.getAsString();
                             final Message msg = event.getChannel().retrieveMessageById(messageId).complete();
@@ -60,11 +57,10 @@ public class EditDMAssistService implements CommandService {
                         .orElseGet(() -> {
                             final MessageChannelUnion channel = event.getChannel();
                             final SelfUser bot = event.getJDA().getSelfUser();
-                            final List<Message> history = MessageHistory.getHistoryFromBeginning(channel).complete().getRetrievedHistory();
-                            Collections.reverse(history);
-                            final Message msg = history.stream()
+                            final MessageHistory history = MessageHistory.getHistoryFromBeginning(channel).complete();
+                            final Message msg = history.getRetrievedHistory().stream()
                                     .filter(a -> a.getAuthor().getId().equals(bot.getId()))
-                                    .findFirst().orElseThrow(() -> new ArrayIndexOutOfBoundsException("No bot messages found"));
+                                    .findFirst().get();
 
                             final Modal editMessageModal = buildEditMessageModal(msg);
                             event.replyModal(editMessageModal).queue();
