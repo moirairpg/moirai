@@ -54,7 +54,7 @@ public class GenerateDMAssistService implements CommandService {
                     .ifPresent(persona -> channel.getHistory().retrievePast(1).complete().stream()
                             .findAny()
                             .map(message -> {
-                                final MessageEventData messageEventData = messageEventDataTranslator.translate(event, persona, message);
+                                final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, persona, message);
                                 final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
                                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                                 final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
@@ -65,7 +65,8 @@ public class GenerateDMAssistService implements CommandService {
                                         .channel(channel)
                                         .build());
 
-                                return event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage()));
+                                event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage())).queue();
+                                return message;
                             })
                             .orElseThrow(() -> new IllegalStateException("No message history found")));
         } catch (Exception e) {
