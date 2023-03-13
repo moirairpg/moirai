@@ -183,7 +183,6 @@ public class UpdateLorebookEntryService implements CommandService {
         final TextInput lorebookEntryDescription = TextInput
                 .create("lorebook-entry-desc", "Description", TextInputStyle.PARAGRAPH)
                 .setValue(lorebookRegex.getLorebookEntry().getDescription())
-                .setMaxLength(150)
                 .setRequired(true)
                 .build();
 
