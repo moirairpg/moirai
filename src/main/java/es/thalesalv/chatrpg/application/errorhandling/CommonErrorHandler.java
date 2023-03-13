@@ -1,7 +1,7 @@
 package es.thalesalv.chatrpg.application.errorhandling;
 
 import java.text.MessageFormat;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,11 +9,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 
 import es.thalesalv.chatrpg.application.config.MessageEventData;
-import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.exception.OpenAiApiException;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.GptResponse;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.entities.Message;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -27,32 +25,13 @@ public class CommonErrorHandler {
     
     public void handleEmptyResponse(final MessageEventData messageEventData) {
 
-        final Message message = createMessage(messageEventData);
-        notifyUser(EMPTY_RESPONSE, message, messageEventData);
-        message.delete().queue();
+        notifyUser(EMPTY_RESPONSE, messageEventData);
     }
 
-    public Message createMessage(final MessageEventData messageEventData) {
+    public void notifyUser(final String notification, final MessageEventData messageEventData) {
 
-        try {
-            return messageEventData.getChannel()
-                    .retrieveMessageById(messageEventData.getMessage().getId()).submit().get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Error retrieving message data", e);
-            throw new DiscordFunctionException("Error retrieving message data", e);
-        }
-    }
-
-    public void notifyUser(final String notification, final Message message, final MessageEventData messageEventData) {
-
-        messageEventData.getMessageAuthor().openPrivateChannel().submit()
-                .thenCompose(c -> c.sendMessage(MessageFormat.format(notification, message.getContentRaw())).submit())
-                .whenComplete((msg, error) -> {
-                    if (error != null) {
-                        LOGGER.error("Error sending PM to user", error);
-                        throw new DiscordFunctionException("Error sending PM to user", error);
-                    }
-                });
+        messageEventData.getChannel().sendMessage(MessageFormat.format(notification, messageEventData.getMessage().getContentRaw()))
+                .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
     }
 
     public Mono<Throwable> handle4xxError(final ClientResponse clientResponse, final MessageEventData messageEventData) {
@@ -61,17 +40,13 @@ public class CommonErrorHandler {
         return clientResponse.bodyToMono(GptResponse.class)
             .map(errorResponse -> {
                 LOGGER.error("Error while calling OpenAI API. Message -> {}", errorResponse.getError().getMessage());
-                final Message message = createMessage(messageEventData);
-                notifyUser(MESSAGE_TOO_LONG, message, messageEventData);
-                message.delete().queue();
+                notifyUser(MESSAGE_TOO_LONG, messageEventData);
                 return new OpenAiApiException("Error while calling OpenAI API.", errorResponse);
             });
     }
 
     public void handleResponseError(final MessageEventData messageEventData) {
 
-        final Message message = createMessage(messageEventData);
-        notifyUser(UNKNOWN_ERROR, message, messageEventData);
-        message.delete().queue();
+        notifyUser(UNKNOWN_ERROR, messageEventData);
     }
 }

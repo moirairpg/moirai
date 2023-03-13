@@ -22,7 +22,7 @@ public class InteractionListener {
     private final BeanFactory beanFactory;
 
     private static final String SOMETHING_WENT_WRONG_ERROR = "Something went wrong with the command. Please try again.";
-    private static final String NON_EXISTING_COMMAND = "The command you tried to use does not exist. Please use `create`, `retrieve`, `delete` or `update` as the argument.";
+    private static final String NON_EXISTING_COMMAND = "The command you tried to use does not exist. Available commands: dmassist, lorebook.";
     private static final String LOREBOOK_ENTRY_SERVICE = "LorebookEntryService";
     private static final String DM_ASSIST_SERVICE = "DMAssistService";
     private static final String MISSING_COMMAND_ACTION = "Did not receive slash command action";
