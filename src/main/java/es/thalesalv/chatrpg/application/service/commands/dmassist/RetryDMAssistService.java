@@ -1,5 +1,10 @@
 package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
+
 import es.thalesalv.chatrpg.application.config.BotConfig;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
@@ -8,15 +13,11 @@ import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +42,7 @@ public class RetryDMAssistService implements CommandService {
 
         try {
             event.deferReply();
-            final User bot = event.getJDA().getSelfUser();
+            final SelfUser bot = event.getJDA().getSelfUser();
             final MessageChannelUnion channel = event.getChannel();
             botConfig.getPersonas().stream()
                     .filter(persona -> persona.getChannelIds().contains(channel.getId()))
@@ -54,7 +55,7 @@ public class RetryDMAssistService implements CommandService {
                         final Message userMessage = channel.getHistoryBefore(botMessage, 1).complete().getRetrievedHistory().stream()
                                 .findAny()
                                 .orElseThrow(() -> new IndexOutOfBoundsException(USER_MESSAGE_NOT_FOUND));
-                        final MessageEventData messageEventData = messageEventDataTranslator.translate(event, persona, userMessage);
+                        final MessageEventData messageEventData = messageEventDataTranslator.translate(bot, channel, persona, userMessage);
                         final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
                         final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
