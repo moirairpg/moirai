@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -84,7 +85,8 @@ public class EditDMAssistService implements CommandService {
                             if (error != null)
                                 throw new DiscordFunctionException("Error in message edition modal", error);
         
-                            event.reply("Message has been edited").setEphemeral(true).queue();
+                            event.reply("Message has been edited").setEphemeral(true)
+                                    .queue(m -> m.deleteOriginal().queueAfter(1, TimeUnit.MILLISECONDS));
                         }));
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
