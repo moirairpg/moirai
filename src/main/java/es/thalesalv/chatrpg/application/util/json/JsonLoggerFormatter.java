@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.util;
+package es.thalesalv.chatrpg.application.util.json;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -16,8 +16,6 @@ public class JsonLoggerFormatter extends JsonLayout {
                 .filter(arg -> !(arg instanceof Number))
                 .filter(arg -> !(arg instanceof Boolean))
                 .filter(arg -> !(arg instanceof Character))
-                .forEach(arg -> {
-                    map.put(arg.getClass().getSimpleName(), arg);
-                });
+                .forEach(arg -> map.put(arg.getClass().getSimpleName(), arg));
     }
 }

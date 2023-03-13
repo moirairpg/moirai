@@ -97,7 +97,7 @@ public class ModerationService {
             throw new ModerationException("Unsafe content detected");
         
         final List<String> flaggedTopics = moderationResult.getCategoryScores().entrySet().stream()
-        		.filter(entry -> entry.getValue() > Optional.ofNullable(persona.getModerationRules().get(entry.getKey())).orElse(defaultThreshold))
+        		.filter(entry -> Double.valueOf(entry.getValue()) > Optional.ofNullable(persona.getModerationRules().get(entry.getKey())).orElse(defaultThreshold))
         		.map(Map.Entry::getKey)
         		.collect(Collectors.toList());
 
