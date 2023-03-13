@@ -115,7 +115,6 @@ public class CreateLorebookEntryService implements CommandService {
         final TextInput lorebookEntryDescription = TextInput
                 .create("lorebook-entry-desc", "Description", TextInputStyle.PARAGRAPH)
                 .setPlaceholder("The Forest of the Talking Trees is located in the west of the country.")
-                .setMaxLength(150)
                 .setRequired(true)
                 .build();
 
