@@ -17,14 +17,12 @@ import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.config.Persona;
-import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.exception.ModerationException;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResponse;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResult;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import reactor.core.publisher.Mono;
@@ -110,7 +108,6 @@ public class ModerationService {
         LOGGER.warn("Unsafe content detected in a message. -> {}", flaggedTopics);
         final TextChannel channel = messageEventData.getChannel().asTextChannel();
         final Message message = channel.retrieveMessageById(messageEventData.getMessage().getId()).complete();
-        final User messageAuthor = messageEventData.getMessageAuthor();
         final StringBuilder flaggedMessage = new StringBuilder().append(FLAGGED_MESSAGE);
 
         if (flaggedTopics != null) {
@@ -119,14 +116,8 @@ public class ModerationService {
         }
 
         message.delete().complete();
-        messageAuthor.openPrivateChannel().submit()
-                .thenCompose(c -> c.sendMessage(flaggedMessage.toString()).submit())
-                .whenComplete((msg, error) -> {
-                    if (error != null) {
-                        LOGGER.error("Error sending PM to user with flagged messages", error);
-                        throw new DiscordFunctionException("Error sending PM to user", error);
-                    }
-                });
+        messageEventData.getChannel().sendMessage(flaggedMessage.toString())
+                .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
     }
 
     private void handleFlags(final List<String> flaggedTopics, final ModalInteractionEvent event, final String content) {
