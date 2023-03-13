@@ -33,6 +33,8 @@ public class EditDMAssistService implements CommandService {
 
     private static final String ERROR_EDITING = "Error editing message";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
+
+    private static final String BOT_NOT_FOUND = "No bot message found.";
     private static final Logger LOGGER = LoggerFactory.getLogger(EditDMAssistService.class);
 
     @Override
@@ -51,7 +53,7 @@ public class EditDMAssistService implements CommandService {
                                 .map(RestAction::complete)
                                 .orElseGet(() -> event.getChannel().getHistory().retrievePast(persona.getChatHistoryMemory()).complete().stream()
                                         .filter(a -> a.getAuthor().getId().equals(bot.getId()))
-                                        .findFirst().orElseThrow(() -> new ArrayIndexOutOfBoundsException("No bot message found.")));
+                                        .findFirst().orElseThrow(() -> new ArrayIndexOutOfBoundsException(BOT_NOT_FOUND)));
                         final Modal editMessageModal = buildEditMessageModal(message);
                         event.replyModal(editMessageModal).queue();
                         contextDatastore.setCommandEventData(CommandEventData.builder()
