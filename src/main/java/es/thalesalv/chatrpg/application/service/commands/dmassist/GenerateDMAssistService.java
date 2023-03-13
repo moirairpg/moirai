@@ -1,12 +1,5 @@
 package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
-
 import es.thalesalv.chatrpg.adapters.data.ContextDatastore;
 import es.thalesalv.chatrpg.application.config.BotConfig;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
@@ -25,6 +18,10 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -48,27 +45,29 @@ public class GenerateDMAssistService implements CommandService {
         LOGGER.debug("Received slash command for assisted generation of message");
 
         try {
-            botConfig.getPersonas().forEach(persona -> {
-                final MessageChannelUnion channel = event.getChannel();
-                final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> channel.getId().equals(id));
-                if (isCurrentChannel) {
-                    final List<Message> history = channel.getHistoryFromBeginning(1).complete().getRetrievedHistory();
-                    history.forEach(userMessage -> {
-                        final MessageEventData messageEventData = messageEventDataTranslator.translate(event, persona, userMessage);
-                        final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
-                        final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-                        final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
-    
-                        contextDatastore.setCommandEventData(CommandEventData.builder()
-                                .messageToBeEdited(responseEventData.getResponseMessage())
-                                .persona(persona)
-                                .channel(channel)
-                                .build());
-    
-                        event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage()));
-                    });
-                }
-            });
+            event.deferReply();
+            final MessageChannelUnion channel = event.getChannel();
+            channel.sendTyping().complete();
+            botConfig.getPersonas().stream()
+                    .filter(persona -> persona.getChannelIds().contains(channel.getId()))
+                    .findAny()
+                    .ifPresent(persona -> channel.getHistory().retrievePast(1).complete().stream()
+                            .findAny()
+                            .map(message -> {
+                                final MessageEventData messageEventData = messageEventDataTranslator.translate(event, persona, message);
+                                final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
+                                final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
+                                final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
+
+                                contextDatastore.setCommandEventData(CommandEventData.builder()
+                                        .messageToBeEdited(responseEventData.getResponseMessage())
+                                        .persona(persona)
+                                        .channel(channel)
+                                        .build());
+
+                                return event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage()));
+                            })
+                            .orElseThrow(() -> new IllegalStateException("No message history found")));
         } catch (Exception e) {
             LOGGER.error("Error regenerating output", e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN)

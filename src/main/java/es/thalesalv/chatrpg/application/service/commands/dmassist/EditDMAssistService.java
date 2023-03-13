@@ -46,7 +46,8 @@ public class EditDMAssistService implements CommandService {
             final SelfUser bot = event.getJDA().getSelfUser();
             botConfig.getPersonas().stream()
                     .filter(p -> p.getChannelIds().contains(event.getChannel().getId()))
-                    .findFirst().ifPresent(persona -> {
+                    .findFirst()
+                    .ifPresent(persona -> {
                         Message message = Optional.ofNullable(event.getOption("message-id"))
                                 .map(OptionMapping::getAsString)
                                 .map(event.getChannel()::retrieveMessageById)
