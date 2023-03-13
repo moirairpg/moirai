@@ -6,7 +6,8 @@ import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.config.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.entities.SelfUser;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @Component
@@ -25,14 +26,13 @@ public class MessageEventDataTranslator {
                 .build();
     }
 
-    public MessageEventData translate(final SlashCommandInteractionEvent event, final Persona persona, final Message message) {
+    public MessageEventData translate(final SelfUser bot, final MessageChannelUnion channel, final Persona persona, final Message message) {
 
         return MessageEventData.builder()
-                .bot(event.getJDA().getSelfUser())
+                .bot(bot)
                 .messageAuthor(message.getAuthor())
                 .message(message)
-                .channel(event.getChannel())
-                .guild(event.getGuild())
+                .channel(channel)
                 .persona(persona)
                 .build();
     }
