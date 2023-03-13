@@ -10,6 +10,7 @@ public interface BotUseCase {
      * Formats the prompt so it can be sent to the AI based on specific logic
      * @param messageEventData Object containing data on the message event
      * @param model Model to be used for generation
+     * @return messageEventData together with the bot's response
      */
-    void generateResponse(final MessageEventData messageEventData, final GptModelService model);
+    MessageEventData generateResponse(final MessageEventData messageEventData, final GptModelService model);
 }

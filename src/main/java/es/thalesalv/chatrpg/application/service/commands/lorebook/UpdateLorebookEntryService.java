@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands;
+package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.text.MessageFormat;
 import java.util.Optional;
@@ -58,7 +58,7 @@ public class UpdateLorebookEntryService implements CommandService {
     public void handle(final SlashCommandInteractionEvent event) {
 
         try {
-            LOGGER.debug("Showing modal for character update");
+            LOGGER.debug("Received slash command for lore entry update");
             botConfig.getPersonas().forEach(persona -> {
                 final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
                 if (isCurrentChannel) {
@@ -92,7 +92,7 @@ public class UpdateLorebookEntryService implements CommandService {
     public void handle(final ModalInteractionEvent event) {
 
         try {
-            LOGGER.debug("Received data from character update modal");
+            LOGGER.debug("Received data from lore entry update modal");
             event.deferReply();
             final UUID entryId = contextDatastore.getCommandEventData().getLorebookEntryId();
             final String updatedEntryName = event.getValue("lorebook-entry-name").getAsString();
