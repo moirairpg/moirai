@@ -1,9 +1,11 @@
 package es.thalesalv.chatrpg.application.service.tokenizer;
 
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 
+@Component
 public class TokenizerService {
     private final HuggingFaceTokenizer tokenizer;
 
