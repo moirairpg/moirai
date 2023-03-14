@@ -10,6 +10,7 @@ import java.util.Comparator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
@@ -23,7 +24,7 @@ public class TokenizerService {
 
     public TokenizerService() {
         try {
-            tokenizer = HuggingFaceTokenizer.newInstance(getFileFromJar("tokenizer.json"));
+            tokenizer = HuggingFaceTokenizer.newInstance(new ClassPathResource("tokenizer.json").getInputStream(), null);
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize tokenizer", e);
         }
