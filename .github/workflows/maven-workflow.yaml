@@ -27,32 +27,14 @@ jobs:
         with:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
-      - uses: actions/upload-artifact@master
-        with:
-          name: Dockerfile
-          path: ./
-      - uses: actions/upload-artifact@master
-        with:
-          name: chatrpg-0.0.1-SNAPSHOT.jar
-          path: target/
   ChatRPG-Deploy:
     if: github.ref == 'refs/heads/master'
     needs: ChatRPG-Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@master
-        with:
-          name: Dockerfile
-          path: ./
-      - uses: actions/download-artifact@master
-        with:
-          name: chatrpg-0.0.1-SNAPSHOT.jar
-          path: target/
       - name: Install flyctl
-        if: github.ref == 'refs/heads/master'
         uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy to fly.io
-        if: github.ref == 'refs/heads/master'
         run: flyctl deploy -a chatrpg
         env:
           FLY_API_TOKEN: ${{secrets.FLY_API_TOKEN}}
