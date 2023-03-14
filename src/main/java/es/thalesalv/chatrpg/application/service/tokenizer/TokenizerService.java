@@ -1,19 +1,17 @@
 package es.thalesalv.chatrpg.application.service.tokenizer;
 
-import java.nio.file.Path;
-
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 
 @Component
 public class TokenizerService {
+
     private final HuggingFaceTokenizer tokenizer;
 
     public TokenizerService() {
         try {
-            tokenizer = HuggingFaceTokenizer.newInstance(Path.of(ResourceUtils.getURL("classpath:tokenizer.json").toURI()));
+            tokenizer = HuggingFaceTokenizer.newInstance("tokenizer.json");
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize tokenizer", e);
         }

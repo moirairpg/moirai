@@ -29,24 +29,22 @@ jobs:
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
       - uses: actions/upload-artifact@master
         with:
-          name: chatrpg-0.0.1-SNAPSHOT.jar
-          path: target/
-      - uses: actions/upload-artifact@master
-        with:
-          name: Dockerfile
-          path: ./
+          name: Upload necessary artifacts
+          path: |
+            Dockerfile
+            tokenizer.json
+            target/chatrpg-0.0.1-SNAPSHOT.jar
   ChatRPG-Deploy:
     needs: ChatRPG-Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@master
         with:
-          name: chatrpg-0.0.1-SNAPSHOT.jar
-          path: target/
-      - uses: actions/download-artifact@master
-        with:
-          name: Dockerfile
-          path: ./
+          name: Download necessary artifacts
+          path: |
+            Dockerfile
+            tokenizer.json
+            target/chatrpg-0.0.1-SNAPSHOT.jar
       - name: Install flyctl
         if: github.ref == 'refs/heads/master'
         uses: superfly/flyctl-actions/setup-flyctl@master
