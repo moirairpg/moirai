@@ -4,7 +4,7 @@
 ChatRPG is a Discord bot powered by JDA that is connected to OpenAI's GPT-3 API. It is cabaple of generating text using base or finetuned models, and was made to act primarily as a chatbot and as an RPG dungeon master. Developed by veteran AI Dungeon and NovelAI players and contributors, aimed to make text-based RPGs more flexible and easier to use on Discord.
 
 ## Technologies used
-* Java 19
+* Java 17
 * Maven
 * Spring Boot
 * Spring WebFlux
@@ -22,7 +22,7 @@ Yes and no. The code is free for usage, and so is Discord's API. But OpenAI's co
 For now, only the ones in the GPT-3 and ChatGPT model families in OpenAI's API. ChatRPG does not support Eleuther AI's models as of now, nor does it support usage of OpenAI's GPT-2 models locally.
 
 ## Building from source
-To run ChatRPG, you can clone the code and execute him locally. To do so, you'll need to have JDK 19 (preferrably OpenJDK), a PostgreSQL database (ChatRPG comes with a `docker-compose.yaml` for convenience) and Maven. You will also need to have a Discord Developer account set up with an app create with the proper permissions, as well as an OpenAI API account.
+To run ChatRPG, you can clone the code and execute him locally. To do so, you'll need to have JDK 17, a PostgreSQL database (ChatRPG comes with a `docker-compose.yaml` for convenience) and Maven. You will also need to have a Discord Developer account set up with an app create with the proper permissions, as well as an OpenAI API account.
 
 ### Discord app permissions
 To have ChatRPG work, your Discord app needs to have both the `Server Members` and `Message Content` intents allowed in the `Bot` menu of the Discord Developer dashboard. When inviting the bot to your server, make sure to add the `bot` and `applications.commands` scopes added in the `OAuth > URL Generator` menu of the Discord Developer dashboard. The bot also needs to have permission to read, send and delete messages in the channels specified in its personas, because when a comment is problematic, it will try to delete it.
