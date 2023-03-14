@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class ChatGptRequestTranslator {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
     public ChatGptRequest buildRequest(final Persona persona, final List<ChatGptMessage> chatGptMessages) {
-        LOG.info(persona.toString());
+        LOG.debug("BUILDING REQUEST: " + persona.toString());
         return ChatGptRequest.builder()
             .messages(chatGptMessages)
             .model(persona.getModelName())
