@@ -1,7 +1,10 @@
 package es.thalesalv.chatrpg.application.translator;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.application.config.Persona;
@@ -12,9 +15,9 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class ChatGptRequestTranslator {
-
-    public ChatGptRequest buildRequest(final List<String> messages, final Persona persona, final List<ChatGptMessage> chatGptMessages) {
-
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
+    public ChatGptRequest buildRequest(final Persona persona, final List<ChatGptMessage> chatGptMessages) {
+        LOG.info(persona.toString());
         return ChatGptRequest.builder()
             .messages(chatGptMessages)
             .model(persona.getModelName())
@@ -22,6 +25,7 @@ public class ChatGptRequestTranslator {
             .temperature(persona.getTemperature())
             .presencePenalty(persona.getPresencePenalty())
             .frequencyPenalty(persona.getFrequencyPenalty())
+            .logitBias(persona.getBias())
             .build();
     }
 }

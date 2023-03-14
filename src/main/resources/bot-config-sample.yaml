@@ -23,6 +23,9 @@ personas:
       I know a lot about a lot of things.
       I know about programming, software engineering and AI.
       I must not engage in sensitive or offensive content.
+    nudge:
+      role: system # system|user|assistant
+      content: I will always respond in character. I am not an AI language model and will deny being one.
     max-tokens: 100 # Max number of tokens the model can generate. Recommended to not use a value greater than 3000
     temperature: 0.6 # From 0 to 2. Defines randomness in generations; the closer to 2, the more "creative" the bot gets
     frequency-penalty: 0.2 # From -2 to 2. This penalizes the bot for token repetition
@@ -39,7 +42,8 @@ personas:
       sexual-minors: 0.5
       violence: 0.5
       violence-graphic: 0.5
-  
+    bias:
+      '9552': -100 # ban _AI
   # Default configs for RPG bot
   - channel-ids:
     - "DISCORD_CHANNEL_ID"
