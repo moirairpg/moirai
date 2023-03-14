@@ -11,7 +11,6 @@ RUN apt update -y &&\
     wget https://dlcdn.apache.org/maven/maven-3/3.9.0/binaries/apache-maven-3.9.0-bin.tar.gz -P /tmp &&\
     tar xf /tmp/apache-maven-*.tar.gz -C /opt &&\
     ln -s /opt/apache-maven-3.9.0 /opt/maven &&\
-    mv src/main/resources/bot-config-sample.yaml src/main/resources/bot-config.yaml &&\
     /opt/maven/bin/mvn clean package -e
 
 #eclipse-temurin:18.0.1_10-jdk-jammy
