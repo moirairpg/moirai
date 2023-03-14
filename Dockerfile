@@ -7,12 +7,12 @@ RUN apk add -u maven &&\
     mv src/main/resources/bot-config-sample.yaml src/main/resources/bot-config.yaml &&\
     mvn clean package -e
 
-FROM registry.access.redhat.com/ubi8/openjdk-17
+FROM eclipse-temurin:17.0.6_10-jre-jammy
 
 WORKDIR /opt/chatrpg
 
-RUN yum update -y &&\
-    yum install -y libgcc libstdc++
+# RUN apt update -y &&\
+#     apt install -y libgcc libstdc++
 
 COPY --from=builder /opt/chatrpg/target/chatrpg-0.0.1-SNAPSHOT.jar chatrpg-0.0.1-SNAPSHOT.jar
 
