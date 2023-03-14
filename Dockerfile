@@ -11,7 +11,8 @@ FROM registry.access.redhat.com/ubi8/openjdk-17
 
 WORKDIR /opt/chatrpg
 
-# libgcc gcompat libc6-compat
+RUN yum update -y &&\
+    yum install -y libgcc libstdc++
 
 COPY --from=builder /opt/chatrpg/target/chatrpg-0.0.1-SNAPSHOT.jar chatrpg-0.0.1-SNAPSHOT.jar
 
