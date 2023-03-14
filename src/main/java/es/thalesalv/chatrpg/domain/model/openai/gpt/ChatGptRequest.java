@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.domain.model.openai.gpt;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,7 +27,7 @@ public class ChatGptRequest {
     private List<ChatGptMessage> messages;
 
     @JsonProperty("stop")
-    private String stop;
+    private List<String> stop; // max of 4 elements
 
     @JsonProperty("max_tokens")
     private Integer maxTokens;
@@ -45,4 +46,7 @@ public class ChatGptRequest {
 
     @JsonProperty("frequency_penalty")
     private Double frequencyPenalty;
+
+    @JsonProperty("logit_bias")
+    private Map<String,Double> logitBias;
 }
