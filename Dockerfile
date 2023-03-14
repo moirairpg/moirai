@@ -1,9 +1,8 @@
-FROM openjdk:19-alpine
+FROM registry.access.redhat.com/ubi8/openjdk-17
 
 WORKDIR /opt/chatrpg
 
-RUN apk upgrade --no-cache && \
-    apk add --no-cache libgcc gcompat libc6-compat
+# libgcc gcompat libc6-compat
 
 COPY target/chatrpg-0.0.1-SNAPSHOT.jar chatrpg-0.0.1-SNAPSHOT.jar
 
