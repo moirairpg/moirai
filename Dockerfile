@@ -3,7 +3,7 @@ FROM openjdk:19-alpine
 WORKDIR /opt/chatrpg
 
 RUN apk upgrade --no-cache && \
-    apk add --no-cache libgcc
+    apk add --no-cache libgcc gcompat libc6-compat
 
 COPY target/chatrpg-0.0.1-SNAPSHOT.jar chatrpg-0.0.1-SNAPSHOT.jar
 
