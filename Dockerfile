@@ -3,14 +3,8 @@ FROM eclipse-temurin:18.0.1_10-jdk-jammy AS builder
 
 WORKDIR /opt/chatrpg
 
-# RUN apk upgrade --no-cache && \ 
-#         apk add --no-cache libgcc libstdc++ ncurses-libs gcompat libc6-compat
-
 ADD ./pom.xml pom.xml
 ADD ./src src/
-# RUN apk add -u maven &&\
-#     mv src/main/resources/bot-config-sample.yaml src/main/resources/bot-config.yaml &&\
-#     mvn clean package -e
 
 RUN apt update -y &&\
     apt install -y wget &&\
@@ -22,10 +16,9 @@ RUN apt update -y &&\
 
 #eclipse-temurin:18.0.1_10-jdk-jammy
 #eclipse-temurin:18.0.1_10-jre-jammy
-FROM openjdk:17-alpine
+FROM eclipse-temurin:18.0.1_10-jre-jammy
 
 WORKDIR /opt/chatrpg
-
 
 COPY --from=builder /opt/chatrpg/target/chatrpg-0.0.1-SNAPSHOT.jar chatrpg-0.0.1-SNAPSHOT.jar
 
