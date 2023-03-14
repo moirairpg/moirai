@@ -29,12 +29,10 @@ jobs:
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
       - uses: actions/upload-artifact@master
         with:
-          name: chatrpg-0.0.1-SNAPSHOT.jar
-          path: target/
-      - uses: actions/upload-artifact@master
-        with:
-          name: Dockerfile
-          path: ./
+          name: ChatRPG artifacts
+          path: |
+            ./Dockerfile
+            ./target/chatrpg-0.0.1-SNAPSHOT.jar
   ChatRPG-Deploy:
     if: github.ref == 'refs/heads/master'
     needs: ChatRPG-Build
@@ -42,12 +40,10 @@ jobs:
     steps:
       - uses: actions/download-artifact@master
         with:
-          name: chatrpg-0.0.1-SNAPSHOT.jar
-          path: target/
-      - uses: actions/download-artifact@master
-        with:
-          name: Dockerfile
-          path: ./
+          name: ChatRPG artifacts
+          path: |
+            ./Dockerfile
+            ./target/chatrpg-0.0.1-SNAPSHOT.jar
       - name: Install flyctl
         if: github.ref == 'refs/heads/master'
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -56,3 +52,6 @@ jobs:
         run: flyctl deploy -a chatrpg
         env:
           FLY_API_TOKEN: ${{secrets.FLY_API_TOKEN}}
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+            name: ChatRPG artifacts
