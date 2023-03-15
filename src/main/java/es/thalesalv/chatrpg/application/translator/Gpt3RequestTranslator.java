@@ -20,6 +20,7 @@ public class Gpt3RequestTranslator {
             .temperature(persona.getTemperature())
             .presencePenalty(persona.getPresencePenalty())
             .frequencyPenalty(persona.getFrequencyPenalty())
+            .logitBias(persona.getBias())
             .build();
     }
 }

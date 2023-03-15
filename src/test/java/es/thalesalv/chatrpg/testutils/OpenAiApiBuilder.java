@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.testutils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import es.thalesalv.chatrpg.domain.model.openai.gpt.Gpt3Request;
@@ -19,6 +20,7 @@ public class OpenAiApiBuilder {
                 .model("text-davinci-003")
                 .prompt("This is a prompt!")
                 .temperature(1D)
+                .logitBias(Collections.emptyMap())
                 .build();
     }
 
