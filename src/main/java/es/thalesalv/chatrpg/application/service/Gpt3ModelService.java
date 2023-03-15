@@ -1,8 +1,6 @@
 package es.thalesalv.chatrpg.application.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,13 +33,13 @@ public class Gpt3ModelService implements GptModelService {
     private static final Logger LOGGER = LoggerFactory.getLogger(Gpt3ModelService.class);
 
     @Override
-    public Mono<String> generate(final String prompt, final List<String> messages, final MessageEventData eventData) {
+    public Mono<String> generate(String prompt, final List<String> messages, final MessageEventData eventData) {
 
         LOGGER.debug("Called inference for GPT3. Persona -> {}", eventData.getPersona());
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
         final Set<LorebookEntry> entriesFound = new HashSet<>();
-
+        final Map<String,String> nudge = eventData.getPersona().getNudge();
         lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
         if (eventData.getPersona().getIntent().equals("dungeonMaster")) {
             lorebookEntryExtractionHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
@@ -49,7 +47,9 @@ public class Gpt3ModelService implements GptModelService {
         } else {
             lorebookEntryExtractionHelper.processEntriesFoundForChat(entriesFound, messages);
         }
-
+        prompt = Optional.ofNullable(nudge)
+                .map(n -> "\n" + n.entrySet().stream().findAny().map(Map.Entry::getValue).orElse(""))
+                .orElse("");
         final Gpt3Request request = gptRequestTranslator.buildRequest(prompt, eventData.getPersona());
         return openAiService.callGptApi(request, eventData)
                 .map(response -> {

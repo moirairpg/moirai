@@ -1,14 +1,5 @@
 package es.thalesalv.chatrpg.application.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
@@ -22,7 +13,13 @@ import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptRequest;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.User;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +39,7 @@ public class ChatGptModelService implements GptModelService {
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
         final Set<LorebookEntry> entriesFound = new HashSet<>();
+        final Map<String, String> nudge = eventData.getPersona().getNudge();
 
         lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
         if (eventData.getPersona().getIntent().equals("dungeonMaster")) {
@@ -52,16 +50,26 @@ public class ChatGptModelService implements GptModelService {
         }
 
         final List<ChatGptMessage> chatGptMessages = lorebookEntryExtractionHelper.formatMessagesForChatGpt(messages, eventData);
-        final ChatGptRequest request = chatGptRequestTranslator.buildRequest(messages, eventData.getPersona(), chatGptMessages);
+        Optional.ofNullable(nudge)
+                .ifPresent(n -> chatGptMessages.add(chatGptMessages.stream()
+                                .filter(m -> "user".equals(m.getRole()))
+                                .mapToInt(chatGptMessages::indexOf)
+                                .reduce((a, b) -> b)
+                                .orElse(0) + 1,
+                        ChatGptMessage.builder()
+                                .role(n.get("role"))
+                                .content(n.get("content"))
+                                .build()));
+        final ChatGptRequest request = chatGptRequestTranslator.buildRequest(eventData.getPersona(), chatGptMessages);
         return openAiService.callGptChatApi(request, eventData)
-            .map(response -> {
-                final String responseText = response.getChoices().get(0).getMessage().getContent();
-                if (StringUtils.isBlank(responseText)) {
-                    throw new ModelResponseBlankException();
-                }
+                .map(response -> {
+                    final String responseText = response.getChoices().get(0).getMessage().getContent();
+                    if (StringUtils.isBlank(responseText)) {
+                        throw new ModelResponseBlankException();
+                    }
 
-                return responseText.trim();
-            })
+                    return responseText.trim();
+                })
             .doOnError(ModelResponseBlankException.class::isInstance, e -> commonErrorHandler.handleEmptyResponse(eventData));
     }
 }

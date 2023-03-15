@@ -3,6 +3,9 @@ package es.thalesalv.chatrpg.domain.model.openai.gpt;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +26,7 @@ public class Gpt3Request {
     private String prompt;
 
     @JsonProperty("stop")
-    private String stop;
+    private List<String> stop; // max 4 elements
 
     @JsonProperty("max_tokens")
     private Integer maxTokens;
@@ -42,4 +45,6 @@ public class Gpt3Request {
 
     @JsonProperty("frequency_penalty")
     private Double frequencyPenalty;
+    @JsonProperty("logit_bias")
+    private Map<String,Double> logitBias;
 }
