@@ -19,10 +19,8 @@ import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.config.Persona;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
-import es.thalesalv.chatrpg.application.service.Gpt3ModelService;
 import es.thalesalv.chatrpg.application.service.helper.MessageFormatHelper;
 import es.thalesalv.chatrpg.application.translator.Gpt3RequestTranslator;
-import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.Gpt3Request;
 import es.thalesalv.chatrpg.testutils.OpenAiApiBuilder;
 import es.thalesalv.chatrpg.testutils.PersonaBuilder;
@@ -79,24 +77,24 @@ public class Gpt3ModelServiceTest {
                 }).verifyComplete();
     }
 
-    @Test
-    @Disabled
-    public void testGenerate_emptyAiResponse_shouldThrowError() {
-
-        final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
-        final String prompt = "This is a prompt!";
-        final Persona persona = PersonaBuilder.persona();
-        final Message message = Mockito.mock(Message.class);
-        final MessageEventData eventData = PersonaBuilder.messageEventData();
-        eventData.setPersona(persona);
-
-        Mockito.when(gpt3RequestTranslator.buildRequest(prompt, persona))
-                .thenReturn(request);
-
-        Mockito.when(openAiService.callGptApi(request, eventData))
-                .thenReturn(Mono.just(OpenAiApiBuilder.buildGptResponseEmptyText()));
-
-        StepVerifier.create(gpt3ModelService.generate(prompt, new ArrayList<String>(), eventData))
-                .verifyError(ModelResponseBlankException.class);
-    }
+//    @Test
+//    @Disabled
+//    public void testGenerate_emptyAiResponse_shouldThrowError() {
+//
+//        final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
+//        final String prompt = "This is a prompt!";
+//        final Persona persona = PersonaBuilder.persona();
+//        final Message message = Mockito.mock(Message.class);
+//        final MessageEventData eventData = PersonaBuilder.messageEventData();
+//        eventData.setPersona(persona);
+//
+//        Mockito.when(gpt3RequestTranslator.buildRequest(prompt, persona))
+//                .thenReturn(request);
+//
+//        Mockito.when(openAiService.callGptApi(request, eventData))
+//                .thenReturn(Mono.just(OpenAiApiBuilder.buildGptResponseEmptyText()));
+//
+//        StepVerifier.create(gpt3ModelService.generate(prompt, new ArrayList<String>(), eventData))
+//                .verifyError(ModelResponseBlankException.class);
+//    }
 }
