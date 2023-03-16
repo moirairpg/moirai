@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.service;
 
 import java.util.*;
 
+import es.thalesalv.chatrpg.application.config.Nudge;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class Gpt3ModelService implements GptModelService {
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
         final Set<LorebookEntry> entriesFound = new HashSet<>();
-        final Map<String,String> nudge = eventData.getPersona().getNudge();
+        final Nudge nudge = eventData.getPersona().getNudge();
         lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
         if (eventData.getPersona().getIntent().equals("dungeonMaster")) {
             lorebookEntryExtractionHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
@@ -47,8 +48,8 @@ public class Gpt3ModelService implements GptModelService {
         } else {
             lorebookEntryExtractionHelper.processEntriesFoundForChat(entriesFound, messages);
         }
-        prompt = Optional.ofNullable(nudge)
-                .map(n -> "\n" + n.entrySet().stream().findAny().map(Map.Entry::getValue).orElse(""))
+        prompt = prompt + Optional.ofNullable(nudge)
+                .map(Nudge::toString)
                 .orElse("");
         final Gpt3Request request = gptRequestTranslator.buildRequest(prompt, eventData.getPersona());
         return openAiService.callGptApi(request, eventData)

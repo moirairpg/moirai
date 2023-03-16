@@ -18,4 +18,5 @@ import lombok.Setter;
 public class BotConfig {
 
     private List<Persona> personas;
+    private String statusChannelId;
 }
