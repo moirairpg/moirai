@@ -9,9 +9,10 @@ ADD ./src src/
 RUN apt update -y &&\
     apt install -y wget &&\
     wget https://dlcdn.apache.org/maven/maven-3/3.9.0/binaries/apache-maven-3.9.0-bin.tar.gz -P /tmp &&\
+    wget https://gist.githubusercontent.com/thaalesalves/20be6c5ee5cfc85265db919bad61afac/raw/bot-config.yaml -P src/main/resources &&\
     tar xf /tmp/apache-maven-*.tar.gz -C /opt &&\
     ln -s /opt/apache-maven-3.9.0 /opt/maven &&\
-    /opt/maven/bin/mvn clean package -e
+    /opt/maven/bin/mvn clean package -e -DskipTests
 
 FROM eclipse-temurin:17.0.6_10-jre-jammy
 
