@@ -19,7 +19,8 @@ public class Persona {
     private String intent;
     private String owner;
     private String personality;
-    private Map<String,String> nudge;
+    private Nudge nudge;
+    private Bump bump;
     private String modelName;
     private String modelFamily;
     private int maxTokens;
