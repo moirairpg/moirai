@@ -16,6 +16,6 @@ import lombok.Setter;
 @ConfigurationProperties
 @PropertySource(value = "classpath:bot-config.yaml", factory = YamlPropertySourceFactory.class)
 public class BotConfig {
-
     private List<Persona> personas;
+    private String statusChannelId;
 }
