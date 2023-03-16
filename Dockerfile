@@ -1,5 +1,5 @@
 # FROM openjdk:17-alpine AS builder
-FROM eclipse-temurin:18.0.1_10-jdk-jammy AS builder
+FROM eclipse-temurin:17.0.6_10-jdk-jammy AS builder
 
 WORKDIR /opt/chatrpg
 
@@ -13,9 +13,7 @@ RUN apt update -y &&\
     ln -s /opt/apache-maven-3.9.0 /opt/maven &&\
     /opt/maven/bin/mvn clean package -e
 
-#eclipse-temurin:18.0.1_10-jdk-jammy
-#eclipse-temurin:18.0.1_10-jre-jammy
-FROM eclipse-temurin:18.0.1_10-jre-jammy
+FROM eclipse-temurin:17.0.6_10-jre-jammy
 
 WORKDIR /opt/chatrpg
 
