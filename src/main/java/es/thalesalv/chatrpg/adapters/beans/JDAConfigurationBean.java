@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 @RequiredArgsConstructor
 public class JDAConfigurationBean {
 
-    @Value("${config.discord.api-token}")
+    @Value("${chatrpg.discord.api-token}")
     private String discordApiToken;
 
     private final EventDispatcher dispatcherListenerAdapter;
