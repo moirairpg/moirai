@@ -1,5 +1,5 @@
 # FROM openjdk:17-alpine AS builder
-FROM eclipse-temurin:18.0.1_10-jdk-jammy AS builder
+FROM eclipse-temurin:17.0.6_10-jdk-jammy AS builder
 
 WORKDIR /opt/chatrpg
 
@@ -9,13 +9,12 @@ ADD ./src src/
 RUN apt update -y &&\
     apt install -y wget &&\
     wget https://dlcdn.apache.org/maven/maven-3/3.9.0/binaries/apache-maven-3.9.0-bin.tar.gz -P /tmp &&\
+    wget https://gist.githubusercontent.com/thaalesalves/20be6c5ee5cfc85265db919bad61afac/raw/bot-config.yaml -P src/main/resources &&\
     tar xf /tmp/apache-maven-*.tar.gz -C /opt &&\
     ln -s /opt/apache-maven-3.9.0 /opt/maven &&\
-    /opt/maven/bin/mvn clean package -e
+    /opt/maven/bin/mvn clean package -e -DskipTests
 
-#eclipse-temurin:18.0.1_10-jdk-jammy
-#eclipse-temurin:18.0.1_10-jre-jammy
-FROM eclipse-temurin:18.0.1_10-jre-jammy
+FROM eclipse-temurin:17.0.6_10-jre-jammy
 
 WORKDIR /opt/chatrpg
 
