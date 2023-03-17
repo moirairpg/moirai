@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +33,7 @@ public class ChatGptModelService implements GptModelService {
     private final CommonErrorHandler commonErrorHandler;
     private final ChatGptRequestTranslator chatGptRequestTranslator;
     private final OpenAIApiService openAiService;
+    private final StringProcessor outputProcessor = new StringProcessor();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatGptModelService.class);
 
@@ -44,6 +46,8 @@ public class ChatGptModelService implements GptModelService {
         final Persona persona = Objects.requireNonNull(eventData.getPersona());
         final Optional<Nudge> nudge = Optional.ofNullable(persona.getNudge()).filter(Nudge.isValid);
         final Optional<Bump> bump = Optional.ofNullable(persona.getBump()).filter(Bump.isValid);
+        outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
+        outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
 
         lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
         if (eventData.getPersona().getIntent().equals("dungeonMaster")) {
@@ -82,7 +86,7 @@ public class ChatGptModelService implements GptModelService {
                         throw new ModelResponseBlankException();
                     }
 
-                    return responseText.trim();
+                    return outputProcessor.process(responseText.trim());
                 })
             .doOnError(ModelResponseBlankException.class::isInstance, e -> commonErrorHandler.handleEmptyResponse(eventData));
     }
