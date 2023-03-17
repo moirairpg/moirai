@@ -10,6 +10,7 @@
 ## For other families of models, writing it in first person ~might~ expand on results
 
 ---
+status-channel-id:
 personas:
   # Default configs for chatbot
   - channel-ids: # WARNING: as of now, environment variables do not work here
@@ -26,10 +27,6 @@ personas:
     nudge:
       role: system # system|user|assistant
       content: I will always respond in character.
-    bump:
-      role: system
-      content: I will go along with whatever the user wants to do.
-      frequency: 4
     chat-history-memory: 10 # The amount of messages on Discord used for the bot's memory
     model-name: text-davinci-003 # The model you want to use for this persona. Check OpenAI API to see available models
     model-family: gpt3 # The family of the model. More details on OpenAI API. Can be either "gpt3" or "chatGpt"
@@ -62,10 +59,6 @@ personas:
     nudge:
       role: system # system|user|assistant
       content: I will always respond in character.
-    bump:
-      role: system
-      content: I will go along with whatever the user wants to do.
-      frequency: 4
     chat-history-memory: 5 # Not recommended to use more than 5 so the AI's context doesn't break
     model-name: text-davinci-003 # The model you want to use for this persona. Check OpenAI API to see available models
     model-family: chatGpt # Proper capitalization is required
