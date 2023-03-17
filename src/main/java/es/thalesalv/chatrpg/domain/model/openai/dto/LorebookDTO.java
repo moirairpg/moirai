@@ -1,7 +1,5 @@
 package es.thalesalv.chatrpg.domain.model.openai.dto;
 
-import java.util.UUID;
-
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,7 +7,7 @@ import lombok.Data;
 @Builder
 public class LorebookDTO {
 
-    private UUID id;
+    private String id;
     private String name;
     private String regex;
     private String description;

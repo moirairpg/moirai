@@ -1,7 +1,5 @@
 package es.thalesalv.chatrpg.adapters.data.db.entity;
 
-import java.util.UUID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -22,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class LorebookRegex {
 
     @Id
-    private UUID id;
+    private String id;
 
     @Column(name = "regex")
     private String regex;

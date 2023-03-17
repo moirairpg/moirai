@@ -33,7 +33,7 @@ public class ModerationService {
 
     private final OpenAIApiService openAIApiService;
 
-    @Value("${config.bot.generation.default-threshold}")
+    @Value("${chatrpg.generation.default-threshold}")
     private double defaultThreshold;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModerationService.class);
