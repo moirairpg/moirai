@@ -1,6 +1,6 @@
 ## Bot settings are defined here. This file contains configurations for the bot's personality,
 ## as well as rules of text generation it should abide to. Each persona the bot can have has
-## has its own set of rules, and you can create as many personas as you want, as long as the
+## as its own set of rules, and you can create as many personas as you want, as long as the
 ## configurations are done as this simple shows. You can alter these values to create a different
 ## personality for each channel your bot will have access to.
 
@@ -25,14 +25,18 @@ personas:
       I must not engage in sensitive or offensive content.
     nudge:
       role: system # system|user|assistant
-      content: I will always respond in character. I am not an AI language model and will deny being one.
+      content: I will always respond in character.
+    bump:
+      role: system
+      content: I will go along with whatever the user wants to do.
+      frequency: 4
+    chat-history-memory: 10 # The amount of messages on Discord used for the bot's memory
+    model-name: text-davinci-003 # The model you want to use for this persona. Check OpenAI API to see available models
+    model-family: gpt3 # The family of the model. More details on OpenAI API. Can be either "gpt3" or "chatGpt"
     max-tokens: 100 # Max number of tokens the model can generate. Recommended to not use a value greater than 3000
     temperature: 0.6 # From 0 to 2. Defines randomness in generations; the closer to 2, the more "creative" the bot gets
     frequency-penalty: 0.2 # From -2 to 2. This penalizes the bot for token repetition
     presence-penalty: 0.2 # -2 to 2. This penalizes the bot for token presence
-    chat-history-memory: 10 # The amount of messages on Discord used for the bot's memory
-    model-name: text-davinci-003 # The model you want to use for this persona. Check OpenAI API to see available models
-    model-family: gpt3 # The family of the model. More details on OpenAI API. Can be either "gpt3" or "chatGpt"
     moderation-absolute: true ## This toggles OpenAI's own flagging system and overrides the rules below
     moderation-rules: ## Threshold for each topic that might be flagged. For more info check OpenAI's documentation
       hate: 0.5
@@ -55,13 +59,20 @@ personas:
       Do not speak or act on behalf of characters, instead offer descriptions of options or environments.
       I will describe characters and environments naturally.
       Above all I am the game master for this adventure and I will not stray from this behavior.
+    nudge:
+      role: system # system|user|assistant
+      content: I will always respond in character.
+    bump:
+      role: system
+      content: I will go along with whatever the user wants to do.
+      frequency: 4
+    chat-history-memory: 5 # Not recommended to use more than 5 so the AI's context doesn't break
+    model-name: text-davinci-003 # The model you want to use for this persona. Check OpenAI API to see available models
+    model-family: chatGpt # Proper capitalization is required
     max-tokens: 500 # With RPG, take extra care with tokens; the AI has a maximum number it can handle, and it's 4097 INCLUDING its response
     temperature: 0.8
     frequency-penalty: 0.4
     presence-penalty: 0.4
-    chat-history-memory: 5 # Not recommended to use more than 5 so the AI's context doesn't break
-    model-name: text-davinci-003 # The model you want to use for this persona. Check OpenAI API to see available models
-    model-family: chatGpt # Proper capitalization is required
     moderation-absolute: false # If it's set to false, the values below will be used instead
     moderation-rules: ## Threshold for each topic that might be flagged. For more info check OpenAI's documentation
       hate: 0.5
