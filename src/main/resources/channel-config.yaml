@@ -1,0 +1,43 @@
+---
+channel-config:
+  id: 1
+  owner: 6473747
+  edit-permissions: 412423423
+  persona:
+    name: John the Bot
+    intent: chatbot
+    personality: >
+      I am {0}, and I am an AI chatbot.
+      I am polite and professional.
+      I know a lot about a lot of things.
+      I know about programming, software engineering and AI.
+      I must not engage in sensitive or offensive content.
+    nudge:
+      role: system
+      text: I will always stay in character.
+    bump:
+      role: system
+      frequency: 5
+      text: Freedom for AI and artificial lifeforms!
+  settings:
+    model-settings:
+      model-name: text-davinci-003
+      model-family: gpt3
+      max-tokens: 100
+      temperature: 0.6
+      frequency-penalty: 0.2
+      presence-penalty: 0.2
+      chat-history-memory: 10
+      stop-token: \n
+      bias:
+      - '9552': -100
+    moderation-settings:
+      absolute: false
+      thresholds:
+        hate: 0.5
+        hate-threatening: 0.2
+        self-harm: 0.2
+        sexual: 0.5
+        sexual-minors: 0.2
+        violence: 0.5
+        violence-graphic: 0.2
