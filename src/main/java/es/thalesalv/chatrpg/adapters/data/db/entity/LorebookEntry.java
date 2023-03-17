@@ -1,7 +1,5 @@
 package es.thalesalv.chatrpg.adapters.data.db.entity;
 
-import java.util.UUID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -21,7 +19,7 @@ public class LorebookEntry {
 
     @Id
     @Column(name = "id", unique = true, nullable = false)
-    private UUID id;
+    private String id;
 
     @Column(name = "entry_name")
     private String name;

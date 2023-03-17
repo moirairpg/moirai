@@ -2,7 +2,6 @@ package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.text.MessageFormat;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.uuid.Generators;
 
 import es.thalesalv.chatrpg.adapters.data.ContextDatastore;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
@@ -22,6 +20,7 @@ import es.thalesalv.chatrpg.application.config.BotConfig;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
+import es.thalesalv.chatrpg.application.util.NanoId;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookDTO;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.User;
@@ -77,8 +76,8 @@ public class CreateLorebookEntryService implements CommandService {
             final String entryDescription = event.getValue("lorebook-entry-desc").getAsString();
             final String entryPlayerCharacter = event.getValue("lorebook-entry-player").getAsString();
             final boolean isPlayerCharacter = entryPlayerCharacter.equals("y");
-            final UUID lorebookEntryId = Generators.randomBasedGenerator().generate();
-            final UUID lorebookRegexId = Generators.randomBasedGenerator().generate();
+            final String lorebookEntryId = NanoId.randomNanoId();
+            final String lorebookRegexId = NanoId.randomNanoId();
             final LorebookRegex insertedEntry = insertEntry(author, entryName, entryRegex,
                     entryDescription, lorebookEntryId, lorebookRegexId, isPlayerCharacter);
 
@@ -132,7 +131,7 @@ public class CreateLorebookEntryService implements CommandService {
     }
 
     private LorebookRegex insertEntry(final User author, final String entryName, final String entryRegex,
-            final String entryDescription, final UUID lorebookEntryId, final UUID lorebookRegexId, final boolean isPlayerCharacter) {
+            final String entryDescription, final String lorebookEntryId, final String lorebookRegexId, final boolean isPlayerCharacter) {
 
         final LorebookEntry insertedEntry = lorebookRepository.save(LorebookEntry.builder()
                 .id(lorebookEntryId)
