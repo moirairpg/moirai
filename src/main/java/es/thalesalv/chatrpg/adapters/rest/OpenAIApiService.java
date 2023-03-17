@@ -26,28 +26,28 @@ import reactor.util.retry.Retry;
 @Service
 public class OpenAIApiService {
 
-    @Value("${config.openai.api-token}")
+    @Value("${chatrpg.openai.api-token}")
     private String openAiToken;
     
-    @Value("${config.openai.completions-uri}")
+    @Value("${chatrpg.openai.completions-uri}")
     private String completionsUri;
     
-    @Value("${config.openai.chat-completions-uri}")
+    @Value("${chatrpg.openai.chat-completions-uri}")
     private String chatCompletionsUri;
 
-    @Value("${config.openai.moderation-uri}")
+    @Value("${chatrpg.openai.moderation-uri}")
     private String moderationUri;
 
-    @Value("${config.discord.retry.error-attempts}")
+    @Value("${chatrpg.discord.retry.error-attempts}")
     private int errorAttemps;
 
-    @Value("${config.discord.retry.error-delay}")
+    @Value("${chatrpg.discord.retry.error-delay}")
     private int errorDelay;
 
-    @Value("${config.discord.retry.moderation-attempts}")
+    @Value("${chatrpg.discord.retry.moderation-attempts}")
     private int moderationAttempts;
 
-    @Value("${config.discord.retry.moderation-delay}")
+    @Value("${chatrpg.discord.retry.moderation-delay}")
     private int moderationDelay;
 
     private final WebClient webClient;
@@ -56,7 +56,7 @@ public class OpenAIApiService {
     private static final String BEARER = "Bearer ";
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAIApiService.class);
 
-    public OpenAIApiService(@Value("${config.openai.api-base-url}") final String openAiBaseUrl,
+    public OpenAIApiService(@Value("${chatrpg.openai.api-base-url}") final String openAiBaseUrl,
             final WebClient.Builder webClientBuilder, final CommonErrorHandler commonErrorHandler) {
 
         this.commonErrorHandler = commonErrorHandler;

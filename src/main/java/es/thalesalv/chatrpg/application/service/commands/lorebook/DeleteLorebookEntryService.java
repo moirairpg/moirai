@@ -1,9 +1,7 @@
 package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.util.Optional;
-import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,6 @@ import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionEx
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
@@ -45,8 +42,7 @@ public class DeleteLorebookEntryService implements CommandService {
 
         try {
             LOGGER.debug("Received slash command for lore entry deletion");
-            final UUID entryId = retrieveEntryId(event.getOption("lorebook-entry-id"));
-
+            final String entryId = event.getOption("lorebook-entry-id").getAsString();
             lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
                     .orElseThrow(LorebookEntryNotFoundException::new);
             contextDatastore.setCommandEventData(CommandEventData.builder()
@@ -77,7 +73,7 @@ public class DeleteLorebookEntryService implements CommandService {
                 .orElse(false);
 
         if (isUserSure) {
-            final UUID id = contextDatastore.getCommandEventData().getLorebookEntryId();
+            final String id = contextDatastore.getCommandEventData().getLorebookEntryId();
             final LorebookEntry lorebookEntry = LorebookEntry.builder().id(id).build();
             lorebookRegexRepository.deleteByLorebookEntry(lorebookEntry);
             lorebookRepository.delete(lorebookEntry);
@@ -100,13 +96,5 @@ public class DeleteLorebookEntryService implements CommandService {
 
         return Modal.create("delete-lorebook-entry-data", "Delete lore entry")
                 .addComponents(ActionRow.of(deleteLoreEntry)).build();
-    }
-
-    private UUID retrieveEntryId(final OptionMapping eventOption) {
-
-        return Optional.ofNullable(eventOption)
-                    .filter(a -> StringUtils.isNotBlank(a.getAsString()))
-                    .map(a -> UUID.fromString(a.getAsString()))
-                    .orElseThrow(MissingRequiredSlashCommandOptionException::new);
     }
 }
