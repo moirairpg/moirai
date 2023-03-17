@@ -31,7 +31,7 @@ public class CommonErrorHandler {
     public void notifyUser(final String notification, final MessageEventData messageEventData) {
 
         messageEventData.getChannel().sendMessage(MessageFormat.format(notification, messageEventData.getMessage().getContentRaw()))
-                .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+                .queue(msg -> msg.delete().queueAfter(10, TimeUnit.SECONDS));
     }
 
     public Mono<Throwable> handle4xxError(final ClientResponse clientResponse, final MessageEventData messageEventData) {
