@@ -2,7 +2,6 @@ package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.text.MessageFormat;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -29,7 +28,6 @@ import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookDTO;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
@@ -62,7 +60,7 @@ public class UpdateLorebookEntryService implements CommandService {
             botConfig.getPersonas().forEach(persona -> {
                 final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
                 if (isCurrentChannel) {
-                    final UUID entryId = retrieveEntryId(event.getOption("lorebook-entry-id"));
+                    final String entryId = event.getOption("lorebook-entry-id").getAsString();
                     contextDatastore.setCommandEventData(CommandEventData.builder()
                             .lorebookEntryId(entryId).persona(persona).build());
 
@@ -94,7 +92,7 @@ public class UpdateLorebookEntryService implements CommandService {
         try {
             LOGGER.debug("Received data from lore entry update modal");
             event.deferReply();
-            final UUID entryId = contextDatastore.getCommandEventData().getLorebookEntryId();
+            final String entryId = contextDatastore.getCommandEventData().getLorebookEntryId();
             final String updatedEntryName = event.getValue("lorebook-entry-name").getAsString();
             final String updatedEntryRegex = event.getValue("lorebook-entry-regex").getAsString();
             final String updatedEntryDescription = event.getValue("lorebook-entry-desc").getAsString();
@@ -119,7 +117,7 @@ public class UpdateLorebookEntryService implements CommandService {
         }
     }
 
-    private LorebookRegex updateEntry(final String description, final UUID entryId, final String name,
+    private LorebookRegex updateEntry(final String description, final String entryId, final String name,
             final String playerId, final String entryRegex) {
 
         final LorebookEntry lorebookEntry = LorebookEntry.builder()
@@ -151,14 +149,6 @@ public class UpdateLorebookEntryService implements CommandService {
                 .filter(a -> a.equals("y"))
                 .map(a -> id)
                 .orElse(null);
-    }
-
-    private UUID retrieveEntryId(final OptionMapping eventOption) {
-
-        return Optional.ofNullable(eventOption)
-                    .filter(a -> StringUtils.isNotBlank(a.getAsString()))
-                    .map(a -> UUID.fromString(a.getAsString()))
-                    .orElseThrow(MissingRequiredSlashCommandOptionException::new);
     }
 
     private Modal buildEntryUpdateModal(final LorebookRegex lorebookRegex) {

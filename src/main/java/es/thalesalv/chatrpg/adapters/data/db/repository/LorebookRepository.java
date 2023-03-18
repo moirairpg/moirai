@@ -2,7 +2,6 @@ package es.thalesalv.chatrpg.adapters.data.db.repository;
 
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
 
 @Repository
-public interface LorebookRepository extends CrudRepository<LorebookEntry, UUID> {
+public interface LorebookRepository extends CrudRepository<LorebookEntry, String> {
 
     /**
      * Retrieves a character from the database by providing the player's Discord ID
