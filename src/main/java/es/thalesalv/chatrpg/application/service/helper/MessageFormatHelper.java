@@ -15,10 +15,10 @@ import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
+import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
-import es.thalesalv.chatrpg.application.config.Persona;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptMessage;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
@@ -109,7 +109,7 @@ public class MessageFormatHelper {
 
     public List<ChatGptMessage> formatMessagesForChatGpt(final List<String> messages, final MessageEventData eventData) {
 
-        final Persona persona = eventData.getPersona();
+        final Persona persona = eventData.getChannelConfig().getPersona();
         final String personality = persona.getPersonality().replace("{0}", persona.getName());
         final List<ChatGptMessage> chatGptMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))

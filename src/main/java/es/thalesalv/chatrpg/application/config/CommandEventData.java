@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.application.config;
 
+import es.thalesalv.chatrpg.adapters.data.db.entity.ChannelConfig;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +17,6 @@ public class CommandEventData {
     private String lorebookEntryId;
     private String lorebookEntryRegexId;
     private SelfUser discordUser;
-    private Persona persona;
+    private ChannelConfig channelConfig;
     private MessageChannelUnion channel;
 }

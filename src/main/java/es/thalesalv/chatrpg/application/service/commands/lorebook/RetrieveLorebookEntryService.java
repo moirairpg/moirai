@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
+import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
@@ -36,6 +38,7 @@ public class RetrieveLorebookEntryService implements CommandService {
 
     private final ObjectMapper objectMapper;
     private final LorebookRegexRepository lorebookRegexRepository;
+    private final ChannelRepository channelRepository;
     private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveLorebookEntryService.class);
@@ -48,50 +51,26 @@ public class RetrieveLorebookEntryService implements CommandService {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            final OptionMapping entryId = event.getOption("lorebook-entry-id");
-            if (entryId != null) {
-                final LorebookRegex entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder()
-                        .id(entryId.getAsString()).build())
-                        .orElseThrow(LorebookEntryNotFoundException::new);
-
-                final LorebookDTO dto = lorebookEntryToDTOTranslator.apply(entry);
-                final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
-                        .writerWithDefaultPrettyPrinter().writeValueAsString(dto);
-
-                event.reply(MessageFormat.format(ENTRY_RETRIEVED, dto.getName(), loreEntryJson))
-                            .setEphemeral(true).complete();
-
-                return;
-            }
-
-            final List<LorebookDTO> entries = lorebookRegexRepository.findAll()
-                    .stream()
-                    .map(entry -> lorebookEntryToDTOTranslator.apply(entry))
-                    .collect(Collectors.toList());
-
-            if (entries.isEmpty()) {
-                event.reply("There are no lorebook entries saved")
-                        .setEphemeral(true)
-                        .complete();
-
-                return;
-            }
-
-            final String entriesJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
-                    .writerWithDefaultPrettyPrinter().writeValueAsString(entries);
-
-            final File file = File.createTempFile("lore-entries-", ".json");
-            Files.write(file.toPath(), entriesJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-            final FileUpload fileUpload = FileUpload.fromData(file);
-
-            event.replyFiles(fileUpload)
-                    .setEphemeral(true)
-                    .complete();
-
-            fileUpload.close();
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Error serializing entry data.", e);
-            event.reply(ERROR_RETRIEVE).setEphemeral(true).complete();
+            channelRepository.findAll().stream()
+                    .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+                    .findFirst()
+                    .ifPresent(channel -> {
+                        try {
+                            final OptionMapping entryId = event.getOption("lorebook-entry-id");
+                            if (entryId != null) {
+                                retrieveLoreEntryById(entryId.getAsString(), event);
+                                return;
+                            }
+                
+                            retrieveAllLoreEntries(event);
+                        } catch (JsonProcessingException e) {
+                            LOGGER.error("Error serializing entry data.", e);
+                            event.reply(ERROR_RETRIEVE).setEphemeral(true).complete();
+                        } catch (IOException e) {
+                            LOGGER.error("Error handling lore entries file.", e);
+                            event.reply(ERROR_RETRIEVE).setEphemeral(true).complete();
+                        }
+                    });
         } catch (LorebookEntryNotFoundException e) {
             LOGGER.info("User tried to retrieve an entry that does not exist");
             event.reply("The entry queried does not exist.").setEphemeral(true).complete();
@@ -101,8 +80,48 @@ public class RetrieveLorebookEntryService implements CommandService {
         }
     }
 
+    private void retrieveAllLoreEntries(final SlashCommandInteractionEvent event) throws IOException {
+
+        final List<LorebookDTO> entries = lorebookRegexRepository.findAll()
+                .stream()
+                .map(entry -> lorebookEntryToDTOTranslator.apply(entry))
+                .collect(Collectors.toList());
+
+        if (entries.isEmpty()) {
+            event.reply("There are no lorebook entries saved")
+                    .setEphemeral(true)
+                    .complete();
+
+            return;
+        }
+
+        final String entriesJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
+                .writerWithDefaultPrettyPrinter().writeValueAsString(entries);
+
+        final File file = File.createTempFile("lore-entries-", ".json");
+        Files.write(file.toPath(), entriesJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+        final FileUpload fileUpload = FileUpload.fromData(file);
+
+        event.replyFiles(fileUpload).setEphemeral(true).complete();
+        fileUpload.close();
+    }
+
+    private void retrieveLoreEntryById(final String entryId, final SlashCommandInteractionEvent event)
+            throws JsonProcessingException {
+
+        final LorebookRegex entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder()
+                .id(entryId).build()).orElseThrow(LorebookEntryNotFoundException::new);
+
+        final LorebookDTO dto = lorebookEntryToDTOTranslator.apply(entry);
+        final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
+                .writerWithDefaultPrettyPrinter().writeValueAsString(dto);
+
+        event.reply(MessageFormat.format(ENTRY_RETRIEVED, dto.getName(), loreEntryJson))
+                    .setEphemeral(true).complete();
+    }
+
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void handle(final ModalInteractionEvent event) {
 
         throw new UnsupportedOperationException("Retrieval of lore entries does not have modals implemented");
     }

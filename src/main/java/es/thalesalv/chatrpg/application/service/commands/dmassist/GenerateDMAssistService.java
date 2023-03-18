@@ -1,7 +1,13 @@
 package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
-import es.thalesalv.chatrpg.adapters.data.ContextDatastore;
-import es.thalesalv.chatrpg.application.config.BotConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
+
+import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
+import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
+import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
@@ -9,6 +15,7 @@ import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
+import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
@@ -18,19 +25,15 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class GenerateDMAssistService implements CommandService {
 
-    private final BotConfig botConfig;
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final ApplicationContext applicationContext;
+    private final ChannelRepository channelRepository;
     private final MessageEventDataTranslator messageEventDataTranslator;
 
     private static final String ERROR_EDITING = "Error editing message";
@@ -48,28 +51,33 @@ public class GenerateDMAssistService implements CommandService {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
             channel.sendTyping().complete();
-            botConfig.getPersonas().stream()
-                    .filter(persona -> persona.getChannelIds().contains(channel.getId()))
-                    .findAny()
-                    .ifPresent(persona -> channel.getHistory().retrievePast(1).complete().stream()
-                            .findAny()
-                            .map(message -> {
-                                final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, persona, message);
-                                final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
-                                final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-                                final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
+            channelRepository.findAll().stream()
+                .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+                .findFirst()
+                .ifPresent(ch -> {
+                    final Persona persona = ch.getChannelConfig().getPersona();
+                    final ModelSettings modelSettings = ch.getChannelConfig().getModelSettings();
+                
+                    channel.getHistory().retrievePast(1).complete().stream()
+                        .findAny()
+                        .map(message -> {
+                            final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, ch.getChannelConfig(), message);
+                            final GptModelService model = (GptModelService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
+                            final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
+                            final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
 
-                                contextDatastore.setCommandEventData(CommandEventData.builder()
-                                        .messageToBeEdited(responseEventData.getResponseMessage())
-                                        .persona(persona)
-                                        .channel(channel)
-                                        .build());
+                            contextDatastore.setCommandEventData(CommandEventData.builder()
+                                    .messageToBeEdited(responseEventData.getResponseMessage())
+                                    .channelConfig(ch.getChannelConfig())
+                                    .channel(channel)
+                                    .build());
 
-                                event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage())).queue();
-                                return message;
-                            })
-                            .orElseThrow(() -> new IllegalStateException("No message history found")));
-        } catch (Exception e) {
+                            event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage())).queue();
+                            return message;
+                        })
+                        .orElseThrow(() -> new IllegalStateException("No message history found"));
+                });
+           } catch (Exception e) {
             LOGGER.error("Error regenerating output", e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN)
                     .setEphemeral(true).queue();

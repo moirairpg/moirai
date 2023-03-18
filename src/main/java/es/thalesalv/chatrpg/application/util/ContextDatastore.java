@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.adapters.data;
+package es.thalesalv.chatrpg.application.util;
 
 import java.util.Objects;
 import java.util.Optional;

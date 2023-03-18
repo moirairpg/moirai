@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.application.config.BotConfig;
+import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
+import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
+import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
@@ -23,8 +25,8 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 @RequiredArgsConstructor
 public class RetryDMAssistService implements CommandService {
 
-    private final BotConfig botConfig;
     private final ApplicationContext applicationContext;
+    private final ChannelRepository channelRepository;
     private final MessageEventDataTranslator messageEventDataTranslator;
 
     private static final String MODEL_SERVICE = "ModelService";
@@ -44,26 +46,28 @@ public class RetryDMAssistService implements CommandService {
             event.deferReply();
             final SelfUser bot = event.getJDA().getSelfUser();
             final MessageChannelUnion channel = event.getChannel();
-            botConfig.getPersonas().stream()
-                    .filter(persona -> persona.getChannelIds().contains(channel.getId()))
-                    .findAny()
-                    .ifPresent(persona -> {
-                        final Message botMessage = channel.getHistory().retrievePast(persona.getChatHistoryMemory()).complete().stream()
-                                .filter(m -> m.getAuthor().getId().equals(bot.getId()))
-                                .findFirst()
-                                .orElseThrow(() -> new IndexOutOfBoundsException(BOT_MESSAGE_NOT_FOUND));
-                        final Message userMessage = channel.getHistoryBefore(botMessage, 1).complete().getRetrievedHistory().stream()
-                                .findAny()
-                                .orElseThrow(() -> new IndexOutOfBoundsException(USER_MESSAGE_NOT_FOUND));
-                        final MessageEventData messageEventData = messageEventDataTranslator.translate(bot, channel, persona, userMessage);
-                        final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
-                        final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
+            channelRepository.findAll().stream()
+                .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+                .findFirst()
+                .ifPresent(ch -> {
+                    final Persona persona = ch.getChannelConfig().getPersona();
+                    final ModelSettings modelSettings = ch.getChannelConfig().getModelSettings();
+                    final Message botMessage = channel.getHistory().retrievePast(modelSettings.getChatHistoryMemory()).complete().stream()
+                            .filter(m -> m.getAuthor().getId().equals(bot.getId()))
+                            .findFirst()
+                            .orElseThrow(() -> new IndexOutOfBoundsException(BOT_MESSAGE_NOT_FOUND));
+                    final Message userMessage = channel.getHistoryBefore(botMessage, 1).complete().getRetrievedHistory().stream()
+                            .findAny()
+                            .orElseThrow(() -> new IndexOutOfBoundsException(USER_MESSAGE_NOT_FOUND));
+                    final MessageEventData messageEventData = messageEventDataTranslator.translate(bot, channel, ch.getChannelConfig(), userMessage);
+                    final GptModelService model = (GptModelService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
+                    final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
-                        final InteractionHook hook = event.reply("Re-generating output...").setEphemeral(true).complete();
-                        botMessage.delete().complete();
-                        useCase.generateResponse(messageEventData, model);
-                        hook.deleteOriginal().complete();
-                    });
+                    final InteractionHook hook = event.reply("Re-generating output...").setEphemeral(true).complete();
+                    botMessage.delete().complete();
+                    useCase.generateResponse(messageEventData, model);
+                    hook.deleteOriginal().complete();
+                });
         } catch (Exception e) {
             LOGGER.error("Error regenerating output", e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN)

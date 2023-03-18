@@ -11,15 +11,15 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.thalesalv.chatrpg.adapters.data.ContextDatastore;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
+import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
-import es.thalesalv.chatrpg.application.config.BotConfig;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
+import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.application.util.NanoId;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookDTO;
 import lombok.RequiredArgsConstructor;
@@ -36,10 +36,10 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 public class CreateLorebookEntryService implements CommandService {
 
     private final ContextDatastore contextDatastore;
-    private final BotConfig botConfig;
     private final ModerationService moderationService;
     private final ObjectMapper objectMapper;
     private final LorebookRepository lorebookRepository;
+    private final ChannelRepository channelRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
     private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
 
@@ -51,15 +51,17 @@ public class CreateLorebookEntryService implements CommandService {
     public void handle(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for lore entry creation");
-        botConfig.getPersonas().forEach(persona -> {
-            final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
-            if (isCurrentChannel) {
-                contextDatastore.setCommandEventData(CommandEventData.builder().persona(persona).build());
-                final Modal modal = buildEntryCreationModal();
-                event.replyModal(modal).queue();
-                return;
-            }
-        });
+        channelRepository.findAll().stream()
+                .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+                .findFirst()
+                .ifPresent(channel -> {
+                    contextDatastore.setCommandEventData(CommandEventData.builder()
+                            .channelConfig(channel.getChannelConfig()).build());
+
+                    final Modal modal = buildEntryCreationModal();
+                    event.replyModal(modal).queue();
+                    return;
+                });
 
         event.reply("This command cannot be issued from this channel.").setEphemeral(true).complete();
     }
