@@ -1,14 +1,5 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.config.Persona;
 import es.thalesalv.chatrpg.application.service.ModerationService;
@@ -17,8 +8,15 @@ import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.text.MessageFormat;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -44,32 +42,28 @@ public class ChatbotUseCase implements BotUseCase {
             });
         }
 
-        final List<String> messages = new ArrayList<>();
-        final Message replyMessage = message.getReferencedMessage();
-        if (replyMessage != null) {
-            handleMessageHistoryForReplies(messages, eventData);
-        } else {
-            handleMessageHistory(messages, eventData);
-        }
+        final List<String> messages = Optional.ofNullable(message.getReferencedMessage())
+                .map(rm -> handleMessageHistoryForReplies(eventData))
+                .orElseGet(() -> handleMessageHistory(eventData));
 
         final String chatifiedMessage = chatifyMessages(messages, eventData);
         moderationService.moderate(chatifiedMessage, eventData)
                 .subscribe(inputModeration -> model.generate(chatifiedMessage, messages, eventData)
-                .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
-                .subscribe(outputModeration -> {
-                    final Message responseMessage = eventData.getChannel().sendMessage(textResponse).complete();
-                    eventData.setResponseMessage(responseMessage);
-                })));
+                        .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
+                                .subscribe(outputModeration -> {
+                                    final Message responseMessage = eventData.getChannel().sendMessage(textResponse).complete();
+                                    eventData.setResponseMessage(responseMessage);
+                                })));
 
         return eventData;
     }
 
     /**
      * Formats last messages history on replied to give the AI context on the past conversation
-     * @param messages List of messages before the one replied to
+     *
      * @param eventData Object containing the event's important data to be processed
      */
-    private void handleMessageHistoryForReplies(final List<String> messages, final MessageEventData eventData) {
+    private List<String> handleMessageHistoryForReplies(final MessageEventData eventData) {
 
         LOGGER.debug("Entered quoted message history handling for chatbot");
         final Message message = eventData.getMessage();
@@ -77,47 +71,53 @@ public class ChatbotUseCase implements BotUseCase {
         final Message reply = message.getReferencedMessage();
         final MessageChannelUnion channel = eventData.getChannel();
         final Persona persona = eventData.getPersona();
-        channel.getHistoryBefore(reply, persona.getChatHistoryMemory())
+        List<String> messages = channel.getHistoryBefore(reply, persona.getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
-                .forEach(m -> {
-                    final User mAuthorUser = m.getAuthor();
-                    messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
-                            m.getContentDisplay()).trim());
-                });
+                .map(m -> MessageFormat.format("{0} said: {1}", m.getAuthor().getName(),
+                        m.getContentDisplay()).trim()
+                )
+                .toList();
 
-        Collections.reverse(messages);
-        messages.add(MessageFormat.format("{0} said earlier: {1}",
+        List<String> result = new LinkedList<>();
+        for (String msg : messages) {
+            result.add(0, msg);
+            if (msg.contains("@" + bot.getName())) break;
+        }
+        result.add(0, MessageFormat.format("{0} said earlier: {1}",
                 reply.getAuthor().getName(), reply.getContentDisplay()));
 
-        messages.add(MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
+        result.add(0, MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
                 eventData.getMessageAuthor().getName(), reply.getAuthor().getName(), message.getContentDisplay()));
+        return result;
     }
 
     /**
      * Formats last messages history to give the AI context on the current conversation
-     * @param messages List messages before the one sent
+     *
      * @param eventData Object containing the event's important data to be processed
      */
-    private void handleMessageHistory(final List<String> messages, final MessageEventData eventData) {
-
+    private List<String> handleMessageHistory(final MessageEventData eventData) {
         LOGGER.debug("Entered message history handling for chatbot");
         final Persona persona = eventData.getPersona();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
-        channel.getHistory()
+        final List<String> messages = channel.getHistory()
                 .retrievePast(persona.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
-                .forEach(m -> {
-                    final User mAuthorUser = m.getAuthor();
-                    messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
-                            m.getContentDisplay().trim()));
-                });
-
-        Collections.reverse(messages);
+                .map(m -> MessageFormat.format("{0} said: {1}", m.getAuthor().getName(),
+                        m.getContentDisplay().trim())
+                )
+                .toList();
+        List<String> result = new LinkedList<>();
+        for (String msg : messages) {
+            result.add(0, msg);
+            if (msg.contains("@" + bot.getName())) break;
+        }
+        return result;
     }
 
     /**
