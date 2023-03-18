@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ public class RetrieveLorebookEntryService implements CommandService {
             final OptionMapping entryId = event.getOption("lorebook-entry-id");
             if (entryId != null) {
                 final LorebookRegex entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder()
-                        .id(UUID.fromString(entryId.getAsString())).build())
+                        .id(entryId.getAsString()).build())
                         .orElseThrow(LorebookEntryNotFoundException::new);
 
                 final LorebookDTO dto = lorebookEntryToDTOTranslator.apply(entry);
