@@ -45,6 +45,7 @@ public class Gpt3Request {
 
     @JsonProperty("frequency_penalty")
     private Double frequencyPenalty;
+
     @JsonProperty("logit_bias")
-    private Map<String,Double> logitBias;
+    private Map<String, Integer> logitBias;
 }

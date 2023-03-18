@@ -1,11 +1,22 @@
 package es.thalesalv.chatrpg.application.service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import es.thalesalv.chatrpg.adapters.data.db.entity.Bump;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
+import es.thalesalv.chatrpg.adapters.data.db.entity.Nudge;
+import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
-import es.thalesalv.chatrpg.application.config.Bump;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
-import es.thalesalv.chatrpg.application.config.Nudge;
-import es.thalesalv.chatrpg.application.config.Persona;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.application.service.helper.MessageFormatHelper;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
@@ -16,14 +27,7 @@ import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptRequest;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.User;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.util.*;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -39,18 +43,16 @@ public class ChatGptModelService implements GptModelService {
 
     @Override
     public Mono<String> generate(final String prompt, final List<String> messages, final MessageEventData eventData) {
-        LOGGER.debug("Called inference for ChatGPT. Persona -> {}", eventData.getPersona());
+        LOGGER.debug("Called inference for ChatGPT.");
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
         final Set<LorebookEntry> entriesFound = new HashSet<>();
-        final Persona persona = Objects.requireNonNull(eventData.getPersona());
-        final Optional<Nudge> nudge = Optional.ofNullable(persona.getNudge()).filter(Nudge.isValid);
-        final Optional<Bump> bump = Optional.ofNullable(persona.getBump()).filter(Bump.isValid);
+        final Persona persona = eventData.getChannelConfig().getPersona();
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
 
         lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
-        if (eventData.getPersona().getIntent().equals("dungeonMaster")) {
+        if (persona.getIntent().equals("dungeonMaster")) {
             lorebookEntryExtractionHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
             lorebookEntryExtractionHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else {
@@ -58,27 +60,35 @@ public class ChatGptModelService implements GptModelService {
         }
 
         final List<ChatGptMessage> chatGptMessages = lorebookEntryExtractionHelper.formatMessagesForChatGpt(messages, eventData);
-        nudge
-                .ifPresent(ndge -> chatGptMessages.add(chatGptMessages.stream()
-                                .filter(m -> "user".equals(m.getRole()))
-                                .mapToInt(chatGptMessages::indexOf)
-                                .reduce((a, b) -> b)
-                                .orElse(0) + 1,
+        Optional.ofNullable(persona.getNudge())
+                .filter(Nudge.isValid)
+                .ifPresent(ndge -> {
+                    chatGptMessages.add(chatGptMessages.stream()
+                        .filter(m -> "user".equals(m.getRole()))
+                        .mapToInt(chatGptMessages::indexOf)
+                        .reduce((a, b) -> b)
+                        .orElse(0) + 1,
                         ChatGptMessage.builder()
                                 .role(ndge.role)
                                 .content(ndge.content)
-                                .build()));
-        bump
+                                .build());
+                });
+
+        Optional.ofNullable(persona.getBump())
+                .filter(Bump.isValid)
                 .ifPresent(bmp -> {
                     ChatGptMessage bumpMessage = ChatGptMessage.builder()
                             .role(bmp.role)
                             .content(bmp.content)
                             .build();
-                    for (int index = chatGptMessages.size()-1-bmp.frequency; index > 0; index = index - bmp.frequency) {
+
+                    for (int index = chatGptMessages.size() - 1 - bmp.frequency;
+                            index > 0; index = index - bmp.frequency) {
+
                         chatGptMessages.add(index, bumpMessage);
                     }
                 });
-        final ChatGptRequest request = chatGptRequestTranslator.buildRequest(eventData.getPersona(), chatGptMessages);
+        final ChatGptRequest request = chatGptRequestTranslator.buildRequest(chatGptMessages, eventData.getChannelConfig());
         return openAiService.callGptChatApi(request, eventData)
                 .map(response -> {
                     final String responseText = response.getChoices().get(0).getMessage().getContent();

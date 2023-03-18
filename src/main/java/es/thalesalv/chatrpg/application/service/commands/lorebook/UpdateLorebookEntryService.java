@@ -13,15 +13,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.thalesalv.chatrpg.adapters.data.ContextDatastore;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
+import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
-import es.thalesalv.chatrpg.application.config.BotConfig;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
+import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookDTO;
@@ -39,12 +39,12 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 @RequiredArgsConstructor
 public class UpdateLorebookEntryService implements CommandService {
 
-    private final BotConfig botConfig;
     private final ModerationService moderationService;
     private final ContextDatastore contextDatastore;
     private final ObjectMapper objectMapper;
     private final LorebookRepository lorebookRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
+    private final ChannelRepository channelRepository;
     private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
 
     private static final String ERROR_UPDATE = "There was an error parsing your request. Please try again.";
@@ -57,21 +57,21 @@ public class UpdateLorebookEntryService implements CommandService {
 
         try {
             LOGGER.debug("Received slash command for lore entry update");
-            botConfig.getPersonas().forEach(persona -> {
-                final boolean isCurrentChannel = persona.getChannelIds().stream().anyMatch(id -> event.getChannel().getId().equals(id));
-                if (isCurrentChannel) {
-                    final String entryId = event.getOption("lorebook-entry-id").getAsString();
-                    contextDatastore.setCommandEventData(CommandEventData.builder()
-                            .lorebookEntryId(entryId).persona(persona).build());
+            channelRepository.findAll().stream()
+                    .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+                    .findFirst()
+                    .ifPresent(channel -> {
+                        final String entryId = event.getOption("lorebook-entry-id").getAsString();
+                        contextDatastore.setCommandEventData(CommandEventData.builder()
+                                .lorebookEntryId(entryId).channelConfig(channel.getChannelConfig()).build());
 
-                    final var entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
-                            .orElseThrow(LorebookEntryNotFoundException::new);
+                        final var entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
+                                .orElseThrow(LorebookEntryNotFoundException::new);
 
-                    final Modal modalEntry = buildEntryUpdateModal(entry);
-                    event.replyModal(modalEntry).queue();
-                    return;
-                }
-            });
+                        final Modal modalEntry = buildEntryUpdateModal(entry);
+                        event.replyModal(modalEntry).queue();
+                        return;
+                    });
 
             event.reply("This command cannot be issued from this channel.").setEphemeral(true).complete();
         } catch (MissingRequiredSlashCommandOptionException e) {

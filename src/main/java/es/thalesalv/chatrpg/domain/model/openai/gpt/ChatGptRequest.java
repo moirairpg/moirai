@@ -48,5 +48,5 @@ public class ChatGptRequest {
     private Double frequencyPenalty;
 
     @JsonProperty("logit_bias")
-    private Map<String,Double> logitBias;
+    private Map<String, Integer> logitBias;
 }

@@ -8,15 +8,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.data.ContextDatastore;
-import es.thalesalv.chatrpg.application.config.BotConfig;
+import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
+import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
+import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
-import es.thalesalv.chatrpg.application.config.Persona;
 import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
+import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -32,9 +33,9 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @RequiredArgsConstructor
 public class PromptDMAssistService implements CommandService {
 
-    private final BotConfig botConfig;
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
+    private final ChannelRepository channelRepository;
     private final MessageEventDataTranslator messageEventDataTranslator;
 
     private static final String GENERATION_INSTRUCTION = " Simply generate the message from where it stopped.\n";
@@ -51,11 +52,12 @@ public class PromptDMAssistService implements CommandService {
         try {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
-            botConfig.getPersonas().stream()
-                    .filter(persona -> persona.getChannelIds().contains(channel.getId())).findAny()
-                    .ifPresent(persona -> {
+            channelRepository.findAll().stream()
+                    .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+                    .findFirst()
+                    .ifPresent(ch -> {
                         contextDatastore.setCommandEventData(CommandEventData.builder()
-                                .persona(persona)
+                                .channelConfig(ch.getChannelConfig())
                                 .channel(channel)
                                 .build());
 
@@ -74,9 +76,11 @@ public class PromptDMAssistService implements CommandService {
         LOGGER.debug("Received data of message for assisted prompt generation modal");
         try {
             event.deferReply();
+            final Persona persona = contextDatastore.getCommandEventData().getChannelConfig().getPersona();
+            final ModelSettings modelSettings = contextDatastore.getCommandEventData().getChannelConfig().getModelSettings();
+
             final String input = event.getValue("message-content").getAsString();
             final String generateOutput = event.getValue("generate-output").getAsString();
-            final Persona persona = contextDatastore.getCommandEventData().getPersona();
             final SelfUser bot = event.getJDA().getSelfUser();
             final MessageChannelUnion channel = contextDatastore.getCommandEventData().getChannel();
             final Message message = channel.sendMessage(bot.getAsMention() + GENERATION_INSTRUCTION + input).complete();
@@ -84,8 +88,10 @@ public class PromptDMAssistService implements CommandService {
                     .queue(m -> m.deleteOriginal().queueAfter(1, TimeUnit.MILLISECONDS));
 
             if (generateOutput.equals("y")) {
-                final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, persona, message);
-                final GptModelService model = (GptModelService) applicationContext.getBean(persona.getModelFamily() + MODEL_SERVICE);
+                final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA()
+                        .getSelfUser(), channel, contextDatastore.getCommandEventData().getChannelConfig(), message);
+
+                final GptModelService model = (GptModelService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
     
                 useCase.generateResponse(messageEventData, model);

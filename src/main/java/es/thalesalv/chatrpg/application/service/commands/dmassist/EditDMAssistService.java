@@ -1,10 +1,18 @@
 package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
-import es.thalesalv.chatrpg.adapters.data.ContextDatastore;
-import es.thalesalv.chatrpg.application.config.BotConfig;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
+import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
+import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
@@ -17,20 +25,14 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.requests.RestAction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class EditDMAssistService implements CommandService {
 
-    private final BotConfig botConfig;
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
+    private final ChannelRepository channelRepository;
 
     private static final String ERROR_EDITING = "Error editing message";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
@@ -45,24 +47,25 @@ public class EditDMAssistService implements CommandService {
         try {
             event.deferReply();
             final SelfUser bot = event.getJDA().getSelfUser();
-            botConfig.getPersonas().stream()
-                    .filter(p -> p.getChannelIds().contains(event.getChannel().getId()))
-                    .findFirst()
-                    .ifPresent(persona -> {
-                        Message message = Optional.ofNullable(event.getOption("message-id"))
-                                .map(OptionMapping::getAsString)
-                                .map(event.getChannel()::retrieveMessageById)
-                                .map(RestAction::complete)
-                                .orElseGet(() -> event.getChannel().getHistory().retrievePast(persona.getChatHistoryMemory()).complete().stream()
-                                        .filter(a -> a.getAuthor().getId().equals(bot.getId()))
-                                        .findFirst().orElseThrow(() -> new ArrayIndexOutOfBoundsException(BOT_NOT_FOUND)));
-                        final Modal editMessageModal = buildEditMessageModal(message);
-                        event.replyModal(editMessageModal).queue();
-                        contextDatastore.setCommandEventData(CommandEventData.builder()
-                                .messageToBeEdited(message)
-                                .persona(persona)
-                                .build());
-                    });
+            channelRepository.findAll().stream()
+                .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+                .findFirst()
+                .ifPresent(channel -> {
+                    final ModelSettings modelSettings = channel.getChannelConfig().getModelSettings();
+                    Message message = Optional.ofNullable(event.getOption("message-id"))
+                            .map(OptionMapping::getAsString)
+                            .map(event.getChannel()::retrieveMessageById)
+                            .map(RestAction::complete)
+                            .orElseGet(() -> event.getChannel().getHistory().retrievePast(modelSettings.getChatHistoryMemory()).complete().stream()
+                                    .filter(a -> a.getAuthor().getId().equals(bot.getId()))
+                                    .findFirst().orElseThrow(() -> new ArrayIndexOutOfBoundsException(BOT_NOT_FOUND)));
+                    final Modal editMessageModal = buildEditMessageModal(message);
+                    event.replyModal(editMessageModal).queue();
+                    contextDatastore.setCommandEventData(CommandEventData.builder()
+                            .messageToBeEdited(message)
+                            .channelConfig(channel.getChannelConfig())
+                            .build());
+                });
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN)

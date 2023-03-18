@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.application.config;
 
+import es.thalesalv.chatrpg.adapters.data.db.entity.ChannelConfig;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,5 +21,5 @@ public class MessageEventData {
     private Message responseMessage;
     private Message message;
     private MessageChannelUnion channel;
-    private Persona persona;
+    private ChannelConfig channelConfig;
 }

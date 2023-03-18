@@ -1,6 +1,15 @@
 package es.thalesalv.chatrpg.adapters.discord.listener;
 
-import es.thalesalv.chatrpg.application.config.BotConfig;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -10,21 +19,15 @@ import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class SessionListener {
 
+    @Value("${chatrpg.discord.status-channel-id}")
+    private String statusChannelId;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionListener.class);
-    private final BotConfig botConfig;
 
     public void onReady(ReadyEvent event) {
         try {
@@ -32,11 +35,11 @@ public class SessionListener {
             LOGGER.info("{} is ready to chat!", bot.getName());
             event.getJDA().updateCommands().addCommands(buildCommands(registerLorebookSlashCommands(),
                     registerDmAssistSlashCommands())).queue();
-            Optional.ofNullable(botConfig.getStatusChannelId())
+
+            Optional.ofNullable(statusChannelId)
                     .filter(StringUtils::isNotEmpty)
-                    .ifPresent(
-                            id -> event.getJDA().getChannelById(TextChannel.class, id).sendMessage(bot.getName() + " is ready to chat!").complete()
-                    );
+                    .ifPresent(id -> event.getJDA().getChannelById(TextChannel.class, id)
+                            .sendMessage(bot.getName() + " is ready to chat!").complete());
 
         } catch (IllegalStateException e) {
             if (e.getMessage().contains("Session is not yet ready!")) {

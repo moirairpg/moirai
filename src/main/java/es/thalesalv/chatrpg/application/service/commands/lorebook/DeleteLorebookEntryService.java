@@ -7,11 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.thalesalv.chatrpg.adapters.data.ContextDatastore;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
+import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
+import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class DeleteLorebookEntryService implements CommandService {
 
     private final ContextDatastore contextDatastore;
     private final LorebookRepository lorebookRepository;
+    private final ChannelRepository channelRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
 
     private static final String DELETION_CANCELED = "Deletion action canceled. Entry has not been deleted.";
@@ -43,13 +45,18 @@ public class DeleteLorebookEntryService implements CommandService {
         try {
             LOGGER.debug("Received slash command for lore entry deletion");
             final String entryId = event.getOption("lorebook-entry-id").getAsString();
-            lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
-                    .orElseThrow(LorebookEntryNotFoundException::new);
-            contextDatastore.setCommandEventData(CommandEventData.builder()
-                    .lorebookEntryId(entryId).build());
-
-            final Modal modal = buildEntryDeletionModal();
-            event.replyModal(modal).queue();
+            channelRepository.findAll().stream()
+                    .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+                    .findFirst()
+                    .ifPresent(channel -> {
+                        lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
+                                .orElseThrow(LorebookEntryNotFoundException::new);
+                        contextDatastore.setCommandEventData(CommandEventData.builder()
+                                .lorebookEntryId(entryId).build());
+            
+                        final Modal modal = buildEntryDeletionModal();
+                        event.replyModal(modal).queue();
+                    });
         } catch (LorebookEntryNotFoundException e) {
             LOGGER.info("User tried to delete an entry that does not exist");
             event.reply("The entry queried does not exist.").setEphemeral(true).complete();

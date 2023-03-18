@@ -9,8 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
+import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
-import es.thalesalv.chatrpg.application.config.Persona;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
@@ -76,8 +77,8 @@ public class ChatbotUseCase implements BotUseCase {
         final SelfUser bot = eventData.getBot();
         final Message reply = message.getReferencedMessage();
         final MessageChannelUnion channel = eventData.getChannel();
-        final Persona persona = eventData.getPersona();
-        channel.getHistoryBefore(reply, persona.getChatHistoryMemory())
+        final ModelSettings modelSettings = eventData.getChannelConfig().getModelSettings();
+        channel.getHistoryBefore(reply, modelSettings.getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
                 .stream()
@@ -104,11 +105,11 @@ public class ChatbotUseCase implements BotUseCase {
     private void handleMessageHistory(final List<String> messages, final MessageEventData eventData) {
 
         LOGGER.debug("Entered message history handling for chatbot");
-        final Persona persona = eventData.getPersona();
+        final ModelSettings modelSettings = eventData.getChannelConfig().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
         channel.getHistory()
-                .retrievePast(persona.getChatHistoryMemory()).complete()
+                .retrievePast(modelSettings.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
                 .forEach(m -> {
@@ -130,8 +131,9 @@ public class ChatbotUseCase implements BotUseCase {
     private static String chatifyMessages(final List<String> messages, final MessageEventData eventData) {
 
         LOGGER.debug("Entered chatbot conversation formatter");
-        messages.replaceAll(m -> m.replace(eventData.getBot().getName(), eventData.getPersona().getName()));
+        final Persona persona = eventData.getChannelConfig().getPersona();
+        messages.replaceAll(m -> m.replace(eventData.getBot().getName(), persona.getName()));
         return MessageFormat.format("{0}\n{1} said: ",
-                String.join("\n", messages), eventData.getPersona().getName()).trim();
+                String.join("\n", messages), persona.getName()).trim();
     }
 }
