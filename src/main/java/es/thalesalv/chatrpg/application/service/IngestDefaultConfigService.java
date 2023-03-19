@@ -59,6 +59,9 @@ public class IngestDefaultConfigService {
                 config.getSettings().getModelSettings().setId(id);
                 config.getSettings().getModerationSettings().setId(id);
                 config.setOwner(jda.getSelfUser().getId());
+                config.getPersona().setOwner((jda.getSelfUser().getId()));
+                config.getSettings().getModelSettings().setOwner((jda.getSelfUser().getId()));
+                config.getSettings().getModerationSettings().setOwner((jda.getSelfUser().getId()));
 
                 final ChannelConfigEntity entity = channelConfigToEntity.apply(config);
                 personaRepository.save(entity.getPersona());
