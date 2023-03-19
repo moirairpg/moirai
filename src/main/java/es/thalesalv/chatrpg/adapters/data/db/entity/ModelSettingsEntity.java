@@ -31,9 +31,6 @@ public class ModelSettingsEntity {
     @Column(name = "model_name")
     private String modelName;
 
-    @Column(name = "model_family")
-    private String modelFamily;
-
     @Column(name = "stop_token")
     private String stopToken;
 

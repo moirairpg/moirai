@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.translator;
+package es.thalesalv.chatrpg.application.translator.chconfig;
 
 import java.util.List;
 import java.util.function.Function;

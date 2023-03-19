@@ -15,7 +15,7 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
-import es.thalesalv.chatrpg.application.translator.ChatGptRequestTranslator;
+import es.thalesalv.chatrpg.application.translator.airequest.ChatCompletionRequestTranslator;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
@@ -35,7 +35,7 @@ public class ChatCompletionService implements CompletionService {
 
     private final MessageFormatHelper lorebookEntryExtractionHelper;
     private final CommonErrorHandler commonErrorHandler;
-    private final ChatGptRequestTranslator chatGptRequestTranslator;
+    private final ChatCompletionRequestTranslator chatGptRequestTranslator;
     private final OpenAIApiService openAiService;
     private final StringProcessor outputProcessor = new StringProcessor();
 
