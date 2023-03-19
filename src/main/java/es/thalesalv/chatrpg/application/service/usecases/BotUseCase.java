@@ -1,7 +1,7 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
-import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 
 @FunctionalInterface
 public interface BotUseCase {

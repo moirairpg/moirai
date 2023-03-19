@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 
-import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.domain.exception.OpenAiApiException;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.GptResponse;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;

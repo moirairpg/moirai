@@ -7,13 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
+import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
+import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -33,6 +34,7 @@ public class EditDMAssistService extends CommandService {
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
+    private final ChannelEntityListToDTOList channelEntityListToDTOList;
 
     private static final String ERROR_EDITING = "Error editing message";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
@@ -47,11 +49,11 @@ public class EditDMAssistService extends CommandService {
         try {
             event.deferReply();
             final SelfUser bot = event.getJDA().getSelfUser();
-            channelRepository.findAll().stream()
+            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
                 .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
                 .findFirst()
                 .ifPresent(channel -> {
-                    final ModelSettings modelSettings = channel.getChannelConfig().getModelSettings();
+                    final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
                     Message message = Optional.ofNullable(event.getOption("message-id"))
                             .map(OptionMapping::getAsString)
                             .map(event.getChannel()::retrieveMessageById)

@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.helper;
+package es.thalesalv.chatrpg.application.helper;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -13,12 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
-import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
-import es.thalesalv.chatrpg.application.config.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptMessage;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
@@ -47,7 +47,7 @@ public class MessageFormatHelper {
      * @param player Player user
      * @param mentions Mentioned users (their characters are extracted too)
      */
-    public void handlePlayerCharacterEntries(final Set<LorebookEntry> entriesFound, final List<String> messages, final User player, final Mentions mentions) {
+    public void handlePlayerCharacterEntries(final Set<LorebookEntryEntity> entriesFound, final List<String> messages, final User player, final Mentions mentions) {
 
         LOGGER.debug("Entered player character entry handling");
         lorebookRepository.findByPlayerDiscordId(player.getId())
@@ -71,11 +71,11 @@ public class MessageFormatHelper {
      * @param messageList List of messages in the channel
      * @param entriesFound List of entries found in the messages until now
      */
-    public void handleEntriesMentioned(final List<String> messageList, final Set<LorebookEntry> entriesFound) {
+    public void handleEntriesMentioned(final List<String> messageList, final Set<LorebookEntryEntity> entriesFound) {
 
         LOGGER.debug("Entered mentioned entries handling");
         final String messages = String.join("\n", messageList);
-        List<LorebookRegex> charRegex = lorebookRegexRepository.findAll();
+        List<LorebookRegexEntity> charRegex = lorebookRegexRepository.findAll();
         charRegex.forEach(e -> {
             Pattern p = Pattern.compile(e.getRegex());
             Matcher matcher = p.matcher(messages);
@@ -85,7 +85,7 @@ public class MessageFormatHelper {
         });
     }
 
-    public void processEntriesFoundForRpg(final Set<LorebookEntry> entriesFound, final List<String> messages, final JDA jda) {
+    public void processEntriesFoundForRpg(final Set<LorebookEntryEntity> entriesFound, final List<String> messages, final JDA jda) {
 
         entriesFound.forEach(entry -> {
             if (StringUtils.isNotBlank(entry.getPlayerDiscordId())) {
@@ -101,7 +101,7 @@ public class MessageFormatHelper {
         });
     }
 
-    public void processEntriesFoundForChat(final Set<LorebookEntry> entriesFound, final List<String> messages) {
+    public void processEntriesFoundForChat(final Set<LorebookEntryEntity> entriesFound, final List<String> messages) {
 
         entriesFound.forEach(entry ->
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
@@ -123,7 +123,7 @@ public class MessageFormatHelper {
                 .role(ROLE_SYSTEM)
                 .content(personality.replaceAll("\\{0\\}", persona.getName()).trim())
                 .build());
-            
+
         return chatGptMessages;
     }
 

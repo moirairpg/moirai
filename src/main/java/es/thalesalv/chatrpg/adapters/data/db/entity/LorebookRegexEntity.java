@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "lorebook_regex")
-public class LorebookRegex {
+public class LorebookRegexEntity {
 
     @Id
     private String id;
@@ -27,5 +27,5 @@ public class LorebookRegex {
 
     @OneToOne
     @JoinColumn(name = "lorebook_id", referencedColumnName = "id")
-    private LorebookEntry lorebookEntry;
+    private LorebookEntryEntity lorebookEntry;
 }

@@ -8,16 +8,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
-import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.config.CommandEventData;
-import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
+import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
+import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -33,6 +34,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @RequiredArgsConstructor
 public class PromptDMAssistService extends CommandService {
 
+    private final ChannelEntityListToDTOList channelEntityListToDTOList;
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
@@ -52,7 +54,7 @@ public class PromptDMAssistService extends CommandService {
         try {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
-            channelRepository.findAll().stream()
+            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
                     .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
                     .findFirst()
                     .ifPresent(ch -> {
@@ -77,7 +79,7 @@ public class PromptDMAssistService extends CommandService {
         try {
             event.deferReply();
             final Persona persona = contextDatastore.getCommandEventData().getChannelConfig().getPersona();
-            final ModelSettings modelSettings = contextDatastore.getCommandEventData().getChannelConfig().getModelSettings();
+            final ModelSettings modelSettings = contextDatastore.getCommandEventData().getChannelConfig().getSettings().getModelSettings();
 
             final String input = event.getValue("message-content").getAsString();
             final String generateOutput = event.getValue("generate-output").getAsString();

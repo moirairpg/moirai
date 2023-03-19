@@ -1,12 +1,10 @@
 package es.thalesalv.chatrpg.adapters.data.db.entity;
 
-import java.util.Map;
-
-import es.thalesalv.chatrpg.application.util.dbconverters.ThresholdConverter;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,17 +16,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "moderation_settings")
-public class ModerationSettings {
+@Table(name = "channel")
+public class ChannelEntity {
 
     @Id
     @Column(name = "id", unique = true, nullable = false)
     private String id;
 
-    @Column(name = "is_absolute_moderation")
-    private boolean isAbsolute;
+    @Column(name = "channel_id", unique = true)
+    private String channelId;
 
-    @Column(name = "thresholds", nullable = false)
-    @Convert(converter = ThresholdConverter.class)
-    private Map<String, Double> thresholds;
+    @OneToOne
+    @JoinColumn(name = "channel_config_id", referencedColumnName = "id")
+    private ChannelConfigEntity channelConfig;
 }

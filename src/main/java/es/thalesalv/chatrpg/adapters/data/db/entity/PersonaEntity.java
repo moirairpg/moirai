@@ -17,8 +17,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "channel")
-public class Persona {
+@Table(name = "persona")
+public class PersonaEntity {
 
     @Id
     @Column(name = "id", unique = true, nullable = false)
@@ -33,11 +33,14 @@ public class Persona {
     @Column(name = "personality")
     private String personality;
 
+    @Column(name = "owner_discord_id")
+    private String owner;
+
     @Column(name = "nudge")
     @Convert(converter = NudgeConverter.class)
-    private Nudge nudge;
+    private NudgeEntity nudge;
 
     @Column(name = "bump")
     @Convert(converter = BumpConverter.class)
-    private Bump bump;
+    private BumpEntity bump;
 }

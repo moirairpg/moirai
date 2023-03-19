@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.ChannelConfig;
-import es.thalesalv.chatrpg.adapters.data.db.entity.ModerationSettings;
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
-import es.thalesalv.chatrpg.application.config.CommandEventData;
-import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.domain.exception.ModerationException;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResponse;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResult;
@@ -92,10 +92,10 @@ public class ModerationService {
 
     private void checkModerationThresholds(final ModerationResult moderationResult, final ChannelConfig channelConfig, final String prompt) {
 
-        final ModerationSettings moderationSettings = channelConfig.getModerationSettings();
+        final ModerationSettings moderationSettings = channelConfig.getSettings().getModerationSettings();
         if (moderationSettings.isAbsolute() && moderationResult.getFlagged().booleanValue())
             throw new ModerationException("Unsafe content detected");
-        
+
         final List<String> flaggedTopics = moderationResult.getCategoryScores().entrySet().stream()
         		.filter(entry -> Double.valueOf(entry.getValue()) > Optional.ofNullable(moderationSettings.getThresholds().get(entry.getKey())).orElse(defaultThreshold))
         		.map(Map.Entry::getKey)

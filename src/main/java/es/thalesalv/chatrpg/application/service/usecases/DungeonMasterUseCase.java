@@ -9,12 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
-import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
-import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
@@ -72,7 +72,7 @@ public class DungeonMasterUseCase implements BotUseCase {
     private void handleMessageHistory(final MessageEventData eventData, final List<String> messages) {
 
         LOGGER.debug("Entered message history handling for RPG");
-        final ModelSettings modelSettings = eventData.getChannelConfig().getModelSettings();
+        final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
         channel.getHistory()

@@ -3,8 +3,6 @@ package es.thalesalv.chatrpg.adapters.data.db.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,17 +14,22 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "channel")
-public class Channel {
+@Table(name = "lorebook")
+public class LorebookEntryEntity {
 
     @Id
     @Column(name = "id", unique = true, nullable = false)
     private String id;
 
-    @Column(name = "channel_id", unique = true, nullable = false)
-    private String channelId;
+    @Column(name = "entry_name")
+    private String name;
 
-    @OneToOne
-    @JoinColumn(name = "channel_config_id", referencedColumnName = "id", nullable = false)
-    private ChannelConfig channelConfig;
+    @Column(name = "entry_description", length = 1000)
+    private String description;
+
+    /**
+     * ID of the Discord user who "owns" this entry, when it's a PC
+     */
+    @Column(name = "player_discord_id", unique = true, nullable = true)
+    private String playerDiscordId;
 }
