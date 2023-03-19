@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "channel_config")
-public class ChannelConfig {
+public class ChannelConfigEntity {
 
     @Id
     @Column(name = "id", unique = true, nullable = false)
@@ -31,13 +31,13 @@ public class ChannelConfig {
 
     @OneToOne
     @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false)
-    private Persona persona;
+    private PersonaEntity persona;
 
     @OneToOne
     @JoinColumn(name = "model_settings_id", referencedColumnName = "id", nullable = false)
-    private ModelSettings modelSettings;
+    private ModelSettingsEntity modelSettings;
 
     @OneToOne
     @JoinColumn(name = "moderation_settings_id", referencedColumnName = "id", nullable = false)
-    private ModerationSettings moderationSettings;
+    private ModerationSettingsEntity moderationSettings;
 }

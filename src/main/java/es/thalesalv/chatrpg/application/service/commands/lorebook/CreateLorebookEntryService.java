@@ -11,18 +11,19 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
-import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
+import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.application.util.NanoId;
-import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookDTO;
+import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -36,6 +37,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @RequiredArgsConstructor
 public class CreateLorebookEntryService extends CommandService {
 
+    private final ChannelEntityListToDTOList channelEntityListToDTOList;
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final ObjectMapper objectMapper;
@@ -52,7 +54,7 @@ public class CreateLorebookEntryService extends CommandService {
     public void handle(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for lore entry creation");
-        channelRepository.findAll().stream()
+        channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
                 .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
                 .findFirst()
                 .ifPresent(channel -> {
@@ -81,10 +83,10 @@ public class CreateLorebookEntryService extends CommandService {
             final boolean isPlayerCharacter = entryPlayerCharacter.equals("y");
             final String lorebookEntryId = NanoId.randomNanoId();
             final String lorebookRegexId = NanoId.randomNanoId();
-            final LorebookRegex insertedEntry = insertEntry(author, entryName, entryRegex,
+            final LorebookRegexEntity insertedEntry = insertEntry(author, entryName, entryRegex,
                     entryDescription, lorebookEntryId, lorebookRegexId, isPlayerCharacter);
 
-            final LorebookDTO loreItem = lorebookEntryToDTOTranslator.apply(insertedEntry);
+            final LorebookEntry loreItem = lorebookEntryToDTOTranslator.apply(insertedEntry);
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
 
@@ -133,10 +135,10 @@ public class CreateLorebookEntryService extends CommandService {
                 .build();
     }
 
-    private LorebookRegex insertEntry(final User author, final String entryName, final String entryRegex,
+    private LorebookRegexEntity insertEntry(final User author, final String entryName, final String entryRegex,
             final String entryDescription, final String lorebookEntryId, final String lorebookRegexId, final boolean isPlayerCharacter) {
 
-        final LorebookEntry insertedEntry = lorebookRepository.save(LorebookEntry.builder()
+        final LorebookEntryEntity insertedEntry = lorebookRepository.save(LorebookEntryEntity.builder()
                 .id(lorebookEntryId)
                 .name(entryName)
                 .description(entryDescription)
@@ -145,7 +147,7 @@ public class CreateLorebookEntryService extends CommandService {
                         .orElse(null))
                 .build());
 
-        return lorebookRegexRepository.save(LorebookRegex.builder()
+        return lorebookRegexRepository.save(LorebookRegexEntity.builder()
                 .id(lorebookRegexId)
                 .regex(Optional.ofNullable(entryRegex)
                         .filter(StringUtils::isNotBlank)

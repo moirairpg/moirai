@@ -18,14 +18,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
+import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookDTO;
+import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -39,6 +40,7 @@ public class RetrieveLorebookEntryService extends CommandService {
     private final ObjectMapper objectMapper;
     private final LorebookRegexRepository lorebookRegexRepository;
     private final ChannelRepository channelRepository;
+    private final ChannelEntityListToDTOList channelEntityListToDTOList;
     private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveLorebookEntryService.class);
@@ -51,7 +53,7 @@ public class RetrieveLorebookEntryService extends CommandService {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findAll().stream()
+            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
                     .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
                     .findFirst()
                     .ifPresent(channel -> {
@@ -82,7 +84,7 @@ public class RetrieveLorebookEntryService extends CommandService {
 
     private void retrieveAllLoreEntries(final SlashCommandInteractionEvent event) throws IOException {
 
-        final List<LorebookDTO> entries = lorebookRegexRepository.findAll()
+        final List<LorebookEntry> entries = lorebookRegexRepository.findAll()
                 .stream()
                 .map(entry -> lorebookEntryToDTOTranslator.apply(entry))
                 .collect(Collectors.toList());
@@ -109,10 +111,10 @@ public class RetrieveLorebookEntryService extends CommandService {
     private void retrieveLoreEntryById(final String entryId, final SlashCommandInteractionEvent event)
             throws JsonProcessingException {
 
-        final LorebookRegex entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder()
+        final LorebookRegexEntity entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
                 .id(entryId).build()).orElseThrow(LorebookEntryNotFoundException::new);
 
-        final LorebookDTO dto = lorebookEntryToDTOTranslator.apply(entry);
+        final LorebookEntry dto = lorebookEntryToDTOTranslator.apply(entry);
         final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                 .writerWithDefaultPrettyPrinter().writeValueAsString(dto);
 

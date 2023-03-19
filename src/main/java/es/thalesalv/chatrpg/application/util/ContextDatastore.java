@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.application.config.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
 
 @Component
 public class ContextDatastore {

@@ -9,12 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
-import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
-import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -77,7 +77,7 @@ public class ChatbotUseCase implements BotUseCase {
         final SelfUser bot = eventData.getBot();
         final Message reply = message.getReferencedMessage();
         final MessageChannelUnion channel = eventData.getChannel();
-        final ModelSettings modelSettings = eventData.getChannelConfig().getModelSettings();
+        final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         channel.getHistoryBefore(reply, modelSettings.getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
@@ -105,7 +105,7 @@ public class ChatbotUseCase implements BotUseCase {
     private void handleMessageHistory(final List<String> messages, final MessageEventData eventData) {
 
         LOGGER.debug("Entered message history handling for chatbot");
-        final ModelSettings modelSettings = eventData.getChannelConfig().getModelSettings();
+        final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
         channel.getHistory()

@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.tokenizer;
+package es.thalesalv.chatrpg.application.service;
 
 import java.io.File;
 import java.io.IOException;

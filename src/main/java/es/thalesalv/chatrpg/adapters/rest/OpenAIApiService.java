@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.domain.exception.ErrorBotResponseException;
 import es.thalesalv.chatrpg.domain.exception.ModerationException;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptRequest;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.Gpt3Request;
 import es.thalesalv.chatrpg.domain.model.openai.gpt.GptResponse;

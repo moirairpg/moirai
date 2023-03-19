@@ -2,8 +2,8 @@ package es.thalesalv.chatrpg.application.translator;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.ChannelConfig;
-import es.thalesalv.chatrpg.application.config.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;

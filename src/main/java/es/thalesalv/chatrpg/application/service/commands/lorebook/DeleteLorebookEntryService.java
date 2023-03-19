@@ -7,15 +7,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
-import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
+import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
+import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -29,6 +30,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @RequiredArgsConstructor
 public class DeleteLorebookEntryService extends CommandService {
 
+    private final ChannelEntityListToDTOList channelEntityListToDTOList;
     private final ContextDatastore contextDatastore;
     private final LorebookRepository lorebookRepository;
     private final ChannelRepository channelRepository;
@@ -46,11 +48,11 @@ public class DeleteLorebookEntryService extends CommandService {
         try {
             LOGGER.debug("Received slash command for lore entry deletion");
             final String entryId = event.getOption("lorebook-entry-id").getAsString();
-            channelRepository.findAll().stream()
+            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
                     .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
                     .findFirst()
                     .ifPresent(channel -> {
-                        lorebookRegexRepository.findByLorebookEntry(LorebookEntry.builder().id(entryId).build())
+                        lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder().id(entryId).build())
                                 .orElseThrow(LorebookEntryNotFoundException::new);
                         contextDatastore.setCommandEventData(CommandEventData.builder()
                                 .lorebookEntryId(entryId).build());
@@ -82,7 +84,7 @@ public class DeleteLorebookEntryService extends CommandService {
 
         if (isUserSure) {
             final String id = contextDatastore.getCommandEventData().getLorebookEntryId();
-            final LorebookEntry lorebookEntry = LorebookEntry.builder().id(id).build();
+            final LorebookEntryEntity lorebookEntry = LorebookEntryEntity.builder().id(id).build();
             lorebookRegexRepository.deleteByLorebookEntry(lorebookEntry);
             lorebookRepository.delete(lorebookEntry);
             event.reply(LORE_ENTRY_DELETED).setEphemeral(true).complete();

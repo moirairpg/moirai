@@ -6,24 +6,24 @@ import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 
 @Repository
-public interface LorebookRepository extends CrudRepository<LorebookEntry, String> {
+public interface LorebookRepository extends CrudRepository<LorebookEntryEntity, String> {
 
     /**
      * Retrieves a character from the database by providing the player's Discord ID
-     * 
+     *
      * @param userId Player's Discord ID
      * @return Player's character profile
      */
-    Optional<LorebookEntry> findByPlayerDiscordId(String userId);
+    Optional<LorebookEntryEntity> findByPlayerDiscordId(String userId);
 
     /**
      * Retrieves all characters that match the list of names provided
-     * 
+     *
      * @param names List containing names to look up
      * @return Character profiles with those names
      */
-    HashSet<LorebookEntry> findByNameIn(HashSet<String> names);
+    HashSet<LorebookEntryEntity> findByNameIn(HashSet<String> names);
 }

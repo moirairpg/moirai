@@ -2,7 +2,7 @@ package es.thalesalv.chatrpg.application.service.interfaces;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.application.config.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import reactor.core.publisher.Mono;
 
 @FunctionalInterface

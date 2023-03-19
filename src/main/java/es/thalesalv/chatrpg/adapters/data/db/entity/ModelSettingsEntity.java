@@ -19,11 +19,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "model_settings")
-public class ModelSettings {
+public class ModelSettingsEntity {
 
     @Id
     @Column(name = "id", unique = true, nullable = false)
     private String id;
+
+    @Column(name = "owner_discord_id")
+    private String owner;
 
     @Column(name = "model_name")
     private String modelName;
