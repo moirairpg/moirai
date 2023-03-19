@@ -11,7 +11,7 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;

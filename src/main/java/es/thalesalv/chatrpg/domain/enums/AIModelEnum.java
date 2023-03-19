@@ -1,0 +1,33 @@
+package es.thalesalv.chatrpg.domain.enums;
+
+import java.util.Arrays;
+
+import es.thalesalv.chatrpg.domain.exception.AIModelNotSupportedException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public enum AIModelEnum {
+
+    ADA("ada", "text-ada-001", "textCompletionService", 2049),
+    CURIE("curie", "text-curie-001", "textCompletionService", 2049),
+    BABBAGE("babbage", "text-babbage-001", "textCompletionService", 2049),
+    DAVINCI("davinci", "text-davinci-003", "textCompletionService", 4097),
+    CHATGPT("chatgpt", "gpt-3.5-turbo", "chatCompletionService", 4097),
+    GPT4("gpt4", "gpt-4", "chatCompletionService", 8192),
+    GPT432K("gpt432k", "gpt-4-32k", "chatCompletionService", 32768);
+
+    private String internalName;
+    private String modelName;
+    private String completionType;
+    private int tokenCap;
+
+    public static AIModelEnum findByInternalName(final String name) {
+
+        return Arrays.stream(values())
+                .filter(aiModel -> aiModel.getInternalName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new AIModelNotSupportedException("The specified model does is not supported."));
+    }
+}

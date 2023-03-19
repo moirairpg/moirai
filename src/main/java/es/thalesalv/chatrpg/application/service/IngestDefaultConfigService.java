@@ -19,7 +19,7 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelConfigRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ModelSettingsRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ModerationSettingsRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.PersonaRepository;
-import es.thalesalv.chatrpg.application.translator.ChannelConfigToEntity;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelConfigToEntity;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfigYaml;
 import jakarta.annotation.PostConstruct;

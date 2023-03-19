@@ -16,7 +16,6 @@ public class ModelSettings {
 
     private String id;
     private String modelName;
-    private String modelFamily;
     private String stopToken;
     private String owner;
     private int maxTokens;

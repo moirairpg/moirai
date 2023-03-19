@@ -28,10 +28,10 @@ public class OpenAIApiService {
 
     @Value("${chatrpg.openai.api-token}")
     private String openAiToken;
-    
+
     @Value("${chatrpg.openai.completions-uri}")
     private String completionsUri;
-    
+
     @Value("${chatrpg.openai.chat-completions-uri}")
     private String chatCompletionsUri;
 

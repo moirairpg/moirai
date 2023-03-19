@@ -11,8 +11,9 @@ import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
-import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityListToDTOList;
+import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
@@ -39,7 +40,6 @@ public class GenerateDMAssistCommandService extends DiscordCommand {
     private final MessageEventDataTranslator messageEventDataTranslator;
 
     private static final String ERROR_EDITING = "Error editing message";
-    private static final String MODEL_SERVICE = "ModelService";
     private static final String USE_CASE = "UseCase";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when generating the message. Please try again.";
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateDMAssistCommandService.class);
@@ -63,8 +63,9 @@ public class GenerateDMAssistCommandService extends DiscordCommand {
                     channel.getHistory().retrievePast(1).complete().stream()
                         .findAny()
                         .map(message -> {
+                            final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
                             final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, ch.getChannelConfig(), message);
-                            final CompletionService model = (CompletionService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
+                            final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                             final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                             final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
 
