@@ -13,7 +13,7 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
-import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
+import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Service
 @RequiredArgsConstructor
-public class PromptDMAssistService implements CommandService {
+public class PromptDMAssistService extends CommandService {
 
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
@@ -93,7 +93,7 @@ public class PromptDMAssistService implements CommandService {
 
                 final GptModelService model = (GptModelService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-    
+
                 useCase.generateResponse(messageEventData, model);
             }
 

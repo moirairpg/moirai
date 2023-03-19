@@ -1,19 +1,19 @@
 package es.thalesalv.chatrpg.adapters.discord.listener;
 
-import jakarta.annotation.Nonnull;
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
+import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
+import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-
-import java.util.Optional;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 @Service
 @RequiredArgsConstructor
@@ -21,10 +21,11 @@ public class InteractionListener {
 
     private final BeanFactory beanFactory;
 
-    private static final String SOMETHING_WENT_WRONG_ERROR = "Something went wrong with the command. Please try again.";
-    private static final String NON_EXISTING_COMMAND = "The command you tried to use does not exist. Available commands: dmassist, lorebook.";
-    private static final String LOREBOOK_ENTRY_SERVICE = "LorebookEntryService";
     private static final String DM_ASSIST_SERVICE = "DMAssistService";
+    private static final String LOREBOOK_ENTRY_SERVICE = "LorebookEntryService";
+
+    private static final String SOMETHING_WENT_WRONG_ERROR = "Something went wrong with the command. Please try again.";
+    private static final String NON_EXISTING_COMMAND = "The command requested does not exist. Please try again.";
     private static final String MISSING_COMMAND_ACTION = "Did not receive slash command action";
     private static final Logger LOGGER = LoggerFactory.getLogger(InteractionListener.class);
 

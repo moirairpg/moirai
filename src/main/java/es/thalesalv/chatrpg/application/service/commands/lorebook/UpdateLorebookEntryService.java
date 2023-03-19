@@ -20,6 +20,7 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
+import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
@@ -37,7 +38,7 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UpdateLorebookEntryService implements CommandService {
+public class UpdateLorebookEntryService extends CommandService {
 
     private final ModerationService moderationService;
     private final ContextDatastore contextDatastore;
@@ -51,7 +52,7 @@ public class UpdateLorebookEntryService implements CommandService {
     private static final String ENTRY_UPDATED = "Lore entry with name {0} was updated.\n```json\n{1}```";
     private static final String MISSING_ID_MESSAGE = "The UUID of the entry is required for an update action. Please try again with the entry id.";
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateLorebookEntryService.class);
-    
+
     @Override
     public void handle(final SlashCommandInteractionEvent event) {
 

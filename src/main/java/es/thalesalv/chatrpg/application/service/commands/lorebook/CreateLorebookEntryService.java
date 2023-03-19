@@ -18,6 +18,7 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
+import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.application.util.NanoId;
@@ -33,7 +34,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Service
 @RequiredArgsConstructor
-public class CreateLorebookEntryService implements CommandService {
+public class CreateLorebookEntryService extends CommandService {
 
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;

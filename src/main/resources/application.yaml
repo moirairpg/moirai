@@ -9,6 +9,7 @@ chatrpg:
     default-frequency-penalty: 0.2
     default-threshold: 1.0
   discord:
+    status-channel-id: 1085340376698716283
     api-token: ${DISCORD_BOT_API_TOKEN}
     retry:
       error-attempts: 3

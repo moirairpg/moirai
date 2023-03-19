@@ -11,7 +11,7 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
-import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
+import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Service
 @RequiredArgsConstructor
-public class GenerateDMAssistService implements CommandService {
+public class GenerateDMAssistService extends CommandService {
 
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
@@ -57,7 +57,7 @@ public class GenerateDMAssistService implements CommandService {
                 .ifPresent(ch -> {
                     final Persona persona = ch.getChannelConfig().getPersona();
                     final ModelSettings modelSettings = ch.getChannelConfig().getModelSettings();
-                
+
                     channel.getHistory().retrievePast(1).complete().stream()
                         .findAny()
                         .map(message -> {
