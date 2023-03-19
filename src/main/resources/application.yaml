@@ -22,7 +22,7 @@ chatrpg:
     chat-completions-uri: /v1/chat/completions
     api-base-url: https://api.openai.com
     api-token: ${OPENAI_API_TOKEN}
-  
+
 spring:
   main.banner-mode: "off"
   jpa.hibernate.ddl-auto: update
