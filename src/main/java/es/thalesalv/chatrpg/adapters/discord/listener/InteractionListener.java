@@ -8,7 +8,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
+import es.thalesalv.chatrpg.application.commands.DiscordCommand;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -21,8 +21,8 @@ public class InteractionListener {
 
     private final BeanFactory beanFactory;
 
-    private static final String DM_ASSIST_SERVICE = "DMAssistService";
-    private static final String LOREBOOK_ENTRY_SERVICE = "LorebookEntryService";
+    private static final String DM_ASSIST_SERVICE = "DMAssistCommand";
+    private static final String LOREBOOK_ENTRY_SERVICE = "LorebookCommand";
 
     private static final String SOMETHING_WENT_WRONG_ERROR = "Something went wrong with the command. Please try again.";
     private static final String NON_EXISTING_COMMAND = "The command requested does not exist. Please try again.";
@@ -35,17 +35,17 @@ public class InteractionListener {
             LOGGER.debug("Received slash command event -> {}", event);
             event.deferReply();
             final String eventName = event.getName();
-            final String command = Optional.ofNullable(event.getOption("action"))
+            final String commandName = Optional.ofNullable(event.getOption("action"))
                     .map(OptionMapping::getAsString).orElseThrow(() -> new IllegalArgumentException(MISSING_COMMAND_ACTION));
 
-            CommandService commandService = null;
+            DiscordCommand command = null;
             if (eventName.equals("lorebook")) {
-                commandService = (CommandService) beanFactory.getBean(command + LOREBOOK_ENTRY_SERVICE);
+                command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_SERVICE);
             } else if (eventName.equals("dmassist")) {
-                commandService = (CommandService) beanFactory.getBean(command + DM_ASSIST_SERVICE);
+                command = (DiscordCommand) beanFactory.getBean(commandName + DM_ASSIST_SERVICE);
             }
 
-            Optional.ofNullable(commandService)
+            Optional.ofNullable(command)
                     .orElseThrow(() -> new NullPointerException("Command is null"))
                     .handle(event);
         } catch (NoSuchBeanDefinitionException e) {
@@ -66,15 +66,15 @@ public class InteractionListener {
             LOGGER.debug("Received modal interaction event -> {}", event);
             event.deferReply();
             final String modalId = event.getModalId();
-            final String command = modalId.split("-")[0];
-            CommandService commandService = null;
+            final String commandName = modalId.split("-")[0];
+            DiscordCommand command = null;
             if (modalId.contains("lorebook")) {
-                commandService = (CommandService) beanFactory.getBean(command + LOREBOOK_ENTRY_SERVICE);
+                command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_SERVICE);
             }  else if (modalId.contains("dmassist")) {
-                commandService = (CommandService) beanFactory.getBean(command + DM_ASSIST_SERVICE);
+                command = (DiscordCommand) beanFactory.getBean(commandName + DM_ASSIST_SERVICE);
             }
 
-            Optional.ofNullable(commandService)
+            Optional.ofNullable(command)
                     .orElseThrow(() -> new NullPointerException("Command is null"))
                     .handle(event);
         } catch (NoSuchBeanDefinitionException e) {

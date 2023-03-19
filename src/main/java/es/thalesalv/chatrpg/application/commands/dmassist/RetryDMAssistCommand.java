@@ -1,13 +1,13 @@
-package es.thalesalv.chatrpg.application.service.commands.dmassist;
+package es.thalesalv.chatrpg.application.commands.dmassist;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
-import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
+import es.thalesalv.chatrpg.application.commands.DiscordCommand;
+import es.thalesalv.chatrpg.application.service.GptModelService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
@@ -21,9 +21,9 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class RetryDMAssistService extends CommandService {
+public class RetryDMAssistCommand extends DiscordCommand {
 
     private final ChannelEntityListToDTOList channelEntityListToDTOList;
     private final ApplicationContext applicationContext;
@@ -36,7 +36,7 @@ public class RetryDMAssistService extends CommandService {
     private static final String BOT_MESSAGE_NOT_FOUND = "No bot message found.";
     private static final String USER_MESSAGE_NOT_FOUND = "No user message found.";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RetryDMAssistService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RetryDMAssistCommand.class);
 
     @Override
     public void handle(SlashCommandInteractionEvent event) {
