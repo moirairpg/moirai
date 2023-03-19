@@ -1,7 +1,10 @@
 package es.thalesalv.chatrpg.application.service;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -34,30 +37,38 @@ public class IngestDefaultConfigService {
     private final ModerationSettingsRepository moderationSettingsRepository;
     private final ModelSettingsRepository modelSettingsRepository;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(IngestDefaultConfigService.class);
+
     @PostConstruct
     public void ingestDefaultChannelConfig() throws StreamReadException, DatabindException, IOException {
 
-        final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory())
-                .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
+        try {
+            final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory())
+                    .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
 
-        final ChannelConfigYaml yaml = objectMapper.readValue(new ClassPathResource("channel-config.yaml")
-                .getInputStream(), ChannelConfigYaml.class);
+            final ChannelConfigYaml yaml = objectMapper.readValue(new ClassPathResource("channel-config.yaml")
+                    .getInputStream(), ChannelConfigYaml.class);
 
-        int i = 1;
-        for (ChannelConfig config : yaml.getConfigs()) {
-            final String id = String.valueOf(i);
-            config.setId(id);
-            config.getPersona().setId(id);
-            config.getSettings().getModelSettings().setId(id);
-            config.getSettings().getModerationSettings().setId(id);
-            config.setOwner(jda.getSelfUser().getId());
+            LOGGER.info("Found default configs. Ingesting them to database.");
 
-            final ChannelConfigEntity entity = channelConfigToEntity.apply(config);
-            personaRepository.save(entity.getPersona());
-            moderationSettingsRepository.save(entity.getModerationSettings());
-            modelSettingsRepository.save(entity.getModelSettings());
-            channelConfigRepository.save(entity);
-            i++;
+            int i = 1;
+            for (ChannelConfig config : yaml.getConfigs()) {
+                final String id = String.valueOf(i);
+                config.setId(id);
+                config.getPersona().setId(id);
+                config.getSettings().getModelSettings().setId(id);
+                config.getSettings().getModerationSettings().setId(id);
+                config.setOwner(jda.getSelfUser().getId());
+
+                final ChannelConfigEntity entity = channelConfigToEntity.apply(config);
+                personaRepository.save(entity.getPersona());
+                moderationSettingsRepository.save(entity.getModerationSettings());
+                modelSettingsRepository.save(entity.getModelSettings());
+                channelConfigRepository.save(entity);
+                i++;
+            }
+        } catch (FileNotFoundException e) {
+            LOGGER.warn("Default configurations not found. Proceeding without them.");
         }
     }
 }
