@@ -1,13 +1,13 @@
-package es.thalesalv.chatrpg.application.commands.dmassist;
+package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.service.completion.TextCompletionService;
+import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
+import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
@@ -21,9 +21,9 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
-@Component
+@Service
 @RequiredArgsConstructor
-public class RetryDMAssistCommand extends DiscordCommand {
+public class RetryDMAssistCommandService extends DiscordCommand {
 
     private final ChannelEntityListToDTOList channelEntityListToDTOList;
     private final ApplicationContext applicationContext;
@@ -36,7 +36,7 @@ public class RetryDMAssistCommand extends DiscordCommand {
     private static final String BOT_MESSAGE_NOT_FOUND = "No bot message found.";
     private static final String USER_MESSAGE_NOT_FOUND = "No user message found.";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RetryDMAssistCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RetryDMAssistCommandService.class);
 
     @Override
     public void handle(SlashCommandInteractionEvent event) {
@@ -61,7 +61,7 @@ public class RetryDMAssistCommand extends DiscordCommand {
                             .findAny()
                             .orElseThrow(() -> new IndexOutOfBoundsException(USER_MESSAGE_NOT_FOUND));
                     final MessageEventData messageEventData = messageEventDataTranslator.translate(bot, channel, ch.getChannelConfig(), userMessage);
-                    final TextCompletionService model = (TextCompletionService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
+                    final CompletionService model = (CompletionService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
                     final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
                     final InteractionHook hook = event.reply("Re-generating output...").setEphemeral(true).complete();
