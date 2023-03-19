@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.service.GptModelService;
+import es.thalesalv.chatrpg.application.service.completion.TextCompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
@@ -40,7 +40,7 @@ public class MessageListener {
                     final Persona persona = channel.getChannelConfig().getPersona();
                     final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
                 	final MessageEventData messageEventData = messageEventDataTranslator.translate(event, channel.getChannelConfig());
-                    final GptModelService model = (GptModelService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
+                    final TextCompletionService model = (TextCompletionService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
                     final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                     useCase.generateResponse(messageEventData, model);
                 });

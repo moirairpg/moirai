@@ -1,6 +1,6 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
-import es.thalesalv.chatrpg.application.service.GptModelService;
+import es.thalesalv.chatrpg.application.service.completion.TextCompletionService;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 
 @FunctionalInterface
@@ -12,5 +12,5 @@ public interface BotUseCase {
      * @param model Model to be used for generation
      * @return messageEventData together with the bot's response
      */
-    MessageEventData generateResponse(final MessageEventData messageEventData, final GptModelService model);
+    MessageEventData generateResponse(final MessageEventData messageEventData, final TextCompletionService model);
 }

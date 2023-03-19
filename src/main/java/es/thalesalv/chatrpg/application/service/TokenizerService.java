@@ -38,7 +38,6 @@ public class TokenizerService {
         return tokenizer.encode(texts, false).getIds();
     }
 
-
     public int countTokens(String text) {
         return toTokenIds(text).length;
     }
@@ -47,8 +46,16 @@ public class TokenizerService {
         return toTokenIds(texts).length;
     }
 
+    public long[] tokenize(String text) {
+        return toTokenIds(text);
+    }
+
+    public long[] tokenize(String[] texts) {
+        return toTokenIds(texts);
+    }
+
     public Path getFileFromJar(String filePathInJar) throws IOException {
-        
+
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePathInJar);
         Path tempDirPath = Files.createTempDirectory("temp-dir");
         Path tempFilePath = Files.write(tempDirPath.resolve("temp-file"), inputStream.readAllBytes(), StandardOpenOption.CREATE);
