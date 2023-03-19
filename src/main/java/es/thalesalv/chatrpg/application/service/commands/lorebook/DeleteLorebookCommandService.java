@@ -1,19 +1,19 @@
-package es.thalesalv.chatrpg.application.commands.lorebook;
+package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
-import es.thalesalv.chatrpg.application.commands.DiscordCommand;
+import es.thalesalv.chatrpg.application.ContextDatastore;
+import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
-import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
@@ -25,10 +25,10 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 
-@Component
+@Service
 @Transactional
 @RequiredArgsConstructor
-public class DeleteLorebookCommand extends DiscordCommand {
+public class DeleteLorebookCommandService extends DiscordCommand {
 
     private final ChannelEntityListToDTOList channelEntityListToDTOList;
     private final ContextDatastore contextDatastore;
@@ -39,7 +39,7 @@ public class DeleteLorebookCommand extends DiscordCommand {
     private static final String DELETION_CANCELED = "Deletion action canceled. Entry has not been deleted.";
     private static final String ERROR_DELETE = "There was an error parsing your request. Please try again.";
     private static final String MISSING_ID_MESSAGE = "The UUID of the entry is required for a delete action. Please try again with the entry id.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteLorebookCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteLorebookCommandService.class);
     private static final String LORE_ENTRY_DELETED = "Lore entry deleted.";
 
     @Override

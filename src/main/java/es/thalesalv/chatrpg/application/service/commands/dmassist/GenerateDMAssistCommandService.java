@@ -1,18 +1,18 @@
-package es.thalesalv.chatrpg.application.commands.dmassist;
+package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.commands.DiscordCommand;
+import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.service.ModerationService;
-import es.thalesalv.chatrpg.application.service.completion.TextCompletionService;
+import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
+import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
-import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
@@ -27,9 +27,9 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 
-@Component
+@Service
 @RequiredArgsConstructor
-public class GenerateDMAssistCommand extends DiscordCommand {
+public class GenerateDMAssistCommandService extends DiscordCommand {
 
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
@@ -42,7 +42,7 @@ public class GenerateDMAssistCommand extends DiscordCommand {
     private static final String MODEL_SERVICE = "ModelService";
     private static final String USE_CASE = "UseCase";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when generating the message. Please try again.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenerateDMAssistCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GenerateDMAssistCommandService.class);
 
     @Override
     public void handle(SlashCommandInteractionEvent event) {
@@ -64,7 +64,7 @@ public class GenerateDMAssistCommand extends DiscordCommand {
                         .findAny()
                         .map(message -> {
                             final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, ch.getChannelConfig(), message);
-                            final TextCompletionService model = (TextCompletionService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
+                            final CompletionService model = (CompletionService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
                             final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                             final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
 

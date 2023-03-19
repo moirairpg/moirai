@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.application.service.ModerationService;
-import es.thalesalv.chatrpg.application.service.completion.TextCompletionService;
+import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
@@ -30,7 +30,7 @@ public class DungeonMasterUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DungeonMasterUseCase.class);
 
     @Override
-    public MessageEventData generateResponse(final MessageEventData eventData, final TextCompletionService model) {
+    public MessageEventData generateResponse(final MessageEventData eventData, final CompletionService model) {
 
         LOGGER.debug("Entered generation of response for RPG. eventData -> {}", eventData);
 
@@ -63,7 +63,7 @@ public class DungeonMasterUseCase implements BotUseCase {
 
         return eventData;
     }
-    
+
     /**
      * Formats last messages history to give the AI context on the adventure
      * @param eventData Object containing the event's important data to be processed

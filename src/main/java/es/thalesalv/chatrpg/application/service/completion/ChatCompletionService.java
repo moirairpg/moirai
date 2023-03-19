@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class ChatCompletionService implements TextCompletionService {
+public class ChatCompletionService implements CompletionService {
 
     private final MessageFormatHelper lorebookEntryExtractionHelper;
     private final CommonErrorHandler commonErrorHandler;
