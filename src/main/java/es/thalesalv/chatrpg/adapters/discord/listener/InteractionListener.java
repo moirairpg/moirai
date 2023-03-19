@@ -21,8 +21,9 @@ public class InteractionListener {
 
     private final BeanFactory beanFactory;
 
-    private static final String DM_ASSIST_SERVICE = "DMAssistCommand";
-    private static final String LOREBOOK_ENTRY_SERVICE = "LorebookCommand";
+    private static final String CHCONFIG_COMMAND = "ChConfigCommand";
+    private static final String DM_ASSIST_COMMAND = "DMAssistCommand";
+    private static final String LOREBOOK_ENTRY_COMMAND = "LorebookCommand";
 
     private static final String SOMETHING_WENT_WRONG_ERROR = "Something went wrong with the command. Please try again.";
     private static final String NON_EXISTING_COMMAND = "The command requested does not exist. Please try again.";
@@ -40,9 +41,11 @@ public class InteractionListener {
 
             DiscordCommand command = null;
             if (eventName.equals("lorebook")) {
-                command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_SERVICE);
+                command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_COMMAND);
             } else if (eventName.equals("dmassist")) {
-                command = (DiscordCommand) beanFactory.getBean(commandName + DM_ASSIST_SERVICE);
+                command = (DiscordCommand) beanFactory.getBean(commandName + DM_ASSIST_COMMAND);
+            } else if (eventName.equals("chconfig")) {
+                command = (DiscordCommand) beanFactory.getBean(commandName + CHCONFIG_COMMAND);
             }
 
             Optional.ofNullable(command)
@@ -69,9 +72,9 @@ public class InteractionListener {
             final String commandName = modalId.split("-")[0];
             DiscordCommand command = null;
             if (modalId.contains("lorebook")) {
-                command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_SERVICE);
+                command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_COMMAND);
             }  else if (modalId.contains("dmassist")) {
-                command = (DiscordCommand) beanFactory.getBean(commandName + DM_ASSIST_SERVICE);
+                command = (DiscordCommand) beanFactory.getBean(commandName + DM_ASSIST_COMMAND);
             }
 
             Optional.ofNullable(command)

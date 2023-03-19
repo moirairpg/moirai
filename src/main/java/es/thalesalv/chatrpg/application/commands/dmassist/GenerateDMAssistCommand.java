@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.service.GptModelService;
 import es.thalesalv.chatrpg.application.service.ModerationService;
+import es.thalesalv.chatrpg.application.service.completion.TextCompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
@@ -64,7 +64,7 @@ public class GenerateDMAssistCommand extends DiscordCommand {
                         .findAny()
                         .map(message -> {
                             final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, ch.getChannelConfig(), message);
-                            final GptModelService model = (GptModelService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
+                            final TextCompletionService model = (TextCompletionService) applicationContext.getBean(modelSettings.getModelFamily() + MODEL_SERVICE);
                             final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                             final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
 

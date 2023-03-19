@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service;
+package es.thalesalv.chatrpg.application.service.completion;
 
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +16,7 @@ import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
 import es.thalesalv.chatrpg.application.translator.ChatGptRequestTranslator;
+import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
@@ -30,7 +31,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class ChatGptModelService implements GptModelService {
+public class ChatCompletionService implements TextCompletionService {
 
     private final MessageFormatHelper lorebookEntryExtractionHelper;
     private final CommonErrorHandler commonErrorHandler;
@@ -38,10 +39,11 @@ public class ChatGptModelService implements GptModelService {
     private final OpenAIApiService openAiService;
     private final StringProcessor outputProcessor = new StringProcessor();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChatGptModelService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChatCompletionService.class);
 
     @Override
     public Mono<String> generate(final String prompt, final List<String> messages, final MessageEventData eventData) {
+
         LOGGER.debug("Called inference for ChatGPT.");
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
@@ -87,6 +89,7 @@ public class ChatGptModelService implements GptModelService {
                         chatGptMessages.add(index, bumpMessage);
                     }
                 });
+
         final ChatGptRequest request = chatGptRequestTranslator.buildRequest(chatGptMessages, eventData.getChannelConfig());
         return openAiService.callGptChatApi(request, eventData)
                 .map(response -> {

@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.application.service.GptModelService;
 import es.thalesalv.chatrpg.application.service.ModerationService;
+import es.thalesalv.chatrpg.application.service.completion.TextCompletionService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
@@ -30,7 +30,7 @@ public class ChatbotUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
 
     @Override
-    public MessageEventData generateResponse(final MessageEventData eventData, final GptModelService model) {
+    public MessageEventData generateResponse(final MessageEventData eventData, final TextCompletionService model) {
 
         LOGGER.debug("Entered generation for normal text.");
         eventData.getChannel().sendTyping().complete();

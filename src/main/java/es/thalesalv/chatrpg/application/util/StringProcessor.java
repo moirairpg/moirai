@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service;
+package es.thalesalv.chatrpg.application.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 
 public class StringProcessor {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
     private final List<UnaryOperator<String>> rules = new ArrayList<>();
 
