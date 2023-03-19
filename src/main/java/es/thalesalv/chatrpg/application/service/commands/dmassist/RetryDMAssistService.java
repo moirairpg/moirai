@@ -9,7 +9,7 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
 import es.thalesalv.chatrpg.adapters.data.db.entity.Persona;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.config.MessageEventData;
-import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
+import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
@@ -17,13 +17,12 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
 @Service
 @RequiredArgsConstructor
-public class RetryDMAssistService implements CommandService {
+public class RetryDMAssistService extends CommandService {
 
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
@@ -73,11 +72,5 @@ public class RetryDMAssistService implements CommandService {
             event.reply(SOMETHING_WRONG_TRY_AGAIN)
                     .setEphemeral(true).queue();
         }
-    }
-
-    @Override
-    public void handle(ModalInteractionEvent event) {
-
-        throw new UnsupportedOperationException("Regeneration of outputs doesn't have modals implemented");
     }
 }

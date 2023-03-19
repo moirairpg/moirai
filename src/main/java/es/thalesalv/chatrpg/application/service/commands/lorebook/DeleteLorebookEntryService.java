@@ -12,6 +12,7 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
+import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
@@ -26,7 +27,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class DeleteLorebookEntryService implements CommandService {
+public class DeleteLorebookEntryService extends CommandService {
 
     private final ContextDatastore contextDatastore;
     private final LorebookRepository lorebookRepository;
@@ -53,7 +54,7 @@ public class DeleteLorebookEntryService implements CommandService {
                                 .orElseThrow(LorebookEntryNotFoundException::new);
                         contextDatastore.setCommandEventData(CommandEventData.builder()
                                 .lorebookEntryId(entryId).build());
-            
+
                         final Modal modal = buildEntryDeletionModal();
                         event.replyModal(modal).queue();
                     });

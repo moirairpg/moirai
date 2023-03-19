@@ -11,7 +11,7 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.ModelSettings;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.config.CommandEventData;
 import es.thalesalv.chatrpg.application.service.ModerationService;
-import es.thalesalv.chatrpg.application.service.commands.lorebook.CommandService;
+import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 @Service
 @RequiredArgsConstructor
-public class EditDMAssistService implements CommandService {
+public class EditDMAssistService extends CommandService {
 
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
@@ -87,7 +87,7 @@ public class EditDMAssistService implements CommandService {
                         .whenComplete((msg, error) -> {
                             if (error != null)
                                 throw new DiscordFunctionException("Error in message edition modal", error);
-        
+
                             event.reply("Message has been edited").setEphemeral(true)
                                     .queue(m -> m.deleteOriginal().queueAfter(1, TimeUnit.MILLISECONDS));
                         }));

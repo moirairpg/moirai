@@ -30,17 +30,17 @@ public class SessionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionListener.class);
 
     public void onReady(ReadyEvent event) {
+
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is ready to chat!", bot.getName());
             event.getJDA().updateCommands().addCommands(buildCommands(registerLorebookSlashCommands(),
-                    registerDmAssistSlashCommands())).queue();
+                    registerDmAssistSlashCommands(), registerChannelConfigSlashCommands())).queue();
 
             Optional.ofNullable(statusChannelId)
                     .filter(StringUtils::isNotEmpty)
                     .ifPresent(id -> event.getJDA().getChannelById(TextChannel.class, id)
                             .sendMessage(bot.getName() + " is ready to chat!").complete());
-
         } catch (IllegalStateException e) {
             if (e.getMessage().contains("Session is not yet ready!")) {
                 LOGGER.warn("Waiting for Discord session...");
@@ -51,6 +51,7 @@ public class SessionListener {
     }
 
     public void onSessionDisconnect(SessionDisconnectEvent event) {
+
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is disconnected.", bot.getName());
@@ -60,6 +61,7 @@ public class SessionListener {
     }
 
     public void onShutdown(ShutdownEvent event) {
+
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is shutdown.", bot.getName());
@@ -87,5 +89,14 @@ public class SessionListener {
         return Commands.slash("dmassist", "Commands for Dungeon Master assistance.")
                 .addOption(OptionType.STRING, "action", "One of the following: generate, edit, retry", true)
                 .addOption(OptionType.STRING, "message-id", "ID of the message meant to be edited. Only appliable to the \"edit\" action.", false);
+    }
+
+    private SlashCommandData registerChannelConfigSlashCommands() {
+
+        LOGGER.debug("Registering Channel Config slash commands.");
+        return Commands.slash("chconfig", "Commands for channel configuration")
+                .addOption(OptionType.STRING, "action", "One of the following: wizard, set", true)
+                .addOption(OptionType.STRING, "config-id", "ID of the channel config to be altered", false)
+                .addOption(OptionType.STRING, "setting", "Change a specific setting. Requires config id.", false);
     }
 }

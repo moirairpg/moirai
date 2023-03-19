@@ -22,11 +22,11 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
+import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookDTO;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class RetrieveLorebookEntryService implements CommandService {
+public class RetrieveLorebookEntryService extends CommandService {
 
     private final ObjectMapper objectMapper;
     private final LorebookRegexRepository lorebookRegexRepository;
@@ -61,7 +61,7 @@ public class RetrieveLorebookEntryService implements CommandService {
                                 retrieveLoreEntryById(entryId.getAsString(), event);
                                 return;
                             }
-                
+
                             retrieveAllLoreEntries(event);
                         } catch (JsonProcessingException e) {
                             LOGGER.error("Error serializing entry data.", e);
@@ -118,11 +118,5 @@ public class RetrieveLorebookEntryService implements CommandService {
 
         event.reply(MessageFormat.format(ENTRY_RETRIEVED, dto.getName(), loreEntryJson))
                     .setEphemeral(true).complete();
-    }
-
-    @Override
-    public void handle(final ModalInteractionEvent event) {
-
-        throw new UnsupportedOperationException("Retrieval of lore entries does not have modals implemented");
     }
 }
