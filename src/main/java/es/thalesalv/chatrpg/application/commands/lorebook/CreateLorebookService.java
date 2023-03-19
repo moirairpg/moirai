@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.lorebook;
+package es.thalesalv.chatrpg.application.commands.lorebook;
 
 import java.text.MessageFormat;
 import java.util.Optional;
@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,8 +16,8 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.chatrpg.application.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.ModerationService;
-import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
@@ -33,9 +33,9 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class CreateLorebookEntryService extends CommandService {
+public class CreateLorebookService extends DiscordCommand {
 
     private final ChannelEntityListToDTOList channelEntityListToDTOList;
     private final ContextDatastore contextDatastore;
@@ -48,7 +48,7 @@ public class CreateLorebookEntryService extends CommandService {
 
     private static final String ERROR_CREATE = "There was an error parsing your request. Please try again.";
     private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don''t forget to save this ID!\n```json\n{1}\n```";
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookEntryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookService.class);
 
     @Override
     public void handle(final SlashCommandInteractionEvent event) {

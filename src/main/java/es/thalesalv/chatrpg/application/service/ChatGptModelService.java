@@ -15,7 +15,6 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
-import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.application.translator.ChatGptRequestTranslator;
 import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;

@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.lorebook;
+package es.thalesalv.chatrpg.application.commands.lorebook;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -22,7 +22,7 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
-import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
+import es.thalesalv.chatrpg.application.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
@@ -32,10 +32,10 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.utils.FileUpload;
 
-@Service
+@Component
 @Transactional
 @RequiredArgsConstructor
-public class RetrieveLorebookEntryService extends CommandService {
+public class RetrieveLorebookCommand extends DiscordCommand {
 
     private final ObjectMapper objectMapper;
     private final LorebookRegexRepository lorebookRegexRepository;
@@ -43,7 +43,7 @@ public class RetrieveLorebookEntryService extends CommandService {
     private final ChannelEntityListToDTOList channelEntityListToDTOList;
     private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveLorebookEntryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveLorebookCommand.class);
     private static final String ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
     private static final String ENTRY_RETRIEVED = "Retrieved lore entry with name **{0}**.\n```json\n{1}```";
 

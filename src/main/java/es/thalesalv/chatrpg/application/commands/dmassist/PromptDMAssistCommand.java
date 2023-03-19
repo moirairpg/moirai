@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.dmassist;
+package es.thalesalv.chatrpg.application.commands.dmassist;
 
 import java.util.concurrent.TimeUnit;
 
@@ -6,11 +6,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
-import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
+import es.thalesalv.chatrpg.application.commands.DiscordCommand;
+import es.thalesalv.chatrpg.application.service.GptModelService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
@@ -30,9 +30,9 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class PromptDMAssistService extends CommandService {
+public class PromptDMAssistCommand extends DiscordCommand {
 
     private final ChannelEntityListToDTOList channelEntityListToDTOList;
     private final ContextDatastore contextDatastore;
@@ -45,7 +45,7 @@ public class PromptDMAssistService extends CommandService {
     private static final String USE_CASE = "UseCase";
     private static final String ERROR_GENERATING = "Error generating message";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when generating the message. Please try again.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(PromptDMAssistService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PromptDMAssistCommand.class);
 
     @Override
     public void handle(SlashCommandInteractionEvent event) {

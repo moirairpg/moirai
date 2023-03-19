@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import es.thalesalv.chatrpg.application.service.GptModelService;
 import es.thalesalv.chatrpg.application.service.ModerationService;
-import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;

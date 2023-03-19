@@ -1,15 +1,15 @@
-package es.thalesalv.chatrpg.application.service.commands.dmassist;
+package es.thalesalv.chatrpg.application.commands.dmassist;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
+import es.thalesalv.chatrpg.application.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.ModerationService;
-import es.thalesalv.chatrpg.application.service.interfaces.CommandService;
 import es.thalesalv.chatrpg.application.translator.ChannelEntityListToDTOList;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
@@ -27,9 +27,9 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.requests.RestAction;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class EditDMAssistService extends CommandService {
+public class EditDMAssistCommand extends DiscordCommand {
 
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
@@ -40,7 +40,7 @@ public class EditDMAssistService extends CommandService {
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
 
     private static final String BOT_NOT_FOUND = "No bot message found.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(EditDMAssistService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EditDMAssistCommand.class);
 
     @Override
     public void handle(SlashCommandInteractionEvent event) {

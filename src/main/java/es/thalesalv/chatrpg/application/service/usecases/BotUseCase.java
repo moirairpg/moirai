@@ -1,6 +1,6 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
-import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
+import es.thalesalv.chatrpg.application.service.GptModelService;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 
 @FunctionalInterface
