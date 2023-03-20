@@ -241,6 +241,7 @@ public class MessageFormatHelper {
     public List<String> formatMessages(List<String> messages, MessageEventData eventData) {
 
         final Persona persona = eventData.getChannelConfig().getPersona();
+        messages.add(0, persona.getPersonality().replaceAll("\\{0\\}", persona.getName()));
         List<String> chatMessages = formatNudge(persona, messages);
         return formatBump(persona, chatMessages);
     }
