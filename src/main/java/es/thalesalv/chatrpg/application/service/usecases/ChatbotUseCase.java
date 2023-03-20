@@ -1,10 +1,11 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
@@ -26,6 +28,8 @@ public class ChatbotUseCase implements BotUseCase {
 
     private final ModerationService moderationService;
 
+    private static final String STOP_MEMORY_FLAG = "{stop}";
+    private static final String STOP_MEMORY_EMOJI = "chatrpg_stop";
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
 
     @Override
@@ -44,13 +48,9 @@ public class ChatbotUseCase implements BotUseCase {
             });
         }
 
-        final List<String> messages = new ArrayList<>();
-        final Message replyMessage = message.getReferencedMessage();
-        if (replyMessage != null) {
-            handleMessageHistoryForReplies(messages, eventData);
-        } else {
-            handleMessageHistory(messages, eventData);
-        }
+        final List<String> messages = Optional.ofNullable(message.getReferencedMessage())
+                .map(rm -> handleMessageHistoryForReplies(eventData))
+                .orElseGet(() -> handleMessageHistory(eventData));
 
         moderationService.moderate(messages, eventData)
                 .subscribe(inputModeration -> model.generate(messages, eventData)
@@ -65,10 +65,10 @@ public class ChatbotUseCase implements BotUseCase {
 
     /**
      * Formats last messages history on replied to give the AI context on the past conversation
-     * @param messages List of messages before the one replied to
      * @param eventData Object containing the event's important data to be processed
+     * @return The processed list of messages
      */
-    private void handleMessageHistoryForReplies(final List<String> messages, final MessageEventData eventData) {
+    private List<String> handleMessageHistoryForReplies(final MessageEventData eventData) {
 
         LOGGER.debug("Entered quoted message history handling for chatbot");
         final Message message = eventData.getMessage();
@@ -76,16 +76,20 @@ public class ChatbotUseCase implements BotUseCase {
         final Message reply = message.getReferencedMessage();
         final MessageChannelUnion channel = eventData.getChannel();
         final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
-        channel.getHistoryBefore(reply, modelSettings.getChatHistoryMemory())
+        final List<String> messages = channel.getHistoryBefore(reply, modelSettings.getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
-                .forEach(m -> {
+                .map(m -> {
                     final User mAuthorUser = m.getAuthor();
-                    messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
-                            m.getContentDisplay()).trim());
-                });
+                    return Optional.ofNullable(checkForContextCap(m.getReactions()))
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(MessageFormat.format("{0} said: {1}",
+                                mAuthorUser.getName(), m.getContentDisplay()).trim());
+                })
+                .takeWhile(m -> !m.equals(STOP_MEMORY_FLAG))
+                .toList();
 
         Collections.reverse(messages);
         messages.add(MessageFormat.format("{0} said earlier: {1}",
@@ -93,29 +97,47 @@ public class ChatbotUseCase implements BotUseCase {
 
         messages.add(MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
                 eventData.getMessageAuthor().getName(), reply.getAuthor().getName(), message.getContentDisplay()));
+
+        return messages;
     }
 
     /**
      * Formats last messages history to give the AI context on the current conversation
-     * @param messages List messages before the one sent
      * @param eventData Object containing the event's important data to be processed
+     * @return The processed list of messages
      */
-    private void handleMessageHistory(final List<String> messages, final MessageEventData eventData) {
+    private List<String> handleMessageHistory(final MessageEventData eventData) {
 
         LOGGER.debug("Entered message history handling for chatbot");
         final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
-        channel.getHistory()
+        final List<String> messages = channel.getHistory()
                 .retrievePast(modelSettings.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
-                .forEach(m -> {
+                .map(m -> {
                     final User mAuthorUser = m.getAuthor();
-                    messages.add(MessageFormat.format("{0} said: {1}", mAuthorUser.getName(),
-                            m.getContentDisplay().trim()));
-                });
+                    return Optional.ofNullable(checkForContextCap(m.getReactions()))
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(MessageFormat.format("{0} said: {1}",
+                                mAuthorUser.getName(), m.getContentDisplay().trim()));
+                })
+                .takeWhile(m -> !m.equals(STOP_MEMORY_FLAG))
+                .toList();
 
         Collections.reverse(messages);
+        return messages;
+    }
+
+    private String checkForContextCap(List<MessageReaction> reactions) {
+
+        for (MessageReaction reaction : reactions) {
+            if (reaction.getEmoji().getName().equals(STOP_MEMORY_EMOJI)) {
+                return STOP_MEMORY_FLAG;
+            }
+        }
+
+        return StringUtils.EMPTY;
     }
 }
