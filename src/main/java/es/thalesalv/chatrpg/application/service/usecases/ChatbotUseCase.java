@@ -89,9 +89,9 @@ public class ChatbotUseCase implements BotUseCase {
                                 mAuthorUser.getName(), m.getContentDisplay()).trim());
                 })
                 .takeWhile(m -> !m.equals(STOP_MEMORY_FLAG))
+                .sorted(Collections.reverseOrder())
                 .toList();
 
-        Collections.reverse(messages);
         messages.add(MessageFormat.format("{0} said earlier: {1}",
                 reply.getAuthor().getName(), reply.getContentDisplay()));
 
@@ -112,7 +112,7 @@ public class ChatbotUseCase implements BotUseCase {
         final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
-        final List<String> messages = channel.getHistory()
+        return channel.getHistory()
                 .retrievePast(modelSettings.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
@@ -124,10 +124,8 @@ public class ChatbotUseCase implements BotUseCase {
                                 mAuthorUser.getName(), m.getContentDisplay().trim()));
                 })
                 .takeWhile(m -> !m.equals(STOP_MEMORY_FLAG))
+                .sorted(Collections.reverseOrder())
                 .toList();
-
-        Collections.reverse(messages);
-        return messages;
     }
 
     private String checkForContextCap(List<MessageReaction> reactions) {
