@@ -70,15 +70,13 @@ public class DungeonMasterUseCase implements BotUseCase {
         final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
-        List<String> messages = channel.getHistory()
+        return channel.getHistory()
                 .retrievePast(modelSettings.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
                 .map(m -> MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()))
+                .sorted(Collections.reverseOrder())
                 .toList();
-
-        Collections.reverse(messages);
-        return messages;
     }
 }
