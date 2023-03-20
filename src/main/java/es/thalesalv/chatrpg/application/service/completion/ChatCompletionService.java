@@ -2,7 +2,6 @@ package es.thalesalv.chatrpg.application.service.completion;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -18,12 +17,10 @@ import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
 import es.thalesalv.chatrpg.application.translator.airequest.ChatCompletionRequestTranslator;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
+import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
+import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Nudge;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
-import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptMessage;
-import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptRequest;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.User;
@@ -33,9 +30,9 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ChatCompletionService implements CompletionService {
 
-    private final MessageFormatHelper lorebookEntryExtractionHelper;
+    private final MessageFormatHelper messageFormatHelper;
     private final CommonErrorHandler commonErrorHandler;
-    private final ChatCompletionRequestTranslator chatGptRequestTranslator;
+    private final ChatCompletionRequestTranslator chatCompletionsRequestTranslator;
     private final OpenAIApiService openAiService;
     private final StringProcessor outputProcessor;
 
@@ -52,45 +49,16 @@ public class ChatCompletionService implements CompletionService {
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
 
-        lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
+        messageFormatHelper.handleEntriesMentioned(messages, entriesFound);
         if (persona.getIntent().equals("dungeonMaster")) {
-            lorebookEntryExtractionHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
-            lorebookEntryExtractionHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
+            messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
+            messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else {
-            lorebookEntryExtractionHelper.processEntriesFoundForChat(entriesFound, messages);
+            messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
         }
 
-        final List<ChatGptMessage> chatGptMessages = lorebookEntryExtractionHelper.formatMessagesForChatGpt(messages, eventData);
-        Optional.ofNullable(persona.getNudge())
-                .filter(Nudge.isValid)
-                .ifPresent(ndge -> {
-                    chatGptMessages.add(chatGptMessages.stream()
-                        .filter(m -> "user".equals(m.getRole()))
-                        .mapToInt(chatGptMessages::indexOf)
-                        .reduce((a, b) -> b)
-                        .orElse(0) + 1,
-                        ChatGptMessage.builder()
-                                .role(ndge.role)
-                                .content(ndge.content)
-                                .build());
-                });
-
-        Optional.ofNullable(persona.getBump())
-                .filter(Bump.isValid)
-                .ifPresent(bmp -> {
-                    ChatGptMessage bumpMessage = ChatGptMessage.builder()
-                            .role(bmp.role)
-                            .content(bmp.content)
-                            .build();
-
-                    for (int index = chatGptMessages.size() - 1 - bmp.frequency;
-                            index > 0; index = index - bmp.frequency) {
-
-                        chatGptMessages.add(index, bumpMessage);
-                    }
-                });
-
-        final ChatGptRequest request = chatGptRequestTranslator.buildRequest(chatGptMessages, eventData.getChannelConfig());
+        final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData);
+        final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages, eventData.getChannelConfig());
         return openAiService.callGptChatApi(request, eventData)
                 .map(response -> {
                     final String responseText = response.getChoices().get(0).getMessage().getContent();

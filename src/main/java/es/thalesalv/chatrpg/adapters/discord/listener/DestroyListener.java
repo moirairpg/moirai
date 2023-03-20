@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 @RequiredArgsConstructor
 public class DestroyListener {
 
-    
     @Value("${chatrpg.discord.status-channel-id}")
     private String statusChannelId;
 
@@ -31,7 +30,7 @@ public class DestroyListener {
                     .ifPresent(id -> jda.getChannelById(TextChannel.class, id)
                             .sendMessage(jda.getSelfUser().getName() + " is ready to chat!").complete());
         } catch (Exception e) {
-            LOGGER.error("Error during destroy: ", e);
+            LOGGER.error("Error during destroy", e);
         }
     }
 }

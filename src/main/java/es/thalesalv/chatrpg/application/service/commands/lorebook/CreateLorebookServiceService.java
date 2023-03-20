@@ -20,7 +20,7 @@ import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityListToDTOList;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.util.NanoId;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
@@ -35,9 +35,9 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Service
 @RequiredArgsConstructor
-public class CreateLorebookServiceService extends DiscordCommand {
+public class CreateLorebookServiceService implements DiscordCommand {
 
-    private final ChannelEntityListToDTOList channelEntityListToDTOList;
+    private final ChannelEntityToDTO channelEntityMapper;
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final ObjectMapper objectMapper;
@@ -54,9 +54,9 @@ public class CreateLorebookServiceService extends DiscordCommand {
     public void handle(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for lore entry creation");
-        channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
-                .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+        channelRepository.findByChannelId(event.getChannel().getId()).stream()
                 .findFirst()
+                .map(channelEntityMapper::apply)
                 .ifPresent(channel -> {
                     contextDatastore.setCommandEventData(CommandEventData.builder()
                             .channelConfig(channel.getChannelConfig()).build());

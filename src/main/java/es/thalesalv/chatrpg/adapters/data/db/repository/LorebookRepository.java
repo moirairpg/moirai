@@ -1,7 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.db.repository;
 
-import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -25,5 +25,5 @@ public interface LorebookRepository extends CrudRepository<LorebookEntryEntity, 
      * @param names List containing names to look up
      * @return Character profiles with those names
      */
-    HashSet<LorebookEntryEntity> findByNameIn(HashSet<String> names);
+    Set<LorebookEntryEntity> findByNameIn(Set<String> names);
 }

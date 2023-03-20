@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SetChConfigCommandService extends DiscordCommand {
+public class SetChConfigCommandService implements DiscordCommand {
 
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;

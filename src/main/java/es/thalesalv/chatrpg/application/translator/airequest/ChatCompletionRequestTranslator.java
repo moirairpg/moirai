@@ -5,22 +5,22 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
+import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
+import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
-import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptMessage;
-import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptRequest;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class ChatCompletionRequestTranslator {
 
-    public ChatGptRequest buildRequest(final List<ChatGptMessage> chatGptMessages, final ChannelConfig channelConfig) {
+    public ChatCompletionRequest buildRequest(final List<ChatMessage> chatMessages, final ChannelConfig channelConfig) {
 
         final ModelSettings modelSettings = channelConfig.getSettings().getModelSettings();
         final String modelName = AIModelEnum.findByInternalName(modelSettings.getModelName()).getModelName();
-        return ChatGptRequest.builder()
-            .messages(chatGptMessages)
+        return ChatCompletionRequest.builder()
+            .messages(chatMessages)
             .model(modelName)
             .maxTokens(modelSettings.getMaxTokens())
             .temperature(modelSettings.getTemperature())

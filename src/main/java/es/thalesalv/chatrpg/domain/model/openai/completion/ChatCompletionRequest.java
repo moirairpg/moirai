@@ -1,10 +1,11 @@
-package es.thalesalv.chatrpg.domain.model.openai.gpt;
+package es.thalesalv.chatrpg.domain.model.openai.completion;
+
+import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
-import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,16 +18,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Gpt3Request {
+public class ChatCompletionRequest {
 
     @JsonProperty("model")
     private String model;
 
-    @JsonProperty("prompt")
-    private String prompt;
+    @JsonProperty("messages")
+    private List<ChatMessage> messages;
 
     @JsonProperty("stop")
-    private List<String> stop; // max 4 elements
+    private List<String> stop; // max of 4 elements
 
     @JsonProperty("max_tokens")
     private Integer maxTokens;

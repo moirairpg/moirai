@@ -13,7 +13,7 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityListToDTOList;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
@@ -28,9 +28,9 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class DeleteLorebookCommandService extends DiscordCommand {
+public class DeleteLorebookCommandService implements DiscordCommand {
 
-    private final ChannelEntityListToDTOList channelEntityListToDTOList;
+    private final ChannelEntityToDTO channelEntityMapper;
     private final ContextDatastore contextDatastore;
     private final LorebookRepository lorebookRepository;
     private final ChannelRepository channelRepository;
@@ -48,9 +48,9 @@ public class DeleteLorebookCommandService extends DiscordCommand {
         try {
             LOGGER.debug("Received slash command for lore entry deletion");
             final String entryId = event.getOption("lorebook-entry-id").getAsString();
-            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
-                    .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+            channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
+                    .map(channelEntityMapper::apply)
                     .ifPresent(channel -> {
                         lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder().id(entryId).build())
                                 .orElseThrow(LorebookEntryNotFoundException::new);

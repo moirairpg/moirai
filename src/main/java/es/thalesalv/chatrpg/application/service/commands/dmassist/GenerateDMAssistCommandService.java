@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.application.service.commands.dmassist;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -12,8 +14,9 @@ import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityListToDTOList;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
@@ -30,13 +33,13 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Service
 @RequiredArgsConstructor
-public class GenerateDMAssistCommandService extends DiscordCommand {
+public class GenerateDMAssistCommandService implements DiscordCommand {
 
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
-    private final ChannelEntityListToDTOList channelEntityListToDTOList;
+    private final ChannelEntityToDTO channelEntityMapper;
     private final MessageEventDataTranslator messageEventDataTranslator;
 
     private static final String ERROR_EDITING = "Error editing message";
@@ -45,41 +48,36 @@ public class GenerateDMAssistCommandService extends DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateDMAssistCommandService.class);
 
     @Override
-    public void handle(SlashCommandInteractionEvent event) {
+    public void handle(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for assisted generation of message");
-
         try {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
             channel.sendTyping().complete();
-            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
-                .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
-                .findFirst()
-                .ifPresent(ch -> {
-                    final Persona persona = ch.getChannelConfig().getPersona();
-                    final ModelSettings modelSettings = ch.getChannelConfig().getSettings().getModelSettings();
+            channelRepository.findByChannelId(event.getChannel().getId()).stream()
+                    .findFirst()
+                    .map(channelEntityMapper::apply)
+                    .ifPresent(ch -> {
+                        final ChannelConfig channelConfig = ch.getChannelConfig();
+                        final Persona persona = channelConfig.getPersona();
+                        final ModelSettings modelSettings = channelConfig.getSettings().getModelSettings();
 
-                    channel.getHistory().retrievePast(1).complete().stream()
-                        .findAny()
-                        .map(message -> {
-                            final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
-                            final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, ch.getChannelConfig(), message);
-                            final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
-                            final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-                            final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
+                        channel.getHistory().retrievePast(1).complete().stream()
+                            .findAny()
+                            .map(message -> {
+                                final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
+                                final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, channelConfig, message);
+                                final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
+                                final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
+                                final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
 
-                            contextDatastore.setCommandEventData(CommandEventData.builder()
-                                    .messageToBeEdited(responseEventData.getResponseMessage())
-                                    .channelConfig(ch.getChannelConfig())
-                                    .channel(channel)
-                                    .build());
-
-                            event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage())).queue();
-                            return message;
-                        })
-                        .orElseThrow(() -> new IllegalStateException("No message history found"));
-                });
+                                saveEventDataToContext(responseEventData, channelConfig, channel);
+                                event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage())).queue();
+                                return message;
+                            })
+                            .orElseThrow(() -> new IllegalStateException("No message history found"));
+                    });
            } catch (Exception e) {
             LOGGER.error("Error regenerating output", e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN)
@@ -88,7 +86,7 @@ public class GenerateDMAssistCommandService extends DiscordCommand {
     }
 
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void handle(final ModalInteractionEvent event) {
 
         LOGGER.debug("Received data of edit message for assisted generation modal");
         try {
@@ -99,7 +97,7 @@ public class GenerateDMAssistCommandService extends DiscordCommand {
                     .subscribe(response -> {
                         eventData.getMessageToBeEdited().editMessage(messageContent).complete();
                         event.reply("New message generated").setEphemeral(true)
-                                .complete().deleteOriginal().complete();
+                                .queue(a -> a.deleteOriginal().queueAfter(1, TimeUnit.MILLISECONDS));
                     });
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
@@ -108,7 +106,7 @@ public class GenerateDMAssistCommandService extends DiscordCommand {
         }
     }
 
-    private Modal buildEditMessageModal(Message msg) {
+    private Modal buildEditMessageModal(final Message msg) {
 
         LOGGER.debug("Building message edition modal");
         final TextInput messageContent = TextInput
@@ -121,5 +119,14 @@ public class GenerateDMAssistCommandService extends DiscordCommand {
 
         return Modal.create("edit-message-dmassist-modal", "Edit message content")
                 .addComponents(ActionRow.of(messageContent)).build();
+    }
+
+    private void saveEventDataToContext(final MessageEventData responseEventData, final ChannelConfig channelConfig, final MessageChannelUnion channel) {
+
+        contextDatastore.setCommandEventData(CommandEventData.builder()
+                .messageToBeEdited(responseEventData.getResponseMessage())
+                .channelConfig(channelConfig)
+                .channel(channel)
+                .build());
     }
 }

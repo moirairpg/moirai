@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.domain.model.openai.gpt;
+package es.thalesalv.chatrpg.domain.model.openai.completion;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptModelResponseUsage {
+public class CompletionResponseUsage {
 
     @JsonProperty("prompt_tokens")
     private Integer promptTokens;

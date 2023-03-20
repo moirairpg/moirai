@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.domain.model.openai.gpt;
+package es.thalesalv.chatrpg.domain.model.openai.completion;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GptResponse {
+public class CompletionResponse {
 
     @JsonProperty("id")
     private String id;
@@ -29,13 +29,13 @@ public class GptResponse {
     private String model;
 
     @JsonProperty("choices")
-    private List<GptModelResponseChoice> choices;
+    private List<CompletionResponseChoice> choices;
 
     @JsonProperty("usage")
-    private GptModelResponseUsage usage;
+    private CompletionResponseUsage usage;
 
     @JsonProperty("error")
-    private GptModelResponseError error;
+    private CompletionResponseError error;
 
     private String prompt;
 }

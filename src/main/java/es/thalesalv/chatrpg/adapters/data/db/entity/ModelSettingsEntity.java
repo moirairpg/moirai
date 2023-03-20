@@ -1,8 +1,10 @@
 package es.thalesalv.chatrpg.adapters.data.db.entity;
 
+import java.util.List;
 import java.util.Map;
 
 import es.thalesalv.chatrpg.application.util.dbconverters.LogitBiasConverter;
+import es.thalesalv.chatrpg.application.util.dbconverters.StringListConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -31,10 +33,7 @@ public class ModelSettingsEntity {
     @Column(name = "model_name")
     private String modelName;
 
-    @Column(name = "stop_token")
-    private String stopToken;
-
-    @Column(name = "max_token")
+    @Column(name = "max_tokens")
     private int maxTokens;
 
     @Column(name = "chat_history_memory")
@@ -48,6 +47,10 @@ public class ModelSettingsEntity {
 
     @Column(name = "presence_penalty")
     private double presencePenalty;
+
+    @Column(name = "stop_sequence")
+    @Convert(converter = StringListConverter.class)
+    private List<String> stopSequence;
 
     @Column(name = "logit_bias")
     @Convert(converter = LogitBiasConverter.class)

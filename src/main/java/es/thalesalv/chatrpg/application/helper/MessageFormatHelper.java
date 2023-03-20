@@ -17,9 +17,11 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
+import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.Nudge;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
-import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptMessage;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -107,24 +109,26 @@ public class MessageFormatHelper {
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
     }
 
-    public List<ChatGptMessage> formatMessagesForChatGpt(final List<String> messages, final MessageEventData eventData) {
+    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final MessageEventData eventData) {
 
         final Persona persona = eventData.getChannelConfig().getPersona();
         final String personality = persona.getPersonality().replace("{0}", persona.getName());
-        final List<ChatGptMessage> chatGptMessages = messages.stream()
+        List<ChatMessage> chatMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))
-                .map(msg -> ChatGptMessage.builder()
+                .map(msg -> ChatMessage.builder()
                             .role(determineRole(msg, persona))
                             .content(formatBotName(msg, persona))
                             .build())
                 .collect(Collectors.toList());
 
-        chatGptMessages.add(0, ChatGptMessage.builder()
+        chatMessages.add(0, ChatMessage.builder()
                 .role(ROLE_SYSTEM)
                 .content(personality.replaceAll("\\{0\\}", persona.getName()).trim())
                 .build());
 
-        return chatGptMessages;
+        chatMessages = formatNudgeForChatCompletions(persona, chatMessages);
+        chatMessages = formatBumpForChatCompletions(persona, chatMessages);
+        return chatMessages;
     }
 
     private String formatBotName(final String msg, final Persona persona) {
@@ -142,5 +146,107 @@ public class MessageFormatHelper {
         }
 
         return ROLE_SYSTEM;
+    }
+
+    /**
+     * Stringifies messages and turns them into a prompt format
+     *
+     * @param messages Messages in the chat room
+     * @param eventData Object containing event data
+     * @return Stringified messages for prompt
+     */
+    public String chatifyMessages(final List<String> messages, final MessageEventData eventData) {
+
+        LOGGER.debug("Entered chatbot conversation formatter");
+        final Persona persona = eventData.getChannelConfig().getPersona();
+        messages.replaceAll(m -> m.replace(eventData.getBot().getName(), persona.getName()).trim());
+        return MessageFormat.format("{0}\n{1} said: ",
+                String.join("\n", messages), persona.getName()).trim();
+    }
+
+    public List<ChatMessage> formatNudgeForChatCompletions(final Persona persona, final List<ChatMessage> messages) {
+
+        return Optional.ofNullable(persona.getNudge())
+                .filter(Nudge.isValid)
+                .map(ndge -> {
+                    messages.add(messages.stream()
+                        .filter(m -> "user".equals(m.getRole()))
+                        .mapToInt(messages::indexOf)
+                        .reduce((a, b) -> b)
+                        .orElse(0) + 1,
+                        ChatMessage.builder()
+                                .role(ndge.role)
+                                .content(ndge.content)
+                                .build());
+
+                    return messages;
+                })
+                .orElse(messages);
+    }
+
+    public List<ChatMessage> formatBumpForChatCompletions(final Persona persona, final List<ChatMessage> messages) {
+
+        return Optional.ofNullable(persona.getBump())
+                .filter(Bump.isValid)
+                .map(bmp -> {
+                    ChatMessage bumpMessage = ChatMessage.builder()
+                            .role(bmp.role)
+                            .content(bmp.content)
+                            .build();
+
+                    for (int index = messages.size() - 1 - bmp.frequency;
+                            index > 0; index = index - bmp.frequency) {
+
+                        messages.add(index, bumpMessage);
+                    }
+
+                    return messages;
+                })
+                .orElse(messages);
+    }
+
+    public List<String> formatNudge(final Persona persona, final List<String> messages) {
+
+        return Optional.ofNullable(persona.getNudge())
+                .filter(Nudge.isValid)
+                .map(ndge -> {
+                    messages.add(messages.stream()
+                        .filter(m -> !m.startsWith(persona.getName()))
+                        .mapToInt(messages::indexOf)
+                        .reduce((a, b) -> b)
+                        .orElse(0) + 1,
+                        ndge.content);
+
+                    return messages;
+                })
+                .orElse(messages);
+    }
+
+    public List<String> formatBump(final Persona persona, final List<String> messages) {
+
+        return Optional.ofNullable(persona.getBump())
+                .filter(Bump.isValid)
+                .map(bmp -> {
+                        for (int index = messages.size() - 1 - bmp.frequency;
+                            index > 0; index = index - bmp.frequency) {
+
+                        messages.add(index, bmp.getContent());
+                    }
+
+                    return messages;
+                })
+                .orElse(messages);
+    }
+
+    public List<String> formatMessages(List<String> messages, MessageEventData eventData) {
+
+        final Persona persona = eventData.getChannelConfig().getPersona();
+        List<String> chatMessages = formatNudge(persona, messages);
+        return formatBump(persona, chatMessages);
+    }
+
+    public String stringifyMessages(final List<String> messages) {
+
+        return String.join("\n", messages).trim();
     }
 }
