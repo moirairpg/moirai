@@ -1,6 +1,15 @@
 package es.thalesalv.chatrpg.adapters.discord.listener;
 
-import es.thalesalv.chatrpg.application.config.BotConfig;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -10,34 +19,28 @@ import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class SessionListener {
 
+    @Value("${chatrpg.discord.status-channel-id}")
+    private String statusChannelId;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionListener.class);
-    private final BotConfig botConfig;
 
     public void onReady(ReadyEvent event) {
+
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is ready to chat!", bot.getName());
             event.getJDA().updateCommands().addCommands(buildCommands(registerLorebookSlashCommands(),
-                    registerDmAssistSlashCommands())).queue();
-            Optional.ofNullable(botConfig.getStatusChannelId())
-                    .filter(StringUtils::isNotEmpty)
-                    .ifPresent(
-                            id -> event.getJDA().getChannelById(TextChannel.class, id).sendMessage(bot.getName() + " is ready to chat!").complete()
-                    );
+                    registerDmAssistSlashCommands(), registerChannelConfigSlashCommands())).queue();
 
+            Optional.ofNullable(statusChannelId)
+                    .filter(StringUtils::isNotEmpty)
+                    .ifPresent(id -> event.getJDA().getChannelById(TextChannel.class, id)
+                            .sendMessage(bot.getName() + " is ready to chat!").complete());
         } catch (IllegalStateException e) {
             if (e.getMessage().contains("Session is not yet ready!")) {
                 LOGGER.warn("Waiting for Discord session...");
@@ -48,6 +51,7 @@ public class SessionListener {
     }
 
     public void onSessionDisconnect(SessionDisconnectEvent event) {
+
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is disconnected.", bot.getName());
@@ -57,6 +61,7 @@ public class SessionListener {
     }
 
     public void onShutdown(ShutdownEvent event) {
+
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is shutdown.", bot.getName());
@@ -84,5 +89,13 @@ public class SessionListener {
         return Commands.slash("dmassist", "Commands for Dungeon Master assistance.")
                 .addOption(OptionType.STRING, "action", "One of the following: generate, edit, retry", true)
                 .addOption(OptionType.STRING, "message-id", "ID of the message meant to be edited. Only appliable to the \"edit\" action.", false);
+    }
+
+    private SlashCommandData registerChannelConfigSlashCommands() {
+
+        LOGGER.debug("Registering Channel Config slash commands.");
+        return Commands.slash("chconfig", "Commands for channel configuration")
+                .addOption(OptionType.STRING, "action", "One of the following: set", true)
+                .addOption(OptionType.STRING, "config-id", "ID of the configuration to be set to this channel", false);
     }
 }

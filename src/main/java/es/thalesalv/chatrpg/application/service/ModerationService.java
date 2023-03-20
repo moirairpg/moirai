@@ -14,10 +14,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
-import es.thalesalv.chatrpg.application.config.CommandEventData;
-import es.thalesalv.chatrpg.application.config.MessageEventData;
-import es.thalesalv.chatrpg.application.config.Persona;
+import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
 import es.thalesalv.chatrpg.domain.exception.ModerationException;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResponse;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResult;
@@ -31,12 +33,14 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ModerationService {
 
+    private final MessageFormatHelper messageFormatHelper;
     private final OpenAIApiService openAIApiService;
 
     @Value("${chatrpg.generation.default-threshold}")
     private double defaultThreshold;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModerationService.class);
+    private static final String UNSAFE_CONTENT_FOUND = "Unsafe content detected";
     private static final String FLAGGED_OUTPUT = "The AI generated outputs that were flagged as unsafe by OpenAI's moderation. Please edit the prompt so it doesn't contain unsafe content and try again. This message will disappear in a few seconds.";
     private static final String FLAGGED_MESSAGE = "The message you sent has content that was flagged by OpenAI's moderation. Your message has been deleted from the conversation channel.";
     private static final String FLAGGED_ENTRY = "Your lorebook entry has content that was flagged by OpenAI's moderation. It cannot be saved until it's edited to conform to OpenAI's safety standards.";
@@ -44,29 +48,30 @@ public class ModerationService {
     private static final String FLAGGED_TOPICS_LOREBOOK = "\n**Flagged topics:** {0}\n```json\n{1}```";
     private static final String FLAGGED_TOPICS_OUTPUT = "\n**Flagged topics:** {0}";
 
-    public Mono<ModerationResponse> moderate(final String prompt, final CommandEventData commandEventData, final ModalInteractionEvent event) {
+    public Mono<ModerationResponse> moderate(final String content, final CommandEventData commandEventData, final ModalInteractionEvent event) {
 
-        if (StringUtils.isBlank(prompt)) Mono.empty();
-        final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
+        if (StringUtils.isBlank(content)) Mono.empty();
+        final ModerationRequest request = ModerationRequest.builder().input(content).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, commandEventData.getPersona(), prompt);
+                    checkModerationThresholds(moderationResult, commandEventData.getChannelConfig(), content);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
-                    handleFlags(e.getFlaggedTopics(), event, prompt);
+                    handleFlags(e.getFlaggedTopics(), event, content);
                 });
     }
 
-    public Mono<ModerationResponse> moderate(final String prompt, final MessageEventData messageEventData) {
+    public Mono<ModerationResponse> moderate(final List<String> messages, final MessageEventData messageEventData) {
 
+        final String prompt = messageFormatHelper.stringifyMessages(messages);
         if (StringUtils.isBlank(prompt)) Mono.empty();
         final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, messageEventData.getPersona(), prompt);
+                    checkModerationThresholds(moderationResult, messageEventData.getChannelConfig(), prompt);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
@@ -74,13 +79,13 @@ public class ModerationService {
                 });
     }
 
-    public Mono<ModerationResponse> moderateOutput(final String prompt, final MessageEventData messageEventData) {
+    public Mono<ModerationResponse> moderateOutput(final String output, final MessageEventData messageEventData) {
 
-        final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
+        final ModerationRequest request = ModerationRequest.builder().input(output).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, messageEventData.getPersona(), prompt);
+                    checkModerationThresholds(moderationResult, messageEventData.getChannelConfig(), output);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
@@ -89,18 +94,19 @@ public class ModerationService {
                 });
     }
 
-    private void checkModerationThresholds(final ModerationResult moderationResult, final Persona persona, final String prompt) {
+    private void checkModerationThresholds(final ModerationResult moderationResult, final ChannelConfig channelConfig, final String prompt) {
 
-        if (Boolean.parseBoolean(persona.getModerationAbsolute()) && moderationResult.getFlagged().booleanValue())
-            throw new ModerationException("Unsafe content detected");
-        
+        final ModerationSettings moderationSettings = channelConfig.getSettings().getModerationSettings();
+        if (moderationSettings.isAbsolute() && moderationResult.getFlagged().booleanValue())
+            throw new ModerationException(UNSAFE_CONTENT_FOUND);
+
         final List<String> flaggedTopics = moderationResult.getCategoryScores().entrySet().stream()
-        		.filter(entry -> Double.valueOf(entry.getValue()) > Optional.ofNullable(persona.getModerationRules().get(entry.getKey())).orElse(defaultThreshold))
+        		.filter(entry -> Double.valueOf(entry.getValue()) > Optional.ofNullable(moderationSettings.getThresholds().get(entry.getKey())).orElse(defaultThreshold))
         		.map(Map.Entry::getKey)
         		.collect(Collectors.toList());
 
         if (!flaggedTopics.isEmpty())
-            throw new ModerationException("Unsafe content detected", flaggedTopics, prompt);
+            throw new ModerationException(UNSAFE_CONTENT_FOUND, flaggedTopics, prompt);
     }
 
     private void handleFlags(final List<String> flaggedTopics, final MessageEventData messageEventData) {
