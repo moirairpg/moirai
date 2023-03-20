@@ -22,7 +22,7 @@ import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityListToDTOList;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
@@ -39,7 +39,7 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UpdateLorebookCommandService extends DiscordCommand {
+public class UpdateLorebookCommandService implements DiscordCommand {
 
     private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
     private final ModerationService moderationService;
@@ -48,7 +48,7 @@ public class UpdateLorebookCommandService extends DiscordCommand {
     private final LorebookRepository lorebookRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
     private final ChannelRepository channelRepository;
-    private final ChannelEntityListToDTOList channelEntityListToDTOList;
+    private final ChannelEntityToDTO channelEntityMapper;
 
     private static final String ERROR_UPDATE = "There was an error parsing your request. Please try again.";
     private static final String ENTRY_UPDATED = "Lore entry with name {0} was updated.\n```json\n{1}```";
@@ -60,9 +60,9 @@ public class UpdateLorebookCommandService extends DiscordCommand {
 
         try {
             LOGGER.debug("Received slash command for lore entry update");
-            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
-                    .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+            channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
+                    .map(channelEntityMapper::apply)
                     .ifPresent(channel -> {
                         final String entryId = event.getOption("lorebook-entry-id").getAsString();
                         contextDatastore.setCommandEventData(CommandEventData.builder()

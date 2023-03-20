@@ -9,7 +9,7 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityListToDTOList;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 @RequiredArgsConstructor
 public class MessageListener {
 
-    private final ChannelEntityListToDTOList channelEntityListToDTOList;
+    private final ChannelEntityToDTO channelEntityMapper;
     private final ChannelRepository channelRepository;
     private final ApplicationContext applicationContext;
     private final MessageEventDataTranslator messageEventDataTranslator;
@@ -32,19 +32,19 @@ public class MessageListener {
     public void onMessageReceived(MessageReceivedEvent event) {
 
         if (!event.getAuthor().isBot()) {
-            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
-                .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
-                .findFirst()
-                .ifPresent(channel -> {
-                    LOGGER.debug("Received message by {} in {}: {}", event.getAuthor(), event.getChannel().getName(), event.getMessage().getContentDisplay());
-                    final Persona persona = channel.getChannelConfig().getPersona();
-                    final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
-                    final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
-                	final MessageEventData messageEventData = messageEventDataTranslator.translate(event, channel.getChannelConfig());
-                    final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
-                    final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-                    useCase.generateResponse(messageEventData, model);
-                });
+            channelRepository.findByChannelId(event.getChannel().getId()).stream()
+                    .findFirst()
+                    .map(channelEntityMapper::apply)
+                    .ifPresent(channel -> {
+                        LOGGER.debug("Received message by {} in {}: {}", event.getAuthor(), event.getChannel().getName(), event.getMessage().getContentDisplay());
+                        final Persona persona = channel.getChannelConfig().getPersona();
+                        final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
+                        final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
+                        final MessageEventData messageEventData = messageEventDataTranslator.translate(event, channel.getChannelConfig());
+                        final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
+                        final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
+                        useCase.generateResponse(messageEventData, model);
+                    });
         }
     }
 }

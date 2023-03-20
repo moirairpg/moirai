@@ -1,9 +1,7 @@
 package es.thalesalv.chatrpg.application.service.completion;
 
-import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -19,11 +17,9 @@ import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
 import es.thalesalv.chatrpg.application.translator.airequest.TextCompletionRequestTranslator;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
+import es.thalesalv.chatrpg.domain.model.openai.completion.TextCompletionRequest;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Nudge;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
-import es.thalesalv.chatrpg.domain.model.openai.gpt.Gpt3Request;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.User;
@@ -33,7 +29,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class TextCompletionService implements CompletionService {
 
-    private final MessageFormatHelper lorebookEntryExtractionHelper;
+    private final MessageFormatHelper messageFormatHelper;
     private final CommonErrorHandler commonErrorHandler;
     private final TextCompletionRequestTranslator textCompletionRequestTranslator;
     private final OpenAIApiService openAiService;
@@ -52,37 +48,17 @@ public class TextCompletionService implements CompletionService {
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
 
-        lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
+        messageFormatHelper.handleEntriesMentioned(messages, entriesFound);
         if (persona.getIntent().equals("dungeonMaster")) {
-            lorebookEntryExtractionHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
-            lorebookEntryExtractionHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
+            messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
+            messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else {
-            lorebookEntryExtractionHelper.processEntriesFoundForChat(entriesFound, messages);
+            messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
         }
 
-        Optional.ofNullable(persona.getNudge())
-                .filter(Nudge.isValid)
-                .ifPresent(ndge -> {
-                    messages.add(messages.stream()
-                        .filter(m -> !m.startsWith(persona.getName()))
-                        .mapToInt(messages::indexOf)
-                        .reduce((a, b) -> b)
-                        .orElse(0) + 1,
-                        ndge.content);
-                });
-
-        Optional.ofNullable(persona.getBump())
-                .filter(Bump.isValid)
-                .ifPresent(bmp -> {
-                        for (int index = messages.size() - 1 - bmp.frequency;
-                            index > 0; index = index - bmp.frequency) {
-
-                        messages.add(index, bmp.getContent());
-                    }
-                });
-
-        final String chatifiedMessage = chatifyMessages(messages, eventData);
-        final Gpt3Request request = textCompletionRequestTranslator.buildRequest(chatifiedMessage, eventData.getChannelConfig());
+        final List<String> chatMessages = messageFormatHelper.formatMessages(messages, eventData);
+        final String chatifiedMessage = messageFormatHelper.chatifyMessages(chatMessages, eventData);
+        final TextCompletionRequest request = textCompletionRequestTranslator.buildRequest(chatifiedMessage, eventData.getChannelConfig());
         return openAiService.callGptApi(request, eventData)
                 .map(response -> {
                     final String responseText = response.getChoices().get(0).getText();
@@ -93,21 +69,5 @@ public class TextCompletionService implements CompletionService {
                     return responseText.trim();
                 })
                 .doOnError(ModelResponseBlankException.class::isInstance, e -> commonErrorHandler.handleEmptyResponse(eventData));
-    }
-
-    /**
-     * Stringifies messages and turns them into a prompt format
-     *
-     * @param messages Messages in the chat room
-     * @param eventData Object containing event data
-     * @return Stringified messages for prompt
-     */
-    private static String chatifyMessages(final List<String> messages, final MessageEventData eventData) {
-
-        LOGGER.debug("Entered chatbot conversation formatter");
-        final Persona persona = eventData.getChannelConfig().getPersona();
-        messages.replaceAll(m -> m.replace(eventData.getBot().getName(), persona.getName()).trim());
-        return MessageFormat.format("{0}\n{1} said: ",
-                String.join("\n", messages), persona.getName()).trim();
     }
 }

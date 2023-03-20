@@ -24,7 +24,7 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityListToDTOList;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 import lombok.RequiredArgsConstructor;
@@ -35,12 +35,12 @@ import net.dv8tion.jda.api.utils.FileUpload;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class RetrieveLorebookCommandService extends DiscordCommand {
+public class RetrieveLorebookCommandService implements DiscordCommand {
 
     private final ObjectMapper objectMapper;
     private final LorebookRegexRepository lorebookRegexRepository;
     private final ChannelRepository channelRepository;
-    private final ChannelEntityListToDTOList channelEntityListToDTOList;
+    private final ChannelEntityToDTO channelEntityMapper;
     private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveLorebookCommandService.class);
@@ -53,9 +53,9 @@ public class RetrieveLorebookCommandService extends DiscordCommand {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
-                    .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+            channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
+                    .map(channelEntityMapper::apply)
                     .ifPresent(channel -> {
                         try {
                             final OptionMapping entryId = event.getOption("lorebook-entry-id");

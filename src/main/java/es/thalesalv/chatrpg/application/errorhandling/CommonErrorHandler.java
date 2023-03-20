@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 
 import es.thalesalv.chatrpg.domain.exception.OpenAiApiException;
+import es.thalesalv.chatrpg.domain.model.openai.completion.CompletionResponse;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
-import es.thalesalv.chatrpg.domain.model.openai.gpt.GptResponse;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -38,7 +38,7 @@ public class CommonErrorHandler {
     public Mono<Throwable> handle4xxError(final ClientResponse clientResponse, final MessageEventData messageEventData) {
 
         LOGGER.debug("Exception caught while calling OpenAI API");
-        return clientResponse.bodyToMono(GptResponse.class)
+        return clientResponse.bodyToMono(CompletionResponse.class)
             .map(errorResponse -> {
                 if (404 == clientResponse.statusCode().value()) {
                     LOGGER.error("OpenAI API threw NOT FOUND error -> {}", errorResponse);

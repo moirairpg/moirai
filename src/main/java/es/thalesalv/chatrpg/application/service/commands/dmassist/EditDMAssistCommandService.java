@@ -11,8 +11,9 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityListToDTOList;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
+import es.thalesalv.chatrpg.domain.model.openai.dto.Channel;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +30,12 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 @Service
 @RequiredArgsConstructor
-public class EditDMAssistCommandService extends DiscordCommand {
+public class EditDMAssistCommandService implements DiscordCommand {
 
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
-    private final ChannelEntityListToDTOList channelEntityListToDTOList;
+    private final ChannelEntityToDTO channelEntityMapper;
 
     private static final String ERROR_EDITING = "Error editing message";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
@@ -43,31 +44,22 @@ public class EditDMAssistCommandService extends DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(EditDMAssistCommandService.class);
 
     @Override
-    public void handle(SlashCommandInteractionEvent event) {
+    public void handle(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for message edition");
         try {
             event.deferReply();
             final SelfUser bot = event.getJDA().getSelfUser();
-            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
-                .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
-                .findFirst()
-                .ifPresent(channel -> {
-                    final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
-                    Message message = Optional.ofNullable(event.getOption("message-id"))
-                            .map(OptionMapping::getAsString)
-                            .map(event.getChannel()::retrieveMessageById)
-                            .map(RestAction::complete)
-                            .orElseGet(() -> event.getChannel().getHistory().retrievePast(modelSettings.getChatHistoryMemory()).complete().stream()
-                                    .filter(a -> a.getAuthor().getId().equals(bot.getId()))
-                                    .findFirst().orElseThrow(() -> new ArrayIndexOutOfBoundsException(BOT_NOT_FOUND)));
-                    final Modal editMessageModal = buildEditMessageModal(message);
-                    event.replyModal(editMessageModal).queue();
-                    contextDatastore.setCommandEventData(CommandEventData.builder()
-                            .messageToBeEdited(message)
-                            .channelConfig(channel.getChannelConfig())
-                            .build());
-                });
+            channelRepository.findByChannelId(event.getChannel().getId()).stream()
+                    .findFirst()
+                    .map(channelEntityMapper::apply)
+                    .ifPresent(channel -> {
+                        final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
+                        final Message message = retrieveMessageToBeEdited(event, modelSettings, bot);
+                        final Modal editMessageModal = buildEditMessageModal(message);
+                        saveEventDataToContext(message, channel);
+                        event.replyModal(editMessageModal).queue();
+                    });
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN)
@@ -76,7 +68,7 @@ public class EditDMAssistCommandService extends DiscordCommand {
     }
 
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void handle(final ModalInteractionEvent event) {
 
         LOGGER.debug("Received data of edit message modal");
         try {
@@ -100,7 +92,7 @@ public class EditDMAssistCommandService extends DiscordCommand {
         }
     }
 
-    private Modal buildEditMessageModal(Message msg) {
+    private Modal buildEditMessageModal(final Message msg) {
 
         LOGGER.debug("Building message edition modal");
         final TextInput messageContent = TextInput
@@ -113,5 +105,24 @@ public class EditDMAssistCommandService extends DiscordCommand {
 
         return Modal.create("edit-message-dmassist-modal", "Edit message content")
                 .addComponents(ActionRow.of(messageContent)).build();
+    }
+
+    private Message retrieveMessageToBeEdited(final SlashCommandInteractionEvent event, final ModelSettings modelSettings, final SelfUser bot) {
+
+        return Optional.ofNullable(event.getOption("message-id"))
+                .map(OptionMapping::getAsString)
+                .map(event.getChannel()::retrieveMessageById)
+                .map(RestAction::complete)
+                .orElseGet(() -> event.getChannel().getHistory().retrievePast(modelSettings.getChatHistoryMemory()).complete().stream()
+                        .filter(a -> a.getAuthor().getId().equals(bot.getId()))
+                        .findFirst().orElseThrow(() -> new ArrayIndexOutOfBoundsException(BOT_NOT_FOUND)));
+    }
+
+    private void saveEventDataToContext(final Message message, final Channel channel) {
+
+        contextDatastore.setCommandEventData(CommandEventData.builder()
+                .messageToBeEdited(message)
+                .channelConfig(channel.getChannelConfig())
+                .build());
     }
 }

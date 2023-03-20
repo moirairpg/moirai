@@ -14,7 +14,7 @@ import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityListToDTOList;
+import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
@@ -33,9 +33,9 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Service
 @RequiredArgsConstructor
-public class PromptDMAssistCommandService extends DiscordCommand {
+public class PromptDMAssistCommandService implements DiscordCommand {
 
-    private final ChannelEntityListToDTOList channelEntityListToDTOList;
+    private final ChannelEntityToDTO channelEntityMapper;
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
@@ -54,9 +54,9 @@ public class PromptDMAssistCommandService extends DiscordCommand {
         try {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
-            channelEntityListToDTOList.apply(channelRepository.findAll()).stream()
-                    .filter(c -> c.getChannelId().equals(event.getChannel().getId()))
+            channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
+                    .map(channelEntityMapper::apply)
                     .ifPresent(ch -> {
                         contextDatastore.setCommandEventData(CommandEventData.builder()
                                 .channelConfig(ch.getChannelConfig())
