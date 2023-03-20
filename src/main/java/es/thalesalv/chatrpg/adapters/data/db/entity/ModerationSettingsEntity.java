@@ -2,7 +2,7 @@ package es.thalesalv.chatrpg.adapters.data.db.entity;
 
 import java.util.Map;
 
-import es.thalesalv.chatrpg.application.util.dbconverters.ThresholdConverter;
+import es.thalesalv.chatrpg.application.util.dbconverters.StringMapDoubleConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -32,6 +32,6 @@ public class ModerationSettingsEntity {
     private boolean isAbsolute;
 
     @Column(name = "thresholds", nullable = false)
-    @Convert(converter = ThresholdConverter.class)
+    @Convert(converter = StringMapDoubleConverter.class)
     private Map<String, Double> thresholds;
 }

@@ -48,5 +48,5 @@ public class ChatCompletionRequest {
     private Double frequencyPenalty;
 
     @JsonProperty("logit_bias")
-    private Map<String, Integer> logitBias;
+    private Map<String, Double> logitBias;
 }

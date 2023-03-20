@@ -24,5 +24,5 @@ public class ModelSettings {
     private double frequencyPenalty;
     private double presencePenalty;
     private List<String> stopSequence;
-    private Map<String, Integer> logitBias;
+    private Map<String, Double> logitBias;
 }

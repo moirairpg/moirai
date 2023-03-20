@@ -10,25 +10,25 @@ import jakarta.persistence.Converter;
 
 @Converter
 @SuppressWarnings("unchecked")
-public class LogitBiasConverter implements AttributeConverter<Map<String, Integer>, String> {
+public class StringMapDoubleConverter implements AttributeConverter<Map<String, Double>, String> {
 
     @Override
-    public String convertToDatabaseColumn(Map<String, Integer> attribute) {
+    public String convertToDatabaseColumn(Map<String, Double> attribute) {
 
         try {
             return new ObjectMapper().writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error parsing logit biases to map from string");
+            throw new RuntimeException("Error parsing string from map");
         }
     }
 
     @Override
-    public Map<String, Integer> convertToEntityAttribute(String dbData) {
+    public Map<String, Double> convertToEntityAttribute(String dbData) {
 
         try {
             return new ObjectMapper().readValue(dbData, Map.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error parsing logit biases to map from string");
+            throw new RuntimeException("Error parsing map from string");
         }
     }
 }

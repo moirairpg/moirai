@@ -3,8 +3,8 @@ package es.thalesalv.chatrpg.adapters.data.db.entity;
 import java.util.List;
 import java.util.Map;
 
-import es.thalesalv.chatrpg.application.util.dbconverters.LogitBiasConverter;
 import es.thalesalv.chatrpg.application.util.dbconverters.StringListConverter;
+import es.thalesalv.chatrpg.application.util.dbconverters.StringMapDoubleConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -53,6 +53,6 @@ public class ModelSettingsEntity {
     private List<String> stopSequence;
 
     @Column(name = "logit_bias")
-    @Convert(converter = LogitBiasConverter.class)
-    private Map<String, Integer> logitBias;
+    @Convert(converter = StringMapDoubleConverter.class)
+    private Map<String, Double> logitBias;
 }
