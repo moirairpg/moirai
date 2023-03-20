@@ -14,7 +14,6 @@ import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -53,9 +52,8 @@ public class ChatbotUseCase implements BotUseCase {
             handleMessageHistory(messages, eventData);
         }
 
-        final String chatifiedMessage = chatifyMessages(messages, eventData);
-        moderationService.moderate(chatifiedMessage, eventData)
-                .subscribe(inputModeration -> model.generate(chatifiedMessage, messages, eventData)
+        moderationService.moderate(messages, eventData)
+                .subscribe(inputModeration -> model.generate(messages, eventData)
                 .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
                 .subscribe(outputModeration -> {
                     final Message responseMessage = eventData.getChannel().sendMessage(textResponse).complete();
@@ -119,21 +117,5 @@ public class ChatbotUseCase implements BotUseCase {
                 });
 
         Collections.reverse(messages);
-    }
-
-    /**
-     * Stringifies messages and turns them into a prompt format
-     * 
-     * @param messages Messages in the chat room
-     * @param eventData Object containing event data
-     * @return Stringified messages for prompt
-     */
-    private static String chatifyMessages(final List<String> messages, final MessageEventData eventData) {
-
-        LOGGER.debug("Entered chatbot conversation formatter");
-        final Persona persona = eventData.getChannelConfig().getPersona();
-        messages.replaceAll(m -> m.replace(eventData.getBot().getName(), persona.getName()));
-        return MessageFormat.format("{0}\n{1} said: ",
-                String.join("\n", messages), persona.getName()).trim();
     }
 }

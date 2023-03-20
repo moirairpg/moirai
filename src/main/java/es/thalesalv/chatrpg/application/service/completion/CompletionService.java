@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
 
 public interface CompletionService {
 
-    Mono<String> generate(final String prompt, final List<String> messages, final MessageEventData messageEventData);
+    Mono<String> generate(final List<String> messages, final MessageEventData messageEventData);
 }

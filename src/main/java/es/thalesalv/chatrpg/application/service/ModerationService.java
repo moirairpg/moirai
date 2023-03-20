@@ -45,23 +45,24 @@ public class ModerationService {
     private static final String FLAGGED_TOPICS_LOREBOOK = "\n**Flagged topics:** {0}\n```json\n{1}```";
     private static final String FLAGGED_TOPICS_OUTPUT = "\n**Flagged topics:** {0}";
 
-    public Mono<ModerationResponse> moderate(final String prompt, final CommandEventData commandEventData, final ModalInteractionEvent event) {
+    public Mono<ModerationResponse> moderate(final String content, final CommandEventData commandEventData, final ModalInteractionEvent event) {
 
-        if (StringUtils.isBlank(prompt)) Mono.empty();
-        final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
+        if (StringUtils.isBlank(content)) Mono.empty();
+        final ModerationRequest request = ModerationRequest.builder().input(content).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, commandEventData.getChannelConfig(), prompt);
+                    checkModerationThresholds(moderationResult, commandEventData.getChannelConfig(), content);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
-                    handleFlags(e.getFlaggedTopics(), event, prompt);
+                    handleFlags(e.getFlaggedTopics(), event, content);
                 });
     }
 
-    public Mono<ModerationResponse> moderate(final String prompt, final MessageEventData messageEventData) {
+    public Mono<ModerationResponse> moderate(final List<String> messages, final MessageEventData messageEventData) {
 
+        final String prompt = stringifyMessages(messages);
         if (StringUtils.isBlank(prompt)) Mono.empty();
         final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
         return openAIApiService.callModerationApi(request)
@@ -75,13 +76,13 @@ public class ModerationService {
                 });
     }
 
-    public Mono<ModerationResponse> moderateOutput(final String prompt, final MessageEventData messageEventData) {
+    public Mono<ModerationResponse> moderateOutput(final String output, final MessageEventData messageEventData) {
 
-        final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
+        final ModerationRequest request = ModerationRequest.builder().input(output).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, messageEventData.getChannelConfig(), prompt);
+                    checkModerationThresholds(moderationResult, messageEventData.getChannelConfig(), output);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
@@ -146,5 +147,10 @@ public class ModerationService {
 
         eventData.getChannel().sendMessage(flaggedMessage)
                 .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+    }
+
+    private static String stringifyMessages(final List<String> messages) {
+
+        return String.join("\n", messages).trim();
     }
 }

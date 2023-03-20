@@ -14,7 +14,6 @@ import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
@@ -51,9 +50,8 @@ public class DungeonMasterUseCase implements BotUseCase {
             final List<String> messages = new ArrayList<>();
             handleMessageHistory(eventData, messages);
 
-            final String chatifiedMessage = formatAdventureForPrompt(messages, eventData);
-            moderationService.moderate(chatifiedMessage, eventData)
-                    .subscribe(inputModeration -> model.generate(chatifiedMessage, messages, eventData)
+            moderationService.moderate(messages, eventData)
+                    .subscribe(inputModeration -> model.generate(messages, eventData)
                     .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
                     .subscribe(outputModeration -> {
                         final Message responseMessage = eventData.getChannel().sendMessage(textResponse).complete();
@@ -83,21 +81,5 @@ public class DungeonMasterUseCase implements BotUseCase {
                         m.getAuthor().getName(), m.getContentDisplay().trim())));
 
         Collections.reverse(messages);
-    }
-
-    /**
-     * Stringifies messages and turns them into a prompt format
-     * 
-     * @param messages Messages in the chat room
-     * @param eventData Object containing event data
-     * @return Stringified messages for prompt
-     */
-    private String formatAdventureForPrompt(final List<String> messages, final MessageEventData eventData) {
-
-        LOGGER.debug("Entered RPG conversation formatter");
-        final Persona persona = eventData.getChannelConfig().getPersona();
-        messages.replaceAll(message -> message.replace(eventData.getBot().getName(), persona.getName()).trim());
-        return MessageFormat.format("{0}\n{1} said: ",
-                String.join("\n", messages), persona.getName()).trim();
     }
 }
