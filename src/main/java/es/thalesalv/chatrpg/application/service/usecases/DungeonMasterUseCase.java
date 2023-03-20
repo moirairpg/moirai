@@ -1,7 +1,6 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,9 +46,7 @@ public class DungeonMasterUseCase implements BotUseCase {
                 });
             }
 
-            final List<String> messages = new ArrayList<>();
-            handleMessageHistory(eventData, messages);
-
+            final List<String> messages = handleMessageHistory(eventData);
             moderationService.moderate(messages, eventData)
                     .subscribe(inputModeration -> model.generate(messages, eventData)
                     .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
@@ -65,21 +62,23 @@ public class DungeonMasterUseCase implements BotUseCase {
     /**
      * Formats last messages history to give the AI context on the adventure
      * @param eventData Object containing the event's important data to be processed
-     * @param messages List messages before the one sent
+     * @return The list of messages for history
      */
-    private void handleMessageHistory(final MessageEventData eventData, final List<String> messages) {
+    private List<String> handleMessageHistory(final MessageEventData eventData) {
 
         LOGGER.debug("Entered message history handling for RPG");
         final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
-        channel.getHistory()
+        List<String> messages = channel.getHistory()
                 .retrievePast(modelSettings.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
-                .forEach(m -> messages.add(MessageFormat.format("{0} said: {1}",
-                        m.getAuthor().getName(), m.getContentDisplay().trim())));
+                .map(m -> MessageFormat.format("{0} said: {1}",
+                        m.getAuthor().getName(), m.getContentDisplay().trim()))
+                .toList();
 
         Collections.reverse(messages);
+        return messages;
     }
 }

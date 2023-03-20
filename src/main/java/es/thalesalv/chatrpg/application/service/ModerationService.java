@@ -50,7 +50,7 @@ public class ModerationService {
 
     public Mono<ModerationResponse> moderate(final String content, final CommandEventData commandEventData, final ModalInteractionEvent event) {
 
-        if (StringUtils.isBlank(content)) Mono.empty();
+        if (StringUtils.isBlank(content)) return Mono.just(ModerationResponse.builder().build());
         final ModerationRequest request = ModerationRequest.builder().input(content).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
@@ -66,7 +66,7 @@ public class ModerationService {
     public Mono<ModerationResponse> moderate(final List<String> messages, final MessageEventData messageEventData) {
 
         final String prompt = messageFormatHelper.stringifyMessages(messages);
-        if (StringUtils.isBlank(prompt)) Mono.empty();
+        if (StringUtils.isBlank(prompt)) return Mono.just(ModerationResponse.builder().build());
         final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
@@ -81,6 +81,7 @@ public class ModerationService {
 
     public Mono<ModerationResponse> moderateOutput(final String output, final MessageEventData messageEventData) {
 
+        if (StringUtils.isBlank(output)) return Mono.just(ModerationResponse.builder().build());
         final ModerationRequest request = ModerationRequest.builder().input(output).build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
