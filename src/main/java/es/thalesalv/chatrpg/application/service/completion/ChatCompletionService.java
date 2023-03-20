@@ -37,14 +37,14 @@ public class ChatCompletionService implements CompletionService {
     private final CommonErrorHandler commonErrorHandler;
     private final ChatCompletionRequestTranslator chatGptRequestTranslator;
     private final OpenAIApiService openAiService;
-    private final StringProcessor outputProcessor = new StringProcessor();
+    private final StringProcessor outputProcessor;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatCompletionService.class);
 
     @Override
-    public Mono<String> generate(final String prompt, final List<String> messages, final MessageEventData eventData) {
+    public Mono<String> generate(final List<String> messages, final MessageEventData eventData) {
 
-        LOGGER.debug("Called inference for ChatGPT.");
+        LOGGER.debug("Called inference for Chat Completions.");
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
         final Set<LorebookEntryEntity> entriesFound = new HashSet<>();
