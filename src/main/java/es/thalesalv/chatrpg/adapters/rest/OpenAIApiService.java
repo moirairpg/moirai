@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import es.thalesalv.chatrpg.application.config.MessageEventData;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.domain.exception.ErrorBotResponseException;
 import es.thalesalv.chatrpg.domain.exception.ModerationException;
-import es.thalesalv.chatrpg.domain.model.openai.gpt.ChatGptRequest;
-import es.thalesalv.chatrpg.domain.model.openai.gpt.Gpt3Request;
-import es.thalesalv.chatrpg.domain.model.openai.gpt.GptResponse;
+import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
+import es.thalesalv.chatrpg.domain.model.openai.completion.CompletionResponse;
+import es.thalesalv.chatrpg.domain.model.openai.completion.TextCompletionRequest;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResponse;
 import reactor.core.publisher.Mono;
@@ -28,10 +28,10 @@ public class OpenAIApiService {
 
     @Value("${chatrpg.openai.api-token}")
     private String openAiToken;
-    
+
     @Value("${chatrpg.openai.completions-uri}")
     private String completionsUri;
-    
+
     @Value("${chatrpg.openai.chat-completions-uri}")
     private String chatCompletionsUri;
 
@@ -63,7 +63,7 @@ public class OpenAIApiService {
         this.webClient = webClientBuilder.baseUrl(openAiBaseUrl).build();
     }
 
-    public Mono<GptResponse> callGptChatApi(final ChatGptRequest request, final MessageEventData messageEventData) {
+    public Mono<CompletionResponse> callGptChatApi(final ChatCompletionRequest request, final MessageEventData messageEventData) {
 
         LOGGER.info("Making request to OpenAI ChatGPT API -> {}", request);
         return webClient.post()
@@ -75,7 +75,7 @@ public class OpenAIApiService {
                 .bodyValue(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, messageEventData))
-                .bodyToMono(GptResponse.class)
+                .bodyToMono(CompletionResponse.class)
                 .map(response -> {
                     LOGGER.info("Received response from OpenAI GPT API -> {}", response);
                     if (response.getError() != null) {
@@ -91,7 +91,7 @@ public class OpenAIApiService {
                 .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
     }
 
-    public Mono<GptResponse> callGptApi(final Gpt3Request request, final MessageEventData messageEventData) {
+    public Mono<CompletionResponse> callGptApi(final TextCompletionRequest request, final MessageEventData messageEventData) {
 
         LOGGER.info("Making request to OpenAI GPT API -> {}", request);
         return webClient.post()
@@ -103,7 +103,7 @@ public class OpenAIApiService {
                 .bodyValue(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, messageEventData))
-                .bodyToMono(GptResponse.class)
+                .bodyToMono(CompletionResponse.class)
                 .map(response -> {
                     LOGGER.info("Received response from OpenAI GPT API -> {}", response);
                     response.setPrompt(request.getPrompt());

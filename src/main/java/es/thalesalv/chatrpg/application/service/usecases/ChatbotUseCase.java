@@ -9,11 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.application.config.MessageEventData;
-import es.thalesalv.chatrpg.application.config.Persona;
 import es.thalesalv.chatrpg.application.service.ModerationService;
-import es.thalesalv.chatrpg.application.service.interfaces.GptModelService;
+import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
+import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -29,7 +29,7 @@ public class ChatbotUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
 
     @Override
-    public MessageEventData generateResponse(final MessageEventData eventData, final GptModelService model) {
+    public MessageEventData generateResponse(final MessageEventData eventData, final CompletionService model) {
 
         LOGGER.debug("Entered generation for normal text.");
         eventData.getChannel().sendTyping().complete();
@@ -52,9 +52,8 @@ public class ChatbotUseCase implements BotUseCase {
             handleMessageHistory(messages, eventData);
         }
 
-        final String chatifiedMessage = chatifyMessages(messages, eventData);
-        moderationService.moderate(chatifiedMessage, eventData)
-                .subscribe(inputModeration -> model.generate(chatifiedMessage, messages, eventData)
+        moderationService.moderate(messages, eventData)
+                .subscribe(inputModeration -> model.generate(messages, eventData)
                 .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
                 .subscribe(outputModeration -> {
                     final Message responseMessage = eventData.getChannel().sendMessage(textResponse).complete();
@@ -76,8 +75,8 @@ public class ChatbotUseCase implements BotUseCase {
         final SelfUser bot = eventData.getBot();
         final Message reply = message.getReferencedMessage();
         final MessageChannelUnion channel = eventData.getChannel();
-        final Persona persona = eventData.getPersona();
-        channel.getHistoryBefore(reply, persona.getChatHistoryMemory())
+        final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
+        channel.getHistoryBefore(reply, modelSettings.getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
                 .stream()
@@ -104,11 +103,11 @@ public class ChatbotUseCase implements BotUseCase {
     private void handleMessageHistory(final List<String> messages, final MessageEventData eventData) {
 
         LOGGER.debug("Entered message history handling for chatbot");
-        final Persona persona = eventData.getPersona();
+        final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
         channel.getHistory()
-                .retrievePast(persona.getChatHistoryMemory()).complete()
+                .retrievePast(modelSettings.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
                 .forEach(m -> {
@@ -118,20 +117,5 @@ public class ChatbotUseCase implements BotUseCase {
                 });
 
         Collections.reverse(messages);
-    }
-
-    /**
-     * Stringifies messages and turns them into a prompt format
-     * 
-     * @param messages Messages in the chat room
-     * @param eventData Object containing event data
-     * @return Stringified messages for prompt
-     */
-    private static String chatifyMessages(final List<String> messages, final MessageEventData eventData) {
-
-        LOGGER.debug("Entered chatbot conversation formatter");
-        messages.replaceAll(m -> m.replace(eventData.getBot().getName(), eventData.getPersona().getName()));
-        return MessageFormat.format("{0}\n{1} said: ",
-                String.join("\n", messages), eventData.getPersona().getName()).trim();
     }
 }

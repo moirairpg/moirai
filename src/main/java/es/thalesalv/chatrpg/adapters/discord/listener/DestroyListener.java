@@ -1,33 +1,36 @@
 package es.thalesalv.chatrpg.adapters.discord.listener;
 
-import es.thalesalv.chatrpg.adapters.beans.JDAConfigurationBean;
-import es.thalesalv.chatrpg.application.config.BotConfig;
-import jakarta.annotation.PreDestroy;
-import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
-import java.lang.invoke.MethodHandles;
-import java.util.Optional;
+import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 @RequiredArgsConstructor
 public class DestroyListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
-    private final JDAConfigurationBean jdaConfig;
-    private final BotConfig botConfig;
+
+    @Value("${chatrpg.discord.status-channel-id}")
+    private String statusChannelId;
+
+    private final JDA jda;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DestroyListener.class);
 
     @PreDestroy
     public void beforeDestroy() {
         try {
-            Optional.ofNullable(botConfig.getStatusChannelId())
+            Optional.ofNullable(statusChannelId)
                     .filter(StringUtils::isNotEmpty)
-                    .ifPresent(
-                            id -> jdaConfig.jda().getChannelById(TextChannel.class, id).sendMessage(jdaConfig.jda().getSelfUser().getName() + " is ready to chat!").complete()
-                    );
+                    .ifPresent(id -> jda.getChannelById(TextChannel.class, id)
+                            .sendMessage(jda.getSelfUser().getName() + " is ready to chat!").complete());
         } catch (Exception e) {
-            LOGGER.error("Error during destroy: ", e);
+            LOGGER.error("Error during destroy", e);
         }
     }
 }
