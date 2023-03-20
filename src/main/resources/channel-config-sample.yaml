@@ -24,7 +24,8 @@ channel-config:
         frequency-penalty: 0.2
         presence-penalty: 0.2
         chat-history-memory: 10
-        stop-token: \n
+        stop-sequence:
+        - \n
         logit-bias:
           '9552': -100
       moderation-settings:
