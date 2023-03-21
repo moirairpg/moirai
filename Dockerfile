@@ -9,7 +9,7 @@ ADD ./src src/
 RUN apt update -y &&\
     apt install -y wget &&\
     wget https://dlcdn.apache.org/maven/maven-3/3.9.0/binaries/apache-maven-3.9.0-bin.tar.gz -P /tmp &&\
-    wget https://gist.githubusercontent.com/thaalesalves/20be6c5ee5cfc85265db919bad61afac/raw/bot-config.yaml -P src/main/resources &&\
+    wget https://gist.githubusercontent.com/thaalesalves/6aaf8d0601a777593888415558e7f6d4/raw/channel-config.yaml -P src/main/resources &&\
     tar xf /tmp/apache-maven-*.tar.gz -C /opt &&\
     ln -s /opt/apache-maven-3.9.0 /opt/maven &&\
     /opt/maven/bin/mvn clean package -e -DskipTests
