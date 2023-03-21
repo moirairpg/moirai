@@ -30,17 +30,17 @@ public class PersonaEntity {
     @Column(name = "intent")
     private String intent;
 
-    @Column(name = "personality")
+    @Column(name = "personality", length = 2000)
     private String personality;
 
     @Column(name = "owner_discord_id")
     private String owner;
 
-    @Column(name = "nudge")
+    @Column(name = "nudge", length = 2000)
     @Convert(converter = NudgeConverter.class)
     private NudgeEntity nudge;
 
-    @Column(name = "bump")
+    @Column(name = "bump", length = 2000)
     @Convert(converter = BumpConverter.class)
     private BumpEntity bump;
 }
