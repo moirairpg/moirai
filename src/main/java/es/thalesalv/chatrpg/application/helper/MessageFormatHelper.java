@@ -19,7 +19,7 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Nudge;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
@@ -109,7 +109,7 @@ public class MessageFormatHelper {
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
     }
 
-    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final MessageEventData eventData) {
+    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final EventData eventData) {
 
         final Persona persona = eventData.getChannelConfig().getPersona();
         final String personality = persona.getPersonality().replace("{0}", persona.getName());
@@ -155,7 +155,7 @@ public class MessageFormatHelper {
      * @param eventData Object containing event data
      * @return Stringified messages for prompt
      */
-    public String chatifyMessages(final List<String> messages, final MessageEventData eventData) {
+    public String chatifyMessages(final List<String> messages, final EventData eventData) {
 
         LOGGER.debug("Entered chatbot conversation formatter");
         final Persona persona = eventData.getChannelConfig().getPersona();
@@ -238,7 +238,7 @@ public class MessageFormatHelper {
                 .orElse(messages);
     }
 
-    public List<String> formatMessages(List<String> messages, MessageEventData eventData) {
+    public List<String> formatMessages(List<String> messages, EventData eventData) {
 
         final Persona persona = eventData.getChannelConfig().getPersona();
         messages.add(0, persona.getPersonality().replaceAll("\\{0\\}", persona.getName()));

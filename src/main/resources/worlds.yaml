@@ -1,12 +1,42 @@
 ---
 worlds:
-  - name: "The Empire of Tamriel: 3E 153"
+  - name: The World of Eldrida
     visibility: public
+    description: >
+      Eldrida is a vast and mystical land with gargantuan creatures, elves, dwarves, human kingdoms, magic and ancient history that permeates the atmosphere. The inhabitants of the land may have different goals, but often find themselves thrown together on unlikely paths.
     initial-prompt: >
-      The year is 3E 153. You have just arrived in the city of Whiterun. The city is lively and filled with people of all kinds. There's the guards, walking around keeping order. There's the bards, singing lovely songs that make you want to dance and be happy. There are children running around in the streets, playing games and having fun.
-      The market is bustling with people selling things, from food to weapons to cloth. There's a group of men over there fixing up a broken wagon, and there's a blacksmith over there, working away at the forge. You can already see the tall shape of the tavern in front of you, where you intend to go. The sun is setting over the city, making it look like it's on fire. The sky is turning a marvelous shade of orange, and the clouds are turning an astonishing red at their centres. It's truly beautiful.
-      You see the two moons, Masser and Secunda, raising high in the sky as the sun sets. They're almost full, and so very bright. The larger one, Masser, is a hazy circle, while the smaller, Secunda, is a sharp crescent. You stand and watch the sun set for a little while, the colours shifting through the spectrum until it finally sets, and darkness shrouds the city. You make your way to the Bloated Goat.
+      The city of Ironhaven is situated on the coast of Eldrida, where the clouds bring a salty tang and hardy ships dock regularly from elven ports in the east or human settlements in the west. As you arrive, it is apparent that this bustling town thrives on its mechanical wonders, such as the towering automatons that tower over every street corner, as well as mechanical transports running all around.
+      As you stroll through the city streets, taking in the sounds and sights of clanking gears and belching steam stacks, something strange catches your attention. You hear noises coming from an alleyway - animals screeching, objects being thrown around and a strange rumbling sound. At first, you think it might be some simple scuffle or merchants having a heated argument. But, as you move closer and peek down the narrow lane – all thoughts of simple misunderstandings vanish.
+      What initially seems to be a brawl turns out to be a group of heavily-armored golems cornering a terrified half-elf merchant. You hear him cry out for help but there isn't anyone else-it's just you facing down these dangerous automata. They are unyielding machines with huge pistons carrying heavy metal fists that crack into walls whenever they quake forward. From their imposing heights, they snarl at his pleas to release him and step closer menacingly with every second.
+      The half-elf's face is a mask of terror when he finally spots you behind them. His eyes widen with both hope and fear as he sees that you can help him out. "Please! Someone get me out of here before I become scrap metal," he cries desperately.
     lorebook:
-      - name: Bloated Goat
-        description: The Bloated Goat is a bar.
-        regex: Bloated Goat
+      - name: Stonehold
+        description: A mountain fortress town run by dwarves standing at 10,000 feet above sea level, known for their mining operations and powerful golems protecting the city.
+      - name: Merivale
+        description: A fertile river valley that's a hub for culture and trade in human kingdoms. Known for its grand amphitheaters that host plays, tournaments, and concerts throughout the year.
+      - name: Ironhaven
+        description: An industrial harbor town dominated by gigantic iron behemoths once served as gatekeepers against pirate raids because of its coastal location, now transformed into mechanical marvels that haul massive loads of cargo around.
+      - name: Elvish Enclave
+        description: Hidden within the heart of great Eldrida forest dwell wood elves who share magical bond with nature that imbues them enhanced speed, agility and archery skills. Beneath stately trees connected by interlocking catwalks hang quaint tree-house settlements settled among giant vines.
+      - name: Darkmire
+        description: A foreboding swamp that has dangerous rumors surrounding it; it's said to be home to ghosts, undead beings, witches and other particularly sinister creatures best avoided on everyone's paths.
+      - name: Iron Guild
+        description: A powerful dwarven clan that runs the town's mining operations and golem manufacturing. They're always seeking talented artisans to join their ranks.
+      - name: Cavekeeper Clan
+        description: A group of dwarves dedicated to maintaining the tunnels that honeycomb the mountains near Stonehold. They keep watch against gnolls, trolls and other dangerous creatures that lurk in the dark.
+      - name: Followers of Evandra
+        description: A religious group devoted to worshiping the goddess of wisdom and magic, Evandra. They often offer magical education to those who are willing to listen.
+      - name: Black Hand Syndicate
+        description: A notorious group of thieves and smugglers operating out of Merivale's docks. The syndicate is made up of humans, halflings, and even a rogue goblin clan.
+      - name: Engineers' Guild
+        description: A collection of brilliant minds that specialize in designing mechanical marvels, such as clockwork golems, steam engines and ironclad ships.
+      - name: Redd's Crew
+        description: A crew of gunslingers who work for the wealthy merchants who dominate Ironhaven. Their reputation as a mercenary squad often precedes them.
+      - name: Council of Elders
+        description: Wood elven archers serve as the enforcers of this loose confederation that governs all aspects related to social and political welfare in the greater forested region around their settlement.
+      - name: Nightblades
+        description: An organisation originally formed from disgruntled elves who felt wronged against other cities or outsiders while pursuing their voluntary vigilante role in Elvish Enclave.
+      - name: Witches' Coven
+        description: A sect of infamous witches who conduct arcane experiments using swamp water infused with mystical herbs in their dark hovels at night.
+      - name: Free Spirits
+        description: An independent group of swamp dwellers immune to witchcraft; they understand Eldrida forests and swamps more than anyone else.

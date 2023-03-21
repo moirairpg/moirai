@@ -17,8 +17,7 @@ import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
 import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,7 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityMapper;
-    private final MessageEventDataTranslator messageEventDataTranslator;
+    private final MessageEventDataTranslator eventDataTranslator;
 
     private static final String ERROR_EDITING = "Error editing message";
     private static final String USE_CASE = "UseCase";
@@ -67,10 +66,10 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
                             .findAny()
                             .map(message -> {
                                 final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
-                                final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, channelConfig, message);
+                                final EventData eventData = eventDataTranslator.translate(event.getJDA().getSelfUser(), channel, channelConfig, message);
                                 final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-                                final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
+                                final EventData responseEventData = useCase.generateResponse(eventData, model);
 
                                 saveEventDataToContext(responseEventData, channelConfig, channel);
                                 event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage())).queue();
@@ -92,7 +91,7 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
         try {
             event.deferReply();
             final String messageContent = event.getValue("message-content").getAsString();
-            final CommandEventData eventData = contextDatastore.getCommandEventData();
+            final EventData eventData = contextDatastore.getEventData();
             moderationService.moderate(messageContent, eventData, event)
                     .subscribe(response -> {
                         eventData.getMessageToBeEdited().editMessage(messageContent).complete();
@@ -121,9 +120,9 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
                 .addComponents(ActionRow.of(messageContent)).build();
     }
 
-    private void saveEventDataToContext(final MessageEventData responseEventData, final ChannelConfig channelConfig, final MessageChannelUnion channel) {
+    private void saveEventDataToContext(final EventData responseEventData, final ChannelConfig channelConfig, final MessageChannelUnion channel) {
 
-        contextDatastore.setCommandEventData(CommandEventData.builder()
+        contextDatastore.setEventData(EventData.builder()
                 .messageToBeEdited(responseEventData.getResponseMessage())
                 .channelConfig(channelConfig)
                 .channel(channel)

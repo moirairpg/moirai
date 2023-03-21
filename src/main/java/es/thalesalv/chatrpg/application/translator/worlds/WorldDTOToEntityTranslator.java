@@ -25,6 +25,7 @@ public class WorldDTOToEntityTranslator implements Function<World, WorldEntity> 
                 .name(t.getName())
                 .owner(t.getOwner())
                 .visibility(t.getVisibility())
+                .description(t.getDescription())
                 .lorebook(t.getLorebook().stream()
                         .map(lorebookDTOToEntityTranslator::apply)
                         .toList())

@@ -18,7 +18,7 @@ import es.thalesalv.chatrpg.application.translator.airequest.TextCompletionReque
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
 import es.thalesalv.chatrpg.domain.model.openai.completion.TextCompletionRequest;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -38,7 +38,7 @@ public class TextCompletionService implements CompletionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextCompletionService.class);
 
     @Override
-    public Mono<String> generate(List<String> messages, MessageEventData eventData) {
+    public Mono<String> generate(List<String> messages, EventData eventData) {
 
         LOGGER.debug("Called inference for Text Completions.");
         final Mentions mentions = eventData.getMessage().getMentions();

@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 
 import es.thalesalv.chatrpg.domain.exception.OpenAiApiException;
 import es.thalesalv.chatrpg.domain.model.openai.completion.CompletionResponse;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -24,36 +24,36 @@ public class CommonErrorHandler {
     private static final String MESSAGE_TOO_LONG = "The message you sent or the total context exceeds the maximum number of available tokens. Send a smaller message or contact the administrator. Your message will be removed.\n**Message content:** {0}";
     private static final String SOMETHING_WRONG = "Something went wrong. Please try again.";
 
-    public void handleEmptyResponse(final MessageEventData messageEventData) {
+    public void handleEmptyResponse(final EventData eventData) {
 
-        notifyUser(EMPTY_RESPONSE, messageEventData);
+        notifyUser(EMPTY_RESPONSE, eventData);
     }
 
-    public void notifyUser(final String notification, final MessageEventData messageEventData) {
+    public void notifyUser(final String notification, final EventData eventData) {
 
-        messageEventData.getChannel().sendMessage(MessageFormat.format(notification, messageEventData.getMessage().getContentRaw()))
+        eventData.getChannel().sendMessage(MessageFormat.format(notification, eventData.getMessage().getContentRaw()))
                 .queue(msg -> msg.delete().queueAfter(10, TimeUnit.SECONDS));
     }
 
-    public Mono<Throwable> handle4xxError(final ClientResponse clientResponse, final MessageEventData messageEventData) {
+    public Mono<Throwable> handle4xxError(final ClientResponse clientResponse, final EventData eventData) {
 
         LOGGER.debug("Exception caught while calling OpenAI API");
         return clientResponse.bodyToMono(CompletionResponse.class)
             .map(errorResponse -> {
                 if (404 == clientResponse.statusCode().value()) {
                     LOGGER.error("OpenAI API threw NOT FOUND error -> {}", errorResponse);
-                    notifyUser(SOMETHING_WRONG, messageEventData);
+                    notifyUser(SOMETHING_WRONG, eventData);
                 } else {
-                    LOGGER.error("Error while calling OpenAI API. Message -> {}", errorResponse.getError().getMessage());
-                    notifyUser(MESSAGE_TOO_LONG, messageEventData);
+                    LOGGER.error("Error while calling OpenAI API. Message -> {}", errorResponse);
+                    notifyUser(MESSAGE_TOO_LONG, eventData);
                 }
 
                 return new OpenAiApiException("Error while calling OpenAI API.", errorResponse);
             });
     }
 
-    public void handleResponseError(final MessageEventData messageEventData) {
+    public void handleResponseError(final EventData eventData) {
 
-        notifyUser(UNKNOWN_ERROR, messageEventData);
+        notifyUser(UNKNOWN_ERROR, eventData);
     }
 }

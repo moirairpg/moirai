@@ -2,8 +2,6 @@ package es.thalesalv.chatrpg.application.service;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +11,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import es.thalesalv.chatrpg.adapters.data.db.entity.ChannelConfigEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
@@ -43,16 +39,17 @@ import net.dv8tion.jda.api.JDA;
 public class IngestDefaultConfigService {
 
     private final JDA jda;
+    private final ObjectMapper yamlObjectMapper;
     private final WorldDTOToEntityTranslator worldDTOToEntityTranslator;
-    private final LorebookDTOToEntityTranslator lorebookDTOToEntryTranslator;
     private final ChannelConfigToEntity channelConfigToEntity;
     private final ChannelConfigRepository channelConfigRepository;
     private final PersonaRepository personaRepository;
     private final ModerationSettingsRepository moderationSettingsRepository;
     private final ModelSettingsRepository modelSettingsRepository;
+    private final WorldRepository worldRepository;
+    private final LorebookDTOToEntityTranslator lorebookDTOToEntryTranslator;
     private final LorebookRepository lorebookRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
-    private final WorldRepository worldRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestDefaultConfigService.class);
 
@@ -65,10 +62,7 @@ public class IngestDefaultConfigService {
     public void ingestDefaultChannelConfigs() throws StreamReadException, DatabindException, IOException {
 
         try {
-            final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory())
-                    .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
-
-            final ChannelConfigYaml yaml = objectMapper.readValue(new ClassPathResource("channel-config.yaml")
+            final ChannelConfigYaml yaml = yamlObjectMapper.readValue(new ClassPathResource("channel-config.yaml")
                     .getInputStream(), ChannelConfigYaml.class);
 
             LOGGER.info("Found default configs. Ingesting them to database.");
@@ -100,10 +94,7 @@ public class IngestDefaultConfigService {
     public void ingestDefaultWorlds() throws StreamReadException, DatabindException, IOException {
 
         try {
-            final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory())
-                    .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
-
-            final WorldsYaml yaml = objectMapper.readValue(new ClassPathResource("worlds.yaml")
+            final WorldsYaml yaml = yamlObjectMapper.readValue(new ClassPathResource("worlds.yaml")
                     .getInputStream(), WorldsYaml.class);
 
             LOGGER.info("Found default worlds. Ingesting them to database.");
@@ -111,11 +102,8 @@ public class IngestDefaultConfigService {
             int i = 1;
             for (World world : yaml.getWorlds()) {
                 int j = 1;
-                List<LorebookRegexEntity> entryEntities = new ArrayList<>();
                 world.setId(String.valueOf(i));
                 final WorldEntity worldEntity = worldDTOToEntityTranslator.apply(world);
-                worldEntity.setLorebook(null);
-                worldRepository.save(worldEntity);
                 for (LorebookEntry entry : world.getLorebook()) {
                     final String entryId = String.valueOf(j);
                     entry.setId(entryId);
@@ -124,9 +112,10 @@ public class IngestDefaultConfigService {
                     entryEntity.setWorld(worldEntity);
                     lorebookRepository.save(entryEntity.getLorebookEntry());
                     lorebookRegexRepository.save(entryEntity);
-                    entryEntities.add(entryEntity);
                     j++;
                 }
+
+                worldRepository.save(worldEntity);
                 i++;
             }
         } catch (FileNotFoundException e) {

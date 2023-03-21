@@ -3,7 +3,7 @@ package es.thalesalv.chatrpg.application.translator;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -14,9 +14,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 @RequiredArgsConstructor
 public class MessageEventDataTranslator {
 
-    public MessageEventData translate(final MessageReceivedEvent event, final ChannelConfig channelConfig) {
+    public EventData translate(final MessageReceivedEvent event, final ChannelConfig channelConfig) {
 
-        return MessageEventData.builder()
+        return EventData.builder()
                 .bot(event.getJDA().getSelfUser())
                 .messageAuthor(event.getAuthor())
                 .message(event.getMessage())
@@ -26,9 +26,9 @@ public class MessageEventDataTranslator {
                 .build();
     }
 
-    public MessageEventData translate(final SelfUser bot, final MessageChannelUnion channel, final ChannelConfig channelConfig, final Message message) {
+    public EventData translate(final SelfUser bot, final MessageChannelUnion channel, final ChannelConfig channelConfig, final Message message) {
 
-        return MessageEventData.builder()
+        return EventData.builder()
                 .bot(bot)
                 .messageAuthor(message.getAuthor())
                 .message(message)

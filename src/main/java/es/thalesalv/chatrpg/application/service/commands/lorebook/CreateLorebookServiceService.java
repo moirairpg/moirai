@@ -22,7 +22,7 @@ import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.translator.lorebook.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.application.util.NanoId;
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.User;
@@ -58,7 +58,7 @@ public class CreateLorebookServiceService implements DiscordCommand {
                 .findFirst()
                 .map(channelEntityMapper::apply)
                 .ifPresent(channel -> {
-                    contextDatastore.setCommandEventData(CommandEventData.builder()
+                    contextDatastore.setEventData(EventData.builder()
                             .channelConfig(channel.getChannelConfig()).build());
 
                     final Modal modal = buildEntryCreationModal();
@@ -90,7 +90,7 @@ public class CreateLorebookServiceService implements DiscordCommand {
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
 
-            moderationService.moderate(loreEntryJson, contextDatastore.getCommandEventData(), event).subscribe(response -> {
+            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> {
                 event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
                                 insertedEntry.getLorebookEntry().getName(), loreEntryJson))
                         .setEphemeral(true).complete();

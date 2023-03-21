@@ -27,6 +27,9 @@ public class WorldEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "description", nullable = false, length = 2000)
+    private String description;
+
     @Column(name = "owner_discord_id")
     private String owner;
 
@@ -36,9 +39,9 @@ public class WorldEntity {
     @Column(name = "visibility", nullable = false)
     private String visibility;
 
-    @Column(name = "initial_prompt", nullable = false, length = 2000)
+    @Column(name = "initial_prompt", length = 2000)
     private String initialPrompt;
 
-    @OneToMany
+    @OneToMany(mappedBy = "world")
     private List<LorebookRegexEntity> lorebook;
 }

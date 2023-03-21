@@ -14,7 +14,7 @@ import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Channel;
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
@@ -74,7 +74,7 @@ public class EditDMAssistCommandService implements DiscordCommand {
         try {
             event.deferReply();
             final String messageContent = event.getValue("message-content").getAsString();
-            final CommandEventData eventData = contextDatastore.getCommandEventData();
+            final EventData eventData = contextDatastore.getEventData();
             final Message message = eventData.getMessageToBeEdited();
             moderationService.moderate(messageContent, eventData, event)
                     .subscribe(response -> message.editMessage(messageContent).submit()
@@ -120,7 +120,7 @@ public class EditDMAssistCommandService implements DiscordCommand {
 
     private void saveEventDataToContext(final Message message, final Channel channel) {
 
-        contextDatastore.setCommandEventData(CommandEventData.builder()
+        contextDatastore.setEventData(EventData.builder()
                 .messageToBeEdited(message)
                 .channelConfig(channel.getChannelConfig())
                 .build());

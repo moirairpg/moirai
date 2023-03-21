@@ -16,7 +16,7 @@ import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -54,7 +54,7 @@ public class DeleteLorebookCommandService implements DiscordCommand {
                     .ifPresent(channel -> {
                         lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder().id(entryId).build())
                                 .orElseThrow(LorebookEntryNotFoundException::new);
-                        contextDatastore.setCommandEventData(CommandEventData.builder()
+                        contextDatastore.setEventData(EventData.builder()
                                 .lorebookEntryId(entryId).build());
 
                         final Modal modal = buildEntryDeletionModal();
@@ -83,7 +83,7 @@ public class DeleteLorebookCommandService implements DiscordCommand {
                 .orElse(false);
 
         if (isUserSure) {
-            final String id = contextDatastore.getCommandEventData().getLorebookEntryId();
+            final String id = contextDatastore.getEventData().getLorebookEntryId();
             final LorebookEntryEntity lorebookEntry = LorebookEntryEntity.builder().id(id).build();
             lorebookRegexRepository.deleteByLorebookEntry(lorebookEntry);
             lorebookRepository.delete(lorebookEntry);

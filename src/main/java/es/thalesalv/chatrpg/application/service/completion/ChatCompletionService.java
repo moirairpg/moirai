@@ -19,7 +19,7 @@ import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -39,7 +39,7 @@ public class ChatCompletionService implements CompletionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatCompletionService.class);
 
     @Override
-    public Mono<String> generate(final List<String> messages, final MessageEventData eventData) {
+    public Mono<String> generate(final List<String> messages, final EventData eventData) {
 
         LOGGER.debug("Called inference for Chat Completions.");
         final Mentions mentions = eventData.getMessage().getMentions();

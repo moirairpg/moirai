@@ -5,26 +5,26 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 
 @Component
 public class ContextDatastore {
 
-    private ThreadLocal<CommandEventData> commandEventData = new ThreadLocal<>();
+    private ThreadLocal<EventData> commandEventData = new ThreadLocal<>();
 
-    public void setCommandEventData(final CommandEventData commandEventData) {
+    public void setEventData(final EventData commandEventData) {
 
         this.commandEventData.set(commandEventData);
     }
 
-    public CommandEventData getCommandEventData() {
+    public EventData getEventData() {
 
         return Optional.ofNullable(this.commandEventData)
         		.map(ThreadLocal::get)
         		.orElseThrow(()-> new NullPointerException("commandEventData not set on thread"));
     }
 
-    public boolean isCommandEventDataNull() {
+    public boolean isEventDataNull() {
 
         return Objects.isNull(commandEventData.get());
     }

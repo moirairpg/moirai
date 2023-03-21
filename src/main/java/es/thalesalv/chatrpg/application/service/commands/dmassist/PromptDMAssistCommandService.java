@@ -16,8 +16,7 @@ import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
 import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,7 @@ public class PromptDMAssistCommandService implements DiscordCommand {
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
-    private final MessageEventDataTranslator messageEventDataTranslator;
+    private final MessageEventDataTranslator eventDataTranslator;
 
     private static final String GENERATION_INSTRUCTION = " Simply generate the message from where it stopped.\n";
     private static final String USE_CASE = "UseCase";
@@ -58,7 +57,7 @@ public class PromptDMAssistCommandService implements DiscordCommand {
                     .findFirst()
                     .map(channelEntityMapper::apply)
                     .ifPresent(ch -> {
-                        contextDatastore.setCommandEventData(CommandEventData.builder()
+                        contextDatastore.setEventData(EventData.builder()
                                 .channelConfig(ch.getChannelConfig())
                                 .channel(channel)
                                 .build());
@@ -78,26 +77,26 @@ public class PromptDMAssistCommandService implements DiscordCommand {
         LOGGER.debug("Received data of message for assisted prompt generation modal");
         try {
             event.deferReply();
-            final Persona persona = contextDatastore.getCommandEventData().getChannelConfig().getPersona();
-            final ModelSettings modelSettings = contextDatastore.getCommandEventData().getChannelConfig().getSettings().getModelSettings();
+            final Persona persona = contextDatastore.getEventData().getChannelConfig().getPersona();
+            final ModelSettings modelSettings = contextDatastore.getEventData().getChannelConfig().getSettings().getModelSettings();
 
             final String input = event.getValue("message-content").getAsString();
             final String generateOutput = event.getValue("generate-output").getAsString();
             final SelfUser bot = event.getJDA().getSelfUser();
-            final MessageChannelUnion channel = contextDatastore.getCommandEventData().getChannel();
+            final MessageChannelUnion channel = contextDatastore.getEventData().getChannel();
             final Message message = channel.sendMessage(bot.getAsMention() + GENERATION_INSTRUCTION + input).complete();
             event.reply("Assisted prompt used").setEphemeral(true)
                     .queue(m -> m.deleteOriginal().queueAfter(1, TimeUnit.MILLISECONDS));
 
             if (generateOutput.equals("y")) {
-                final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA()
-                        .getSelfUser(), channel, contextDatastore.getCommandEventData().getChannelConfig(), message);
+                final EventData eventData = eventDataTranslator.translate(event.getJDA()
+                        .getSelfUser(), channel, contextDatastore.getEventData().getChannelConfig(), message);
 
                 final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
                 final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
-                useCase.generateResponse(messageEventData, model);
+                useCase.generateResponse(eventData, model);
             }
 
             message.editMessage(message.getContentRaw()

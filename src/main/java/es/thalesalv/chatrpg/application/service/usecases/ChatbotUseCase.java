@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
@@ -33,7 +33,7 @@ public class ChatbotUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
 
     @Override
-    public MessageEventData generateResponse(final MessageEventData eventData, final CompletionService model) {
+    public EventData generateResponse(final EventData eventData, final CompletionService model) {
 
         LOGGER.debug("Entered generation for normal text.");
         eventData.getChannel().sendTyping().complete();
@@ -68,7 +68,7 @@ public class ChatbotUseCase implements BotUseCase {
      * @param eventData Object containing the event's important data to be processed
      * @return The processed list of messages
      */
-    private List<String> handleMessageHistoryForReplies(final MessageEventData eventData) {
+    private List<String> handleMessageHistoryForReplies(final EventData eventData) {
 
         LOGGER.debug("Entered quoted message history handling for chatbot");
         final Message message = eventData.getMessage();
@@ -106,7 +106,7 @@ public class ChatbotUseCase implements BotUseCase {
      * @param eventData Object containing the event's important data to be processed
      * @return The processed list of messages
      */
-    private List<String> handleMessageHistory(final MessageEventData eventData) {
+    private List<String> handleMessageHistory(final EventData eventData) {
 
         LOGGER.debug("Entered message history handling for chatbot");
         final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();

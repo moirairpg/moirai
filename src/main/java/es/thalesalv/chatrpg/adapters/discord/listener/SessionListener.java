@@ -96,6 +96,7 @@ public class SessionListener {
         LOGGER.debug("Registering Channel Config slash commands.");
         return Commands.slash("chconfig", "Commands for channel configuration")
                 .addOption(OptionType.STRING, "action", "One of the following: set", true)
-                .addOption(OptionType.STRING, "config-id", "ID of the configuration to be set to this channel", false);
+                .addOption(OptionType.STRING, "config-id", "ID of the configuration to be set to this channel", false)
+                .addOption(OptionType.STRING, "world-id", "ID of the world to be set to this channel's configuration", false);
     }
 }

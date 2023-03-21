@@ -25,7 +25,7 @@ import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.translator.lorebook.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -65,7 +65,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
                     .map(channelEntityMapper::apply)
                     .ifPresent(channel -> {
                         final String entryId = event.getOption("lorebook-entry-id").getAsString();
-                        contextDatastore.setCommandEventData(CommandEventData.builder()
+                        contextDatastore.setEventData(EventData.builder()
                                 .lorebookEntryId(entryId).channelConfig(channel.getChannelConfig()).build());
 
                         final var entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder().id(entryId).build())
@@ -95,7 +95,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
         try {
             LOGGER.debug("Received data from lore entry update modal");
             event.deferReply();
-            final String entryId = contextDatastore.getCommandEventData().getLorebookEntryId();
+            final String entryId = contextDatastore.getEventData().getLorebookEntryId();
             final String updatedEntryName = event.getValue("lorebook-entry-name").getAsString();
             final String updatedEntryRegex = event.getValue("lorebook-entry-regex").getAsString();
             final String updatedEntryDescription = event.getValue("lorebook-entry-desc").getAsString();
@@ -109,7 +109,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(entry);
 
-            moderationService.moderate(loreEntryJson, contextDatastore.getCommandEventData(), event).subscribe(response -> {
+            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> {
                 event.reply(MessageFormat.format(ENTRY_UPDATED,
                 updatedEntry.getLorebookEntry().getName(), loreEntryJson))
                         .setEphemeral(true).complete();

@@ -11,7 +11,7 @@ import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
 import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class MessageListener {
     private final ChannelEntityToDTO channelEntityMapper;
     private final ChannelRepository channelRepository;
     private final ApplicationContext applicationContext;
-    private final MessageEventDataTranslator messageEventDataTranslator;
+    private final MessageEventDataTranslator eventDataTranslator;
 
     private static final String USE_CASE = "UseCase";
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageListener.class);
@@ -40,10 +40,10 @@ public class MessageListener {
                         final Persona persona = channel.getChannelConfig().getPersona();
                         final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
                         final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
-                        final MessageEventData messageEventData = messageEventDataTranslator.translate(event, channel.getChannelConfig());
+                        final EventData eventData = eventDataTranslator.translate(event, channel.getChannelConfig());
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                         final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-                        useCase.generateResponse(messageEventData, model);
+                        useCase.generateResponse(eventData, model);
                     });
         }
     }

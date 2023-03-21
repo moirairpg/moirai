@@ -24,14 +24,14 @@ public class SetChConfigCommandService implements DiscordCommand {
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
 
-    private static final String ERROR_EDITING = "Error editing message";
-    private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
+    private static final String ERROR_SETTING_CHANNEL_CONFIG = "Error defining channel config";
+    private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when defining the channel config. Please try again.";
     private static final Logger LOGGER = LoggerFactory.getLogger(SetChConfigCommandService.class);
 
     @Override
     public void handle(SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Received slash command for message edition");
+        LOGGER.debug("Received slash command for setting channel config");
         try {
             event.deferReply();
             final String configId = event.getOption("config-id").getAsString();
@@ -47,7 +47,7 @@ public class SetChConfigCommandService implements DiscordCommand {
                                 .build();
 
                         channelRepository.save(entity);
-                        event.reply(MessageFormat.format("Channel {0} was linked to configuration #{1}.",
+                        event.reply(MessageFormat.format("Channel `{0}` was linked to configuration `{1}`.",
                                 event.getChannel().getName(), entity.getId())).setEphemeral(true).complete();
 
                         return entity;
@@ -55,9 +55,9 @@ public class SetChConfigCommandService implements DiscordCommand {
                     .orElseThrow(() -> new ChannelConfigurationNotFoundException("Could not find configuration with provided ID"));
         } catch (ChannelConfigurationNotFoundException e) {
             LOGGER.debug("User tried to find a channel config that does not exist", e);
-            event.reply("The request channel configuration does not exist.").setEphemeral(true).queue();
+            event.reply("The requested channel configuration does not exist.").setEphemeral(true).queue();
         } catch (Exception e) {
-            LOGGER.error(ERROR_EDITING, e);
+            LOGGER.error(ERROR_SETTING_CHANNEL_CONFIG, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true).queue();
         }
     }
