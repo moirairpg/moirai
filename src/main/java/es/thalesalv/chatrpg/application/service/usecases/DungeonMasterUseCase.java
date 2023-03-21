@@ -3,7 +3,9 @@ package es.thalesalv.chatrpg.application.service.usecases;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
+import es.thalesalv.chatrpg.application.util.TokenCountingStringPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -69,14 +71,27 @@ public class DungeonMasterUseCase implements BotUseCase {
         LOGGER.debug("Entered message history handling for RPG");
         final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
-        final SelfUser bot = eventData.getBot();
+        final Predicate<Message> skipFilter = skipFilter(eventData);
+        final TokenCountingStringPredicate tokenPredicate = getTokenPredicate(eventData);
+
         return channel.getHistory()
                 .retrievePast(modelSettings.getChatHistoryMemory()).complete()
                 .stream()
-                .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
+                .filter(skipFilter)
                 .map(m -> MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()))
+                .takeWhile(tokenPredicate)
                 .sorted(Collections.reverseOrder())
                 .toList();
+    }
+
+    private Predicate<Message> skipFilter(final MessageEventData eventData) {
+        final SelfUser bot = eventData.getBot();
+        return m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim());
+    }
+
+    private TokenCountingStringPredicate getTokenPredicate(final MessageEventData eventData) {
+        final int maxTokens = eventData.getChannelConfig().getSettings().getModelSettings().getMaxTokens();
+        return new TokenCountingStringPredicate(maxTokens);
     }
 }
