@@ -1,5 +1,9 @@
 package es.thalesalv.chatrpg.domain.model.openai.dto;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,12 +14,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class LorebookEntry {
+public class WorldsYaml {
 
-    private String id;
-    private String name;
-    private String regex;
-    private String regexId;
-    private String description;
-    private String playerDiscordId;
+    @JsonProperty("worlds")
+    private List<World> worlds;
 }

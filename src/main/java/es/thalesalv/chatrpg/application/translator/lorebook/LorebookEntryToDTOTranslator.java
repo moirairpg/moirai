@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.translator;
+package es.thalesalv.chatrpg.application.translator.lorebook;
 
 import java.util.function.Function;
 

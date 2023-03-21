@@ -1,0 +1,12 @@
+---
+worlds:
+  - name: "The Empire of Tamriel: 3E 153"
+    visibility: public
+    initial-prompt: >
+      The year is 3E 153. You have just arrived in the city of Whiterun. The city is lively and filled with people of all kinds. There's the guards, walking around keeping order. There's the bards, singing lovely songs that make you want to dance and be happy. There are children running around in the streets, playing games and having fun.
+      The market is bustling with people selling things, from food to weapons to cloth. There's a group of men over there fixing up a broken wagon, and there's a blacksmith over there, working away at the forge. You can already see the tall shape of the tavern in front of you, where you intend to go. The sun is setting over the city, making it look like it's on fire. The sky is turning a marvelous shade of orange, and the clouds are turning an astonishing red at their centres. It's truly beautiful.
+      You see the two moons, Masser and Secunda, raising high in the sky as the sun sets. They're almost full, and so very bright. The larger one, Masser, is a hazy circle, while the smaller, Secunda, is a sharp crescent. You stand and watch the sun set for a little while, the colours shifting through the spectrum until it finally sets, and darkness shrouds the city. You make your way to the Bloated Goat.
+    lorebook:
+      - name: Bloated Goat
+        description: The Bloated Goat is a bar.
+        regex: Bloated Goat

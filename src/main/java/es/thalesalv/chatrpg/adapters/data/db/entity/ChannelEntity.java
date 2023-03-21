@@ -29,4 +29,8 @@ public class ChannelEntity {
     @OneToOne
     @JoinColumn(name = "channel_config_id", referencedColumnName = "id")
     private ChannelConfigEntity channelConfig;
+
+    @OneToOne
+    @JoinColumn(name = "world_id", referencedColumnName = "id")
+    private WorldEntity world;
 }
