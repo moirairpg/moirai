@@ -48,6 +48,7 @@ public class ChatGptModelService implements GptModelService {
         final Optional<Bump> bump = Optional.ofNullable(persona.getBump()).filter(Bump.isValid);
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
+        outputProcessor.addRule(s -> Pattern.compile("(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$", Pattern.DOTALL & Pattern.MULTILINE).matcher(s).replaceAll(""));
 
         lorebookEntryExtractionHelper.handleEntriesMentioned(messages, entriesFound);
         if (eventData.getPersona().getIntent().equals("dungeonMaster")) {

@@ -1,11 +1,12 @@
 package es.thalesalv.chatrpg.application.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,28 +74,32 @@ public class Gpt3ModelServiceTest {
 
         StepVerifier.create(gpt3ModelService.generate(prompt, new ArrayList<String>(), eventData))
                 .assertNext(resp -> {
-                    Assertions.assertEquals("AI response text", resp);
+                    assertEquals("AI response text", resp);
                 }).verifyComplete();
     }
 
-//    @Test
-//    @Disabled
-//    public void testGenerate_emptyAiResponse_shouldThrowError() {
-//
-//        final Gpt3Request request = OpenAiApiBuilder.buildGpt3Request();
-//        final String prompt = "This is a prompt!";
-//        final Persona persona = PersonaBuilder.persona();
-//        final Message message = Mockito.mock(Message.class);
-//        final MessageEventData eventData = PersonaBuilder.messageEventData();
-//        eventData.setPersona(persona);
-//
-//        Mockito.when(gpt3RequestTranslator.buildRequest(prompt, persona))
-//                .thenReturn(request);
-//
-//        Mockito.when(openAiService.callGptApi(request, eventData))
-//                .thenReturn(Mono.just(OpenAiApiBuilder.buildGptResponseEmptyText()));
-//
-//        StepVerifier.create(gpt3ModelService.generate(prompt, new ArrayList<String>(), eventData))
-//                .verifyError(ModelResponseBlankException.class);
-//    }
+    @Test
+    public void testProcessors() {
+        String inputText = "Without thinking, Anne turns around and charges towards her window. As she reaches it, she flings it open and climbs out onto the roof. \n" +
+                "\n" +
+                "She doesn't realize that the only thing covering her is her panties until the cool night air hits her bare skin. Anne tries to cover her nakedness with her hands as she scrambles out the open window.\n" +
+                "\n" +
+                "Once outside, Anne hears the monster roar in anger. She can feel its hot breath on her back as she slides down the roof and lands on her feet, running towards the front of the house. \n" +
+                "\n" +
+                "Anne doesn't stop until she reaches the street corner, where she finally takes a moment to catch her breath. She looks back at her house and sees a dark figure emerge from her bedroom window. It climbs down onto the roof, searching for its next victim";
+        String expected = "Without thinking, Anne turns around and charges towards her window. As she reaches it, she flings it open and climbs out onto the roof. \n" +
+                "\n" +
+                "She doesn't realize that the only thing covering her is her panties until the cool night air hits her bare skin. Anne tries to cover her nakedness with her hands as she scrambles out the open window.\n" +
+                "\n" +
+                "Once outside, Anne hears the monster roar in anger. She can feel its hot breath on her back as she slides down the roof and lands on her feet, running towards the front of the house. \n" +
+                "\n" +
+                "Anne doesn't stop until she reaches the street corner, where she finally takes a moment to catch her breath. She looks back at her house and sees a dark figure emerge from her bedroom window.";
+
+        StringProcessor outputProcessor = new StringProcessor();
+        outputProcessor.addRule(s -> Pattern.compile("\\bAs Selkie, (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
+        outputProcessor.addRule(s -> Pattern.compile("\\bas Selkie, (\\w)").matcher(s).replaceAll(r -> r.group(1)));
+        outputProcessor.addRule(s -> Pattern.compile("(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$", Pattern.DOTALL & Pattern.MULTILINE).matcher(s).replaceAll(""));
+
+        assertEquals(expected, outputProcessor.process(inputText));
+    }
 }
