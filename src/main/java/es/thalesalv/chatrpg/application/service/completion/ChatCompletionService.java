@@ -47,6 +47,7 @@ public class ChatCompletionService implements CompletionService {
 
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
+        outputProcessor.addRule(s -> Pattern.compile("(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$", Pattern.DOTALL & Pattern.MULTILINE).matcher(s).replaceAll(""));
         outputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));
 
         final Set<LorebookEntryEntity> entriesFound = messageFormatHelper.handleEntriesMentioned(messages);
