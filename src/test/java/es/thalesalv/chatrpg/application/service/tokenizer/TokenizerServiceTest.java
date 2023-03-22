@@ -3,6 +3,8 @@ package es.thalesalv.chatrpg.application.service.tokenizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import es.thalesalv.chatrpg.application.service.TokenizerService;
+
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

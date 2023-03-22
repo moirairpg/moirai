@@ -4,16 +4,16 @@ import java.util.function.Function;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
-import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookDTO;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
+import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 
 @Component
-public class LorebookEntryToDTOTranslator implements Function<LorebookRegex, LorebookDTO> {
+public class LorebookEntryToDTOTranslator implements Function<LorebookRegexEntity, LorebookEntry> {
 
     @Override
-    public LorebookDTO apply(LorebookRegex t) {
+    public LorebookEntry apply(LorebookRegexEntity t) {
 
-        return LorebookDTO.builder()
+        return LorebookEntry.builder()
                 .id(t.getLorebookEntry().getId())
                 .description(t.getLorebookEntry().getDescription())
                 .playerDiscordId(t.getLorebookEntry().getPlayerDiscordId())

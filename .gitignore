@@ -34,4 +34,5 @@ build/
 
 ### Project Files ###
 src/main/resources/bot-config.yaml
+src/main/resources/channel-config.yaml
 logs/

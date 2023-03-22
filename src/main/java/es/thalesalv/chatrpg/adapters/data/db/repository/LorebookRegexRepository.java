@@ -6,13 +6,13 @@ import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntry;
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegex;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 
 @Repository
-public interface LorebookRegexRepository extends CrudRepository<LorebookRegex, String> {
+public interface LorebookRegexRepository extends CrudRepository<LorebookRegexEntity, String> {
 
-    List<LorebookRegex> findAll();
-    void deleteByLorebookEntry(LorebookEntry lorebookEntry);
-    Optional<LorebookRegex> findByLorebookEntry(LorebookEntry lorebookEntry);
+    List<LorebookRegexEntity> findAll();
+    void deleteByLorebookEntry(LorebookEntryEntity lorebookEntry);
+    Optional<LorebookRegexEntity> findByLorebookEntry(LorebookEntryEntity lorebookEntry);
 }
