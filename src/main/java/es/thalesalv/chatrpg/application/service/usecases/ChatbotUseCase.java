@@ -74,9 +74,9 @@ public class ChatbotUseCase implements BotUseCase {
                 .takeWhile(stopFilter.negate())
                 .map(m -> MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()))
-                .sorted(Collections.reverseOrder())
                 .collect(Collectors.toList());
 
+        Collections.reverse(messages);
         messages.addAll(formattedReplies);
 
         return messages;
