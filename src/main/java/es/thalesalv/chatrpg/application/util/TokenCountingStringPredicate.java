@@ -22,4 +22,8 @@ public class TokenCountingStringPredicate implements Predicate<String> {
     }
 
     public void reserve(final int quantity) { tokenCount.addAndGet(quantity); }
+
+    public int getCount() {
+        return tokenCount.get();
+    }
 }
