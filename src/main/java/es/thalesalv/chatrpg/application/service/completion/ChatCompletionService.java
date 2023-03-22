@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.service.completion;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,18 +48,23 @@ public class ChatCompletionService implements CompletionService {
 
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
-        outputProcessor.addRule(s -> Pattern.compile("(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$", Pattern.DOTALL & Pattern.MULTILINE).matcher(s).replaceAll(""));
+        outputProcessor.addRule(s -> Pattern.compile("(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$", Pattern.DOTALL & Pattern.MULTILINE).matcher(s).replaceAll(StringUtils.EMPTY));
         outputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));
 
         final Set<LorebookEntryEntity> entriesFound = messageFormatHelper.handleEntriesMentioned(messages);
         if (persona.getIntent().equals("dungeonMaster")) {
             messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
             messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
-        } else {
+        } else if (persona.getIntent().equals("chatbot")){
             messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
         }
 
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData);
+        if (persona.getIntent().equals("author")) {
+            UnaryOperator<String> stripPrefix = s -> Pattern.compile("^(\\w* said: )").matcher(s).replaceAll(StringUtils.EMPTY);
+            chatMessages.forEach(m -> m.setContent(stripPrefix.apply(m.getContent())));
+        }
+
         final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages, eventData.getChannelConfig());
         return openAiService.callGptChatApi(request, eventData)
                 .map(response -> {
