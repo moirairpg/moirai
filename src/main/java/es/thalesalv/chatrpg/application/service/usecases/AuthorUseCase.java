@@ -67,13 +67,15 @@ public class AuthorUseCase implements BotUseCase {
         final Predicate<Message> skipFilter = skipFilter(eventData);
         final Predicate<String> tokenFilter = tokenPredicate(eventData);
         final Function<Message,String> messageMapper = messageMapper(eventData);
-        return getHistory(eventData)
+        List<String> messages = getHistory(eventData)
                 .stream()
                 .filter(skipFilter)
                 .map(messageMapper)
                 .takeWhile(tokenFilter)
                 .sorted(Collections.reverseOrder())
                 .collect(Collectors.toList());
+        Collections.reverse(messages);
+        return messages;
     }
 
     private Function<Message,String> messageMapper(MessageEventData eventData) {

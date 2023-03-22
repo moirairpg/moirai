@@ -73,7 +73,7 @@ public class DungeonMasterUseCase implements BotUseCase {
         final MessageChannelUnion channel = eventData.getChannel();
         final Predicate<Message> skipFilter = skipFilter(eventData);
 
-        return channel.getHistory()
+        List<String> messages = channel.getHistory()
                 .retrievePast(modelSettings.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(skipFilter)
@@ -81,6 +81,8 @@ public class DungeonMasterUseCase implements BotUseCase {
                         m.getAuthor().getName(), m.getContentDisplay().trim()))
                 .sorted(Collections.reverseOrder())
                 .collect(Collectors.toList());
+        Collections.reverse(messages);
+        return messages;
     }
 
     private Predicate<Message> skipFilter(final MessageEventData eventData) {
