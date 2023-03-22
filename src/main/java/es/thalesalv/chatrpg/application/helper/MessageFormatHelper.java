@@ -17,6 +17,7 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
 import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
@@ -25,7 +26,6 @@ import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Mentions;
-import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
 @Component
@@ -72,20 +72,24 @@ public class MessageFormatHelper {
     /**
      * Extracts lore entries from the conversation when they're mentioned by name
      * @param messageList List of messages in the channel
-     * @param entriesFound List of entries found in the messages until now
+     * @return Set containing all entries found
      */
-    public void handleEntriesMentioned(final List<String> messageList, final Set<LorebookEntryEntity> entriesFound) {
+    public Set<LorebookEntryEntity> handleEntriesMentioned(final List<String> messageList) {
 
         LOGGER.debug("Entered mentioned entries handling");
         final String messages = String.join("\n", messageList);
         List<LorebookRegexEntity> charRegex = lorebookRegexRepository.findAll();
-        charRegex.forEach(e -> {
-            Pattern p = Pattern.compile(e.getRegex());
+        return charRegex.stream().map(r -> {
+            Pattern p = Pattern.compile(r.getRegex());
             Matcher matcher = p.matcher(messages);
             if (matcher.find()) {
-                lorebookRepository.findById(e.getLorebookEntry().getId()).ifPresent(entriesFound::add);
+                return lorebookRepository.findById(r.getLorebookEntry().getId()).get();
             }
-        });
+
+            return null;
+        })
+        .filter(r -> null != r)
+        .collect(Collectors.toSet());
     }
 
     public void processEntriesFoundForRpg(final Set<LorebookEntryEntity> entriesFound, final List<String> messages, final JDA jda) {
@@ -110,13 +114,13 @@ public class MessageFormatHelper {
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
     }
 
-    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final EventData eventData, final SelfUser bot) {
+    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final EventData eventData, final StringProcessor inputProcessor) {
 
         final Persona persona = eventData.getChannelConfig().getPersona();
         final String personality = persona.getPersonality().replace("{0}", persona.getName());
         List<ChatMessage> chatMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))
-                .map(msg -> msg.replaceAll(bot.getName(), persona.getName()))
+                .map(msg -> inputProcessor.process(msg))
                 .map(msg -> ChatMessage.builder()
                             .role(determineRole(msg, persona))
                             .content(formatBotName(msg, persona))
@@ -125,7 +129,7 @@ public class MessageFormatHelper {
 
         chatMessages.add(0, ChatMessage.builder()
                 .role(ROLE_SYSTEM)
-                .content(personality.replaceAll("\\{0\\}", persona.getName()).trim())
+                .content(personality)
                 .build());
 
         chatMessages = formatNudgeForChatCompletions(persona, chatMessages);
@@ -157,13 +161,15 @@ public class MessageFormatHelper {
      * @param eventData Object containing event data
      * @return Stringified messages for prompt
      */
-    public String chatifyMessages(final List<String> messages, final EventData eventData) {
+    public String chatifyMessages(final List<String> messages, final EventData eventData, final StringProcessor inputProcessor) {
 
         LOGGER.debug("Entered chatbot conversation formatter");
         final Persona persona = eventData.getChannelConfig().getPersona();
         messages.replaceAll(m -> m.replace(eventData.getBot().getName(), persona.getName()).trim());
-        return MessageFormat.format("{0}\n{1} said: ",
+        final String promptContent = MessageFormat.format("{0}\n{1} said: ",
                 String.join("\n", messages), persona.getName()).trim();
+
+        return inputProcessor.process(promptContent);
     }
 
     public List<ChatMessage> formatNudgeForChatCompletions(final Persona persona, final List<ChatMessage> messages) {

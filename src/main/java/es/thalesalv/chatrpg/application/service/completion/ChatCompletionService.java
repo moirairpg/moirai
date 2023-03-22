@@ -1,7 +1,5 @@
 package es.thalesalv.chatrpg.application.service.completion;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -36,6 +34,7 @@ public class ChatCompletionService implements CompletionService {
     private final ChatCompletionRequestTranslator chatCompletionsRequestTranslator;
     private final OpenAIApiService openAiService;
     private final StringProcessor outputProcessor;
+    private final StringProcessor inputProcessor;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatCompletionService.class);
 
@@ -45,21 +44,21 @@ public class ChatCompletionService implements CompletionService {
         LOGGER.debug("Called inference for Chat Completions.");
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
-        final List<String> processedMessages = new ArrayList<>(messages);
-        final Set<LorebookEntryEntity> entriesFound = new HashSet<>();
         final Persona persona = eventData.getChannelConfig().getPersona();
+
+        inputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
 
-        messageFormatHelper.handleEntriesMentioned(processedMessages, entriesFound);
+        final Set<LorebookEntryEntity> entriesFound = messageFormatHelper.handleEntriesMentioned(messages);
         if (persona.getIntent().equals("dungeonMaster")) {
-            messageFormatHelper.handlePlayerCharacterEntries(entriesFound, processedMessages, author, mentions);
-            messageFormatHelper.processEntriesFoundForRpg(entriesFound, processedMessages, author.getJDA());
+            messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
+            messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else {
-            messageFormatHelper.processEntriesFoundForChat(entriesFound, processedMessages);
+            messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
         }
 
-        final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(processedMessages, eventData, eventData.getBot());
+        final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData, inputProcessor);
         final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages, eventData.getChannelConfig());
         return openAiService.callGptChatApi(request, eventData)
                 .map(response -> {
