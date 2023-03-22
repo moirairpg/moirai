@@ -25,6 +25,7 @@ import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Mentions;
+import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 
 @Component
@@ -109,12 +110,13 @@ public class MessageFormatHelper {
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
     }
 
-    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final MessageEventData eventData) {
+    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final MessageEventData eventData, final SelfUser bot) {
 
         final Persona persona = eventData.getChannelConfig().getPersona();
         final String personality = persona.getPersonality().replace("{0}", persona.getName());
         List<ChatMessage> chatMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))
+                .map(msg -> msg.replaceAll(bot.getName(), persona.getName()))
                 .map(msg -> ChatMessage.builder()
                             .role(determineRole(msg, persona))
                             .content(formatBotName(msg, persona))
