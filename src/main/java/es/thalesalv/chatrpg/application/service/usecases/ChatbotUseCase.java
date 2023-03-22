@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
-import es.thalesalv.chatrpg.application.util.TokenCountingStringPredicate;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import lombok.RequiredArgsConstructor;
@@ -65,13 +64,9 @@ public class ChatbotUseCase implements BotUseCase {
      * @return The processed list of messages
      */
     private List<String> handleHistory(final MessageEventData eventData) {
-
         final List<String> formattedReplies = getFormattedReplies(eventData);
         final Predicate<Message> stopFilter = stopFilter(eventData);
         final Predicate<Message> skipFilter = skipFilter(eventData);
-        final TokenCountingStringPredicate tokenPredicate = getTokenPredicate(eventData);
-
-        tokenPredicate.reserve(formattedReplies.stream().mapToInt(String::length).sum());
 
         List<String> messages = getHistory(eventData)
                 .stream()
@@ -79,17 +74,15 @@ public class ChatbotUseCase implements BotUseCase {
                 .takeWhile(stopFilter.negate())
                 .map(m -> MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()))
-                .takeWhile(tokenPredicate)
+                .sorted(Collections.reverseOrder())
                 .collect(Collectors.toList());
 
-        Collections.reverse(messages);
         messages.addAll(formattedReplies);
 
         return messages;
     }
 
     private List<String> getFormattedReplies(final MessageEventData eventData) {
-
         final Message message = eventData.getMessage();
         final Message reply = message.getReferencedMessage();
         if (null == reply) {
@@ -97,32 +90,25 @@ public class ChatbotUseCase implements BotUseCase {
         } else {
             String formattedReference = MessageFormat.format("{0} said earlier: {1}",
                     reply.getAuthor().getName(), reply.getContentDisplay());
-
             String formattedReply = MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
                     message.getAuthor().getName(), reply.getAuthor().getName(), message.getContentDisplay());
-
             return Arrays.asList(formattedReference, formattedReply);
         }
     }
 
     private Predicate<Message> stopFilter(final MessageEventData eventData) {
-
         final SelfUser bot = eventData.getBot();
         final Predicate<Message> isBotTagged = m -> m.getContentRaw().contains(bot.getAsMention());
-        final Predicate<Message> hasStopReaction = message -> message.getReactions().stream()
-                .anyMatch(r -> STOP_MEMORY_EMOJI.equals(r.getEmoji().getName()));
-
+        final Predicate<Message> hasStopReaction = message -> message.getReactions().stream().anyMatch(r -> STOP_MEMORY_EMOJI.equals(r.getEmoji().getName()));
         return isBotTagged.or(hasStopReaction);
     }
 
     private Predicate<Message> skipFilter(final MessageEventData eventData) {
-
         final SelfUser bot = eventData.getBot();
         return m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim());
     }
 
     private List<Message> getHistory(final MessageEventData eventData) {
-
         final MessageChannelUnion channel = eventData.getChannel();
         final Message repliedMessage = eventData.getMessage().getReferencedMessage();
         final int historySize = eventData.getChannelConfig().getSettings().getModelSettings().getChatHistoryMemory();
@@ -131,11 +117,5 @@ public class ChatbotUseCase implements BotUseCase {
          } else {
              return channel.getHistoryBefore(repliedMessage, historySize).complete().getRetrievedHistory();
          }
-    }
-
-    private TokenCountingStringPredicate getTokenPredicate(final MessageEventData eventData) {
-
-        final int maxTokens = eventData.getChannelConfig().getSettings().getModelSettings().getMaxTokens();
-        return new TokenCountingStringPredicate(maxTokens);
     }
 }
