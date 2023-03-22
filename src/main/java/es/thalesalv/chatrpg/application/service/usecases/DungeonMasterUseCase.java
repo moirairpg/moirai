@@ -67,7 +67,7 @@ public class DungeonMasterUseCase implements BotUseCase {
     private List<String> handleMessageHistory(final EventData eventData) {
 
         LOGGER.debug("Entered message history handling for RPG");
-        final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
+        final ModelSettings modelSettings = eventData.getBotChannelDefinitions().getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
         return channel.getHistory()

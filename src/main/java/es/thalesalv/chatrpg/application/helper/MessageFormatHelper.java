@@ -13,16 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
 import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
+import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Nudge;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
+import es.thalesalv.chatrpg.domain.model.openai.dto.World;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -39,7 +38,6 @@ public class MessageFormatHelper {
     private static final String RPG_DM_INSTRUCTIONS = "I will remember to never act or speak on behalf of {0}. I will not repeat what {0} just said. I will only describe the world around {0}.";
 
     private final LorebookRepository lorebookRepository;
-    private final LorebookRegexRepository lorebookRegexRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageFormatHelper.class);
 
@@ -50,49 +48,69 @@ public class MessageFormatHelper {
      * @param player Player user
      * @param mentions Mentioned users (their characters are extracted too)
      */
-    public void handlePlayerCharacterEntries(final Set<LorebookEntryEntity> entriesFound, final List<String> messages, final User player, final Mentions mentions) {
+    public void handlePlayerCharacterEntries(final Set<LorebookEntry> entriesFound, final List<String> messages,
+            final User player, final Mentions mentions, final World world) {
 
         LOGGER.debug("Entered player character entry handling");
-        lorebookRepository.findByPlayerDiscordId(player.getId())
+        world.getLorebook().stream()
+                .filter(entry -> entry.getPlayerDiscordId().equals(player.getId()))
+                .findFirst()
                 .ifPresent(entry -> {
                     entriesFound.add(entry);
                     messages.replaceAll(m -> m.replaceAll(player.getAsTag(), entry.getName())
                             .replaceAll("(@|)" + player.getName(), entry.getName()));
                 });
 
+                // mentions.getUsers()
+                //                 .forEach(mention -> lorebookRepository.findByPlayerDiscordId(mention.getId())
+                //                         .ifPresent(entry -> {
+                //                             entriesFound.add(entry);
+                //                             messages.replaceAll(m -> m.replaceAll(mention.getAsTag(), entry.getName())
+                //                                     .replaceAll("(@|)" + mention.getName(), entry.getName()));
+                //                         }));
+
         mentions.getUsers()
-                .forEach(mention -> lorebookRepository.findByPlayerDiscordId(mention.getId())
-                        .ifPresent(entry -> {
-                            entriesFound.add(entry);
-                            messages.replaceAll(m -> m.replaceAll(mention.getAsTag(), entry.getName())
-                                    .replaceAll("(@|)" + mention.getName(), entry.getName()));
-                        }));
+                .forEach(mention -> {
+                    lorebookRepository.findByPlayerDiscordId(mention.getId()).ifPresent(e -> {
+                        final LorebookEntry entry = LorebookEntry.builder()
+                                .id(e.getId())
+                                .name(e.getName())
+                                .description(e.getDescription())
+                                .playerDiscordId(e.getPlayerDiscordId())
+                                .build();
+
+                        entriesFound.add(entry);
+                        messages.replaceAll(m -> m.replaceAll(mention.getAsTag(), entry.getName())
+                                .replaceAll("(@|)" + mention.getName(), entry.getName()));
+                    });
+                });
     }
 
     /**
      * Extracts lore entries from the conversation when they're mentioned by name
      * @param messageList List of messages in the channel
+     * @param world World containing the lore entries that should be used for matching
      * @return Set containing all entries found
      */
-    public Set<LorebookEntryEntity> handleEntriesMentioned(final List<String> messageList) {
+    public Set<LorebookEntry> handleEntriesMentioned(final List<String> messageList, final World world) {
 
         LOGGER.debug("Entered mentioned entries handling");
         final String messages = String.join("\n", messageList);
-        List<LorebookRegexEntity> charRegex = lorebookRegexRepository.findAll();
-        return charRegex.stream().map(r -> {
-            Pattern p = Pattern.compile(r.getRegex());
-            Matcher matcher = p.matcher(messages);
-            if (matcher.find()) {
-                return lorebookRepository.findById(r.getLorebookEntry().getId()).get();
-            }
+        return world.getLorebook().stream()
+                .map(entry -> {
+                    Pattern p = Pattern.compile(entry.getRegex());
+                    Matcher matcher = p.matcher(messages);
+                    if (matcher.find()) {
+                        return entry;
+                    }
 
-            return null;
-        })
-        .filter(r -> null != r)
-        .collect(Collectors.toSet());
+                    return null;
+                })
+                .filter(r -> null != r)
+                .collect(Collectors.toSet());
     }
 
-    public void processEntriesFoundForRpg(final Set<LorebookEntryEntity> entriesFound, final List<String> messages, final JDA jda) {
+    public void processEntriesFoundForRpg(final Set<LorebookEntry> entriesFound, final List<String> messages, final JDA jda) {
 
         entriesFound.forEach(entry -> {
             if (StringUtils.isNotBlank(entry.getPlayerDiscordId())) {
@@ -108,7 +126,7 @@ public class MessageFormatHelper {
         });
     }
 
-    public void processEntriesFoundForChat(final Set<LorebookEntryEntity> entriesFound, final List<String> messages) {
+    public void processEntriesFoundForChat(final Set<LorebookEntry> entriesFound, final List<String> messages) {
 
         entriesFound.forEach(entry ->
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
@@ -116,7 +134,7 @@ public class MessageFormatHelper {
 
     public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final EventData eventData, final StringProcessor inputProcessor) {
 
-        final Persona persona = eventData.getChannelConfig().getPersona();
+        final Persona persona = eventData.getBotChannelDefinitions().getChannelConfig().getPersona();
         final String personality = persona.getPersonality().replace("{0}", persona.getName());
         List<ChatMessage> chatMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))
@@ -164,7 +182,7 @@ public class MessageFormatHelper {
     public String chatifyMessages(final List<String> messages, final EventData eventData, final StringProcessor inputProcessor) {
 
         LOGGER.debug("Entered chatbot conversation formatter");
-        final Persona persona = eventData.getChannelConfig().getPersona();
+        final Persona persona = eventData.getBotChannelDefinitions().getChannelConfig().getPersona();
         messages.replaceAll(m -> m.replace(eventData.getBot().getName(), persona.getName()).trim());
         final String promptContent = MessageFormat.format("{0}\n{1} said: ",
                 String.join("\n", messages), persona.getName()).trim();
@@ -248,7 +266,7 @@ public class MessageFormatHelper {
 
     public List<String> formatMessages(List<String> messages, EventData eventData) {
 
-        final Persona persona = eventData.getChannelConfig().getPersona();
+        final Persona persona = eventData.getBotChannelDefinitions().getChannelConfig().getPersona();
         messages.add(0, persona.getPersonality().replaceAll("\\{0\\}", persona.getName()));
         List<String> chatMessages = formatNudge(persona, messages);
         return formatBump(persona, chatMessages);

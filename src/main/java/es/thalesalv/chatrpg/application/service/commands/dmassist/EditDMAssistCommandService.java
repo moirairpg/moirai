@@ -122,7 +122,7 @@ public class EditDMAssistCommandService implements DiscordCommand {
 
         contextDatastore.setEventData(EventData.builder()
                 .messageToBeEdited(message)
-                .channelConfig(channel.getChannelConfig())
+                .botChannelDefinitions(channel)
                 .build());
     }
 }

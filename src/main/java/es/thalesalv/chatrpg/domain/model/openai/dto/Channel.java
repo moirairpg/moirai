@@ -14,4 +14,5 @@ public class Channel {
     private String id;
     private String channelId;
     private ChannelConfig channelConfig;
+    private World world;
 }

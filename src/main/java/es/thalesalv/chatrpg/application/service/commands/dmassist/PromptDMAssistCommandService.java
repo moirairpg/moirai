@@ -16,6 +16,7 @@ import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
 import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
+import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
@@ -58,7 +59,7 @@ public class PromptDMAssistCommandService implements DiscordCommand {
                     .map(channelEntityMapper::apply)
                     .ifPresent(ch -> {
                         contextDatastore.setEventData(EventData.builder()
-                                .channelConfig(ch.getChannelConfig())
+                                .botChannelDefinitions(ch)
                                 .channel(channel)
                                 .build());
 
@@ -77,8 +78,9 @@ public class PromptDMAssistCommandService implements DiscordCommand {
         LOGGER.debug("Received data of message for assisted prompt generation modal");
         try {
             event.deferReply();
-            final Persona persona = contextDatastore.getEventData().getChannelConfig().getPersona();
-            final ModelSettings modelSettings = contextDatastore.getEventData().getChannelConfig().getSettings().getModelSettings();
+            final ChannelConfig channelConfig = contextDatastore.getEventData().getBotChannelDefinitions().getChannelConfig();
+            final Persona persona = channelConfig.getPersona();
+            final ModelSettings modelSettings = channelConfig.getSettings().getModelSettings();
 
             final String input = event.getValue("message-content").getAsString();
             final String generateOutput = event.getValue("generate-output").getAsString();
@@ -90,7 +92,7 @@ public class PromptDMAssistCommandService implements DiscordCommand {
 
             if (generateOutput.equals("y")) {
                 final EventData eventData = eventDataTranslator.translate(event.getJDA()
-                        .getSelfUser(), channel, contextDatastore.getEventData().getChannelConfig(), message);
+                        .getSelfUser(), channel, contextDatastore.getEventData().getBotChannelDefinitions(), message);
 
                 final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
                 final CompletionService model = (CompletionService) applicationContext.getBean(completionType);

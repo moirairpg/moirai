@@ -58,7 +58,7 @@ public class RetryDMAssistCommandService implements DiscordCommand {
                         final Message userMessage = retrieveUserMessage(channel, botMessage);
 
                         final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
-                        final EventData eventData = eventDataTranslator.translate(bot, channel, ch.getChannelConfig(), userMessage);
+                        final EventData eventData = eventDataTranslator.translate(bot, channel, ch, userMessage);
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                         final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 

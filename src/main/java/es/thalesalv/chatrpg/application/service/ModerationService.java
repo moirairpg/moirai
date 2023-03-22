@@ -54,7 +54,7 @@ public class ModerationService {
         return openAIApiService.callModerationApi(request, eventData)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, eventData.getChannelConfig(), content);
+                    checkModerationThresholds(moderationResult, eventData.getBotChannelDefinitions().getChannelConfig(), content);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
@@ -70,7 +70,7 @@ public class ModerationService {
         return openAIApiService.callModerationApi(request, eventData)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, eventData.getChannelConfig(), prompt);
+                    checkModerationThresholds(moderationResult, eventData.getBotChannelDefinitions().getChannelConfig(), prompt);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
@@ -85,7 +85,7 @@ public class ModerationService {
         return openAIApiService.callModerationApi(request, eventData)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, eventData.getChannelConfig(), output);
+                    checkModerationThresholds(moderationResult, eventData.getBotChannelDefinitions().getChannelConfig(), output);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;

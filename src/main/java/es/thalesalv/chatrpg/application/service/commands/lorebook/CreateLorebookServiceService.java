@@ -59,7 +59,7 @@ public class CreateLorebookServiceService implements DiscordCommand {
                 .map(channelEntityMapper::apply)
                 .ifPresent(channel -> {
                     contextDatastore.setEventData(EventData.builder()
-                            .channelConfig(channel.getChannelConfig()).build());
+                            .botChannelDefinitions(channel).build());
 
                     final Modal modal = buildEntryCreationModal();
                     event.replyModal(modal).queue();

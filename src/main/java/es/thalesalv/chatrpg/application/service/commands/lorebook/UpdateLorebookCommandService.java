@@ -66,7 +66,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
                     .ifPresent(channel -> {
                         final String entryId = event.getOption("lorebook-entry-id").getAsString();
                         contextDatastore.setEventData(EventData.builder()
-                                .lorebookEntryId(entryId).channelConfig(channel.getChannelConfig()).build());
+                                .lorebookEntryId(entryId).botChannelDefinitions(channel).build());
 
                         final var entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder().id(entryId).build())
                                 .orElseThrow(LorebookEntryNotFoundException::new);

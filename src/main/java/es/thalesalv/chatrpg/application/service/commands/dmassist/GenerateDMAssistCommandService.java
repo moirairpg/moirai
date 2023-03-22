@@ -16,6 +16,7 @@ import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
 import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
+import es.thalesalv.chatrpg.domain.model.openai.dto.Channel;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
@@ -66,12 +67,12 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
                             .findAny()
                             .map(message -> {
                                 final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
-                                final EventData eventData = eventDataTranslator.translate(event.getJDA().getSelfUser(), channel, channelConfig, message);
+                                final EventData eventData = eventDataTranslator.translate(event.getJDA().getSelfUser(), channel, ch, message);
                                 final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                                 final EventData responseEventData = useCase.generateResponse(eventData, model);
 
-                                saveEventDataToContext(responseEventData, channelConfig, channel);
+                                saveEventDataToContext(responseEventData, ch, channel);
                                 event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage())).queue();
                                 return message;
                             })
@@ -120,11 +121,11 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
                 .addComponents(ActionRow.of(messageContent)).build();
     }
 
-    private void saveEventDataToContext(final EventData responseEventData, final ChannelConfig channelConfig, final MessageChannelUnion channel) {
+    private void saveEventDataToContext(final EventData responseEventData, final Channel channelConfig, final MessageChannelUnion channel) {
 
         contextDatastore.setEventData(EventData.builder()
                 .messageToBeEdited(responseEventData.getResponseMessage())
-                .channelConfig(channelConfig)
+                .botChannelDefinitions(channelConfig)
                 .channel(channel)
                 .build());
     }

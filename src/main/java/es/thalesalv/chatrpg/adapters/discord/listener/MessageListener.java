@@ -40,7 +40,7 @@ public class MessageListener {
                         final Persona persona = channel.getChannelConfig().getPersona();
                         final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
                         final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
-                        final EventData eventData = eventDataTranslator.translate(event, channel.getChannelConfig());
+                        final EventData eventData = eventDataTranslator.translate(event, channel);
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                         final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                         useCase.generateResponse(eventData, model);

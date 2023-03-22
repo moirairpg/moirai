@@ -76,7 +76,7 @@ public class ChatbotUseCase implements BotUseCase {
         final SelfUser bot = eventData.getBot();
         final Message reply = message.getReferencedMessage();
         final MessageChannelUnion channel = eventData.getChannel();
-        final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
+        final ModelSettings modelSettings = eventData.getBotChannelDefinitions().getChannelConfig().getSettings().getModelSettings();
         final List<String> messages = channel.getHistoryBefore(reply, modelSettings.getChatHistoryMemory())
                 .complete()
                 .getRetrievedHistory()
@@ -110,7 +110,7 @@ public class ChatbotUseCase implements BotUseCase {
     private List<String> handleMessageHistory(final EventData eventData) {
 
         LOGGER.debug("Entered message history handling for chatbot");
-        final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
+        final ModelSettings modelSettings = eventData.getBotChannelDefinitions().getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
         List<String> messages = channel.getHistory()

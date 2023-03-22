@@ -23,7 +23,7 @@ public class EventData {
     private Message responseMessage;
     private Message message;
     private MessageChannelUnion channel;
-    private ChannelConfig channelConfig;
+    private Channel botChannelDefinitions;
     private Message messageToBeEdited;
     private String lorebookEntryId;
     private String lorebookEntryRegexId;

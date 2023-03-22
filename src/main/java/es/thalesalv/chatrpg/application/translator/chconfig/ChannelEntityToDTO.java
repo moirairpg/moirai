@@ -15,6 +15,7 @@ import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Settings;
+import es.thalesalv.chatrpg.domain.model.openai.dto.World;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -37,7 +38,10 @@ public class ChannelEntityToDTO implements Function<ChannelEntity, Channel> {
                     ModerationSettings.class);
 
             final ModelSettings modelSettings = objectMapper.readValue(
-                    objectMapper.writeValueAsString(t.getChannelConfig().getModelSettings()), ModelSettings.class);
+                            objectMapper.writeValueAsString(t.getChannelConfig().getModelSettings()), ModelSettings.class);
+
+            final World world = objectMapper.readValue(
+                            objectMapper.writeValueAsString(t.getWorld()), World.class);
 
             final ChannelConfig config = ChannelConfig.builder()
                     .id(t.getChannelConfig().getId())
@@ -54,6 +58,7 @@ public class ChannelEntityToDTO implements Function<ChannelEntity, Channel> {
                     .channelId(t.getChannelId())
                     .id(t.getId())
                     .channelConfig(config)
+                    .world(world)
                     .build();
         } catch (Exception e) {
             LOGGER.error("Error building channel config from entity");
