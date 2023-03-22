@@ -17,6 +17,7 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
@@ -113,12 +114,13 @@ public class MessageFormatHelper {
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
     }
 
-    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final MessageEventData eventData) {
+    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final MessageEventData eventData, final StringProcessor inputProcessor) {
 
         final Persona persona = eventData.getChannelConfig().getPersona();
         final String personality = persona.getPersonality().replace("{0}", persona.getName());
         List<ChatMessage> chatMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))
+                .map(msg -> inputProcessor.process(msg))
                 .map(msg -> ChatMessage.builder()
                             .role(determineRole(msg, persona))
                             .content(formatBotName(msg, persona))
@@ -159,13 +161,15 @@ public class MessageFormatHelper {
      * @param eventData Object containing event data
      * @return Stringified messages for prompt
      */
-    public String chatifyMessages(final List<String> messages, final MessageEventData eventData) {
+    public String chatifyMessages(final List<String> messages, final MessageEventData eventData, final StringProcessor inputProcessor) {
 
         LOGGER.debug("Entered chatbot conversation formatter");
         final Persona persona = eventData.getChannelConfig().getPersona();
         messages.replaceAll(m -> m.replace(eventData.getBot().getName(), persona.getName()).trim());
-        return MessageFormat.format("{0}\n{1} said: ",
+        final String promptContent = MessageFormat.format("{0}\n{1} said: ",
                 String.join("\n", messages), persona.getName()).trim();
+
+        return inputProcessor.process(promptContent);
     }
 
     public List<ChatMessage> formatNudgeForChatCompletions(final Persona persona, final List<ChatMessage> messages) {
