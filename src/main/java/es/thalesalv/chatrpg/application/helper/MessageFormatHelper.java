@@ -4,10 +4,10 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import es.thalesalv.chatrpg.application.service.TokenizerService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +39,7 @@ public class MessageFormatHelper {
 
     private final LorebookRepository lorebookRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
+    private final TokenizerService tokenizer;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageFormatHelper.class);
 
@@ -74,21 +75,13 @@ public class MessageFormatHelper {
      * @return Set containing all entries found
      */
     public Set<LorebookEntryEntity> handleEntriesMentioned(final List<String> messageList) {
-
         LOGGER.debug("Entered mentioned entries handling");
         final String messages = String.join("\n", messageList);
         List<LorebookRegexEntity> charRegex = lorebookRegexRepository.findAll();
-        return charRegex.stream().map(r -> {
-            Pattern p = Pattern.compile(r.getRegex());
-            Matcher matcher = p.matcher(messages);
-            if (matcher.find()) {
-                return lorebookRepository.findById(r.getLorebookEntry().getId()).get();
-            }
-
-            return null;
-        })
-        .filter(r -> null != r)
-        .collect(Collectors.toSet());
+        return charRegex.stream()
+                .filter(r -> Pattern.compile(r.getRegex()).matcher(messages).find())
+                .map(r -> lorebookRepository.findById(r.getLorebookEntry().getId()).orElseThrow(() -> new IllegalArgumentException("Invalid lore id: " + r.getLorebookEntry().getId())))
+                .collect(Collectors.toSet());
     }
 
     public void processEntriesFoundForRpg(final Set<LorebookEntryEntity> entriesFound, final List<String> messages, final JDA jda) {
@@ -116,7 +109,7 @@ public class MessageFormatHelper {
     public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final MessageEventData eventData) {
 
         final Persona persona = eventData.getChannelConfig().getPersona();
-        final String personality = persona.getPersonality().replace("{0}", persona.getName());
+        final String personality = Optional.ofNullable(persona.getPersonality()).orElseGet(tokenizer::endOfText).replace("{0}", persona.getName());
         List<ChatMessage> chatMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))
                 .map(msg -> ChatMessage.builder()
@@ -245,7 +238,7 @@ public class MessageFormatHelper {
     public List<String> formatMessages(List<String> messages, MessageEventData eventData) {
 
         final Persona persona = eventData.getChannelConfig().getPersona();
-        messages.add(0, persona.getPersonality().replaceAll("\\{0\\}", persona.getName()));
+        messages.add(0, Optional.ofNullable(persona.getPersonality()).orElseGet(tokenizer::endOfText).replaceAll("\\{0\\}", persona.getName()));
         List<String> chatMessages = formatNudge(persona, messages);
         return formatBump(persona, chatMessages);
     }

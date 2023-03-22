@@ -54,6 +54,11 @@ public class TokenizerService {
         return toTokenIds(texts);
     }
 
+    public String endOfText() {
+        long[] endOfTextId = {50256};
+        return tokenizer.decode(endOfTextId);
+    }
+
     public Path getFileFromJar(String filePathInJar) throws IOException {
 
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePathInJar);
