@@ -1,11 +1,12 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-import es.thalesalv.chatrpg.application.util.TokenCountingStringPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,6 @@ import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 @Component
@@ -26,7 +26,6 @@ public class ChatbotUseCase implements BotUseCase {
 
     private final ModerationService moderationService;
 
-    private static final String STOP_MEMORY_FLAG = "{stop}";
     private static final String STOP_MEMORY_EMOJI = "chatrpg_stop";
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
 
@@ -68,19 +67,15 @@ public class ChatbotUseCase implements BotUseCase {
         final List<String> formattedReplies = getFormattedReplies(eventData);
         final Predicate<Message> stopFilter = stopFilter(eventData);
         final Predicate<Message> skipFilter = skipFilter(eventData);
-        final TokenCountingStringPredicate tokenPredicate = getTokenPredicate(eventData);
 
-        tokenPredicate.reserve(formattedReplies.stream().mapToInt(String::length).sum());
-
-        List<String> messages = new java.util.ArrayList<>(getHistory(eventData)
+        List<String> messages = getHistory(eventData)
                 .stream()
                 .filter(skipFilter)
                 .takeWhile(stopFilter.negate())
                 .map(m -> MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()))
-                .takeWhile(tokenPredicate)
                 .sorted(Collections.reverseOrder())
-                .toList());
+                .collect(Collectors.toList());
 
         messages.addAll(formattedReplies);
 
@@ -122,10 +117,5 @@ public class ChatbotUseCase implements BotUseCase {
          } else {
              return channel.getHistoryBefore(repliedMessage, historySize).complete().getRetrievedHistory();
          }
-    }
-
-    private TokenCountingStringPredicate getTokenPredicate(final MessageEventData eventData) {
-        final int maxTokens = eventData.getChannelConfig().getSettings().getModelSettings().getMaxTokens();
-        return new TokenCountingStringPredicate(maxTokens);
     }
 }
