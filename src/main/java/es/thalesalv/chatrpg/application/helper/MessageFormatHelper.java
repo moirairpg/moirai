@@ -71,20 +71,24 @@ public class MessageFormatHelper {
     /**
      * Extracts lore entries from the conversation when they're mentioned by name
      * @param messageList List of messages in the channel
-     * @param entriesFound List of entries found in the messages until now
+     * @return Set containing all entries found
      */
-    public void handleEntriesMentioned(final List<String> messageList, final Set<LorebookEntryEntity> entriesFound) {
+    public Set<LorebookEntryEntity> handleEntriesMentioned(final List<String> messageList) {
 
         LOGGER.debug("Entered mentioned entries handling");
         final String messages = String.join("\n", messageList);
         List<LorebookRegexEntity> charRegex = lorebookRegexRepository.findAll();
-        charRegex.forEach(e -> {
-            Pattern p = Pattern.compile(e.getRegex());
+        return charRegex.stream().map(r -> {
+            Pattern p = Pattern.compile(r.getRegex());
             Matcher matcher = p.matcher(messages);
             if (matcher.find()) {
-                lorebookRepository.findById(e.getLorebookEntry().getId()).ifPresent(entriesFound::add);
+                return lorebookRepository.findById(r.getLorebookEntry().getId()).get();
             }
-        });
+
+            return null;
+        })
+        .filter(r -> null != r)
+        .collect(Collectors.toSet());
     }
 
     public void processEntriesFoundForRpg(final Set<LorebookEntryEntity> entriesFound, final List<String> messages, final JDA jda) {
@@ -123,7 +127,7 @@ public class MessageFormatHelper {
 
         chatMessages.add(0, ChatMessage.builder()
                 .role(ROLE_SYSTEM)
-                .content(personality.replaceAll("\\{0\\}", persona.getName()).trim())
+                .content(personality)
                 .build());
 
         chatMessages = formatNudgeForChatCompletions(persona, chatMessages);

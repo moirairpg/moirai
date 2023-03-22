@@ -1,6 +1,5 @@
 package es.thalesalv.chatrpg.application.service.completion;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -43,12 +42,13 @@ public class TextCompletionService implements CompletionService {
         LOGGER.debug("Called inference for Text Completions.");
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
-        final Set<LorebookEntryEntity> entriesFound = new HashSet<>();
         final Persona persona = eventData.getChannelConfig().getPersona();
+
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
+        outputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));
 
-        messageFormatHelper.handleEntriesMentioned(messages, entriesFound);
+        final Set<LorebookEntryEntity> entriesFound = messageFormatHelper.handleEntriesMentioned(messages);
         if (persona.getIntent().equals("dungeonMaster")) {
             messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
             messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());

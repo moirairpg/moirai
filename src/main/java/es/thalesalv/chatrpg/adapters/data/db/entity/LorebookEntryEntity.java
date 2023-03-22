@@ -24,7 +24,7 @@ public class LorebookEntryEntity {
     @Column(name = "entry_name")
     private String name;
 
-    @Column(name = "entry_description", length = 1000)
+    @Column(name = "entry_description", length = 2000)
     private String description;
 
     /**
