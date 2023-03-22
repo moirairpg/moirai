@@ -33,6 +33,7 @@ public class TextCompletionService implements CompletionService {
     private final TextCompletionRequestTranslator textCompletionRequestTranslator;
     private final OpenAIApiService openAiService;
     private final StringProcessor outputProcessor;
+    private final StringProcessor inputProcessor;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextCompletionService.class);
 
@@ -44,10 +45,10 @@ public class TextCompletionService implements CompletionService {
         final User author = eventData.getMessageAuthor();
         final Persona persona = eventData.getChannelConfig().getPersona();
 
+        inputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
         outputProcessor.addRule(s -> Pattern.compile("(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$", Pattern.DOTALL & Pattern.MULTILINE).matcher(s).replaceAll(""));
-        outputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));
 
         final Set<LorebookEntryEntity> entriesFound = messageFormatHelper.handleEntriesMentioned(messages);
         if (persona.getIntent().equals("dungeonMaster")) {
@@ -58,7 +59,7 @@ public class TextCompletionService implements CompletionService {
         }
 
         final List<String> chatMessages = messageFormatHelper.formatMessages(messages, eventData);
-        final String chatifiedMessage = messageFormatHelper.chatifyMessages(chatMessages, eventData);
+        final String chatifiedMessage = messageFormatHelper.chatifyMessages(chatMessages, eventData, inputProcessor);
         final TextCompletionRequest request = textCompletionRequestTranslator.buildRequest(chatifiedMessage, eventData.getChannelConfig());
         return openAiService.callGptApi(request, eventData)
                 .map(response -> {
@@ -67,7 +68,7 @@ public class TextCompletionService implements CompletionService {
                         throw new ModelResponseBlankException();
                     }
 
-                    return responseText.trim();
+                    return outputProcessor.process(responseText.trim());
                 })
                 .doOnError(ModelResponseBlankException.class::isInstance, e -> commonErrorHandler.handleEmptyResponse(eventData));
     }
