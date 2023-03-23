@@ -57,7 +57,7 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
             channel.sendTyping().complete();
             channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
-                    .map(channelEntityMapper::apply)
+                    .map(channelEntityMapper)
                     .ifPresent(ch -> {
                         final ChannelConfig channelConfig = ch.getChannelConfig();
                         final Persona persona = channelConfig.getPersona();
