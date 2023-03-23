@@ -50,7 +50,7 @@ public class RetryDMAssistCommandService implements DiscordCommand {
             final MessageChannelUnion channel = event.getChannel();
             channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
-                    .map(channelEntityMapper::apply)
+                    .map(channelEntityMapper)
                     .ifPresent(ch -> {
                         final Persona persona = ch.getChannelConfig().getPersona();
                         final ModelSettings modelSettings = ch.getChannelConfig().getSettings().getModelSettings();
