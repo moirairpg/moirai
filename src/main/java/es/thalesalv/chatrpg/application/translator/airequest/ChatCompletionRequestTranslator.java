@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
+import es.thalesalv.chatrpg.domain.enums.AIModel;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
@@ -18,7 +18,7 @@ public class ChatCompletionRequestTranslator {
     public ChatCompletionRequest buildRequest(final List<ChatMessage> chatMessages, final ChannelConfig channelConfig) {
 
         final ModelSettings modelSettings = channelConfig.getSettings().getModelSettings();
-        final String modelName = AIModelEnum.findByInternalName(modelSettings.getModelName()).getModelName();
+        final String modelName = AIModel.findByInternalName(modelSettings.getModelName()).getModelName();
         return ChatCompletionRequest.builder()
             .messages(chatMessages)
             .model(modelName)
