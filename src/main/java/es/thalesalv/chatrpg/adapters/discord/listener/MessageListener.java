@@ -32,8 +32,7 @@ public class MessageListener {
     public void onMessageReceived(MessageReceivedEvent event) {
 
         if (!event.getAuthor().isBot()) {
-            channelRepository.findByChannelId(event.getChannel().getId()).stream()
-                    .findFirst()
+            channelRepository.findByChannelId(event.getChannel().getId())
                     .map(channelEntityMapper)
                     .ifPresent(channel -> {
                         LOGGER.debug("Received message by {} in {}: {}", event.getAuthor(), event.getChannel().getName(), event.getMessage().getContentDisplay());
