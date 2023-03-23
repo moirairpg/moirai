@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.service.completion;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -55,11 +56,16 @@ public class ChatCompletionService implements CompletionService {
         if (persona.getIntent().equals("dungeonMaster")) {
             messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
             messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
-        } else {
+        } else if (persona.getIntent().equals("chatbot")){
             messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
         }
 
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData, inputProcessor);
+        if (persona.getIntent().equals("author")) {
+            UnaryOperator<String> stripPrefix = s -> Pattern.compile("^(\\w* said: )").matcher(s).replaceAll(StringUtils.EMPTY);
+            chatMessages.forEach(m -> m.setContent(stripPrefix.apply(m.getContent())));
+        }
+
         final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages, eventData.getChannelConfig());
         return openAiService.callGptChatApi(request, eventData)
                 .map(response -> {
