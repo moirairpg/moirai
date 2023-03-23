@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum AIModelEnum {
+public enum AIModel {
 
     ADA("ada", "text-ada-001", "textCompletionService", 2048),
     CURIE("curie", "text-curie-001", "textCompletionService", 2048),
@@ -18,12 +18,12 @@ public enum AIModelEnum {
     GPT4("gpt4", "gpt-4", "chatCompletionService", 8192),
     GPT432K("gpt432k", "gpt-4-32k", "chatCompletionService", 32768);
 
-    private String internalName;
-    private String modelName;
-    private String completionType;
-    private int tokenCap;
+    private final String internalName;
+    private final String modelName;
+    private final String completionType;
+    private final int tokenCap;
 
-    public static AIModelEnum findByInternalName(final String name) {
+    public static AIModel findByInternalName(final String name) {
 
         return Arrays.stream(values())
                 .filter(aiModel -> aiModel.getInternalName().equals(name))
