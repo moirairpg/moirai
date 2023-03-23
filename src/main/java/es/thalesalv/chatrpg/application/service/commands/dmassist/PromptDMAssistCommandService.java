@@ -15,7 +15,7 @@ import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
 import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
+import es.thalesalv.chatrpg.domain.enums.AIModel;
 import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
@@ -93,7 +93,7 @@ public class PromptDMAssistCommandService implements DiscordCommand {
                 final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA()
                         .getSelfUser(), channel, contextDatastore.getCommandEventData().getChannelConfig(), message);
 
-                final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
+                final String completionType = AIModel.findByInternalName(modelSettings.getModelName()).getCompletionType();
                 final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
