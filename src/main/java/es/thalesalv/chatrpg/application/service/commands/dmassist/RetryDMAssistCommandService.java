@@ -13,7 +13,7 @@ import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
 import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.domain.enums.AIModelEnum;
+import es.thalesalv.chatrpg.domain.enums.AIModel;
 import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
@@ -50,14 +50,14 @@ public class RetryDMAssistCommandService implements DiscordCommand {
             final MessageChannelUnion channel = event.getChannel();
             channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
-                    .map(channelEntityMapper::apply)
+                    .map(channelEntityMapper)
                     .ifPresent(ch -> {
                         final Persona persona = ch.getChannelConfig().getPersona();
                         final ModelSettings modelSettings = ch.getChannelConfig().getSettings().getModelSettings();
                         final Message botMessage = retrieveBotMessage(channel, modelSettings, bot);
                         final Message userMessage = retrieveUserMessage(channel, botMessage);
 
-                        final String completionType = AIModelEnum.findByInternalName(modelSettings.getModelName()).getCompletionType();
+                        final String completionType = AIModel.findByInternalName(modelSettings.getModelName()).getCompletionType();
                         final MessageEventData messageEventData = messageEventDataTranslator.translate(bot, channel, ch.getChannelConfig(), userMessage);
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                         final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
