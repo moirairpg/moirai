@@ -32,8 +32,6 @@ public class TextCompletionService implements CompletionService {
     private final CommonErrorHandler commonErrorHandler;
     private final TextCompletionRequestTranslator textCompletionRequestTranslator;
     private final OpenAIApiService openAiService;
-    private final StringProcessor outputProcessor;
-    private final StringProcessor inputProcessor;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextCompletionService.class);
 
@@ -41,6 +39,8 @@ public class TextCompletionService implements CompletionService {
     public Mono<String> generate(List<String> messages, MessageEventData eventData) {
 
         LOGGER.debug("Called inference for Text Completions.");
+        final StringProcessor outputProcessor = new StringProcessor();
+        final StringProcessor inputProcessor = new StringProcessor();
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
         final Persona persona = eventData.getChannelConfig().getPersona();
