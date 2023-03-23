@@ -19,10 +19,10 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryToDTO;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.translator.lorebook.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
@@ -41,7 +41,7 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 @RequiredArgsConstructor
 public class UpdateLorebookCommandService implements DiscordCommand {
 
-    private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
+    private final LorebookEntryToDTO lorebookEntryToDTO;
     private final ModerationService moderationService;
     private final ContextDatastore contextDatastore;
     private final ObjectMapper objectMapper;
@@ -105,7 +105,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
             final LorebookRegexEntity updatedEntry = updateEntry(updatedEntryDescription, entryId,
                     updatedEntryName, playerId, updatedEntryRegex);
 
-            final LorebookEntry entry = lorebookEntryToDTOTranslator.apply(updatedEntry);
+            final LorebookEntry entry = lorebookEntryToDTO.apply(updatedEntry);
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(entry);
 

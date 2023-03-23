@@ -22,9 +22,9 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ModelSettingsRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ModerationSettingsRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.PersonaRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.WorldRepository;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelConfigToEntity;
-import es.thalesalv.chatrpg.application.translator.lorebook.LorebookDTOToEntityTranslator;
-import es.thalesalv.chatrpg.application.translator.worlds.WorldDTOToEntityTranslator;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelConfigToEntity;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
+import es.thalesalv.chatrpg.application.mapper.worlds.WorldDTOToEntity;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfigYaml;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
@@ -40,14 +40,14 @@ public class IngestDefaultConfigService {
 
     private final JDA jda;
     private final ObjectMapper yamlObjectMapper;
-    private final WorldDTOToEntityTranslator worldDTOToEntityTranslator;
+    private final WorldDTOToEntity worldDTOToEntityMapper;
     private final ChannelConfigToEntity channelConfigToEntity;
     private final ChannelConfigRepository channelConfigRepository;
     private final PersonaRepository personaRepository;
     private final ModerationSettingsRepository moderationSettingsRepository;
     private final ModelSettingsRepository modelSettingsRepository;
     private final WorldRepository worldRepository;
-    private final LorebookDTOToEntityTranslator lorebookDTOToEntryTranslator;
+    private final LorebookDTOToEntity lorebookDTOToEntry;
     private final LorebookRepository lorebookRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
 
@@ -103,12 +103,12 @@ public class IngestDefaultConfigService {
             for (World world : yaml.getWorlds()) {
                 int j = 1;
                 world.setId(String.valueOf(i));
-                final WorldEntity worldEntity = worldDTOToEntityTranslator.apply(world);
+                final WorldEntity worldEntity = worldDTOToEntityMapper.apply(world);
                 for (LorebookEntry entry : world.getLorebook()) {
                     final String entryId = String.valueOf(j);
                     entry.setId(entryId);
                     entry.setRegexId(entryId);
-                    final LorebookRegexEntity entryEntity = lorebookDTOToEntryTranslator.apply(entry);
+                    final LorebookRegexEntity entryEntity = lorebookDTOToEntry.apply(entry);
                     entryEntity.setWorld(worldEntity);
                     lorebookRepository.save(entryEntity.getLorebookEntry());
                     lorebookRegexRepository.save(entryEntity);

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
-import es.thalesalv.chatrpg.application.translator.airequest.ChatCompletionRequestTranslator;
+import es.thalesalv.chatrpg.application.mapper.airequest.ChatCompletionRequestBuilder;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
@@ -33,7 +33,7 @@ public class ChatCompletionService implements CompletionService {
 
     private final MessageFormatHelper messageFormatHelper;
     private final CommonErrorHandler commonErrorHandler;
-    private final ChatCompletionRequestTranslator chatCompletionsRequestTranslator;
+    private final ChatCompletionRequestBuilder textCompletionRequestBuilder;
     private final OpenAIApiService openAiService;
 
 
@@ -64,7 +64,7 @@ public class ChatCompletionService implements CompletionService {
         }
 
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData, inputProcessor);
-        final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages, channelConfig);
+        final ChatCompletionRequest request = textCompletionRequestBuilder.buildRequest(chatMessages, channelConfig);
         return openAiService.callGptChatApi(request, eventData)
                 .map(response -> {
                     final String responseText = response.getChoices().get(0).getMessage().getContent();

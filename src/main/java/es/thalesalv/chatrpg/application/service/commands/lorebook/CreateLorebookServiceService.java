@@ -17,10 +17,10 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryToDTO;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.translator.lorebook.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.application.util.NanoId;
 import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
@@ -44,7 +44,7 @@ public class CreateLorebookServiceService implements DiscordCommand {
     private final LorebookRepository lorebookRepository;
     private final ChannelRepository channelRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
-    private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
+    private final LorebookEntryToDTO lorebookEntryToDTO;
 
     private static final String ERROR_CREATE = "There was an error parsing your request. Please try again.";
     private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don''t forget to save this ID!\n```json\n{1}\n```";
@@ -86,7 +86,7 @@ public class CreateLorebookServiceService implements DiscordCommand {
             final LorebookRegexEntity insertedEntry = insertEntry(author, entryName, entryRegex,
                     entryDescription, lorebookEntryId, lorebookRegexId, isPlayerCharacter);
 
-            final LorebookEntry loreItem = lorebookEntryToDTOTranslator.apply(insertedEntry);
+            final LorebookEntry loreItem = lorebookEntryToDTO.apply(insertedEntry);
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
 

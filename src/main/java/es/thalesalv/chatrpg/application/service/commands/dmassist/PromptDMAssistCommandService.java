@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.mapper.chconfig.EventDataMapper;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
-import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.AIModel;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
@@ -39,7 +39,7 @@ public class PromptDMAssistCommandService implements DiscordCommand {
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
-    private final MessageEventDataTranslator eventDataTranslator;
+    private final EventDataMapper eventDataTranslator;
 
     private static final String GENERATION_INSTRUCTION = " Simply generate the message from where it stopped.\n";
     private static final String USE_CASE = "UseCase";

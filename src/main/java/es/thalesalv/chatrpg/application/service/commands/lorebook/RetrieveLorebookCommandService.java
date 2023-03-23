@@ -22,9 +22,9 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.translator.lorebook.LorebookEntryToDTOTranslator;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
     private final LorebookRegexRepository lorebookRegexRepository;
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityMapper;
-    private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
+    private final LorebookEntryToDTO lorebookEntryToDTO;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveLorebookCommandService.class);
     private static final String ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
@@ -86,7 +86,7 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
 
         final List<LorebookEntry> entries = lorebookRegexRepository.findAll()
                 .stream()
-                .map(entry -> lorebookEntryToDTOTranslator.apply(entry))
+                .map(entry -> lorebookEntryToDTO.apply(entry))
                 .collect(Collectors.toList());
 
         if (entries.isEmpty()) {
@@ -114,7 +114,7 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
         final LorebookRegexEntity entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
                 .id(entryId).build()).orElseThrow(LorebookEntryNotFoundException::new);
 
-        final LorebookEntry dto = lorebookEntryToDTOTranslator.apply(entry);
+        final LorebookEntry dto = lorebookEntryToDTO.apply(entry);
         final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                 .writerWithDefaultPrettyPrinter().writeValueAsString(dto);
 
