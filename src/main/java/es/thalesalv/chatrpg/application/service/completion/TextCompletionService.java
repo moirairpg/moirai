@@ -49,6 +49,7 @@ public class TextCompletionService implements CompletionService {
         final World world = channelConfig.getWorld();
         final Persona persona = channelConfig.getPersona();
 
+        inputProcessor.addRule(s -> Pattern.compile("{0}").matcher(s).replaceAll(r -> persona.getName()));
         inputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
@@ -61,7 +62,7 @@ public class TextCompletionService implements CompletionService {
             messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
         }
 
-        final List<String> chatMessages = messageFormatHelper.formatMessages(messages, eventData);
+        final List<String> chatMessages = messageFormatHelper.formatMessages(messages, eventData, inputProcessor);
         final String chatifiedMessage = messageFormatHelper.chatifyMessages(chatMessages, eventData, inputProcessor);
         final TextCompletionRequest request = textCompletionRequestBuilder.buildRequest(chatifiedMessage, channelConfig);
         return openAiService.callGptApi(request, eventData)

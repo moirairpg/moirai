@@ -135,7 +135,7 @@ public class MessageFormatHelper {
     public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final EventData eventData, final StringProcessor inputProcessor) {
 
         final Persona persona = eventData.getBotChannelDefinitions().getChannelConfig().getPersona();
-        final String personality = persona.getPersonality().replace("{0}", persona.getName());
+        final String personality = inputProcessor.process(persona.getPersonality());
         List<ChatMessage> chatMessages = messages.stream()
                 .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))
                 .map(msg -> inputProcessor.process(msg))
@@ -150,8 +150,8 @@ public class MessageFormatHelper {
                 .content(personality)
                 .build());
 
-        chatMessages = formatNudgeForChatCompletions(persona, chatMessages);
-        chatMessages = formatBumpForChatCompletions(persona, chatMessages);
+        chatMessages = formatNudgeForChatCompletions(persona, chatMessages, inputProcessor);
+        chatMessages = formatBumpForChatCompletions(persona, chatMessages, inputProcessor);
         return chatMessages;
     }
 
@@ -190,7 +190,7 @@ public class MessageFormatHelper {
         return inputProcessor.process(promptContent);
     }
 
-    public List<ChatMessage> formatNudgeForChatCompletions(final Persona persona, final List<ChatMessage> messages) {
+    public List<ChatMessage> formatNudgeForChatCompletions(final Persona persona, final List<ChatMessage> messages, final StringProcessor inputProcessor) {
 
         return Optional.ofNullable(persona.getNudge())
                 .filter(Nudge.isValid)
@@ -202,7 +202,7 @@ public class MessageFormatHelper {
                         .orElse(0) + 1,
                         ChatMessage.builder()
                                 .role(ndge.role)
-                                .content(ndge.content)
+                                .content(inputProcessor.process(ndge.content))
                                 .build());
 
                     return messages;
@@ -210,14 +210,14 @@ public class MessageFormatHelper {
                 .orElse(messages);
     }
 
-    public List<ChatMessage> formatBumpForChatCompletions(final Persona persona, final List<ChatMessage> messages) {
+    public List<ChatMessage> formatBumpForChatCompletions(final Persona persona, final List<ChatMessage> messages, final StringProcessor inputProcessor) {
 
         return Optional.ofNullable(persona.getBump())
                 .filter(Bump.isValid)
                 .map(bmp -> {
                     ChatMessage bumpMessage = ChatMessage.builder()
                             .role(bmp.role)
-                            .content(bmp.content)
+                            .content(inputProcessor.process(bmp.content))
                             .build();
 
                     for (int index = messages.size() - 1 - bmp.frequency;
@@ -231,7 +231,7 @@ public class MessageFormatHelper {
                 .orElse(messages);
     }
 
-    public List<String> formatNudge(final Persona persona, final List<String> messages) {
+    public List<String> formatNudge(final Persona persona, final List<String> messages, final StringProcessor inputProcessor) {
 
         return Optional.ofNullable(persona.getNudge())
                 .filter(Nudge.isValid)
@@ -240,15 +240,14 @@ public class MessageFormatHelper {
                         .filter(m -> !m.startsWith(persona.getName()))
                         .mapToInt(messages::indexOf)
                         .reduce((a, b) -> b)
-                        .orElse(0) + 1,
-                        ndge.content);
+                        .orElse(0) + 1, inputProcessor.process(ndge.content));
 
                     return messages;
                 })
                 .orElse(messages);
     }
 
-    public List<String> formatBump(final Persona persona, final List<String> messages) {
+    public List<String> formatBump(final Persona persona, final List<String> messages, final StringProcessor inputProcessor) {
 
         return Optional.ofNullable(persona.getBump())
                 .filter(Bump.isValid)
@@ -256,7 +255,7 @@ public class MessageFormatHelper {
                         for (int index = messages.size() - 1 - bmp.frequency;
                             index > 0; index = index - bmp.frequency) {
 
-                        messages.add(index, bmp.getContent());
+                        messages.add(index, inputProcessor.process(bmp.getContent()));
                     }
 
                     return messages;
@@ -264,12 +263,12 @@ public class MessageFormatHelper {
                 .orElse(messages);
     }
 
-    public List<String> formatMessages(List<String> messages, EventData eventData) {
+    public List<String> formatMessages(List<String> messages, EventData eventData, final StringProcessor inputProcessor) {
 
         final Persona persona = eventData.getBotChannelDefinitions().getChannelConfig().getPersona();
         messages.add(0, persona.getPersonality().replaceAll("\\{0\\}", persona.getName()));
-        List<String> chatMessages = formatNudge(persona, messages);
-        return formatBump(persona, chatMessages);
+        List<String> chatMessages = formatNudge(persona, messages, inputProcessor);
+        return formatBump(persona, chatMessages, inputProcessor);
     }
 
     public String stringifyMessages(final List<String> messages) {

@@ -51,6 +51,7 @@ public class ChatCompletionService implements CompletionService {
         final World world = channelConfig.getWorld();
         final Persona persona = channelConfig.getPersona();
 
+        inputProcessor.addRule(s -> Pattern.compile("\\{0\\}").matcher(s).replaceAll(r -> persona.getName()));
         inputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
