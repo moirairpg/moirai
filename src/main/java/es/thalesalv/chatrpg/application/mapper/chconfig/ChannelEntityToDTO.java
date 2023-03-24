@@ -35,7 +35,7 @@ public class ChannelEntityToDTO implements Function<ChannelEntity, Channel> {
             final Persona persona = personaMapper.apply(t.getChannelConfig().getPersona());
             final ModelSettings modelSettings = modelSettingsEntityMapper.apply(t.getChannelConfig().getModelSettings());
             final ModerationSettings moderationSettings = moderationSettingsEntityMapper.apply(t.getChannelConfig().getModerationSettings());
-            final World world = worldMapper.apply(t.getWorld());
+            final World world = worldMapper.apply(t.getChannelConfig().getWorld());
 
             return Channel.builder()
                     .channelId(t.getChannelId())
@@ -45,12 +45,12 @@ public class ChannelEntityToDTO implements Function<ChannelEntity, Channel> {
                             .owner(t.getChannelConfig().getOwner())
                             .editPermissions(t.getChannelConfig().getEditPermissions())
                             .persona(persona)
+                            .world(world)
                             .settings(Settings.builder()
                                     .modelSettings(modelSettings)
                                     .moderationSettings(moderationSettings)
                                     .build())
                             .build())
-                    .world(world)
                     .build();
         } catch (Exception e) {
             LOGGER.error("Error building channel config from entity");

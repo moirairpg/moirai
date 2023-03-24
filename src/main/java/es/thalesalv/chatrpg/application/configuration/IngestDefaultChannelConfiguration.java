@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.ClassPathResource;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
@@ -17,7 +18,9 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelConfigRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ModelSettingsRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ModerationSettingsRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.PersonaRepository;
+import es.thalesalv.chatrpg.adapters.data.db.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelConfigToEntity;
+import es.thalesalv.chatrpg.application.mapper.worlds.WorldEntityToDTO;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfigYaml;
 import jakarta.annotation.PostConstruct;
@@ -26,12 +29,16 @@ import net.dv8tion.jda.api.JDA;
 
 @Configuration
 @RequiredArgsConstructor
+@DependsOn("ingestDefaultWorldConfiguration")
 public class IngestDefaultChannelConfiguration {
 
     private final JDA jda;
     private final ObjectMapper yamlObjectMapper;
-    private final ChannelConfigToEntity channelConfigToEntity;
 
+    private final ChannelConfigToEntity channelConfigToEntity;
+    private final WorldEntityToDTO worldEntityToDTO;
+
+    private final WorldRepository worldRepository;
     private final PersonaRepository personaRepository;
     private final ModelSettingsRepository modelSettingsRepository;
     private final ChannelConfigRepository channelConfigRepository;
@@ -61,6 +68,9 @@ public class IngestDefaultChannelConfiguration {
                 config.getPersona().setOwner((jda.getSelfUser().getId()));
                 config.getSettings().getModelSettings().setOwner((jda.getSelfUser().getId()));
                 config.getSettings().getModerationSettings().setOwner((jda.getSelfUser().getId()));
+                worldRepository.findById(id).ifPresent(w -> {
+                    config.setWorld(worldEntityToDTO.apply(w));
+                });
 
                 final ChannelConfigEntity entity = channelConfigToEntity.apply(config);
                 personaRepository.save(entity.getPersona());

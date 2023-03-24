@@ -57,7 +57,7 @@ public class WorldChConfigCommandService implements DiscordCommand {
 
     private ChannelEntity attachWorldToConfig(final ChannelEntity channel, final WorldEntity world, final SlashCommandInteractionEvent event) {
 
-        channel.setWorld(world);
+        channel.getChannelConfig().setWorld(world);
         channelRepository.save(channel);
         event.reply(MessageFormat.format(
                 "World `{0}` was linked to configuration to the configuration of channel `{1}`",

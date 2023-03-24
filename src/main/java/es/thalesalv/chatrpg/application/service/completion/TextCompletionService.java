@@ -46,7 +46,7 @@ public class TextCompletionService implements CompletionService {
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
         final ChannelConfig channelConfig = eventData.getBotChannelDefinitions().getChannelConfig();
-        final World world = eventData.getBotChannelDefinitions().getWorld();
+        final World world = channelConfig.getWorld();
         final Persona persona = channelConfig.getPersona();
 
         inputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));

@@ -17,4 +17,5 @@ public class ChannelConfig {
     private String editPermissions;
     private Persona persona;
     private Settings settings;
+    private World world;
 }
