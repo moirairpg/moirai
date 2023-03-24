@@ -47,7 +47,6 @@ worlds:
   - name: Shel's Discord
     visibility: public
     lorebook:
-      name: The World of Eldrida
       visibility: public
       entries:
         - name: thaalesalves
