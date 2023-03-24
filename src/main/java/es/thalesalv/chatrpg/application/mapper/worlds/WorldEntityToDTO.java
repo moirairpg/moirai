@@ -1,12 +1,14 @@
 package es.thalesalv.chatrpg.application.mapper.worlds;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.db.entity.WorldEntity;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryToDTO;
+import es.thalesalv.chatrpg.domain.model.openai.dto.Lorebook;
+import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.openai.dto.World;
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +21,9 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
     @Override
     public World apply(WorldEntity t) {
 
+        final List<LorebookEntry> entries = t.getLorebook().getEntries()
+                .stream().map(lorebookEntryToDTO).collect(Collectors.toList());
+
         return World.builder()
                 .editPermissions(t.getEditPermissions())
                 .id(t.getId())
@@ -27,9 +32,14 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
                 .owner(t.getOwner())
                 .visibility(t.getVisibility())
                 .description(t.getDescription())
-                .lorebook(t.getLorebook().stream()
-                        .map(lorebookEntryToDTO::apply)
-                        .collect(Collectors.toSet()))
+                .lorebook(Lorebook.builder()
+                        .id(t.getLorebook().getId())
+                        .name(t.getLorebook().getName())
+                        .owner(t.getLorebook().getOwner())
+                        .editPermissions(t.getLorebook().getEditPermissions())
+                        .description(t.getLorebook().getDescription())
+                        .entries(entries)
+                        .build())
                 .build();
     }
 }

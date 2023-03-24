@@ -1,7 +1,7 @@
-package es.thalesalv.chatrpg.application.bean;
+package es.thalesalv.chatrpg.application.configuration;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-@Component
+@Configuration
 public class ObjectMapperCreator {
 
     @Bean(name = "objectMapper")

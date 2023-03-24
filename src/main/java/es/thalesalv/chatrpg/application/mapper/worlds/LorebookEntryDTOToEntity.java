@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.mapper.lorebook;
+package es.thalesalv.chatrpg.application.mapper.worlds;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -11,7 +11,7 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 
 @Component
-public class LorebookDTOToEntity implements Function<LorebookEntry, LorebookRegexEntity> {
+public class LorebookEntryDTOToEntity implements Function<LorebookEntry, LorebookRegexEntity> {
 
     @Override
     public LorebookRegexEntity apply(LorebookEntry t) {

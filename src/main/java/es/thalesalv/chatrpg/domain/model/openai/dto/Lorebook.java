@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.domain.model.openai.dto;
 
+import java.util.List;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class World {
+public class Lorebook {
 
     private String id;
     private String name;
@@ -18,6 +20,5 @@ public class World {
     private String owner;
     private String editPermissions;
     private String visibility;
-    private String initialPrompt;
-    private Lorebook lorebook;
+    private List<LorebookEntry> entries;
 }

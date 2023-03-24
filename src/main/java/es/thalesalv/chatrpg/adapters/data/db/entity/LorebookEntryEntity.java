@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "lorebook")
+@Table(name = "lorebook_entry")
 public class LorebookEntryEntity {
 
     @Id
@@ -27,9 +27,6 @@ public class LorebookEntryEntity {
     @Column(name = "entry_description", length = 2000)
     private String description;
 
-    /**
-     * ID of the Discord user who "owns" this entry, when it's a PC
-     */
     @Column(name = "player_discord_id", unique = true, nullable = true)
     private String playerDiscordId;
 }

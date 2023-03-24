@@ -1,12 +1,14 @@
 package es.thalesalv.chatrpg.application.mapper.worlds;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntity;
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.WorldEntity;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
 import es.thalesalv.chatrpg.domain.model.openai.dto.World;
 import lombok.RequiredArgsConstructor;
 
@@ -14,10 +16,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorldDTOToEntity implements Function<World, WorldEntity> {
 
-    private final LorebookDTOToEntity lorebookDTOToEntity;
+    private final LorebookEntryDTOToEntity lorebookEntryDTOToEntity;
 
     @Override
     public WorldEntity apply(World t) {
+
+        final List<LorebookRegexEntity> entries = t.getLorebook().getEntries()
+                .stream().map(lorebookEntryDTOToEntity).collect(Collectors.toList());
 
         return WorldEntity.builder()
                 .editPermissions(t.getEditPermissions())
@@ -27,9 +32,14 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
                 .owner(t.getOwner())
                 .visibility(t.getVisibility())
                 .description(t.getDescription())
-                .lorebook(t.getLorebook().stream()
-                        .map(lorebookDTOToEntity::apply)
-                        .collect(Collectors.toList()))
+                .lorebook(LorebookEntity.builder()
+                        .id(t.getLorebook().getId())
+                        .name(t.getLorebook().getName())
+                        .owner(t.getLorebook().getOwner())
+                        .editPermissions(t.getLorebook().getEditPermissions())
+                        .description(t.getLorebook().getDescription())
+                        .entries(entries)
+                        .build())
                 .build();
     }
 }

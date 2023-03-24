@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
@@ -37,7 +37,7 @@ public class MessageFormatHelper {
     private static final String CHARACTER_DESCRIPTION = "{0} description: {1}";
     private static final String RPG_DM_INSTRUCTIONS = "I will remember to never act or speak on behalf of {0}. I will not repeat what {0} just said. I will only describe the world around {0}.";
 
-    private final LorebookRepository lorebookRepository;
+    private final LorebookEntryRepository lorebookRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageFormatHelper.class);
 
@@ -52,7 +52,7 @@ public class MessageFormatHelper {
             final User player, final Mentions mentions, final World world) {
 
         LOGGER.debug("Entered player character entry handling");
-        world.getLorebook().stream()
+        world.getLorebook().getEntries().stream()
                 .filter(entry -> entry.getPlayerDiscordId().equals(player.getId()))
                 .findFirst()
                 .ifPresent(entry -> {
@@ -96,7 +96,7 @@ public class MessageFormatHelper {
 
         LOGGER.debug("Entered mentioned entries handling");
         final String messages = String.join("\n", messageList);
-        return world.getLorebook().stream()
+        return world.getLorebook().getEntries().stream()
                 .map(entry -> {
                     Pattern p = Pattern.compile(entry.getRegex());
                     Matcher matcher = p.matcher(messages);

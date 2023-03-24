@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.mapper.lorebook;
+package es.thalesalv.chatrpg.application.mapper.worlds;
 
 import java.util.function.Function;
 

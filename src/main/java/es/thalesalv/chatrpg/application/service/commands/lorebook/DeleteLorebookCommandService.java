@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
+import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
@@ -32,7 +32,7 @@ public class DeleteLorebookCommandService implements DiscordCommand {
 
     private final ChannelEntityToDTO channelEntityMapper;
     private final ContextDatastore contextDatastore;
-    private final LorebookRepository lorebookRepository;
+    private final LorebookEntryRepository lorebookRepository;
     private final ChannelRepository channelRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
 

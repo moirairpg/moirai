@@ -17,20 +17,21 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "lorebook_regex")
+@Table(name = "lorebook_entry_regex")
 public class LorebookRegexEntity {
 
     @Id
+    @Column(name = "id", unique = true, nullable = false)
     private String id;
 
     @Column(name = "regex")
     private String regex;
 
     @OneToOne
-    @JoinColumn(name = "lorebook_id", referencedColumnName = "id")
+    @JoinColumn(name = "entry_id", referencedColumnName = "id")
     private LorebookEntryEntity lorebookEntry;
 
     @ManyToOne
-    @JoinColumn(name = "world_id", referencedColumnName = "id")
-    private WorldEntity world;
+    @JoinColumn(name = "lorebook_id", referencedColumnName = "id")
+    private LorebookEntity lorebook;
 }
