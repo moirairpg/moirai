@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.domain.model.openai.dto;
+package es.thalesalv.chatrpg.domain.model;
 
 import es.thalesalv.chatrpg.domain.enums.ChatGptRole;
 import es.thalesalv.chatrpg.domain.enums.Source;
@@ -11,7 +11,7 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 @NoArgsConstructor
-public class PromptPartFormatter implements Function<PromptPart, String> {
+public class PromptPartFormatter implements Function<PromptPartObj, String> {
     private final EnumMap<ChatGptRole, Function<String,String>> roleFormatters = new EnumMap<>(ChatGptRole.class);
     private final EnumMap<Source, Function<String,String>> sourceFormatters = new EnumMap<>(Source.class);
 
@@ -30,7 +30,7 @@ public class PromptPartFormatter implements Function<PromptPart, String> {
         sourceFormatters.put(source, fn);
     }
     @Override
-    public String apply(PromptPart part) {
+    public String apply(PromptPartObj part) {
         String content = part.getContent();
         if (StringUtils.isEmpty(content)) return StringUtils.EMPTY;
         String prefix = Optional.ofNullable(part.getPrefix()).orElse(StringUtils.EMPTY);
