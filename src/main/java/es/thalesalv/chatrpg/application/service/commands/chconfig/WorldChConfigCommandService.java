@@ -60,8 +60,8 @@ public class WorldChConfigCommandService implements DiscordCommand {
         channel.setWorld(world);
         channelRepository.save(channel);
         event.reply(MessageFormat.format(
-                "World `{0}` was linked to configuration `{1}` and channel `{2}`",
-                event.getChannel().getName(), channel.getId())).setEphemeral(true)
+                "World `{0}` was linked to configuration to the configuration of channel `{1}`",
+                world.getName(), channel.getId())).setEphemeral(true)
                 .complete();
 
         return channel;
