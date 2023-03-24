@@ -1,6 +1,6 @@
 package es.thalesalv.chatrpg.application.mapper.worlds;
 
-import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -21,8 +21,8 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
     @Override
     public World apply(WorldEntity t) {
 
-        final List<LorebookEntry> entries = t.getLorebook().getEntries()
-                .stream().map(lorebookEntryToDTO).collect(Collectors.toList());
+        final Set<LorebookEntry> entries = t.getLorebook().getEntries()
+                .stream().map(lorebookEntryToDTO).collect(Collectors.toSet());
 
         return World.builder()
                 .editPermissions(t.getEditPermissions())

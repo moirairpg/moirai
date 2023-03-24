@@ -62,9 +62,11 @@ public class IngestDefaultWorldConfiguration {
                 int j = 1;
                 world.setId(String.valueOf(i));
                 world.setOwner(jda.getSelfUser().getId());
+                world.getLorebook().setId(String.valueOf(i));
                 world.getLorebook().setOwner(jda.getSelfUser().getId());
                 final WorldEntity worldEntity = worldDTOToEntityMapper.apply(world);
                 final LorebookEntity lorebookEntity = lorebookDTOToEntity.apply(world.getLorebook());
+                lorebookRepository.save(lorebookEntity);
                 for (LorebookEntry entry : world.getLorebook().getEntries()) {
                     LOGGER.debug("Ingesting lorebook entry -> {}", entry);
 
@@ -79,7 +81,6 @@ public class IngestDefaultWorldConfiguration {
                     j++;
                 }
 
-                lorebookRepository.save(lorebookEntity);
                 worldRepository.save(worldEntity);
                 i++;
             }

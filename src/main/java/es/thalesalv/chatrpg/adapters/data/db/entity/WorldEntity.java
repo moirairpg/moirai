@@ -3,6 +3,8 @@ package es.thalesalv.chatrpg.adapters.data.db.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +41,7 @@ public class WorldEntity {
     @Column(name = "initial_prompt", length = 2000)
     private String initialPrompt;
 
-    @Column(name = "lorebook")
+    @OneToOne
+    @JoinColumn(name = "lorebook", referencedColumnName = "id")
     private LorebookEntity lorebook;
 }

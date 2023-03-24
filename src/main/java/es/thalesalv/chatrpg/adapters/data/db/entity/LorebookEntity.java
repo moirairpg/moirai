@@ -40,7 +40,6 @@ public class LorebookEntity {
     @Column(name = "visibility")
     private String visibility;
 
-    @Column(name = "entry_description")
     @OneToMany(mappedBy = "lorebook", fetch = FetchType.EAGER)
     private List<LorebookRegexEntity> entries;
 }

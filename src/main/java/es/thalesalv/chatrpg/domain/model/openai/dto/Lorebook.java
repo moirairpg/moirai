@@ -1,6 +1,6 @@
 package es.thalesalv.chatrpg.domain.model.openai.dto;
 
-import java.util.List;
+import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,5 +20,5 @@ public class Lorebook {
     private String owner;
     private String editPermissions;
     private String visibility;
-    private List<LorebookEntry> entries;
+    private Set<LorebookEntry> entries;
 }
