@@ -33,8 +33,7 @@ public class ChatCompletionService implements CompletionService {
     private final CommonErrorHandler commonErrorHandler;
     private final ChatCompletionRequestTranslator chatCompletionsRequestTranslator;
     private final OpenAIApiService openAiService;
-    private final StringProcessor outputProcessor;
-    private final StringProcessor inputProcessor;
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatCompletionService.class);
 
@@ -42,6 +41,8 @@ public class ChatCompletionService implements CompletionService {
     public Mono<String> generate(final List<String> messages, final MessageEventData eventData) {
 
         LOGGER.debug("Called inference for Chat Completions.");
+        final StringProcessor outputProcessor = new StringProcessor();
+        final StringProcessor inputProcessor = new StringProcessor();
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
         final Persona persona = eventData.getChannelConfig().getPersona();
