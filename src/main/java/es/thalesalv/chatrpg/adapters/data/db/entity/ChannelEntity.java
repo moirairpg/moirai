@@ -1,7 +1,10 @@
 package es.thalesalv.chatrpg.adapters.data.db.entity;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -20,6 +23,8 @@ import lombok.NoArgsConstructor;
 public class ChannelEntity {
 
     @Id
+    @GeneratedValue(generator = "nanoid-generator")
+    @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.NanoIdIdentifierGenerator")
     @Column(name = "id", unique = true, nullable = false)
     private String id;
 

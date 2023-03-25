@@ -14,14 +14,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookEntryRepository;
+import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.mapper.worlds.LorebookEntryToDTO;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.util.NanoId;
 import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 import lombok.RequiredArgsConstructor;
@@ -81,10 +80,8 @@ public class CreateLorebookServiceService implements DiscordCommand {
             final String entryDescription = event.getValue("lorebook-entry-desc").getAsString();
             final String entryPlayerCharacter = event.getValue("lorebook-entry-player").getAsString();
             final boolean isPlayerCharacter = entryPlayerCharacter.equals("y");
-            final String lorebookEntryId = NanoId.randomNanoId();
-            final String lorebookRegexId = NanoId.randomNanoId();
             final LorebookRegexEntity insertedEntry = insertEntry(author, entryName, entryRegex,
-                    entryDescription, lorebookEntryId, lorebookRegexId, isPlayerCharacter);
+                    entryDescription, isPlayerCharacter);
 
             final LorebookEntry loreItem = lorebookEntryToDTO.apply(insertedEntry);
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
@@ -136,10 +133,9 @@ public class CreateLorebookServiceService implements DiscordCommand {
     }
 
     private LorebookRegexEntity insertEntry(final User author, final String entryName, final String entryRegex,
-            final String entryDescription, final String lorebookEntryId, final String lorebookRegexId, final boolean isPlayerCharacter) {
+            final String entryDescription, final boolean isPlayerCharacter) {
 
         final LorebookEntryEntity insertedEntry = lorebookRepository.save(LorebookEntryEntity.builder()
-                .id(lorebookEntryId)
                 .name(entryName)
                 .description(entryDescription)
                 .playerDiscordId(Optional.of(author.getId())
@@ -148,7 +144,6 @@ public class CreateLorebookServiceService implements DiscordCommand {
                 .build());
 
         return lorebookRegexRepository.save(LorebookRegexEntity.builder()
-                .id(lorebookRegexId)
                 .regex(Optional.ofNullable(entryRegex)
                         .filter(StringUtils::isNotBlank)
                         .orElse(entryName))

@@ -3,11 +3,14 @@ package es.thalesalv.chatrpg.adapters.data.db.entity;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import es.thalesalv.chatrpg.application.util.dbconverters.StringListConverter;
 import es.thalesalv.chatrpg.application.util.dbconverters.StringMapDoubleConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -24,6 +27,8 @@ import lombok.NoArgsConstructor;
 public class ModelSettingsEntity {
 
     @Id
+    @GeneratedValue(generator = "nanoid-generator")
+    @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.NanoIdIdentifierGenerator")
     @Column(name = "id", unique = true, nullable = false)
     private String id;
 
