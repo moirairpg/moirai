@@ -8,7 +8,7 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
 
 @Component
-public class LorebookEntryToDTO implements Function<LorebookRegexEntity, LorebookEntry> {
+public class LorebookEntryEntityToDTO implements Function<LorebookRegexEntity, LorebookEntry> {
 
     @Override
     public LorebookEntry apply(LorebookRegexEntity t) {

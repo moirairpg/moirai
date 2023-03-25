@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.text.MessageFormat;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -13,20 +14,23 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookEntryRepository;
+import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.mapper.worlds.LorebookEntryToDTO;
+import es.thalesalv.chatrpg.application.mapper.worlds.LorebookDTOToEntity;
+import es.thalesalv.chatrpg.application.mapper.worlds.LorebookEntryEntityToDTO;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.openai.dto.World;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -41,7 +45,7 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 @RequiredArgsConstructor
 public class UpdateLorebookCommandService implements DiscordCommand {
 
-    private final LorebookEntryToDTO lorebookEntryToDTO;
+    private final LorebookEntryEntityToDTO lorebookEntryToDTO;
     private final ModerationService moderationService;
     private final ContextDatastore contextDatastore;
     private final ObjectMapper objectMapper;
@@ -49,6 +53,9 @@ public class UpdateLorebookCommandService implements DiscordCommand {
     private final LorebookRegexRepository lorebookRegexRepository;
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityMapper;
+    private final LorebookDTOToEntity lorebookDTOToEntity;
+
+    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
 
     private static final String ERROR_UPDATE = "There was an error parsing your request. Please try again.";
     private static final String ENTRY_UPDATED = "Lore entry with name {0} was updated.\n```json\n{1}```";
@@ -95,7 +102,10 @@ public class UpdateLorebookCommandService implements DiscordCommand {
         try {
             LOGGER.debug("Received data from lore entry update modal");
             event.deferReply();
-            final String entryId = contextDatastore.getEventData().getLorebookEntryId();
+            final EventData eventData = contextDatastore.getEventData();
+            final World world = eventData.getBotChannelDefinitions().getChannelConfig().getWorld();
+
+            final String entryId = eventData.getLorebookEntryId();
             final String updatedEntryName = event.getValue("lorebook-entry-name").getAsString();
             final String updatedEntryRegex = event.getValue("lorebook-entry-regex").getAsString();
             final String updatedEntryDescription = event.getValue("lorebook-entry-desc").getAsString();
@@ -103,25 +113,29 @@ public class UpdateLorebookCommandService implements DiscordCommand {
                     event.getUser().getId());
 
             final LorebookRegexEntity updatedEntry = updateEntry(updatedEntryDescription, entryId,
-                    updatedEntryName, playerId, updatedEntryRegex);
+                    updatedEntryName, playerId, updatedEntryRegex, world);
 
             final LorebookEntry entry = lorebookEntryToDTO.apply(updatedEntry);
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(entry);
 
-            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> {
+            moderationService.moderate(loreEntryJson, eventData, event).subscribe(response -> {
                 event.reply(MessageFormat.format(ENTRY_UPDATED,
                 updatedEntry.getLorebookEntry().getName(), loreEntryJson))
-                        .setEphemeral(true).complete();
+                        .setEphemeral(true).queue(reply -> {
+                            reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+                        });
             });
         } catch (JsonProcessingException e) {
             LOGGER.error("Error parsing entry data into JSON", e);
-            event.reply(ERROR_UPDATE).setEphemeral(true).complete();
+            event.reply(ERROR_UPDATE).setEphemeral(true).queue(reply -> {
+                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+            });
         }
     }
 
     private LorebookRegexEntity updateEntry(final String description, final String entryId, final String name,
-            final String playerId, final String entryRegex) {
+            final String playerId, final String entryRegex, final World world) {
 
         final LorebookEntryEntity lorebookEntry = LorebookEntryEntity.builder()
                 .description(description)
@@ -130,6 +144,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
                 .playerDiscordId(playerId)
                 .build();
 
+        final LorebookEntity lorebook = lorebookDTOToEntity.apply(world.getLorebook());
         return lorebookRegexRepository.findByLorebookEntry(lorebookEntry)
                 .map(re -> {
                     final LorebookRegexEntity lorebookRegex = LorebookRegexEntity.builder()
@@ -138,6 +153,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
                                     .filter(StringUtils::isNotBlank)
                                     .orElse(name))
                             .lorebookEntry(lorebookEntry)
+                            .lorebook(lorebook)
                             .build();
 
                     lorebookRepository.save(lorebookEntry);

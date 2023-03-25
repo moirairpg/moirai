@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.text.MessageFormat;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
@@ -18,11 +20,13 @@ import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.mapper.worlds.LorebookEntryToDTO;
+import es.thalesalv.chatrpg.application.mapper.worlds.LorebookDTOToEntity;
+import es.thalesalv.chatrpg.application.mapper.worlds.LorebookEntryEntityToDTO;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.model.openai.dto.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.openai.dto.World;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -34,7 +38,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Service
 @RequiredArgsConstructor
-public class CreateLorebookServiceService implements DiscordCommand {
+public class CreateLorebookCommandService implements DiscordCommand {
 
     private final ChannelEntityToDTO channelEntityMapper;
     private final ContextDatastore contextDatastore;
@@ -43,11 +47,14 @@ public class CreateLorebookServiceService implements DiscordCommand {
     private final LorebookEntryRepository lorebookRepository;
     private final ChannelRepository channelRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
-    private final LorebookEntryToDTO lorebookEntryToDTO;
+    private final LorebookEntryEntityToDTO lorebookEntryToDTO;
+    private final LorebookDTOToEntity lorebookDTOToEntity;
+
+    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
 
     private static final String ERROR_CREATE = "There was an error parsing your request. Please try again.";
     private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don''t forget to save this ID!\n```json\n{1}\n```";
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookServiceService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookCommandService.class);
 
     @Override
     public void handle(final SlashCommandInteractionEvent event) {
@@ -65,7 +72,9 @@ public class CreateLorebookServiceService implements DiscordCommand {
                     return;
                 });
 
-        event.reply("This command cannot be issued from this channel.").setEphemeral(true).complete();
+        event.reply("This command cannot be issued from this channel.").setEphemeral(true).queue(reply -> {
+            reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+        });
     }
 
     @Override
@@ -74,6 +83,9 @@ public class CreateLorebookServiceService implements DiscordCommand {
         try {
             LOGGER.debug("Received data from lore entry creation modal -> {}", event.getValues());
             event.deferReply();
+            final EventData eventData = contextDatastore.getEventData();
+            final World world = eventData.getBotChannelDefinitions().getChannelConfig().getWorld();
+
             final User author = event.getMember().getUser();
             final String entryName = event.getValue("lorebook-entry-name").getAsString();
             final String entryRegex = event.getValue("lorebook-entry-regex").getAsString();
@@ -81,20 +93,23 @@ public class CreateLorebookServiceService implements DiscordCommand {
             final String entryPlayerCharacter = event.getValue("lorebook-entry-player").getAsString();
             final boolean isPlayerCharacter = entryPlayerCharacter.equals("y");
             final LorebookRegexEntity insertedEntry = insertEntry(author, entryName, entryRegex,
-                    entryDescription, isPlayerCharacter);
+                    entryDescription, isPlayerCharacter, world);
 
             final LorebookEntry loreItem = lorebookEntryToDTO.apply(insertedEntry);
             final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                     .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
 
-            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> {
-                event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
-                                insertedEntry.getLorebookEntry().getName(), loreEntryJson))
-                        .setEphemeral(true).complete();
+            moderationService.moderate(loreEntryJson, eventData, event).subscribe(response -> {
+                event.reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getLorebookEntry().getName(), loreEntryJson))
+                        .setEphemeral(true).queue(reply -> {
+                            reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+                        });
             });
         } catch (Exception e) {
             LOGGER.error("An error occurred while creating lore entry", e);
-            event.reply(ERROR_CREATE).setEphemeral(true).complete();
+            event.reply(ERROR_CREATE).setEphemeral(true).queue(reply -> {
+                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+            });
         }
     }
 
@@ -133,8 +148,9 @@ public class CreateLorebookServiceService implements DiscordCommand {
     }
 
     private LorebookRegexEntity insertEntry(final User author, final String entryName, final String entryRegex,
-            final String entryDescription, final boolean isPlayerCharacter) {
+            final String entryDescription, final boolean isPlayerCharacter, final World world) {
 
+        final LorebookEntity lorebook = lorebookDTOToEntity.apply(world.getLorebook());
         final LorebookEntryEntity insertedEntry = lorebookRepository.save(LorebookEntryEntity.builder()
                 .name(entryName)
                 .description(entryDescription)
@@ -148,6 +164,7 @@ public class CreateLorebookServiceService implements DiscordCommand {
                         .filter(StringUtils::isNotBlank)
                         .orElse(entryName))
                 .lorebookEntry(insertedEntry)
+                .lorebook(lorebook)
                 .build());
     }
 }

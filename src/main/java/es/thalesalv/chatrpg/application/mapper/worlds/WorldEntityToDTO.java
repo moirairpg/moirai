@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorldEntityToDTO implements Function<WorldEntity, World> {
 
-    private final LorebookEntryToDTO lorebookEntryToDTO;
+    private final LorebookEntryEntityToDTO lorebookEntryToDTO;
 
     @Override
     public World apply(WorldEntity t) {

@@ -6,8 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +17,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.mapper.worlds.LorebookEntryToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.openai.dto.World;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -38,10 +34,8 @@ import net.dv8tion.jda.api.utils.FileUpload;
 public class RetrieveLorebookCommandService implements DiscordCommand {
 
     private final ObjectMapper objectMapper;
-    private final LorebookRegexRepository lorebookRegexRepository;
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityMapper;
-    private final LorebookEntryToDTO lorebookEntryToDTO;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveLorebookCommandService.class);
     private static final String ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
@@ -58,13 +52,14 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
                     .map(channelEntityMapper::apply)
                     .ifPresent(channel -> {
                         try {
+                            final World world = channel.getChannelConfig().getWorld();
                             final OptionMapping entryId = event.getOption("lorebook-entry-id");
                             if (entryId != null) {
-                                retrieveLoreEntryById(entryId.getAsString(), event);
+                                retrieveLoreEntryById(entryId.getAsString(), world, event);
                                 return;
                             }
 
-                            retrieveAllLoreEntries(event);
+                            retrieveAllLoreEntries(world, event);
                         } catch (JsonProcessingException e) {
                             LOGGER.error("Error serializing entry data.", e);
                             event.reply(ERROR_RETRIEVE).setEphemeral(true).complete();
@@ -82,13 +77,9 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
         }
     }
 
-    private void retrieveAllLoreEntries(final SlashCommandInteractionEvent event) throws IOException {
+    private void retrieveAllLoreEntries(final World world, final SlashCommandInteractionEvent event) throws IOException {
 
-        final List<LorebookEntry> entries = lorebookRegexRepository.findAll()
-                .stream()
-                .map(entry -> lorebookEntryToDTO.apply(entry))
-                .collect(Collectors.toList());
-
+        final Set<LorebookEntry> entries = world.getLorebook().getEntries();
         if (entries.isEmpty()) {
             event.reply("There are no lorebook entries saved")
                     .setEphemeral(true)
@@ -108,17 +99,17 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
         fileUpload.close();
     }
 
-    private void retrieveLoreEntryById(final String entryId, final SlashCommandInteractionEvent event)
+    private void retrieveLoreEntryById(final String entryId, final World world, final SlashCommandInteractionEvent event)
             throws JsonProcessingException {
 
-        final LorebookRegexEntity entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
-                .id(entryId).build()).orElseThrow(LorebookEntryNotFoundException::new);
+        final LorebookEntry entry = world.getLorebook().getEntries().stream()
+                    .filter(e -> e.getId().equals(entryId))
+                    .findFirst().orElseThrow();
 
-        final LorebookEntry dto = lorebookEntryToDTO.apply(entry);
         final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
-                .writerWithDefaultPrettyPrinter().writeValueAsString(dto);
+                .writerWithDefaultPrettyPrinter().writeValueAsString(entry);
 
-        event.reply(MessageFormat.format(ENTRY_RETRIEVED, dto.getName(), loreEntryJson))
+        event.reply(MessageFormat.format(ENTRY_RETRIEVED, entry.getName(), loreEntryJson))
                     .setEphemeral(true).complete();
     }
 }
