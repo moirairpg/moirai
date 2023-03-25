@@ -90,8 +90,9 @@ public class ChatbotUseCase implements BotUseCase {
                                 mAuthorUser.getName(), m.getContentDisplay()).trim());
                 })
                 .takeWhile(m -> !m.equals(STOP_MEMORY_FLAG))
-                .sorted(Collections.reverseOrder())
-                .toList();
+                .collect(Collectors.toList());
+
+        Collections.reverse(messages);
 
         messages.add(MessageFormat.format("{0} said earlier: {1}",
                 reply.getAuthor().getName(), reply.getContentDisplay()));

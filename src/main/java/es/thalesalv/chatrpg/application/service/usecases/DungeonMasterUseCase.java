@@ -3,6 +3,7 @@ package es.thalesalv.chatrpg.application.service.usecases;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,13 +71,15 @@ public class DungeonMasterUseCase implements BotUseCase {
         final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
         final SelfUser bot = eventData.getBot();
-        return channel.getHistory()
+        List<String> messages = channel.getHistory()
                 .retrievePast(modelSettings.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
                 .map(m -> MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()))
                 .sorted(Collections.reverseOrder())
-                .toList();
+                .collect(Collectors.toList());
+        Collections.reverse(messages);
+        return messages;
     }
 }
