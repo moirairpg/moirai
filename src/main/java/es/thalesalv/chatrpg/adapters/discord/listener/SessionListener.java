@@ -80,7 +80,7 @@ public class SessionListener {
         LOGGER.debug("Registering Lorebook slash commands.");
         return Commands.slash("lorebook", "Manages lorebook entries.")
                 .addOption(OptionType.STRING, "action", "One of the following: create, retrieve, update, delete.", true)
-                .addOption(OptionType.STRING, "lorebook-entry-id", "UUID of the entry to be managed. Usable for delete, update and retrieve.", false);
+                .addOption(OptionType.STRING, "lorebook-entry-id", "ID of the entry to be managed. Usable for delete, update and retrieve.", false);
     }
 
     private SlashCommandData registerDmAssistSlashCommands() {

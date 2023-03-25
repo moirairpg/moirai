@@ -59,7 +59,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
 
     private static final String ERROR_UPDATE = "There was an error parsing your request. Please try again.";
     private static final String ENTRY_UPDATED = "Lore entry with name {0} was updated.\n```json\n{1}```";
-    private static final String MISSING_ID_MESSAGE = "The UUID of the entry is required for an update action. Please try again with the entry id.";
+    private static final String MISSING_ID_MESSAGE = "The ID of the entry is required for an update action. Please try again with the entry id.";
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateLorebookCommandService.class);
 
     @Override

@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityMapper;
 
+    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveLorebookCommandService.class);
     private static final String ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
     private static final String ENTRY_RETRIEVED = "Retrieved lore entry with name **{0}**.\n```json\n{1}```";
@@ -62,18 +64,27 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
                             retrieveAllLoreEntries(world, event);
                         } catch (JsonProcessingException e) {
                             LOGGER.error("Error serializing entry data.", e);
-                            event.reply(ERROR_RETRIEVE).setEphemeral(true).complete();
+                            event.reply(ERROR_RETRIEVE).setEphemeral(true).queue(reply -> {
+                                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+                            });
                         } catch (IOException e) {
                             LOGGER.error("Error handling lore entries file.", e);
-                            event.reply(ERROR_RETRIEVE).setEphemeral(true).complete();
+                            event.reply(ERROR_RETRIEVE).setEphemeral(true).queue(reply -> {
+                                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+                            });
                         }
                     });
         } catch (LorebookEntryNotFoundException e) {
-            LOGGER.info("User tried to retrieve an entry that does not exist");
-            event.reply("The entry queried does not exist.").setEphemeral(true).complete();
+            LOGGER.info("User tried to retrieve an entry that does not exist or is not part of the current world");
+            event.reply("The entry queried does not exist or is not part of this channel's world.")
+                    .setEphemeral(true).queue(reply -> {
+                        reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+                    });
         } catch (Exception e) {
             LOGGER.error("An error occurred while retrieving lorebook data", e);
-            event.reply(ERROR_RETRIEVE).setEphemeral(true).complete();
+            event.reply(ERROR_RETRIEVE).setEphemeral(true).queue(reply -> {
+                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+            });
         }
     }
 
@@ -103,8 +114,8 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
             throws JsonProcessingException {
 
         final LorebookEntry entry = world.getLorebook().getEntries().stream()
-                    .filter(e -> e.getId().equals(entryId))
-                    .findFirst().orElseThrow();
+                    .filter(e -> e.getId().equals(entryId)).findFirst()
+                    .orElseThrow(() -> new LorebookEntryNotFoundException());
 
         final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
                 .writerWithDefaultPrettyPrinter().writeValueAsString(entry);

@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookEntryRepository;
+import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
 import es.thalesalv.chatrpg.application.ContextDatastore;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
@@ -36,9 +37,10 @@ public class DeleteLorebookCommandService implements DiscordCommand {
     private final ChannelRepository channelRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
 
+    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final String DELETION_CANCELED = "Deletion action canceled. Entry has not been deleted.";
     private static final String ERROR_DELETE = "There was an error parsing your request. Please try again.";
-    private static final String MISSING_ID_MESSAGE = "The UUID of the entry is required for a delete action. Please try again with the entry id.";
+    private static final String MISSING_ID_MESSAGE = "The ID of the entry is required for a delete action. Please try again with the entry id.";
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteLorebookCommandService.class);
     private static final String LORE_ENTRY_DELETED = "Lore entry deleted.";
 
@@ -62,13 +64,19 @@ public class DeleteLorebookCommandService implements DiscordCommand {
                     });
         } catch (LorebookEntryNotFoundException e) {
             LOGGER.info("User tried to delete an entry that does not exist");
-            event.reply("The entry queried does not exist.").setEphemeral(true).complete();
+            event.reply("The entry queried does not exist.").setEphemeral(true).queue(reply -> {
+                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+            });
         } catch (MissingRequiredSlashCommandOptionException e) {
             LOGGER.info("User tried to use update command without ID");
-            event.reply(MISSING_ID_MESSAGE).setEphemeral(true).complete();
+            event.reply(MISSING_ID_MESSAGE).setEphemeral(true).queue(reply -> {
+                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+            });
         } catch (Exception e) {
             LOGGER.error("Exception caught while deleting lorebook entry", e);
-            event.reply(ERROR_DELETE).setEphemeral(true).complete();
+            event.reply(ERROR_DELETE).setEphemeral(true).queue(reply -> {
+                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+            });
         }
     }
 
@@ -87,11 +95,15 @@ public class DeleteLorebookCommandService implements DiscordCommand {
             final LorebookEntryEntity lorebookEntry = LorebookEntryEntity.builder().id(id).build();
             lorebookRegexRepository.deleteByLorebookEntry(lorebookEntry);
             lorebookRepository.delete(lorebookEntry);
-            event.reply(LORE_ENTRY_DELETED).setEphemeral(true).complete();
+            event.reply(LORE_ENTRY_DELETED).setEphemeral(true).queue(reply -> {
+                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+            });
             return;
         }
 
-        event.reply(DELETION_CANCELED).setEphemeral(true).complete();
+        event.reply(DELETION_CANCELED).setEphemeral(true).queue(reply -> {
+            reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS);
+        });
     }
 
     private Modal buildEntryDeletionModal() {
