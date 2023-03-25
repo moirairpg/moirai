@@ -70,10 +70,58 @@ public class ChatbotUseCase implements BotUseCase {
 
         List<String> messages = getHistory(eventData)
                 .stream()
+<<<<<<< HEAD
                 .filter(skipFilter)
                 .takeWhile(stopFilter.negate())
                 .map(m -> MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()))
+=======
+                .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
+                .map(m -> {
+                    final User mAuthorUser = m.getAuthor();
+                    return Optional.ofNullable(checkForContextCap(m.getReactions()))
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(MessageFormat.format("{0} said: {1}",
+                                mAuthorUser.getName(), m.getContentDisplay()).trim());
+                })
+                .takeWhile(m -> !m.equals(STOP_MEMORY_FLAG))
+                .collect(Collectors.toList());
+
+        Collections.reverse(messages);
+
+        messages.add(MessageFormat.format("{0} said earlier: {1}",
+                reply.getAuthor().getName(), reply.getContentDisplay()));
+
+        messages.add(MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
+                eventData.getMessageAuthor().getName(), reply.getAuthor().getName(), message.getContentDisplay()));
+
+        return messages;
+    }
+
+    /**
+     * Formats last messages history to give the AI context on the current conversation
+     * @param eventData Object containing the event's important data to be processed
+     * @return The processed list of messages
+     */
+    private List<String> handleMessageHistory(final MessageEventData eventData) {
+
+        LOGGER.debug("Entered message history handling for chatbot");
+        final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
+        final MessageChannelUnion channel = eventData.getChannel();
+        final SelfUser bot = eventData.getBot();
+        List<String> messages = channel.getHistory()
+                .retrievePast(modelSettings.getChatHistoryMemory()).complete()
+                .stream()
+                .filter(m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim()))
+                .map(m -> {
+                    final User mAuthorUser = m.getAuthor();
+                    return Optional.ofNullable(checkForContextCap(m.getReactions()))
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(MessageFormat.format("{0} said: {1}",
+                                mAuthorUser.getName(), m.getContentDisplay().trim()));
+                })
+                .takeWhile(m -> !m.equals(STOP_MEMORY_FLAG))
+>>>>>>> master
                 .collect(Collectors.toList());
 
         Collections.reverse(messages);
