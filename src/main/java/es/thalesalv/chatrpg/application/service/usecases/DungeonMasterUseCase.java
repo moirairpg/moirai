@@ -3,10 +3,7 @@ package es.thalesalv.chatrpg.application.service.usecases;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
-<<<<<<< HEAD
 import java.util.function.Predicate;
-=======
->>>>>>> master
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -74,19 +71,14 @@ public class DungeonMasterUseCase implements BotUseCase {
         LOGGER.debug("Entered message history handling for RPG");
         final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
         final MessageChannelUnion channel = eventData.getChannel();
-<<<<<<< HEAD
         final Predicate<Message> skipFilter = skipFilter(eventData);
 
-=======
-        final SelfUser bot = eventData.getBot();
->>>>>>> master
         List<String> messages = channel.getHistory()
                 .retrievePast(modelSettings.getChatHistoryMemory()).complete()
                 .stream()
                 .filter(skipFilter)
                 .map(m -> MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()))
-<<<<<<< HEAD
                 .collect(Collectors.toList());
 
         Collections.reverse(messages);
@@ -97,11 +89,5 @@ public class DungeonMasterUseCase implements BotUseCase {
     private Predicate<Message> skipFilter(final MessageEventData eventData) {
         final SelfUser bot = eventData.getBot();
         return m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim());
-=======
-                .sorted(Collections.reverseOrder())
-                .collect(Collectors.toList());
-        Collections.reverse(messages);
-        return messages;
->>>>>>> master
     }
 }
