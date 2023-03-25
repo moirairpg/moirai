@@ -11,4 +11,5 @@ public interface ChannelRepository extends CrudRepository<ChannelEntity, String>
 
     List<ChannelEntity> findAll();
     Optional<ChannelEntity> findByChannelId(String channelId);
+    Optional<ChannelEntity> deleteByChannelId(String channelId);
 }
