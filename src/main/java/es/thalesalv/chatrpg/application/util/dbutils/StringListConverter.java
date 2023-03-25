@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.util.dbconverters;
+package es.thalesalv.chatrpg.application.util.dbutils;
 
 import static java.util.Collections.emptyList;
 

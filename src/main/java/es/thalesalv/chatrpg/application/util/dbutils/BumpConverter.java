@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.util.dbconverters;
+package es.thalesalv.chatrpg.application.util.dbutils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
