@@ -3,7 +3,7 @@ package es.thalesalv.chatrpg.application.util.dbutils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.BumpEntity;
+import es.thalesalv.chatrpg.adapters.data.entity.BumpEntity;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

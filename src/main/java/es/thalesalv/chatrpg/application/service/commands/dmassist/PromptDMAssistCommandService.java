@@ -8,18 +8,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.ContextDatastore;
+import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
+import es.thalesalv.chatrpg.application.mapper.EventDataMapper;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
-import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.enums.AIModel;
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
+import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.Channel;
+import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -39,7 +39,7 @@ public class PromptDMAssistCommandService implements DiscordCommand {
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
-    private final MessageEventDataTranslator messageEventDataTranslator;
+    private final EventDataMapper eventDataMapper;
 
     private static final String GENERATION_INSTRUCTION = " Simply generate the message from where it stopped.\n";
     private static final String USE_CASE = "UseCase";
@@ -58,9 +58,9 @@ public class PromptDMAssistCommandService implements DiscordCommand {
                     .findFirst()
                     .map(channelEntityMapper)
                     .ifPresent(ch -> {
-                        contextDatastore.setCommandEventData(CommandEventData.builder()
-                                .channelConfig(ch.getChannelConfig())
-                                .channel(channel)
+                        contextDatastore.setEventData(EventData.builder()
+                                .channelDefinitions(ch)
+                                .currentChannel(channel)
                                 .build());
 
                         event.replyModal(buildEditMessageModal()).queue();
@@ -78,33 +78,33 @@ public class PromptDMAssistCommandService implements DiscordCommand {
         LOGGER.debug("Received data of message for assisted prompt generation modal");
         try {
             event.deferReply();
-            final Persona persona = contextDatastore.getCommandEventData().getChannelConfig().getPersona();
-            final ModelSettings modelSettings = contextDatastore.getCommandEventData().getChannelConfig().getSettings().getModelSettings();
+            final MessageChannelUnion channel = contextDatastore.getEventData().getCurrentChannel();
+            final Channel channelDefinition = contextDatastore.getEventData().getChannelDefinitions();
+            final Persona persona = channelDefinition.getChannelConfig().getPersona();
+            final ModelSettings modelSettings = channelDefinition.getChannelConfig().getSettings().getModelSettings();
 
+            final SelfUser bot = event.getJDA().getSelfUser();
             final String input = event.getValue("message-content").getAsString();
             final String generateOutput = event.getValue("generate-output").getAsString();
-            final SelfUser bot = event.getJDA().getSelfUser();
-            final MessageChannelUnion channel = contextDatastore.getCommandEventData().getChannel();
             final Message message = channel.sendMessage(bot.getAsMention() + GENERATION_INSTRUCTION + input).complete();
-            event.reply("Assisted prompt used").setEphemeral(true)
+
+            event.reply("Assisted prompt used.").setEphemeral(true)
                     .queue(m -> m.deleteOriginal().queueAfter(1, TimeUnit.MILLISECONDS));
-
             if (generateOutput.equals("y")) {
-                final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA()
-                        .getSelfUser(), channel, contextDatastore.getCommandEventData().getChannelConfig(), message);
-
+                final EventData eventData = eventDataMapper.translate(bot, channel, channelDefinition, message);
                 final String completionType = AIModel.findByInternalName(modelSettings.getModelName()).getCompletionType();
                 final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
-                useCase.generateResponse(messageEventData, model);
+                useCase.generateResponse(eventData, model);
             }
 
             message.editMessage(message.getContentRaw()
                     .replace(bot.getAsMention() + GENERATION_INSTRUCTION, StringUtils.EMPTY).trim()).complete();
         } catch (Exception e) {
             LOGGER.error(ERROR_GENERATING, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true).queue();
+            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(20, TimeUnit.SECONDS));
         }
     }
 
