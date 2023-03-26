@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.helper;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -95,7 +96,7 @@ public class MessageFormatHelper {
 
                     return null;
                 })
-                .filter(r -> null != r)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
