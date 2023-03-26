@@ -7,20 +7,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.ContextDatastore;
+import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
+import es.thalesalv.chatrpg.application.mapper.EventDataMapper;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
-import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.enums.AIModel;
-import es.thalesalv.chatrpg.domain.model.openai.dto.ChannelConfig;
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
+import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.Channel;
+import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
@@ -40,11 +40,15 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityMapper;
-    private final MessageEventDataTranslator messageEventDataTranslator;
+    private final EventDataMapper eventDataMapper;
 
-    private static final String ERROR_EDITING = "Error editing message";
+    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final String USE_CASE = "UseCase";
+    private static final String ERROR_EDITING = "Error editing message";
+    private static final String ERROR_OUTPUT_GENERATION = "Error generating output";
+    private static final String NO_MESSAGE_HISTORY_FOUND = "No message history found";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when generating the message. Please try again.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateDMAssistCommandService.class);
 
     @Override
@@ -67,21 +71,21 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
                             .findAny()
                             .map(message -> {
                                 final String completionType = AIModel.findByInternalName(modelSettings.getModelName()).getCompletionType();
-                                final MessageEventData messageEventData = messageEventDataTranslator.translate(event.getJDA().getSelfUser(), channel, channelConfig, message);
+                                final EventData eventData = eventDataMapper.translate(event.getJDA().getSelfUser(), channel, ch, message);
                                 final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
-                                final MessageEventData responseEventData = useCase.generateResponse(messageEventData, model);
+                                final EventData responseEventData = useCase.generateResponse(eventData, model);
 
-                                saveEventDataToContext(responseEventData, channelConfig, channel);
+                                saveEventDataToContext(responseEventData, ch, channel);
                                 event.replyModal(buildEditMessageModal(responseEventData.getResponseMessage())).queue();
                                 return message;
                             })
-                            .orElseThrow(() -> new IllegalStateException("No message history found"));
+                            .orElseThrow(() -> new IllegalStateException(NO_MESSAGE_HISTORY_FOUND));
                     });
            } catch (Exception e) {
-            LOGGER.error("Error regenerating output", e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN)
-                    .setEphemeral(true).queue();
+            LOGGER.error(ERROR_OUTPUT_GENERATION, e);
+            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
     }
 
@@ -92,7 +96,7 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
         try {
             event.deferReply();
             final String messageContent = event.getValue("message-content").getAsString();
-            final CommandEventData eventData = contextDatastore.getCommandEventData();
+            final EventData eventData = contextDatastore.getEventData();
             moderationService.moderate(messageContent, eventData, event)
                     .subscribe(response -> {
                         eventData.getMessageToBeEdited().editMessage(messageContent).complete();
@@ -101,8 +105,8 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
                     });
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN)
-                    .setEphemeral(true).queue();
+            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
     }
 
@@ -121,12 +125,12 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
                 .addComponents(ActionRow.of(messageContent)).build();
     }
 
-    private void saveEventDataToContext(final MessageEventData responseEventData, final ChannelConfig channelConfig, final MessageChannelUnion channel) {
+    private void saveEventDataToContext(final EventData responseEventData, final Channel channelConfig, final MessageChannelUnion channel) {
 
-        contextDatastore.setCommandEventData(CommandEventData.builder()
+        contextDatastore.setEventData(EventData.builder()
                 .messageToBeEdited(responseEventData.getResponseMessage())
-                .channelConfig(channelConfig)
-                .channel(channel)
+                .channelDefinitions(channelConfig)
+                .currentChannel(channel)
                 .build());
     }
 }
