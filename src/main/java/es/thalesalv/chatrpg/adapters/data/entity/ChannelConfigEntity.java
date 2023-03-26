@@ -45,4 +45,8 @@ public class ChannelConfigEntity {
     @OneToOne
     @JoinColumn(name = "moderation_settings_id", referencedColumnName = "id", nullable = false)
     private ModerationSettingsEntity moderationSettings;
+
+    @OneToOne
+    @JoinColumn(name = "world_id", referencedColumnName = "id")
+    private WorldEntity world;
 }

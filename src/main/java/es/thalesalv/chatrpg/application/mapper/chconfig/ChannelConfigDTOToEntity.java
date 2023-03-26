@@ -8,6 +8,8 @@ import es.thalesalv.chatrpg.adapters.data.entity.ChannelConfigEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.ModelSettingsEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.ModerationSettingsEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.PersonaEntity;
+import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
+import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
 import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChannelConfigDTOToEntity implements Function<ChannelConfig, ChannelConfigEntity> {
 
+    private final WorldDTOToEntity worldDTOToEntity;
     private final PersonaDTOToEntity personaDTOToEntity;
     private final ModelSettingsDTOToEntity modelSettingsDTOToEntity;
     private final ModerationSettingsDTOToEntity moderationSettingsDTOToEntity;
@@ -22,6 +25,7 @@ public class ChannelConfigDTOToEntity implements Function<ChannelConfig, Channel
     @Override
     public ChannelConfigEntity apply(ChannelConfig t) {
 
+        final WorldEntity world = worldDTOToEntity.apply(t.getWorld());
         final PersonaEntity persona = personaDTOToEntity.apply(t.getPersona());
         final ModelSettingsEntity modelSettings = modelSettingsDTOToEntity.apply(t.getSettings().getModelSettings());
         final ModerationSettingsEntity moderationSettings = moderationSettingsDTOToEntity.apply(t.getSettings().getModerationSettings());
@@ -32,6 +36,7 @@ public class ChannelConfigDTOToEntity implements Function<ChannelConfig, Channel
                 .persona(persona)
                 .modelSettings(modelSettings)
                 .moderationSettings(moderationSettings)
+                .world(world)
                 .build();
     }
 }

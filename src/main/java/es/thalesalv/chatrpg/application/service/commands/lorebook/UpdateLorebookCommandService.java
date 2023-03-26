@@ -13,12 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookRegexRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
@@ -28,6 +30,7 @@ import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionEx
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -44,6 +47,7 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 public class UpdateLorebookCommandService implements DiscordCommand {
 
     private final ChannelEntityToDTO channelEntityToDTO;
+    private final LorebookDTOToEntity lorebookDTOToEntity;
     private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
 
     private final ContextDatastore contextDatastore;
@@ -51,8 +55,8 @@ public class UpdateLorebookCommandService implements DiscordCommand {
 
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
-    private final LorebookRepository lorebookRepository;
-    private final LorebookRegexRepository lorebookRegexRepository;
+    private final LorebookEntryRepository lorebookRepository;
+    private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
 
     private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final String ERROR_PARSING_JSON = "Error parsing entry data into JSON";
@@ -106,6 +110,9 @@ public class UpdateLorebookCommandService implements DiscordCommand {
         try {
             LOGGER.debug("Received data from lore entry update modal");
             event.deferReply();
+            final EventData eventData = contextDatastore.getEventData();
+            final World world = eventData.getChannelDefinitions().getChannelConfig().getWorld();
+
             final String entryId = contextDatastore.getEventData().getLorebookEntryId();
             final String updatedEntryName = event.getValue("lorebook-entry-name").getAsString();
             final String updatedEntryRegex = event.getValue("lorebook-entry-regex").getAsString();
@@ -114,7 +121,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
                     event.getUser().getId());
 
             final LorebookEntryRegexEntity updatedEntry = updateEntry(updatedEntryDescription, entryId,
-                    updatedEntryName, playerId, updatedEntryRegex);
+                    updatedEntryName, playerId, updatedEntryRegex, world);
 
             final LorebookEntry entry = lorebookEntryEntityToDTO.apply(updatedEntry);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(entry);
@@ -132,7 +139,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
     }
 
     private LorebookEntryRegexEntity updateEntry(final String description, final String entryId, final String name,
-            final String playerId, final String entryRegex) {
+            final String playerId, final String entryRegex, final World world) {
 
         final LorebookEntryEntity lorebookEntry = LorebookEntryEntity.builder()
                 .description(description)
@@ -141,7 +148,8 @@ public class UpdateLorebookCommandService implements DiscordCommand {
                 .playerDiscordId(playerId)
                 .build();
 
-        return lorebookRegexRepository.findByLorebookEntry(lorebookEntry)
+        final LorebookEntity lorebook = lorebookDTOToEntity.apply(world.getLorebook());
+        return lorebookEntryRegexRepository.findByLorebookEntry(lorebookEntry)
                 .map(re -> {
                     final LorebookEntryRegexEntity lorebookRegex = LorebookEntryRegexEntity.builder()
                             .id(re.getId())
@@ -149,10 +157,11 @@ public class UpdateLorebookCommandService implements DiscordCommand {
                                     .filter(StringUtils::isNotBlank)
                                     .orElse(name))
                             .lorebookEntry(lorebookEntry)
+                            .lorebook(lorebook)
                             .build();
 
                     lorebookRepository.save(lorebookEntry);
-                    lorebookRegexRepository.save(lorebookRegex);
+                    lorebookEntryRegexRepository.save(lorebookRegex);
                     return lorebookRegex;
                 }).get();
     }
@@ -216,7 +225,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
 
     private LorebookEntryRegexEntity buildEntity(final String entryId) {
 
-        return lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
+        return lorebookEntryRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
                 .id(entryId)
                 .build())
                 .orElseThrow(LorebookEntryNotFoundException::new);
