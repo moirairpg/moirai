@@ -14,10 +14,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.domain.exception.ErrorBotResponseException;
 import es.thalesalv.chatrpg.domain.exception.ModerationException;
+import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
 import es.thalesalv.chatrpg.domain.model.openai.completion.CompletionResponse;
 import es.thalesalv.chatrpg.domain.model.openai.completion.TextCompletionRequest;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationRequest;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResponse;
 import reactor.core.publisher.Mono;
@@ -54,6 +54,10 @@ public class OpenAIApiService {
     private final CommonErrorHandler commonErrorHandler;
 
     private static final String BEARER = "Bearer ";
+    private static final String BOT_RESPONSE_ERROR = "Bot response contains an error";
+    private static final String RECEIVED_MODEL_RESPONSE = "Received response from OpenAI GPT API -> {}";
+    private static final String RECEIVED_MODERATION_RESPONSE = "Received response from OpenAI moderation API -> {}";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAIApiService.class);
 
     public OpenAIApiService(@Value("${chatrpg.openai.api-base-url}") final String openAiBaseUrl,
@@ -63,7 +67,7 @@ public class OpenAIApiService {
         this.webClient = webClientBuilder.baseUrl(openAiBaseUrl).build();
     }
 
-    public Mono<CompletionResponse> callGptChatApi(final ChatCompletionRequest request, final MessageEventData messageEventData) {
+    public Mono<CompletionResponse> callGptChatApi(final ChatCompletionRequest request, final EventData eventData) {
 
         LOGGER.info("Making request to OpenAI ChatGPT API -> {}", request);
         return webClient.post()
@@ -74,24 +78,24 @@ public class OpenAIApiService {
                 })
                 .bodyValue(request)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, messageEventData))
+                .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, eventData))
                 .bodyToMono(CompletionResponse.class)
                 .map(response -> {
-                    LOGGER.info("Received response from OpenAI GPT API -> {}", response);
+                    LOGGER.info(RECEIVED_MODEL_RESPONSE, response);
                     if (response.getError() != null) {
-                        LOGGER.error("Bot response contains an error -> {}", response.getError());
-                        throw new ErrorBotResponseException("Bot response contains an error", response);
+                        LOGGER.error(BOT_RESPONSE_ERROR, response.getError());
+                        throw new ErrorBotResponseException(BOT_RESPONSE_ERROR, response);
                     }
 
                     return response;
                 })
-                .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(messageEventData))
+                .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(eventData))
                 .retryWhen(Retry.fixedDelay(moderationAttempts, Duration.ofSeconds(moderationDelay))
                         .filter(ModerationException.class::isInstance))
                 .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
     }
 
-    public Mono<CompletionResponse> callGptApi(final TextCompletionRequest request, final MessageEventData messageEventData) {
+    public Mono<CompletionResponse> callGptApi(final TextCompletionRequest request, final EventData eventData) {
 
         LOGGER.info("Making request to OpenAI GPT API -> {}", request);
         return webClient.post()
@@ -102,20 +106,20 @@ public class OpenAIApiService {
                 })
                 .bodyValue(request)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, messageEventData))
+                .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, eventData))
                 .bodyToMono(CompletionResponse.class)
                 .map(response -> {
-                    LOGGER.info("Received response from OpenAI GPT API -> {}", response);
+                    LOGGER.info(RECEIVED_MODEL_RESPONSE, response);
                     response.setPrompt(request.getPrompt());
 
                     if (response.getError() != null) {
-                        LOGGER.error("Bot response contains an error -> {}", response.getError());
-                        throw new ErrorBotResponseException("Bot response contains an error", response);
+                        LOGGER.error(BOT_RESPONSE_ERROR, response.getError());
+                        throw new ErrorBotResponseException(BOT_RESPONSE_ERROR, response);
                     }
 
                     return response;
                 })
-                .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(messageEventData))
+                .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(eventData))
                 .retryWhen(Retry.fixedDelay(moderationAttempts, Duration.ofSeconds(moderationDelay))
                         .filter(ModerationException.class::isInstance))
                 .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
@@ -134,7 +138,7 @@ public class OpenAIApiService {
                 .retrieve()
                 .bodyToMono(ModerationResponse.class)
                 .map(response -> {
-                    LOGGER.info("Received response from OpenAI moderation API -> {}", response);
+                    LOGGER.info(RECEIVED_MODERATION_RESPONSE, response);
                     return response;
                 })
                 .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));

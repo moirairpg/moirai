@@ -14,19 +14,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
-import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
+import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.LorebookRegexRepository;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -37,11 +36,11 @@ import net.dv8tion.jda.api.utils.FileUpload;
 @RequiredArgsConstructor
 public class RetrieveLorebookCommandService implements DiscordCommand {
 
-    private final ObjectMapper objectMapper;
+    private final ObjectWriter prettyPrintObjectMapper;
     private final LorebookRegexRepository lorebookRegexRepository;
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityMapper;
-    private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
+    private final LorebookEntryEntityToDTO lorebookEntryToDTOTranslator;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveLorebookCommandService.class);
     private static final String ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
@@ -97,8 +96,7 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
             return;
         }
 
-        final String entriesJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
-                .writerWithDefaultPrettyPrinter().writeValueAsString(entries);
+        final String entriesJson = prettyPrintObjectMapper.writeValueAsString(entries);
 
         final File file = File.createTempFile("lore-entries-", ".json");
         Files.write(file.toPath(), entriesJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
@@ -111,12 +109,11 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
     private void retrieveLoreEntryById(final String entryId, final SlashCommandInteractionEvent event)
             throws JsonProcessingException {
 
-        final LorebookRegexEntity entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
+        final LorebookEntryRegexEntity entry = lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
                 .id(entryId).build()).orElseThrow(LorebookEntryNotFoundException::new);
 
         final LorebookEntry dto = lorebookEntryToDTOTranslator.apply(entry);
-        final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
-                .writerWithDefaultPrettyPrinter().writeValueAsString(dto);
+        final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(dto);
 
         event.reply(MessageFormat.format(ENTRY_RETRIEVED, dto.getName(), loreEntryJson))
                     .setEphemeral(true).complete();

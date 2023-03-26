@@ -7,16 +7,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
+import es.thalesalv.chatrpg.application.mapper.EventDataMapper;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
-import es.thalesalv.chatrpg.application.translator.MessageEventDataTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.AIModel;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
+import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -30,9 +30,11 @@ public class RetryDMAssistCommandService implements DiscordCommand {
     private final ChannelEntityToDTO channelEntityMapper;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
-    private final MessageEventDataTranslator messageEventDataTranslator;
+    private final EventDataMapper eventDataMapper;
 
+    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final String USE_CASE = "UseCase";
+    private static final String ERROR_OUTPUT_GENERATION = "Error regenerating output";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
     private static final String BOT_MESSAGE_NOT_FOUND = "No bot message found.";
     private static final String USER_MESSAGE_NOT_FOUND = "No user message found.";
@@ -58,20 +60,20 @@ public class RetryDMAssistCommandService implements DiscordCommand {
                         final Message userMessage = retrieveUserMessage(channel, botMessage);
 
                         final String completionType = AIModel.findByInternalName(modelSettings.getModelName()).getCompletionType();
-                        final MessageEventData messageEventData = messageEventDataTranslator.translate(bot, channel, ch.getChannelConfig(), userMessage);
+                        final EventData eventData = eventDataMapper.translate(bot, channel, ch, userMessage);
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                         final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
                         event.reply("Re-generating output...")
-                                .setEphemeral(true).queue(a -> a.deleteOriginal().queueAfter(20, TimeUnit.SECONDS));
+                                .setEphemeral(true).queue(a -> a.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
 
                         botMessage.delete().complete();
-                        useCase.generateResponse(messageEventData, model);
+                        useCase.generateResponse(eventData, model);
                     });
         } catch (Exception e) {
-            LOGGER.error("Error regenerating output", e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN)
-                    .setEphemeral(true).queue();
+            LOGGER.error(ERROR_OUTPUT_GENERATION, e);
+            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
     }
 
