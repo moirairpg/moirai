@@ -58,7 +58,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
     private final LorebookEntryRepository lorebookRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
 
-    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String ERROR_PARSING_JSON = "Error parsing entry data into JSON";
     private static final String USER_UPDATE_ENTRY_NOT_FOUND = "The entry queried does not exist.";
     private static final String UNKNOWN_ERROR_CAUGHT = "Exception caught while updating lorebook entry";
@@ -88,19 +88,19 @@ public class UpdateLorebookCommandService implements DiscordCommand {
                     });
 
             event.reply(COMMAND_WRONG_CHANNEL).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (MissingRequiredSlashCommandOptionException e) {
             LOGGER.info(USER_UPDATE_COMMAND_WITHOUT_ID);
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (LorebookEntryNotFoundException e) {
             LOGGER.info(USER_UPDATE_ENTRY_NOT_FOUND);
             event.reply(USER_UPDATE_ENTRY_NOT_FOUND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(UNKNOWN_ERROR_CAUGHT, e);
             event.reply(ERROR_UPDATE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -129,12 +129,12 @@ public class UpdateLorebookCommandService implements DiscordCommand {
             moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> {
                 event.reply(MessageFormat.format(ENTRY_UPDATED,
                 updatedEntry.getLorebookEntry().getName(), loreEntryJson)).setEphemeral(true)
-                        .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                        .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
             });
         } catch (JsonProcessingException e) {
             LOGGER.error(ERROR_PARSING_JSON, e);
             event.reply(ERROR_UPDATE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
