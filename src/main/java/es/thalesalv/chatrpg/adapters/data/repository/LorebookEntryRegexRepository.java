@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 
-public interface LorebookRegexRepository extends CrudRepository<LorebookEntryRegexEntity, String> {
+public interface LorebookEntryRegexRepository extends CrudRepository<LorebookEntryRegexEntity, String> {
 
     List<LorebookEntryRegexEntity> findAll();
     void deleteByLorebookEntry(LorebookEntryEntity lorebookEntry);
