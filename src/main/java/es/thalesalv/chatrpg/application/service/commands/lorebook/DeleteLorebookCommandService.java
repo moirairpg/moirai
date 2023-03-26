@@ -38,7 +38,7 @@ public class DeleteLorebookCommandService implements DiscordCommand {
     private final ChannelRepository channelRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
 
-    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String LORE_ENTRY_DELETED = "Lore entry deleted.";
     private static final String QUERIED_ENTRY_NOT_FOUND = "The entry queried does not exist.";
     private static final String USER_UPDATE_WITHOUT_ID = "User tried to use update command without ID";
@@ -74,15 +74,15 @@ public class DeleteLorebookCommandService implements DiscordCommand {
         } catch (LorebookEntryNotFoundException e) {
             LOGGER.info(USER_DELETE_ENTRY_NOT_FOUND);
             event.reply(QUERIED_ENTRY_NOT_FOUND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (MissingRequiredSlashCommandOptionException e) {
             LOGGER.info(USER_UPDATE_WITHOUT_ID);
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(UNKNOWN_ERROR_CAUGHT, e);
             event.reply(ERROR_DELETE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -102,13 +102,13 @@ public class DeleteLorebookCommandService implements DiscordCommand {
             lorebookEntryRegexRepository.deleteByLorebookEntry(lorebookEntry);
             lorebookEntryRepository.delete(lorebookEntry);
             event.reply(LORE_ENTRY_DELETED).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
 
             return;
         }
 
         event.reply(DELETION_CANCELED).setEphemeral(true)
-                .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
     }
 
     private Modal buildEntryDeletionModal() {
