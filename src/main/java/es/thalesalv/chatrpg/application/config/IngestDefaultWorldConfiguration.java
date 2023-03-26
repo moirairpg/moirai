@@ -3,6 +3,9 @@ package es.thalesalv.chatrpg.application.config;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +27,7 @@ import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
+import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import es.thalesalv.chatrpg.domain.model.chconf.WorldsYaml;
@@ -65,18 +69,21 @@ public class IngestDefaultWorldConfiguration {
 
             LOGGER.info(DEFAULT_WORLDS_FOUND);
 
-            int i = 1;
+            final AtomicInteger i = new AtomicInteger(1);
             for (World world : yaml.getWorlds()) {
                 LOGGER.debug(INGESTING_WORLD, world);
 
-                int j = 1;
-                world.setId(String.valueOf(i));
+                world.setId(String.valueOf(i.get()));
                 world.setOwner(jda.getSelfUser().getId());
-                world.getLorebook().setId(String.valueOf(i));
-                world.getLorebook().setOwner(jda.getSelfUser().getId());
+                world.setLorebook(Optional.ofNullable(world.getLorebook())
+                        .map(lorebook -> setLorebook(lorebook, i.get()))
+                        .orElse(buildEmptyLorebook(i.get())));
+
                 final WorldEntity worldEntity = worldDTOToEntity.apply(world);
                 final LorebookEntity lorebookEntity = lorebookDTOToEntity.apply(world.getLorebook());
                 lorebookRepository.save(lorebookEntity);
+
+                int j = 1;
                 for (LorebookEntry entry : world.getLorebook().getEntries()) {
                     LOGGER.debug(INGESTING_ENTRY, entry);
 
@@ -92,10 +99,26 @@ public class IngestDefaultWorldConfiguration {
                 }
 
                 worldRepository.save(worldEntity);
-                i++;
+                i.incrementAndGet();
             }
         } catch (FileNotFoundException e) {
             LOGGER.warn(DEFAULT_WORLDS_NOT_FOUND);
         }
+    }
+
+    private Lorebook setLorebook(Lorebook lorebook, int id) {
+
+        lorebook.setId(String.valueOf(id));
+        lorebook.setOwner(jda.getSelfUser().getId());
+        return lorebook;
+    }
+
+    private Lorebook buildEmptyLorebook(int id) {
+
+        return Lorebook.builder()
+                .id(String.valueOf(id))
+                .entries(new HashSet<LorebookEntry>())
+                .owner(jda.getSelfUser().getId())
+                .build();
     }
 }
