@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
@@ -30,7 +30,7 @@ public class DungeonMasterUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DungeonMasterUseCase.class);
 
     @Override
-    public MessageEventData generateResponse(final MessageEventData eventData, final CompletionService model) {
+    public EventData generateResponse(final EventData eventData, final CompletionService model) {
 
         LOGGER.debug("Entered generation of response for RPG. eventData -> {}", eventData);
 
@@ -38,7 +38,7 @@ public class DungeonMasterUseCase implements BotUseCase {
         final SelfUser bot = eventData.getBot();
         final Mentions mentions = message.getMentions();
         if (mentions.isMentioned(eventData.getBot(), Message.MentionType.USER)) {
-            eventData.getChannel().sendTyping().complete();
+            eventData.getCurrentChannel().sendTyping().complete();
             if (message.getContentRaw().trim().equals(bot.getAsMention().trim())) {
                 message.delete().submit().whenComplete((d, e) -> {
                     if (e != null) {
@@ -53,7 +53,7 @@ public class DungeonMasterUseCase implements BotUseCase {
                     .subscribe(inputModeration -> model.generate(messages, eventData)
                     .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
                     .subscribe(outputModeration -> {
-                        final Message responseMessage = eventData.getChannel().sendMessage(textResponse).complete();
+                        final Message responseMessage = eventData.getCurrentChannel().sendMessage(textResponse).complete();
                         eventData.setResponseMessage(responseMessage);
                     })));
         }
@@ -66,11 +66,11 @@ public class DungeonMasterUseCase implements BotUseCase {
      * @param eventData Object containing the event's important data to be processed
      * @return The list of messages for history
      */
-    private List<String> handleMessageHistory(final MessageEventData eventData) {
+    private List<String> handleMessageHistory(final EventData eventData) {
 
         LOGGER.debug("Entered message history handling for RPG");
-        final ModelSettings modelSettings = eventData.getChannelConfig().getSettings().getModelSettings();
-        final MessageChannelUnion channel = eventData.getChannel();
+        final ModelSettings modelSettings = eventData.getChannelDefinitions().getChannelConfig().getSettings().getModelSettings();
+        final MessageChannelUnion channel = eventData.getCurrentChannel();
         final Predicate<Message> skipFilter = skipFilter(eventData);
 
         List<String> messages = channel.getHistory()
@@ -80,11 +80,13 @@ public class DungeonMasterUseCase implements BotUseCase {
                 .map(m -> MessageFormat.format("{0} said: {1}",
                         m.getAuthor().getName(), m.getContentDisplay().trim()))
                 .collect(Collectors.toList());
+
         Collections.reverse(messages);
+
         return messages;
     }
 
-    private Predicate<Message> skipFilter(final MessageEventData eventData) {
+    private Predicate<Message> skipFilter(final EventData eventData) {
         final SelfUser bot = eventData.getBot();
         return m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim());
     }
