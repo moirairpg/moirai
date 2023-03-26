@@ -37,7 +37,7 @@ public class EditDMAssistCommandService implements DiscordCommand {
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityMapper;
 
-    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String ERROR_EDITING = "Error editing message";
     private static final String BOT_NOT_FOUND = "No bot message found.";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
@@ -64,7 +64,7 @@ public class EditDMAssistCommandService implements DiscordCommand {
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -89,7 +89,7 @@ public class EditDMAssistCommandService implements DiscordCommand {
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 

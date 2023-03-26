@@ -22,7 +22,7 @@ public class InteractionListener {
 
     private final BeanFactory beanFactory;
 
-    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String CHCONFIG_COMMAND = "ChConfigCommandService";
     private static final String DM_ASSIST_COMMAND = "DMAssistCommandService";
     private static final String LOREBOOK_ENTRY_COMMAND = "LorebookCommandService";
@@ -65,15 +65,15 @@ public class InteractionListener {
         } catch (NoSuchBeanDefinitionException e) {
             LOGGER.info(USER_COMMAND_NOT_FOUND);
             event.reply(NON_EXISTING_COMMAND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (NullPointerException e) {
             LOGGER.error(NULL_POINTER_ERROR, e);
             event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(UNKNOWN_ERROR, e);
             event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -97,15 +97,15 @@ public class InteractionListener {
         } catch (NoSuchBeanDefinitionException e) {
             LOGGER.info(USER_COMMAND_NOT_FOUND);
             event.reply(NON_EXISTING_COMMAND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (NullPointerException e) {
             LOGGER.info(NULL_POINTER_ERROR, e);
             event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(UNKNOWN_ERROR, e);
             event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 }
