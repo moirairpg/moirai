@@ -9,17 +9,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
-import es.thalesalv.chatrpg.application.translator.airequest.ChatCompletionRequestTranslator;
+import es.thalesalv.chatrpg.application.mapper.airequest.ChatCompletionRequestMapper;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
+import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.User;
@@ -31,22 +31,23 @@ public class ChatCompletionService implements CompletionService {
 
     private final MessageFormatHelper messageFormatHelper;
     private final CommonErrorHandler commonErrorHandler;
-    private final ChatCompletionRequestTranslator chatCompletionsRequestTranslator;
+    private final ChatCompletionRequestMapper chatCompletionsRequestTranslator;
     private final OpenAIApiService openAiService;
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatCompletionService.class);
 
     @Override
-    public Mono<String> generate(final List<String> messages, final MessageEventData eventData) {
+    public Mono<String> generate(final List<String> messages, final EventData eventData) {
 
         LOGGER.debug("Called inference for Chat Completions.");
         final StringProcessor outputProcessor = new StringProcessor();
         final StringProcessor inputProcessor = new StringProcessor();
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
-        final Persona persona = eventData.getChannelConfig().getPersona();
+        final Persona persona = eventData.getChannelDefinitions().getChannelConfig().getPersona();
 
+        inputProcessor.addRule(s -> Pattern.compile("\\{0\\}").matcher(s).replaceAll(r -> persona.getName()));
         inputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
@@ -61,7 +62,7 @@ public class ChatCompletionService implements CompletionService {
         }
 
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData, inputProcessor);
-        final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages, eventData.getChannelConfig());
+        final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages, eventData.getChannelDefinitions().getChannelConfig());
         return openAiService.callGptChatApi(request, eventData)
                 .map(response -> {
                     final String responseText = response.getChoices().get(0).getMessage().getContent();

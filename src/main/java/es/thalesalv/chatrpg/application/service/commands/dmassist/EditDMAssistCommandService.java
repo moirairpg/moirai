@@ -7,15 +7,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.ContextDatastore;
+import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Channel;
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.Channel;
+import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -37,10 +37,11 @@ public class EditDMAssistCommandService implements DiscordCommand {
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityMapper;
 
+    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final String ERROR_EDITING = "Error editing message";
+    private static final String BOT_NOT_FOUND = "No bot message found.";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
 
-    private static final String BOT_NOT_FOUND = "No bot message found.";
     private static final Logger LOGGER = LoggerFactory.getLogger(EditDMAssistCommandService.class);
 
     @Override
@@ -62,8 +63,8 @@ public class EditDMAssistCommandService implements DiscordCommand {
                     });
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN)
-                    .setEphemeral(true).queue();
+            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
     }
 
@@ -74,7 +75,7 @@ public class EditDMAssistCommandService implements DiscordCommand {
         try {
             event.deferReply();
             final String messageContent = event.getValue("message-content").getAsString();
-            final CommandEventData eventData = contextDatastore.getCommandEventData();
+            final EventData eventData = contextDatastore.getEventData();
             final Message message = eventData.getMessageToBeEdited();
             moderationService.moderate(messageContent, eventData, event)
                     .subscribe(response -> message.editMessage(messageContent).submit()
@@ -87,8 +88,8 @@ public class EditDMAssistCommandService implements DiscordCommand {
                         }));
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN)
-                    .setEphemeral(true).queue();
+            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
     }
 
@@ -120,9 +121,9 @@ public class EditDMAssistCommandService implements DiscordCommand {
 
     private void saveEventDataToContext(final Message message, final Channel channel) {
 
-        contextDatastore.setCommandEventData(CommandEventData.builder()
+        contextDatastore.setEventData(EventData.builder()
                 .messageToBeEdited(message)
-                .channelConfig(channel.getChannelConfig())
+                .channelDefinitions(channel)
                 .build());
     }
 }
