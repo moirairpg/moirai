@@ -7,6 +7,7 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.ClassPathResource;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 
 @Configuration
+@DependsOn("nanoId")
 @RequiredArgsConstructor
 public class IngestDefaultConfigService {
 
