@@ -2,29 +2,31 @@ package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.text.MessageFormat;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
-import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
-import es.thalesalv.chatrpg.application.ContextDatastore;
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
+import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.LorebookRegexRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.LorebookRepository;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
 import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.translator.LorebookEntryToDTOTranslator;
-import es.thalesalv.chatrpg.application.translator.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.domain.model.openai.dto.CommandEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.LorebookEntry;
+import es.thalesalv.chatrpg.application.util.ContextDatastore;
+import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.Channel;
+import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -36,15 +38,19 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @RequiredArgsConstructor
 public class CreateLorebookServiceService implements DiscordCommand {
 
-    private final ChannelEntityToDTO channelEntityMapper;
     private final ContextDatastore contextDatastore;
+    private final ObjectWriter prettyPrintObjectMapper;
+
     private final ModerationService moderationService;
-    private final ObjectMapper objectMapper;
     private final LorebookRepository lorebookRepository;
     private final ChannelRepository channelRepository;
     private final LorebookRegexRepository lorebookRegexRepository;
-    private final LorebookEntryToDTOTranslator lorebookEntryToDTOTranslator;
 
+    private final ChannelEntityToDTO channelEntityToDTO;
+    private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
+
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
+    private static final String ERROR_CREATING_LORE_ENTRY = "An error occurred while creating lore entry";
     private static final String ERROR_CREATE = "There was an error parsing your request. Please try again.";
     private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don''t forget to save this ID!\n```json\n{1}\n```";
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookServiceService.class);
@@ -55,11 +61,9 @@ public class CreateLorebookServiceService implements DiscordCommand {
         LOGGER.debug("Received slash command for lore entry creation");
         channelRepository.findByChannelId(event.getChannel().getId()).stream()
                 .findFirst()
-                .map(channelEntityMapper::apply)
+                .map(channelEntityToDTO::apply)
                 .ifPresent(channel -> {
-                    contextDatastore.setCommandEventData(CommandEventData.builder()
-                            .channelConfig(channel.getChannelConfig()).build());
-
+                    saveEventDataToContext(channel, event.getChannel());
                     final Modal modal = buildEntryCreationModal();
                     event.replyModal(modal).queue();
                     return;
@@ -80,21 +84,20 @@ public class CreateLorebookServiceService implements DiscordCommand {
             final String entryDescription = event.getValue("lorebook-entry-desc").getAsString();
             final String entryPlayerCharacter = event.getValue("lorebook-entry-player").getAsString();
             final boolean isPlayerCharacter = entryPlayerCharacter.equals("y");
-            final LorebookRegexEntity insertedEntry = insertEntry(author, entryName, entryRegex,
+            final LorebookEntryRegexEntity insertedEntry = insertEntry(author, entryName, entryRegex,
                     entryDescription, isPlayerCharacter);
 
-            final LorebookEntry loreItem = lorebookEntryToDTOTranslator.apply(insertedEntry);
-            final String loreEntryJson = objectMapper.setSerializationInclusion(Include.NON_EMPTY)
-                    .writerWithDefaultPrettyPrinter().writeValueAsString(loreItem);
+            final LorebookEntry loreItem = lorebookEntryEntityToDTO.apply(insertedEntry);
+            final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(loreItem);
 
-            moderationService.moderate(loreEntryJson, contextDatastore.getCommandEventData(), event).subscribe(response -> {
-                event.reply(MessageFormat.format(LORE_ENTRY_CREATED,
-                                insertedEntry.getLorebookEntry().getName(), loreEntryJson))
-                        .setEphemeral(true).complete();
+            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> {
+                event.reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getLorebookEntry().getName(), loreEntryJson))
+                        .setEphemeral(true).queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
             });
         } catch (Exception e) {
-            LOGGER.error("An error occurred while creating lore entry", e);
-            event.reply(ERROR_CREATE).setEphemeral(true).complete();
+            LOGGER.error(ERROR_CREATING_LORE_ENTRY, e);
+            event.reply(ERROR_CREATE).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -132,7 +135,7 @@ public class CreateLorebookServiceService implements DiscordCommand {
                 .build();
     }
 
-    private LorebookRegexEntity insertEntry(final User author, final String entryName, final String entryRegex,
+    private LorebookEntryRegexEntity insertEntry(final User author, final String entryName, final String entryRegex,
             final String entryDescription, final boolean isPlayerCharacter) {
 
         final LorebookEntryEntity insertedEntry = lorebookRepository.save(LorebookEntryEntity.builder()
@@ -143,11 +146,19 @@ public class CreateLorebookServiceService implements DiscordCommand {
                         .orElse(null))
                 .build());
 
-        return lorebookRegexRepository.save(LorebookRegexEntity.builder()
+        return lorebookRegexRepository.save(LorebookEntryRegexEntity.builder()
                 .regex(Optional.ofNullable(entryRegex)
                         .filter(StringUtils::isNotBlank)
                         .orElse(entryName))
                 .lorebookEntry(insertedEntry)
+                .build());
+    }
+
+    private void saveEventDataToContext(final Channel channelConfig, final MessageChannelUnion channel) {
+
+        contextDatastore.setEventData(EventData.builder()
+                .channelDefinitions(channelConfig)
+                .currentChannel(channel)
                 .build());
     }
 }
