@@ -42,7 +42,7 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
     private final ChannelEntityToDTO channelEntityMapper;
     private final EventDataMapper eventDataMapper;
 
-    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String USE_CASE = "UseCase";
     private static final String ERROR_EDITING = "Error editing message";
     private static final String ERROR_OUTPUT_GENERATION = "Error generating output";
@@ -85,7 +85,7 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
            } catch (Exception e) {
             LOGGER.error(ERROR_OUTPUT_GENERATION, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -106,7 +106,7 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 

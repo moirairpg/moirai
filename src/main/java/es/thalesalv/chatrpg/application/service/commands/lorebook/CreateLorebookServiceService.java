@@ -50,7 +50,7 @@ public class CreateLorebookServiceService implements DiscordCommand {
     private final ChannelEntityToDTO channelEntityToDTO;
     private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
 
-    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String ERROR_CREATING_LORE_ENTRY = "An error occurred while creating lore entry";
     private static final String ERROR_CREATE = "There was an error parsing your request. Please try again.";
     private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don''t forget to save this ID!\n```json\n{1}\n```";
@@ -95,12 +95,12 @@ public class CreateLorebookServiceService implements DiscordCommand {
 
             moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> {
                 event.reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getLorebookEntry().getName(), loreEntryJson))
-                        .setEphemeral(true).queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                        .setEphemeral(true).queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
             });
         } catch (Exception e) {
             LOGGER.error(ERROR_CREATING_LORE_ENTRY, e);
             event.reply(ERROR_CREATE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
