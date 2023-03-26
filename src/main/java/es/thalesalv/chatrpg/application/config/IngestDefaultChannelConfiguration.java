@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.JDA;
 @Configuration
 @RequiredArgsConstructor
 @DependsOn("ingestDefaultWorldConfiguration")
-public class IngestDefaultConfiguration {
+public class IngestDefaultChannelConfiguration {
 
     private final JDA jda;
     private final ObjectMapper yamlObjectMapper;
@@ -51,7 +51,7 @@ public class IngestDefaultConfiguration {
     private static final String DEFAULT_CONFIG_FOUND = "Found default configs. Ingesting them to database.";
     private static final String DEFAULT_CONFIG_NOT_FOUND = "Default configurations not found. Proceeding without them.";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(IngestDefaultConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IngestDefaultChannelConfiguration.class);
 
     @PostConstruct
     public void ingestDefaultChannelConfig() throws StreamReadException, DatabindException, IOException {

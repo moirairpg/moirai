@@ -32,6 +32,6 @@ public class LorebookEntryEntity {
     @Column(name = "entry_description", length = 2000)
     private String description;
 
-    @Column(name = "player_discord_id", unique = true, nullable = true)
+    @Column(name = "player_discord_id", nullable = true)
     private String playerDiscordId;
 }

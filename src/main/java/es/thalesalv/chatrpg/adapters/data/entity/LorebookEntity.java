@@ -36,7 +36,7 @@ public class LorebookEntity {
     @Column(name = "lorebook_description", length = 2000)
     private String description;
 
-    @Column(name = "owner_discord_id", nullable = false)
+    @Column(name = "owner_discord_id")
     private String owner;
 
     @Column(name = "edit_permission_discord_ids")
