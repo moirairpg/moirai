@@ -10,7 +10,6 @@ import es.thalesalv.chatrpg.adapters.data.db.entity.ChannelEntity;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelConfigRepository;
 import es.thalesalv.chatrpg.adapters.data.db.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
-import es.thalesalv.chatrpg.application.util.NanoId;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigurationNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,6 @@ public class SetChConfigCommandService implements DiscordCommand {
                         final ChannelEntity entity = ChannelEntity.builder()
                                 .channelConfig(config)
                                 .channelId(event.getChannel().getId())
-                                .id(NanoId.randomNanoId())
                                 .build();
 
                         channelRepository.save(entity);
