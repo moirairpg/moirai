@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service.commands.chconfig;
 
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -101,7 +102,7 @@ public class SetChConfigCommandService implements DiscordCommand {
 
         return worldRepository.findById(worldId)
                 .map(world -> channelRepository.findByChannelId(event.getChannel().getId())
-                        .filter(channel -> null != channel)
+                        .filter(Objects::nonNull)
                         .map(channel -> attachWorldToConfig(channel, world, event))
                         .orElseThrow(() -> new ChannelConfigurationNotFoundException(CONFIG_ID_NOT_FOUND)))
                 .orElseThrow(() -> new WorldNotFoundException(WORLD_ID_NOT_FOUND));
