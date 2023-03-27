@@ -21,6 +21,7 @@ import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
+import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,8 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
     private final ChannelRepository channelRepository;
 
     private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+    private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
+    private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";
     private static final String NO_ENTRIES_FOUND = "There are no lorebook entries saved";
     private static final String ERROR_HANDLING_ENTRY = "Error handling lore entries file.";
@@ -58,13 +61,13 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
             channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
                     .map(channelEntityToDTO::apply)
-                    .ifPresent(channel -> {
+                    .map(channel -> {
                         try {
                             final World world = channel.getChannelConfig().getWorld();
                             final OptionMapping entryId = event.getOption("lorebook-entry-id");
                             if (entryId != null) {
                                 retrieveLoreEntryById(entryId.getAsString(), world, event);
-                                return;
+                                return channel;
                             }
 
                             retrieveAllLoreEntries(world, event);
@@ -77,12 +80,19 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
                             event.reply(ERROR_RETRIEVE).setEphemeral(true)
                                     .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
                         }
-                    });
+
+                        return channel;
+                    })
+                    .orElseThrow(() -> new ChannelConfigNotFoundException());
         } catch (LorebookEntryNotFoundException e) {
             LOGGER.info(QUERIED_ENTRY_NOT_FOUND);
             event.reply(QUERIED_ENTRY_NOT_FOUND).setEphemeral(true)
                     .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-        } catch (Exception e) {
+        } catch (ChannelConfigNotFoundException e) {
+            LOGGER.info(CHANNEL_CONFIG_NOT_FOUND);
+            event.reply(CHANNEL_NO_CONFIG_ATTACHED).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+        }catch (Exception e) {
             LOGGER.error(ERROR_RETRIEVE, e);
             event.reply(USER_ERROR_RETRIEVE).setEphemeral(true)
                     .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
