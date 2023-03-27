@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.application.service.ModerationService;
+import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
+import es.thalesalv.chatrpg.domain.model.EventData;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -31,10 +31,10 @@ public class ChatbotUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
 
     @Override
-    public MessageEventData generateResponse(final MessageEventData eventData, final CompletionService model) {
+    public EventData generateResponse(final EventData eventData, final CompletionService model) {
 
         LOGGER.debug("Entered generation for normal text.");
-        eventData.getChannel().sendTyping().complete();
+        eventData.getCurrentChannel().sendTyping().complete();
         final Message message = eventData.getMessage();
         final SelfUser bot = eventData.getBot();
         if (message.getContentRaw().trim().equals(bot.getAsMention().trim())) {
@@ -52,7 +52,7 @@ public class ChatbotUseCase implements BotUseCase {
                 .subscribe(inputModeration -> model.generate(messages, eventData)
                 .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
                 .subscribe(outputModeration -> {
-                    final Message responseMessage = eventData.getChannel().sendMessage(textResponse).complete();
+                    final Message responseMessage = eventData.getCurrentChannel().sendMessage(textResponse).complete();
                     eventData.setResponseMessage(responseMessage);
                 })));
 
@@ -64,7 +64,7 @@ public class ChatbotUseCase implements BotUseCase {
      * @param eventData Object containing the event's important data to be processed
      * @return The processed list of messages
      */
-    private List<String> handleHistory(final MessageEventData eventData) {
+    private List<String> handleHistory(final EventData eventData) {
         final List<String> formattedReplies = getFormattedReplies(eventData);
         final Predicate<Message> stopFilter = stopFilter(eventData);
         final Predicate<Message> skipFilter = skipFilter(eventData);
@@ -83,7 +83,7 @@ public class ChatbotUseCase implements BotUseCase {
         return messages;
     }
 
-    private List<String> getFormattedReplies(final MessageEventData eventData) {
+    private List<String> getFormattedReplies(final EventData eventData) {
         final Message message = eventData.getMessage();
         final Message reply = message.getReferencedMessage();
         if (null == reply) {
@@ -97,22 +97,22 @@ public class ChatbotUseCase implements BotUseCase {
         }
     }
 
-    private Predicate<Message> stopFilter(final MessageEventData eventData) {
+    private Predicate<Message> stopFilter(final EventData eventData) {
         final SelfUser bot = eventData.getBot();
         final Predicate<Message> isBotTagged = DelayedPredicate.withTest(m -> m.getContentRaw().contains(bot.getAsMention()));
         final Predicate<Message> hasStopReaction = message -> message.getReactions().stream().anyMatch(r -> STOP_MEMORY_EMOJI.equals(r.getEmoji().getName()));
         return isBotTagged.or(hasStopReaction);
     }
 
-    private Predicate<Message> skipFilter(final MessageEventData eventData) {
+    private Predicate<Message> skipFilter(final EventData eventData) {
         final SelfUser bot = eventData.getBot();
         return m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim());
     }
 
-    private List<Message> getHistory(final MessageEventData eventData) {
-        final MessageChannelUnion channel = eventData.getChannel();
+    private List<Message> getHistory(final EventData eventData) {
+        final MessageChannelUnion channel = eventData.getCurrentChannel();
         final Message repliedMessage = eventData.getMessage().getReferencedMessage();
-        final int historySize = eventData.getChannelConfig().getSettings().getModelSettings().getChatHistoryMemory();
+        final int historySize = eventData.getChannelDefinitions().getChannelConfig().getSettings().getModelSettings().getChatHistoryMemory();
         if (null == repliedMessage) {
              return channel.getHistory().retrievePast(historySize).complete();
          } else {

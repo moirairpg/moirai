@@ -80,7 +80,7 @@ public class SessionListener {
         LOGGER.debug("Registering Lorebook slash commands.");
         return Commands.slash("lorebook", "Manages lorebook entries.")
                 .addOption(OptionType.STRING, "action", "One of the following: create, retrieve, update, delete", true)
-                .addOption(OptionType.STRING, "lorebook-entry-id", "UUID of the entry to be managed. Usable for delete, update and retrieve.", false);
+                .addOption(OptionType.STRING, "lorebook-entry-id", "ID of the entry to be managed. Usable for delete, update and retrieve.", false);
     }
 
     private SlashCommandData registerDmAssistSlashCommands() {
@@ -94,8 +94,10 @@ public class SessionListener {
     private SlashCommandData registerChannelConfigSlashCommands() {
 
         LOGGER.debug("Registering Channel Config slash commands.");
-        return Commands.slash("chconfig", "Commands for channel configuration")
-                .addOption(OptionType.STRING, "action", "One of the following: set", true)
-                .addOption(OptionType.STRING, "config-id", "ID of the configuration to be set to this channel", false);
+        return Commands.slash("chconfig", "Links current channel or chosen world to a pre-existing channel config.")
+                .addOption(OptionType.STRING, "action", "One of the following: set, unset.", true)
+                .addOption(OptionType.STRING, "config-id", "ID of the configuration to be set to this channel.", false)
+                .addOption(OptionType.STRING, "world-id", "ID of the world to be set to this channel's configuration.", false)
+                .addOption(OptionType.STRING, "type", "Used for unset. Type of option to be unset: channel, world.", false);
     }
 }

@@ -10,17 +10,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
-import es.thalesalv.chatrpg.application.translator.airequest.ChatCompletionRequestTranslator;
+import es.thalesalv.chatrpg.application.mapper.airequest.ChatCompletionRequestMapper;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.exception.ModelResponseBlankException;
+import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.chconf.World;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.User;
@@ -32,30 +34,33 @@ public class ChatCompletionService implements CompletionService {
 
     private final MessageFormatHelper messageFormatHelper;
     private final CommonErrorHandler commonErrorHandler;
-    private final ChatCompletionRequestTranslator chatCompletionsRequestTranslator;
+    private final ChatCompletionRequestMapper chatCompletionsRequestTranslator;
     private final OpenAIApiService openAiService;
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatCompletionService.class);
 
     @Override
-    public Mono<String> generate(final List<String> messages, final MessageEventData eventData) {
+    public Mono<String> generate(final List<String> messages, final EventData eventData) {
 
         LOGGER.debug("Called inference for Chat Completions.");
         final StringProcessor outputProcessor = new StringProcessor();
         final StringProcessor inputProcessor = new StringProcessor();
         final Mentions mentions = eventData.getMessage().getMentions();
         final User author = eventData.getMessageAuthor();
-        final Persona persona = eventData.getChannelConfig().getPersona();
+        final ChannelConfig channelConfig = eventData.getChannelDefinitions().getChannelConfig();
+        final World world = channelConfig.getWorld();
+        final Persona persona = channelConfig.getPersona();
 
+        inputProcessor.addRule(s -> Pattern.compile("\\{0\\}").matcher(s).replaceAll(r -> persona.getName()));
         inputProcessor.addRule(s -> Pattern.compile(eventData.getBot().getName()).matcher(s).replaceAll(r -> persona.getName()));
         outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1).toUpperCase()));
         outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)").matcher(s).replaceAll(r -> r.group(1)));
         outputProcessor.addRule(s -> Pattern.compile("(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$", Pattern.DOTALL & Pattern.MULTILINE).matcher(s).replaceAll(StringUtils.EMPTY));
 
-        final Set<LorebookEntryEntity> entriesFound = messageFormatHelper.handleEntriesMentioned(messages);
+        final Set<LorebookEntry> entriesFound = messageFormatHelper.handleEntriesMentioned(messages, world);
         if (persona.getIntent().equals("dungeonMaster")) {
-            messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions);
+            messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
             messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else if (persona.getIntent().equals("chatbot")){
             messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
@@ -67,7 +72,7 @@ public class ChatCompletionService implements CompletionService {
             chatMessages.forEach(m -> m.setContent(stripPrefix.apply(m.getContent())));
         }
 
-        final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages, eventData.getChannelConfig());
+        final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages, eventData.getChannelDefinitions().getChannelConfig());
         return openAiService.callGptChatApi(request, eventData)
                 .map(response -> {
                     final String responseText = response.getChoices().get(0).getMessage().getContent();

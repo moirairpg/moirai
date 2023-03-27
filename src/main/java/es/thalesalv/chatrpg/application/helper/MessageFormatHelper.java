@@ -2,27 +2,26 @@ package es.thalesalv.chatrpg.application.helper;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import es.thalesalv.chatrpg.application.service.TokenizerService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookEntryEntity;
-import es.thalesalv.chatrpg.adapters.data.db.entity.LorebookRegexEntity;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRegexRepository;
-import es.thalesalv.chatrpg.adapters.data.db.repository.LorebookRepository;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
+import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.Bump;
+import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.chconf.Nudge;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.chconf.World;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Bump;
-import es.thalesalv.chatrpg.domain.model.openai.dto.MessageEventData;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Nudge;
-import es.thalesalv.chatrpg.domain.model.openai.dto.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -32,15 +31,16 @@ import net.dv8tion.jda.api.entities.User;
 @RequiredArgsConstructor
 public class MessageFormatHelper {
 
-    private static final String ROLE_SYSTEM = "system";
-    private static final String ROLE_ASSISTANT = "assistant";
+    private static final String SAID = " said: ";
     private static final String ROLE_USER = "user";
+    private static final String ROLE_SYSTEM = "system";
+    private static final String TAG_EXPRESSION = "(@|)";
+    private static final String BOT_SAID = "{0}\n{1} said: ";
+    private static final String ROLE_ASSISTANT = "assistant";
+    private static final String REMEMBER_TO_NEVER = "I will remember to never";
     private static final String CHARACTER_DESCRIPTION = "{0} description: {1}";
+    private static final String CHAT_EXPRESSION = "^(.*) (says|said|quoted|replied).*";
     private static final String RPG_DM_INSTRUCTIONS = "I will remember to never act or speak on behalf of {0}. I will not repeat what {0} just said. I will only describe the world around {0}.";
-
-    private final LorebookRepository lorebookRepository;
-    private final LorebookRegexRepository lorebookRegexRepository;
-    private final TokenizerService tokenizer;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageFormatHelper.class);
 
@@ -50,42 +50,59 @@ public class MessageFormatHelper {
      * @param messages List of messages in the channel
      * @param player Player user
      * @param mentions Mentioned users (their characters are extracted too)
+     * @param world World containing the lore entries that should be used for matching
      */
-    public void handlePlayerCharacterEntries(final Set<LorebookEntryEntity> entriesFound, final List<String> messages, final User player, final Mentions mentions) {
+    public void handlePlayerCharacterEntries(final Set<LorebookEntry> entriesFound, final List<String> messages,
+            final User player, final Mentions mentions, final World world) {
 
         LOGGER.debug("Entered player character entry handling");
-        lorebookRepository.findByPlayerDiscordId(player.getId())
+        final Set<LorebookEntry> entries =  world.getLorebook().getEntries();
+        entries.stream()
+                .filter(entry -> StringUtils.isNotBlank(entry.getPlayerDiscordId()))
+                .filter(entry -> entry.getPlayerDiscordId().equals(player.getId()))
+                .findFirst()
                 .ifPresent(entry -> {
                     entriesFound.add(entry);
                     messages.replaceAll(m -> m.replaceAll(player.getAsTag(), entry.getName())
-                            .replaceAll("(@|)" + player.getName(), entry.getName()));
+                            .replaceAll(TAG_EXPRESSION + player.getName(), entry.getName()));
                 });
 
-        mentions.getUsers()
-                .forEach(mention -> lorebookRepository.findByPlayerDiscordId(mention.getId())
-                        .ifPresent(entry -> {
-                            entriesFound.add(entry);
-                            messages.replaceAll(m -> m.replaceAll(mention.getAsTag(), entry.getName())
-                                    .replaceAll("(@|)" + mention.getName(), entry.getName()));
-                        }));
+        mentions.getUsers().forEach(mention -> entries.stream()
+                .filter(entry -> StringUtils.isNotBlank(entry.getPlayerDiscordId()))
+                .filter(entry -> entry.getPlayerDiscordId().equals(mention.getId()))
+                .findFirst()
+                .ifPresent(entry -> {
+                    entriesFound.add(entry);
+                    messages.replaceAll(m -> m.replaceAll(mention.getAsTag(), entry.getName())
+                            .replaceAll(TAG_EXPRESSION + mention.getName(), entry.getName()));
+                }));
     }
 
     /**
      * Extracts lore entries from the conversation when they're mentioned by name
      * @param messageList List of messages in the channel
+     * @param world World containing the lore entries that should be used for matching
      * @return Set containing all entries found
      */
-    public Set<LorebookEntryEntity> handleEntriesMentioned(final List<String> messageList) {
+    public Set<LorebookEntry> handleEntriesMentioned(final List<String> messageList, final World world) {
+
         LOGGER.debug("Entered mentioned entries handling");
         final String messages = String.join("\n", messageList);
-        List<LorebookRegexEntity> charRegex = lorebookRegexRepository.findAll();
-        return charRegex.stream()
-                .filter(r -> Pattern.compile(r.getRegex()).matcher(messages).find())
-                .map(r -> lorebookRepository.findById(r.getLorebookEntry().getId()).orElseThrow(() -> new IllegalArgumentException("Invalid lore id: " + r.getLorebookEntry().getId())))
+        return world.getLorebook().getEntries().stream()
+                .map(entry -> {
+                    Pattern p = Pattern.compile(entry.getRegex());
+                    Matcher matcher = p.matcher(messages);
+                    if (matcher.find()) {
+                        return entry;
+                    }
+
+                    return null;
+                })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
-    public void processEntriesFoundForRpg(final Set<LorebookEntryEntity> entriesFound, final List<String> messages, final JDA jda) {
+    public void processEntriesFoundForRpg(final Set<LorebookEntry> entriesFound, final List<String> messages, final JDA jda) {
 
         entriesFound.forEach(entry -> {
             if (StringUtils.isNotBlank(entry.getPlayerDiscordId())) {
@@ -96,23 +113,23 @@ public class MessageFormatHelper {
             Optional.ofNullable(entry.getPlayerDiscordId()).ifPresent(id -> {
                 final User p = jda.retrieveUserById(id).complete();
                 messages.replaceAll(m -> m.replaceAll(p.getAsTag(), entry.getName())
-                        .replaceAll("(@|)" + p.getName(), entry.getName()));
+                        .replaceAll(TAG_EXPRESSION + p.getName(), entry.getName()));
             });
         });
     }
 
-    public void processEntriesFoundForChat(final Set<LorebookEntryEntity> entriesFound, final List<String> messages) {
+    public void processEntriesFoundForChat(final Set<LorebookEntry> entriesFound, final List<String> messages) {
 
         entriesFound.forEach(entry ->
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
     }
 
-    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final MessageEventData eventData, final StringProcessor inputProcessor) {
+    public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final EventData eventData, final StringProcessor inputProcessor) {
 
-        final Persona persona = eventData.getChannelConfig().getPersona();
-        final String personality = Optional.ofNullable(persona.getPersonality()).orElseGet(tokenizer::endOfText).replace("{0}", persona.getName());
+        final Persona persona = eventData.getChannelDefinitions().getChannelConfig().getPersona();
+        final String personality = inputProcessor.process(persona.getPersonality());
         List<ChatMessage> chatMessages = messages.stream()
-                .filter(msg -> !msg.trim().equals((persona.getName() + " said:").trim()))
+                .filter(msg -> !msg.trim().equals((persona.getName() + SAID).trim()))
                 .map(msg -> inputProcessor.process(msg))
                 .map(msg -> ChatMessage.builder()
                             .role(determineRole(msg, persona))
@@ -125,22 +142,22 @@ public class MessageFormatHelper {
                 .content(personality)
                 .build());
 
-        chatMessages = formatNudgeForChatCompletions(persona, chatMessages);
-        chatMessages = formatBumpForChatCompletions(persona, chatMessages);
+        chatMessages = formatNudgeForChatCompletions(persona, chatMessages, inputProcessor);
+        chatMessages = formatBumpForChatCompletions(persona, chatMessages, inputProcessor);
         return chatMessages;
     }
 
     private String formatBotName(final String msg, final Persona persona) {
 
-        return msg.replaceAll(persona.getName() + " said: ", StringUtils.EMPTY);
+        return msg.replaceAll(persona.getName() + SAID, StringUtils.EMPTY);
     }
 
     private String determineRole(final String message, final Persona persona) {
 
-        final boolean isChat = message.matches("^(.*) (says|said|quoted|replied).*");
+        final boolean isChat = message.matches(CHAT_EXPRESSION);
         if (message.startsWith(persona.getName())) {
             return ROLE_ASSISTANT;
-        } else if (isChat && !message.startsWith("I will remember to never")) {
+        } else if (isChat && !message.startsWith(REMEMBER_TO_NEVER)) {
             return ROLE_USER;
         }
 
@@ -154,18 +171,18 @@ public class MessageFormatHelper {
      * @param eventData Object containing event data
      * @return Stringified messages for prompt
      */
-    public String chatifyMessages(final List<String> messages, final MessageEventData eventData, final StringProcessor inputProcessor) {
+    public String chatifyMessages(final List<String> messages, final EventData eventData, final StringProcessor inputProcessor) {
 
         LOGGER.debug("Entered chatbot conversation formatter");
-        final Persona persona = eventData.getChannelConfig().getPersona();
+        final Persona persona = eventData.getChannelDefinitions().getChannelConfig().getPersona();
         messages.replaceAll(m -> m.replace(eventData.getBot().getName(), persona.getName()).trim());
-        final String promptContent = MessageFormat.format("{0}\n{1} said: ",
-                String.join("\n", messages), persona.getName()).trim();
+        final String promptContent = MessageFormat.format(BOT_SAID,
+                String.join(StringUtils.LF, messages), persona.getName()).trim();
 
         return inputProcessor.process(promptContent);
     }
 
-    public List<ChatMessage> formatNudgeForChatCompletions(final Persona persona, final List<ChatMessage> messages) {
+    public List<ChatMessage> formatNudgeForChatCompletions(final Persona persona, final List<ChatMessage> messages, final StringProcessor inputProcessor) {
 
         return Optional.ofNullable(persona.getNudge())
                 .filter(Nudge.isValid)
@@ -177,7 +194,7 @@ public class MessageFormatHelper {
                         .orElse(0) + 1,
                         ChatMessage.builder()
                                 .role(ndge.role)
-                                .content(ndge.content)
+                                .content(inputProcessor.process(ndge.content))
                                 .build());
 
                     return messages;
@@ -185,14 +202,14 @@ public class MessageFormatHelper {
                 .orElse(messages);
     }
 
-    public List<ChatMessage> formatBumpForChatCompletions(final Persona persona, final List<ChatMessage> messages) {
+    public List<ChatMessage> formatBumpForChatCompletions(final Persona persona, final List<ChatMessage> messages, final StringProcessor inputProcessor) {
 
         return Optional.ofNullable(persona.getBump())
                 .filter(Bump.isValid)
                 .map(bmp -> {
                     ChatMessage bumpMessage = ChatMessage.builder()
                             .role(bmp.role)
-                            .content(bmp.content)
+                            .content(inputProcessor.process(bmp.content))
                             .build();
 
                     for (int index = messages.size() - 1 - bmp.frequency;
@@ -206,7 +223,7 @@ public class MessageFormatHelper {
                 .orElse(messages);
     }
 
-    public List<String> formatNudge(final Persona persona, final List<String> messages) {
+    public List<String> formatNudge(final Persona persona, final List<String> messages, final StringProcessor inputProcessor) {
 
         return Optional.ofNullable(persona.getNudge())
                 .filter(Nudge.isValid)
@@ -215,15 +232,14 @@ public class MessageFormatHelper {
                         .filter(m -> !m.startsWith(persona.getName()))
                         .mapToInt(messages::indexOf)
                         .reduce((a, b) -> b)
-                        .orElse(0) + 1,
-                        ndge.content);
+                        .orElse(0) + 1, inputProcessor.process(ndge.content));
 
                     return messages;
                 })
                 .orElse(messages);
     }
 
-    public List<String> formatBump(final Persona persona, final List<String> messages) {
+    public List<String> formatBump(final Persona persona, final List<String> messages, final StringProcessor inputProcessor) {
 
         return Optional.ofNullable(persona.getBump())
                 .filter(Bump.isValid)
@@ -231,7 +247,7 @@ public class MessageFormatHelper {
                         for (int index = messages.size() - 1 - bmp.frequency;
                             index > 0; index = index - bmp.frequency) {
 
-                        messages.add(index, bmp.getContent());
+                        messages.add(index, inputProcessor.process(bmp.getContent()));
                     }
 
                     return messages;
@@ -239,16 +255,17 @@ public class MessageFormatHelper {
                 .orElse(messages);
     }
 
-    public List<String> formatMessages(List<String> messages, MessageEventData eventData) {
+    public List<String> formatMessages(final List<String> messages, final EventData eventData, final StringProcessor inputProcessor) {
 
-        final Persona persona = eventData.getChannelConfig().getPersona();
-        messages.add(0, Optional.ofNullable(persona.getPersonality()).orElseGet(tokenizer::endOfText).replaceAll("\\{0\\}", persona.getName()));
-        List<String> chatMessages = formatNudge(persona, messages);
-        return formatBump(persona, chatMessages);
+        final Persona persona = eventData.getChannelDefinitions().getChannelConfig().getPersona();
+        final String personality = inputProcessor.process(persona.getPersonality());
+        messages.add(0, personality);
+        List<String> chatMessages = formatNudge(persona, messages, inputProcessor);
+        return formatBump(persona, chatMessages, inputProcessor);
     }
 
     public String stringifyMessages(final List<String> messages) {
 
-        return String.join("\n", messages).trim();
+        return String.join(StringUtils.LF, messages).trim();
     }
 }
