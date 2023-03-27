@@ -58,6 +58,7 @@ public class MessageFormatHelper {
         LOGGER.debug("Entered player character entry handling");
         final Set<LorebookEntry> entries =  world.getLorebook().getEntries();
         entries.stream()
+                .filter(entry -> StringUtils.isNotBlank(entry.getPlayerDiscordId()))
                 .filter(entry -> entry.getPlayerDiscordId().equals(player.getId()))
                 .findFirst()
                 .ifPresent(entry -> {
@@ -67,6 +68,7 @@ public class MessageFormatHelper {
                 });
 
         mentions.getUsers().forEach(mention -> entries.stream()
+                .filter(entry -> StringUtils.isNotBlank(entry.getPlayerDiscordId()))
                 .filter(entry -> entry.getPlayerDiscordId().equals(mention.getId()))
                 .findFirst()
                 .ifPresent(entry -> {
