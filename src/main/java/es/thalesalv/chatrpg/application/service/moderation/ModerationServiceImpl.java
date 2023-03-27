@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service;
+package es.thalesalv.chatrpg.application.service.moderation;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
@@ -30,7 +31,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class ModerationService {
+@Profile("!no-moderation")
+public class ModerationServiceImpl implements ModerationService {
 
     private final MessageFormatHelper messageFormatHelper;
     private final OpenAIApiService openAIApiService;
@@ -38,7 +40,7 @@ public class ModerationService {
     @Value("${chatrpg.generation.default-threshold}")
     private double defaultThreshold;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModerationService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModerationServiceImpl.class);
     private static final String UNSAFE_CONTENT_FOUND = "Unsafe content detected";
     private static final String FLAGGED_OUTPUT = "The AI generated outputs that were flagged as unsafe by OpenAI's moderation. Please edit the prompt so it doesn't contain unsafe content and try again. This message will disappear in a few seconds.";
     private static final String FLAGGED_MESSAGE = "The message you sent has content that was flagged by OpenAI's moderation. Your message has been deleted from the conversation channel.";
@@ -47,6 +49,7 @@ public class ModerationService {
     private static final String FLAGGED_TOPICS_LOREBOOK = "\n**Flagged topics:** {0}\n```json\n{1}```";
     private static final String FLAGGED_TOPICS_OUTPUT = "\n**Flagged topics:** {0}";
 
+    @Override
     public Mono<ModerationResponse> moderate(final String content, final EventData eventData, final ModalInteractionEvent event) {
 
         if (StringUtils.isBlank(content)) return Mono.just(ModerationResponse.builder().build());
@@ -62,6 +65,7 @@ public class ModerationService {
                 });
     }
 
+    @Override
     public Mono<ModerationResponse> moderate(final List<String> messages, final EventData eventData) {
 
         final String prompt = messageFormatHelper.stringifyMessages(messages);
@@ -78,6 +82,7 @@ public class ModerationService {
                 });
     }
 
+    @Override
     public Mono<ModerationResponse> moderateOutput(final String output, final EventData eventData) {
 
         if (StringUtils.isBlank(output)) return Mono.just(ModerationResponse.builder().build());
