@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import es.thalesalv.chatrpg.application.util.DelayedPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -98,7 +99,7 @@ public class ChatbotUseCase implements BotUseCase {
 
     private Predicate<Message> stopFilter(final MessageEventData eventData) {
         final SelfUser bot = eventData.getBot();
-        final Predicate<Message> isBotTagged = m -> m.getContentRaw().contains(bot.getAsMention());
+        final Predicate<Message> isBotTagged = DelayedPredicate.withTest(m -> m.getContentRaw().contains(bot.getAsMention()));
         final Predicate<Message> hasStopReaction = message -> message.getReactions().stream().anyMatch(r -> STOP_MEMORY_EMOJI.equals(r.getEmoji().getName()));
         return isBotTagged.or(hasStopReaction);
     }
