@@ -23,8 +23,10 @@ public class HelpCommandService implements DiscordCommand {
 
     private static final int DELETE_EPHEMERAL_TIMER = 20;
 
+    private static final String OPTIONAL = "optional";
+    private static final String REQUIRED = "required";
     private static final String COMMAND_DESCRIPTION = "\n**- {0}:** {1}";
-    private static final String OPTION_DESCRIPTION = "**\n\t\t{0}:** {1}";
+    private static final String OPTION_DESCRIPTION = "**\n\t\t({0}) {1}:** {2}";
     private static final String HELP_COMMAND_TITLE = "This is the list of commands avaiable for {}. If you still have issues using the bot, please speak to an administrator.\n\n";
     private static final String UNKNOWN_ERROR = "An unknown error was caught while tokenizing string";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong running the command. Please try again.";
@@ -43,8 +45,9 @@ public class HelpCommandService implements DiscordCommand {
                         String commandDetails = MessageFormat.format(COMMAND_DESCRIPTION,
                                 cmd.getName(), cmd.getDescription());
                         for (OptionData opt : cmd.getOptions()) {
+                            final String flag = opt.isRequired() ? REQUIRED : OPTIONAL;
                             commandDetails += MessageFormat.format(OPTION_DESCRIPTION,
-                                    opt.getName(), opt.getDescription());
+                            flag, opt.getName(), opt.getDescription());
                         }
 
                         return commandDetails.trim();
