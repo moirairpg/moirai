@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.EventDataMapper;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.service.ModerationService;
+import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
