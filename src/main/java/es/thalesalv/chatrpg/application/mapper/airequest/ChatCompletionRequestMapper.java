@@ -18,7 +18,7 @@ public class ChatCompletionRequestMapper {
     public ChatCompletionRequest buildRequest(final List<ChatMessage> chatMessages, final ChannelConfig channelConfig) {
 
         final ModelSettings modelSettings = channelConfig.getSettings().getModelSettings();
-        final String modelName = AIModelEnum.findByInternalName(modelSettings.getModelName()).getModelName();
+        final String modelName = AIModel.findByInternalName(modelSettings.getModelName()).getModelName();
         return ChatCompletionRequest.builder()
             .messages(chatMessages)
             .model(modelName)

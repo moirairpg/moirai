@@ -1,11 +1,15 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
-import es.thalesalv.chatrpg.application.service.ModerationService;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
+import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.util.TokenCountingStringPredicate;
 import es.thalesalv.chatrpg.domain.enums.AIModel;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
-import es.thalesalv.chatrpg.domain.model.openai.dto.*;
+import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.Bump;
+import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.chconf.Nudge;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -30,10 +34,10 @@ public class AuthorUseCase implements BotUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorUseCase.class);
 
     @Override
-    public MessageEventData generateResponse(final MessageEventData eventData, final CompletionService model) {
+    public EventData generateResponse(final EventData eventData, final CompletionService model) {
 
         LOGGER.debug("Entered generation for normal text.");
-        eventData.getChannel().sendTyping().complete();
+        eventData.getCurrentChannel().sendTyping().complete();
         final Message message = eventData.getMessage();
         final SelfUser bot = eventData.getBot();
         if (message.getContentRaw().trim().equals(bot.getAsMention().trim())) {
@@ -51,7 +55,7 @@ public class AuthorUseCase implements BotUseCase {
                 .subscribe(inputModeration -> model.generate(messages, eventData)
                 .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
                 .subscribe(outputModeration -> {
-                    final Message responseMessage = eventData.getChannel().sendMessage(textResponse).complete();
+                    final Message responseMessage = eventData.getCurrentChannel().sendMessage(textResponse).complete();
                     eventData.setResponseMessage(responseMessage);
                 })));
 
@@ -63,7 +67,7 @@ public class AuthorUseCase implements BotUseCase {
      * @param eventData Object containing the event's important data to be processed
      * @return The processed list of messages
      */
-    private List<String> handleHistory(final MessageEventData eventData) {
+    private List<String> handleHistory(final EventData eventData) {
         final Predicate<Message> skipFilter = skipFilter(eventData);
         final Predicate<String> tokenFilter = tokenPredicate(eventData);
         final Function<Message,String> messageMapper = messageMapper(eventData);
@@ -77,7 +81,7 @@ public class AuthorUseCase implements BotUseCase {
         return messages;
     }
 
-    private Function<Message,String> messageMapper(MessageEventData eventData) {
+    private Function<Message,String> messageMapper(EventData eventData) {
         SelfUser bot = eventData.getBot();
         return m -> m.getAuthor().getId().equals(bot.getId()) ?
                 MessageFormat.format("{0} said: {1}",
@@ -86,7 +90,7 @@ public class AuthorUseCase implements BotUseCase {
                         m.getAuthor().getName(), m.getContentDisplay().trim());
     }
 
-    private Predicate<Message> skipFilter(final MessageEventData eventData) {
+    private Predicate<Message> skipFilter(final EventData eventData) {
         final SelfUser bot = eventData.getBot();
         final Predicate<Message> isBotTagOnly = m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim());
         final Predicate<Message> notBotAuthor = m -> !m.getAuthor().getId().equals(bot.getId());
@@ -94,15 +98,15 @@ public class AuthorUseCase implements BotUseCase {
         return isBotTagOnly.or(notBotAuthor.and(notThisMessage));
     }
 
-    private List<Message> getHistory(final MessageEventData eventData) {
-        final MessageChannelUnion channel = eventData.getChannel();
-        final int historySize = eventData.getChannelConfig().getSettings().getModelSettings().getChatHistoryMemory();
+    private List<Message> getHistory(final EventData eventData) {
+        final MessageChannelUnion channel = eventData.getCurrentChannel();
+        final int historySize = eventData.getChannelDefinitions().getChannelConfig().getSettings().getModelSettings().getChatHistoryMemory();
          return channel.getHistory().retrievePast(historySize).complete();
     }
 
-    private Predicate<String> tokenPredicate(final MessageEventData eventData) {
-        ModelSettings model = eventData.getChannelConfig().getSettings().getModelSettings();
-        Persona persona = eventData.getChannelConfig().getPersona();
+    private Predicate<String> tokenPredicate(final EventData eventData) {
+        ModelSettings model = eventData.getChannelDefinitions().getChannelConfig().getSettings().getModelSettings();
+        Persona persona = eventData.getChannelDefinitions().getChannelConfig().getPersona();
         String personality = persona.getPersonality().replaceAll("\\{0\\}", persona.getName());
         Nudge nudge = persona.getNudge();
         Bump bump = persona.getBump();
