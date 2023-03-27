@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookRegexRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
@@ -34,9 +34,9 @@ public class DeleteLorebookCommandService implements DiscordCommand {
     private final ContextDatastore contextDatastore;
     private final ChannelEntityToDTO channelEntityToDTO;
 
-    private final LorebookRepository lorebookRepository;
+    private final LorebookEntryRepository lorebookEntryRepository;
     private final ChannelRepository channelRepository;
-    private final LorebookRegexRepository lorebookRegexRepository;
+    private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
 
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String LORE_ENTRY_DELETED = "Lore entry deleted.";
@@ -60,8 +60,11 @@ public class DeleteLorebookCommandService implements DiscordCommand {
                     .findFirst()
                     .map(channelEntityToDTO::apply)
                     .ifPresent(channel -> {
-                        lorebookRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder().id(entryId).build())
+                        lorebookEntryRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
+                                .id(entryId)
+                                .build())
                                 .orElseThrow(LorebookEntryNotFoundException::new);
+
                         contextDatastore.setEventData(EventData.builder()
                                 .lorebookEntryId(entryId).build());
 
@@ -96,8 +99,8 @@ public class DeleteLorebookCommandService implements DiscordCommand {
         if (isUserSure) {
             final String id = contextDatastore.getEventData().getLorebookEntryId();
             final LorebookEntryEntity lorebookEntry = LorebookEntryEntity.builder().id(id).build();
-            lorebookRegexRepository.deleteByLorebookEntry(lorebookEntry);
-            lorebookRepository.delete(lorebookEntry);
+            lorebookEntryRegexRepository.deleteByLorebookEntry(lorebookEntry);
+            lorebookEntryRepository.delete(lorebookEntry);
             event.reply(LORE_ENTRY_DELETED).setEphemeral(true)
                     .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
 
