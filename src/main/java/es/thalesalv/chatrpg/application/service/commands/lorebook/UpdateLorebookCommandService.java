@@ -22,7 +22,7 @@ import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
-import es.thalesalv.chatrpg.application.service.ModerationService;
+import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
