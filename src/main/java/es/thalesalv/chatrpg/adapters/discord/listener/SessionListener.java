@@ -34,8 +34,9 @@ public class SessionListener {
         try {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is ready to chat!", bot.getName());
-            event.getJDA().updateCommands().addCommands(buildCommands(registerLorebookSlashCommands(),
-                    registerDmAssistSlashCommands(), registerChannelConfigSlashCommands())).queue();
+            event.getJDA().updateCommands()
+                    .addCommands(buildCommands())
+                    .complete();
 
             Optional.ofNullable(statusChannelId)
                     .filter(StringUtils::isNotEmpty)
@@ -56,7 +57,7 @@ public class SessionListener {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is disconnected.", bot.getName());
         } catch (Exception e) {
-            LOGGER.error("Error during disconnect: ", e);
+            LOGGER.error("Error during disconnect", e);
         }
     }
 
@@ -66,38 +67,84 @@ public class SessionListener {
             final SelfUser bot = event.getJDA().getSelfUser();
             LOGGER.info("{} is shutdown.", bot.getName());
         } catch (Exception e) {
-            LOGGER.error("Error during shutdown: ", e);
+            LOGGER.error("Error during shutdown", e);
         }
     }
 
-    private List<SlashCommandData> buildCommands(SlashCommandData... commandsToAdd) {
+    public List<SlashCommandData> buildCommands() {
 
-        return Arrays.asList(commandsToAdd);
+        return Arrays.asList(new SlashCommandData[] {
+            registerHelpCommands(),
+            registerStartCommand(),
+            registerRetryCommand(),
+            registerPromptCommand(),
+            registerLorebookCommand(),
+            registerEditCommand(),
+            registerSetCommand(),
+            registerUnsetCommand(),
+            registerTokenizationCommand(),
+        });
     }
 
-    private SlashCommandData registerLorebookSlashCommands() {
+    private SlashCommandData registerHelpCommands() {
 
-        LOGGER.debug("Registering Lorebook slash commands.");
-        return Commands.slash("lorebook", "Manages lorebook entries.")
+        LOGGER.debug("Registering help command");
+        return Commands.slash("help", "Shows available commands and how to use them");
+    }
+
+    private SlashCommandData registerLorebookCommand() {
+
+        LOGGER.debug("Registering slash command for lorebook operations");
+        return Commands.slash("lb", "Manages lorebook entries of the current channel's world")
                 .addOption(OptionType.STRING, "action", "One of the following: create, retrieve, update, delete", true)
-                .addOption(OptionType.STRING, "lorebook-entry-id", "ID of the entry to be managed. Usable for delete, update and retrieve.", false);
+                .addOption(OptionType.STRING, "lorebook-entry-id",
+                        "ID of the entry to be managed. Usable for delete, update and retrieve.", false);
     }
 
-    private SlashCommandData registerDmAssistSlashCommands() {
+    private SlashCommandData registerEditCommand() {
 
-        LOGGER.debug("Registering DM Assist slash commands.");
-        return Commands.slash("dmassist", "Commands for Dungeon Master assistance.")
-                .addOption(OptionType.STRING, "action", "One of the following: generate, edit, retry", true)
-                .addOption(OptionType.STRING, "message-id", "ID of the message meant to be edited. Only appliable to the \"edit\" action.", false);
+        LOGGER.debug("Registering slash command for message editing");
+        return Commands.slash("edit", "Edits either the last or the specified bot's message")
+                .addOption(OptionType.STRING, "message-id", "ID of the message to be edited", false);
     }
 
-    private SlashCommandData registerChannelConfigSlashCommands() {
+    private SlashCommandData registerRetryCommand() {
 
-        LOGGER.debug("Registering Channel Config slash commands.");
-        return Commands.slash("chconfig", "Links current channel or chosen world to a pre-existing channel config.")
-                .addOption(OptionType.STRING, "action", "One of the following: set, unset.", true)
-                .addOption(OptionType.STRING, "config-id", "ID of the configuration to be set to this channel.", false)
-                .addOption(OptionType.STRING, "world-id", "ID of the world to be set to this channel's configuration.", false)
-                .addOption(OptionType.STRING, "type", "Used for unset. Type of option to be unset: channel, world.", false);
+        LOGGER.debug("Registering slash command for message retry");
+        return Commands.slash("retry", "Deletes the last generated message and generates a new one");
+    }
+
+    private SlashCommandData registerPromptCommand() {
+
+        LOGGER.debug("Registering slash command for bot prompt");
+        return Commands.slash("prompt", "Speaks as the bot and allows for generation on top of the provided prompt");
+    }
+
+    private SlashCommandData registerSetCommand() {
+
+        LOGGER.debug("Registering slash command for setting definitions");
+        return Commands.slash("set", "Sets channel config or world to a channel")
+                .addOption(OptionType.STRING, "operation", "Operation that will be set: world, channel", true)
+                .addOption(OptionType.STRING, "id", "ID of the world/config to be set to this channel.", true);
+    }
+
+    private SlashCommandData registerUnsetCommand() {
+
+        LOGGER.debug("Registering slash command for unsetting definitions");
+        return Commands.slash("unset", "Removes channel config or world attached to a channel")
+                .addOption(OptionType.STRING, "operation", "Operation that will be unset: world, channel", true);
+    }
+
+    private SlashCommandData registerTokenizationCommand() {
+
+        LOGGER.debug("Registering slash command for tokenization");
+        return Commands.slash("tk", "Tokenizes and count tokens of the provided text")
+                .addOption(OptionType.STRING, "text", "Text that will be tokenized", true);
+    }
+
+    private SlashCommandData registerStartCommand() {
+
+        LOGGER.debug("Registering slash command for starting world");
+        return Commands.slash("start", "Posts the default prompt for the current world and generate content on it");
     }
 }

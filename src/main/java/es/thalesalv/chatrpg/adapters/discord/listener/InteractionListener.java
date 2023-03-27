@@ -23,13 +23,10 @@ public class InteractionListener {
     private final BeanFactory beanFactory;
 
     private static final int DELETE_EPHEMERAL_TIMER = 20;
-    private static final String CHCONFIG_COMMAND = "ChConfigCommandService";
-    private static final String DM_ASSIST_COMMAND = "DMAssistCommandService";
     private static final String LOREBOOK_ENTRY_COMMAND = "LorebookCommandService";
+    private static final String COMMAND_SERVICE = "CommandService";
 
-    private static final String LOREBOOK = "lorebook";
-    private static final String DMASSIST = "dmassist";
-    private static final String CHCONFIG = "chconfig";
+    private static final String LOREBOOK = "lb";
 
     private static final String COMMAND_IS_NULL = "Command is null";
     private static final String MISSING_COMMAND_ACTION = "Did not receive slash command action";
@@ -47,16 +44,19 @@ public class InteractionListener {
             LOGGER.debug("Received slash command event -> {}", event);
             event.deferReply();
             final String eventName = event.getName();
-            final String commandName = Optional.ofNullable(event.getOption("action"))
-                    .map(OptionMapping::getAsString).orElseThrow(() -> new IllegalArgumentException(MISSING_COMMAND_ACTION));
 
             DiscordCommand command = null;
-            if (eventName.equals(LOREBOOK)) {
-                command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_COMMAND);
-            } else if (eventName.equals(DMASSIST)) {
-                command = (DiscordCommand) beanFactory.getBean(commandName + DM_ASSIST_COMMAND);
-            } else if (eventName.equals(CHCONFIG)) {
-                command = (DiscordCommand) beanFactory.getBean(commandName + CHCONFIG_COMMAND);
+            switch (eventName) {
+                case LOREBOOK: {
+                    final String commandName = Optional.ofNullable(event.getOption("action"))
+                            .map(OptionMapping::getAsString).orElseThrow(() -> new IllegalArgumentException(MISSING_COMMAND_ACTION));
+                    command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_COMMAND);
+                    break;
+                }
+                default: {
+                    command = (DiscordCommand) beanFactory.getBean(eventName + COMMAND_SERVICE);
+                    break;
+                }
             }
 
             Optional.ofNullable(command)
@@ -87,8 +87,8 @@ public class InteractionListener {
             DiscordCommand command = null;
             if (modalId.contains(LOREBOOK)) {
                 command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_COMMAND);
-            }  else if (modalId.contains(DMASSIST)) {
-                command = (DiscordCommand) beanFactory.getBean(commandName + DM_ASSIST_COMMAND);
+            } else {
+                command = (DiscordCommand) beanFactory.getBean(commandName + COMMAND_SERVICE);
             }
 
             Optional.ofNullable(command)

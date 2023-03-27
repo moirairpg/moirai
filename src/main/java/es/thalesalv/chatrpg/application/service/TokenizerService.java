@@ -1,5 +1,8 @@
 package es.thalesalv.chatrpg.application.service;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -10,6 +13,8 @@ import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 @Component
 public class TokenizerService {
 
+    private static final String PIPE = "|";
+    private static final String TOKEN_DIVIDER = "Ġ";
     private static final String TOKENIZER_FILE_PATH = "tokenizer.json";
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenizerService.class);
 
@@ -40,11 +45,11 @@ public class TokenizerService {
         return toTokenIds(texts).length;
     }
 
-    public long[] tokenize(String text) {
-        return toTokenIds(text);
-    }
+    public String tokenize(String text) {
 
-    public long[] tokenize(String[] texts) {
-        return toTokenIds(texts);
+        final List<String> tokens = tokenizer.tokenize(text);
+        tokens.replaceAll(a -> a.replaceAll(TOKEN_DIVIDER, PIPE));
+
+        return String.join(StringUtils.EMPTY, tokens);
     }
 }
