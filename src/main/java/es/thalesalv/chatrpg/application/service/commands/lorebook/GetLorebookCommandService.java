@@ -16,6 +16,7 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
+import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class GetLorebookCommandService implements DiscordCommand {
     private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";
     private static final String ENTRY_RETRIEVED = "Retrieved lore entry with name **{0}**.\n```json\n{1}```";
+    private static final String LOREBOOK_RETRIEVED = "Retrieved lorebook with name **{0}**.\n```json\n{1}```";
     private static final String ERROR_RETRIEVE = "An error occurred while retrieving lorebook data";
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
     private static final String QUERIED_ENTRY_NOT_FOUND = "The entry queried does not exist.";
@@ -44,7 +46,7 @@ public class GetLorebookCommandService implements DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetLorebookCommandService.class);
 
     @Override
-    public void handle(SlashCommandInteractionEvent event) {
+    public void handle(final SlashCommandInteractionEvent event) {
 
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
@@ -59,6 +61,9 @@ public class GetLorebookCommandService implements DiscordCommand {
                                 retrieveLoreEntryById(entryId.getAsString(), world, event);
                                 return channel;
                             }
+
+                            retrieveLorebook(world, event);;
+                            return channel;
                         } catch (JsonProcessingException e) {
                             LOGGER.error(ERROR_SERIALIZATION, e);
                             event.reply(ERROR_RETRIEVE).setEphemeral(true)
@@ -81,6 +86,16 @@ public class GetLorebookCommandService implements DiscordCommand {
             event.reply(USER_ERROR_RETRIEVE).setEphemeral(true)
                     .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
+    }
+
+    private void retrieveLorebook(final World world, final SlashCommandInteractionEvent event) throws JsonProcessingException {
+
+        final Lorebook lorebook = world.getLorebook();
+        lorebook.setEntries(null);
+        lorebook.setOwner(event.getJDA().getUserById(world.getOwner()).getName());
+        final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebook);
+        event.reply(MessageFormat.format(LOREBOOK_RETRIEVED, lorebook.getName(), lorebookJson))
+                    .setEphemeral(true).complete();
     }
 
     private void retrieveLoreEntryById(final String entryId, final World world, final SlashCommandInteractionEvent event)

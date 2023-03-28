@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -91,17 +90,18 @@ public class ListLorebookCommandService implements DiscordCommand {
 
     private void retrieveAllLoreEntries(final World world, final SlashCommandInteractionEvent event) throws IOException {
 
-        final Set<LorebookEntry> entries = world.getLorebook().getEntries();
-        if (entries.isEmpty()) {
+        final Lorebook lorebook = world.getLorebook();
+        if (lorebook.getEntries().isEmpty()) {
             event.reply(NO_ENTRIES_FOUND).setEphemeral(true)
                     .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
 
             return;
         }
 
-        final String entriesJson = prettyPrintObjectMapper.writeValueAsString(entries);
-        final File file = File.createTempFile("lore-entries-", ".json");
-        Files.write(file.toPath(), entriesJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+        lorebook.setOwner(event.getJDA().getUserById(world.getOwner()).getName());
+        final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebook);
+        final File file = File.createTempFile("lorebook-", ".json");
+        Files.write(file.toPath(), lorebookJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
         final FileUpload fileUpload = FileUpload.fromData(file);
 
         event.replyFiles(fileUpload).setEphemeral(true).complete();
