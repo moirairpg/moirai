@@ -23,7 +23,9 @@ public enum CommandHelpInfo {
     UNSET_CHANNEL("/unset operation:channel id:<id> - removes the link between current channel and its current configuration.", "unset"),
     UNSET_WORLD("/unset operation:world id:<id> - removes the link between current channel configuration and its current world.", "unset"),
     WORLD_GET("/wd action:get - retrieves the world attached to the current channel and its data if it's public or owned by the user.", "wd"),
-    WORLD_LIST("/wd action:list - retrieves all worlds that are public or owned by the user issuing the command.", "wd");
+    WORLD_LIST("/wd action:list - retrieves all worlds that are public or owned by the user issuing the command.", "wd"),
+    CHCONF_GET("/chconf action:get - retrieves the config attached to the current channel and its data if it's public or owned by the user.", "chconf"),
+    CHCONF_LIST("/chconf action:list - retrieves all configs that are public or owned by the user issuing the command.", "chconf");
 
     private final String usageExample;
     private final String commandName;

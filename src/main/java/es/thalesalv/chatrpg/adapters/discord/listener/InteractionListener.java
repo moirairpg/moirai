@@ -26,8 +26,10 @@ public class InteractionListener {
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String LOREBOOK_COMMAND_SERVICE = "LorebookCommandService";
     private static final String WORLD_COMMAND_SERVICE = "WorldCommandService";
+    private static final String CHCONF_COMMAND_SERVICE = "ChConfCommandService";
     private static final String COMMAND_SERVICE = "CommandService";
 
+    private static final String CHCONF = "chconf";
     private static final String WORLD = "wd";
     private static final String LOREBOOK = "lb";
 
@@ -58,6 +60,10 @@ public class InteractionListener {
                 }
                 case WORLD: {
                     command = (DiscordCommand) beanFactory.getBean(commandName + WORLD_COMMAND_SERVICE);
+                    break;
+                }
+                case CHCONF: {
+                    command = (DiscordCommand) beanFactory.getBean(commandName + CHCONF_COMMAND_SERVICE);
                     break;
                 }
                 default: {
