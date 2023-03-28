@@ -23,7 +23,7 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
     public WorldEntity apply(World t) {
 
         final List<LorebookEntryRegexEntity> entries = t.getLorebook().getEntries()
-                .stream().map(lorebookEntryDTOToEntity::apply).collect(Collectors.toList());
+                .stream().map(lorebookEntryDTOToEntity).collect(Collectors.toList());
 
         return WorldEntity.builder()
                 .editPermissions(t.getEditPermissions())

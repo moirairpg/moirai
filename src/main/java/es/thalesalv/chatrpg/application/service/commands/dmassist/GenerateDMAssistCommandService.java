@@ -59,8 +59,7 @@ public class GenerateDMAssistCommandService implements DiscordCommand {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
             channel.sendTyping().complete();
-            channelRepository.findByChannelId(event.getChannel().getId()).stream()
-                    .findFirst()
+            channelRepository.findByChannelId(event.getChannel().getId())
                     .map(channelEntityMapper)
                     .ifPresent(ch -> {
                         final ChannelConfig channelConfig = ch.getChannelConfig();

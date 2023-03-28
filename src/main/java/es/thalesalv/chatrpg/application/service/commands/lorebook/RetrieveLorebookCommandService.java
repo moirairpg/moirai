@@ -57,7 +57,7 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
             event.deferReply();
             channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
-                    .map(channelEntityToDTO::apply)
+                    .map(channelEntityToDTO)
                     .ifPresent(channel -> {
                         try {
                             final World world = channel.getChannelConfig().getWorld();
@@ -114,7 +114,7 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
 
         final LorebookEntry entry = world.getLorebook().getEntries().stream()
                     .filter(e -> e.getId().equals(entryId)).findFirst()
-                    .orElseThrow(() -> new LorebookEntryNotFoundException());
+                    .orElseThrow(LorebookEntryNotFoundException::new);
 
         final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(entry);
         event.reply(MessageFormat.format(ENTRY_RETRIEVED, entry.getName(), loreEntryJson))

@@ -75,16 +75,14 @@ public class UpdateLorebookCommandService implements DiscordCommand {
 
         try {
             LOGGER.debug("Received slash command for lore entry update");
-            channelRepository.findByChannelId(event.getChannel().getId()).stream()
-                    .findFirst()
-                    .map(channelEntityToDTO::apply)
+            channelRepository.findByChannelId(event.getChannel().getId())
+                    .map(channelEntityToDTO)
                     .ifPresent(channel -> {
                         final String entryId = event.getOption("lorebook-entry-id").getAsString();
                         saveEventDataToContext(entryId, channel, event.getChannel());
                         final LorebookEntryRegexEntity entry = buildEntity(entryId);
                         final Modal modalEntry = buildEntryUpdateModal(entry);
                         event.replyModal(modalEntry).queue();
-                        return;
                     });
 
             event.reply(COMMAND_WRONG_CHANNEL).setEphemeral(true)
@@ -126,11 +124,9 @@ public class UpdateLorebookCommandService implements DiscordCommand {
             final LorebookEntry entry = lorebookEntryEntityToDTO.apply(updatedEntry);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(entry);
 
-            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> {
-                event.reply(MessageFormat.format(ENTRY_UPDATED,
-                updatedEntry.getLorebookEntry().getName(), loreEntryJson)).setEphemeral(true)
-                        .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
-            });
+            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> event.reply(MessageFormat.format(ENTRY_UPDATED,
+            updatedEntry.getLorebookEntry().getName(), loreEntryJson)).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
         } catch (JsonProcessingException e) {
             LOGGER.error(ERROR_PARSING_JSON, e);
             event.reply(ERROR_UPDATE).setEphemeral(true)

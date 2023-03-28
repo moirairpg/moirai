@@ -51,9 +51,8 @@ public class EditDMAssistCommandService implements DiscordCommand {
         try {
             event.deferReply();
             final SelfUser bot = event.getJDA().getSelfUser();
-            channelRepository.findByChannelId(event.getChannel().getId()).stream()
-                    .findFirst()
-                    .map(channelEntityMapper::apply)
+            channelRepository.findByChannelId(event.getChannel().getId())
+                    .map(channelEntityMapper)
                     .ifPresent(channel -> {
                         final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
                         final Message message = retrieveMessageToBeEdited(event, modelSettings, bot);

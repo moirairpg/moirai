@@ -63,19 +63,15 @@ public class CreateLorebookCommandService implements DiscordCommand {
     public void handle(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for lore entry creation");
-        channelRepository.findByChannelId(event.getChannel().getId()).stream()
-                .findFirst()
-                .map(channelEntityToDTO::apply)
+        channelRepository.findByChannelId(event.getChannel().getId())
+                .map(channelEntityToDTO)
                 .ifPresent(channel -> {
                     saveEventDataToContext(channel, event.getChannel());
                     final Modal modal = buildEntryCreationModal();
                     event.replyModal(modal).queue();
-                    return;
                 });
 
-        event.reply("This command cannot be issued from this channel.").setEphemeral(true).queue(reply -> {
-            reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-        });
+        event.reply("This command cannot be issued from this channel.").setEphemeral(true).queue(reply -> reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
     }
 
     @Override
@@ -99,10 +95,8 @@ public class CreateLorebookCommandService implements DiscordCommand {
             final LorebookEntry loreItem = lorebookEntryEntityToDTO.apply(insertedEntry);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(loreItem);
 
-            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> {
-                event.reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getLorebookEntry().getName(), loreEntryJson))
-                        .setEphemeral(true).queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
-            });
+            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> event.reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getLorebookEntry().getName(), loreEntryJson))
+                    .setEphemeral(true).queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
         } catch (Exception e) {
             LOGGER.error(ERROR_CREATING_LORE_ENTRY, e);
             event.reply(ERROR_CREATE).setEphemeral(true)

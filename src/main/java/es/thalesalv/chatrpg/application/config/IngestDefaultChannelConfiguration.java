@@ -89,7 +89,7 @@ public class IngestDefaultChannelConfiguration {
                 config.getSettings().getModelSettings().setOwner(botId);
                 config.getSettings().getModerationSettings().setOwner(botId);
                 config.setWorld(worldRepository.findById(id)
-                        .map(worldEntityToDTO::apply)
+                        .map(worldEntityToDTO)
                         .orElseGet(() -> buildEmptyWorld(botId, id)));
 
                 final ChannelConfigEntity entity = channelConfigToEntity.apply(config);
@@ -109,13 +109,13 @@ public class IngestDefaultChannelConfiguration {
         final World world = World.builder()
                 .id(id)
                 .name(DEFAULT_WORLD)
-                .owner(jda.getSelfUser().getId())
+                .owner(botId)
                 .visibility(PRIVATE)
                 .lorebook(Lorebook.builder()
                         .id(id)
-                        .owner(jda.getSelfUser().getId())
+                        .owner(botId)
                         .visibility(PRIVATE)
-                        .entries(new HashSet<LorebookEntry>())
+                        .entries(new HashSet<>())
                         .build())
                 .build();
 
