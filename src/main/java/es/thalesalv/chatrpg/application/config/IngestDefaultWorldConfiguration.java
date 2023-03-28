@@ -52,6 +52,8 @@ public class IngestDefaultWorldConfiguration {
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
 
     private static final String YAML_FILE_PATH = "worlds.yaml";
+    private static final String PRIVATE = "private";
+    private static final String DEFAULT_LOREBOOK = "Default lorebook";
     private static final String INGESTING_WORLD = "Ingesting world -> {}";
     private static final String INGESTING_ENTRY = "Ingesting lorebook entry -> {}";
     private static final String DEFAULT_WORLDS_FOUND = "Found default worlds. Ingesting them to database.";
@@ -77,7 +79,7 @@ public class IngestDefaultWorldConfiguration {
                 world.setOwner(jda.getSelfUser().getId());
                 world.setLorebook(Optional.ofNullable(world.getLorebook())
                         .map(lorebook -> setLorebook(lorebook, i.get()))
-                        .orElse(buildEmptyLorebook(i.get())));
+                        .orElse(buildEmptyLorebook()));
 
                 final WorldEntity worldEntity = worldDTOToEntity.apply(world);
                 final LorebookEntity lorebookEntity = lorebookDTOToEntity.apply(world.getLorebook());
@@ -113,12 +115,14 @@ public class IngestDefaultWorldConfiguration {
         return lorebook;
     }
 
-    private Lorebook buildEmptyLorebook(int id) {
+    private Lorebook buildEmptyLorebook() {
 
         return Lorebook.builder()
-                .id(String.valueOf(id))
-                .entries(new HashSet<LorebookEntry>())
+                .id("0")
                 .owner(jda.getSelfUser().getId())
+                .name(DEFAULT_LOREBOOK)
+                .visibility(PRIVATE)
+                .entries(new HashSet<>())
                 .build();
     }
 }

@@ -56,6 +56,7 @@ public class IngestDefaultChannelConfiguration {
 
     private static final String PRIVATE = "private";
     private static final String DEFAULT_WORLD = "Default world";
+    private static final String DEFAULT_LOREBOOK = "Default lorebook";
     private static final String YAML_FILE_PATH = "channel-config.yaml";
     private static final String INGESTING_WORLD = "Ingesting channel config -> {}";
     private static final String DEFAULT_CONFIG_FOUND = "Found default configs. Ingesting them to database.";
@@ -89,7 +90,7 @@ public class IngestDefaultChannelConfiguration {
                 config.getSettings().getModerationSettings().setOwner(botId);
                 config.setWorld(worldRepository.findById(id)
                         .map(worldEntityToDTO)
-                        .orElseGet(() -> buildEmptyWorld(botId, id)));
+                        .orElseGet(() -> buildEmptyWorld(botId)));
 
                 final ChannelConfigEntity entity = channelConfigToEntity.apply(config);
                 personaRepository.save(entity.getPersona());
@@ -103,16 +104,17 @@ public class IngestDefaultChannelConfiguration {
         }
     }
 
-    private World buildEmptyWorld(String botId, String id) {
+    private World buildEmptyWorld(String botId) {
 
         final World world = World.builder()
-                .id(id)
+                .id("0")
                 .name(DEFAULT_WORLD)
                 .owner(botId)
                 .visibility(PRIVATE)
                 .lorebook(Lorebook.builder()
-                        .id(id)
+                        .id("0")
                         .owner(botId)
+                        .name(DEFAULT_LOREBOOK)
                         .visibility(PRIVATE)
                         .entries(new HashSet<>())
                         .build())
