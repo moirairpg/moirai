@@ -46,10 +46,11 @@ public class ListWorldCommandService implements DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetWorldCommandService.class);
 
     private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+    private static final String PUBLIC = "public";
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";
     private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
     private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
-    private static final String ERROR_RETRIEVE = "An error occurred while retrieving lorebook data";
+    private static final String ERROR_RETRIEVE = "An error occurred while retrieving world data";
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
     private static final String QUERIED_WORLD_NOT_FOUND = "The world queried does not exist.";
     private static final String ERROR_HANDLING_ENTRY = "Error handling lore entries file.";
@@ -106,7 +107,7 @@ public class ListWorldCommandService implements DiscordCommand {
 
     private Predicate<WorldEntity> filterWorlds(final SlashCommandInteractionEvent event) {
 
-        return w -> w.getVisibility().equals("public") || w.getOwner().equals(event.getUser().getId());
+        return w -> w.getVisibility().equals(PUBLIC) || w.getOwner().equals(event.getUser().getId());
     }
 
     private World cleanWorld(final World world, final SlashCommandInteractionEvent event) {
