@@ -1,12 +1,13 @@
 package es.thalesalv.chatrpg.application.service.tokenizer;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import es.thalesalv.chatrpg.application.service.TokenizerService;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TokenizerServiceTest {
     private static final String text = "This is a test.";
@@ -26,10 +27,15 @@ class TokenizerServiceTest {
         assertArrayEquals(textsIds, service.toTokenIds(texts));
     }
 
-
     @Test
     void countTokens() {
         assertEquals(textIds.length, service.countTokens(text));
         assertEquals(textsIds.length, service.countTokens(texts));
+    }
+
+    @Test
+    void tokenize() {
+        final String tokensString = service.tokenize(text);
+        Assertions.assertEquals("This|is|a|test.", tokensString);
     }
 }

@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.dmassist;
+package es.thalesalv.chatrpg.application.service.commands;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
+import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
@@ -30,19 +30,21 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 @Service
 @RequiredArgsConstructor
-public class EditDMAssistCommandService implements DiscordCommand {
+public class EditCommandService implements DiscordCommand {
 
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
-    private final ChannelEntityToDTO channelEntityMapper;
+    private final ChannelEntityToDTO channelEntityToDTO;
 
     private static final int DELETE_EPHEMERAL_TIMER = 20;
+
+    private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
     private static final String ERROR_EDITING = "Error editing message";
     private static final String BOT_NOT_FOUND = "No bot message found.";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EditDMAssistCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EditCommandService.class);
 
     @Override
     public void handle(final SlashCommandInteractionEvent event) {
@@ -53,14 +55,20 @@ public class EditDMAssistCommandService implements DiscordCommand {
             final SelfUser bot = event.getJDA().getSelfUser();
             channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
-                    .map(channelEntityMapper::apply)
-                    .ifPresent(channel -> {
+                    .map(channelEntityToDTO::apply)
+                    .map(channel -> {
                         final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
                         final Message message = retrieveMessageToBeEdited(event, modelSettings, bot);
                         final Modal editMessageModal = buildEditMessageModal(message);
                         saveEventDataToContext(message, channel);
                         event.replyModal(editMessageModal).queue();
-                    });
+                        return channel;
+                    })
+                    .orElseThrow(() -> new ChannelConfigNotFoundException());
+        } catch (ChannelConfigNotFoundException e) {
+            LOGGER.debug(NO_CONFIG_ATTACHED);
+            event.reply(NO_CONFIG_ATTACHED).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
