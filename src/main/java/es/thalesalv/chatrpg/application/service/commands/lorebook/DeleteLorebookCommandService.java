@@ -55,7 +55,7 @@ public class DeleteLorebookCommandService implements DiscordCommand {
 
         try {
             LOGGER.debug("Received slash command for lore entry deletion");
-            final String entryId = event.getOption("lorebook-entry-id").getAsString();
+            final String entryId = event.getOption("id").getAsString();
             channelRepository.findByChannelId(event.getChannel().getId()).stream()
                     .findFirst()
                     .map(channelEntityToDTO::apply)
