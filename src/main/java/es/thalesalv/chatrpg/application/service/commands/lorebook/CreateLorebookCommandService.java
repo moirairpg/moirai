@@ -54,6 +54,7 @@ public class CreateLorebookCommandService implements DiscordCommand {
     private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
 
     private static final int DELETE_EPHEMERAL_TIMER = 20;
+    private static final String COMMAND_WRONG_CHANNEL = "This command cannot be issued from this channel.";
     private static final String ERROR_CREATING_LORE_ENTRY = "An error occurred while creating lore entry";
     private static final String ERROR_CREATE = "There was an error parsing your request. Please try again.";
     private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don''t forget to save this ID!\n```json\n{1}\n```";
@@ -73,7 +74,7 @@ public class CreateLorebookCommandService implements DiscordCommand {
                     return;
                 });
 
-        event.reply("This command cannot be issued from this channel.").setEphemeral(true).queue(reply -> {
+        event.reply(COMMAND_WRONG_CHANNEL).setEphemeral(true).queue(reply -> {
             reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
         });
     }
