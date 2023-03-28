@@ -68,12 +68,12 @@ public class AuthorUseCase implements BotUseCase {
      * @return The processed list of messages
      */
     private List<String> handleHistory(final EventData eventData) {
-        final Predicate<Message> skipFilter = skipFilter(eventData);
+        final Predicate<Message> includeFilter = new IncludeFilter(eventData);
         final Predicate<String> tokenFilter = tokenPredicate(eventData);
         final Function<Message,String> messageMapper = messageMapper(eventData);
         List<String> messages = getHistory(eventData)
                 .stream()
-                .filter(skipFilter)
+                .filter(includeFilter)
                 .map(messageMapper)
                 .takeWhile(tokenFilter)
                 .collect(Collectors.toList());
@@ -88,14 +88,6 @@ public class AuthorUseCase implements BotUseCase {
                         m.getAuthor().getName(), m.getContentDisplay().trim()) :
                 MessageFormat.format("{0} said: [ {1} ]",
                         m.getAuthor().getName(), m.getContentDisplay().trim());
-    }
-
-    private Predicate<Message> skipFilter(final EventData eventData) {
-        final SelfUser bot = eventData.getBot();
-        final Predicate<Message> isBotTagOnly = m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim());
-        final Predicate<Message> notBotAuthor = m -> !m.getAuthor().getId().equals(bot.getId());
-        final Predicate<Message> notThisMessage = m -> !m.getId().equals(eventData.getMessage().getId());
-        return isBotTagOnly.or(notBotAuthor.and(notThisMessage));
     }
 
     private List<Message> getHistory(final EventData eventData) {
@@ -119,5 +111,27 @@ public class AuthorUseCase implements BotUseCase {
             filter.reserve(bump.content);
         }
         return filter;
+    }
+
+    private static class IncludeFilter implements Predicate<Message> {
+        private final String botId;
+        private boolean oneUserMessage = false;
+        IncludeFilter(EventData eventData) {
+            this.botId = eventData.getBot().getId();
+        }
+        @Override
+        public boolean test(Message message) {
+            if (message.getContentRaw().trim().equals(botId)) {
+                return false;
+            }
+            if (! message.getAuthor().getId().equals(botId)) {
+                if (oneUserMessage) {
+                    return false;
+                } else {
+                    oneUserMessage = true;
+                }
+            }
+            return true;
+        }
     }
 }
