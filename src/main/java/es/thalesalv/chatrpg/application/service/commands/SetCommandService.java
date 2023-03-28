@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.chconfig;
+package es.thalesalv.chatrpg.application.service.commands;
 
 import java.text.MessageFormat;
 import java.util.Objects;
@@ -14,7 +14,6 @@ import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelConfigRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigurationNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import jakarta.transaction.Transactional;
@@ -25,14 +24,21 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SetChConfigCommandService implements DiscordCommand {
+public class SetCommandService implements DiscordCommand {
 
     private final WorldRepository worldRepository;
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
 
     private static final int DELETE_EPHEMERAL_TIMER = 20;
-    private static final String ERROR_EDITING = "Error editing message";
+
+    private static final String WORLD = "world";
+    private static final String CHANNEL = "channel";
+
+    private static final String ID_MISSING = "ID is missing from set command.";
+    private static final String OPERATION_NOT_SUPPORTED = "Operation provided it not supported";
+    private static final String EXCEPTION_PARSING_ARGUMENTS = "Exception caught processing arguments of set command";
+    private static final String ERROR_SETTING_DEFINITION = "An error occurred while setting a definition";
     private static final String WORLD_ID_NOT_FOUND = "The world with the requested ID does not exist.";
     private static final String USER_COMMAND_NOT_FOUND = "User tried to find a channel config that does not exist";
     private static final String CONFIG_ID_NOT_FOUND = "The channel configuration with the requested ID does not exist.";
@@ -40,27 +46,42 @@ public class SetChConfigCommandService implements DiscordCommand {
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
     private static final String WORLD_LINKED_CHANNEL_CONFIG = "World `{0}` was linked to configuration to the configuration of channel `{1}` (with persona `{2}`)";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SetChConfigCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SetCommandService.class);
 
     @Override
-    public void handle(SlashCommandInteractionEvent event) {
+    public void handle(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for message edition");
         try {
             event.deferReply();
-            Optional.ofNullable(event.getOption("config-id"))
+            Optional.ofNullable(event.getOption("operation"))
                     .map(OptionMapping::getAsString)
-                    .map(configId -> setChannelConfig(configId, event))
-                    .orElseGet(() -> Optional.ofNullable(event.getOption("world-id"))
-                            .map(OptionMapping::getAsString)
-                            .map(worldId -> setWorld(worldId, event))
-                            .orElseThrow(() -> new WorldNotFoundException(WORLD_ID_NOT_FOUND)));
+                    .ifPresent(operation -> {
+                        final String id = Optional.ofNullable(event.getOption("id"))
+                                .map(OptionMapping::getAsString)
+                                .orElseThrow(() -> new IllegalArgumentException(ID_MISSING));
+
+                        switch (operation) {
+                            case WORLD:
+                                setWorld(id, event);
+                                break;
+                            case CHANNEL:
+                                setChannelConfig(id, event);
+                                break;
+                            default:
+                                throw new IllegalArgumentException(OPERATION_NOT_SUPPORTED);
+                        }
+                    });
+        } catch (IllegalArgumentException e) {
+            LOGGER.debug(EXCEPTION_PARSING_ARGUMENTS, e);
+            event.reply(e.getMessage()).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (ChannelConfigurationNotFoundException e) {
             LOGGER.debug(USER_COMMAND_NOT_FOUND, e);
             event.reply(CONFIG_ID_NOT_FOUND).setEphemeral(true)
                     .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
-            LOGGER.error(ERROR_EDITING, e);
+            LOGGER.error(ERROR_SETTING_DEFINITION, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
                     .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }

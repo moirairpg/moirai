@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.dmassist;
+package es.thalesalv.chatrpg.application.service.commands;
 
 import java.util.concurrent.TimeUnit;
 
@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.EventDataMapper;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.enums.AIModel;
+import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
 import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
@@ -33,41 +33,51 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Service
 @RequiredArgsConstructor
-public class PromptDMAssistCommandService implements DiscordCommand {
+public class PromptCommandService implements DiscordCommand {
 
-    private final ChannelEntityToDTO channelEntityMapper;
+    private final ChannelEntityToDTO channelEntityToDTO;
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
     private final EventDataMapper eventDataMapper;
 
-    private static final String GENERATION_INSTRUCTION = " Simply generate the message from where it stopped.\n";
     private static final String USE_CASE = "UseCase";
+
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
+
+    private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
+    private static final String GENERATION_INSTRUCTION = " Simply generate the message from where it stopped.\n";
     private static final String ERROR_GENERATING = "Error generating message";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when generating the message. Please try again.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(PromptDMAssistCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PromptCommandService.class);
 
     @Override
     public void handle(SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Received slash command for assisted prompr");
+        LOGGER.debug("Received slash command for assisted prompt");
         try {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
             channelRepository.findByChannelId(event.getChannel().getId())
-                    .map(channelEntityMapper)
-                    .ifPresent(ch -> {
+                    .map(channelEntityToDTO)
+                    .map(ch -> {
                         contextDatastore.setEventData(EventData.builder()
                                 .channelDefinitions(ch)
                                 .currentChannel(channel)
                                 .build());
 
                         event.replyModal(buildEditMessageModal()).queue();
-                    });
+                        return ch;
+                    })
+                    .orElseThrow(() -> new ChannelConfigNotFoundException());
+        } catch (ChannelConfigNotFoundException e) {
+            LOGGER.debug(NO_CONFIG_ATTACHED);
+            event.reply(NO_CONFIG_ATTACHED).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error("Error regenerating output", e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN)
-                    .setEphemeral(true).queue();
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -85,7 +95,8 @@ public class PromptDMAssistCommandService implements DiscordCommand {
             final SelfUser bot = event.getJDA().getSelfUser();
             final String input = event.getValue("message-content").getAsString();
             final String generateOutput = event.getValue("generate-output").getAsString();
-            final Message message = channel.sendMessage(bot.getAsMention() + GENERATION_INSTRUCTION + input).complete();
+            final String formattedInput = formatInput(persona.getIntent(), GENERATION_INSTRUCTION + input, bot);
+            final Message message = channel.sendMessage(formattedInput).complete();
 
             event.reply("Assisted prompt used.").setEphemeral(true)
                     .queue(m -> m.deleteOriginal().queueAfter(1, TimeUnit.MILLISECONDS));
@@ -103,8 +114,13 @@ public class PromptDMAssistCommandService implements DiscordCommand {
         } catch (Exception e) {
             LOGGER.error(ERROR_GENERATING, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(20, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
+    }
+
+    private String formatInput(String intent, String prompt, SelfUser bot) {
+
+        return "dungeonMaster".equals(intent) ? bot.getAsMention() + prompt : prompt;
     }
 
     private Modal buildEditMessageModal() {

@@ -1,5 +1,6 @@
-package es.thalesalv.chatrpg.application.service.commands.dmassist;
+package es.thalesalv.chatrpg.application.service.commands;
 
+import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -10,10 +11,10 @@ import org.springframework.stereotype.Service;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.EventDataMapper;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.domain.enums.AIModel;
+import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
@@ -25,21 +26,25 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 @Service
 @RequiredArgsConstructor
-public class RetryDMAssistCommandService implements DiscordCommand {
+public class RetryCommandService implements DiscordCommand {
 
-    private final ChannelEntityToDTO channelEntityMapper;
+    private final ChannelEntityToDTO channelEntityToDTO;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
     private final EventDataMapper eventDataMapper;
 
-    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String USE_CASE = "UseCase";
+
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
+
+    private static final String BOT_INSTRUCTION = " Simply react and respond to {0}''s message: {1}";
+    private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
     private static final String ERROR_OUTPUT_GENERATION = "Error regenerating output";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
     private static final String BOT_MESSAGE_NOT_FOUND = "No bot message found.";
     private static final String USER_MESSAGE_NOT_FOUND = "No user message found.";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RetryDMAssistCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RetryCommandService.class);
 
     @Override
     public void handle(SlashCommandInteractionEvent event) {
@@ -50,16 +55,15 @@ public class RetryDMAssistCommandService implements DiscordCommand {
             event.deferReply();
             final SelfUser bot = event.getJDA().getSelfUser();
             final MessageChannelUnion channel = event.getChannel();
-            channelRepository.findByChannelId(event.getChannel().getId())
-                    .map(channelEntityMapper)
-                    .ifPresent(ch -> {
+            channelRepository.findByChannelId(channel.getId())
+                    .map(channelEntityToDTO)
+                    .map(ch -> {
                         final Persona persona = ch.getChannelConfig().getPersona();
                         final ModelSettings modelSettings = ch.getChannelConfig().getSettings().getModelSettings();
-                        final Message botMessage = retrieveBotMessage(channel, modelSettings, bot);
-                        final Message userMessage = retrieveUserMessage(channel, botMessage);
+                        final Message botMessage = retrieveBotMessage(channel, modelSettings, bot, persona);
 
                         final String completionType = AIModel.findByInternalName(modelSettings.getModelName()).getCompletionType();
-                        final EventData eventData = eventDataMapper.translate(bot, channel, ch, userMessage);
+                        final EventData eventData = eventDataMapper.translate(bot, channel, ch, botMessage);
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                         final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
@@ -68,7 +72,14 @@ public class RetryDMAssistCommandService implements DiscordCommand {
 
                         botMessage.delete().complete();
                         useCase.generateResponse(eventData, model);
-                    });
+
+                        return ch;
+                    })
+                    .orElseThrow(() -> new ChannelConfigNotFoundException());
+        } catch (ChannelConfigNotFoundException e) {
+            LOGGER.debug(NO_CONFIG_ATTACHED);
+            event.reply(NO_CONFIG_ATTACHED).setEphemeral(true)
+                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_OUTPUT_GENERATION, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
@@ -76,18 +87,32 @@ public class RetryDMAssistCommandService implements DiscordCommand {
         }
     }
 
-    private Message retrieveUserMessage(final MessageChannelUnion channel, final Message botMessage) {
+    private String formatInput(String intent, Message message, SelfUser bot) {
+
+        final String authorName = message.getAuthor().getName();
+        final String msgContent = message.getContentDisplay();
+        final String formattedContent = MessageFormat.format(BOT_INSTRUCTION, authorName, msgContent);
+        return "dungeonMaster".equals(intent) ? bot.getAsMention() + formattedContent : formattedContent;
+    }
+
+    private Message retrieveLastMessage(final MessageChannelUnion channel, final Message botMessage) {
 
         return channel.getHistoryBefore(botMessage, 1).complete().getRetrievedHistory().stream()
                 .findAny()
                 .orElseThrow(() -> new IndexOutOfBoundsException(USER_MESSAGE_NOT_FOUND));
     }
 
-    private Message retrieveBotMessage(final MessageChannelUnion channel, final ModelSettings modelSettings, final SelfUser bot) {
+    private Message retrieveBotMessage(final MessageChannelUnion channel, final ModelSettings modelSettings, final SelfUser bot, final Persona persona) {
 
         return channel.getHistory().retrievePast(modelSettings.getChatHistoryMemory()).complete().stream()
                 .filter(m -> m.getAuthor().getId().equals(bot.getId()))
                 .findFirst()
+                .map(msg -> {
+                    final Message lastMessage = retrieveLastMessage(channel, msg);
+                    final String originalContent = formatInput(persona.getIntent(), lastMessage, channel.getJDA().getSelfUser());
+                    msg.editMessage(originalContent).complete();
+                    return msg;
+                })
                 .orElseThrow(() -> new IndexOutOfBoundsException(BOT_MESSAGE_NOT_FOUND));
     }
 }
