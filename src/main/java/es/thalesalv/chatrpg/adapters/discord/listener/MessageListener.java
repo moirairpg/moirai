@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 @RequiredArgsConstructor
 public class MessageListener {
 
-    private final ChannelEntityToDTO channelEntityMapper;
+    private final ChannelEntityToDTO channelEntityToDTO;
     private final ChannelRepository channelRepository;
     private final ApplicationContext applicationContext;
     private final EventDataMapper eventDataMapper;
@@ -34,7 +34,7 @@ public class MessageListener {
 
         if (!event.getAuthor().isBot()) {
             channelRepository.findByChannelId(event.getChannel().getId())
-                    .map(channelEntityMapper)
+                    .map(channelEntityToDTO)
                     .ifPresent(channel -> {
                         LOGGER.debug(MESSAGE_RECEIVED, event.getAuthor(), event.getChannel().getName(), event.getMessage().getContentDisplay());
                         final Persona persona = channel.getChannelConfig().getPersona();
