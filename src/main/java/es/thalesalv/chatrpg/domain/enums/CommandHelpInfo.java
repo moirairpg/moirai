@@ -10,8 +10,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum CommandHelpInfo {
 
-    LOREBOOK_GET("/lb action:get - returns all lore entries.", "lb"),
-    LOREBOOK_GET_ID("/lb action:get id:<id> - returns lorebook entry with the ID provided.", "lb"),
+    LOREBOOK_LIST("/lb action:list - returns all lore entries.", "lb"),
+    LOREBOOK_GET("/lb action:get id:<id> - returns lorebook entry with the ID provided.", "lb"),
     LOREBOOK_CREATE("/lb action:create - opens a window for creating an entry.", "lb"),
     LOREBOOK_DELETE("/lb action:delete id:<id> - deletes the entry with the ID provided.", "lb"),
     LOREBOOK_EDIT("/lb action:edit id:<id> - opens a window for editing the entry with the ID provided.", "lb"),
