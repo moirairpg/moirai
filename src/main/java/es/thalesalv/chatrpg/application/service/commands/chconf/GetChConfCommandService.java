@@ -43,7 +43,7 @@ public class GetChConfCommandService implements DiscordCommand {
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
     private static final String ERROR_SERIALIZATION = "Error serializing config data.";
     private static final String QUERIED_CONFIG_NOT_FOUND = "The config queried does not exist.";
-    private static final String CONFIG_RETRIEVED = "Retrieved config.\n```json\n{1}```";
+    private static final String CONFIG_RETRIEVED = "Retrieved config with persona name {0}.\n```json\n{1}```";
 
     @Override
     public void handle(final SlashCommandInteractionEvent event) {
@@ -60,7 +60,7 @@ public class GetChConfCommandService implements DiscordCommand {
                                 .map(config -> {
                                     try {
                                         final String configJson = prettyPrintObjectMapper.writeValueAsString(config);
-                                        event.reply(MessageFormat.format(CONFIG_RETRIEVED, configJson))
+                                        event.reply(MessageFormat.format(CONFIG_RETRIEVED, config.getPersona().getName(), configJson))
                                                     .setEphemeral(true).complete();
                                     } catch (JsonProcessingException e) {
                                         LOGGER.error(ERROR_SERIALIZATION, e);
