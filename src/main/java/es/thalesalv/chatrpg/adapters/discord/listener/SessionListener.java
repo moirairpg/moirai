@@ -84,6 +84,7 @@ public class SessionListener {
             registerUnsetCommand(),
             registerTokenizationCommand(),
             registerWorldCommand(),
+            registerChConfCommand()
         });
     }
 
@@ -152,6 +153,13 @@ public class SessionListener {
 
         LOGGER.debug("Registering slash command for world retrieval");
         return Commands.slash("wd", "Used with subcommands for management of the current channel's world.")
+                .addOption(OptionType.STRING, "action", "One of the following: get, list.", true);
+    }
+
+    private SlashCommandData registerChConfCommand() {
+
+        LOGGER.debug("Registering slash command for channel config retrieval");
+        return Commands.slash("chconf", "Used with subcommands for management of the current channel's configuration.")
                 .addOption(OptionType.STRING, "action", "One of the following: get, list.", true);
     }
 }
