@@ -21,7 +21,7 @@ public class LorebookEntityToDTO implements Function<LorebookEntity, Lorebook> {
     public Lorebook apply(LorebookEntity t) {
 
         final Set<LorebookEntry> entries = t.getEntries().stream()
-                .map(lorebookEntryEntityToDTO::apply).collect(Collectors.toSet());
+                .map(lorebookEntryEntityToDTO).collect(Collectors.toSet());
 
         return Lorebook.builder()
                 .id(t.getId())
