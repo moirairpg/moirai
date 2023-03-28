@@ -80,11 +80,17 @@ public class UnsetCommandService implements DiscordCommand {
         LOGGER.debug("Deleting channel config, currently attached to channel {} (channel ID {})",
                 event.getChannel().getName(), event.getChannel().getId());
 
-        channelRepository.deleteByChannelId(event.getChannel().getId());
-        event.reply(MessageFormat.format(CHANNEL_UNLINKED_CONFIG, event.getChannel().getName()))
-                .setEphemeral(true).queue(reply -> {
-                    reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-                });
+        channelRepository.findByChannelId(event.getChannel().getId())
+                .map(a -> {
+                    channelRepository.deleteByChannelId(event.getChannel().getId());
+                    event.reply(MessageFormat.format(CHANNEL_UNLINKED_CONFIG, event.getChannel().getName()))
+                            .setEphemeral(true).queue(reply -> {
+                                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+                            });
+
+                    return a;
+                })
+                .orElseThrow(() -> new ChannelConfigurationNotFoundException(CONFIG_ID_NOT_FOUND));
     }
 
     private void unsetWorld(final SlashCommandInteractionEvent event) {
