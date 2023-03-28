@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class RetrieveLorebookCommandService implements DiscordCommand {
+public class GetLorebookCommandService implements DiscordCommand {
 
     private final ObjectWriter prettyPrintObjectMapper;
     private final ChannelEntityToDTO channelEntityToDTO;
@@ -50,7 +50,7 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
     private static final String QUERIED_ENTRY_NOT_FOUND = "The entry queried does not exist.";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveLorebookCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetLorebookCommandService.class);
 
     @Override
     public void handle(SlashCommandInteractionEvent event) {
@@ -64,7 +64,7 @@ public class RetrieveLorebookCommandService implements DiscordCommand {
                     .map(channel -> {
                         try {
                             final World world = channel.getChannelConfig().getWorld();
-                            final OptionMapping entryId = event.getOption("lorebook-entry-id");
+                            final OptionMapping entryId = event.getOption("id");
                             if (entryId != null) {
                                 retrieveLoreEntryById(entryId.getAsString(), world, event);
                                 return channel;
