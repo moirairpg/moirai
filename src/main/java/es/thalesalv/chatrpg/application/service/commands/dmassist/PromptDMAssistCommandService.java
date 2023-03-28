@@ -54,8 +54,7 @@ public class PromptDMAssistCommandService implements DiscordCommand {
         try {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
-            channelRepository.findByChannelId(event.getChannel().getId()).stream()
-                    .findFirst()
+            channelRepository.findByChannelId(event.getChannel().getId())
                     .map(channelEntityMapper)
                     .ifPresent(ch -> {
                         contextDatastore.setEventData(EventData.builder()
