@@ -52,9 +52,8 @@ public class StartCommandService implements DiscordCommand {
             event.deferReply();
             final SelfUser bot = event.getJDA().getSelfUser();
             final MessageChannelUnion channel = event.getChannel();
-            channelRepository.findByChannelId(channel.getId()).stream()
-                    .findFirst()
-                    .map(channelEntityToDTO::apply)
+            channelRepository.findByChannelId(channel.getId())
+                    .map(channelEntityToDTO)
                     .map(ch -> {
                         final World world = ch.getChannelConfig().getWorld();
                         final Persona persona = ch.getChannelConfig().getPersona();
@@ -75,7 +74,7 @@ public class StartCommandService implements DiscordCommand {
                                 .replace(bot.getAsMention(), StringUtils.EMPTY).trim()).complete();
                         return ch;
                     })
-                    .orElseThrow(() -> new ChannelConfigNotFoundException());
+                    .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.debug(NO_CONFIG_ATTACHED);
             event.reply(NO_CONFIG_ATTACHED).setEphemeral(true)

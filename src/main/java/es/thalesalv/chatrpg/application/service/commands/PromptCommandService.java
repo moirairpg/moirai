@@ -69,7 +69,7 @@ public class PromptCommandService implements DiscordCommand {
                         event.replyModal(buildEditMessageModal()).queue();
                         return ch;
                     })
-                    .orElseThrow(() -> new ChannelConfigNotFoundException());
+                    .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.debug(NO_CONFIG_ATTACHED);
             event.reply(NO_CONFIG_ATTACHED).setEphemeral(true)

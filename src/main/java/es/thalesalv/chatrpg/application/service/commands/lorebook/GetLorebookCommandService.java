@@ -82,7 +82,7 @@ public class GetLorebookCommandService implements DiscordCommand {
 
                         return channel;
                     })
-                    .orElseThrow(() -> new ChannelConfigNotFoundException());
+                    .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (LorebookEntryNotFoundException e) {
             LOGGER.info(QUERIED_ENTRY_NOT_FOUND);
             event.reply(QUERIED_ENTRY_NOT_FOUND).setEphemeral(true)
