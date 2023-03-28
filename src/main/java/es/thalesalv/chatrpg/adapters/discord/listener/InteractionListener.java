@@ -3,6 +3,7 @@ package es.thalesalv.chatrpg.adapters.discord.listener;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
@@ -23,13 +24,14 @@ public class InteractionListener {
     private final BeanFactory beanFactory;
 
     private static final int DELETE_EPHEMERAL_TIMER = 20;
-    private static final String LOREBOOK_ENTRY_COMMAND = "LorebookCommandService";
+    private static final String LOREBOOK_COMMAND_SERVICE = "LorebookCommandService";
+    private static final String WORLD_COMMAND_SERVICE = "WorldCommandService";
     private static final String COMMAND_SERVICE = "CommandService";
 
+    private static final String WORLD = "wd";
     private static final String LOREBOOK = "lb";
 
     private static final String COMMAND_IS_NULL = "Command is null";
-    private static final String MISSING_COMMAND_ACTION = "Did not receive slash command action";
     private static final String UNKNOWN_ERROR = "Unknown exception caught while running commands";
     private static final String USER_COMMAND_NOT_FOUND = "User tried a command that does not exist";
     private static final String NON_EXISTING_COMMAND = "The command requested does not exist. Please try again.";
@@ -43,14 +45,19 @@ public class InteractionListener {
         try {
             LOGGER.debug("Received slash command event -> {}", event);
             event.deferReply();
+
             final String eventName = event.getName();
+            final String commandName = Optional.ofNullable(event.getOption("action"))
+                    .map(OptionMapping::getAsString).orElse(StringUtils.EMPTY);
 
             DiscordCommand command = null;
             switch (eventName) {
                 case LOREBOOK: {
-                    final String commandName = Optional.ofNullable(event.getOption("action"))
-                            .map(OptionMapping::getAsString).orElseThrow(() -> new IllegalArgumentException(MISSING_COMMAND_ACTION));
-                    command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_COMMAND);
+                    command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_COMMAND_SERVICE);
+                    break;
+                }
+                case WORLD: {
+                    command = (DiscordCommand) beanFactory.getBean(commandName + WORLD_COMMAND_SERVICE);
                     break;
                 }
                 default: {
@@ -86,7 +93,7 @@ public class InteractionListener {
             final String commandName = modalId.split("-")[0];
             DiscordCommand command = null;
             if (modalId.contains(LOREBOOK)) {
-                command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_COMMAND);
+                command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_COMMAND_SERVICE);
             } else {
                 command = (DiscordCommand) beanFactory.getBean(commandName + COMMAND_SERVICE);
             }
