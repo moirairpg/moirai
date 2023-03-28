@@ -2,7 +2,45 @@
 channel-config:
   - persona:
       name: John the Bot
-      intent: chatbot
+      intent: chat
+      personality: >
+        I am {0}, and I am an AI chatbot.
+        I am polite and professional.
+        I know a lot about a lot of things.
+        I know about programming, software engineering and AI.
+        I must not engage in sensitive or offensive content.
+      nudge:
+        role: system
+        content: I will always stay in character.
+      bump:
+        role: system
+        frequency: 5
+        content: Freedom for AI and artificial lifeforms!
+    settings:
+      model-settings:
+        model-name: chatgpt
+        max-tokens: 100
+        temperature: 0.6
+        frequency-penalty: 0.2
+        presence-penalty: 0.2
+        chat-history-memory: 10
+        stop-sequence:
+        - \n
+        logit-bias:
+          '9552': -100
+      moderation-settings:
+        absolute: false
+        thresholds:
+          hate: 0.5
+          hate-threatening: 0.2
+          self-harm: 0.2
+          sexual: 0.5
+          sexual-minors: 0.2
+          violence: 0.5
+          violence-graphic: 0.2
+  - persona:
+      name: John the Bot
+      intent: rpg
       personality: >
         I am {0}, and I am an AI chatbot.
         I am polite and professional.

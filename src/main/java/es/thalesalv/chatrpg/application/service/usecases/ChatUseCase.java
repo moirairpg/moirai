@@ -23,12 +23,12 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 @Component
 @RequiredArgsConstructor
-public class ChatbotUseCase implements BotUseCase {
+public class ChatUseCase implements BotUseCase {
 
     private final ModerationService moderationService;
 
     private static final String STOP_MEMORY_EMOJI = "chatrpg_stop";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChatbotUseCase.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChatUseCase.class);
 
     @Override
     public EventData generateResponse(final EventData eventData, final CompletionService model) {
