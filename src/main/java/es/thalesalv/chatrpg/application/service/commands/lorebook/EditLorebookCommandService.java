@@ -44,7 +44,7 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UpdateLorebookCommandService implements DiscordCommand {
+public class EditLorebookCommandService implements DiscordCommand {
 
     private final ChannelEntityToDTO channelEntityToDTO;
     private final LorebookDTOToEntity lorebookDTOToEntity;
@@ -68,7 +68,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
     private static final String USER_UPDATE_COMMAND_WITHOUT_ID = "User tried to use update command without ID";
     private static final String MISSING_ID_MESSAGE = "The ID of the entry is required for an update action. Please try again with the entry ID.";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateLorebookCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EditLorebookCommandService.class);
 
     @Override
     public void handle(final SlashCommandInteractionEvent event) {
@@ -78,7 +78,7 @@ public class UpdateLorebookCommandService implements DiscordCommand {
             channelRepository.findByChannelId(event.getChannel().getId())
                     .map(channelEntityToDTO)
                     .ifPresent(channel -> {
-                        final String entryId = event.getOption("lorebook-entry-id").getAsString();
+                        final String entryId = event.getOption("id").getAsString();
                         saveEventDataToContext(entryId, channel, event.getChannel());
                         final LorebookEntryRegexEntity entry = buildEntity(entryId);
                         final Modal modalEntry = buildEntryUpdateModal(entry);
