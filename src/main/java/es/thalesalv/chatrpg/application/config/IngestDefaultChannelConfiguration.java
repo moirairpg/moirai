@@ -30,7 +30,6 @@ import es.thalesalv.chatrpg.application.mapper.world.WorldEntityToDTO;
 import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfigYaml;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
