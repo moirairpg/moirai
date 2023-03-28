@@ -55,8 +55,7 @@ public class RetryCommandService implements DiscordCommand {
             event.deferReply();
             final SelfUser bot = event.getJDA().getSelfUser();
             final MessageChannelUnion channel = event.getChannel();
-            channelRepository.findByChannelId(channel.getId()).stream()
-                    .findFirst()
+            channelRepository.findByChannelId(channel.getId())
                     .map(channelEntityToDTO)
                     .map(ch -> {
                         final Persona persona = ch.getChannelConfig().getPersona();
@@ -76,7 +75,7 @@ public class RetryCommandService implements DiscordCommand {
 
                         return ch;
                     })
-                    .orElseThrow(() -> new ChannelConfigNotFoundException());
+                    .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.debug(NO_CONFIG_ATTACHED);
             event.reply(NO_CONFIG_ATTACHED).setEphemeral(true)
