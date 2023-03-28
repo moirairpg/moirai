@@ -77,16 +77,14 @@ public class EditLorebookCommandService implements DiscordCommand {
             LOGGER.debug("Received slash command for lore entry update");
             channelRepository.findByChannelId(event.getChannel().getId())
                     .map(channelEntityToDTO)
-                    .ifPresent(channel -> {
+                    .ifPresentOrElse(channel -> {
                         final String entryId = event.getOption("id").getAsString();
                         saveEventDataToContext(entryId, channel, event.getChannel());
                         final LorebookEntryRegexEntity entry = buildEntity(entryId);
                         final Modal modalEntry = buildEntryUpdateModal(entry);
                         event.replyModal(modalEntry).queue();
-                    });
-
-            event.reply(COMMAND_WRONG_CHANNEL).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+                    }, () -> event.reply(COMMAND_WRONG_CHANNEL).setEphemeral(true)
+                            .queue(reply -> reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
         } catch (MissingRequiredSlashCommandOptionException e) {
             LOGGER.info(USER_UPDATE_COMMAND_WITHOUT_ID);
             event.reply(MISSING_ID_MESSAGE).setEphemeral(true)
@@ -124,9 +122,11 @@ public class EditLorebookCommandService implements DiscordCommand {
             final LorebookEntry entry = lorebookEntryEntityToDTO.apply(updatedEntry);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(entry);
 
-            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> event.reply(MessageFormat.format(ENTRY_UPDATED,
-            updatedEntry.getLorebookEntry().getName(), loreEntryJson)).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
+            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event)
+                    .subscribe(response -> event.reply(MessageFormat.format(ENTRY_UPDATED,
+                            updatedEntry.getLorebookEntry().getName(), loreEntryJson))
+                            .setEphemeral(true)
+                            .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
         } catch (JsonProcessingException e) {
             LOGGER.error(ERROR_PARSING_JSON, e);
             event.reply(ERROR_UPDATE).setEphemeral(true)
@@ -205,12 +205,14 @@ public class EditLorebookCommandService implements DiscordCommand {
                 .setRequired(true)
                 .build();
 
-        return Modal.create("update-lorebook-entry-data","Lorebook Entry Update")
+        return Modal.create("update-lorebook-entry-data", "Lorebook Entry Update")
                 .addComponents(ActionRow.of(lorebookEntryName), ActionRow.of(lorebookEntryRegex),
-                        ActionRow.of(lorebookEntryDescription), ActionRow.of(lorebookEntryPlayer)).build();
+                        ActionRow.of(lorebookEntryDescription), ActionRow.of(lorebookEntryPlayer))
+                .build();
     }
 
-    private void saveEventDataToContext(final String entryId, final Channel channelDefinitions, final MessageChannelUnion channel) {
+    private void saveEventDataToContext(final String entryId, final Channel channelDefinitions,
+            final MessageChannelUnion channel) {
 
         contextDatastore.setEventData(EventData.builder()
                 .lorebookEntryId(entryId)
