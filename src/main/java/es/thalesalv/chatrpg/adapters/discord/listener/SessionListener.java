@@ -83,6 +83,7 @@ public class SessionListener {
             registerSetCommand(),
             registerUnsetCommand(),
             registerTokenizationCommand(),
+            registerWorldCommand(),
         });
     }
 
@@ -145,5 +146,12 @@ public class SessionListener {
 
         LOGGER.debug("Registering slash command for starting world");
         return Commands.slash("start", "Posts the default prompt for the current world into the chat and generates content for that world.");
+    }
+
+    private SlashCommandData registerWorldCommand() {
+
+        LOGGER.debug("Registering slash command for world retrieval");
+        return Commands.slash("wd", "Used with subcommands for management of the current channel's world.")
+                .addOption(OptionType.STRING, "action", "One of the following: get, list.", true);
     }
 }
