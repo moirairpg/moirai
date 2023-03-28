@@ -56,9 +56,8 @@ public class DeleteLorebookCommandService implements DiscordCommand {
         try {
             LOGGER.debug("Received slash command for lore entry deletion");
             final String entryId = event.getOption("id").getAsString();
-            channelRepository.findByChannelId(event.getChannel().getId()).stream()
-                    .findFirst()
-                    .map(channelEntityToDTO::apply)
+            channelRepository.findByChannelId(event.getChannel().getId())
+                    .map(channelEntityToDTO)
                     .ifPresent(channel -> {
                         lorebookEntryRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
                                 .id(entryId)
@@ -92,9 +91,7 @@ public class DeleteLorebookCommandService implements DiscordCommand {
         LOGGER.debug("Received data from lore entry deletion modal");
         event.deferReply();
         final boolean isUserSure = Optional.ofNullable(event.getValue("lorebook-entry-delete"))
-                .filter(a -> a.getAsString().equals("y"))
-                .map(a -> true)
-                .orElse(false);
+                .filter(a -> a.getAsString().equals("y")).isPresent();
 
         if (isUserSure) {
             final String id = contextDatastore.getEventData().getLorebookEntryId();

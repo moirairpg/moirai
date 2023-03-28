@@ -53,9 +53,8 @@ public class EditCommandService implements DiscordCommand {
         try {
             event.deferReply();
             final SelfUser bot = event.getJDA().getSelfUser();
-            channelRepository.findByChannelId(event.getChannel().getId()).stream()
-                    .findFirst()
-                    .map(channelEntityToDTO::apply)
+            channelRepository.findByChannelId(event.getChannel().getId())
+                    .map(channelEntityToDTO)
                     .map(channel -> {
                         final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
                         final Message message = retrieveMessageToBeEdited(event, modelSettings, bot);
@@ -64,7 +63,7 @@ public class EditCommandService implements DiscordCommand {
                         event.replyModal(editMessageModal).queue();
                         return channel;
                     })
-                    .orElseThrow(() -> new ChannelConfigNotFoundException());
+                    .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.debug(NO_CONFIG_ATTACHED);
             event.reply(NO_CONFIG_ATTACHED).setEphemeral(true)
