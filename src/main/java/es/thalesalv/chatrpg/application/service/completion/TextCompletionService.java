@@ -69,7 +69,7 @@ public class TextCompletionService implements CompletionService {
                         .replaceAll(StringUtils.EMPTY));
         final Set<LorebookEntry> entriesFound = messageFormatHelper.handleEntriesMentioned(messages, world);
         if (persona.getIntent()
-                .equals("dungeonMaster")) {
+                .equals("rpg")) {
             messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
             messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else {
