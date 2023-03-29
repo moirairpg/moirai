@@ -11,6 +11,7 @@ class TokenCountingStringPredicateTest {
     private static final String HUNDRED_TOKENS = "This is a one hundred token string. There are many possible strings that occupy exactly one hundred tokens, but this is the one I have chosen. If you don't like it, feel free to change it, but in that case please ensure that it is exactly one hundred tokens in length. Ninety-nine tokens would fall short of the requirement, so please be exacting and thorough. I'd recommend checking your string on: http://platform.openai.com/tokenizer. Good luck";
 
     private TokenCountingStringPredicate predicate;
+
     @BeforeEach
     void init() {
         predicate = new TokenCountingStringPredicate(150);
@@ -20,6 +21,7 @@ class TokenCountingStringPredicateTest {
     void destroy() {
         predicate = null;
     }
+
     @Test
     void testTest() {
         assertTrue(predicate.test(HUNDRED_TOKENS));

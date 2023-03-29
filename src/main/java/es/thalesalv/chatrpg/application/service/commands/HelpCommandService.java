@@ -45,26 +45,37 @@ public class HelpCommandService implements DiscordCommand {
 
         LOGGER.debug("Received slash command for help");
         try {
-            event.deferReply();
-            final String botName = event.getJDA().getSelfUser().getName();
-            final List<String> commands = sessionListener.buildCommands().stream()
-                    .map(cmd -> {
-                        final StringBuilder sb = new StringBuilder(MessageFormat.format(COMMAND_DESCRIPTION,
-                                cmd.getName(), cmd.getDescription()));
 
-                        cmd.getOptions().forEach(opt -> {
-                            final String flag = opt.isRequired() ? REQUIRED : OPTIONAL;
-                            sb.append(MessageFormat.format(OPTION_DESCRIPTION,
-                                    flag, opt.getName(), opt.getDescription()));
-                        });
+            event.deferReply();
+            final String botName = event.getJDA()
+                    .getSelfUser()
+                    .getName();
+            final List<String> commands = sessionListener.buildCommands()
+                    .stream()
+                    .map(cmd -> {
+
+                        final StringBuilder sb = new StringBuilder(
+                                MessageFormat.format(COMMAND_DESCRIPTION, cmd.getName(), cmd.getDescription()));
+
+                        cmd.getOptions()
+                                .forEach(opt -> {
+
+                                    final String flag = opt.isRequired() ? REQUIRED : OPTIONAL;
+                                    sb.append(MessageFormat.format(OPTION_DESCRIPTION, flag, opt.getName(),
+                                            opt.getDescription()));
+                                });
 
                         final List<String> cmds = CommandHelpInfo.findByCommandName(cmd.getName());
-                        cmds.stream().findAny().map(a -> sb.append(EXAMPLES_INDENT));
+                        cmds.stream()
+                                .findAny()
+                                .map(a -> sb.append(EXAMPLES_INDENT));
                         cmds.forEach(desc -> {
+
                             sb.append(DESC_INDENT + desc);
                         });
 
-                        return sb.toString().trim();
+                        return sb.toString()
+                                .trim();
                     })
                     .collect(Collectors.toList());
 
@@ -75,12 +86,17 @@ public class HelpCommandService implements DiscordCommand {
             Files.write(file.toPath(), contentReply.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
             final FileUpload fileUpload = FileUpload.fromData(file);
 
-            event.replyFiles(fileUpload).setEphemeral(true).complete();
+            event.replyFiles(fileUpload)
+                    .setEphemeral(true)
+                    .complete();
             fileUpload.close();
         } catch (Exception e) {
+
             LOGGER.error(UNKNOWN_ERROR, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WRONG_TRY_AGAIN)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 }

@@ -24,16 +24,14 @@ public class ObjectMapperConfiguration {
     @Bean(name = "yamlObjectMapper")
     public ObjectMapper yamlObjectMapper() {
 
-        return new ObjectMapper(new YAMLFactory())
-                .setSerializationInclusion(Include.NON_EMPTY)
+        return new ObjectMapper(new YAMLFactory()).setSerializationInclusion(Include.NON_EMPTY)
                 .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
     }
 
     @Bean(name = "prettyPrintObjectMapper")
     public ObjectWriter prettyPrintObjectMapper() {
 
-        return new ObjectMapper()
-                .setSerializationInclusion(Include.NON_EMPTY)
+        return new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY)
                 .writerWithDefaultPrettyPrinter();
     }
 }

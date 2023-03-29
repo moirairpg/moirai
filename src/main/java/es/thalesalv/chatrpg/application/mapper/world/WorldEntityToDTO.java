@@ -22,8 +22,11 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
     @Override
     public World apply(WorldEntity t) {
 
-        final Set<LorebookEntry> entries = t.getLorebook().getEntries()
-                .stream().map(lorebookEntryToDTO).collect(Collectors.toSet());
+        final Set<LorebookEntry> entries = t.getLorebook()
+                .getEntries()
+                .stream()
+                .map(lorebookEntryToDTO)
+                .collect(Collectors.toSet());
 
         return World.builder()
                 .editPermissions(t.getEditPermissions())
@@ -34,11 +37,16 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
                 .visibility(t.getVisibility())
                 .description(t.getDescription())
                 .lorebook(Lorebook.builder()
-                        .id(t.getLorebook().getId())
-                        .name(t.getLorebook().getName())
-                        .owner(t.getLorebook().getOwner())
-                        .editPermissions(t.getLorebook().getEditPermissions())
-                        .description(t.getLorebook().getDescription())
+                        .id(t.getLorebook()
+                                .getId())
+                        .name(t.getLorebook()
+                                .getName())
+                        .owner(t.getLorebook()
+                                .getOwner())
+                        .editPermissions(t.getLorebook()
+                                .getEditPermissions())
+                        .description(t.getLorebook()
+                                .getDescription())
                         .entries(entries)
                         .build())
                 .build();

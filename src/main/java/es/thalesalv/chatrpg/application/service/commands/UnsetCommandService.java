@@ -43,11 +43,14 @@ public class UnsetCommandService implements DiscordCommand {
 
         LOGGER.debug("Received slash command for unsetting channel config or world");
         try {
+
             event.deferReply();
             Optional.ofNullable(event.getOption("operation"))
                     .map(OptionMapping::getAsString)
                     .ifPresent(operation -> {
+
                         switch (operation) {
+
                             case WORLD:
                                 unsetWorld(event);
                                 break;
@@ -59,33 +62,55 @@ public class UnsetCommandService implements DiscordCommand {
                         }
                     });
         } catch (IllegalArgumentException e) {
+
             LOGGER.debug(EXCEPTION_PARSING_ARGUMENTS, e);
-            event.reply(e.getMessage()).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(e.getMessage())
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (ChannelConfigurationNotFoundException e) {
+
             LOGGER.debug(USER_COMMAND_CHCONFIG_NOT_FOUND, e);
-            event.reply(CONFIG_ID_NOT_FOUND).setEphemeral(true).queue(reply -> {
-                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-            });
+            event.reply(CONFIG_ID_NOT_FOUND)
+                    .setEphemeral(true)
+                    .queue(reply -> {
+
+                        reply.deleteOriginal()
+                                .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+                    });
         } catch (Exception e) {
+
             LOGGER.error(ERROR_SETTING_CHANNEL_CONFIG, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true).queue(reply -> {
-                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-            });
+            event.reply(SOMETHING_WRONG_TRY_AGAIN)
+                    .setEphemeral(true)
+                    .queue(reply -> {
+
+                        reply.deleteOriginal()
+                                .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+                    });
         }
     }
 
     private void deleteChannelConfig(final SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Deleting channel config, currently attached to channel {} (channel ID {})",
-                event.getChannel().getName(), event.getChannel().getId());
+        LOGGER.debug("Deleting channel config, currently attached to channel {} (channel ID {})", event.getChannel()
+                .getName(),
+                event.getChannel()
+                        .getId());
 
-        channelRepository.findByChannelId(event.getChannel().getId())
+        channelRepository.findByChannelId(event.getChannel()
+                .getId())
                 .map(a -> {
-                    channelRepository.deleteByChannelId(event.getChannel().getId());
-                    event.reply(MessageFormat.format(CHANNEL_UNLINKED_CONFIG, event.getChannel().getName()))
-                            .setEphemeral(true).queue(reply -> {
-                                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+
+                    channelRepository.deleteByChannelId(event.getChannel()
+                            .getId());
+                    event.reply(MessageFormat.format(CHANNEL_UNLINKED_CONFIG, event.getChannel()
+                            .getName()))
+                            .setEphemeral(true)
+                            .queue(reply -> {
+
+                                reply.deleteOriginal()
+                                        .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
                             });
 
                     return a;
@@ -95,17 +120,26 @@ public class UnsetCommandService implements DiscordCommand {
 
     private void unsetWorld(final SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Detaching world from channel config {} (channel ID {})",
-                event.getChannel().getName(), event.getChannel().getId());
+        LOGGER.debug("Detaching world from channel config {} (channel ID {})", event.getChannel()
+                .getName(),
+                event.getChannel()
+                        .getId());
 
-        channelRepository.findByChannelId(event.getChannel().getId())
+        channelRepository.findByChannelId(event.getChannel()
+                .getId())
                 .map(config -> {
-                    final String worldName = config.getChannelConfig().getWorld().getName();
-                    config.getChannelConfig().setWorld(null);
-                    event.reply(
-                            MessageFormat.format(WORLD_UNLINKED_CHANNEL_CONFIG, worldName, config.getId()))
-                            .setEphemeral(true).queue(reply -> {
-                                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+
+                    final String worldName = config.getChannelConfig()
+                            .getWorld()
+                            .getName();
+                    config.getChannelConfig()
+                            .setWorld(null);
+                    event.reply(MessageFormat.format(WORLD_UNLINKED_CHANNEL_CONFIG, worldName, config.getId()))
+                            .setEphemeral(true)
+                            .queue(reply -> {
+
+                                reply.deleteOriginal()
+                                        .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
                             });
 
                     return config;

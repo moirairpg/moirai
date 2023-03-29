@@ -41,19 +41,24 @@ public class InteractionListener {
     public void onSlashCommand(SlashCommandInteractionEvent event) {
 
         try {
+
             LOGGER.debug("Received slash command event -> {}", event);
             event.deferReply();
             final String eventName = event.getName();
 
             DiscordCommand command = null;
             switch (eventName) {
+
                 case LOREBOOK: {
+
                     final String commandName = Optional.ofNullable(event.getOption("action"))
-                            .map(OptionMapping::getAsString).orElseThrow(() -> new IllegalArgumentException(MISSING_COMMAND_ACTION));
+                            .map(OptionMapping::getAsString)
+                            .orElseThrow(() -> new IllegalArgumentException(MISSING_COMMAND_ACTION));
                     command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_COMMAND);
                     break;
                 }
                 default: {
+
                     command = (DiscordCommand) beanFactory.getBean(eventName + COMMAND_SERVICE);
                     break;
                 }
@@ -63,31 +68,43 @@ public class InteractionListener {
                     .orElseThrow(() -> new NullPointerException(COMMAND_IS_NULL))
                     .handle(event);
         } catch (NoSuchBeanDefinitionException e) {
+
             LOGGER.info(USER_COMMAND_NOT_FOUND);
-            event.reply(NON_EXISTING_COMMAND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(NON_EXISTING_COMMAND)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (NullPointerException e) {
+
             LOGGER.error(NULL_POINTER_ERROR, e);
-            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WENT_WRONG_ERROR)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
+
             LOGGER.error(UNKNOWN_ERROR, e);
-            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WENT_WRONG_ERROR)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
 
         try {
+
             LOGGER.debug("Received modal interaction event -> {}", event);
             event.deferReply();
             final String modalId = event.getModalId();
             final String commandName = modalId.split("-")[0];
             DiscordCommand command = null;
             if (modalId.contains(LOREBOOK)) {
+
                 command = (DiscordCommand) beanFactory.getBean(commandName + LOREBOOK_ENTRY_COMMAND);
             } else {
+
                 command = (DiscordCommand) beanFactory.getBean(commandName + COMMAND_SERVICE);
             }
 
@@ -95,17 +112,26 @@ public class InteractionListener {
                     .orElseThrow(() -> new NullPointerException(COMMAND_IS_NULL))
                     .handle(event);
         } catch (NoSuchBeanDefinitionException e) {
+
             LOGGER.info(USER_COMMAND_NOT_FOUND);
-            event.reply(NON_EXISTING_COMMAND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(NON_EXISTING_COMMAND)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (NullPointerException e) {
+
             LOGGER.info(NULL_POINTER_ERROR, e);
-            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WENT_WRONG_ERROR)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
+
             LOGGER.error(UNKNOWN_ERROR, e);
-            event.reply(SOMETHING_WENT_WRONG_ERROR).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WENT_WRONG_ERROR)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 }

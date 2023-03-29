@@ -69,6 +69,7 @@ public class IngestDefaultChannelConfiguration {
 
         LOGGER.debug("Initiating default channel configuration ingestion process");
         try {
+
             final InputStream yamlFile = new ClassPathResource(YAML_FILE_PATH).getInputStream();
             final ChannelConfigYaml yaml = yamlObjectMapper.readValue(yamlFile, ChannelConfigYaml.class);
 
@@ -76,18 +77,30 @@ public class IngestDefaultChannelConfiguration {
 
             final AtomicInteger i = new AtomicInteger(1);
             for (ChannelConfig config : yaml.getConfigs()) {
+
                 LOGGER.debug(INGESTING_WORLD, config);
 
-                final String botId = jda.getSelfUser().getId();
+                final String botId = jda.getSelfUser()
+                        .getId();
                 final String id = String.valueOf(i.get());
                 config.setId(id);
-                config.getPersona().setId(id);
-                config.getSettings().getModelSettings().setId(id);
-                config.getSettings().getModerationSettings().setId(id);
+                config.getPersona()
+                        .setId(id);
+                config.getSettings()
+                        .getModelSettings()
+                        .setId(id);
+                config.getSettings()
+                        .getModerationSettings()
+                        .setId(id);
                 config.setOwner(botId);
-                config.getPersona().setOwner(botId);
-                config.getSettings().getModelSettings().setOwner(botId);
-                config.getSettings().getModerationSettings().setOwner(botId);
+                config.getPersona()
+                        .setOwner(botId);
+                config.getSettings()
+                        .getModelSettings()
+                        .setOwner(botId);
+                config.getSettings()
+                        .getModerationSettings()
+                        .setOwner(botId);
                 config.setWorld(worldRepository.findById(id)
                         .map(worldEntityToDTO)
                         .orElseGet(() -> buildEmptyWorld(botId, id)));
@@ -100,6 +113,7 @@ public class IngestDefaultChannelConfiguration {
                 i.incrementAndGet();
             }
         } catch (FileNotFoundException e) {
+
             LOGGER.warn(DEFAULT_CONFIG_NOT_FOUND);
         }
     }
