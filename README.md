@@ -13,7 +13,7 @@ ChatRPG is a Discord bot powered by JDA that is connected to OpenAI's GPT-3 API.
 * PostgreSQL
 
 ## What does it do?
-ChatRPG is mainly focused on RPG DM'ing, but it can also be used as a normal chatbot. It has the ability to work with different Personas, which are configs that are bound to specific channels so the bot behaves in specific ways given the Persona described to it. Personas can be set with two intents, which are `chatbot` and `dungeonMaster`, and the bot will behave accordingly.
+ChatRPG is mainly focused on RPG DM'ing, but it can also be used as a normal chatbot. It has the ability to work with different Personas, which are configs that are bound to specific channels so the bot behaves in specific ways given the Persona described to it. Personas can be set with two intents, which are `chat` and `rpg`, and the bot will behave accordingly.
 
 ## Is it free?
 Yes and no. The code is free for usage, and so is Discord's API. But OpenAI's completion APIs are not free. You pay by usage, and you're charged for every 1K tokens processed by the API. Do take that into consideration before running ChatRPG or choosing a model to run it.
@@ -32,7 +32,8 @@ You need to have both yout Discord API Key and your OpenAI API key in hand to se
 
 ### Building
 1. Clone the repo
-2. Create a copy of `bot-config-sample.yaml` and name it `bot-config.yaml` (we recommend not to remove the sample file, it's better to keep a backup of it)
+2. Create copies of `channel-config-sample.yaml` and `worlds-sample.yaml` and tweak as you see fit.
+    - Follow the proper format to create configurations and worlds with their own lorebooks
 3. Add both keys to the bot's `application.yaml`
     - The recommended way of doing this is setting the keys to the `DISCORD_BOT_API_TOKEN` and `OPENAI_API_TOKEN` environment variables respectively, in which case you won't need to modify those values in the YAML; and everything is also safer that way
 4. Enable Developer Mode on your Discord client and right click > copy ID of the channels you want the bot to have access to
@@ -48,14 +49,16 @@ You need to have both yout Discord API Key and your OpenAI API key in hand to se
     - Through the IDE of your choice
     - Through the console with Maven by running `mvn spring-boot:run` on the bot's root folder
     - Through the console by running the JAR file directly with `java -jar chatrpg-0.0.1-SNAPSHOT.jar`
+10. Run `/chconf set <config-id>` to link a configuration from the YAML to the channel where the command is run
 
 ## Features
 ChatRPG was made with RPG DM'ing in mind, so we're striving to add commands and features that make that experience richer.
 
-* Slash commands
-* Custom personas with their own model settings
-* Lorebook with regex capabilities to improve the AI's context on the adventure
-* Lorebook entries that can be set as player characters so the AI knows who's who and refrains from speaking on behalf of players
-* Moderation filters powered by OpenAI's API to avoid problematic and abusive topics
-* Compatibility with GPT-3 and ChatGPT model families
-* Can also be used as a normal chatbot with the personality you give to it
+* Slash commands to manage the bot.
+* Custom personas with their own model settings.
+* Custom worlds for the bot to generate adventures in.
+* Lorebook with regex capabilities to improve the AI's context on the adventure.
+* Lorebook entries that can be set as player characters so the AI knows who's who and refrains from speaking on behalf of players.
+* Moderation filters powered by OpenAI's API to avoid problematic and abusive topics, with custom thresholds per topic.
+* Compatibility with GPT-3, GPT-3.5 (ChatGPT) and GPT-4.
+* Can also be used as a normal chatbot if the right intent is used.
