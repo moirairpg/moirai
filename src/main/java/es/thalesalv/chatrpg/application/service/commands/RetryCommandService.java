@@ -97,7 +97,7 @@ public class RetryCommandService implements DiscordCommand {
                 .getName();
         final String msgContent = message.getContentDisplay();
         final String formattedContent = MessageFormat.format(BOT_INSTRUCTION, authorName, msgContent);
-        return "dungeonMaster".equals(intent) ? bot.getAsMention() + formattedContent : formattedContent;
+        return "rpg".equals(intent) ? bot.getAsMention() + formattedContent : formattedContent;
     }
 
     private Message retrieveLastMessage(final MessageChannelUnion channel, final Message botMessage) {
