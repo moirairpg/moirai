@@ -21,7 +21,6 @@ public class JsonMapDoubleDeserializer extends JsonDeserializer<Map<String, Stri
         return doubleValues.entrySet()
                 .stream()
                 .map(entry -> {
-
                     final String fixedValue = String.format("%.5f", entry.getValue());
                     return new AbstractMap.SimpleEntry<String, String>(entry.getKey(), fixedValue);
                 })

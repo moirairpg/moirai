@@ -45,18 +45,15 @@ public class IngestDefaultWorldConfiguration {
     private final WorldDTOToEntity worldDTOToEntity;
     private final LorebookDTOToEntity lorebookDTOToEntity;
     private final LorebookEntryDTOToEntity lorebookDTOToEntry;
-
     private final WorldRepository worldRepository;
     private final LorebookRepository lorebookRepository;
     private final LorebookEntryRepository lorebookEntryRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
-
     private static final String YAML_FILE_PATH = "worlds.yaml";
     private static final String INGESTING_WORLD = "Ingesting world -> {}";
     private static final String INGESTING_ENTRY = "Ingesting lorebook entry -> {}";
     private static final String DEFAULT_WORLDS_FOUND = "Found default worlds. Ingesting them to database.";
     private static final String DEFAULT_WORLDS_NOT_FOUND = "Default worlds not found. Proceeding without them.";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestDefaultWorldConfiguration.class);
 
     @PostConstruct
@@ -64,50 +61,38 @@ public class IngestDefaultWorldConfiguration {
 
         LOGGER.debug("Initiating default world ingestion process");
         try {
-
             final InputStream yamlFile = new ClassPathResource(YAML_FILE_PATH).getInputStream();
             final WorldsYaml yaml = yamlObjectMapper.readValue(yamlFile, WorldsYaml.class);
-
             LOGGER.info(DEFAULT_WORLDS_FOUND);
-
             final AtomicInteger i = new AtomicInteger(1);
             for (World world : yaml.getWorlds()) {
-
                 LOGGER.debug(INGESTING_WORLD, world);
-
                 world.setId(String.valueOf(i.get()));
                 world.setOwner(jda.getSelfUser()
                         .getId());
                 world.setLorebook(Optional.ofNullable(world.getLorebook())
                         .map(lorebook -> setLorebook(lorebook, i.get()))
                         .orElse(buildEmptyLorebook(i.get())));
-
                 final WorldEntity worldEntity = worldDTOToEntity.apply(world);
                 final LorebookEntity lorebookEntity = lorebookDTOToEntity.apply(world.getLorebook());
                 lorebookRepository.save(lorebookEntity);
-
                 int j = 1;
                 for (LorebookEntry entry : world.getLorebook()
                         .getEntries()) {
-
                     LOGGER.debug(INGESTING_ENTRY, entry);
-
                     final String entryId = String.valueOf(j);
                     entry.setId(entryId);
                     entry.setRegexId(entryId);
-
                     final LorebookEntryRegexEntity entryEntity = lorebookDTOToEntry.apply(entry);
                     entryEntity.setLorebook(lorebookEntity);
                     lorebookEntryRepository.save(entryEntity.getLorebookEntry());
                     lorebookEntryRegexRepository.save(entryEntity);
                     j++;
                 }
-
                 worldRepository.save(worldEntity);
                 i.incrementAndGet();
             }
         } catch (FileNotFoundException e) {
-
             LOGGER.warn(DEFAULT_WORLDS_NOT_FOUND);
         }
     }

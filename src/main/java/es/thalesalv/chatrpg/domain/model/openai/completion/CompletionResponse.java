@@ -21,21 +21,15 @@ public class CompletionResponse {
 
     @JsonProperty("id")
     private String id;
-
     @JsonProperty("object")
     private String object;
-
     @JsonProperty("model")
     private String model;
-
     @JsonProperty("choices")
     private List<CompletionResponseChoice> choices;
-
     @JsonProperty("usage")
     private CompletionResponseUsage usage;
-
     @JsonProperty("error")
     private CompletionResponseError error;
-
     private String prompt;
 }

@@ -28,14 +28,11 @@ public class LorebookEntryRegexEntity {
     @GeneratedValue(generator = "nanoid-generator")
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
     private String id;
-
     @Column(name = "regex")
     private String regex;
-
     @OneToOne
     @JoinColumn(name = "lorebook_entry_id", referencedColumnName = "id")
     private LorebookEntryEntity lorebookEntry;
-
     @ManyToOne
     @ToString.Exclude
     @JoinColumn(name = "lorebook_id", referencedColumnName = "id")

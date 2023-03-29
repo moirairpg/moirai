@@ -24,31 +24,37 @@ public class EventDispatcher extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+
         messageListener.onMessageReceived(event);
     }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+
         interactionListener.onSlashCommand(event);
     }
 
     @Override
     public void onModalInteraction(ModalInteractionEvent event) {
+
         interactionListener.onModalInteraction(event);
     }
 
     @Override
     public void onReady(ReadyEvent event) {
+
         sessionListener.onReady(event);
     }
 
     @Override
     public void onSessionDisconnect(SessionDisconnectEvent event) {
+
         sessionListener.onSessionDisconnect(event);
     }
 
     @Override
     public void onShutdown(ShutdownEvent event) {
+
         sessionListener.onShutdown(event);
     }
 }

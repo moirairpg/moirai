@@ -16,14 +16,15 @@ public class StringProcessor {
     private final List<UnaryOperator<String>> rules = new ArrayList<>();
 
     public void addRule(UnaryOperator<String> rule) {
+
         rules.add(rule);
     }
 
     public String process(final String input) {
+
         String output = input;
         int count = 0;
         for (UnaryOperator<String> rule : rules) {
-
             String o = output;
             output = rule.apply(output);
             if (!o.equals(output))

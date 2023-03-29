@@ -43,16 +43,13 @@ public class CreateLorebookCommandService implements DiscordCommand {
 
     private final ContextDatastore contextDatastore;
     private final ObjectWriter prettyPrintObjectMapper;
-
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
     private final LorebookEntryRepository lorebookEntryRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
-
     private final ChannelEntityToDTO channelEntityToDTO;
     private final LorebookDTOToEntity lorebookDTOToEntity;
     private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
-
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String COMMAND_WRONG_CHANNEL = "This command cannot be issued from this channel.";
     private static final String ERROR_CREATING_LORE_ENTRY = "An error occurred while creating lore entry";
@@ -68,17 +65,14 @@ public class CreateLorebookCommandService implements DiscordCommand {
                 .getId())
                 .map(channelEntityToDTO)
                 .ifPresent(channel -> {
-
                     saveEventDataToContext(channel, event.getChannel());
                     final Modal modal = buildEntryCreationModal();
                     event.replyModal(modal)
                             .queue();
                 });
-
         event.reply(COMMAND_WRONG_CHANNEL)
                 .setEphemeral(true)
                 .queue(reply -> {
-
                     reply.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
                 });
@@ -88,14 +82,12 @@ public class CreateLorebookCommandService implements DiscordCommand {
     public void handle(final ModalInteractionEvent event) {
 
         try {
-
             LOGGER.debug("Received data from lore entry creation modal -> {}", event.getValues());
             event.deferReply();
             final EventData eventData = contextDatastore.getEventData();
             final World world = eventData.getChannelDefinitions()
                     .getChannelConfig()
                     .getWorld();
-
             final User author = event.getMember()
                     .getUser();
             final String entryName = event.getValue("lorebook-entry-name")
@@ -109,10 +101,8 @@ public class CreateLorebookCommandService implements DiscordCommand {
             final boolean isPlayerCharacter = entryPlayerCharacter.equals("y");
             final LorebookEntryRegexEntity insertedEntry = insertEntry(author, entryName, entryRegex, entryDescription,
                     isPlayerCharacter, world);
-
             final LorebookEntry loreItem = lorebookEntryEntityToDTO.apply(insertedEntry);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(loreItem);
-
             moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event)
                     .subscribe(response -> event
                             .reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getLorebookEntry()
@@ -121,7 +111,6 @@ public class CreateLorebookCommandService implements DiscordCommand {
                             .queue(m -> m.deleteOriginal()
                                     .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
         } catch (Exception e) {
-
             LOGGER.error(ERROR_CREATING_LORE_ENTRY, e);
             event.reply(ERROR_CREATE)
                     .setEphemeral(true)
@@ -137,26 +126,22 @@ public class CreateLorebookCommandService implements DiscordCommand {
                 .setPlaceholder("Forest of the Talking Trees")
                 .setRequired(true)
                 .build();
-
         final TextInput lorebookEntryRegex = TextInput
                 .create("lorebook-entry-regex", "Regular expression (optional)", TextInputStyle.SHORT)
                 .setPlaceholder("/(Rain|)Forest of the (Talking|Speaking) Trees/gi")
                 .setRequired(false)
                 .build();
-
         final TextInput lorebookEntryDescription = TextInput
                 .create("lorebook-entry-desc", "Description", TextInputStyle.PARAGRAPH)
                 .setPlaceholder("The Forest of the Talking Trees is located in the west of the country.")
                 .setRequired(true)
                 .build();
-
         final TextInput lorebookEntryPlayer = TextInput
                 .create("lorebook-entry-player", "Is this a player character?", TextInputStyle.SHORT)
                 .setPlaceholder("y or n")
                 .setMaxLength(1)
                 .setRequired(true)
                 .build();
-
         return Modal.create("create-lorebook-entry-data", "Lorebook Entry Creation")
                 .addComponents(ActionRow.of(lorebookEntryName), ActionRow.of(lorebookEntryRegex),
                         ActionRow.of(lorebookEntryDescription), ActionRow.of(lorebookEntryPlayer))
@@ -174,7 +159,6 @@ public class CreateLorebookCommandService implements DiscordCommand {
                         .filter(a -> isPlayerCharacter)
                         .orElse(null))
                 .build());
-
         return lorebookEntryRegexRepository.save(LorebookEntryRegexEntity.builder()
                 .regex(Optional.ofNullable(entryRegex)
                         .filter(StringUtils::isNotBlank)

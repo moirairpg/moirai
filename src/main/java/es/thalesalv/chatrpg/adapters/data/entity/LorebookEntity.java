@@ -29,22 +29,16 @@ public class LorebookEntity {
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
     @Column(name = "id", unique = true, nullable = false)
     private String id;
-
     @Column(name = "lorebook_name")
     private String name;
-
     @Column(name = "lorebook_description", length = 2000)
     private String description;
-
     @Column(name = "owner_discord_id")
     private String owner;
-
     @Column(name = "edit_permission_discord_ids")
     private String editPermissions;
-
     @Column(name = "visibility")
     private String visibility;
-
     @OneToMany(mappedBy = "lorebook", fetch = FetchType.EAGER)
     private List<LorebookEntryRegexEntity> entries;
 }
