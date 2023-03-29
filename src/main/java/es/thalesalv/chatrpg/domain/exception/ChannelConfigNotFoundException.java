@@ -6,4 +6,9 @@ public class ChannelConfigNotFoundException extends RuntimeException {
 
         super();
     }
+
+    public ChannelConfigNotFoundException(String msg) {
+
+        super(msg);
+    }
 }

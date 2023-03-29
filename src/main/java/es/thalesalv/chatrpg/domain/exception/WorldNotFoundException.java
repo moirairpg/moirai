@@ -11,4 +11,9 @@ public class WorldNotFoundException extends RuntimeException {
 
         super(msg);
     }
+
+    public WorldNotFoundException() {
+
+        super();
+    }
 }

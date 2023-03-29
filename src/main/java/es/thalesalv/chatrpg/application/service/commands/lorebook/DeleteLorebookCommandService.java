@@ -37,6 +37,7 @@ public class DeleteLorebookCommandService implements DiscordCommand {
     private final ChannelRepository channelRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
     private static final int DELETE_EPHEMERAL_TIMER = 20;
+    private static final String CHANNEL_CONFIG_NOT_FOUND = "The requested channel configuration could not be found";
     private static final String LORE_ENTRY_DELETED = "Lore entry deleted.";
     private static final String QUERIED_ENTRY_NOT_FOUND = "The entry queried does not exist.";
     private static final String USER_UPDATE_WITHOUT_ID = "User tried to use update command without ID";
@@ -57,7 +58,7 @@ public class DeleteLorebookCommandService implements DiscordCommand {
             channelRepository.findByChannelId(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
-                    .ifPresent(channel -> {
+                    .ifPresentOrElse(channel -> {
                         lorebookEntryRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
                                 .id(entryId)
                                 .build())
@@ -68,7 +69,10 @@ public class DeleteLorebookCommandService implements DiscordCommand {
                         final Modal modal = buildEntryDeletionModal();
                         event.replyModal(modal)
                                 .queue();
-                    });
+                    }, () -> event.reply(CHANNEL_CONFIG_NOT_FOUND)
+                            .setEphemeral(true)
+                            .queue(reply -> reply.deleteOriginal()
+                                    .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
         } catch (LorebookEntryNotFoundException e) {
             LOGGER.info(USER_DELETE_ENTRY_NOT_FOUND);
             event.reply(QUERIED_ENTRY_NOT_FOUND)
@@ -95,10 +99,11 @@ public class DeleteLorebookCommandService implements DiscordCommand {
 
         LOGGER.debug("Received data from lore entry deletion modal");
         event.deferReply();
-        final boolean isUserSure = Optional.ofNullable(event.getValue("lorebook-entry-delete"))
+        final boolean isUserSure = Optional.ofNullable(event.getValue("lb-entry-delete"))
                 .filter(a -> a.getAsString()
                         .equals("y"))
                 .isPresent();
+
         if (isUserSure) {
             final String id = contextDatastore.getEventData()
                     .getLorebookEntryId();
@@ -123,12 +128,13 @@ public class DeleteLorebookCommandService implements DiscordCommand {
 
         LOGGER.debug("Building entry deletion modal");
         final TextInput deleteLoreEntry = TextInput
-                .create("lorebook-entry-delete", "Are you sure you want to delete this entry?", TextInputStyle.SHORT)
+                .create("lb-entry-delete", "Are you sure you want to delete this entry?", TextInputStyle.SHORT)
                 .setPlaceholder("y or n")
                 .setMaxLength(1)
                 .setRequired(true)
                 .build();
-        return Modal.create("delete-lorebook-entry-data", "Delete lore entry")
+
+        return Modal.create("delete-lb-entry-data", "Delete lore entry")
                 .addComponents(ActionRow.of(deleteLoreEntry))
                 .build();
     }
