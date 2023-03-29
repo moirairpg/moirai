@@ -21,10 +21,8 @@ public class ModerationResponse {
 
     @JsonProperty("id")
     private String id;
-
     @JsonProperty("model")
     private String model;
-
     @JsonProperty("results")
     private List<ModerationResult> moderationResult;
 }

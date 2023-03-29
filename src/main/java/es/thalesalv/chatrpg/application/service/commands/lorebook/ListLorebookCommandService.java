@@ -54,20 +54,26 @@ public class ListLorebookCommandService implements DiscordCommand {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel().getId())
+            channelRepository.findByChannelId(event.getChannel()
+                    .getId())
                     .map(channelEntityToDTO)
                     .map(channel -> {
                         try {
-                            final World world = channel.getChannelConfig().getWorld();
+                            final World world = channel.getChannelConfig()
+                                    .getWorld();
                             retrieveAllLoreEntries(world, event);
                         } catch (JsonProcessingException e) {
                             LOGGER.error(ERROR_SERIALIZATION, e);
-                            event.reply(ERROR_RETRIEVE).setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            event.reply(ERROR_RETRIEVE)
+                                    .setEphemeral(true)
+                                    .queue(m -> m.deleteOriginal()
+                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
                         } catch (IOException e) {
                             LOGGER.error(ERROR_HANDLING_ENTRY, e);
-                            event.reply(ERROR_RETRIEVE).setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            event.reply(ERROR_RETRIEVE)
+                                    .setEphemeral(true)
+                                    .queue(m -> m.deleteOriginal()
+                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
                         }
 
                         return channel;
@@ -75,36 +81,50 @@ public class ListLorebookCommandService implements DiscordCommand {
                     .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (LorebookEntryNotFoundException e) {
             LOGGER.info(QUERIED_ENTRY_NOT_FOUND);
-            event.reply(QUERIED_ENTRY_NOT_FOUND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(QUERIED_ENTRY_NOT_FOUND)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.info(CHANNEL_CONFIG_NOT_FOUND);
-            event.reply(CHANNEL_NO_CONFIG_ATTACHED).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(CHANNEL_NO_CONFIG_ATTACHED)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_RETRIEVE, e);
-            event.reply(USER_ERROR_RETRIEVE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(USER_ERROR_RETRIEVE)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
     }
 
-    private void retrieveAllLoreEntries(final World world, final SlashCommandInteractionEvent event) throws IOException {
+    private void retrieveAllLoreEntries(final World world, final SlashCommandInteractionEvent event)
+            throws IOException {
 
         final Lorebook lorebook = world.getLorebook();
-        if (lorebook.getEntries().isEmpty()) {
-            event.reply(NO_ENTRIES_FOUND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+        if (lorebook.getEntries()
+                .isEmpty()) {
+            event.reply(NO_ENTRIES_FOUND)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
 
             return;
         }
 
-        lorebook.setOwner(event.getJDA().getUserById(world.getOwner()).getName());
+        lorebook.setOwner(event.getJDA()
+                .getUserById(world.getOwner())
+                .getName());
         final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebook);
         final File file = File.createTempFile("lorebook-", ".json");
         Files.write(file.toPath(), lorebookJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
         final FileUpload fileUpload = FileUpload.fromData(file);
 
-        event.replyFiles(fileUpload).setEphemeral(true).complete();
+        event.replyFiles(fileUpload)
+                .setEphemeral(true)
+                .complete();
         fileUpload.close();
     }
 }

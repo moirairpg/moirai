@@ -10,6 +10,8 @@ import es.thalesalv.chatrpg.adapters.data.entity.ChannelEntity;
 public interface ChannelRepository extends CrudRepository<ChannelEntity, String> {
 
     List<ChannelEntity> findAll();
+
     Optional<ChannelEntity> findByChannelId(String channelId);
+
     void deleteByChannelId(String channelId);
 }

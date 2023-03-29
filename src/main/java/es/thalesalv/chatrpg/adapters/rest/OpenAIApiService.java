@@ -28,43 +28,34 @@ public class OpenAIApiService {
 
     @Value("${chatrpg.openai.api-token}")
     private String openAiToken;
-
     @Value("${chatrpg.openai.completions-uri}")
     private String completionsUri;
-
     @Value("${chatrpg.openai.chat-completions-uri}")
     private String chatCompletionsUri;
-
     @Value("${chatrpg.openai.moderation-uri}")
     private String moderationUri;
-
     @Value("${chatrpg.discord.retry.error-attempts}")
     private int errorAttemps;
-
     @Value("${chatrpg.discord.retry.error-delay}")
     private int errorDelay;
-
     @Value("${chatrpg.discord.retry.moderation-attempts}")
     private int moderationAttempts;
-
     @Value("${chatrpg.discord.retry.moderation-delay}")
     private int moderationDelay;
-
     private final WebClient webClient;
     private final CommonErrorHandler commonErrorHandler;
-
     private static final String BEARER = "Bearer ";
     private static final String BOT_RESPONSE_ERROR = "Bot response contains an error";
     private static final String RECEIVED_MODEL_RESPONSE = "Received response from OpenAI GPT API -> {}";
     private static final String RECEIVED_MODERATION_RESPONSE = "Received response from OpenAI moderation API -> {}";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAIApiService.class);
 
     public OpenAIApiService(@Value("${chatrpg.openai.api-base-url}") final String openAiBaseUrl,
             final WebClient.Builder webClientBuilder, final CommonErrorHandler commonErrorHandler) {
 
         this.commonErrorHandler = commonErrorHandler;
-        this.webClient = webClientBuilder.baseUrl(openAiBaseUrl).build();
+        this.webClient = webClientBuilder.baseUrl(openAiBaseUrl)
+                .build();
     }
 
     public Mono<CompletionResponse> callGptChatApi(final ChatCompletionRequest request, final EventData eventData) {
@@ -86,10 +77,10 @@ public class OpenAIApiService {
                         LOGGER.error(BOT_RESPONSE_ERROR, response.getError());
                         throw new ErrorBotResponseException(BOT_RESPONSE_ERROR, response);
                     }
-
                     return response;
                 })
-                .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(eventData))
+                .doOnError(ErrorBotResponseException.class::isInstance,
+                        e -> commonErrorHandler.handleResponseError(eventData))
                 .retryWhen(Retry.fixedDelay(moderationAttempts, Duration.ofSeconds(moderationDelay))
                         .filter(ModerationException.class::isInstance))
                 .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
@@ -111,15 +102,14 @@ public class OpenAIApiService {
                 .map(response -> {
                     LOGGER.info(RECEIVED_MODEL_RESPONSE, response);
                     response.setPrompt(request.getPrompt());
-
                     if (response.getError() != null) {
                         LOGGER.error(BOT_RESPONSE_ERROR, response.getError());
                         throw new ErrorBotResponseException(BOT_RESPONSE_ERROR, response);
                     }
-
                     return response;
                 })
-                .doOnError(ErrorBotResponseException.class::isInstance, e -> commonErrorHandler.handleResponseError(eventData))
+                .doOnError(ErrorBotResponseException.class::isInstance,
+                        e -> commonErrorHandler.handleResponseError(eventData))
                 .retryWhen(Retry.fixedDelay(moderationAttempts, Duration.ofSeconds(moderationDelay))
                         .filter(ModerationException.class::isInstance))
                 .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));

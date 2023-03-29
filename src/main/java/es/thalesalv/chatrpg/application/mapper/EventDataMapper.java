@@ -17,7 +17,8 @@ public class EventDataMapper {
     public EventData translate(final MessageReceivedEvent event, final Channel channelDefinitions) {
 
         return EventData.builder()
-                .bot(event.getJDA().getSelfUser())
+                .bot(event.getJDA()
+                        .getSelfUser())
                 .messageAuthor(event.getAuthor())
                 .message(event.getMessage())
                 .currentChannel(event.getChannel())
@@ -26,7 +27,8 @@ public class EventDataMapper {
                 .build();
     }
 
-    public EventData translate(final SelfUser bot, final MessageChannelUnion channel, final Channel channelDefinitions, final Message message) {
+    public EventData translate(final SelfUser bot, final MessageChannelUnion channel, final Channel channelDefinitions,
+            final Message message) {
 
         return EventData.builder()
                 .bot(bot)

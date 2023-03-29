@@ -11,6 +11,8 @@ import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 public interface LorebookEntryRegexRepository extends CrudRepository<LorebookEntryRegexEntity, String> {
 
     List<LorebookEntryRegexEntity> findAll();
+
     void deleteByLorebookEntry(LorebookEntryEntity lorebookEntry);
+
     Optional<LorebookEntryRegexEntity> findByLorebookEntry(LorebookEntryEntity lorebookEntry);
 }

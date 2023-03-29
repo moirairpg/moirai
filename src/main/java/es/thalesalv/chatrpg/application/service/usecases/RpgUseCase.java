@@ -33,61 +33,75 @@ public class RpgUseCase implements BotUseCase {
     public EventData generateResponse(final EventData eventData, final CompletionService model) {
 
         LOGGER.debug("Entered generation of response for RPG. eventData -> {}", eventData);
-
         final Message message = eventData.getMessage();
         final SelfUser bot = eventData.getBot();
         final Mentions mentions = message.getMentions();
         if (mentions.isMentioned(eventData.getBot(), Message.MentionType.USER)) {
-            eventData.getCurrentChannel().sendTyping().complete();
-            if (message.getContentRaw().trim().equals(bot.getAsMention().trim())) {
-                message.delete().submit().whenComplete((d, e) -> {
-                    if (e != null) {
-                        LOGGER.error("Error deleting trigger mention in RPG", e);
-                        throw new DiscordFunctionException("Error deleting trigger mention in RPG", e);
-                    }
-                });
+            eventData.getCurrentChannel()
+                    .sendTyping()
+                    .complete();
+            if (message.getContentRaw()
+                    .trim()
+                    .equals(bot.getAsMention()
+                            .trim())) {
+                message.delete()
+                        .submit()
+                        .whenComplete((d, e) -> {
+                            if (e != null) {
+                                LOGGER.error("Error deleting trigger mention in RPG", e);
+                                throw new DiscordFunctionException("Error deleting trigger mention in RPG", e);
+                            }
+                        });
             }
-
             final List<String> messages = handleMessageHistory(eventData);
             moderationService.moderate(messages, eventData)
                     .subscribe(inputModeration -> model.generate(messages, eventData)
-                    .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
-                    .subscribe(outputModeration -> {
-                        final Message responseMessage = eventData.getCurrentChannel().sendMessage(textResponse).complete();
-                        eventData.setResponseMessage(responseMessage);
-                    })));
+                            .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
+                                    .subscribe(outputModeration -> {
+                                        final Message responseMessage = eventData.getCurrentChannel()
+                                                .sendMessage(textResponse)
+                                                .complete();
+                                        eventData.setResponseMessage(responseMessage);
+                                    })));
         }
-
         return eventData;
     }
 
     /**
      * Formats last messages history to give the AI context on the adventure
+     *
      * @param eventData Object containing the event's important data to be processed
      * @return The list of messages for history
      */
     private List<String> handleMessageHistory(final EventData eventData) {
 
         LOGGER.debug("Entered message history handling for RPG");
-        final ModelSettings modelSettings = eventData.getChannelDefinitions().getChannelConfig().getSettings().getModelSettings();
+        final ModelSettings modelSettings = eventData.getChannelDefinitions()
+                .getChannelConfig()
+                .getSettings()
+                .getModelSettings();
         final MessageChannelUnion channel = eventData.getCurrentChannel();
         final Predicate<Message> skipFilter = skipFilter(eventData);
-
         List<String> messages = channel.getHistory()
-                .retrievePast(modelSettings.getChatHistoryMemory()).complete()
+                .retrievePast(modelSettings.getChatHistoryMemory())
+                .complete()
                 .stream()
                 .filter(skipFilter)
-                .map(m -> MessageFormat.format("{0} said: {1}",
-                        m.getAuthor().getName(), m.getContentDisplay().trim()))
+                .map(m -> MessageFormat.format("{0} said: {1}", m.getAuthor()
+                        .getName(),
+                        m.getContentDisplay()
+                                .trim()))
                 .collect(Collectors.toList());
-
         Collections.reverse(messages);
-
         return messages;
     }
 
     private Predicate<Message> skipFilter(final EventData eventData) {
+
         final SelfUser bot = eventData.getBot();
-        return m -> !m.getContentRaw().trim().equals(bot.getAsMention().trim());
+        return m -> !m.getContentRaw()
+                .trim()
+                .equals(bot.getAsMention()
+                        .trim());
     }
 }

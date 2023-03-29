@@ -31,25 +31,29 @@ public class CommonErrorHandler {
 
     public void notifyUser(final String notification, final EventData eventData) {
 
-        eventData.getCurrentChannel().sendMessage(MessageFormat.format(notification, eventData.getMessage().getContentRaw()))
-                .queue(msg -> msg.delete().queueAfter(10, TimeUnit.SECONDS));
+        eventData.getCurrentChannel()
+                .sendMessage(MessageFormat.format(notification, eventData.getMessage()
+                        .getContentRaw()))
+                .queue(msg -> msg.delete()
+                        .queueAfter(10, TimeUnit.SECONDS));
     }
 
     public Mono<Throwable> handle4xxError(final ClientResponse clientResponse, final EventData eventData) {
 
         LOGGER.debug("Exception caught while calling OpenAI API");
         return clientResponse.bodyToMono(CompletionResponse.class)
-            .map(errorResponse -> {
-                if (404 == clientResponse.statusCode().value()) {
-                    LOGGER.error("OpenAI API threw NOT FOUND error -> {}", errorResponse);
-                    notifyUser(SOMETHING_WRONG, eventData);
-                } else {
-                    LOGGER.error("Error while calling OpenAI API. Message -> {}", errorResponse.getError().getMessage());
-                    notifyUser(MESSAGE_TOO_LONG, eventData);
-                }
-
-                return new OpenAiApiException("Error while calling OpenAI API.", errorResponse);
-            });
+                .map(errorResponse -> {
+                    if (404 == clientResponse.statusCode()
+                            .value()) {
+                        LOGGER.error("OpenAI API threw NOT FOUND error -> {}", errorResponse);
+                        notifyUser(SOMETHING_WRONG, eventData);
+                    } else {
+                        LOGGER.error("Error while calling OpenAI API. Message -> {}", errorResponse.getError()
+                                .getMessage());
+                        notifyUser(MESSAGE_TOO_LONG, eventData);
+                    }
+                    return new OpenAiApiException("Error while calling OpenAI API.", errorResponse);
+                });
     }
 
     public void handleResponseError(final EventData eventData) {

@@ -25,24 +25,33 @@ public class MessageListener {
     private final ChannelRepository channelRepository;
     private final ApplicationContext applicationContext;
     private final EventDataMapper eventDataMapper;
-
     private static final String USE_CASE = "UseCase";
     private static final String MESSAGE_RECEIVED = "Received message by {} in {}: {}";
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageListener.class);
 
     public void onMessageReceived(MessageReceivedEvent event) {
 
-        if (!event.getAuthor().isBot()) {
-            channelRepository.findByChannelId(event.getChannel().getId())
+        if (!event.getAuthor()
+                .isBot()) {
+            channelRepository.findByChannelId(event.getChannel()
+                    .getId())
                     .map(channelEntityToDTO)
                     .ifPresent(channel -> {
-                        LOGGER.debug(MESSAGE_RECEIVED, event.getAuthor(), event.getChannel().getName(), event.getMessage().getContentDisplay());
-                        final Persona persona = channel.getChannelConfig().getPersona();
-                        final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
-                        final String completionType = AIModel.findByInternalName(modelSettings.getModelName()).getCompletionType();
+                        LOGGER.debug(MESSAGE_RECEIVED, event.getAuthor(), event.getChannel()
+                                .getName(),
+                                event.getMessage()
+                                        .getContentDisplay());
+                        final Persona persona = channel.getChannelConfig()
+                                .getPersona();
+                        final ModelSettings modelSettings = channel.getChannelConfig()
+                                .getSettings()
+                                .getModelSettings();
+                        final String completionType = AIModel.findByInternalName(modelSettings.getModelName())
+                                .getCompletionType();
                         final EventData eventData = eventDataMapper.translate(event, channel);
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
-                        final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
+                        final BotUseCase useCase = (BotUseCase) applicationContext
+                                .getBean(persona.getIntent() + USE_CASE);
                         useCase.generateResponse(eventData, model);
                     });
         }

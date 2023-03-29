@@ -17,18 +17,19 @@ public class DestroyListener {
 
     @Value("${chatrpg.discord.status-channel-id}")
     private String statusChannelId;
-
     private final JDA jda;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DestroyListener.class);
 
     @PreDestroy
     public void beforeDestroy() {
+
         try {
             Optional.ofNullable(statusChannelId)
                     .filter(StringUtils::isNotEmpty)
                     .ifPresent(id -> jda.getChannelById(TextChannel.class, id)
-                            .sendMessage(jda.getSelfUser().getName() + " is ready to chat!").complete());
+                            .sendMessage(jda.getSelfUser()
+                                    .getName() + " is ready to chat!")
+                            .complete());
         } catch (Exception e) {
             LOGGER.error("Error during destroy", e);
         }
