@@ -37,14 +37,11 @@ public class GetWorldCommandService implements DiscordCommand {
 
     private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final String PUBLIC = "public";
-    private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
-    private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
+    private static final String NO_CONFIG_OR_WORLD_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
     private static final String ERROR_RETRIEVE = "An error occurred while retrieving world data";
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";
-    private static final String QUERIED_WORLD_NOT_FOUND = "The world queried does not exist.";
     private static final String WORLD_RETRIEVED = "Retrieved world with name **{0}**.\n```json\n{1}```";
-    private static final String NO_WORLD_ATTACHED = "This channel does not have a world attached to it";
 
     @Override
     public void handle(final SlashCommandInteractionEvent event) {
@@ -76,18 +73,12 @@ public class GetWorldCommandService implements DiscordCommand {
 
                                     return world;
                                 })
-                                .orElseThrow(() -> new WorldNotFoundException(NO_WORLD_ATTACHED));
+                                .orElseThrow(() -> new WorldNotFoundException());
                     })
                     .orElseThrow(ChannelConfigNotFoundException::new);
-        } catch (WorldNotFoundException e) {
-            LOGGER.info(QUERIED_WORLD_NOT_FOUND);
-            event.reply(QUERIED_WORLD_NOT_FOUND)
-                    .setEphemeral(true)
-                    .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-        } catch (ChannelConfigNotFoundException e) {
-            LOGGER.info(CHANNEL_CONFIG_NOT_FOUND);
-            event.reply(CHANNEL_NO_CONFIG_ATTACHED)
+        } catch (ChannelConfigNotFoundException | WorldNotFoundException e) {
+            LOGGER.info(NO_CONFIG_OR_WORLD_ATTACHED);
+            event.reply(NO_CONFIG_OR_WORLD_ATTACHED)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
@@ -102,11 +93,8 @@ public class GetWorldCommandService implements DiscordCommand {
 
     private Predicate<World> filterWorlds(final SlashCommandInteractionEvent event) {
 
-        return w -> w.getVisibility()
-                .equals(PUBLIC)
-                || w.getOwner()
-                        .equals(event.getUser()
-                                .getId());
+        return w -> w.getVisibility().equals(PUBLIC)
+                || w.getOwner().equals(event.getUser().getId());
     }
 
     private World cleanWorld(final World world, final SlashCommandInteractionEvent event) {
