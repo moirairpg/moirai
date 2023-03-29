@@ -16,10 +16,8 @@ public class StringMapDoubleConverter implements AttributeConverter<Map<String, 
     public String convertToDatabaseColumn(Map<String, Double> attribute) {
 
         try {
-
             return new ObjectMapper().writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
-
             throw new RuntimeException("Error parsing string from map");
         }
     }
@@ -28,10 +26,8 @@ public class StringMapDoubleConverter implements AttributeConverter<Map<String, 
     public Map<String, Double> convertToEntityAttribute(String dbData) {
 
         try {
-
             return new ObjectMapper().readValue(dbData, Map.class);
         } catch (JsonProcessingException e) {
-
             throw new RuntimeException("Error parsing map from string");
         }
     }

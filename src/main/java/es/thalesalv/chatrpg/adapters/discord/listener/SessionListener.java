@@ -26,13 +26,11 @@ public class SessionListener {
 
     @Value("${chatrpg.discord.status-channel-id}")
     private String statusChannelId;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionListener.class);
 
     public void onReady(ReadyEvent event) {
 
         try {
-
             final SelfUser bot = event.getJDA()
                     .getSelfUser();
             LOGGER.info("{} is ready to chat!", bot.getName());
@@ -40,7 +38,6 @@ public class SessionListener {
                     .updateCommands()
                     .addCommands(buildCommands())
                     .complete();
-
             Optional.ofNullable(statusChannelId)
                     .filter(StringUtils::isNotEmpty)
                     .ifPresent(id -> event.getJDA()
@@ -48,13 +45,10 @@ public class SessionListener {
                             .sendMessage(bot.getName() + " is ready to chat!")
                             .complete());
         } catch (IllegalStateException e) {
-
             if (e.getMessage()
                     .contains("Session is not yet ready!")) {
-
                 LOGGER.warn("Waiting for Discord session...");
             } else {
-
                 LOGGER.error("Error during event", e);
             }
         }
@@ -63,12 +57,10 @@ public class SessionListener {
     public void onSessionDisconnect(SessionDisconnectEvent event) {
 
         try {
-
             final SelfUser bot = event.getJDA()
                     .getSelfUser();
             LOGGER.info("{} is disconnected.", bot.getName());
         } catch (Exception e) {
-
             LOGGER.error("Error during disconnect", e);
         }
     }
@@ -76,12 +68,10 @@ public class SessionListener {
     public void onShutdown(ShutdownEvent event) {
 
         try {
-
             final SelfUser bot = event.getJDA()
                     .getSelfUser();
             LOGGER.info("{} is shutdown.", bot.getName());
         } catch (Exception e) {
-
             LOGGER.error("Error during shutdown", e);
         }
     }

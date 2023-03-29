@@ -11,6 +11,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 public class ChatRpgApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(ChatRpgApplication.class, args);
     }
 }

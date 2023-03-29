@@ -19,13 +19,10 @@ public class CompletionResponseError {
 
     @JsonProperty("message")
     private String message;
-
     @JsonProperty("type")
     private String type;
-
     @JsonProperty("param")
     private String param;
-
     @JsonProperty("code")
     private String code;
 }

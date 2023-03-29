@@ -29,12 +29,9 @@ public class SetCommandService implements DiscordCommand {
     private final WorldRepository worldRepository;
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
-
     private static final int DELETE_EPHEMERAL_TIMER = 20;
-
     private static final String WORLD = "world";
     private static final String CHANNEL = "channel";
-
     private static final String ID_MISSING = "ID is missing from set command.";
     private static final String OPERATION_NOT_SUPPORTED = "Operation provided it not supported";
     private static final String EXCEPTION_PARSING_ARGUMENTS = "Exception caught processing arguments of set command";
@@ -45,7 +42,6 @@ public class SetCommandService implements DiscordCommand {
     private static final String CHANNEL_LINKED_CONFIG = "Channel `{0}` was linked to configuration `{1}` (with persona `{2}`).";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
     private static final String WORLD_LINKED_CHANNEL_CONFIG = "World `{0}` was linked to configuration to the configuration of channel `{1}` (with persona `{2}`)";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SetCommandService.class);
 
     @Override
@@ -53,18 +49,14 @@ public class SetCommandService implements DiscordCommand {
 
         LOGGER.debug("Received slash command for message edition");
         try {
-
             event.deferReply();
             Optional.ofNullable(event.getOption("operation"))
                     .map(OptionMapping::getAsString)
                     .ifPresent(operation -> {
-
                         final String id = Optional.ofNullable(event.getOption("id"))
                                 .map(OptionMapping::getAsString)
                                 .orElseThrow(() -> new IllegalArgumentException(ID_MISSING));
-
                         switch (operation) {
-
                             case WORLD:
                                 setWorld(id, event);
                                 break;
@@ -76,21 +68,18 @@ public class SetCommandService implements DiscordCommand {
                         }
                     });
         } catch (IllegalArgumentException e) {
-
             LOGGER.debug(EXCEPTION_PARSING_ARGUMENTS, e);
             event.reply(e.getMessage())
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (ChannelConfigurationNotFoundException e) {
-
             LOGGER.debug(USER_COMMAND_NOT_FOUND, e);
             event.reply(CONFIG_ID_NOT_FOUND)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
-
             LOGGER.error(ERROR_SETTING_DEFINITION, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN)
                     .setEphemeral(true)
@@ -105,14 +94,11 @@ public class SetCommandService implements DiscordCommand {
                 .getName(),
                 event.getChannel()
                         .getId());
-
         return channelConfigRepository.findById(configId)
                 .map(config -> {
-
                     final ChannelEntity entity = channelRepository.findByChannelId(event.getChannel()
                             .getId())
                             .map(e -> {
-
                                 e.setChannelConfig(config);
                                 e.setChannelId(event.getChannel()
                                         .getId());
@@ -123,7 +109,6 @@ public class SetCommandService implements DiscordCommand {
                                     .channelId(event.getChannel()
                                             .getId())
                                     .build());
-
                     channelRepository.save(entity);
                     event.reply(MessageFormat.format(CHANNEL_LINKED_CONFIG, event.getChannel()
                             .getName(), entity.getId(),
@@ -131,11 +116,9 @@ public class SetCommandService implements DiscordCommand {
                                     .getName()))
                             .setEphemeral(true)
                             .queue(reply -> {
-
                                 reply.deleteOriginal()
                                         .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
                             });
-
                     return entity;
                 })
                 .orElseThrow(() -> new ChannelConfigurationNotFoundException(CONFIG_ID_NOT_FOUND));
@@ -147,7 +130,6 @@ public class SetCommandService implements DiscordCommand {
                 .getName(),
                 event.getChannel()
                         .getId());
-
         return worldRepository.findById(worldId)
                 .map(world -> channelRepository.findByChannelId(event.getChannel()
                         .getId())
@@ -164,7 +146,6 @@ public class SetCommandService implements DiscordCommand {
                 event.getChannel()
                         .getName(),
                 channel.getId());
-
         channel.getChannelConfig()
                 .setWorld(world);
         channelRepository.save(channel);
@@ -174,11 +155,9 @@ public class SetCommandService implements DiscordCommand {
                         .getName()))
                 .setEphemeral(true)
                 .queue(reply -> {
-
                     reply.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
                 });
-
         return channel;
     }
 }

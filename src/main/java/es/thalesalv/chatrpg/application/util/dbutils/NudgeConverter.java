@@ -14,10 +14,8 @@ public class NudgeConverter implements AttributeConverter<NudgeEntity, String> {
     public String convertToDatabaseColumn(NudgeEntity attribute) {
 
         try {
-
             return new ObjectMapper().writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
-
             throw new RuntimeException("Error parsing nudges to string from object");
         }
     }
@@ -26,10 +24,8 @@ public class NudgeConverter implements AttributeConverter<NudgeEntity, String> {
     public NudgeEntity convertToEntityAttribute(String dbData) {
 
         try {
-
             return new ObjectMapper().readValue(dbData, NudgeEntity.class);
         } catch (JsonProcessingException e) {
-
             throw new RuntimeException("Error parsing nudges to object from string");
         }
     }

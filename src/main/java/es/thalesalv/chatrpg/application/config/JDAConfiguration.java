@@ -16,7 +16,6 @@ public class JDAConfiguration {
 
     @Value("${chatrpg.discord.api-token}")
     private String discordApiToken;
-
     private final EventDispatcher dispatcherListenerAdapter;
 
     @Bean

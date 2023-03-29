@@ -41,7 +41,6 @@ public class MessageFormatHelper {
     private static final String CHARACTER_DESCRIPTION = "{0} description: {1}";
     private static final String CHAT_EXPRESSION = "^(.*) (says|said|quoted|replied).*";
     private static final String RPG_DM_INSTRUCTIONS = "I will remember to never act or speak on behalf of {0}. I will not repeat what {0} just said. I will only describe the world around {0}.";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageFormatHelper.class);
 
     /**
@@ -67,12 +66,10 @@ public class MessageFormatHelper {
                         .equals(player.getId()))
                 .findFirst()
                 .ifPresent(entry -> {
-
                     entriesFound.add(entry);
                     messages.replaceAll(m -> m.replaceAll(player.getAsTag(), entry.getName())
                             .replaceAll(TAG_EXPRESSION + player.getName(), entry.getName()));
                 });
-
         mentions.getUsers()
                 .forEach(mention -> entries.stream()
                         .filter(entry -> StringUtils.isNotBlank(entry.getPlayerDiscordId()))
@@ -80,7 +77,6 @@ public class MessageFormatHelper {
                                 .equals(mention.getId()))
                         .findFirst()
                         .ifPresent(entry -> {
-
                             entriesFound.add(entry);
                             messages.replaceAll(m -> m.replaceAll(mention.getAsTag(), entry.getName())
                                     .replaceAll(TAG_EXPRESSION + mention.getName(), entry.getName()));
@@ -103,14 +99,11 @@ public class MessageFormatHelper {
                 .getEntries()
                 .stream()
                 .map(entry -> {
-
                     Pattern p = Pattern.compile(entry.getRegex());
                     Matcher matcher = p.matcher(messages);
                     if (matcher.find()) {
-
                         return entry;
                     }
-
                     return null;
                 })
                 .filter(Objects::nonNull)
@@ -121,16 +114,12 @@ public class MessageFormatHelper {
             final JDA jda) {
 
         entriesFound.forEach(entry -> {
-
             if (StringUtils.isNotBlank(entry.getPlayerDiscordId())) {
-
                 messages.add(0, MessageFormat.format(RPG_DM_INSTRUCTIONS, entry.getName()));
             }
-
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription()));
             Optional.ofNullable(entry.getPlayerDiscordId())
                     .ifPresent(id -> {
-
                         final User p = jda.retrieveUserById(id)
                                 .complete();
                         messages.replaceAll(m -> m.replaceAll(p.getAsTag(), entry.getName())
@@ -161,12 +150,10 @@ public class MessageFormatHelper {
                         .content(formatBotName(msg, persona))
                         .build())
                 .collect(Collectors.toList());
-
         chatMessages.add(0, ChatMessage.builder()
                 .role(ROLE_SYSTEM)
                 .content(personality)
                 .build());
-
         chatMessages = formatNudgeForChatCompletions(persona, chatMessages, inputProcessor);
         chatMessages = formatBumpForChatCompletions(persona, chatMessages, inputProcessor);
         return chatMessages;
@@ -181,13 +168,10 @@ public class MessageFormatHelper {
 
         final boolean isChat = message.matches(CHAT_EXPRESSION);
         if (message.startsWith(persona.getName())) {
-
             return ROLE_ASSISTANT;
         } else if (isChat && !message.startsWith(REMEMBER_TO_NEVER)) {
-
             return ROLE_USER;
         }
-
         return ROLE_SYSTEM;
     }
 
@@ -211,7 +195,6 @@ public class MessageFormatHelper {
         final String promptContent = MessageFormat
                 .format(BOT_SAID, String.join(StringUtils.LF, messages), persona.getName())
                 .trim();
-
         return inputProcessor.process(promptContent);
     }
 
@@ -221,7 +204,6 @@ public class MessageFormatHelper {
         return Optional.ofNullable(persona.getNudge())
                 .filter(Nudge.isValid)
                 .map(ndge -> {
-
                     messages.add(messages.stream()
                             .filter(m -> "user".equals(m.getRole()))
                             .mapToInt(messages::indexOf)
@@ -230,7 +212,6 @@ public class MessageFormatHelper {
                                     .role(ndge.role)
                                     .content(inputProcessor.process(ndge.content))
                                     .build());
-
                     return messages;
                 })
                 .orElse(messages);
@@ -242,17 +223,13 @@ public class MessageFormatHelper {
         return Optional.ofNullable(persona.getBump())
                 .filter(Bump.isValid)
                 .map(bmp -> {
-
                     ChatMessage bumpMessage = ChatMessage.builder()
                             .role(bmp.role)
                             .content(inputProcessor.process(bmp.content))
                             .build();
-
                     for (int index = messages.size() - 1 - bmp.frequency; index > 0; index = index - bmp.frequency) {
-
                         messages.add(index, bumpMessage);
                     }
-
                     return messages;
                 })
                 .orElse(messages);
@@ -264,13 +241,11 @@ public class MessageFormatHelper {
         return Optional.ofNullable(persona.getNudge())
                 .filter(Nudge.isValid)
                 .map(ndge -> {
-
                     messages.add(messages.stream()
                             .filter(m -> !m.startsWith(persona.getName()))
                             .mapToInt(messages::indexOf)
                             .reduce((a, b) -> b)
                             .orElse(0) + 1, inputProcessor.process(ndge.content));
-
                     return messages;
                 })
                 .orElse(messages);
@@ -282,12 +257,9 @@ public class MessageFormatHelper {
         return Optional.ofNullable(persona.getBump())
                 .filter(Bump.isValid)
                 .map(bmp -> {
-
                     for (int index = messages.size() - 1 - bmp.frequency; index > 0; index = index - bmp.frequency) {
-
                         messages.add(index, inputProcessor.process(bmp.getContent()));
                     }
-
                     return messages;
                 })
                 .orElse(messages);
