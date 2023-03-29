@@ -80,7 +80,8 @@ public class SessionListener {
 
         return Arrays.asList(new SlashCommandData[] { registerHelpCommands(), registerStartCommand(),
                 registerRetryCommand(), registerPromptCommand(), registerLorebookCommand(), registerEditCommand(),
-                registerSetCommand(), registerUnsetCommand(), registerTokenizationCommand(), });
+                registerSetCommand(), registerUnsetCommand(), registerTokenizationCommand(), registerWorldCommand(),
+                registerChConfCommand() });
     }
 
     private SlashCommandData registerHelpCommands() {
@@ -94,7 +95,7 @@ public class SessionListener {
         LOGGER.debug("Registering slash command for lorebook operations");
         return Commands.slash("lb",
                 "Used with subcommands for management of lorebook entries belonging to the current channel's world.")
-                .addOption(OptionType.STRING, "action", "One of the following: create, get, edit, delete.", true)
+                .addOption(OptionType.STRING, "action", "One of the following: create, list, get, edit, delete.", true)
                 .addOption(OptionType.STRING, "id", "ID of the entry to be managed. Usable for delete, edit and get.",
                         false);
     }
@@ -149,5 +150,19 @@ public class SessionListener {
         LOGGER.debug("Registering slash command for starting world");
         return Commands.slash("start",
                 "Posts the default prompt for the current world into the chat and generates content for that world.");
+    }
+
+    private SlashCommandData registerWorldCommand() {
+
+        LOGGER.debug("Registering slash command for world retrieval");
+        return Commands.slash("wd", "Used with subcommands for management of the current channel's world.")
+                .addOption(OptionType.STRING, "action", "One of the following: get, list.", true);
+    }
+
+    private SlashCommandData registerChConfCommand() {
+
+        LOGGER.debug("Registering slash command for channel config retrieval");
+        return Commands.slash("chconf", "Used with subcommands for management of the current channel's configuration.")
+                .addOption(OptionType.STRING, "action", "One of the following: get, list.", true);
     }
 }

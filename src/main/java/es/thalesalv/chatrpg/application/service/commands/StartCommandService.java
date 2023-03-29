@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.application.service.commands;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.domain.enums.AIModel;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
+import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
@@ -35,6 +37,8 @@ public class StartCommandService implements DiscordCommand {
     private final EventDataMapper eventDataMapper;
     private static final String USE_CASE = "UseCase";
     private static final int DELETE_EPHEMERAL_TIMER = 20;
+
+    private static final String DEFAULT_PROMPT_NOT_FOUND = "World does not have a default prompt set";
     private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
     private static final String UNKNOWN_ERROR = "An unknown error was caught while starting world";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong. Please try again.";
@@ -59,7 +63,11 @@ public class StartCommandService implements DiscordCommand {
                         final ModelSettings modelSettings = ch.getChannelConfig()
                                 .getSettings()
                                 .getModelSettings();
-                        final String input = formatInput(persona.getIntent(), world.getInitialPrompt(), bot);
+
+                        final String initialPrompt = Optional.ofNullable(world.getInitialPrompt())
+                                .orElseThrow(() -> new WorldNotFoundException(DEFAULT_PROMPT_NOT_FOUND));
+
+                        final String input = formatInput(persona.getIntent(), initialPrompt, bot);
                         final Message message = channel.sendMessage(input)
                                 .complete();
                         final String completionType = AIModel.findByInternalName(modelSettings.getModelName())
@@ -80,6 +88,12 @@ public class StartCommandService implements DiscordCommand {
                         return ch;
                     })
                     .orElseThrow(ChannelConfigNotFoundException::new);
+        } catch (WorldNotFoundException e) {
+            LOGGER.debug(e.getMessage());
+            event.reply(e.getMessage())
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.debug(NO_CONFIG_ATTACHED);
             event.reply(NO_CONFIG_ATTACHED)
