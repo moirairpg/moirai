@@ -28,36 +28,26 @@ public class OpenAIApiService {
 
     @Value("${chatrpg.openai.api-token}")
     private String openAiToken;
-
     @Value("${chatrpg.openai.completions-uri}")
     private String completionsUri;
-
     @Value("${chatrpg.openai.chat-completions-uri}")
     private String chatCompletionsUri;
-
     @Value("${chatrpg.openai.moderation-uri}")
     private String moderationUri;
-
     @Value("${chatrpg.discord.retry.error-attempts}")
     private int errorAttemps;
-
     @Value("${chatrpg.discord.retry.error-delay}")
     private int errorDelay;
-
     @Value("${chatrpg.discord.retry.moderation-attempts}")
     private int moderationAttempts;
-
     @Value("${chatrpg.discord.retry.moderation-delay}")
     private int moderationDelay;
-
     private final WebClient webClient;
     private final CommonErrorHandler commonErrorHandler;
-
     private static final String BEARER = "Bearer ";
     private static final String BOT_RESPONSE_ERROR = "Bot response contains an error";
     private static final String RECEIVED_MODEL_RESPONSE = "Received response from OpenAI GPT API -> {}";
     private static final String RECEIVED_MODERATION_RESPONSE = "Received response from OpenAI moderation API -> {}";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAIApiService.class);
 
     public OpenAIApiService(@Value("${chatrpg.openai.api-base-url}") final String openAiBaseUrl,
@@ -74,7 +64,6 @@ public class OpenAIApiService {
         return webClient.post()
                 .uri(chatCompletionsUri)
                 .headers(headers -> {
-
                     headers.add(HttpHeaders.AUTHORIZATION, BEARER + openAiToken);
                     headers.add(HttpHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON_VALUE);
                 })
@@ -83,14 +72,11 @@ public class OpenAIApiService {
                 .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, eventData))
                 .bodyToMono(CompletionResponse.class)
                 .map(response -> {
-
                     LOGGER.info(RECEIVED_MODEL_RESPONSE, response);
                     if (response.getError() != null) {
-
                         LOGGER.error(BOT_RESPONSE_ERROR, response.getError());
                         throw new ErrorBotResponseException(BOT_RESPONSE_ERROR, response);
                     }
-
                     return response;
                 })
                 .doOnError(ErrorBotResponseException.class::isInstance,
@@ -106,7 +92,6 @@ public class OpenAIApiService {
         return webClient.post()
                 .uri(completionsUri)
                 .headers(headers -> {
-
                     headers.add(HttpHeaders.AUTHORIZATION, BEARER + openAiToken);
                     headers.add(HttpHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON_VALUE);
                 })
@@ -115,16 +100,12 @@ public class OpenAIApiService {
                 .onStatus(HttpStatusCode::is4xxClientError, e -> commonErrorHandler.handle4xxError(e, eventData))
                 .bodyToMono(CompletionResponse.class)
                 .map(response -> {
-
                     LOGGER.info(RECEIVED_MODEL_RESPONSE, response);
                     response.setPrompt(request.getPrompt());
-
                     if (response.getError() != null) {
-
                         LOGGER.error(BOT_RESPONSE_ERROR, response.getError());
                         throw new ErrorBotResponseException(BOT_RESPONSE_ERROR, response);
                     }
-
                     return response;
                 })
                 .doOnError(ErrorBotResponseException.class::isInstance,
@@ -140,7 +121,6 @@ public class OpenAIApiService {
         return webClient.post()
                 .uri(moderationUri)
                 .headers(headers -> {
-
                     headers.add(HttpHeaders.AUTHORIZATION, BEARER + openAiToken);
                     headers.add(HttpHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON_VALUE);
                 })
@@ -148,7 +128,6 @@ public class OpenAIApiService {
                 .retrieve()
                 .bodyToMono(ModerationResponse.class)
                 .map(response -> {
-
                     LOGGER.info(RECEIVED_MODERATION_RESPONSE, response);
                     return response;
                 })

@@ -43,19 +43,15 @@ public class CommonErrorHandler {
         LOGGER.debug("Exception caught while calling OpenAI API");
         return clientResponse.bodyToMono(CompletionResponse.class)
                 .map(errorResponse -> {
-
                     if (404 == clientResponse.statusCode()
                             .value()) {
-
                         LOGGER.error("OpenAI API threw NOT FOUND error -> {}", errorResponse);
                         notifyUser(SOMETHING_WRONG, eventData);
                     } else {
-
                         LOGGER.error("Error while calling OpenAI API. Message -> {}", errorResponse.getError()
                                 .getMessage());
                         notifyUser(MESSAGE_TOO_LONG, eventData);
                     }
-
                     return new OpenAiApiException("Error while calling OpenAI API.", errorResponse);
                 });
     }

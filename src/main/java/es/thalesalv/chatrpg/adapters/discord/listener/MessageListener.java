@@ -25,7 +25,6 @@ public class MessageListener {
     private final ChannelRepository channelRepository;
     private final ApplicationContext applicationContext;
     private final EventDataMapper eventDataMapper;
-
     private static final String USE_CASE = "UseCase";
     private static final String MESSAGE_RECEIVED = "Received message by {} in {}: {}";
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageListener.class);
@@ -34,12 +33,10 @@ public class MessageListener {
 
         if (!event.getAuthor()
                 .isBot()) {
-
             channelRepository.findByChannelId(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .ifPresent(channel -> {
-
                         LOGGER.debug(MESSAGE_RECEIVED, event.getAuthor(), event.getChannel()
                                 .getName(),
                                 event.getMessage()

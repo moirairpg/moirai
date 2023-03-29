@@ -16,7 +16,6 @@ public class TextCompletionRequestMapper {
                 .getModelSettings();
         final String modelName = AIModel.findByInternalName(modelSettings.getModelName())
                 .getModelName();
-
         return TextCompletionRequest.builder()
                 .prompt(prompt)
                 .model(modelName)

@@ -24,7 +24,6 @@ public class LorebookEntityToDTO implements Function<LorebookEntity, Lorebook> {
                 .stream()
                 .map(lorebookEntryEntityToDTO)
                 .collect(Collectors.toSet());
-
         return Lorebook.builder()
                 .id(t.getId())
                 .description(t.getDescription())

@@ -27,7 +27,6 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
                 .stream()
                 .map(lorebookEntryDTOToEntity)
                 .collect(Collectors.toList());
-
         return WorldEntity.builder()
                 .editPermissions(t.getEditPermissions())
                 .id(t.getId())

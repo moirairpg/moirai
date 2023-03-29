@@ -35,7 +35,6 @@ public class ChatCompletionService implements CompletionService {
     private final CommonErrorHandler commonErrorHandler;
     private final ChatCompletionRequestMapper chatCompletionsRequestTranslator;
     private final OpenAIApiService openAiService;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatCompletionService.class);
 
     @Override
@@ -51,7 +50,6 @@ public class ChatCompletionService implements CompletionService {
                 .getChannelConfig();
         final World world = channelConfig.getWorld();
         final Persona persona = channelConfig.getPersona();
-
         inputProcessor.addRule(s -> Pattern.compile("\\{0\\}")
                 .matcher(s)
                 .replaceAll(r -> persona.getName()));
@@ -70,18 +68,14 @@ public class ChatCompletionService implements CompletionService {
                 s -> Pattern.compile("(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$", Pattern.DOTALL & Pattern.MULTILINE)
                         .matcher(s)
                         .replaceAll(StringUtils.EMPTY));
-
         final Set<LorebookEntry> entriesFound = messageFormatHelper.handleEntriesMentioned(messages, world);
         if (persona.getIntent()
                 .equals("dungeonMaster")) {
-
             messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
             messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else {
-
             messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
         }
-
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData,
                 inputProcessor);
         final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages,
@@ -89,16 +83,13 @@ public class ChatCompletionService implements CompletionService {
                         .getChannelConfig());
         return openAiService.callGptChatApi(request, eventData)
                 .map(response -> {
-
                     final String responseText = response.getChoices()
                             .get(0)
                             .getMessage()
                             .getContent();
                     if (StringUtils.isBlank(responseText)) {
-
                         throw new ModelResponseBlankException();
                     }
-
                     return outputProcessor.process(responseText.trim());
                 })
                 .doOnError(ModelResponseBlankException.class::isInstance,
