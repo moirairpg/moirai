@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
@@ -46,7 +44,6 @@ public class ListWorldCommandService implements DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetWorldCommandService.class);
 
     private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
-    private static final String PUBLIC = "public";
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";
     private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
     private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
@@ -68,7 +65,6 @@ public class ListWorldCommandService implements DiscordCommand {
                         try {
                             List<World> worlds = worldRepository.findAll()
                                     .stream()
-                                    .filter(filterWorlds(event))
                                     .map(worldEntityToDTO)
                                     .map(w -> cleanWorld(w, event))
                                     .collect(Collectors.toList());
@@ -118,15 +114,6 @@ public class ListWorldCommandService implements DiscordCommand {
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
-    }
-
-    private Predicate<WorldEntity> filterWorlds(final SlashCommandInteractionEvent event) {
-
-        return w -> w.getVisibility()
-                .equals(PUBLIC)
-                || w.getOwner()
-                        .equals(event.getUser()
-                                .getId());
     }
 
     private World cleanWorld(final World world, final SlashCommandInteractionEvent event) {

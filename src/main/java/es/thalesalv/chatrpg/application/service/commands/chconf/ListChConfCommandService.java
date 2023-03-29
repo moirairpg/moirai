@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import es.thalesalv.chatrpg.adapters.data.entity.ChannelConfigEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelConfigRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelConfigEntityToDTO;
@@ -62,14 +60,12 @@ public class ListChConfCommandService implements DiscordCommand {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel()
-                    .getId())
+            channelRepository.findByChannelId(event.getChannel().getId())
                     .map(channelEntityToDTO)
                     .map(channel -> {
                         try {
-                            List<ChannelConfig> config = channelConfigRepository.findAll()
+                            final List<ChannelConfig> config = channelConfigRepository.findAll()
                                     .stream()
-                                    .filter(filterConfigs(event))
                                     .map(channelConfigEntityToDTO)
                                     .map(c -> cleanConfig(c, event))
                                     .collect(Collectors.toList());
@@ -78,10 +74,12 @@ public class ListChConfCommandService implements DiscordCommand {
                             final File file = File.createTempFile("lore-entries-", ".json");
                             Files.write(file.toPath(), configJson.getBytes(StandardCharsets.UTF_8),
                                     StandardOpenOption.APPEND);
+
                             final FileUpload fileUpload = FileUpload.fromData(file);
                             event.replyFiles(fileUpload)
                                     .setEphemeral(true)
                                     .complete();
+
                             fileUpload.close();
                         } catch (JsonProcessingException e) {
                             LOGGER.error(ERROR_SERIALIZATION, e);
@@ -121,24 +119,19 @@ public class ListChConfCommandService implements DiscordCommand {
         }
     }
 
-    private Predicate<ChannelConfigEntity> filterConfigs(final SlashCommandInteractionEvent event) {
-
-        return w -> w.getOwner()
-                .equals(event.getUser()
-                        .getId());
-    }
-
     private ChannelConfig cleanConfig(final ChannelConfig config, final SlashCommandInteractionEvent event) {
 
         final String configOwnerName = event.getJDA()
                 .getUserById(config.getOwner())
                 .getName();
+
         config.setOwner(configOwnerName);
 
         final World world = config.getWorld();
         final String worldOwnerName = event.getJDA()
                 .getUserById(world.getOwner())
                 .getName();
+
         world.setOwner(worldOwnerName);
         world.setLorebook(null);
         world.setInitialPrompt(null);
@@ -148,12 +141,12 @@ public class ListChConfCommandService implements DiscordCommand {
         final String personaOwnerName = event.getJDA()
                 .getUserById(persona.getOwner())
                 .getName();
+
         persona.setOwner(personaOwnerName);
         persona.setNudge(null);
         persona.setBump(null);
         persona.setPersonality(null);
         config.setPersona(persona);
-
         config.setSettings(null);
         return config;
     }

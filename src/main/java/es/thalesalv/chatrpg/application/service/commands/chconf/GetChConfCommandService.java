@@ -3,7 +3,6 @@ package es.thalesalv.chatrpg.application.service.commands.chconf;
 import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,6 @@ public class GetChConfCommandService implements DiscordCommand {
                     .map(channelEntityToDTO)
                     .map(channel -> {
                         return Optional.ofNullable(channel.getChannelConfig())
-                                .filter(filterConfigs(event))
                                 .map(c -> cleanConfig(c, event))
                                 .map(config -> {
                                     try {
@@ -97,13 +95,6 @@ public class GetChConfCommandService implements DiscordCommand {
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
-    }
-
-    private Predicate<ChannelConfig> filterConfigs(final SlashCommandInteractionEvent event) {
-
-        return w -> w.getOwner()
-                .equals(event.getUser()
-                        .getId());
     }
 
     private ChannelConfig cleanConfig(final ChannelConfig config, final SlashCommandInteractionEvent event) {
