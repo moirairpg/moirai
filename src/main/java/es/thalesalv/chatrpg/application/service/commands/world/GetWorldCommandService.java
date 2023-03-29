@@ -3,7 +3,6 @@ package es.thalesalv.chatrpg.application.service.commands.world;
 import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,6 @@ public class GetWorldCommandService implements DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetWorldCommandService.class);
 
     private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
-    private static final String PUBLIC = "public";
     private static final String NO_CONFIG_OR_WORLD_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
     private static final String ERROR_RETRIEVE = "An error occurred while retrieving world data";
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
@@ -49,13 +47,11 @@ public class GetWorldCommandService implements DiscordCommand {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel()
-                    .getId())
+            channelRepository.findByChannelId(event.getChannel().getId())
                     .map(channelEntityToDTO)
                     .map(channel -> {
                         return Optional.ofNullable(channel.getChannelConfig())
                                 .map(ChannelConfig::getWorld)
-                                .filter(filterWorlds(event))
                                 .map(w -> cleanWorld(w, event))
                                 .map(world -> {
                                     try {
@@ -89,12 +85,6 @@ public class GetWorldCommandService implements DiscordCommand {
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
-    }
-
-    private Predicate<World> filterWorlds(final SlashCommandInteractionEvent event) {
-
-        return w -> w.getVisibility().equals(PUBLIC)
-                || w.getOwner().equals(event.getUser().getId());
     }
 
     private World cleanWorld(final World world, final SlashCommandInteractionEvent event) {
