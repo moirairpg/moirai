@@ -74,7 +74,7 @@ public class EditLorebookCommandService implements DiscordCommand {
             channelRepository.findByChannelId(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
-                    .ifPresent(channel -> {
+                    .ifPresentOrElse(channel -> {
                         final String entryId = event.getOption("id")
                                 .getAsString();
                         saveEventDataToContext(entryId, channel, event.getChannel());
@@ -82,11 +82,10 @@ public class EditLorebookCommandService implements DiscordCommand {
                         final Modal modalEntry = buildEntryUpdateModal(entry);
                         event.replyModal(modalEntry)
                                 .queue();
-                    });
-            event.reply(COMMAND_WRONG_CHANNEL)
-                    .setEphemeral(true)
-                    .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+                    }, () -> event.reply(COMMAND_WRONG_CHANNEL)
+                            .setEphemeral(true)
+                            .queue(reply -> reply.deleteOriginal()
+                                    .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
         } catch (MissingRequiredSlashCommandOptionException e) {
             LOGGER.info(USER_UPDATE_COMMAND_WITHOUT_ID);
             event.reply(MISSING_ID_MESSAGE)
@@ -118,20 +117,23 @@ public class EditLorebookCommandService implements DiscordCommand {
             final World world = eventData.getChannelDefinitions()
                     .getChannelConfig()
                     .getWorld();
+
             final String entryId = contextDatastore.getEventData()
                     .getLorebookEntryId();
-            final String updatedEntryName = event.getValue("lorebook-entry-name")
+            final String updatedEntryName = event.getValue("lb-entry-name")
                     .getAsString();
-            final String updatedEntryRegex = event.getValue("lorebook-entry-regex")
+            final String updatedEntryRegex = event.getValue("lb-entry-regex")
                     .getAsString();
-            final String updatedEntryDescription = event.getValue("lorebook-entry-desc")
+            final String updatedEntryDescription = event.getValue("lb-entry-desc")
                     .getAsString();
-            final String playerId = retrieveDiscordPlayerId(event.getValue("lorebook-entry-player"), event.getUser()
+            final String playerId = retrieveDiscordPlayerId(event.getValue("lb-entry-player"), event.getUser()
                     .getId());
+
             final LorebookEntryRegexEntity updatedEntry = updateEntry(updatedEntryDescription, entryId,
                     updatedEntryName, playerId, updatedEntryRegex, world);
             final LorebookEntry entry = lorebookEntryEntityToDTO.apply(updatedEntry);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(entry);
+
             moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event)
                     .subscribe(response -> event
                             .reply(MessageFormat.format(ENTRY_UPDATED, updatedEntry.getLorebookEntry()
@@ -186,7 +188,7 @@ public class EditLorebookCommandService implements DiscordCommand {
     private Modal buildEntryUpdateModal(final LorebookEntryRegexEntity lorebookRegex) {
 
         LOGGER.debug("Building entry update modal");
-        final TextInput lorebookEntryName = TextInput.create("lorebook-entry-name", "Name", TextInputStyle.SHORT)
+        final TextInput lorebookEntryName = TextInput.create("lb-entry-name", "Name", TextInputStyle.SHORT)
                 .setValue(lorebookRegex.getLorebookEntry()
                         .getName())
                 .setRequired(true)
@@ -196,12 +198,12 @@ public class EditLorebookCommandService implements DiscordCommand {
                 .orElse(lorebookRegex.getLorebookEntry()
                         .getName());
         final TextInput lorebookEntryRegex = TextInput
-                .create("lorebook-entry-regex", "Regular expression (optional)", TextInputStyle.SHORT)
+                .create("lb-entry-regex", "Regular expression (optional)", TextInputStyle.SHORT)
                 .setValue(regex)
                 .setRequired(false)
                 .build();
         final TextInput lorebookEntryDescription = TextInput
-                .create("lorebook-entry-desc", "Description", TextInputStyle.PARAGRAPH)
+                .create("lb-entry-desc", "Description", TextInputStyle.PARAGRAPH)
                 .setValue(lorebookRegex.getLorebookEntry()
                         .getDescription())
                 .setRequired(true)
@@ -209,12 +211,13 @@ public class EditLorebookCommandService implements DiscordCommand {
         String isPlayerCharacter = StringUtils.isBlank(lorebookRegex.getLorebookEntry()
                 .getPlayerDiscordId()) ? "n" : "y";
         final TextInput lorebookEntryPlayer = TextInput
-                .create("lorebook-entry-player", "Is this a player character?", TextInputStyle.SHORT)
+                .create("lb-entry-player", "Is this a player character?", TextInputStyle.SHORT)
                 .setValue(isPlayerCharacter)
                 .setMaxLength(1)
                 .setRequired(true)
                 .build();
-        return Modal.create("update-lorebook-entry-data", "Lorebook Entry Update")
+
+        return Modal.create("update-lb-entry-data", "Lorebook Entry Update")
                 .addComponents(ActionRow.of(lorebookEntryName), ActionRow.of(lorebookEntryRegex),
                         ActionRow.of(lorebookEntryDescription), ActionRow.of(lorebookEntryPlayer))
                 .build();

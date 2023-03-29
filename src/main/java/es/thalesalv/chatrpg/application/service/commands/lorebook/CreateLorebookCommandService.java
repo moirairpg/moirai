@@ -64,18 +64,15 @@ public class CreateLorebookCommandService implements DiscordCommand {
         channelRepository.findByChannelId(event.getChannel()
                 .getId())
                 .map(channelEntityToDTO)
-                .ifPresent(channel -> {
+                .ifPresentOrElse(channel -> {
                     saveEventDataToContext(channel, event.getChannel());
                     final Modal modal = buildEntryCreationModal();
                     event.replyModal(modal)
                             .queue();
-                });
-        event.reply(COMMAND_WRONG_CHANNEL)
-                .setEphemeral(true)
-                .queue(reply -> {
-                    reply.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-                });
+                }, () -> event.reply(COMMAND_WRONG_CHANNEL)
+                        .setEphemeral(true)
+                        .queue(reply -> reply.deleteOriginal()
+                                .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
     }
 
     @Override
@@ -88,21 +85,23 @@ public class CreateLorebookCommandService implements DiscordCommand {
             final World world = eventData.getChannelDefinitions()
                     .getChannelConfig()
                     .getWorld();
+
             final User author = event.getMember()
                     .getUser();
-            final String entryName = event.getValue("lorebook-entry-name")
+            final String entryName = event.getValue("lb-entry-name")
                     .getAsString();
-            final String entryRegex = event.getValue("lorebook-entry-regex")
+            final String entryRegex = event.getValue("lb-entry-regex")
                     .getAsString();
-            final String entryDescription = event.getValue("lorebook-entry-desc")
+            final String entryDescription = event.getValue("lb-entry-desc")
                     .getAsString();
-            final String entryPlayerCharacter = event.getValue("lorebook-entry-player")
+            final String entryPlayerCharacter = event.getValue("lb-entry-player")
                     .getAsString();
             final boolean isPlayerCharacter = entryPlayerCharacter.equals("y");
             final LorebookEntryRegexEntity insertedEntry = insertEntry(author, entryName, entryRegex, entryDescription,
                     isPlayerCharacter, world);
             final LorebookEntry loreItem = lorebookEntryEntityToDTO.apply(insertedEntry);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(loreItem);
+
             moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event)
                     .subscribe(response -> event
                             .reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getLorebookEntry()
@@ -122,27 +121,28 @@ public class CreateLorebookCommandService implements DiscordCommand {
     private Modal buildEntryCreationModal() {
 
         LOGGER.debug("Building entry creation modal");
-        final TextInput lorebookEntryName = TextInput.create("lorebook-entry-name", "Name", TextInputStyle.SHORT)
+        final TextInput lorebookEntryName = TextInput.create("lb-entry-name", "Name", TextInputStyle.SHORT)
                 .setPlaceholder("Forest of the Talking Trees")
                 .setRequired(true)
                 .build();
         final TextInput lorebookEntryRegex = TextInput
-                .create("lorebook-entry-regex", "Regular expression (optional)", TextInputStyle.SHORT)
+                .create("lb-entry-regex", "Regular expression (optional)", TextInputStyle.SHORT)
                 .setPlaceholder("/(Rain|)Forest of the (Talking|Speaking) Trees/gi")
                 .setRequired(false)
                 .build();
         final TextInput lorebookEntryDescription = TextInput
-                .create("lorebook-entry-desc", "Description", TextInputStyle.PARAGRAPH)
+                .create("lb-entry-desc", "Description", TextInputStyle.PARAGRAPH)
                 .setPlaceholder("The Forest of the Talking Trees is located in the west of the country.")
                 .setRequired(true)
                 .build();
         final TextInput lorebookEntryPlayer = TextInput
-                .create("lorebook-entry-player", "Is this a player character?", TextInputStyle.SHORT)
+                .create("lb-entry-player", "Is this a player character?", TextInputStyle.SHORT)
                 .setPlaceholder("y or n")
                 .setMaxLength(1)
                 .setRequired(true)
                 .build();
-        return Modal.create("create-lorebook-entry-data", "Lorebook Entry Creation")
+
+        return Modal.create("create-lb-entry-data", "Lorebook Entry Creation")
                 .addComponents(ActionRow.of(lorebookEntryName), ActionRow.of(lorebookEntryRegex),
                         ActionRow.of(lorebookEntryDescription), ActionRow.of(lorebookEntryPlayer))
                 .build();

@@ -23,10 +23,11 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 @Component
 @RequiredArgsConstructor
-public class DungeonMasterUseCase implements BotUseCase {
+public class RpgUseCase implements BotUseCase {
 
     private final ModerationService moderationService;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DungeonMasterUseCase.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpgUseCase.class);
 
     @Override
     public EventData generateResponse(final EventData eventData, final CompletionService model) {
