@@ -26,7 +26,8 @@ public enum AIModel {
     public static AIModel findByInternalName(final String name) {
 
         return Arrays.stream(values())
-                .filter(aiModel -> aiModel.getInternalName().equals(name))
+                .filter(aiModel -> aiModel.getInternalName()
+                        .equals(name))
                 .findFirst()
                 .orElseThrow(() -> new AIModelNotSupportedException("The specified model is not supported."));
     }

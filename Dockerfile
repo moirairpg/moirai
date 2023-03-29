@@ -13,7 +13,7 @@ RUN apt update -y &&\
     wget https://gist.githubusercontent.com/thaalesalves/bdca44fd096d91d0e85a9de00e15dfb8/raw/worlds.yaml -P src/main/resources &&\
     tar xf /tmp/apache-maven-*.tar.gz -C /opt &&\
     ln -s /opt/apache-maven-3.9.0 /opt/maven &&\
-    /opt/maven/bin/mvn clean package -e -DskipTests
+    /opt/maven/bin/mvn clean package -e -DskipTests -DskipFormat=true
 
 FROM eclipse-temurin:17.0.6_10-jre-jammy
 

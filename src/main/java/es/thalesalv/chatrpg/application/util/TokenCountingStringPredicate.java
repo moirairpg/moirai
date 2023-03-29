@@ -13,13 +13,17 @@ public class TokenCountingStringPredicate implements Predicate<String> {
     public TokenCountingStringPredicate(final int limit) {
         this.limit = limit;
     }
+
     @Override
     public boolean test(final String string) {
         final int tokens = tokenizerService.countTokens(string);
         boolean result = tokenCount.addAndGet(tokens) <= limit;
-        if (!result) tokenCount.addAndGet(-tokens);
+        if (!result)
+            tokenCount.addAndGet(-tokens);
         return result;
     }
 
-    public void reserve(final int quantity) { tokenCount.addAndGet(quantity); }
+    public void reserve(final int quantity) {
+        tokenCount.addAndGet(quantity);
+    }
 }

@@ -52,44 +52,62 @@ public class RetryCommandService implements DiscordCommand {
         LOGGER.debug("Received slash command for regeneration of message");
 
         try {
+
             event.deferReply();
-            final SelfUser bot = event.getJDA().getSelfUser();
+            final SelfUser bot = event.getJDA()
+                    .getSelfUser();
             final MessageChannelUnion channel = event.getChannel();
             channelRepository.findByChannelId(channel.getId())
                     .map(channelEntityToDTO)
                     .map(ch -> {
-                        final Persona persona = ch.getChannelConfig().getPersona();
-                        final ModelSettings modelSettings = ch.getChannelConfig().getSettings().getModelSettings();
+
+                        final Persona persona = ch.getChannelConfig()
+                                .getPersona();
+                        final ModelSettings modelSettings = ch.getChannelConfig()
+                                .getSettings()
+                                .getModelSettings();
                         final Message botMessage = retrieveBotMessage(channel, modelSettings, bot, persona);
 
-                        final String completionType = AIModel.findByInternalName(modelSettings.getModelName()).getCompletionType();
+                        final String completionType = AIModel.findByInternalName(modelSettings.getModelName())
+                                .getCompletionType();
                         final EventData eventData = eventDataMapper.translate(bot, channel, ch, botMessage);
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
-                        final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
+                        final BotUseCase useCase = (BotUseCase) applicationContext
+                                .getBean(persona.getIntent() + USE_CASE);
 
                         event.reply("Re-generating output...")
-                                .setEphemeral(true).queue(a -> a.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+                                .setEphemeral(true)
+                                .queue(a -> a.deleteOriginal()
+                                        .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
 
-                        botMessage.delete().complete();
+                        botMessage.delete()
+                                .complete();
                         useCase.generateResponse(eventData, model);
 
                         return ch;
                     })
                     .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (ChannelConfigNotFoundException e) {
+
             LOGGER.debug(NO_CONFIG_ATTACHED);
-            event.reply(NO_CONFIG_ATTACHED).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(NO_CONFIG_ATTACHED)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
+
             LOGGER.error(ERROR_OUTPUT_GENERATION, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WRONG_TRY_AGAIN)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
     private String formatInput(String intent, Message message, SelfUser bot) {
 
-        final String authorName = message.getAuthor().getName();
+        final String authorName = message.getAuthor()
+                .getName();
         final String msgContent = message.getContentDisplay();
         final String formattedContent = MessageFormat.format(BOT_INSTRUCTION, authorName, msgContent);
         return "dungeonMaster".equals(intent) ? bot.getAsMention() + formattedContent : formattedContent;
@@ -97,20 +115,32 @@ public class RetryCommandService implements DiscordCommand {
 
     private Message retrieveLastMessage(final MessageChannelUnion channel, final Message botMessage) {
 
-        return channel.getHistoryBefore(botMessage, 1).complete().getRetrievedHistory().stream()
+        return channel.getHistoryBefore(botMessage, 1)
+                .complete()
+                .getRetrievedHistory()
+                .stream()
                 .findAny()
                 .orElseThrow(() -> new IndexOutOfBoundsException(USER_MESSAGE_NOT_FOUND));
     }
 
-    private Message retrieveBotMessage(final MessageChannelUnion channel, final ModelSettings modelSettings, final SelfUser bot, final Persona persona) {
+    private Message retrieveBotMessage(final MessageChannelUnion channel, final ModelSettings modelSettings,
+            final SelfUser bot, final Persona persona) {
 
-        return channel.getHistory().retrievePast(modelSettings.getChatHistoryMemory()).complete().stream()
-                .filter(m -> m.getAuthor().getId().equals(bot.getId()))
+        return channel.getHistory()
+                .retrievePast(modelSettings.getChatHistoryMemory())
+                .complete()
+                .stream()
+                .filter(m -> m.getAuthor()
+                        .getId()
+                        .equals(bot.getId()))
                 .findFirst()
                 .map(msg -> {
+
                     final Message lastMessage = retrieveLastMessage(channel, msg);
-                    final String originalContent = formatInput(persona.getIntent(), lastMessage, channel.getJDA().getSelfUser());
-                    msg.editMessage(originalContent).complete();
+                    final String originalContent = formatInput(persona.getIntent(), lastMessage, channel.getJDA()
+                            .getSelfUser());
+                    msg.editMessage(originalContent)
+                            .complete();
                     return msg;
                 })
                 .orElseThrow(() -> new IndexOutOfBoundsException(BOT_MESSAGE_NOT_FOUND));

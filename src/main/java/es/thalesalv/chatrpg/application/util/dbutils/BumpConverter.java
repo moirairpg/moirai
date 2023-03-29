@@ -14,8 +14,10 @@ public class BumpConverter implements AttributeConverter<BumpEntity, String> {
     public String convertToDatabaseColumn(BumpEntity attribute) {
 
         try {
+
             return new ObjectMapper().writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
+
             throw new RuntimeException("Error parsing bumps to string from object");
         }
     }
@@ -24,8 +26,10 @@ public class BumpConverter implements AttributeConverter<BumpEntity, String> {
     public BumpEntity convertToEntityAttribute(String dbData) {
 
         try {
+
             return new ObjectMapper().readValue(dbData, BumpEntity.class);
         } catch (JsonProcessingException e) {
+
             throw new RuntimeException("Error parsing bumps to object from string");
         }
     }

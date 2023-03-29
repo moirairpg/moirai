@@ -74,31 +74,47 @@ public class EditLorebookCommandService implements DiscordCommand {
     public void handle(final SlashCommandInteractionEvent event) {
 
         try {
+
             LOGGER.debug("Received slash command for lore entry update");
-            channelRepository.findByChannelId(event.getChannel().getId())
+            channelRepository.findByChannelId(event.getChannel()
+                    .getId())
                     .map(channelEntityToDTO)
                     .ifPresent(channel -> {
-                        final String entryId = event.getOption("id").getAsString();
+
+                        final String entryId = event.getOption("id")
+                                .getAsString();
                         saveEventDataToContext(entryId, channel, event.getChannel());
                         final LorebookEntryRegexEntity entry = buildEntity(entryId);
                         final Modal modalEntry = buildEntryUpdateModal(entry);
-                        event.replyModal(modalEntry).queue();
+                        event.replyModal(modalEntry)
+                                .queue();
                     });
 
-            event.reply(COMMAND_WRONG_CHANNEL).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(COMMAND_WRONG_CHANNEL)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (MissingRequiredSlashCommandOptionException e) {
+
             LOGGER.info(USER_UPDATE_COMMAND_WITHOUT_ID);
-            event.reply(MISSING_ID_MESSAGE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(MISSING_ID_MESSAGE)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (LorebookEntryNotFoundException e) {
+
             LOGGER.info(USER_UPDATE_ENTRY_NOT_FOUND);
-            event.reply(USER_UPDATE_ENTRY_NOT_FOUND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(USER_UPDATE_ENTRY_NOT_FOUND)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
+
             LOGGER.error(UNKNOWN_ERROR_CAUGHT, e);
-            event.reply(ERROR_UPDATE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(ERROR_UPDATE)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -106,17 +122,24 @@ public class EditLorebookCommandService implements DiscordCommand {
     public void handle(final ModalInteractionEvent event) {
 
         try {
+
             LOGGER.debug("Received data from lore entry update modal");
             event.deferReply();
             final EventData eventData = contextDatastore.getEventData();
-            final World world = eventData.getChannelDefinitions().getChannelConfig().getWorld();
+            final World world = eventData.getChannelDefinitions()
+                    .getChannelConfig()
+                    .getWorld();
 
-            final String entryId = contextDatastore.getEventData().getLorebookEntryId();
-            final String updatedEntryName = event.getValue("lorebook-entry-name").getAsString();
-            final String updatedEntryRegex = event.getValue("lorebook-entry-regex").getAsString();
-            final String updatedEntryDescription = event.getValue("lorebook-entry-desc").getAsString();
-            final String playerId = retrieveDiscordPlayerId(event.getValue("lorebook-entry-player"),
-                    event.getUser().getId());
+            final String entryId = contextDatastore.getEventData()
+                    .getLorebookEntryId();
+            final String updatedEntryName = event.getValue("lorebook-entry-name")
+                    .getAsString();
+            final String updatedEntryRegex = event.getValue("lorebook-entry-regex")
+                    .getAsString();
+            final String updatedEntryDescription = event.getValue("lorebook-entry-desc")
+                    .getAsString();
+            final String playerId = retrieveDiscordPlayerId(event.getValue("lorebook-entry-player"), event.getUser()
+                    .getId());
 
             final LorebookEntryRegexEntity updatedEntry = updateEntry(updatedEntryDescription, entryId,
                     updatedEntryName, playerId, updatedEntryRegex, world);
@@ -124,13 +147,20 @@ public class EditLorebookCommandService implements DiscordCommand {
             final LorebookEntry entry = lorebookEntryEntityToDTO.apply(updatedEntry);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(entry);
 
-            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event).subscribe(response -> event.reply(MessageFormat.format(ENTRY_UPDATED,
-            updatedEntry.getLorebookEntry().getName(), loreEntryJson)).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
+            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event)
+                    .subscribe(response -> event
+                            .reply(MessageFormat.format(ENTRY_UPDATED, updatedEntry.getLorebookEntry()
+                                    .getName(), loreEntryJson))
+                            .setEphemeral(true)
+                            .queue(m -> m.deleteOriginal()
+                                    .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
         } catch (JsonProcessingException e) {
+
             LOGGER.error(ERROR_PARSING_JSON, e);
-            event.reply(ERROR_UPDATE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(ERROR_UPDATE)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -147,6 +177,7 @@ public class EditLorebookCommandService implements DiscordCommand {
         final LorebookEntity lorebook = lorebookDTOToEntity.apply(world.getLorebook());
         return lorebookEntryRegexRepository.findByLorebookEntry(lorebookEntry)
                 .map(re -> {
+
                     final LorebookEntryRegexEntity lorebookRegex = LorebookEntryRegexEntity.builder()
                             .id(re.getId())
                             .regex(Optional.ofNullable(entryRegex)
@@ -159,7 +190,8 @@ public class EditLorebookCommandService implements DiscordCommand {
                     lorebookRepository.save(lorebookEntry);
                     lorebookEntryRegexRepository.save(lorebookRegex);
                     return lorebookRegex;
-                }).get();
+                })
+                .get();
     }
 
     private String retrieveDiscordPlayerId(final ModalMapping modalMapping, final String id) {
@@ -173,15 +205,16 @@ public class EditLorebookCommandService implements DiscordCommand {
     private Modal buildEntryUpdateModal(final LorebookEntryRegexEntity lorebookRegex) {
 
         LOGGER.debug("Building entry update modal");
-        final TextInput lorebookEntryName = TextInput
-                .create("lorebook-entry-name", "Name", TextInputStyle.SHORT)
-                .setValue(lorebookRegex.getLorebookEntry().getName())
+        final TextInput lorebookEntryName = TextInput.create("lorebook-entry-name", "Name", TextInputStyle.SHORT)
+                .setValue(lorebookRegex.getLorebookEntry()
+                        .getName())
                 .setRequired(true)
                 .build();
 
         final String regex = Optional.ofNullable(lorebookRegex.getRegex())
                 .filter(StringUtils::isNotBlank)
-                .orElse(lorebookRegex.getLorebookEntry().getName());
+                .orElse(lorebookRegex.getLorebookEntry()
+                        .getName());
 
         final TextInput lorebookEntryRegex = TextInput
                 .create("lorebook-entry-regex", "Regular expression (optional)", TextInputStyle.SHORT)
@@ -191,7 +224,8 @@ public class EditLorebookCommandService implements DiscordCommand {
 
         final TextInput lorebookEntryDescription = TextInput
                 .create("lorebook-entry-desc", "Description", TextInputStyle.PARAGRAPH)
-                .setValue(lorebookRegex.getLorebookEntry().getDescription())
+                .setValue(lorebookRegex.getLorebookEntry()
+                        .getDescription())
                 .setRequired(true)
                 .build();
 
@@ -205,12 +239,14 @@ public class EditLorebookCommandService implements DiscordCommand {
                 .setRequired(true)
                 .build();
 
-        return Modal.create("update-lorebook-entry-data","Lorebook Entry Update")
+        return Modal.create("update-lorebook-entry-data", "Lorebook Entry Update")
                 .addComponents(ActionRow.of(lorebookEntryName), ActionRow.of(lorebookEntryRegex),
-                        ActionRow.of(lorebookEntryDescription), ActionRow.of(lorebookEntryPlayer)).build();
+                        ActionRow.of(lorebookEntryDescription), ActionRow.of(lorebookEntryPlayer))
+                .build();
     }
 
-    private void saveEventDataToContext(final String entryId, final Channel channelDefinitions, final MessageChannelUnion channel) {
+    private void saveEventDataToContext(final String entryId, final Channel channelDefinitions,
+            final MessageChannelUnion channel) {
 
         contextDatastore.setEventData(EventData.builder()
                 .lorebookEntryId(entryId)

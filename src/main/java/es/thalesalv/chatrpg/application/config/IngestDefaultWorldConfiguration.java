@@ -64,6 +64,7 @@ public class IngestDefaultWorldConfiguration {
 
         LOGGER.debug("Initiating default world ingestion process");
         try {
+
             final InputStream yamlFile = new ClassPathResource(YAML_FILE_PATH).getInputStream();
             final WorldsYaml yaml = yamlObjectMapper.readValue(yamlFile, WorldsYaml.class);
 
@@ -71,10 +72,12 @@ public class IngestDefaultWorldConfiguration {
 
             final AtomicInteger i = new AtomicInteger(1);
             for (World world : yaml.getWorlds()) {
+
                 LOGGER.debug(INGESTING_WORLD, world);
 
                 world.setId(String.valueOf(i.get()));
-                world.setOwner(jda.getSelfUser().getId());
+                world.setOwner(jda.getSelfUser()
+                        .getId());
                 world.setLorebook(Optional.ofNullable(world.getLorebook())
                         .map(lorebook -> setLorebook(lorebook, i.get()))
                         .orElse(buildEmptyLorebook(i.get())));
@@ -84,7 +87,9 @@ public class IngestDefaultWorldConfiguration {
                 lorebookRepository.save(lorebookEntity);
 
                 int j = 1;
-                for (LorebookEntry entry : world.getLorebook().getEntries()) {
+                for (LorebookEntry entry : world.getLorebook()
+                        .getEntries()) {
+
                     LOGGER.debug(INGESTING_ENTRY, entry);
 
                     final String entryId = String.valueOf(j);
@@ -102,6 +107,7 @@ public class IngestDefaultWorldConfiguration {
                 i.incrementAndGet();
             }
         } catch (FileNotFoundException e) {
+
             LOGGER.warn(DEFAULT_WORLDS_NOT_FOUND);
         }
     }
@@ -109,7 +115,8 @@ public class IngestDefaultWorldConfiguration {
     private Lorebook setLorebook(Lorebook lorebook, int id) {
 
         lorebook.setId(String.valueOf(id));
-        lorebook.setOwner(jda.getSelfUser().getId());
+        lorebook.setOwner(jda.getSelfUser()
+                .getId());
         return lorebook;
     }
 
@@ -118,7 +125,8 @@ public class IngestDefaultWorldConfiguration {
         return Lorebook.builder()
                 .id(String.valueOf(id))
                 .entries(new HashSet<LorebookEntry>())
-                .owner(jda.getSelfUser().getId())
+                .owner(jda.getSelfUser()
+                        .getId())
                 .build();
     }
 }

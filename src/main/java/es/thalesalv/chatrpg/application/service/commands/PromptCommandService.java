@@ -56,28 +56,37 @@ public class PromptCommandService implements DiscordCommand {
 
         LOGGER.debug("Received slash command for assisted prompt");
         try {
+
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
-            channelRepository.findByChannelId(event.getChannel().getId())
+            channelRepository.findByChannelId(event.getChannel()
+                    .getId())
                     .map(channelEntityToDTO)
                     .map(ch -> {
+
                         contextDatastore.setEventData(EventData.builder()
                                 .channelDefinitions(ch)
                                 .currentChannel(channel)
                                 .build());
 
-                        event.replyModal(buildEditMessageModal()).queue();
+                        event.replyModal(buildEditMessageModal())
+                                .queue();
                         return ch;
                     })
                     .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (ChannelConfigNotFoundException e) {
+
             LOGGER.debug(NO_CONFIG_ATTACHED);
-            event.reply(NO_CONFIG_ATTACHED).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(NO_CONFIG_ATTACHED)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
+
             LOGGER.error("Error regenerating output", e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -86,23 +95,37 @@ public class PromptCommandService implements DiscordCommand {
 
         LOGGER.debug("Received data of message for assisted prompt generation modal");
         try {
+
             event.deferReply();
-            final MessageChannelUnion channel = contextDatastore.getEventData().getCurrentChannel();
-            final Channel channelDefinition = contextDatastore.getEventData().getChannelDefinitions();
-            final Persona persona = channelDefinition.getChannelConfig().getPersona();
-            final ModelSettings modelSettings = channelDefinition.getChannelConfig().getSettings().getModelSettings();
+            final MessageChannelUnion channel = contextDatastore.getEventData()
+                    .getCurrentChannel();
+            final Channel channelDefinition = contextDatastore.getEventData()
+                    .getChannelDefinitions();
+            final Persona persona = channelDefinition.getChannelConfig()
+                    .getPersona();
+            final ModelSettings modelSettings = channelDefinition.getChannelConfig()
+                    .getSettings()
+                    .getModelSettings();
 
-            final SelfUser bot = event.getJDA().getSelfUser();
-            final String input = event.getValue("message-content").getAsString();
-            final String generateOutput = event.getValue("generate-output").getAsString();
+            final SelfUser bot = event.getJDA()
+                    .getSelfUser();
+            final String input = event.getValue("message-content")
+                    .getAsString();
+            final String generateOutput = event.getValue("generate-output")
+                    .getAsString();
             final String formattedInput = formatInput(persona.getIntent(), GENERATION_INSTRUCTION + input, bot);
-            final Message message = channel.sendMessage(formattedInput).complete();
+            final Message message = channel.sendMessage(formattedInput)
+                    .complete();
 
-            event.reply("Assisted prompt used.").setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(1, TimeUnit.MILLISECONDS));
+            event.reply("Assisted prompt used.")
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(1, TimeUnit.MILLISECONDS));
             if (generateOutput.equals("y")) {
+
                 final EventData eventData = eventDataMapper.translate(bot, channel, channelDefinition, message);
-                final String completionType = AIModel.findByInternalName(modelSettings.getModelName()).getCompletionType();
+                final String completionType = AIModel.findByInternalName(modelSettings.getModelName())
+                        .getCompletionType();
                 final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
 
@@ -110,11 +133,16 @@ public class PromptCommandService implements DiscordCommand {
             }
 
             message.editMessage(message.getContentRaw()
-                    .replace(bot.getAsMention() + GENERATION_INSTRUCTION, StringUtils.EMPTY).trim()).complete();
+                    .replace(bot.getAsMention() + GENERATION_INSTRUCTION, StringUtils.EMPTY)
+                    .trim())
+                    .complete();
         } catch (Exception e) {
+
             LOGGER.error(ERROR_GENERATING, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WRONG_TRY_AGAIN)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -141,6 +169,7 @@ public class PromptCommandService implements DiscordCommand {
                 .build();
 
         return Modal.create("prompt-message-dmassist-modal", "Type prompt")
-                .addComponents(ActionRow.of(messageContent), ActionRow.of(lorebookEntryPlayer)).build();
+                .addComponents(ActionRow.of(messageContent), ActionRow.of(lorebookEntryPlayer))
+                .build();
     }
 }

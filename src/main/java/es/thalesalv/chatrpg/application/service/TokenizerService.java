@@ -22,19 +22,24 @@ public class TokenizerService {
 
     public TokenizerService() {
         try {
-            tokenizer = HuggingFaceTokenizer.newInstance(new ClassPathResource(TOKENIZER_FILE_PATH).getInputStream(), null);
+
+            tokenizer = HuggingFaceTokenizer.newInstance(new ClassPathResource(TOKENIZER_FILE_PATH).getInputStream(),
+                    null);
         } catch (Exception e) {
+
             LOGGER.error("Error initializing tokenizer", e);
             throw new RuntimeException("Failed to initialize tokenizer", e);
         }
     }
 
     public long[] toTokenIds(String text) {
-        return tokenizer.encode(new String[]{text}, false).getIds();
+        return tokenizer.encode(new String[] { text }, false)
+                .getIds();
     }
 
     public long[] toTokenIds(String[] texts) {
-        return tokenizer.encode(texts, false).getIds();
+        return tokenizer.encode(texts, false)
+                .getIds();
     }
 
     public int countTokens(String text) {

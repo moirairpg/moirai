@@ -20,8 +20,10 @@ public class LorebookEntityToDTO implements Function<LorebookEntity, Lorebook> {
     @Override
     public Lorebook apply(LorebookEntity t) {
 
-        final Set<LorebookEntry> entries = t.getEntries().stream()
-                .map(lorebookEntryEntityToDTO).collect(Collectors.toSet());
+        final Set<LorebookEntry> entries = t.getEntries()
+                .stream()
+                .map(lorebookEntryEntityToDTO)
+                .collect(Collectors.toSet());
 
         return Lorebook.builder()
                 .id(t.getId())
