@@ -7,7 +7,9 @@ import net.dv8tion.jda.api.entities.Message;
 import java.util.Optional;
 
 public class MessageToPromptPartMapper {
+
     public PromptPartObj map(Message message) {
+
         return PromptPartObj.builder()
                 .content(message.getContentDisplay())
                 .source(Source.MESSAGE)

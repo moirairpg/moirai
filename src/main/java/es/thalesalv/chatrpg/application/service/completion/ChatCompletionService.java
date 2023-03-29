@@ -74,13 +74,17 @@ public class ChatCompletionService implements CompletionService {
                 .equals("dungeonMaster")) {
             messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
             messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
-        } else if (persona.getIntent().equals("chatbot")){
+        } else if (persona.getIntent()
+                .equals("chatbot")) {
             messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
         }
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData,
                 inputProcessor);
-        if (persona.getIntent().equals("author")) {
-            UnaryOperator<String> stripPrefix = s -> Pattern.compile("^(\\w* said: )").matcher(s).replaceAll(StringUtils.EMPTY);
+        if (persona.getIntent()
+                .equals("author")) {
+            UnaryOperator<String> stripPrefix = s -> Pattern.compile("^(\\w* said: )")
+                    .matcher(s)
+                    .replaceAll(StringUtils.EMPTY);
             chatMessages.forEach(m -> m.setContent(stripPrefix.apply(m.getContent())));
         }
         final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages,

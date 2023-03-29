@@ -10,6 +10,7 @@ import java.util.Optional;
 @Builder
 @Getter
 public class PromptPartObj {
+
     private String content;
     private ChatGptRole role;
     private Source source;

@@ -37,42 +37,53 @@ public class AuthorUseCase implements BotUseCase {
     public EventData generateResponse(final EventData eventData, final CompletionService model) {
 
         LOGGER.debug("Entered generation for normal text.");
-        eventData.getCurrentChannel().sendTyping().complete();
+        eventData.getCurrentChannel()
+                .sendTyping()
+                .complete();
         final Message message = eventData.getMessage();
         final SelfUser bot = eventData.getBot();
-        if (message.getContentRaw().trim().equals(bot.getAsMention().trim())) {
-            message.delete().submit().whenComplete((d, e) -> {
-                if (e != null) {
-                    LOGGER.error("Error deleting trigger mention in RPG", e);
-                    throw new DiscordFunctionException("Error deleting trigger mention in RPG", e);
-                }
-            });
+        if (message.getContentRaw()
+                .trim()
+                .equals(bot.getAsMention()
+                        .trim())) {
+            message.delete()
+                    .submit()
+                    .whenComplete((d, e) -> {
+                        if (e != null) {
+                            LOGGER.error("Error deleting trigger mention in RPG", e);
+                            throw new DiscordFunctionException("Error deleting trigger mention in RPG", e);
+                        }
+                    });
         }
 
         final List<String> messages = handleHistory(eventData);
 
         moderationService.moderate(messages, eventData)
                 .subscribe(inputModeration -> model.generate(messages, eventData)
-                .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
-                .subscribe(outputModeration -> {
-                    final Message responseMessage = eventData.getCurrentChannel().sendMessage(textResponse).complete();
-                    eventData.setResponseMessage(responseMessage);
-                })));
+                        .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
+                                .subscribe(outputModeration -> {
+                                    final Message responseMessage = eventData.getCurrentChannel()
+                                            .sendMessage(textResponse)
+                                            .complete();
+                                    eventData.setResponseMessage(responseMessage);
+                                })));
 
         return eventData;
     }
 
     /**
-     * Formats last messages history including reply reference to give the AI context on the past conversation
+     * Formats last messages history including reply reference to give the AI
+     * context on the past conversation
+     *
      * @param eventData Object containing the event's important data to be processed
      * @return The processed list of messages
      */
     private List<String> handleHistory(final EventData eventData) {
+
         final Predicate<Message> includeFilter = new IncludeFilter(eventData);
         final Predicate<String> tokenFilter = tokenPredicate(eventData);
-        final Function<Message,String> messageMapper = messageMapper(eventData);
-        List<String> messages = getHistory(eventData)
-                .stream()
+        final Function<Message, String> messageMapper = messageMapper(eventData);
+        List<String> messages = getHistory(eventData).stream()
                 .filter(includeFilter)
                 .map(messageMapper)
                 .takeWhile(tokenFilter)
@@ -81,29 +92,51 @@ public class AuthorUseCase implements BotUseCase {
         return messages;
     }
 
-    private Function<Message,String> messageMapper(EventData eventData) {
+    private Function<Message, String> messageMapper(EventData eventData) {
+
         SelfUser bot = eventData.getBot();
-        return m -> m.getAuthor().getId().equals(bot.getId()) ?
-                MessageFormat.format("{0} said: {1}",
-                        m.getAuthor().getName(), m.getContentDisplay().trim()) :
-                MessageFormat.format("{0} said: [ {1} ]",
-                        m.getAuthor().getName(), m.getContentDisplay().trim());
+        return m -> m.getAuthor()
+                .getId()
+                .equals(bot.getId())
+                        ? MessageFormat.format("{0} said: {1}", m.getAuthor()
+                                .getName(),
+                                m.getContentDisplay()
+                                        .trim())
+                        : MessageFormat.format("{0} said: [ {1} ]", m.getAuthor()
+                                .getName(),
+                                m.getContentDisplay()
+                                        .trim());
     }
 
     private List<Message> getHistory(final EventData eventData) {
+
         final MessageChannelUnion channel = eventData.getCurrentChannel();
-        final int historySize = eventData.getChannelDefinitions().getChannelConfig().getSettings().getModelSettings().getChatHistoryMemory();
-         return channel.getHistory().retrievePast(historySize).complete();
+        final int historySize = eventData.getChannelDefinitions()
+                .getChannelConfig()
+                .getSettings()
+                .getModelSettings()
+                .getChatHistoryMemory();
+        return channel.getHistory()
+                .retrievePast(historySize)
+                .complete();
     }
 
     private Predicate<String> tokenPredicate(final EventData eventData) {
-        ModelSettings model = eventData.getChannelDefinitions().getChannelConfig().getSettings().getModelSettings();
-        Persona persona = eventData.getChannelDefinitions().getChannelConfig().getPersona();
-        String personality = persona.getPersonality().replaceAll("\\{0\\}", persona.getName());
+
+        ModelSettings model = eventData.getChannelDefinitions()
+                .getChannelConfig()
+                .getSettings()
+                .getModelSettings();
+        Persona persona = eventData.getChannelDefinitions()
+                .getChannelConfig()
+                .getPersona();
+        String personality = persona.getPersonality()
+                .replaceAll("\\{0\\}", persona.getName());
         Nudge nudge = persona.getNudge();
         Bump bump = persona.getBump();
 
-        int tokens = AIModel.findByInternalName(model.getModelName()).getTokenCap();
+        int tokens = AIModel.findByInternalName(model.getModelName())
+                .getTokenCap();
         TokenCountingStringPredicate filter = new TokenCountingStringPredicate(tokens);
         filter.reserve(personality);
         filter.reserve(nudge.content);
@@ -114,17 +147,27 @@ public class AuthorUseCase implements BotUseCase {
     }
 
     private static class IncludeFilter implements Predicate<Message> {
+
         private final String botId;
         private boolean oneUserMessage = false;
+
         IncludeFilter(EventData eventData) {
-            this.botId = eventData.getBot().getId();
+
+            this.botId = eventData.getBot()
+                    .getId();
         }
+
         @Override
         public boolean test(Message message) {
-            if (message.getContentRaw().trim().equals(botId)) {
+
+            if (message.getContentRaw()
+                    .trim()
+                    .equals(botId)) {
                 return false;
             }
-            if (! message.getAuthor().getId().equals(botId)) {
+            if (!message.getAuthor()
+                    .getId()
+                    .equals(botId)) {
                 if (oneUserMessage) {
                     return false;
                 } else {
