@@ -16,7 +16,7 @@ jobs:
         if: github.ref == 'refs/heads/master'
         uses: actions-js/push@master
         with:
-          branch: feature/auto-format-cicd
+          branch: master
           message: "Automated commit: fix code style according to format"
           author_email: 'github-actions[bot]@users.noreply.github.com'
           github_token: ${{ secrets.GITHUB_TOKEN }}
