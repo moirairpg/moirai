@@ -12,6 +12,17 @@ jobs:
           distribution: "adopt"
       - name: Build with Maven
         run: mvn package -DskipTests
+      - name: Format code according to pattern
+        if: github.ref != 'refs/heads/master'
+        run: mvn formatter:format
+      - name: Commit & Push changes
+        if: github.ref != 'refs/heads/master'
+        uses: actions-js/push@master
+        with:
+          branch: feature/auto-format-cicd
+          message: "Automated commit: fix code style according to format"
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Unit tests
         if: github.ref != 'refs/heads/master'
         run: mvn test
