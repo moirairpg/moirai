@@ -12,10 +12,7 @@ jobs:
           distribution: "adopt"
       - name: Build with Maven
         run: mvn package -DskipTests
-      - name: Format code according to pattern
-        if: github.ref != 'refs/heads/master'
-        run: mvn formatter:format
-      - name: Commit & Push changes
+      - name: Push formatted code
         if: github.ref != 'refs/heads/master'
         uses: actions-js/push@master
         with:
