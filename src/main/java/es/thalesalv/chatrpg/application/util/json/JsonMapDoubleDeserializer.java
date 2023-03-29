@@ -14,10 +14,12 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 public class JsonMapDoubleDeserializer extends JsonDeserializer<Map<String, String>> {
 
     @Override
-    public Map<String, String> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public Map<String, String> deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException, JacksonException {
 
         final Map<String, Double> doubleValues = p.readValueAs(Map.class);
-        return doubleValues.entrySet().stream()
+        return doubleValues.entrySet()
+                .stream()
                 .map(entry -> {
                     final String fixedValue = String.format("%.5f", entry.getValue());
                     return new AbstractMap.SimpleEntry<String, String>(entry.getKey(), fixedValue);

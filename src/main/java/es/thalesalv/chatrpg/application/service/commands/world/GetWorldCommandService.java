@@ -52,7 +52,8 @@ public class GetWorldCommandService implements DiscordCommand {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel().getId())
+            channelRepository.findByChannelId(event.getChannel()
+                    .getId())
                     .map(channelEntityToDTO)
                     .map(channel -> {
                         return Optional.ofNullable(channel.getChannelConfig())
@@ -63,11 +64,14 @@ public class GetWorldCommandService implements DiscordCommand {
                                     try {
                                         final String worldJson = prettyPrintObjectMapper.writeValueAsString(world);
                                         event.reply(MessageFormat.format(WORLD_RETRIEVED, world.getName(), worldJson))
-                                                    .setEphemeral(true).complete();
+                                                .setEphemeral(true)
+                                                .complete();
                                     } catch (JsonProcessingException e) {
                                         LOGGER.error(ERROR_SERIALIZATION, e);
-                                        event.reply(ERROR_RETRIEVE).setEphemeral(true)
-                                                .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                                        event.reply(ERROR_RETRIEVE)
+                                                .setEphemeral(true)
+                                                .queue(m -> m.deleteOriginal()
+                                                        .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
                                     }
 
                                     return world;
@@ -77,27 +81,39 @@ public class GetWorldCommandService implements DiscordCommand {
                     .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (WorldNotFoundException e) {
             LOGGER.info(QUERIED_WORLD_NOT_FOUND);
-            event.reply(QUERIED_WORLD_NOT_FOUND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(QUERIED_WORLD_NOT_FOUND)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.info(CHANNEL_CONFIG_NOT_FOUND);
-            event.reply(CHANNEL_NO_CONFIG_ATTACHED).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(CHANNEL_NO_CONFIG_ATTACHED)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_RETRIEVE, e);
-            event.reply(USER_ERROR_RETRIEVE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(USER_ERROR_RETRIEVE)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
     }
 
     private Predicate<World> filterWorlds(final SlashCommandInteractionEvent event) {
 
-        return w -> w.getVisibility().equals(PUBLIC) || w.getOwner().equals(event.getUser().getId());
+        return w -> w.getVisibility()
+                .equals(PUBLIC)
+                || w.getOwner()
+                        .equals(event.getUser()
+                                .getId());
     }
 
     private World cleanWorld(final World world, final SlashCommandInteractionEvent event) {
 
-        final String ownerName = event.getJDA().getUserById(world.getOwner()).getName();
+        final String ownerName = event.getJDA()
+                .getUserById(world.getOwner())
+                .getName();
         world.setOwner(ownerName);
         world.setLorebook(null);
         world.setInitialPrompt(null);

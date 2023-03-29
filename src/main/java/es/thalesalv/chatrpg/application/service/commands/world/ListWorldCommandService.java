@@ -61,11 +61,13 @@ public class ListWorldCommandService implements DiscordCommand {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel().getId())
+            channelRepository.findByChannelId(event.getChannel()
+                    .getId())
                     .map(channelEntityToDTO)
                     .map(channel -> {
                         try {
-                            List<World> worlds = worldRepository.findAll().stream()
+                            List<World> worlds = worldRepository.findAll()
+                                    .stream()
                                     .filter(filterWorlds(event))
                                     .map(worldEntityToDTO)
                                     .map(w -> cleanWorld(w, event))
@@ -73,18 +75,25 @@ public class ListWorldCommandService implements DiscordCommand {
 
                             final String worldJson = prettyPrintObjectMapper.writeValueAsString(worlds);
                             final File file = File.createTempFile("lore-entries-", ".json");
-                            Files.write(file.toPath(), worldJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+                            Files.write(file.toPath(), worldJson.getBytes(StandardCharsets.UTF_8),
+                                    StandardOpenOption.APPEND);
                             final FileUpload fileUpload = FileUpload.fromData(file);
-                            event.replyFiles(fileUpload).setEphemeral(true).complete();
+                            event.replyFiles(fileUpload)
+                                    .setEphemeral(true)
+                                    .complete();
                             fileUpload.close();
                         } catch (JsonProcessingException e) {
                             LOGGER.error(ERROR_SERIALIZATION, e);
-                            event.reply(ERROR_RETRIEVE).setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            event.reply(ERROR_RETRIEVE)
+                                    .setEphemeral(true)
+                                    .queue(m -> m.deleteOriginal()
+                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
                         } catch (IOException e) {
                             LOGGER.error(ERROR_HANDLING_ENTRY, e);
-                            event.reply(ERROR_RETRIEVE).setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            event.reply(ERROR_RETRIEVE)
+                                    .setEphemeral(true)
+                                    .queue(m -> m.deleteOriginal()
+                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
                         }
 
                         return channel;
@@ -92,27 +101,39 @@ public class ListWorldCommandService implements DiscordCommand {
                     .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (WorldNotFoundException e) {
             LOGGER.info(QUERIED_WORLD_NOT_FOUND);
-            event.reply(QUERIED_WORLD_NOT_FOUND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(QUERIED_WORLD_NOT_FOUND)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.info(CHANNEL_CONFIG_NOT_FOUND);
-            event.reply(CHANNEL_NO_CONFIG_ATTACHED).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(CHANNEL_NO_CONFIG_ATTACHED)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_RETRIEVE, e);
-            event.reply(USER_ERROR_RETRIEVE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(USER_ERROR_RETRIEVE)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
     }
 
     private Predicate<WorldEntity> filterWorlds(final SlashCommandInteractionEvent event) {
 
-        return w -> w.getVisibility().equals(PUBLIC) || w.getOwner().equals(event.getUser().getId());
+        return w -> w.getVisibility()
+                .equals(PUBLIC)
+                || w.getOwner()
+                        .equals(event.getUser()
+                                .getId());
     }
 
     private World cleanWorld(final World world, final SlashCommandInteractionEvent event) {
 
-        final String ownerName = event.getJDA().getUserById(world.getOwner()).getName();
+        final String ownerName = event.getJDA()
+                .getUserById(world.getOwner())
+                .getName();
         world.setOwner(ownerName);
         world.setLorebook(null);
         world.setInitialPrompt(null);

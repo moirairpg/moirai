@@ -7,8 +7,9 @@ public interface BotUseCase {
 
     /**
      * Formats the prompt so it can be sent to the AI based on specific logic
+     *
      * @param eventData Object containing data on the message event
-     * @param model Model to be used for generation
+     * @param model     Model to be used for generation
      * @return eventData together with the bot's response
      */
     EventData generateResponse(final EventData eventData, final CompletionService model);

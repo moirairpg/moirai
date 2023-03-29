@@ -22,9 +22,11 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
     @Override
     public WorldEntity apply(World t) {
 
-        final List<LorebookEntryRegexEntity> entries = t.getLorebook().getEntries()
-                .stream().map(lorebookEntryDTOToEntity).collect(Collectors.toList());
-
+        final List<LorebookEntryRegexEntity> entries = t.getLorebook()
+                .getEntries()
+                .stream()
+                .map(lorebookEntryDTOToEntity)
+                .collect(Collectors.toList());
         return WorldEntity.builder()
                 .editPermissions(t.getEditPermissions())
                 .id(t.getId())
@@ -34,11 +36,16 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
                 .visibility(t.getVisibility())
                 .description(t.getDescription())
                 .lorebook(LorebookEntity.builder()
-                        .id(t.getLorebook().getId())
-                        .name(t.getLorebook().getName())
-                        .owner(t.getLorebook().getOwner())
-                        .editPermissions(t.getLorebook().getEditPermissions())
-                        .description(t.getLorebook().getDescription())
+                        .id(t.getLorebook()
+                                .getId())
+                        .name(t.getLorebook()
+                                .getName())
+                        .owner(t.getLorebook()
+                                .getOwner())
+                        .editPermissions(t.getLorebook()
+                                .getEditPermissions())
+                        .description(t.getLorebook()
+                                .getDescription())
                         .entries(entries)
                         .build())
                 .build();

@@ -21,12 +21,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 public class UnsetCommandService implements DiscordCommand {
 
     private final ChannelRepository channelRepository;
-
     private static final int DELETE_EPHEMERAL_TIMER = 20;
-
     private static final String WORLD = "world";
     private static final String CHANNEL = "channel";
-
     private static final String EXCEPTION_PARSING_ARGUMENTS = "Exception caught processing arguments of unset command";
     private static final String OPTION_NOT_FOUND = "Option provided not found";
     private static final String USER_COMMAND_CHCONFIG_NOT_FOUND = "User tried to delete a config from a channel that has no config attached to it";
@@ -35,7 +32,6 @@ public class UnsetCommandService implements DiscordCommand {
     private static final String CHANNEL_UNLINKED_CONFIG = "This channel has been unlinked from configurations.";
     private static final String ERROR_SETTING_CHANNEL_CONFIG = "Error unsetting channel config";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when unsetting the channel config. Please try again.";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UnsetCommandService.class);
 
     @Override
@@ -60,34 +56,47 @@ public class UnsetCommandService implements DiscordCommand {
                     });
         } catch (IllegalArgumentException e) {
             LOGGER.debug(EXCEPTION_PARSING_ARGUMENTS, e);
-            event.reply(e.getMessage()).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(e.getMessage())
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (ChannelConfigurationNotFoundException e) {
             LOGGER.debug(USER_COMMAND_CHCONFIG_NOT_FOUND, e);
-            event.reply(CONFIG_ID_NOT_FOUND).setEphemeral(true).queue(reply -> {
-                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-            });
+            event.reply(CONFIG_ID_NOT_FOUND)
+                    .setEphemeral(true)
+                    .queue(reply -> {
+                        reply.deleteOriginal()
+                                .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+                    });
         } catch (Exception e) {
             LOGGER.error(ERROR_SETTING_CHANNEL_CONFIG, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true).queue(reply -> {
-                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-            });
+            event.reply(SOMETHING_WRONG_TRY_AGAIN)
+                    .setEphemeral(true)
+                    .queue(reply -> {
+                        reply.deleteOriginal()
+                                .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+                    });
         }
     }
 
     private void deleteChannelConfig(final SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Deleting channel config, currently attached to channel {} (channel ID {})",
-                event.getChannel().getName(), event.getChannel().getId());
-
-        channelRepository.findByChannelId(event.getChannel().getId())
+        LOGGER.debug("Deleting channel config, currently attached to channel {} (channel ID {})", event.getChannel()
+                .getName(),
+                event.getChannel()
+                        .getId());
+        channelRepository.findByChannelId(event.getChannel()
+                .getId())
                 .map(a -> {
-                    channelRepository.deleteByChannelId(event.getChannel().getId());
-                    event.reply(MessageFormat.format(CHANNEL_UNLINKED_CONFIG, event.getChannel().getName()))
-                            .setEphemeral(true).queue(reply -> {
-                                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+                    channelRepository.deleteByChannelId(event.getChannel()
+                            .getId());
+                    event.reply(MessageFormat.format(CHANNEL_UNLINKED_CONFIG, event.getChannel()
+                            .getName()))
+                            .setEphemeral(true)
+                            .queue(reply -> {
+                                reply.deleteOriginal()
+                                        .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
                             });
-
                     return a;
                 })
                 .orElseThrow(() -> new ChannelConfigurationNotFoundException(CONFIG_ID_NOT_FOUND));
@@ -95,19 +104,24 @@ public class UnsetCommandService implements DiscordCommand {
 
     private void unsetWorld(final SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Detaching world from channel config {} (channel ID {})",
-                event.getChannel().getName(), event.getChannel().getId());
-
-        channelRepository.findByChannelId(event.getChannel().getId())
+        LOGGER.debug("Detaching world from channel config {} (channel ID {})", event.getChannel()
+                .getName(),
+                event.getChannel()
+                        .getId());
+        channelRepository.findByChannelId(event.getChannel()
+                .getId())
                 .map(config -> {
-                    final String worldName = config.getChannelConfig().getWorld().getName();
-                    config.getChannelConfig().setWorld(null);
-                    event.reply(
-                            MessageFormat.format(WORLD_UNLINKED_CHANNEL_CONFIG, worldName, config.getId()))
-                            .setEphemeral(true).queue(reply -> {
-                                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+                    final String worldName = config.getChannelConfig()
+                            .getWorld()
+                            .getName();
+                    config.getChannelConfig()
+                            .setWorld(null);
+                    event.reply(MessageFormat.format(WORLD_UNLINKED_CHANNEL_CONFIG, worldName, config.getId()))
+                            .setEphemeral(true)
+                            .queue(reply -> {
+                                reply.deleteOriginal()
+                                        .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
                             });
-
                     return config;
                 })
                 .orElseThrow(() -> new ChannelConfigurationNotFoundException(CONFIG_ID_NOT_FOUND));

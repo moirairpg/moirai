@@ -19,7 +19,7 @@ public class ContextDatastore {
     public EventData getEventData() {
 
         return Optional.ofNullable(this.eventData.get())
-        		.orElseThrow(()-> new NullPointerException("eventData not set on thread"));
+                .orElseThrow(() -> new NullPointerException("eventData not set on thread"));
     }
 
     public void clearContext() {

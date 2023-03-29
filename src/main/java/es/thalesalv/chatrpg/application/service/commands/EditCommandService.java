@@ -36,14 +36,11 @@ public class EditCommandService implements DiscordCommand {
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityToDTO;
-
     private static final int DELETE_EPHEMERAL_TIMER = 20;
-
     private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
     private static final String ERROR_EDITING = "Error editing message";
     private static final String BOT_NOT_FOUND = "No bot message found.";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(EditCommandService.class);
 
     @Override
@@ -52,26 +49,35 @@ public class EditCommandService implements DiscordCommand {
         LOGGER.debug("Received slash command for message edition");
         try {
             event.deferReply();
-            final SelfUser bot = event.getJDA().getSelfUser();
-            channelRepository.findByChannelId(event.getChannel().getId())
+            final SelfUser bot = event.getJDA()
+                    .getSelfUser();
+            channelRepository.findByChannelId(event.getChannel()
+                    .getId())
                     .map(channelEntityToDTO)
                     .map(channel -> {
-                        final ModelSettings modelSettings = channel.getChannelConfig().getSettings().getModelSettings();
+                        final ModelSettings modelSettings = channel.getChannelConfig()
+                                .getSettings()
+                                .getModelSettings();
                         final Message message = retrieveMessageToBeEdited(event, modelSettings, bot);
                         final Modal editMessageModal = buildEditMessageModal(message);
                         saveEventDataToContext(message, channel);
-                        event.replyModal(editMessageModal).queue();
+                        event.replyModal(editMessageModal)
+                                .queue();
                         return channel;
                     })
                     .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.debug(NO_CONFIG_ATTACHED);
-            event.reply(NO_CONFIG_ATTACHED).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(NO_CONFIG_ATTACHED)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WRONG_TRY_AGAIN)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -81,22 +87,27 @@ public class EditCommandService implements DiscordCommand {
         LOGGER.debug("Received data of edit message modal");
         try {
             event.deferReply();
-            final String messageContent = event.getValue("message-content").getAsString();
+            final String messageContent = event.getValue("message-content")
+                    .getAsString();
             final EventData eventData = contextDatastore.getEventData();
             final Message message = eventData.getMessageToBeEdited();
             moderationService.moderate(messageContent, eventData, event)
-                    .subscribe(response -> message.editMessage(messageContent).submit()
-                        .whenComplete((msg, error) -> {
-                            if (error != null)
-                                throw new DiscordFunctionException("Error in message edition modal", error);
-
-                            event.reply("Message has been edited").setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal().queueAfter(1, TimeUnit.MILLISECONDS));
-                        }));
+                    .subscribe(response -> message.editMessage(messageContent)
+                            .submit()
+                            .whenComplete((msg, error) -> {
+                                if (error != null)
+                                    throw new DiscordFunctionException("Error in message edition modal", error);
+                                event.reply("Message has been edited")
+                                        .setEphemeral(true)
+                                        .queue(m -> m.deleteOriginal()
+                                                .queueAfter(1, TimeUnit.MILLISECONDS));
+                            }));
         } catch (Exception e) {
             LOGGER.error(ERROR_EDITING, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WRONG_TRY_AGAIN)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -110,20 +121,28 @@ public class EditCommandService implements DiscordCommand {
                 .setMaxLength(2000)
                 .setRequired(true)
                 .build();
-
         return Modal.create("edit-message-dmassist-modal", "Edit message content")
-                .addComponents(ActionRow.of(messageContent)).build();
+                .addComponents(ActionRow.of(messageContent))
+                .build();
     }
 
-    private Message retrieveMessageToBeEdited(final SlashCommandInteractionEvent event, final ModelSettings modelSettings, final SelfUser bot) {
+    private Message retrieveMessageToBeEdited(final SlashCommandInteractionEvent event,
+            final ModelSettings modelSettings, final SelfUser bot) {
 
         return Optional.ofNullable(event.getOption("message-id"))
                 .map(OptionMapping::getAsString)
                 .map(event.getChannel()::retrieveMessageById)
                 .map(RestAction::complete)
-                .orElseGet(() -> event.getChannel().getHistory().retrievePast(modelSettings.getChatHistoryMemory()).complete().stream()
-                        .filter(a -> a.getAuthor().getId().equals(bot.getId()))
-                        .findFirst().orElseThrow(() -> new ArrayIndexOutOfBoundsException(BOT_NOT_FOUND)));
+                .orElseGet(() -> event.getChannel()
+                        .getHistory()
+                        .retrievePast(modelSettings.getChatHistoryMemory())
+                        .complete()
+                        .stream()
+                        .filter(a -> a.getAuthor()
+                                .getId()
+                                .equals(bot.getId()))
+                        .findFirst()
+                        .orElseThrow(() -> new ArrayIndexOutOfBoundsException(BOT_NOT_FOUND)));
     }
 
     private void saveEventDataToContext(final Message message, final Channel channel) {

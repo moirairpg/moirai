@@ -27,25 +27,19 @@ public class ChannelConfigEntity {
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
     @Column(name = "id", unique = true, nullable = false)
     private String id;
-
     @Column(name = "owner_discord_id", nullable = false)
     private String owner;
-
     @Column(name = "edit_permission_discord_ids")
     private String editPermissions;
-
     @OneToOne
     @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false)
     private PersonaEntity persona;
-
     @OneToOne
     @JoinColumn(name = "model_settings_id", referencedColumnName = "id", nullable = false)
     private ModelSettingsEntity modelSettings;
-
     @OneToOne
     @JoinColumn(name = "moderation_settings_id", referencedColumnName = "id", nullable = false)
     private ModerationSettingsEntity moderationSettings;
-
     @OneToOne
     @JoinColumn(name = "world_id", referencedColumnName = "id")
     private WorldEntity world;

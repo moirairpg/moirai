@@ -36,10 +36,8 @@ public class ModerationServiceImpl implements ModerationService {
 
     private final MessageFormatHelper messageFormatHelper;
     private final OpenAIApiService openAIApiService;
-
     @Value("${chatrpg.generation.default-threshold}")
     private double defaultThreshold;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ModerationServiceImpl.class);
     private static final String UNSAFE_CONTENT_FOUND = "Unsafe content detected";
     private static final String FLAGGED_OUTPUT = "The AI generated outputs that were flagged as unsafe by OpenAI's moderation. Please edit the prompt so it doesn't contain unsafe content and try again. This message will disappear in a few seconds.";
@@ -50,14 +48,21 @@ public class ModerationServiceImpl implements ModerationService {
     private static final String FLAGGED_TOPICS_OUTPUT = "\n**Flagged topics:** {0}";
 
     @Override
-    public Mono<ModerationResponse> moderate(final String content, final EventData eventData, final ModalInteractionEvent event) {
+    public Mono<ModerationResponse> moderate(final String content, final EventData eventData,
+            final ModalInteractionEvent event) {
 
-        if (StringUtils.isBlank(content)) return Mono.just(ModerationResponse.builder().build());
-        final ModerationRequest request = ModerationRequest.builder().input(content).build();
+        if (StringUtils.isBlank(content))
+            return Mono.just(ModerationResponse.builder()
+                    .build());
+        final ModerationRequest request = ModerationRequest.builder()
+                .input(content)
+                .build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
-                    final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, eventData.getChannelDefinitions().getChannelConfig(), content);
+                    final ModerationResult moderationResult = response.getModerationResult()
+                            .get(0);
+                    checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
+                            .getChannelConfig(), content);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
@@ -69,12 +74,18 @@ public class ModerationServiceImpl implements ModerationService {
     public Mono<ModerationResponse> moderate(final List<String> messages, final EventData eventData) {
 
         final String prompt = messageFormatHelper.stringifyMessages(messages);
-        if (StringUtils.isBlank(prompt)) return Mono.just(ModerationResponse.builder().build());
-        final ModerationRequest request = ModerationRequest.builder().input(prompt).build();
+        if (StringUtils.isBlank(prompt))
+            return Mono.just(ModerationResponse.builder()
+                    .build());
+        final ModerationRequest request = ModerationRequest.builder()
+                .input(prompt)
+                .build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
-                    final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, eventData.getChannelDefinitions().getChannelConfig(), prompt);
+                    final ModerationResult moderationResult = response.getModerationResult()
+                            .get(0);
+                    checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
+                            .getChannelConfig(), prompt);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
@@ -85,12 +96,18 @@ public class ModerationServiceImpl implements ModerationService {
     @Override
     public Mono<ModerationResponse> moderateOutput(final String output, final EventData eventData) {
 
-        if (StringUtils.isBlank(output)) return Mono.just(ModerationResponse.builder().build());
-        final ModerationRequest request = ModerationRequest.builder().input(output).build();
+        if (StringUtils.isBlank(output))
+            return Mono.just(ModerationResponse.builder()
+                    .build());
+        final ModerationRequest request = ModerationRequest.builder()
+                .input(output)
+                .build();
         return openAIApiService.callModerationApi(request)
                 .doOnNext(response -> {
-                    final ModerationResult moderationResult = response.getModerationResult().get(0);
-                    checkModerationThresholds(moderationResult, eventData.getChannelDefinitions().getChannelConfig(), output);
+                    final ModerationResult moderationResult = response.getModerationResult()
+                            .get(0);
+                    checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
+                            .getChannelConfig(), output);
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
@@ -99,17 +116,23 @@ public class ModerationServiceImpl implements ModerationService {
                 });
     }
 
-    private void checkModerationThresholds(final ModerationResult moderationResult, final ChannelConfig channelConfig, final String prompt) {
+    private void checkModerationThresholds(final ModerationResult moderationResult, final ChannelConfig channelConfig,
+            final String prompt) {
 
-        final ModerationSettings moderationSettings = channelConfig.getSettings().getModerationSettings();
-        if (moderationSettings.isAbsolute() && moderationResult.getFlagged().booleanValue())
+        final ModerationSettings moderationSettings = channelConfig.getSettings()
+                .getModerationSettings();
+        if (moderationSettings.isAbsolute() && moderationResult.getFlagged()
+                .booleanValue())
             throw new ModerationException(UNSAFE_CONTENT_FOUND);
-
-        final List<String> flaggedTopics = moderationResult.getCategoryScores().entrySet().stream()
-        		.filter(entry -> Double.valueOf(entry.getValue()) > Optional.ofNullable(moderationSettings.getThresholds().get(entry.getKey())).orElse(defaultThreshold))
-        		.map(Map.Entry::getKey)
-        		.collect(Collectors.toList());
-
+        final List<String> flaggedTopics = moderationResult.getCategoryScores()
+                .entrySet()
+                .stream()
+                .filter(entry -> Double.valueOf(entry.getValue()) > Optional
+                        .ofNullable(moderationSettings.getThresholds()
+                                .get(entry.getKey()))
+                        .orElse(defaultThreshold))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
         if (!flaggedTopics.isEmpty())
             throw new ModerationException(UNSAFE_CONTENT_FOUND, flaggedTopics, prompt);
     }
@@ -117,31 +140,39 @@ public class ModerationServiceImpl implements ModerationService {
     private void handleFlags(final List<String> flaggedTopics, final EventData eventData) {
 
         LOGGER.warn("Unsafe content detected in a message. -> {}", flaggedTopics);
-        final TextChannel channel = eventData.getCurrentChannel().asTextChannel();
-        final Message message = channel.retrieveMessageById(eventData.getMessage().getId()).complete();
+        final TextChannel channel = eventData.getCurrentChannel()
+                .asTextChannel();
+        final Message message = channel.retrieveMessageById(eventData.getMessage()
+                .getId())
+                .complete();
         final StringBuilder flaggedMessage = new StringBuilder().append(FLAGGED_MESSAGE);
-
         if (flaggedTopics != null) {
-            final String flaggedTopicsString = flaggedTopics.stream().collect(Collectors.joining(", "));
-            flaggedMessage.append(MessageFormat.format(FLAGGED_TOPICS_MESSAGE, message.getContentDisplay(), flaggedTopicsString));
+            final String flaggedTopicsString = flaggedTopics.stream()
+                    .collect(Collectors.joining(", "));
+            flaggedMessage.append(
+                    MessageFormat.format(FLAGGED_TOPICS_MESSAGE, message.getContentDisplay(), flaggedTopicsString));
         }
-
-        message.delete().complete();
-        eventData.getCurrentChannel().sendMessage(flaggedMessage.toString())
-                .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+        message.delete()
+                .complete();
+        eventData.getCurrentChannel()
+                .sendMessage(flaggedMessage.toString())
+                .queue(msg -> msg.delete()
+                        .queueAfter(5, TimeUnit.SECONDS));
     }
 
-    private void handleFlags(final List<String> flaggedTopics, final ModalInteractionEvent event, final String content) {
+    private void handleFlags(final List<String> flaggedTopics, final ModalInteractionEvent event,
+            final String content) {
 
         LOGGER.warn("Unsafe content detected in a lorebook entry. -> {}", flaggedTopics);
         String flaggedMessage = FLAGGED_ENTRY;
-
         if (flaggedTopics != null) {
-            final String flaggedTopicsString = flaggedTopics.stream().collect(Collectors.joining(", "));
+            final String flaggedTopicsString = flaggedTopics.stream()
+                    .collect(Collectors.joining(", "));
             flaggedMessage += MessageFormat.format(FLAGGED_TOPICS_LOREBOOK, flaggedTopicsString, content);
         }
-
-        event.reply(flaggedMessage).setEphemeral(true).complete();
+        event.reply(flaggedMessage)
+                .setEphemeral(true)
+                .complete();
     }
 
     public void handleFlagsOutput(final List<String> flaggedTopics, final EventData eventData, final String content) {
@@ -149,11 +180,13 @@ public class ModerationServiceImpl implements ModerationService {
         LOGGER.warn("Unsafe content detected in AI's output. Topics -> {}. Content -> {}", flaggedTopics, content);
         String flaggedMessage = FLAGGED_OUTPUT;
         if (flaggedTopics != null) {
-            final String flaggedTopicsString = flaggedTopics.stream().collect(Collectors.joining(", "));
+            final String flaggedTopicsString = flaggedTopics.stream()
+                    .collect(Collectors.joining(", "));
             flaggedMessage += MessageFormat.format(FLAGGED_TOPICS_OUTPUT, flaggedTopicsString);
         }
-
-        eventData.getCurrentChannel().sendMessage(flaggedMessage)
-                .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+        eventData.getCurrentChannel()
+                .sendMessage(flaggedMessage)
+                .queue(msg -> msg.delete()
+                        .queueAfter(5, TimeUnit.SECONDS));
     }
 }

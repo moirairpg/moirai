@@ -10,20 +10,25 @@ import java.util.function.UnaryOperator;
 
 public class StringProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup()
+            .lookupClass()
+            .getCanonicalName());
     private final List<UnaryOperator<String>> rules = new ArrayList<>();
 
     public void addRule(UnaryOperator<String> rule) {
+
         rules.add(rule);
     }
 
     public String process(final String input) {
+
         String output = input;
         int count = 0;
-        for(UnaryOperator<String> rule : rules) {
+        for (UnaryOperator<String> rule : rules) {
             String o = output;
             output = rule.apply(output);
-            if (!o.equals(output)) count++;
+            if (!o.equals(output))
+                count++;
         }
         LOGGER.info("Replacements: " + count);
         return output;

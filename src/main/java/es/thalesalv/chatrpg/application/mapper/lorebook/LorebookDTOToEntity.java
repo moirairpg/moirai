@@ -20,9 +20,10 @@ public class LorebookDTOToEntity implements Function<Lorebook, LorebookEntity> {
     @Override
     public LorebookEntity apply(Lorebook t) {
 
-        final List<LorebookEntryRegexEntity> entries = t.getEntries().stream()
-                .map(lorebookEntryDTOToEntity).collect(Collectors.toList());
-
+        final List<LorebookEntryRegexEntity> entries = t.getEntries()
+                .stream()
+                .map(lorebookEntryDTOToEntity)
+                .collect(Collectors.toList());
         return LorebookEntity.builder()
                 .id(t.getId())
                 .description(t.getDescription())

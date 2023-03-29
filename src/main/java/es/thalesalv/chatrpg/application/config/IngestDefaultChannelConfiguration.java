@@ -42,18 +42,15 @@ public class IngestDefaultChannelConfiguration {
 
     private final JDA jda;
     private final ObjectMapper yamlObjectMapper;
-
     private final WorldEntityToDTO worldEntityToDTO;
     private final WorldDTOToEntity worldDTOToEntity;
     private final ChannelConfigDTOToEntity channelConfigToEntity;
-
     private final WorldRepository worldRepository;
     private final PersonaRepository personaRepository;
     private final LorebookRepository lorebookRepository;
     private final ChannelConfigRepository channelConfigRepository;
     private final ModelSettingsRepository modelSettingsRepository;
     private final ModerationSettingsRepository moderationSettingsRepository;
-
     private static final String PRIVATE = "private";
     private static final String DEFAULT_WORLD = "Default world";
     private static final String DEFAULT_LOREBOOK = "Default lorebook";
@@ -61,7 +58,6 @@ public class IngestDefaultChannelConfiguration {
     private static final String INGESTING_WORLD = "Ingesting channel config -> {}";
     private static final String DEFAULT_CONFIG_FOUND = "Found default configs. Ingesting them to database.";
     private static final String DEFAULT_CONFIG_NOT_FOUND = "Default configurations not found. Proceeding without them.";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestDefaultChannelConfiguration.class);
 
     @PostConstruct
@@ -71,23 +67,31 @@ public class IngestDefaultChannelConfiguration {
         try {
             final InputStream yamlFile = new ClassPathResource(YAML_FILE_PATH).getInputStream();
             final ChannelConfigYaml yaml = yamlObjectMapper.readValue(yamlFile, ChannelConfigYaml.class);
-
             LOGGER.info(DEFAULT_CONFIG_FOUND);
-
             final AtomicInteger i = new AtomicInteger(1);
             for (ChannelConfig config : yaml.getConfigs()) {
                 LOGGER.debug(INGESTING_WORLD, config);
-
-                final String botId = jda.getSelfUser().getId();
+                final String botId = jda.getSelfUser()
+                        .getId();
                 final String id = String.valueOf(i.get());
                 config.setId(id);
-                config.getPersona().setId(id);
-                config.getSettings().getModelSettings().setId(id);
-                config.getSettings().getModerationSettings().setId(id);
+                config.getPersona()
+                        .setId(id);
+                config.getSettings()
+                        .getModelSettings()
+                        .setId(id);
+                config.getSettings()
+                        .getModerationSettings()
+                        .setId(id);
                 config.setOwner(botId);
-                config.getPersona().setOwner(botId);
-                config.getSettings().getModelSettings().setOwner(botId);
-                config.getSettings().getModerationSettings().setOwner(botId);
+                config.getPersona()
+                        .setOwner(botId);
+                config.getSettings()
+                        .getModelSettings()
+                        .setOwner(botId);
+                config.getSettings()
+                        .getModerationSettings()
+                        .setOwner(botId);
                 config.setWorld(worldRepository.findById(id)
                         .map(worldEntityToDTO)
                         .orElseGet(() -> buildEmptyWorld(botId)));
@@ -119,7 +123,6 @@ public class IngestDefaultChannelConfiguration {
                         .entries(new HashSet<>())
                         .build())
                 .build();
-
         final WorldEntity worldEntity = worldDTOToEntity.apply(world);
         lorebookRepository.save(worldEntity.getLorebook());
         worldRepository.save(worldEntity);
