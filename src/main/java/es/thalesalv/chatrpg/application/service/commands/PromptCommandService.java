@@ -133,7 +133,7 @@ public class PromptCommandService implements DiscordCommand {
 
     private String formatInput(String intent, String prompt, SelfUser bot) {
 
-        return "dungeonMaster".equals(intent) ? bot.getAsMention() + prompt : prompt;
+        return "rpg".equals(intent) ? bot.getAsMention() + prompt : prompt;
     }
 
     private Modal buildEditMessageModal() {

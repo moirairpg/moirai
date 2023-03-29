@@ -60,8 +60,7 @@ public class ListChConfCommandService implements DiscordCommand {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel()
-                    .getId())
+            channelRepository.findByChannelId(event.getChannel().getId())
                     .map(channelEntityToDTO)
                     .map(channel -> {
                         try {
