@@ -70,13 +70,13 @@ public class ChatCompletionService implements CompletionService {
                         .matcher(s)
                         .replaceAll(StringUtils.EMPTY));
         final Set<LorebookEntry> entriesFound = messageFormatHelper.handleEntriesMentioned(messages, world);
-        if (persona.getIntent()
-                .equals("dungeonMaster")) {
-            messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
-            messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
-        } else if (persona.getIntent()
-                .equals("chatbot")) {
-            messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
+        switch (persona.getIntent()) {
+            case "dungeonMaster" -> {
+                messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
+                messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
+            }
+            case "chatbot" -> messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
+            case "author" -> messageFormatHelper.processEntriesFoundForAuthor(entriesFound, messages);
         }
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData,
                 inputProcessor);
