@@ -11,7 +11,15 @@ jobs:
           java-version: "17"
           distribution: "adopt"
       - name: Build with Maven
-        run: mvn package -DskipTests
+        run: git pull && mvn package -DskipTests
+      - name: Push formatted code
+        if: github.ref == 'refs/heads/master'
+        uses: actions-js/push@master
+        with:
+          branch: master
+          message: "Automated commit: fix code style according to format"
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Unit tests
         if: github.ref != 'refs/heads/master'
         run: mvn test

@@ -28,23 +28,17 @@ public class PersonaEntity {
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
     @Column(name = "id", unique = true, nullable = false)
     private String id;
-
     @Column(name = "name")
     private String name;
-
     @Column(name = "intent")
     private String intent;
-
     @Column(name = "personality", length = 10000)
     private String personality;
-
     @Column(name = "owner_discord_id")
     private String owner;
-
     @Column(name = "nudge", length = 10000)
     @Convert(converter = NudgeConverter.class)
     private NudgeEntity nudge;
-
     @Column(name = "bump", length = 10000)
     @Convert(converter = BumpConverter.class)
     private BumpEntity bump;

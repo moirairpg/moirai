@@ -16,7 +16,9 @@ public class LorebookEntryDTOToEntity implements Function<LorebookEntry, Loreboo
     @Override
     public LorebookEntryRegexEntity apply(LorebookEntry t) {
 
-        final String regex = Optional.ofNullable(t.getRegex()).filter(StringUtils::isNotBlank).orElse(t.getName());
+        final String regex = Optional.ofNullable(t.getRegex())
+                .filter(StringUtils::isNotBlank)
+                .orElse(t.getName());
         return LorebookEntryRegexEntity.builder()
                 .id(t.getRegexId())
                 .regex(regex)

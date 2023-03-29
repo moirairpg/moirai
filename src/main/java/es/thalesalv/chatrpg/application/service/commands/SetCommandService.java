@@ -29,12 +29,9 @@ public class SetCommandService implements DiscordCommand {
     private final WorldRepository worldRepository;
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
-
     private static final int DELETE_EPHEMERAL_TIMER = 20;
-
     private static final String WORLD = "world";
     private static final String CHANNEL = "channel";
-
     private static final String ID_MISSING = "ID is missing from set command.";
     private static final String OPERATION_NOT_SUPPORTED = "Operation provided it not supported";
     private static final String EXCEPTION_PARSING_ARGUMENTS = "Exception caught processing arguments of set command";
@@ -45,7 +42,6 @@ public class SetCommandService implements DiscordCommand {
     private static final String CHANNEL_LINKED_CONFIG = "Channel `{0}` was linked to configuration `{1}` (with persona `{2}`).";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
     private static final String WORLD_LINKED_CHANNEL_CONFIG = "World `{0}` was linked to configuration to the configuration of channel `{1}` (with persona `{2}`)";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SetCommandService.class);
 
     @Override
@@ -60,7 +56,6 @@ public class SetCommandService implements DiscordCommand {
                         final String id = Optional.ofNullable(event.getOption("id"))
                                 .map(OptionMapping::getAsString)
                                 .orElseThrow(() -> new IllegalArgumentException(ID_MISSING));
-
                         switch (operation) {
                             case WORLD:
                                 setWorld(id, event);
@@ -74,43 +69,56 @@ public class SetCommandService implements DiscordCommand {
                     });
         } catch (IllegalArgumentException e) {
             LOGGER.debug(EXCEPTION_PARSING_ARGUMENTS, e);
-            event.reply(e.getMessage()).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(e.getMessage())
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (ChannelConfigurationNotFoundException e) {
             LOGGER.debug(USER_COMMAND_NOT_FOUND, e);
-            event.reply(CONFIG_ID_NOT_FOUND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(CONFIG_ID_NOT_FOUND)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_SETTING_DEFINITION, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WRONG_TRY_AGAIN)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
     private ChannelEntity setChannelConfig(final String configId, final SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Attaching channel config ID {} to channel {} (channel ID {})", configId,
-                event.getChannel().getName(), event.getChannel().getId());
-
+        LOGGER.debug("Attaching channel config ID {} to channel {} (channel ID {})", configId, event.getChannel()
+                .getName(),
+                event.getChannel()
+                        .getId());
         return channelConfigRepository.findById(configId)
                 .map(config -> {
-                    final ChannelEntity entity = channelRepository.findByChannelId(event.getChannel().getId())
+                    final ChannelEntity entity = channelRepository.findByChannelId(event.getChannel()
+                            .getId())
                             .map(e -> {
                                 e.setChannelConfig(config);
-                                e.setChannelId(event.getChannel().getId());
+                                e.setChannelId(event.getChannel()
+                                        .getId());
                                 return e;
                             })
                             .orElseGet(() -> ChannelEntity.builder()
                                     .channelConfig(config)
-                                    .channelId(event.getChannel().getId())
+                                    .channelId(event.getChannel()
+                                            .getId())
                                     .build());
-
                     channelRepository.save(entity);
-                    event.reply(MessageFormat.format(CHANNEL_LINKED_CONFIG, event.getChannel().getName(),
-                            entity.getId(), config.getPersona().getName())).setEphemeral(true).queue(reply -> {
-                                reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+                    event.reply(MessageFormat.format(CHANNEL_LINKED_CONFIG, event.getChannel()
+                            .getName(), entity.getId(),
+                            config.getPersona()
+                                    .getName()))
+                            .setEphemeral(true)
+                            .queue(reply -> {
+                                reply.deleteOriginal()
+                                        .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
                             });
-
                     return entity;
                 })
                 .orElseThrow(() -> new ChannelConfigurationNotFoundException(CONFIG_ID_NOT_FOUND));
@@ -118,11 +126,13 @@ public class SetCommandService implements DiscordCommand {
 
     private ChannelEntity setWorld(final String worldId, final SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Attaching world ID {} to channel {} (channel ID {})", worldId,
-                event.getChannel().getName(), event.getChannel().getId());
-
+        LOGGER.debug("Attaching world ID {} to channel {} (channel ID {})", worldId, event.getChannel()
+                .getName(),
+                event.getChannel()
+                        .getId());
         return worldRepository.findById(worldId)
-                .map(world -> channelRepository.findByChannelId(event.getChannel().getId())
+                .map(world -> channelRepository.findByChannelId(event.getChannel()
+                        .getId())
                         .filter(Objects::nonNull)
                         .map(channel -> attachWorldToConfig(channel, world, event))
                         .orElseThrow(() -> new ChannelConfigurationNotFoundException(CONFIG_ID_NOT_FOUND)))
@@ -133,16 +143,21 @@ public class SetCommandService implements DiscordCommand {
             final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("World {} will be attached to channel {} (channel config ID {})", world.getName(),
-                event.getChannel().getName(), channel.getId());
-
-        channel.getChannelConfig().setWorld(world);
+                event.getChannel()
+                        .getName(),
+                channel.getId());
+        channel.getChannelConfig()
+                .setWorld(world);
         channelRepository.save(channel);
-        event.reply(MessageFormat.format(WORLD_LINKED_CHANNEL_CONFIG,
-                world.getName(), channel.getId(), channel.getChannelConfig().getPersona().getName()))
-                .setEphemeral(true).queue(reply -> {
-                    reply.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
+        event.reply(MessageFormat.format(WORLD_LINKED_CHANNEL_CONFIG, world.getName(), channel.getId(),
+                channel.getChannelConfig()
+                        .getPersona()
+                        .getName()))
+                .setEphemeral(true)
+                .queue(reply -> {
+                    reply.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
                 });
-
         return channel;
     }
 }

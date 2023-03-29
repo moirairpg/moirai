@@ -17,16 +17,18 @@ public class ChatCompletionRequestMapper {
 
     public ChatCompletionRequest buildRequest(final List<ChatMessage> chatMessages, final ChannelConfig channelConfig) {
 
-        final ModelSettings modelSettings = channelConfig.getSettings().getModelSettings();
-        final String modelName = AIModel.findByInternalName(modelSettings.getModelName()).getModelName();
+        final ModelSettings modelSettings = channelConfig.getSettings()
+                .getModelSettings();
+        final String modelName = AIModel.findByInternalName(modelSettings.getModelName())
+                .getModelName();
         return ChatCompletionRequest.builder()
-            .messages(chatMessages)
-            .model(modelName)
-            .maxTokens(modelSettings.getMaxTokens())
-            .temperature(modelSettings.getTemperature())
-            .presencePenalty(modelSettings.getPresencePenalty())
-            .frequencyPenalty(modelSettings.getFrequencyPenalty())
-            .logitBias(modelSettings.getLogitBias())
-            .build();
+                .messages(chatMessages)
+                .model(modelName)
+                .maxTokens(modelSettings.getMaxTokens())
+                .temperature(modelSettings.getTemperature())
+                .presencePenalty(modelSettings.getPresencePenalty())
+                .frequencyPenalty(modelSettings.getFrequencyPenalty())
+                .logitBias(modelSettings.getLogitBias())
+                .build();
     }
 }
