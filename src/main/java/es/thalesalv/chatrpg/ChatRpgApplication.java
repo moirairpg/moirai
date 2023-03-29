@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties
 public class ChatRpgApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ChatRpgApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ChatRpgApplication.class, args);
+    }
 }

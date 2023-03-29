@@ -22,20 +22,23 @@ public class ModerationServiceDummyImpl implements ModerationService {
     public Mono<ModerationResponse> moderate(String content, EventData eventData, ModalInteractionEvent event) {
 
         LOGGER.info("Debug mode enabled. Skipping moderation.");
-        return Mono.just(ModerationResponse.builder().build());
+        return Mono.just(ModerationResponse.builder()
+                .build());
     }
 
     @Override
     public Mono<ModerationResponse> moderate(List<String> messages, EventData eventData) {
 
         LOGGER.info("Debug mode enabled. Skipping moderation.");
-        return Mono.just(ModerationResponse.builder().build());
+        return Mono.just(ModerationResponse.builder()
+                .build());
     }
 
     @Override
     public Mono<ModerationResponse> moderateOutput(String output, EventData eventData) {
 
         LOGGER.info("Debug mode enabled. Skipping moderation.");
-        return Mono.just(ModerationResponse.builder().build());
+        return Mono.just(ModerationResponse.builder()
+                .build());
     }
 }

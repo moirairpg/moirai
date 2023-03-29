@@ -14,10 +14,14 @@ public class LorebookEntryEntityToDTO implements Function<LorebookEntryRegexEnti
     public LorebookEntry apply(LorebookEntryRegexEntity t) {
 
         return LorebookEntry.builder()
-                .id(t.getLorebookEntry().getId())
-                .description(t.getLorebookEntry().getDescription())
-                .playerDiscordId(t.getLorebookEntry().getPlayerDiscordId())
-                .name(t.getLorebookEntry().getName())
+                .id(t.getLorebookEntry()
+                        .getId())
+                .description(t.getLorebookEntry()
+                        .getDescription())
+                .playerDiscordId(t.getLorebookEntry()
+                        .getPlayerDiscordId())
+                .name(t.getLorebookEntry()
+                        .getName())
                 .regex(t.getRegex())
                 .regexId(t.getId())
                 .build();

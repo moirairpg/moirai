@@ -56,55 +56,80 @@ public class GetLorebookCommandService implements DiscordCommand {
     public void handle(SlashCommandInteractionEvent event) {
 
         try {
+
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel().getId())
+            channelRepository.findByChannelId(event.getChannel()
+                    .getId())
                     .map(channelEntityToDTO)
                     .map(channel -> {
+
                         try {
-                            final World world = channel.getChannelConfig().getWorld();
+
+                            final World world = channel.getChannelConfig()
+                                    .getWorld();
                             final OptionMapping entryId = event.getOption("id");
                             if (entryId != null) {
+
                                 retrieveLoreEntryById(entryId.getAsString(), world, event);
                                 return channel;
                             }
 
                             retrieveAllLoreEntries(world, event);
                         } catch (JsonProcessingException e) {
+
                             LOGGER.error(ERROR_SERIALIZATION, e);
-                            event.reply(ERROR_RETRIEVE).setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            event.reply(ERROR_RETRIEVE)
+                                    .setEphemeral(true)
+                                    .queue(m -> m.deleteOriginal()
+                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
                         } catch (IOException e) {
+
                             LOGGER.error(ERROR_HANDLING_ENTRY, e);
-                            event.reply(ERROR_RETRIEVE).setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            event.reply(ERROR_RETRIEVE)
+                                    .setEphemeral(true)
+                                    .queue(m -> m.deleteOriginal()
+                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
                         }
 
                         return channel;
                     })
                     .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (LorebookEntryNotFoundException e) {
+
             LOGGER.info(QUERIED_ENTRY_NOT_FOUND);
-            event.reply(QUERIED_ENTRY_NOT_FOUND).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(QUERIED_ENTRY_NOT_FOUND)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         } catch (ChannelConfigNotFoundException e) {
+
             LOGGER.info(CHANNEL_CONFIG_NOT_FOUND);
-            event.reply(CHANNEL_NO_CONFIG_ATTACHED).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-        }catch (Exception e) {
+            event.reply(CHANNEL_NO_CONFIG_ATTACHED)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+        } catch (Exception e) {
+
             LOGGER.error(ERROR_RETRIEVE, e);
-            event.reply(USER_ERROR_RETRIEVE).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            event.reply(USER_ERROR_RETRIEVE)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
         }
     }
 
-    private void retrieveAllLoreEntries(final World world, final SlashCommandInteractionEvent event) throws IOException {
+    private void retrieveAllLoreEntries(final World world, final SlashCommandInteractionEvent event)
+            throws IOException {
 
-        final Set<LorebookEntry> entries = world.getLorebook().getEntries();
+        final Set<LorebookEntry> entries = world.getLorebook()
+                .getEntries();
         if (entries.isEmpty()) {
+
             event.reply(NO_ENTRIES_FOUND)
                     .setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
 
             return;
         }
@@ -114,19 +139,26 @@ public class GetLorebookCommandService implements DiscordCommand {
         Files.write(file.toPath(), entriesJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
         final FileUpload fileUpload = FileUpload.fromData(file);
 
-        event.replyFiles(fileUpload).setEphemeral(true).complete();
+        event.replyFiles(fileUpload)
+                .setEphemeral(true)
+                .complete();
         fileUpload.close();
     }
 
-    private void retrieveLoreEntryById(final String entryId, final World world, final SlashCommandInteractionEvent event)
-            throws JsonProcessingException {
+    private void retrieveLoreEntryById(final String entryId, final World world,
+            final SlashCommandInteractionEvent event) throws JsonProcessingException {
 
-        final LorebookEntry entry = world.getLorebook().getEntries().stream()
-                    .filter(e -> e.getId().equals(entryId)).findFirst()
-                    .orElseThrow(LorebookEntryNotFoundException::new);
+        final LorebookEntry entry = world.getLorebook()
+                .getEntries()
+                .stream()
+                .filter(e -> e.getId()
+                        .equals(entryId))
+                .findFirst()
+                .orElseThrow(LorebookEntryNotFoundException::new);
 
         final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(entry);
         event.reply(MessageFormat.format(ENTRY_RETRIEVED, entry.getName(), loreEntryJson))
-                    .setEphemeral(true).complete();
+                .setEphemeral(true)
+                .complete();
     }
 }

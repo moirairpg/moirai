@@ -30,15 +30,22 @@ public class TkCommandService implements DiscordCommand {
     public void handle(final SlashCommandInteractionEvent event) {
 
         try {
+
             LOGGER.debug("Received slash command for tokenization of strings");
-            final String text = event.getOption("text").getAsString();
+            final String text = event.getOption("text")
+                    .getAsString();
             final String tokens = tokenizerService.tokenize(text);
             final int tokenCount = tokenizerService.countTokens(text);
-            event.reply(MessageFormat.format(TOKEN_REPLY_MESSAGE, tokens, tokenCount)).setEphemeral(true).queue();
+            event.reply(MessageFormat.format(TOKEN_REPLY_MESSAGE, tokens, tokenCount))
+                    .setEphemeral(true)
+                    .queue();
         } catch (Exception e) {
+
             LOGGER.error(UNKNOWN_ERROR, e);
-            event.reply(SOMETHING_WRONG_TRY_AGAIN).setEphemeral(true)
-                    .queue(m -> m.deleteOriginal().queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            event.reply(SOMETHING_WRONG_TRY_AGAIN)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 }

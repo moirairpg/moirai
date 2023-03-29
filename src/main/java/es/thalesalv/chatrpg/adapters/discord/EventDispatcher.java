@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.events.session.SessionDisconnectEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-
 @RequiredArgsConstructor
 @Component
 public class EventDispatcher extends ListenerAdapter {
