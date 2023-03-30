@@ -80,7 +80,8 @@ public class IngestDefaultWorldConfiguration {
                 final WorldEntity worldEntity = worldDTOToEntity.apply(world);
                 final LorebookEntity lorebookEntity = lorebookDTOToEntity.apply(world.getLorebook());
                 lorebookRepository.save(lorebookEntity);
-                for (LorebookEntry entry : world.getLorebook().getEntries()) {
+                for (LorebookEntry entry : world.getLorebook()
+                        .getEntries()) {
                     LOGGER.debug(INGESTING_ENTRY, entry);
                     entry.setId(NanoId.randomNanoId());
                     entry.setRegexId(NanoId.randomNanoId());
