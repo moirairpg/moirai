@@ -1,10 +1,17 @@
 package es.thalesalv.chatrpg.domain.enums;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.stream.Stream;
 
 public enum Intent {
 
-    RPG("rpg"), CHAT("chat"), AUTHOR("author");
+    @JsonProperty("rpg")
+    RPG("rpg"),
+    @JsonProperty("chat")
+    CHAT("chat"),
+    @JsonProperty("author")
+    AUTHOR("author");
 
     private final String text;
 
