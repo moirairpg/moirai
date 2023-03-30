@@ -27,6 +27,7 @@ import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
+import es.thalesalv.chatrpg.application.util.NanoId;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
@@ -79,18 +80,14 @@ public class IngestDefaultWorldConfiguration {
                 final WorldEntity worldEntity = worldDTOToEntity.apply(world);
                 final LorebookEntity lorebookEntity = lorebookDTOToEntity.apply(world.getLorebook());
                 lorebookRepository.save(lorebookEntity);
-                int j = 1;
-                for (LorebookEntry entry : world.getLorebook()
-                        .getEntries()) {
+                for (LorebookEntry entry : world.getLorebook().getEntries()) {
                     LOGGER.debug(INGESTING_ENTRY, entry);
-                    final String entryId = String.valueOf(j);
-                    entry.setId(entryId);
-                    entry.setRegexId(entryId);
+                    entry.setId(NanoId.randomNanoId());
+                    entry.setRegexId(NanoId.randomNanoId());
                     final LorebookEntryRegexEntity entryEntity = lorebookDTOToEntry.apply(entry);
                     entryEntity.setLorebook(lorebookEntity);
                     lorebookEntryRepository.save(entryEntity.getLorebookEntry());
                     lorebookEntryRegexRepository.save(entryEntity);
-                    j++;
                 }
                 worldRepository.save(worldEntity);
                 i.incrementAndGet();
