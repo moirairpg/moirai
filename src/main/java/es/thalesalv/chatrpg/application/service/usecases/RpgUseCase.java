@@ -1,11 +1,11 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import es.thalesalv.chatrpg.application.util.StringProcessors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -87,10 +87,7 @@ public class RpgUseCase implements BotUseCase {
                 .complete()
                 .stream()
                 .filter(skipFilter)
-                .map(m -> MessageFormat.format("{0} said: {1}", m.getAuthor()
-                        .getName(),
-                        m.getContentDisplay()
-                                .trim()))
+                .map(StringProcessors.chatFormatter())
                 .collect(Collectors.toList());
         Collections.reverse(messages);
         return messages;

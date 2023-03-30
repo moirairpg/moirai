@@ -2,9 +2,8 @@ package es.thalesalv.chatrpg.application.service.completion;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.UnaryOperator;
-import java.util.regex.Pattern;
 
+import es.thalesalv.chatrpg.application.util.StringProcessors;
 import es.thalesalv.chatrpg.domain.enums.Intent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -52,24 +51,11 @@ public class ChatCompletionService implements CompletionService {
                 .getChannelConfig();
         final World world = channelConfig.getWorld();
         final Persona persona = channelConfig.getPersona();
-        inputProcessor.addRule(s -> Pattern.compile("\\{0\\}")
-                .matcher(s)
-                .replaceAll(r -> persona.getName()));
-        inputProcessor.addRule(s -> Pattern.compile(eventData.getBot()
-                .getName())
-                .matcher(s)
-                .replaceAll(r -> persona.getName()));
-        outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)")
-                .matcher(s)
-                .replaceAll(r -> r.group(1)
-                        .toUpperCase()));
-        outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)")
-                .matcher(s)
-                .replaceAll(r -> r.group(1)));
-        outputProcessor.addRule(
-                s -> Pattern.compile("(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$", Pattern.DOTALL & Pattern.MULTILINE)
-                        .matcher(s)
-                        .replaceAll(StringUtils.EMPTY));
+        inputProcessor.addRule(StringProcessors.replacePlaceholderWithPersona(persona));
+        inputProcessor.addRule(StringProcessors.replaceRegex(eventData.getBot().getName(), persona.getName()));
+        outputProcessor.addRule(StringProcessors.stripAsNamePrefixForUppercase(persona.getName()));
+        outputProcessor.addRule(StringProcessors.stripAsNamePrefixForLowercase(persona.getName()));
+        outputProcessor.addRule(StringProcessors.stripTrailingFragment());
         final Set<LorebookEntry> entriesFound = messageFormatHelper.handleEntriesMentioned(messages, world);
         switch (persona.getIntent()) {
             case RPG -> {
@@ -82,10 +68,7 @@ public class ChatCompletionService implements CompletionService {
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData,
                 inputProcessor);
         if (Intent.AUTHOR.equals(persona.getIntent())) {
-            UnaryOperator<String> stripPrefix = s -> Pattern.compile("^(\\w* said: )")
-                    .matcher(s)
-                    .replaceAll(StringUtils.EMPTY);
-            chatMessages.forEach(m -> m.setContent(stripPrefix.apply(m.getContent())));
+            chatMessages.forEach(m -> m.setContent(StringProcessors.stripChatPrefix().apply(m.getContent())));
         }
         final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages,
                 eventData.getChannelDefinitions()

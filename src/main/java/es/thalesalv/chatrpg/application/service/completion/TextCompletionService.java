@@ -2,8 +2,9 @@ package es.thalesalv.chatrpg.application.service.completion;
 
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
+import es.thalesalv.chatrpg.application.util.StringProcessors;
+import es.thalesalv.chatrpg.domain.enums.Intent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,27 +50,13 @@ public class TextCompletionService implements CompletionService {
                 .getChannelConfig();
         final World world = channelConfig.getWorld();
         final Persona persona = channelConfig.getPersona();
-        inputProcessor.addRule(s -> Pattern.compile("\\{0\\}")
-                .matcher(s)
-                .replaceAll(r -> persona.getName()));
-        inputProcessor.addRule(s -> Pattern.compile(eventData.getBot()
-                .getName())
-                .matcher(s)
-                .replaceAll(r -> persona.getName()));
-        outputProcessor.addRule(s -> Pattern.compile("\\bAs " + persona.getName() + ", (\\w)")
-                .matcher(s)
-                .replaceAll(r -> r.group(1)
-                        .toUpperCase()));
-        outputProcessor.addRule(s -> Pattern.compile("\\bas " + persona.getName() + ", (\\w)")
-                .matcher(s)
-                .replaceAll(r -> r.group(1)));
-        outputProcessor.addRule(
-                s -> Pattern.compile("(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$", Pattern.DOTALL & Pattern.MULTILINE)
-                        .matcher(s)
-                        .replaceAll(StringUtils.EMPTY));
+        inputProcessor.addRule(StringProcessors.replacePlaceholderWithPersona(persona));
+        inputProcessor.addRule(StringProcessors.replaceRegex(eventData.getBot().getName(), persona.getName()));
+        outputProcessor.addRule(StringProcessors.stripAsNamePrefixForUppercase(persona.getName()));
+        outputProcessor.addRule(StringProcessors.stripAsNamePrefixForLowercase(persona.getName()));
+        outputProcessor.addRule(StringProcessors.stripTrailingFragment());
         final Set<LorebookEntry> entriesFound = messageFormatHelper.handleEntriesMentioned(messages, world);
-        if (persona.getIntent()
-                .equals("rpg")) {
+        if (Intent.RPG.equals(persona.getIntent())) {
             messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
             messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else {
