@@ -134,6 +134,12 @@ public class MessageFormatHelper {
                 MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
     }
 
+    public void processEntriesFoundForAuthor(final Set<LorebookEntry> entriesFound, final List<String> messages) {
+
+        entriesFound.forEach(entry -> messages.add(0,
+                MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
+    }
+
     public List<ChatMessage> formatMessagesForChatCompletions(final List<String> messages, final EventData eventData,
             final StringProcessor inputProcessor) {
 
@@ -144,7 +150,7 @@ public class MessageFormatHelper {
         List<ChatMessage> chatMessages = messages.stream()
                 .filter(msg -> !msg.trim()
                         .equals((persona.getName() + SAID).trim()))
-                .map(msg -> inputProcessor.process(msg))
+                .map(inputProcessor::process)
                 .map(msg -> ChatMessage.builder()
                         .role(determineRole(msg, persona))
                         .content(formatBotName(msg, persona))

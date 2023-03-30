@@ -2,8 +2,10 @@ package es.thalesalv.chatrpg.application.service.completion;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
+import es.thalesalv.chatrpg.domain.enums.Intent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,15 +71,22 @@ public class ChatCompletionService implements CompletionService {
                         .matcher(s)
                         .replaceAll(StringUtils.EMPTY));
         final Set<LorebookEntry> entriesFound = messageFormatHelper.handleEntriesMentioned(messages, world);
-        if (persona.getIntent()
-                .equals("rpg")) {
-            messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
-            messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
-        } else {
-            messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
+        switch (persona.getIntent()) {
+            case RPG -> {
+                messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
+                messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
+            }
+            case CHAT -> messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
+            case AUTHOR -> messageFormatHelper.processEntriesFoundForAuthor(entriesFound, messages);
         }
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData,
                 inputProcessor);
+        if (Intent.AUTHOR.equals(persona.getIntent())) {
+            UnaryOperator<String> stripPrefix = s -> Pattern.compile("^(\\w* said: )")
+                    .matcher(s)
+                    .replaceAll(StringUtils.EMPTY);
+            chatMessages.forEach(m -> m.setContent(stripPrefix.apply(m.getContent())));
+        }
         final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages,
                 eventData.getChannelDefinitions()
                         .getChannelConfig());
