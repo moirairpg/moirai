@@ -52,7 +52,8 @@ public class ChatCompletionService implements CompletionService {
         final World world = channelConfig.getWorld();
         final Persona persona = channelConfig.getPersona();
         inputProcessor.addRule(StringProcessors.replacePlaceholderWithPersona(persona));
-        inputProcessor.addRule(StringProcessors.replaceRegex(eventData.getBot().getName(), persona.getName()));
+        inputProcessor.addRule(StringProcessors.replaceRegex(eventData.getBot()
+                .getName(), persona.getName()));
         outputProcessor.addRule(StringProcessors.stripAsNamePrefixForUppercase(persona.getName()));
         outputProcessor.addRule(StringProcessors.stripAsNamePrefixForLowercase(persona.getName()));
         outputProcessor.addRule(StringProcessors.stripTrailingFragment());
@@ -68,7 +69,8 @@ public class ChatCompletionService implements CompletionService {
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData,
                 inputProcessor);
         if (Intent.AUTHOR.equals(persona.getIntent())) {
-            chatMessages.forEach(m -> m.setContent(StringProcessors.stripChatPrefix().apply(m.getContent())));
+            chatMessages.forEach(m -> m.setContent(StringProcessors.stripChatPrefix()
+                    .apply(m.getContent())));
         }
         final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages,
                 eventData.getChannelDefinitions()

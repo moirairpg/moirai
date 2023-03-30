@@ -98,8 +98,10 @@ public class AuthorUseCase implements BotUseCase {
         return m -> m.getAuthor()
                 .getId()
                 .equals(bot.getId())
-                        ? StringProcessors.chatFormatter().apply(m)
-                        : StringProcessors.chatDirectiveFormatter().apply(m);
+                        ? StringProcessors.chatFormatter()
+                                .apply(m)
+                        : StringProcessors.chatDirectiveFormatter()
+                                .apply(m);
     }
 
     private List<Message> getHistory(final EventData eventData) {
@@ -124,7 +126,8 @@ public class AuthorUseCase implements BotUseCase {
         Persona persona = eventData.getChannelDefinitions()
                 .getChannelConfig()
                 .getPersona();
-        String personality = StringProcessors.replacePlaceholderWithPersona(persona).apply(persona.getPersonality());
+        String personality = StringProcessors.replacePlaceholderWithPersona(persona)
+                .apply(persona.getPersonality());
         Nudge nudge = persona.getNudge();
         Bump bump = persona.getBump();
 

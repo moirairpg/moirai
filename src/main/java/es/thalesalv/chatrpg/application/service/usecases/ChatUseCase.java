@@ -88,11 +88,14 @@ public class ChatUseCase implements BotUseCase {
 
     private List<String> getFormattedReplies(final EventData eventData) {
 
-        if (null == eventData.getMessage().getReferencedMessage()) {
+        if (null == eventData.getMessage()
+                .getReferencedMessage()) {
             return Collections.emptyList();
         } else {
-            String formattedReference = StringProcessors.formattedReference().apply(eventData.getMessage());
-            String formattedReply = StringProcessors.formattedResponse().apply(eventData.getMessage());
+            String formattedReference = StringProcessors.formattedReference()
+                    .apply(eventData.getMessage());
+            String formattedReply = StringProcessors.formattedResponse()
+                    .apply(eventData.getMessage());
             return Arrays.asList(formattedReference, formattedReply);
         }
     }
