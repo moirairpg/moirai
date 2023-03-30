@@ -3,6 +3,9 @@ package es.thalesalv.chatrpg.application.service.commands;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 @RequiredArgsConstructor
 public class EditCommandService implements DiscordCommand {
 
+    private static final String COMMAND_STRING = "edit";
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
@@ -44,7 +48,7 @@ public class EditCommandService implements DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(EditCommandService.class);
 
     @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for message edition");
         try {
@@ -82,7 +86,7 @@ public class EditCommandService implements DiscordCommand {
     }
 
     @Override
-    public void handle(final ModalInteractionEvent event) {
+    public void handleModal(final ModalInteractionEvent event) {
 
         LOGGER.debug("Received data of edit message modal");
         try {
@@ -151,5 +155,21 @@ public class EditCommandService implements DiscordCommand {
                 .messageToBeEdited(message)
                 .channelDefinitions(channel)
                 .build());
+    }
+
+    @Override
+    public SlashCommandData buildCommand() {
+
+        LOGGER.debug("Registering slash command for message editing");
+        return Commands
+                .slash(COMMAND_STRING,
+                        "Edits either the last message or a specified message from the bot if a message ID.")
+                .addOption(OptionType.STRING, "message-id", "ID of the message to be edited", false);
+    }
+
+    @Override
+    public String getName() {
+
+        return COMMAND_STRING;
     }
 }

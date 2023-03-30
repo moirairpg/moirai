@@ -3,6 +3,8 @@ package es.thalesalv.chatrpg.application.service.commands;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -28,6 +30,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 @RequiredArgsConstructor
 public class RetryCommandService implements DiscordCommand {
 
+    private static final String COMMAND_STRING = "retry";
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
@@ -43,7 +46,7 @@ public class RetryCommandService implements DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(RetryCommandService.class);
 
     @Override
-    public void handle(SlashCommandInteractionEvent event) {
+    public void handleCommand(SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for regeneration of message");
         try {
@@ -130,5 +133,19 @@ public class RetryCommandService implements DiscordCommand {
                     return msg;
                 })
                 .orElseThrow(() -> new IndexOutOfBoundsException(BOT_MESSAGE_NOT_FOUND));
+    }
+
+    @Override
+    public SlashCommandData buildCommand() {
+
+        LOGGER.debug("Registering slash command for message retry");
+        return Commands.slash(COMMAND_STRING,
+                "Deletes the last generated message and generates a new one in response to the latest chat message.");
+    }
+
+    @Override
+    public String getName() {
+
+        return COMMAND_STRING;
     }
 }

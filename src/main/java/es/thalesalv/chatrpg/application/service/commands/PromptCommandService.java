@@ -2,6 +2,8 @@ package es.thalesalv.chatrpg.application.service.commands;
 
 import java.util.concurrent.TimeUnit;
 
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @RequiredArgsConstructor
 public class PromptCommandService implements DiscordCommand {
 
+    private static final String COMMAND_STRING = "prompt";
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
@@ -49,7 +52,7 @@ public class PromptCommandService implements DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(PromptCommandService.class);
 
     @Override
-    public void handle(SlashCommandInteractionEvent event) {
+    public void handleCommand(SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for assisted prompt");
         try {
@@ -83,7 +86,7 @@ public class PromptCommandService implements DiscordCommand {
     }
 
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void handleModal(ModalInteractionEvent event) {
 
         LOGGER.debug("Received data of message for assisted prompt generation modal");
         try {
@@ -154,5 +157,19 @@ public class PromptCommandService implements DiscordCommand {
         return Modal.create("prompt-message-dmassist-modal", "Type prompt")
                 .addComponents(ActionRow.of(messageContent), ActionRow.of(lorebookEntryPlayer))
                 .build();
+    }
+
+    @Override
+    public SlashCommandData buildCommand() {
+
+        LOGGER.debug("Registering slash command for bot prompt");
+        return Commands.slash(COMMAND_STRING,
+                "Prompts as the bot's persona and allows for a generation in addition to the provided prompt.");
+    }
+
+    @Override
+    public String getName() {
+
+        return COMMAND_STRING;
     }
 }

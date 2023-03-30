@@ -9,12 +9,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import es.thalesalv.chatrpg.application.service.BotCommands;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.discord.listener.SessionListener;
 import es.thalesalv.chatrpg.domain.enums.CommandHelpInfo;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -24,7 +26,9 @@ import net.dv8tion.jda.api.utils.FileUpload;
 @RequiredArgsConstructor
 public class HelpCommandService implements DiscordCommand {
 
-    private final SessionListener sessionListener;
+    private static final String COMMAND_STRING = "help";
+
+    private final BotCommands botCommands;
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String OPTIONAL = "optional";
     private static final String REQUIRED = "required";
@@ -38,7 +42,7 @@ public class HelpCommandService implements DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(HelpCommandService.class);
 
     @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for help");
         try {
@@ -46,7 +50,7 @@ public class HelpCommandService implements DiscordCommand {
             final String botName = event.getJDA()
                     .getSelfUser()
                     .getName();
-            final List<String> commands = sessionListener.buildCommands()
+            final List<String> commands = botCommands.list()
                     .stream()
                     .map(cmd -> {
                         final StringBuilder sb = new StringBuilder(
@@ -61,9 +65,7 @@ public class HelpCommandService implements DiscordCommand {
                         cmds.stream()
                                 .findAny()
                                 .map(a -> sb.append(EXAMPLES_INDENT));
-                        cmds.forEach(desc -> {
-                            sb.append(DESC_INDENT + desc);
-                        });
+                        cmds.forEach(desc -> sb.append(DESC_INDENT + desc));
                         return sb.toString()
                                 .trim();
                     })
@@ -84,5 +86,18 @@ public class HelpCommandService implements DiscordCommand {
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
+    }
+
+    @Override
+    public SlashCommandData buildCommand() {
+
+        LOGGER.debug("Registering help command");
+        return Commands.slash(COMMAND_STRING, "Shows available commands and how to use them.");
+    }
+
+    @Override
+    public String getName() {
+
+        return COMMAND_STRING;
     }
 }

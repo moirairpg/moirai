@@ -3,6 +3,8 @@ package es.thalesalv.chatrpg.application.service.commands;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 @RequiredArgsConstructor
 public class StartCommandService implements DiscordCommand {
 
+    private static final String COMMAND_STRING = "start";
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
@@ -45,7 +48,7 @@ public class StartCommandService implements DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(StartCommandService.class);
 
     @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for message edition");
         try {
@@ -112,5 +115,19 @@ public class StartCommandService implements DiscordCommand {
     private String formatInput(String intent, String prompt, SelfUser bot) {
 
         return "rpg".equals(intent) ? bot.getAsMention() + prompt : prompt;
+    }
+
+    @Override
+    public SlashCommandData buildCommand() {
+
+        LOGGER.debug("Registering slash command for starting world");
+        return Commands.slash(COMMAND_STRING,
+                "Posts the default prompt for the current world into the chat and generates content for that world.");
+    }
+
+    @Override
+    public String getName() {
+
+        return COMMAND_STRING;
     }
 }

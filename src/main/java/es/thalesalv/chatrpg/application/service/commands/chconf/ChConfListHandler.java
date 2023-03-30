@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.world;
+package es.thalesalv.chatrpg.application.service.commands.chconf;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,49 +11,49 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import es.thalesalv.chatrpg.adapters.data.repository.ChannelConfigRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
+import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelConfigEntityToDTO;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.mapper.world.WorldEntityToDTO;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
+import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 
-@Service
+@Component
 @Transactional
 @RequiredArgsConstructor
-public class ListWorldCommandService implements DiscordCommand {
+public class ChConfListHandler {
 
     private final ObjectWriter prettyPrintObjectMapper;
     private final ChannelEntityToDTO channelEntityToDTO;
-    private final WorldEntityToDTO worldEntityToDTO;
+    private final ChannelConfigEntityToDTO channelConfigEntityToDTO;
 
-    private final WorldRepository worldRepository;
+    private final ChannelConfigRepository channelConfigRepository;
     private final ChannelRepository channelRepository;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetWorldCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChConfGetHandler.class);
 
     private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";
-    private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
+    private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration attached to it.";
     private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
-    private static final String ERROR_RETRIEVE = "An error occurred while retrieving world data";
+    private static final String ERROR_RETRIEVE = "An error occurred while retrieving config data";
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
-    private static final String QUERIED_WORLD_NOT_FOUND = "The world queried does not exist.";
+    private static final String QUERIED_CONFIG_NOT_FOUND = "The config queried does not exist.";
     private static final String ERROR_HANDLING_ENTRY = "Error handling lore entries file.";
 
-    @Override
-    public void handle(SlashCommandInteractionEvent event) {
+    public void handleCommand(SlashCommandInteractionEvent event) {
 
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
@@ -63,20 +63,22 @@ public class ListWorldCommandService implements DiscordCommand {
                     .map(channelEntityToDTO)
                     .map(channel -> {
                         try {
-                            List<World> worlds = worldRepository.findAll()
+                            final List<ChannelConfig> config = channelConfigRepository.findAll()
                                     .stream()
-                                    .map(worldEntityToDTO)
-                                    .map(w -> cleanWorld(w, event))
+                                    .map(channelConfigEntityToDTO)
+                                    .map(c -> cleanConfig(c, event))
                                     .collect(Collectors.toList());
 
-                            final String worldJson = prettyPrintObjectMapper.writeValueAsString(worlds);
+                            final String configJson = prettyPrintObjectMapper.writeValueAsString(config);
                             final File file = File.createTempFile("lore-entries-", ".json");
-                            Files.write(file.toPath(), worldJson.getBytes(StandardCharsets.UTF_8),
+                            Files.write(file.toPath(), configJson.getBytes(StandardCharsets.UTF_8),
                                     StandardOpenOption.APPEND);
+
                             final FileUpload fileUpload = FileUpload.fromData(file);
                             event.replyFiles(fileUpload)
                                     .setEphemeral(true)
                                     .complete();
+
                             fileUpload.close();
                         } catch (JsonProcessingException e) {
                             LOGGER.error(ERROR_SERIALIZATION, e);
@@ -96,8 +98,8 @@ public class ListWorldCommandService implements DiscordCommand {
                     })
                     .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (WorldNotFoundException e) {
-            LOGGER.info(QUERIED_WORLD_NOT_FOUND);
-            event.reply(QUERIED_WORLD_NOT_FOUND)
+            LOGGER.info(QUERIED_CONFIG_NOT_FOUND);
+            event.reply(QUERIED_CONFIG_NOT_FOUND)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
@@ -116,15 +118,38 @@ public class ListWorldCommandService implements DiscordCommand {
         }
     }
 
-    private World cleanWorld(final World world, final SlashCommandInteractionEvent event) {
+    private ChannelConfig cleanConfig(final ChannelConfig config, final SlashCommandInteractionEvent event) {
 
-        final String ownerName = event.getJDA()
+        final String configOwnerName = event.getJDA()
+                .retrieveUserById(config.getOwner())
+                .complete()
+                .getName();
+
+        config.setOwner(configOwnerName);
+
+        final World world = config.getWorld();
+        final String worldOwnerName = event.getJDA()
                 .retrieveUserById(world.getOwner())
                 .complete()
                 .getName();
-        world.setOwner(ownerName);
+
+        world.setOwner(worldOwnerName);
         world.setLorebook(null);
         world.setInitialPrompt(null);
-        return world;
+        config.setWorld(world);
+
+        final Persona persona = config.getPersona();
+        final String personaOwnerName = event.getJDA()
+                .retrieveUserById(persona.getOwner())
+                .complete()
+                .getName();
+
+        persona.setOwner(personaOwnerName);
+        persona.setNudge(null);
+        persona.setBump(null);
+        persona.setPersonality(null);
+        config.setPersona(persona);
+        config.setSettings(null);
+        return config;
     }
 }

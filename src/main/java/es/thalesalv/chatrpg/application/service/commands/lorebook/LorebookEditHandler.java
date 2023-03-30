@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,7 +23,6 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
@@ -41,10 +40,10 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 
-@Service
+@Component
 @Transactional
 @RequiredArgsConstructor
-public class EditLorebookCommandService implements DiscordCommand {
+public class LorebookEditHandler {
 
     private final ChannelEntityToDTO channelEntityToDTO;
     private final LorebookDTOToEntity lorebookDTOToEntity;
@@ -64,10 +63,9 @@ public class EditLorebookCommandService implements DiscordCommand {
     private static final String ERROR_UPDATE = "There was an error parsing your request. Please try again.";
     private static final String USER_UPDATE_COMMAND_WITHOUT_ID = "User tried to use update command without ID";
     private static final String MISSING_ID_MESSAGE = "The ID of the entry is required for an update action. Please try again with the entry ID.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(EditLorebookCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LorebookEditHandler.class);
 
-    @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         try {
             LOGGER.debug("Received slash command for lore entry update");
@@ -107,8 +105,7 @@ public class EditLorebookCommandService implements DiscordCommand {
         }
     }
 
-    @Override
-    public void handle(final ModalInteractionEvent event) {
+    public void handleModal(final ModalInteractionEvent event) {
 
         try {
             LOGGER.debug("Received data from lore entry update modal");
@@ -174,7 +171,7 @@ public class EditLorebookCommandService implements DiscordCommand {
                     lorebookEntryRegexRepository.save(lorebookRegex);
                     return lorebookRegex;
                 })
-                .get();
+                .orElseThrow(() -> new IllegalArgumentException("Not Found"));
     }
 
     private String retrieveDiscordPlayerId(final ModalMapping modalMapping, final String id) {

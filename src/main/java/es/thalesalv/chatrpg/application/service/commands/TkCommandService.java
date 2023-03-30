@@ -3,6 +3,9 @@ package es.thalesalv.chatrpg.application.service.commands;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 @RequiredArgsConstructor
 public class TkCommandService implements DiscordCommand {
 
+    private static final String COMMAND_STRING = "tk";
     private final TokenizerService tokenizerService;
     private static final Logger LOGGER = LoggerFactory.getLogger(InteractionListener.class);
     private static final int DELETE_EPHEMERAL_TIMER = 20;
@@ -24,7 +28,7 @@ public class TkCommandService implements DiscordCommand {
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when tokenizing the text. Please try again.";
 
     @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         try {
             LOGGER.debug("Received slash command for tokenization of strings");
@@ -43,4 +47,19 @@ public class TkCommandService implements DiscordCommand {
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
+
+    @Override
+    public SlashCommandData buildCommand() {
+
+        LOGGER.debug("Registering slash command for tokenization");
+        return Commands.slash(COMMAND_STRING, "Tokenizes and counts tokens for the provided text.")
+                .addOption(OptionType.STRING, "text", "Text that will be tokenized.", true);
+    }
+
+    @Override
+    public String getName() {
+
+        return COMMAND_STRING;
+    }
+
 }

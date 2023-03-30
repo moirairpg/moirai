@@ -4,6 +4,9 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 @RequiredArgsConstructor
 public class UnsetCommandService implements DiscordCommand {
 
+    private static final String COMMAND_STRING = "unset";
     private final ChannelRepository channelRepository;
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String WORLD = "world";
@@ -35,7 +39,7 @@ public class UnsetCommandService implements DiscordCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnsetCommandService.class);
 
     @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for unsetting channel config or world");
         try {
@@ -44,14 +48,9 @@ public class UnsetCommandService implements DiscordCommand {
                     .map(OptionMapping::getAsString)
                     .ifPresent(operation -> {
                         switch (operation) {
-                            case WORLD:
-                                unsetWorld(event);
-                                break;
-                            case CHANNEL:
-                                deleteChannelConfig(event);
-                                break;
-                            default:
-                                throw new IllegalArgumentException(OPTION_NOT_FOUND);
+                            case WORLD -> unsetWorld(event);
+                            case CHANNEL -> deleteChannelConfig(event);
+                            default -> throw new IllegalArgumentException(OPTION_NOT_FOUND);
                         }
                     });
         } catch (IllegalArgumentException e) {
@@ -64,18 +63,14 @@ public class UnsetCommandService implements DiscordCommand {
             LOGGER.debug(USER_COMMAND_CHCONFIG_NOT_FOUND, e);
             event.reply(CONFIG_ID_NOT_FOUND)
                     .setEphemeral(true)
-                    .queue(reply -> {
-                        reply.deleteOriginal()
-                                .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-                    });
+                    .queue(reply -> reply.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_SETTING_CHANNEL_CONFIG, e);
             event.reply(SOMETHING_WRONG_TRY_AGAIN)
                     .setEphemeral(true)
-                    .queue(reply -> {
-                        reply.deleteOriginal()
-                                .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-                    });
+                    .queue(reply -> reply.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -93,10 +88,8 @@ public class UnsetCommandService implements DiscordCommand {
                     event.reply(MessageFormat.format(CHANNEL_UNLINKED_CONFIG, event.getChannel()
                             .getName()))
                             .setEphemeral(true)
-                            .queue(reply -> {
-                                reply.deleteOriginal()
-                                        .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-                            });
+                            .queue(reply -> reply.deleteOriginal()
+                                    .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
                     return a;
                 })
                 .orElseThrow(() -> new ChannelConfigurationNotFoundException(CONFIG_ID_NOT_FOUND));
@@ -118,12 +111,24 @@ public class UnsetCommandService implements DiscordCommand {
                             .setWorld(null);
                     event.reply(MessageFormat.format(WORLD_UNLINKED_CHANNEL_CONFIG, worldName, config.getId()))
                             .setEphemeral(true)
-                            .queue(reply -> {
-                                reply.deleteOriginal()
-                                        .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-                            });
+                            .queue(reply -> reply.deleteOriginal()
+                                    .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
                     return config;
                 })
                 .orElseThrow(() -> new ChannelConfigurationNotFoundException(CONFIG_ID_NOT_FOUND));
+    }
+
+    @Override
+    public SlashCommandData buildCommand() {
+
+        LOGGER.debug("Registering slash command for unsetting definitions");
+        return Commands.slash(COMMAND_STRING, "Removes channel config or world attached to a channel.")
+                .addOption(OptionType.STRING, "operation", "Choose what will be unset: world, channel.", true);
+    }
+
+    @Override
+    public String getName() {
+
+        return COMMAND_STRING;
     }
 }
