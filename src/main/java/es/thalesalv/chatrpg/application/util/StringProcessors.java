@@ -1,6 +1,5 @@
 package es.thalesalv.chatrpg.application.util;
 
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.function.UnaryOperator;
@@ -30,7 +29,7 @@ public class StringProcessors {
                 .replaceAll(StringUtils.EMPTY);
     }
 
-    public static UnaryOperator<String> stripChatPrefixIfAuthor(Persona persona) {
+    public static UnaryOperator<String> stripChatPrefix() {
 
         return s -> Pattern.compile("^\\w* said:")
                 .matcher(s)
