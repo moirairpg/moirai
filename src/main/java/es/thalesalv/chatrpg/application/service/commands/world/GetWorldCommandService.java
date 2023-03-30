@@ -91,7 +91,8 @@ public class GetWorldCommandService implements DiscordCommand {
     private World cleanWorld(final World world, final SlashCommandInteractionEvent event) {
 
         final String ownerName = event.getJDA()
-                .getUserById(world.getOwner())
+                .retrieveUserById(world.getOwner())
+                .complete()
                 .getName();
         world.setOwner(ownerName);
         world.setLorebook(null);
