@@ -100,13 +100,15 @@ public class GetChConfCommandService implements DiscordCommand {
     private ChannelConfig cleanConfig(final ChannelConfig config, final SlashCommandInteractionEvent event) {
 
         final String configOwnerName = event.getJDA()
-                .getUserById(config.getOwner())
+                .retrieveUserById(config.getOwner())
+                .complete()
                 .getName();
         config.setOwner(configOwnerName);
 
         final World world = config.getWorld();
         final String worldOwnerName = event.getJDA()
-                .getUserById(world.getOwner())
+                .retrieveUserById(world.getOwner())
+                .complete()
                 .getName();
         world.setOwner(worldOwnerName);
         world.setLorebook(null);
@@ -115,7 +117,8 @@ public class GetChConfCommandService implements DiscordCommand {
 
         final Persona persona = config.getPersona();
         final String personaOwnerName = event.getJDA()
-                .getUserById(persona.getOwner())
+                .retrieveUserById(persona.getOwner())
+                .complete()
                 .getName();
         persona.setOwner(personaOwnerName);
         persona.setNudge(null);

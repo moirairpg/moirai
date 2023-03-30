@@ -115,7 +115,8 @@ public class ListLorebookCommandService implements DiscordCommand {
         }
 
         lorebook.setOwner(event.getJDA()
-                .getUserById(world.getOwner())
+                .retrieveUserById(world.getOwner())
+                .complete()
                 .getName());
         final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebook);
         final File file = File.createTempFile("lorebook-", ".json");
