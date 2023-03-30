@@ -71,11 +71,11 @@ public class ChatCompletionService implements CompletionService {
                         .replaceAll(StringUtils.EMPTY));
         final Set<LorebookEntry> entriesFound = messageFormatHelper.handleEntriesMentioned(messages, world);
         switch (persona.getIntent()) {
-            case "dungeonMaster" -> {
+            case "rpg" -> {
                 messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
                 messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
             }
-            case "chatbot" -> messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
+            case "chat" -> messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
             case "author" -> messageFormatHelper.processEntriesFoundForAuthor(entriesFound, messages);
         }
         final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData,

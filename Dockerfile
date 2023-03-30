@@ -3,8 +3,7 @@ FROM eclipse-temurin:17.0.6_10-jdk-jammy AS builder
 
 WORKDIR /opt/chatrpg
 
-ADD ./pom.xml pom.xml
-ADD ./src src/
+ADD ./ ./
 
 RUN apt update -y &&\
     apt install -y wget &&\
