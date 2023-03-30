@@ -101,7 +101,8 @@ public class GetLorebookCommandService implements DiscordCommand {
         final Lorebook lorebook = world.getLorebook();
         lorebook.setEntries(null);
         lorebook.setOwner(event.getJDA()
-                .getUserById(world.getOwner())
+                .retrieveUserById(world.getOwner())
+                .complete()
                 .getName());
         final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebook);
         event.reply(MessageFormat.format(LOREBOOK_RETRIEVED, lorebook.getName(), lorebookJson))
