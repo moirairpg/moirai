@@ -41,41 +41,50 @@ public class StringProcessors {
     }
 
     public static UnaryOperator<String> replacePlaceholderWithPersona(Persona persona) {
+
         return s -> Pattern.compile("\\b\\{0\\}\\b")
                 .matcher(s)
                 .replaceAll(r -> persona.getName());
     }
 
     public static UnaryOperator<String> replaceRegex(String searchRegex, String replace) {
-        return s -> Pattern.compile("\\b"+searchRegex+"\\b")
+
+        return s -> Pattern.compile("\\b" + searchRegex + "\\b")
                 .matcher(s)
                 .replaceAll(r -> replace);
     }
 
-    public static Function<Message,String> chatFormatter() {
+    public static Function<Message, String> chatFormatter() {
+
         return m -> MessageFormat.format("{0} said: {1}", m.getAuthor()
-                        .getName(),
+                .getName(),
                 m.getContentDisplay()
                         .trim());
     }
 
-    public static Function<Message,String> chatDirectiveFormatter() {
+    public static Function<Message, String> chatDirectiveFormatter() {
+
         return m -> MessageFormat.format("{0} said: [ {1} ]", m.getAuthor()
-                        .getName(),
+                .getName(),
                 m.getContentDisplay()
                         .trim());
     }
 
-    public static Function<Message,String> formattedReference() {
-        return m -> MessageFormat.format("{0} said earlier: {1}", m.getReferencedMessage().getAuthor()
-                .getName(), m.getReferencedMessage().getContentDisplay());
+    public static Function<Message, String> formattedReference() {
+
+        return m -> MessageFormat.format("{0} said earlier: {1}", m.getReferencedMessage()
+                .getAuthor()
+                .getName(),
+                m.getReferencedMessage()
+                        .getContentDisplay());
     }
 
-    public static Function<Message,String> formattedResponse() {
-        return m -> MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
-                m.getAuthor()
-                        .getName(),
-                m.getReferencedMessage().getAuthor()
+    public static Function<Message, String> formattedResponse() {
+
+        return m -> MessageFormat.format("{0} quoted the message from {1} and replied with: {2}", m.getAuthor()
+                .getName(),
+                m.getReferencedMessage()
+                        .getAuthor()
                         .getName(),
                 m.getContentDisplay());
     }
