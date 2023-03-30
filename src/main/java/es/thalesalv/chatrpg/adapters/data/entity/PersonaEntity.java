@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.entity;
 
+import es.thalesalv.chatrpg.application.util.dbutils.IntentConverter;
+import es.thalesalv.chatrpg.domain.enums.Intent;
 import org.hibernate.annotations.GenericGenerator;
 
 import es.thalesalv.chatrpg.application.util.dbutils.BumpConverter;
@@ -31,7 +33,8 @@ public class PersonaEntity {
     @Column(name = "name")
     private String name;
     @Column(name = "intent")
-    private String intent;
+    @Convert(converter = IntentConverter.class)
+    private Intent intent;
     @Column(name = "personality", length = 10000)
     private String personality;
     @Column(name = "owner_discord_id")
