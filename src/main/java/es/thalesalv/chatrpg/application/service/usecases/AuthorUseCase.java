@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.service.usecases;
 
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
+import es.thalesalv.chatrpg.application.util.StringProcessors;
 import es.thalesalv.chatrpg.application.util.TokenCountingStringPredicate;
 import es.thalesalv.chatrpg.domain.enums.AIModel;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
@@ -18,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -50,8 +50,8 @@ public class AuthorUseCase implements BotUseCase {
                     .submit()
                     .whenComplete((d, e) -> {
                         if (e != null) {
-                            LOGGER.error("Error deleting trigger mention in RPG", e);
-                            throw new DiscordFunctionException("Error deleting trigger mention in RPG", e);
+                            LOGGER.error("Error deleting trigger mention in Author", e);
+                            throw new DiscordFunctionException("Error deleting trigger mention in Author", e);
                         }
                     });
         }
@@ -98,14 +98,8 @@ public class AuthorUseCase implements BotUseCase {
         return m -> m.getAuthor()
                 .getId()
                 .equals(bot.getId())
-                        ? MessageFormat.format("{0} said: {1}", m.getAuthor()
-                                .getName(),
-                                m.getContentDisplay()
-                                        .trim())
-                        : MessageFormat.format("{0} said: [ {1} ]", m.getAuthor()
-                                .getName(),
-                                m.getContentDisplay()
-                                        .trim());
+                        ? StringProcessors.chatFormatter().apply(m)
+                        : StringProcessors.chatDirectiveFormatter().apply(m);
     }
 
     private List<Message> getHistory(final EventData eventData) {
@@ -130,8 +124,7 @@ public class AuthorUseCase implements BotUseCase {
         Persona persona = eventData.getChannelDefinitions()
                 .getChannelConfig()
                 .getPersona();
-        String personality = persona.getPersonality()
-                .replaceAll("\\{0\\}", persona.getName());
+        String personality = StringProcessors.replacePlaceholderWithPersona(persona).apply(persona.getPersonality());
         Nudge nudge = persona.getNudge();
         Bump bump = persona.getBump();
 
