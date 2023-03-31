@@ -34,18 +34,19 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 @RequiredArgsConstructor
 public class StartInteractionHandler implements DiscordInteractionHandler {
 
-    private static final String COMMAND_STRING = "start";
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
     private final EventDataMapper eventDataMapper;
+
+    private static final String COMMAND_STRING = "start";
     private static final String USE_CASE = "UseCase";
     private static final int DELETE_EPHEMERAL_TIMER = 20;
-
     private static final String DEFAULT_PROMPT_NOT_FOUND = "World does not have a default prompt set";
     private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
     private static final String UNKNOWN_ERROR = "An unknown error was caught while starting world";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong. Please try again.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(StartInteractionHandler.class);
 
     @Override

@@ -1,13 +1,15 @@
 package es.thalesalv.chatrpg.adapters.discord.listener;
 
-import es.thalesalv.chatrpg.application.service.commands.BotCommands;
-import es.thalesalv.chatrpg.application.service.commands.*;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import es.thalesalv.chatrpg.application.service.commands.BotCommands;
+import es.thalesalv.chatrpg.application.service.commands.HelpInteractionHandler;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -15,17 +17,16 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.session.SessionDisconnectEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class SessionListener {
 
+    @Value("${chatrpg.discord.status-channel-id}")
+    private String statusChannelId;
+
     private final BotCommands commands;
     private final HelpInteractionHandler helpService;
 
-    @Value("${chatrpg.discord.status-channel-id}")
-    private String statusChannelId;
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionListener.class);
 
     public void onReady(ReadyEvent event) {

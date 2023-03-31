@@ -18,15 +18,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WorldInteractionHandler implements DiscordInteractionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WorldInteractionHandler.class);
-    private static final String USER_ACTION_NOT_FOUND = "User tried an action that does not exist";
-    private static final String COMMAND_STRING = "wd";
-    private static final String ACTION_OPTION = "action";
-    private static final String ID_OPTION = "id";
     private final WorldGetHandler getHandler;
     private final WorldListHandler listHandler;
     private final WorldSetHandler setHandler;
     private final WorldUnsetHandler unsetHandler;
+
+    private static final String USER_ACTION_NOT_FOUND = "User tried an action that does not exist";
+    private static final String COMMAND_STRING = "wd";
+    private static final String ACTION_OPTION = "action";
+    private static final String ID_OPTION = "id";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorldInteractionHandler.class);
 
     @Override
     public void handleCommand(final SlashCommandInteractionEvent event) {

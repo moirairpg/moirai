@@ -25,6 +25,7 @@ public class ChannelConfigUnsetHandler {
     private static final String CHANNEL_UNLINKED_CONFIG = "This channel has been unlinked from configurations.";
     private static final String ERROR_SETTING_CHANNEL_CONFIG = "Error unsetting channel config";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when unsetting the channel config. Please try again.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigUnsetHandler.class);
 
     public void handleCommand(final SlashCommandInteractionEvent event) {

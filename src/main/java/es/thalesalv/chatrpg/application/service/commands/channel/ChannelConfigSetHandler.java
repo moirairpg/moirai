@@ -32,6 +32,7 @@ public class ChannelConfigSetHandler {
     private static final String CHANNEL_LINKED_CONFIG = "Channel `{0}` was linked to configuration `{1}` (with persona `{2}`).";
     private static final String ERROR_SETTING_DEFINITION = "An error occurred while setting a definition";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when attaching config to channel. Please try again.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigSetHandler.class);
 
     public void handleCommand(final SlashCommandInteractionEvent event) {

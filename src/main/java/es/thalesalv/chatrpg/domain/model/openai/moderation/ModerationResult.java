@@ -23,9 +23,11 @@ public class ModerationResult {
 
     @JsonProperty("categories")
     private Map<String, Boolean> categories;
+
     @JsonProperty("category_scores")
     @JsonDeserialize(using = JsonMapDoubleDeserializer.class)
     private Map<String, String> categoryScores;
+
     @JsonProperty("flagged")
     private Boolean flagged;
 }

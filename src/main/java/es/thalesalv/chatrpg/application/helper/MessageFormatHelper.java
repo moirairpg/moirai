@@ -41,6 +41,7 @@ public class MessageFormatHelper {
     private static final String CHARACTER_DESCRIPTION = "{0} description: {1}";
     private static final String CHAT_EXPRESSION = "^(.*) (says|said|quoted|replied).*";
     private static final String RPG_DM_INSTRUCTIONS = "I will remember to never act or speak on behalf of {0}. I will not repeat what {0} just said. I will only describe the world around {0}.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageFormatHelper.class);
 
     /**
@@ -70,6 +71,7 @@ public class MessageFormatHelper {
                     messages.replaceAll(m -> m.replaceAll(player.getAsTag(), entry.getName())
                             .replaceAll(TAG_EXPRESSION + player.getName(), entry.getName()));
                 });
+
         mentions.getUsers()
                 .forEach(mention -> entries.stream()
                         .filter(entry -> StringUtils.isNotBlank(entry.getPlayerDiscordId()))
@@ -117,6 +119,7 @@ public class MessageFormatHelper {
             if (StringUtils.isNotBlank(entry.getPlayerDiscordId())) {
                 messages.add(0, MessageFormat.format(RPG_DM_INSTRUCTIONS, entry.getName()));
             }
+
             messages.add(0, MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription()));
             Optional.ofNullable(entry.getPlayerDiscordId())
                     .ifPresent(id -> {
@@ -140,6 +143,7 @@ public class MessageFormatHelper {
         final Persona persona = eventData.getChannelDefinitions()
                 .getChannelConfig()
                 .getPersona();
+
         final String personality = inputProcessor.process(persona.getPersonality());
         List<ChatMessage> chatMessages = messages.stream()
                 .filter(msg -> !msg.trim()
@@ -150,10 +154,12 @@ public class MessageFormatHelper {
                         .content(formatBotName(msg, persona))
                         .build())
                 .collect(Collectors.toList());
+
         chatMessages.add(0, ChatMessage.builder()
                 .role(ROLE_SYSTEM)
                 .content(personality)
                 .build());
+
         chatMessages = formatNudgeForChatCompletions(persona, chatMessages, inputProcessor);
         chatMessages = formatBumpForChatCompletions(persona, chatMessages, inputProcessor);
         return chatMessages;
@@ -172,6 +178,7 @@ public class MessageFormatHelper {
         } else if (isChat && !message.startsWith(REMEMBER_TO_NEVER)) {
             return ROLE_USER;
         }
+
         return ROLE_SYSTEM;
     }
 
@@ -189,12 +196,15 @@ public class MessageFormatHelper {
         final Persona persona = eventData.getChannelDefinitions()
                 .getChannelConfig()
                 .getPersona();
+
         messages.replaceAll(m -> m.replace(eventData.getBot()
                 .getName(), persona.getName())
                 .trim());
+
         final String promptContent = MessageFormat
                 .format(BOT_SAID, String.join(StringUtils.LF, messages), persona.getName())
                 .trim();
+
         return inputProcessor.process(promptContent);
     }
 
@@ -271,9 +281,11 @@ public class MessageFormatHelper {
         final Persona persona = eventData.getChannelDefinitions()
                 .getChannelConfig()
                 .getPersona();
+
         final String personality = inputProcessor.process(persona.getPersonality());
         messages.add(0, personality);
         List<String> chatMessages = formatNudge(persona, messages, inputProcessor);
+
         return formatBump(persona, chatMessages, inputProcessor);
     }
 

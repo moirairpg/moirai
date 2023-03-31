@@ -17,7 +17,9 @@ public class DestroyListener {
 
     @Value("${chatrpg.discord.status-channel-id}")
     private String statusChannelId;
+
     private final JDA jda;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DestroyListener.class);
 
     @PreDestroy

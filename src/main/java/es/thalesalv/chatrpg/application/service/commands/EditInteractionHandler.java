@@ -35,19 +35,21 @@ import net.dv8tion.jda.api.requests.RestAction;
 @RequiredArgsConstructor
 public class EditInteractionHandler implements DiscordInteractionHandler {
 
-    private static final String COMMAND_STRING = "edit";
-    private static final String ID_OPTION = "id";
-    private static final String MODAL_MESSAGE_CONTENT = "message-content";
-    private static final String MODAL_ID = COMMAND_STRING + "-message-dmassist-modal";
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityToDTO;
+
     private static final int DELETE_EPHEMERAL_TIMER = 20;
+    private static final String COMMAND_STRING = "edit";
+    private static final String ID_OPTION = "id";
+    private static final String MODAL_MESSAGE_CONTENT = "message-content";
+    private static final String MODAL_ID = COMMAND_STRING + "-message-dmassist-modal";
     private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
     private static final String ERROR_EDITING = "Error editing message";
     private static final String BOT_NOT_FOUND = "No bot message found.";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(EditInteractionHandler.class);
 
     @Override

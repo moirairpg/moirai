@@ -27,8 +27,10 @@ public class ChannelEntity {
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
     @Column(name = "id", unique = true, nullable = false)
     private String id;
+
     @Column(name = "channel_id", unique = true)
     private String channelId;
+
     @OneToOne
     @JoinColumn(name = "channel_config_id", referencedColumnName = "id")
     private ChannelConfigEntity channelConfig;

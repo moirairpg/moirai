@@ -34,6 +34,7 @@ public class WorldSetHandler {
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when attaching world to config. Please try again.";
     private static final String WORLD_ID_NOT_FOUND = "The world with the requested ID does not exist.";
     private static final String WORLD_LINKED_CHANNEL_CONFIG = "World `{0}` was linked to configuration to the configuration of channel `{1}` (with persona `{2}`)";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldSetHandler.class);
 
     public void handleCommand(final SlashCommandInteractionEvent event) {

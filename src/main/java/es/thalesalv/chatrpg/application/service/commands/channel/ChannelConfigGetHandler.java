@@ -99,6 +99,7 @@ public class ChannelConfigGetHandler {
                 .retrieveUserById(config.getOwner())
                 .complete()
                 .getName();
+
         config.setOwner(configOwnerName);
 
         final World world = config.getWorld();
@@ -106,6 +107,7 @@ public class ChannelConfigGetHandler {
                 .retrieveUserById(world.getOwner())
                 .complete()
                 .getName();
+
         world.setOwner(worldOwnerName);
         world.setLorebook(null);
         world.setInitialPrompt(null);
@@ -116,6 +118,7 @@ public class ChannelConfigGetHandler {
                 .retrieveUserById(persona.getOwner())
                 .complete()
                 .getName();
+
         persona.setOwner(personaOwnerName);
         persona.setNudge(null);
         persona.setBump(null);

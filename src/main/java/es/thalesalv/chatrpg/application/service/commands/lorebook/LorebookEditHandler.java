@@ -45,12 +45,6 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 @RequiredArgsConstructor
 public class LorebookEditHandler {
 
-    private static final String ID_OPTION = "id";
-    private static final String FIELD_NAME = "lb-entry-name";
-    private static final String FIELD_REGEX = "lb-entry-regex";
-    private static final String FIELD_DESCRIPTION = "lb-entry-desc";
-    private static final String FIELD_PLAYER = "lb-entry-player";
-    private static final String MODAL_ID = "update-lb-entry-data";
     private final ChannelEntityToDTO channelEntityToDTO;
     private final LorebookDTOToEntity lorebookDTOToEntity;
     private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
@@ -60,7 +54,14 @@ public class LorebookEditHandler {
     private final ChannelRepository channelRepository;
     private final LorebookEntryRepository lorebookRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
+
     private static final int DELETE_EPHEMERAL_TIMER = 20;
+    private static final String ID_OPTION = "id";
+    private static final String FIELD_NAME = "lb-entry-name";
+    private static final String FIELD_REGEX = "lb-entry-regex";
+    private static final String FIELD_DESCRIPTION = "lb-entry-desc";
+    private static final String FIELD_PLAYER = "lb-entry-player";
+    private static final String MODAL_ID = "update-lb-entry-data";
     private static final String ERROR_PARSING_JSON = "Error parsing entry data into JSON";
     private static final String USER_UPDATE_ENTRY_NOT_FOUND = "The entry queried does not exist.";
     private static final String UNKNOWN_ERROR_CAUGHT = "Exception caught while updating lorebook entry";
@@ -69,6 +70,7 @@ public class LorebookEditHandler {
     private static final String ERROR_UPDATE = "There was an error parsing your request. Please try again.";
     private static final String USER_UPDATE_COMMAND_WITHOUT_ID = "User tried to use update command without ID";
     private static final String MISSING_ID_MESSAGE = "The ID of the entry is required for an update action. Please try again with the entry ID.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookEditHandler.class);
 
     public void handleCommand(final SlashCommandInteractionEvent event) {
@@ -81,6 +83,7 @@ public class LorebookEditHandler {
                     .ifPresentOrElse(channel -> {
                         final String entryId = event.getOption(ID_OPTION)
                                 .getAsString();
+
                         saveEventDataToContext(entryId, channel, event.getChannel());
                         final LorebookEntryRegexEntity entry = buildEntity(entryId);
                         final Modal modalEntry = buildEntryUpdateModal(entry);
@@ -123,17 +126,22 @@ public class LorebookEditHandler {
 
             final String entryId = contextDatastore.getEventData()
                     .getLorebookEntryId();
+
             final String updatedEntryName = event.getValue(FIELD_NAME)
                     .getAsString();
+
             final String updatedEntryRegex = event.getValue(FIELD_REGEX)
                     .getAsString();
+
             final String updatedEntryDescription = event.getValue(FIELD_DESCRIPTION)
                     .getAsString();
+
             final String playerId = retrieveDiscordPlayerId(event.getValue(FIELD_PLAYER), event.getUser()
                     .getId());
 
             final LorebookEntryRegexEntity updatedEntry = updateEntry(updatedEntryDescription, entryId,
                     updatedEntryName, playerId, updatedEntryRegex, world);
+
             final LorebookEntry entry = lorebookEntryEntityToDTO.apply(updatedEntry);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(entry);
 
@@ -162,6 +170,7 @@ public class LorebookEditHandler {
                 .name(name)
                 .playerDiscordId(playerId)
                 .build();
+
         final LorebookEntity lorebook = lorebookDTOToEntity.apply(world.getLorebook());
         return lorebookEntryRegexRepository.findByLorebookEntry(lorebookEntry)
                 .map(re -> {
@@ -173,6 +182,7 @@ public class LorebookEditHandler {
                             .lorebookEntry(lorebookEntry)
                             .lorebook(lorebook)
                             .build();
+
                     lorebookRepository.save(lorebookEntry);
                     lorebookEntryRegexRepository.save(lorebookRegex);
                     return lorebookRegex;
@@ -196,23 +206,28 @@ public class LorebookEditHandler {
                         .getName())
                 .setRequired(true)
                 .build();
+
         final String regex = Optional.ofNullable(lorebookRegex.getRegex())
                 .filter(StringUtils::isNotBlank)
                 .orElse(lorebookRegex.getLorebookEntry()
                         .getName());
+
         final TextInput lorebookEntryRegex = TextInput
                 .create(FIELD_REGEX, "Regular expression (optional)", TextInputStyle.SHORT)
                 .setValue(regex)
                 .setRequired(false)
                 .build();
+
         final TextInput lorebookEntryDescription = TextInput
                 .create(FIELD_DESCRIPTION, "Description", TextInputStyle.PARAGRAPH)
                 .setValue(lorebookRegex.getLorebookEntry()
                         .getDescription())
                 .setRequired(true)
                 .build();
+
         String isPlayerCharacter = StringUtils.isBlank(lorebookRegex.getLorebookEntry()
                 .getPlayerDiscordId()) ? "n" : "y";
+
         final TextInput lorebookEntryPlayer = TextInput
                 .create(FIELD_PLAYER, "Is this a player character?", TextInputStyle.SHORT)
                 .setValue(isPlayerCharacter)
