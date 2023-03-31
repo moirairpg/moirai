@@ -3,6 +3,8 @@ package es.thalesalv.chatrpg.application.service.commands;
 import java.util.concurrent.TimeUnit;
 
 import es.thalesalv.chatrpg.domain.enums.Intent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +36,12 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Service
 @RequiredArgsConstructor
-public class PromptCommandService implements DiscordCommand {
+public class PromptInteractionHandler implements DiscordInteractionHandler {
 
+    private static final String COMMAND_STRING = "prompt";
+    private static final String MESSAGE_CONTENT = "message-content";
+    private static final String GENERATE_OUTPUT = "generate-output";
+    private static final String MODAL_ID = COMMAND_STRING + "-message-dmassist-modal";
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
@@ -47,12 +53,12 @@ public class PromptCommandService implements DiscordCommand {
     private static final String GENERATION_INSTRUCTION = " Simply generate the message from where it stopped.\n";
     private static final String ERROR_GENERATING = "Error generating message";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when generating the message. Please try again.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(PromptCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PromptInteractionHandler.class);
 
     @Override
-    public void handle(SlashCommandInteractionEvent event) {
+    public void handleCommand(SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Received slash command for assisted prompt");
+        LOGGER.debug("handling {} command", COMMAND_STRING);
         try {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
@@ -84,9 +90,9 @@ public class PromptCommandService implements DiscordCommand {
     }
 
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void handleModal(ModalInteractionEvent event) {
 
-        LOGGER.debug("Received data of message for assisted prompt generation modal");
+        LOGGER.debug("handling {} modal", COMMAND_STRING);
         try {
             event.deferReply();
             final MessageChannelUnion channel = contextDatastore.getEventData()
@@ -100,9 +106,9 @@ public class PromptCommandService implements DiscordCommand {
                     .getModelSettings();
             final SelfUser bot = event.getJDA()
                     .getSelfUser();
-            final String input = event.getValue("message-content")
+            final String input = event.getValue(MESSAGE_CONTENT)
                     .getAsString();
-            final String generateOutput = event.getValue("generate-output")
+            final String generateOutput = event.getValue(GENERATE_OUTPUT)
                     .getAsString();
             final String formattedInput = formatInput(persona.getIntent(), GENERATION_INSTRUCTION + input, bot);
             final Message message = channel.sendMessage(formattedInput)
@@ -140,20 +146,33 @@ public class PromptCommandService implements DiscordCommand {
     private Modal buildEditMessageModal() {
 
         LOGGER.debug("Building assisted prompt modal");
-        final TextInput messageContent = TextInput
-                .create("message-content", "Message content", TextInputStyle.PARAGRAPH)
+        final TextInput messageContent = TextInput.create(MESSAGE_CONTENT, "Message content", TextInputStyle.PARAGRAPH)
                 .setPlaceholder("The Forest of the Talking Trees is located in the west of the country.")
                 .setMaxLength(2000)
                 .setRequired(true)
                 .build();
         final TextInput lorebookEntryPlayer = TextInput
-                .create("generate-output", "Generate output?", TextInputStyle.SHORT)
+                .create(GENERATE_OUTPUT, "Generate output?", TextInputStyle.SHORT)
                 .setPlaceholder("y or n")
                 .setMaxLength(1)
                 .setRequired(true)
                 .build();
-        return Modal.create("prompt-message-dmassist-modal", "Type prompt")
+        return Modal.create(MODAL_ID, "Type prompt")
                 .addComponents(ActionRow.of(messageContent), ActionRow.of(lorebookEntryPlayer))
                 .build();
+    }
+
+    @Override
+    public SlashCommandData buildCommand() {
+
+        LOGGER.debug("Registering slash command for bot prompt");
+        return Commands.slash(COMMAND_STRING,
+                "Prompts as the bot's persona and allows for a generation in addition to the provided prompt.");
+    }
+
+    @Override
+    public String getName() {
+
+        return COMMAND_STRING;
     }
 }

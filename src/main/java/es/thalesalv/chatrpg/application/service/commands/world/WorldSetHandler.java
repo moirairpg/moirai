@@ -5,15 +5,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import es.thalesalv.chatrpg.domain.model.chconf.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.ChannelEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigurationNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import jakarta.transaction.Transactional;
@@ -21,10 +21,10 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-@Service
+@Component
 @Transactional
 @RequiredArgsConstructor
-public class SetWorldCommandService implements DiscordCommand {
+public class WorldSetHandler {
 
     private final WorldRepository worldRepository;
     private final ChannelRepository channelRepository;
@@ -36,10 +36,9 @@ public class SetWorldCommandService implements DiscordCommand {
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when attaching world to config. Please try again.";
     private static final String WORLD_ID_NOT_FOUND = "The world with the requested ID does not exist.";
     private static final String WORLD_LINKED_CHANNEL_CONFIG = "World `{0}` was linked to configuration to the configuration of channel `{1}` (with persona `{2}`)";
-    private static final Logger LOGGER = LoggerFactory.getLogger(SetWorldCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorldSetHandler.class);
 
-    @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         try {
             LOGGER.debug("Received slash command for message edition");
@@ -52,17 +51,10 @@ public class SetWorldCommandService implements DiscordCommand {
             worldRepository.findById(id)
                     .map(world -> channelRepository.findByChannelId(event.getChannel()
                             .getId())
-                            .filter(Objects::nonNull)
                             .map(channel -> attachWorldToConfig(channel, world, event))
                             .orElseThrow(() -> new ChannelConfigurationNotFoundException(CHANNEL_CONFIG_NOT_FOUND)))
                     .orElseThrow(() -> new WorldNotFoundException(WORLD_ID_NOT_FOUND));
-        } catch (ChannelConfigurationNotFoundException e) {
-            LOGGER.debug(e.getMessage(), e);
-            event.reply(e.getMessage())
-                    .setEphemeral(true)
-                    .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
-        } catch (WorldNotFoundException e) {
+        } catch (ChannelConfigurationNotFoundException | WorldNotFoundException e) {
             LOGGER.debug(e.getMessage(), e);
             event.reply(e.getMessage())
                     .setEphemeral(true)
@@ -92,10 +84,8 @@ public class SetWorldCommandService implements DiscordCommand {
                         .getPersona()
                         .getName()))
                 .setEphemeral(true)
-                .queue(reply -> {
-                    reply.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-                });
+                .queue(reply -> reply.deleteOriginal()
+                        .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         return channel;
     }
 }

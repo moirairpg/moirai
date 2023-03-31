@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
@@ -13,7 +13,6 @@ import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
@@ -26,10 +25,10 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 
-@Service
+@Component
 @Transactional
 @RequiredArgsConstructor
-public class DeleteLorebookCommandService implements DiscordCommand {
+public class LorebookDeleteHandler {
 
     private final ContextDatastore contextDatastore;
     private final ChannelEntityToDTO channelEntityToDTO;
@@ -46,10 +45,9 @@ public class DeleteLorebookCommandService implements DiscordCommand {
     private static final String ERROR_DELETE = "There was an error parsing your request. Please try again.";
     private static final String USER_DELETE_ENTRY_NOT_FOUND = "User tried to delete an entry that does not exist";
     private static final String MISSING_ID_MESSAGE = "The ID of the entry is required for a delete action. Please try again with the entry id.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteLorebookCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LorebookDeleteHandler.class);
 
-    @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         try {
             LOGGER.debug("Received slash command for lore entry deletion");
@@ -94,8 +92,7 @@ public class DeleteLorebookCommandService implements DiscordCommand {
         }
     }
 
-    @Override
-    public void handle(final ModalInteractionEvent event) {
+    public void handleModal(final ModalInteractionEvent event) {
 
         LOGGER.debug("Received data from lore entry deletion modal");
         event.deferReply();

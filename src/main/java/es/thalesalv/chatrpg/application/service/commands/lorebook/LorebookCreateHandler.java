@@ -4,10 +4,11 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -21,7 +22,6 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
@@ -37,9 +37,10 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 
-@Service
+@Component
+@Transactional
 @RequiredArgsConstructor
-public class CreateLorebookCommandService implements DiscordCommand {
+public class LorebookCreateHandler {
 
     private final ContextDatastore contextDatastore;
     private final ObjectWriter prettyPrintObjectMapper;
@@ -55,10 +56,9 @@ public class CreateLorebookCommandService implements DiscordCommand {
     private static final String ERROR_CREATING_LORE_ENTRY = "An error occurred while creating lore entry";
     private static final String ERROR_CREATE = "There was an error parsing your request. Please try again.";
     private static final String LORE_ENTRY_CREATED = "Lore entry with name **{0}** created. Don''t forget to save this ID!\n```json\n{1}\n```";
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateLorebookCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LorebookCreateHandler.class);
 
-    @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for lore entry creation");
         channelRepository.findByChannelId(event.getChannel()
@@ -75,8 +75,7 @@ public class CreateLorebookCommandService implements DiscordCommand {
                                 .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
     }
 
-    @Override
-    public void handle(final ModalInteractionEvent event) {
+    public void handleModal(final ModalInteractionEvent event) {
 
         try {
             LOGGER.debug("Received data from lore entry creation modal -> {}", event.getValues());
