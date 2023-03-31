@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
@@ -23,10 +22,10 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-@Service
+@Component
 @Transactional
 @RequiredArgsConstructor
-public class GetLorebookCommandService implements DiscordCommand {
+public class LorebookGetHandler {
 
     private final ObjectWriter prettyPrintObjectMapper;
     private final ChannelEntityToDTO channelEntityToDTO;
@@ -40,10 +39,9 @@ public class GetLorebookCommandService implements DiscordCommand {
     private static final String ERROR_RETRIEVE = "An error occurred while retrieving lorebook data";
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
     private static final String QUERIED_ENTRY_NOT_FOUND = "The entry queried does not exist.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetLorebookCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LorebookGetHandler.class);
 
-    @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
@@ -62,7 +60,6 @@ public class GetLorebookCommandService implements DiscordCommand {
                             }
 
                             retrieveLorebook(world, event);
-                            ;
                             return channel;
                         } catch (JsonProcessingException e) {
                             LOGGER.error(ERROR_SERIALIZATION, e);
