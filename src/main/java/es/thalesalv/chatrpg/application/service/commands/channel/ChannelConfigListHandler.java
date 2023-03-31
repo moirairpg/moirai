@@ -58,23 +58,22 @@ public class ChannelConfigListHandler {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-                            final List<ChannelConfig> config = channelConfigRepository.findAll()
-                                    .stream()
-                                    .map(channelConfigEntityToDTO)
-                                    .map(c -> cleanConfig(c, event))
-                                    .collect(Collectors.toList());
+            final List<ChannelConfig> config = channelConfigRepository.findAll()
+                    .stream()
+                    .map(channelConfigEntityToDTO)
+                    .map(c -> cleanConfig(c, event))
+                    .collect(Collectors.toList());
 
-                            final String configJson = prettyPrintObjectMapper.writeValueAsString(config);
-                            final File file = File.createTempFile("lore-entries-", ".json");
-                            Files.write(file.toPath(), configJson.getBytes(StandardCharsets.UTF_8),
-                                    StandardOpenOption.APPEND);
+            final String configJson = prettyPrintObjectMapper.writeValueAsString(config);
+            final File file = File.createTempFile("lore-entries-", ".json");
+            Files.write(file.toPath(), configJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
 
-                            final FileUpload fileUpload = FileUpload.fromData(file);
-                            event.replyFiles(fileUpload)
-                                    .setEphemeral(true)
-                                    .complete();
+            final FileUpload fileUpload = FileUpload.fromData(file);
+            event.replyFiles(fileUpload)
+                    .setEphemeral(true)
+                    .complete();
 
-                            fileUpload.close();
+            fileUpload.close();
 
         } catch (WorldNotFoundException e) {
             LOGGER.info(QUERIED_CONFIG_NOT_FOUND);
@@ -99,7 +98,8 @@ public class ChannelConfigListHandler {
             event.reply(ERROR_RETRIEVE)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));        } catch (Exception e) {
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+        } catch (Exception e) {
             LOGGER.error(ERROR_RETRIEVE, e);
             event.reply(USER_ERROR_RETRIEVE)
                     .setEphemeral(true)
