@@ -70,7 +70,7 @@ public class LorebookInteractionHandler implements DiscordInteractionHandler {
     public SlashCommandData buildCommand() {
 
         LOGGER.debug("Registering slash command for lorebook operations");
-        String actionDescription = MessageFormat.format("One of the following: {}.", LorebookAction.listAsString());
+        String actionDescription = MessageFormat.format("One of the following: {0}.", LorebookAction.listAsString());
 
         return Commands.slash(COMMAND_STRING,
                 "Used with subcommands for management of lorebook entries belonging to the current channel's world.")

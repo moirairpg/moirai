@@ -1,11 +1,11 @@
 package es.thalesalv.chatrpg.adapters.discord.listener;
 
+import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import es.thalesalv.chatrpg.application.service.commands.BotCommands;
 import es.thalesalv.chatrpg.application.service.commands.HelpInteractionHandler;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -16,14 +16,13 @@ import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 @Service
 @RequiredArgsConstructor
 public class InteractionListener {
 
     private static final int DELETE_EPHEMERAL_TIMER = 20;
-    private static final String COMMAND_IS_NULL = "Command is null";
+    private static final String COMMAND_IS_NULL = "Command is null: {0}";
     private static final String UNKNOWN_ERROR = "Unknown exception caught while running commands";
     private static final String USER_COMMAND_NOT_FOUND = "User tried a command that does not exist";
     private static final String NON_EXISTING_COMMAND = "The command requested does not exist. Please try again.";
@@ -40,15 +39,12 @@ public class InteractionListener {
             LOGGER.debug("Received slash command event -> {}", event);
             event.deferReply();
 
-            final String commandName = Optional.ofNullable(event.getOption("action"))
-                    .map(OptionMapping::getAsString)
-                    .orElse(StringUtils.EMPTY);
+            DiscordInteractionHandler command = helpService.getName()
+                    .equals(event.getName()) ? helpService.asInteractionHandler()
+                            : botCommands.byName(event.getName())
+                                    .orElseThrow(() -> new NullPointerException(
+                                            MessageFormat.format(COMMAND_IS_NULL, event.getName())));
 
-            DiscordInteractionHandler command = Optional.<DiscordInteractionHandler>ofNullable(helpService)
-                    .filter(cmd -> cmd.getName()
-                            .equals(commandName))
-                    .orElse(botCommands.byName(commandName)
-                            .orElseThrow(() -> new NullPointerException(COMMAND_IS_NULL)));
             command.handleCommand(event);
         } catch (NoSuchBeanDefinitionException e) {
             LOGGER.info(USER_COMMAND_NOT_FOUND);

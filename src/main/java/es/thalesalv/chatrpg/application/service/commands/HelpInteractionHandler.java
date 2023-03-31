@@ -100,4 +100,9 @@ public class HelpInteractionHandler implements DiscordInteractionHandler {
 
         return COMMAND_STRING;
     }
+
+    public DiscordInteractionHandler asInteractionHandler() {
+
+        return this;
+    }
 }

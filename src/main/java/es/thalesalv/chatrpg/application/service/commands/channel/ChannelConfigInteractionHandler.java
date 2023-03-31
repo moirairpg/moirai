@@ -51,7 +51,7 @@ public class ChannelConfigInteractionHandler implements DiscordInteractionHandle
     public SlashCommandData buildCommand() {
 
         LOGGER.debug("Registering slash command for channel config retrieval");
-        String actionDescription = MessageFormat.format("One of the following: {}.",
+        String actionDescription = MessageFormat.format("One of the following: {0}.",
                 ChannelConfigAction.listAsString());
         return Commands
                 .slash(COMMAND_STRING, "Used with subcommands for management of the current channel's configuration.")

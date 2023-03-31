@@ -31,7 +31,7 @@ public class BotCommands {
         return Stream
                 .of(channelConfigHandler, lorebookHandler, worldHandler, editHandler, promptService, retryService,
                         startService, tokenizerService)
-                .collect(Collectors.toList());
+                .collect(Collectors.<DiscordInteractionHandler>toList());
     }
 
     public List<SlashCommandData> list() {

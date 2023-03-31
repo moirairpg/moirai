@@ -49,7 +49,7 @@ public class WorldInteractionHandler implements DiscordInteractionHandler {
     public SlashCommandData buildCommand() {
 
         LOGGER.debug("Registering slash command for world retrieval");
-        String actionDescription = MessageFormat.format("One of the following: {}.", WorldAction.listAsString());
+        String actionDescription = MessageFormat.format("One of the following: {0}.", WorldAction.listAsString());
         return Commands.slash(COMMAND_STRING, "Used with subcommands for management of the current channel's world.")
                 .addOption(OptionType.STRING, ACTION_OPTION, actionDescription, true)
                 .addOption(OptionType.STRING, ID_OPTION, "The id of the world", false);

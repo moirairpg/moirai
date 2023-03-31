@@ -25,7 +25,7 @@ public class SessionListener {
     private final HelpInteractionHandler helpService;
 
     @Value("${chatrpg.discord.status-channel-id}")
-    private final String statusChannelId;
+    private String statusChannelId;
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionListener.class);
 
     public void onReady(ReadyEvent event) {
