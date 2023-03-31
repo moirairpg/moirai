@@ -35,7 +35,7 @@ public class MessageListener {
 
         if (!event.getAuthor()
                 .isBot()) {
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .ifPresent(channel -> {

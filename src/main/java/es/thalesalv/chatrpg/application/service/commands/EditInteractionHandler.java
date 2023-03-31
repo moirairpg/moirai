@@ -60,7 +60,7 @@ public class EditInteractionHandler implements DiscordInteractionHandler {
             event.deferReply();
             final SelfUser bot = event.getJDA()
                     .getSelfUser();
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .map(channel -> {

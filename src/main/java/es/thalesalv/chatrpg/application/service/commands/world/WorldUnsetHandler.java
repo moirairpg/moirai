@@ -37,7 +37,7 @@ public class WorldUnsetHandler {
                 event.getChannel()
                         .getId());
         try {
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(config -> {
                         final String worldName = config.getChannelConfig()

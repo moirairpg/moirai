@@ -61,7 +61,7 @@ public class LorebookCreateHandler {
     public void handleCommand(final SlashCommandInteractionEvent event) {
 
         LOGGER.debug("Received slash command for lore entry creation");
-        channelRepository.findByChannelId(event.getChannel()
+        channelRepository.findById(event.getChannel()
                 .getId())
                 .map(channelEntityToDTO)
                 .ifPresentOrElse(channel -> {
