@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import es.thalesalv.chatrpg.domain.enums.Intent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,8 +69,7 @@ public class TextCompletionService implements CompletionService {
                         .matcher(s)
                         .replaceAll(StringUtils.EMPTY));
         final Set<LorebookEntry> entriesFound = messageFormatHelper.handleEntriesMentioned(messages, world);
-        if (persona.getIntent()
-                .equals("rpg")) {
+        if (Intent.RPG.equals(persona.getIntent())) {
             messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
             messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
         } else {

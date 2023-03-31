@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import es.thalesalv.chatrpg.domain.enums.Intent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -94,13 +95,13 @@ public class RetryCommandService implements DiscordCommand {
         }
     }
 
-    private String formatInput(String intent, Message message, SelfUser bot) {
+    private String formatInput(Intent intent, Message message, SelfUser bot) {
 
         final String authorName = message.getAuthor()
                 .getName();
         final String msgContent = message.getContentDisplay();
         final String formattedContent = MessageFormat.format(BOT_INSTRUCTION, authorName, msgContent);
-        return "rpg".equals(intent) ? bot.getAsMention() + formattedContent : formattedContent;
+        return Intent.RPG.equals(intent) ? bot.getAsMention() + formattedContent : formattedContent;
     }
 
     private Message retrieveLastMessage(final MessageChannelUnion channel, final Message botMessage) {

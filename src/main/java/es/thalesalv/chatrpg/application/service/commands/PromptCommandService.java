@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.service.commands;
 
 import java.util.concurrent.TimeUnit;
 
+import es.thalesalv.chatrpg.domain.enums.Intent;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.commons.lang3.StringUtils;
@@ -134,9 +135,9 @@ public class PromptCommandService implements DiscordCommand {
         }
     }
 
-    private String formatInput(String intent, String prompt, SelfUser bot) {
+    private String formatInput(Intent intent, String prompt, SelfUser bot) {
 
-        return "rpg".equals(intent) ? bot.getAsMention() + prompt : prompt;
+        return Intent.RPG.equals(intent) ? bot.getAsMention() + prompt : prompt;
     }
 
     private Modal buildEditMessageModal() {
