@@ -34,11 +34,9 @@ import net.dv8tion.jda.api.utils.FileUpload;
 public class WorldListHandler {
 
     private final ObjectWriter prettyPrintObjectMapper;
-    private final ChannelEntityToDTO channelEntityToDTO;
     private final WorldEntityToDTO worldEntityToDTO;
 
     private final WorldRepository worldRepository;
-    private final ChannelRepository channelRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldGetHandler.class);
 
@@ -56,11 +54,7 @@ public class WorldListHandler {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel()
-                    .getId())
-                    .map(channelEntityToDTO)
-                    .map(channel -> {
-                        try {
+
                             List<World> worlds = worldRepository.findAll()
                                     .stream()
                                     .map(worldEntityToDTO)
@@ -76,23 +70,8 @@ public class WorldListHandler {
                                     .setEphemeral(true)
                                     .complete();
                             fileUpload.close();
-                        } catch (JsonProcessingException e) {
-                            LOGGER.error(ERROR_SERIALIZATION, e);
-                            event.reply(ERROR_RETRIEVE)
-                                    .setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal()
-                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-                        } catch (IOException e) {
-                            LOGGER.error(ERROR_HANDLING_ENTRY, e);
-                            event.reply(ERROR_RETRIEVE)
-                                    .setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal()
-                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-                        }
 
-                        return channel;
-                    })
-                    .orElseThrow(ChannelConfigNotFoundException::new);
+
         } catch (WorldNotFoundException e) {
             LOGGER.info(QUERIED_WORLD_NOT_FOUND);
             event.reply(QUERIED_WORLD_NOT_FOUND)
@@ -102,6 +81,18 @@ public class WorldListHandler {
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.info(CHANNEL_CONFIG_NOT_FOUND);
             event.reply(CHANNEL_NO_CONFIG_ATTACHED)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+        } catch (JsonProcessingException e) {
+            LOGGER.error(ERROR_SERIALIZATION, e);
+            event.reply(ERROR_RETRIEVE)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+        } catch (IOException e) {
+            LOGGER.error(ERROR_HANDLING_ENTRY, e);
+            event.reply(ERROR_RETRIEVE)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));

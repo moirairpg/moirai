@@ -58,11 +58,6 @@ public class ChannelConfigListHandler {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel()
-                    .getId())
-                    .map(channelEntityToDTO)
-                    .map(channel -> {
-                        try {
                             final List<ChannelConfig> config = channelConfigRepository.findAll()
                                     .stream()
                                     .map(channelConfigEntityToDTO)
@@ -80,23 +75,7 @@ public class ChannelConfigListHandler {
                                     .complete();
 
                             fileUpload.close();
-                        } catch (JsonProcessingException e) {
-                            LOGGER.error(ERROR_SERIALIZATION, e);
-                            event.reply(ERROR_RETRIEVE)
-                                    .setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal()
-                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-                        } catch (IOException e) {
-                            LOGGER.error(ERROR_HANDLING_ENTRY, e);
-                            event.reply(ERROR_RETRIEVE)
-                                    .setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal()
-                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-                        }
 
-                        return channel;
-                    })
-                    .orElseThrow(ChannelConfigNotFoundException::new);
         } catch (WorldNotFoundException e) {
             LOGGER.info(QUERIED_CONFIG_NOT_FOUND);
             event.reply(QUERIED_CONFIG_NOT_FOUND)
@@ -109,7 +88,18 @@ public class ChannelConfigListHandler {
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
+            LOGGER.error(ERROR_SERIALIZATION, e);
+            event.reply(ERROR_RETRIEVE)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+        } catch (IOException e) {
+            LOGGER.error(ERROR_HANDLING_ENTRY, e);
+            event.reply(ERROR_RETRIEVE)
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));        } catch (Exception e) {
             LOGGER.error(ERROR_RETRIEVE, e);
             event.reply(USER_ERROR_RETRIEVE)
                     .setEphemeral(true)
