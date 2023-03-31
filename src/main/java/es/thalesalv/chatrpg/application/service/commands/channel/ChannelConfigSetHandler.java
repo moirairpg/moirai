@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 @Transactional
 @RequiredArgsConstructor
 public class ChannelConfigSetHandler {
+
     private static final String ID_OPTION = "id";
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
