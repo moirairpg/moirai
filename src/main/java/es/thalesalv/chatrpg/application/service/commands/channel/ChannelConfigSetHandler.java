@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.chconf;
+package es.thalesalv.chatrpg.application.service.commands.channel;
 
 import java.text.MessageFormat;
 import java.util.Optional;
@@ -6,22 +6,21 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.ChannelEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelConfigRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigurationNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-@Service
+@Component
 @Transactional
 @RequiredArgsConstructor
-public class SetChConfCommandService implements DiscordCommand {
+public class ChannelConfigSetHandler {
 
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
@@ -32,10 +31,9 @@ public class SetChConfCommandService implements DiscordCommand {
     private static final String CHANNEL_LINKED_CONFIG = "Channel `{0}` was linked to configuration `{1}` (with persona `{2}`).";
     private static final String ERROR_SETTING_DEFINITION = "An error occurred while setting a definition";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when attaching config to channel. Please try again.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(SetChConfCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigSetHandler.class);
 
-    @Override
-    public void handle(final SlashCommandInteractionEvent event) {
+    public void handleCommand(final SlashCommandInteractionEvent event) {
 
         try {
             LOGGER.debug("Received slash command for message edition");
@@ -66,10 +64,8 @@ public class SetChConfCommandService implements DiscordCommand {
                                 config.getPersona()
                                         .getName()))
                                 .setEphemeral(true)
-                                .queue(reply -> {
-                                    reply.deleteOriginal()
-                                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS);
-                                });
+                                .queue(reply -> reply.deleteOriginal()
+                                        .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
                         return entity;
                     })
                     .orElseThrow(() -> new ChannelConfigurationNotFoundException(CHANNEL_CONFIG_NOT_FOUND));
