@@ -19,6 +19,7 @@ public class LorebookEntryDTOToEntity implements Function<LorebookEntry, Loreboo
         final String regex = Optional.ofNullable(t.getRegex())
                 .filter(StringUtils::isNotBlank)
                 .orElse(t.getName());
+
         return LorebookEntryRegexEntity.builder()
                 .id(t.getRegexId())
                 .regex(regex)

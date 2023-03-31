@@ -87,17 +87,23 @@ public class LorebookCreateHandler {
 
             final User author = event.getMember()
                     .getUser();
+
             final String entryName = event.getValue("lb-entry-name")
                     .getAsString();
+
             final String entryRegex = event.getValue("lb-entry-regex")
                     .getAsString();
+
             final String entryDescription = event.getValue("lb-entry-desc")
                     .getAsString();
+
             final String entryPlayerCharacter = event.getValue("lb-entry-player")
                     .getAsString();
+
             final boolean isPlayerCharacter = entryPlayerCharacter.equals("y");
             final LorebookEntryRegexEntity insertedEntry = insertEntry(author, entryName, entryRegex, entryDescription,
                     isPlayerCharacter, world);
+
             final LorebookEntry loreItem = lorebookEntryEntityToDTO.apply(insertedEntry);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(loreItem);
 
@@ -124,16 +130,19 @@ public class LorebookCreateHandler {
                 .setPlaceholder("Forest of the Talking Trees")
                 .setRequired(true)
                 .build();
+
         final TextInput lorebookEntryRegex = TextInput
                 .create("lb-entry-regex", "Regular expression (optional)", TextInputStyle.SHORT)
                 .setPlaceholder("/(Rain|)Forest of the (Talking|Speaking) Trees/gi")
                 .setRequired(false)
                 .build();
+
         final TextInput lorebookEntryDescription = TextInput
                 .create("lb-entry-desc", "Description", TextInputStyle.PARAGRAPH)
                 .setPlaceholder("The Forest of the Talking Trees is located in the west of the country.")
                 .setRequired(true)
                 .build();
+
         final TextInput lorebookEntryPlayer = TextInput
                 .create("lb-entry-player", "Is this a player character?", TextInputStyle.SHORT)
                 .setPlaceholder("y or n")
@@ -158,6 +167,7 @@ public class LorebookCreateHandler {
                         .filter(a -> isPlayerCharacter)
                         .orElse(null))
                 .build());
+
         return lorebookEntryRegexRepository.save(LorebookEntryRegexEntity.builder()
                 .regex(Optional.ofNullable(entryRegex)
                         .filter(StringUtils::isNotBlank)

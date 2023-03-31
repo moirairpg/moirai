@@ -19,6 +19,7 @@ public class ChatMessage {
 
     @JsonProperty("role")
     private String role;
+
     @JsonProperty("content")
     private String content;
 }

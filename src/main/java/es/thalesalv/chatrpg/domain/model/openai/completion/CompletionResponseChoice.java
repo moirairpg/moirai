@@ -18,10 +18,13 @@ public class CompletionResponseChoice {
 
     @JsonProperty("text")
     private String text;
+
     @JsonProperty("finish_reason")
     private String finishReason;
+
     @JsonProperty("index")
     private int index;
+
     @JsonProperty("message")
     private ChatMessage message;
 }

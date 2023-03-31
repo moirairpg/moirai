@@ -50,6 +50,7 @@ public class IngestDefaultWorldConfiguration {
     private final LorebookRepository lorebookRepository;
     private final LorebookEntryRepository lorebookEntryRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
+
     private static final String YAML_FILE_PATH = "worlds.yaml";
     private static final String PRIVATE = "private";
     private static final String DEFAULT_LOREBOOK = "Default lorebook";
@@ -57,6 +58,7 @@ public class IngestDefaultWorldConfiguration {
     private static final String INGESTING_ENTRY = "Ingesting lorebook entry -> {}";
     private static final String DEFAULT_WORLDS_FOUND = "Found default worlds. Ingesting them to database.";
     private static final String DEFAULT_WORLDS_NOT_FOUND = "Default worlds not found. Proceeding without them.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestDefaultWorldConfiguration.class);
 
     @PostConstruct
@@ -66,13 +68,17 @@ public class IngestDefaultWorldConfiguration {
         try {
             final InputStream yamlFile = new ClassPathResource(YAML_FILE_PATH).getInputStream();
             final WorldsYaml yaml = yamlObjectMapper.readValue(yamlFile, WorldsYaml.class);
+
             LOGGER.info(DEFAULT_WORLDS_FOUND);
+
             final AtomicInteger i = new AtomicInteger(1);
             for (World world : yaml.getWorlds()) {
                 LOGGER.debug(INGESTING_WORLD, world);
+
                 world.setId(String.valueOf(i.get()));
                 world.setOwner(jda.getSelfUser()
                         .getId());
+
                 world.setLorebook(Optional.ofNullable(world.getLorebook())
                         .map(lorebook -> setLorebook(lorebook, i.get()))
                         .orElse(buildEmptyLorebook()));
@@ -85,6 +91,7 @@ public class IngestDefaultWorldConfiguration {
                     LOGGER.debug(INGESTING_ENTRY, entry);
                     entry.setId(NanoId.randomNanoId());
                     entry.setRegexId(NanoId.randomNanoId());
+
                     final LorebookEntryRegexEntity entryEntity = lorebookDTOToEntry.apply(entry);
                     entryEntity.setLorebook(lorebookEntity);
                     lorebookEntryRepository.save(entryEntity.getLorebookEntry());
@@ -103,6 +110,7 @@ public class IngestDefaultWorldConfiguration {
         lorebook.setId(String.valueOf(id));
         lorebook.setOwner(jda.getSelfUser()
                 .getId());
+
         return lorebook;
     }
 

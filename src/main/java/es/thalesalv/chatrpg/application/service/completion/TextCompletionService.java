@@ -35,6 +35,7 @@ public class TextCompletionService implements CompletionService {
     private final CommonErrorHandler commonErrorHandler;
     private final TextCompletionRequestMapper textCompletionRequestTranslator;
     private final OpenAIApiService openAiService;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TextCompletionService.class);
 
     @Override

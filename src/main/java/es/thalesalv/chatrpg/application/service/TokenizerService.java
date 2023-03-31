@@ -13,11 +13,13 @@ import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 @Component
 public class TokenizerService {
 
+    private final HuggingFaceTokenizer tokenizer;
+
     private static final String PIPE = "|";
     private static final String TOKEN_DIVIDER = "Ġ";
     private static final String TOKENIZER_FILE_PATH = "tokenizer.json";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenizerService.class);
-    private final HuggingFaceTokenizer tokenizer;
 
     public TokenizerService() {
 

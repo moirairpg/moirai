@@ -28,6 +28,7 @@ public class HelpInteractionHandler implements DiscordInteractionHandler {
     private static final String COMMAND_STRING = "help";
 
     private final BotCommands botCommands;
+
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String OPTIONAL = "optional";
     private static final String REQUIRED = "required";
@@ -38,6 +39,7 @@ public class HelpInteractionHandler implements DiscordInteractionHandler {
     private static final String HELP_COMMAND_TITLE = "This is the list of commands avaiable for {}. Some commands are within <> encapsulation to demonstrate that information of a specific type is needed, do not include <> brackets in the command.\n\n";
     private static final String UNKNOWN_ERROR = "An unknown error was caught while tokenizing string";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong running the command. Please try again.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HelpInteractionHandler.class);
 
     @Override

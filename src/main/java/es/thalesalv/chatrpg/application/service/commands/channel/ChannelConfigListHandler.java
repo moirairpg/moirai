@@ -17,9 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelConfigRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelConfigEntityToDTO;
-import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
@@ -36,11 +34,9 @@ import net.dv8tion.jda.api.utils.FileUpload;
 public class ChannelConfigListHandler {
 
     private final ObjectWriter prettyPrintObjectMapper;
-    private final ChannelEntityToDTO channelEntityToDTO;
     private final ChannelConfigEntityToDTO channelConfigEntityToDTO;
 
     private final ChannelConfigRepository channelConfigRepository;
-    private final ChannelRepository channelRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigGetHandler.class);
 
@@ -74,7 +70,6 @@ public class ChannelConfigListHandler {
                     .complete();
 
             fileUpload.close();
-
         } catch (WorldNotFoundException e) {
             LOGGER.info(QUERIED_CONFIG_NOT_FOUND);
             event.reply(QUERIED_CONFIG_NOT_FOUND)

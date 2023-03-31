@@ -19,14 +19,16 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 @RequiredArgsConstructor
 public class TkInteractionHandler implements DiscordInteractionHandler {
 
+    private final TokenizerService tokenizerService;
+
     private static final String COMMAND_STRING = "tk";
     private static final String TEXT_OPTION = "text";
-    private final TokenizerService tokenizerService;
-    private static final Logger LOGGER = LoggerFactory.getLogger(InteractionListener.class);
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String TOKEN_REPLY_MESSAGE = "**Tokens:** {0} (contains {1} total tokens).";
     private static final String UNKNOWN_ERROR = "An unknown error was caught while tokenizing string";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when tokenizing the text. Please try again.";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(InteractionListener.class);
 
     @Override
     public void handleCommand(final SlashCommandInteractionEvent event) {
