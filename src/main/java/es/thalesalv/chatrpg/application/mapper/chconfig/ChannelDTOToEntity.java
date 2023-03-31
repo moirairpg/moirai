@@ -21,7 +21,6 @@ public class ChannelDTOToEntity implements Function<Channel, ChannelEntity> {
         final ChannelConfigEntity channelConfig = channelConfigDTOToEntity.apply(t.getChannelConfig());
         return ChannelEntity.builder()
                 .id(t.getId())
-                .channelId(t.getChannelId())
                 .channelConfig(channelConfig)
                 .build();
     }

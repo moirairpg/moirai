@@ -48,7 +48,7 @@ public class WorldSetHandler {
                     .orElseThrow(() -> new IllegalArgumentException(ID_MISSING));
 
             worldRepository.findById(id)
-                    .map(world -> channelRepository.findByChannelId(event.getChannel()
+                    .map(world -> channelRepository.findById(event.getChannel()
                             .getId())
                             .map(channel -> attachWorldToConfig(channel, world, event))
                             .orElseThrow(() -> new ChannelConfigurationNotFoundException(CHANNEL_CONFIG_NOT_FOUND)))
@@ -75,8 +75,10 @@ public class WorldSetHandler {
                 event.getChannel()
                         .getName(),
                 channel.getId());
+
         channel.getChannelConfig()
                 .setWorld(world);
+
         channelRepository.save(channel);
         event.reply(MessageFormat.format(WORLD_LINKED_CHANNEL_CONFIG, world.getName(), channel.getId(),
                 channel.getChannelConfig()

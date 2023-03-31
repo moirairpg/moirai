@@ -35,10 +35,10 @@ public class ChannelConfigUnsetHandler {
                 event.getChannel()
                         .getId());
         try {
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(a -> {
-                        channelRepository.deleteByChannelId(event.getChannel()
+                        channelRepository.deleteById(event.getChannel()
                                 .getId());
                         event.reply(MessageFormat.format(CHANNEL_UNLINKED_CONFIG, event.getChannel()
                                 .getName()))

@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 public class Channel {
 
     private String id;
-    private String channelId;
     private ChannelConfig channelConfig;
 }

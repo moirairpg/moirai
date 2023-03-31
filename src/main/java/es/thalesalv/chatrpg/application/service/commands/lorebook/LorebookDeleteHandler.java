@@ -54,7 +54,7 @@ public class LorebookDeleteHandler {
             final String entryId = event.getOption("id")
                     .getAsString();
 
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .ifPresentOrElse(channel -> {

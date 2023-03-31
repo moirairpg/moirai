@@ -58,7 +58,7 @@ public class StartInteractionHandler implements DiscordInteractionHandler {
             final SelfUser bot = event.getJDA()
                     .getSelfUser();
             final MessageChannelUnion channel = event.getChannel();
-            channelRepository.findByChannelId(channel.getId())
+            channelRepository.findById(channel.getId())
                     .map(channelEntityToDTO)
                     .map(ch -> {
                         final World world = ch.getChannelConfig()
