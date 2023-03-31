@@ -77,7 +77,7 @@ public class LorebookEditHandler {
 
         try {
             LOGGER.debug("Received slash command for lore entry update");
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .ifPresentOrElse(channel -> {

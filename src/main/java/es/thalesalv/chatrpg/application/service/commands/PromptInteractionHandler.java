@@ -64,7 +64,7 @@ public class PromptInteractionHandler implements DiscordInteractionHandler {
         try {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .map(ch -> {
