@@ -24,7 +24,6 @@ public class WorldUnsetHandler {
     private static final String USER_COMMAND_CHCONFIG_NOT_FOUND = "User tried to delete a config from a channel that has no config attached to it";
     private static final String CONFIG_ID_NOT_FOUND = "There is no channel configuration attached to this channel.";
     private static final String WORLD_UNLINKED_CHANNEL_CONFIG = "World `{0}` was unlinked from configuration ID `{1}`";
-    private static final String CHANNEL_UNLINKED_CONFIG = "This channel has been unlinked from configurations.";
     private static final String ERROR_SETTING_CHANNEL_CONFIG = "Error unsetting channel config";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when unsetting the channel config. Please try again.";
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldUnsetHandler.class);
