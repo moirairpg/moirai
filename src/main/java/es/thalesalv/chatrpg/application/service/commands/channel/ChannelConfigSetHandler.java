@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 @Transactional
 @RequiredArgsConstructor
 public class ChannelConfigSetHandler {
-
+    private static final String ID_OPTION = "id";
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
 
@@ -38,7 +38,7 @@ public class ChannelConfigSetHandler {
         try {
             LOGGER.debug("Received slash command for message edition");
             event.deferReply();
-            final String id = Optional.ofNullable(event.getOption("id"))
+            final String id = Optional.ofNullable(event.getOption(ID_OPTION))
                     .map(OptionMapping::getAsString)
                     .orElseThrow(() -> new IllegalArgumentException(ID_MISSING));
 
