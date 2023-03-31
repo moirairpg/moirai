@@ -17,9 +17,10 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 @Service
 @RequiredArgsConstructor
-public class TkCommandService implements DiscordCommand {
+public class TkInteractionHandler implements DiscordInteractionHandler {
 
     private static final String COMMAND_STRING = "tk";
+    private static final String TEXT_OPTION = "text";
     private final TokenizerService tokenizerService;
     private static final Logger LOGGER = LoggerFactory.getLogger(InteractionListener.class);
     private static final int DELETE_EPHEMERAL_TIMER = 20;
@@ -30,9 +31,9 @@ public class TkCommandService implements DiscordCommand {
     @Override
     public void handleCommand(final SlashCommandInteractionEvent event) {
 
+        LOGGER.debug("handling {} command", COMMAND_STRING);
         try {
-            LOGGER.debug("Received slash command for tokenization of strings");
-            final String text = event.getOption("text")
+            final String text = event.getOption(TEXT_OPTION)
                     .getAsString();
             final String tokens = tokenizerService.tokenize(text);
             final int tokenCount = tokenizerService.countTokens(text);
@@ -53,7 +54,7 @@ public class TkCommandService implements DiscordCommand {
 
         LOGGER.debug("Registering slash command for tokenization");
         return Commands.slash(COMMAND_STRING, "Tokenizes and counts tokens for the provided text.")
-                .addOption(OptionType.STRING, "text", "Text that will be tokenized.", true);
+                .addOption(OptionType.STRING, TEXT_OPTION, "Text that will be tokenized.", true);
     }
 
     @Override

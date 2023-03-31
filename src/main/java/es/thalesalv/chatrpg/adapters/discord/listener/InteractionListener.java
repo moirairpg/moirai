@@ -3,16 +3,15 @@ package es.thalesalv.chatrpg.adapters.discord.listener;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import es.thalesalv.chatrpg.application.service.BotCommands;
-import es.thalesalv.chatrpg.application.service.commands.HelpCommandService;
+import es.thalesalv.chatrpg.application.service.commands.BotCommands;
+import es.thalesalv.chatrpg.application.service.commands.HelpInteractionHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.application.service.commands.DiscordCommand;
+import es.thalesalv.chatrpg.application.service.commands.DiscordInteractionHandler;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -33,7 +32,7 @@ public class InteractionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(InteractionListener.class);
 
     private final BotCommands botCommands;
-    private final HelpCommandService helpService;
+    private final HelpInteractionHandler helpService;
 
     public void onSlashCommand(SlashCommandInteractionEvent event) {
 
@@ -45,7 +44,7 @@ public class InteractionListener {
                     .map(OptionMapping::getAsString)
                     .orElse(StringUtils.EMPTY);
 
-            DiscordCommand command = Optional.<DiscordCommand>ofNullable(helpService)
+            DiscordInteractionHandler command = Optional.<DiscordInteractionHandler>ofNullable(helpService)
                     .filter(cmd -> cmd.getName()
                             .equals(commandName))
                     .orElse(botCommands.byName(commandName)
@@ -79,7 +78,7 @@ public class InteractionListener {
             event.deferReply();
             final String modalId = event.getModalId();
             final String commandName = modalId.split("-")[0];
-            DiscordCommand command = Optional.<DiscordCommand>ofNullable(helpService)
+            DiscordInteractionHandler command = Optional.<DiscordInteractionHandler>ofNullable(helpService)
                     .filter(cmd -> cmd.getName()
                             .equals(commandName))
                     .orElse(botCommands.byName(commandName)

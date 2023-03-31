@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
-public interface DiscordCommand {
+public interface DiscordInteractionHandler {
 
     default void handleCommand(final SlashCommandInteractionEvent event) {
 

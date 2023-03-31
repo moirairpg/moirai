@@ -33,9 +33,12 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 @Service
 @RequiredArgsConstructor
-public class EditCommandService implements DiscordCommand {
+public class EditInteractionHandler implements DiscordInteractionHandler {
 
     private static final String COMMAND_STRING = "edit";
+    private static final String ID_OPTION = "id";
+    private static final String MODAL_MESSAGE_CONTENT = "message-content";
+    private static final String MODAL_ID = COMMAND_STRING + "-message-dmassist-modal";
     private final ContextDatastore contextDatastore;
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
@@ -45,12 +48,12 @@ public class EditCommandService implements DiscordCommand {
     private static final String ERROR_EDITING = "Error editing message";
     private static final String BOT_NOT_FOUND = "No bot message found.";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(EditCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EditInteractionHandler.class);
 
     @Override
     public void handleCommand(final SlashCommandInteractionEvent event) {
 
-        LOGGER.debug("Received slash command for message edition");
+        LOGGER.debug("handling {} command", COMMAND_STRING);
         try {
             event.deferReply();
             final SelfUser bot = event.getJDA()
@@ -88,10 +91,10 @@ public class EditCommandService implements DiscordCommand {
     @Override
     public void handleModal(final ModalInteractionEvent event) {
 
-        LOGGER.debug("Received data of edit message modal");
+        LOGGER.debug("handling {} modal", COMMAND_STRING);
         try {
             event.deferReply();
-            final String messageContent = event.getValue("message-content")
+            final String messageContent = event.getValue(MODAL_MESSAGE_CONTENT)
                     .getAsString();
             final EventData eventData = contextDatastore.getEventData();
             final Message message = eventData.getMessageToBeEdited();
@@ -119,13 +122,13 @@ public class EditCommandService implements DiscordCommand {
 
         LOGGER.debug("Building message edition modal");
         final TextInput messageContent = TextInput
-                .create("message-content", "Message content", TextInputStyle.PARAGRAPH)
+                .create(MODAL_MESSAGE_CONTENT, "Message content", TextInputStyle.PARAGRAPH)
                 .setPlaceholder("The Forest of the Talking Trees is located in the west of the country.")
                 .setValue(msg.getContentDisplay())
                 .setMaxLength(2000)
                 .setRequired(true)
                 .build();
-        return Modal.create("edit-message-dmassist-modal", "Edit message content")
+        return Modal.create(MODAL_ID, "Edit message content")
                 .addComponents(ActionRow.of(messageContent))
                 .build();
     }
@@ -133,7 +136,7 @@ public class EditCommandService implements DiscordCommand {
     private Message retrieveMessageToBeEdited(final SlashCommandInteractionEvent event,
             final ModelSettings modelSettings, final SelfUser bot) {
 
-        return Optional.ofNullable(event.getOption("message-id"))
+        return Optional.ofNullable(event.getOption(ID_OPTION))
                 .map(OptionMapping::getAsString)
                 .map(event.getChannel()::retrieveMessageById)
                 .map(RestAction::complete)
@@ -164,7 +167,7 @@ public class EditCommandService implements DiscordCommand {
         return Commands
                 .slash(COMMAND_STRING,
                         "Edits either the last message or a specified message from the bot if a message ID.")
-                .addOption(OptionType.STRING, "message-id", "ID of the message to be edited", false);
+                .addOption(OptionType.STRING, ID_OPTION, "ID of the message to be edited", false);
     }
 
     @Override

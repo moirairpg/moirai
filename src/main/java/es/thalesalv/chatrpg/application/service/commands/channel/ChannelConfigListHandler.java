@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.chconf;
+package es.thalesalv.chatrpg.application.service.commands.channel;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class ChConfListHandler {
+public class ChannelConfigListHandler {
 
     private final ObjectWriter prettyPrintObjectMapper;
     private final ChannelEntityToDTO channelEntityToDTO;
@@ -42,7 +42,7 @@ public class ChConfListHandler {
     private final ChannelConfigRepository channelConfigRepository;
     private final ChannelRepository channelRepository;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChConfGetHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigGetHandler.class);
 
     private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";

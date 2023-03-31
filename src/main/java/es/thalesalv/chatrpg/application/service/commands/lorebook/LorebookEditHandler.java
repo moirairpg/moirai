@@ -45,6 +45,12 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 @RequiredArgsConstructor
 public class LorebookEditHandler {
 
+    private static final String ID_OPTION = "id";
+    private static final String FIELD_NAME = "lb-entry-name";
+    private static final String FIELD_REGEX = "lb-entry-regex";
+    private static final String FIELD_DESCRIPTION = "lb-entry-desc";
+    private static final String FIELD_PLAYER = "lb-entry-player";
+    private static final String MODAL_ID = "update-lb-entry-data";
     private final ChannelEntityToDTO channelEntityToDTO;
     private final LorebookDTOToEntity lorebookDTOToEntity;
     private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
@@ -73,7 +79,7 @@ public class LorebookEditHandler {
                     .getId())
                     .map(channelEntityToDTO)
                     .ifPresentOrElse(channel -> {
-                        final String entryId = event.getOption("id")
+                        final String entryId = event.getOption(ID_OPTION)
                                 .getAsString();
                         saveEventDataToContext(entryId, channel, event.getChannel());
                         final LorebookEntryRegexEntity entry = buildEntity(entryId);
@@ -117,13 +123,13 @@ public class LorebookEditHandler {
 
             final String entryId = contextDatastore.getEventData()
                     .getLorebookEntryId();
-            final String updatedEntryName = event.getValue("lb-entry-name")
+            final String updatedEntryName = event.getValue(FIELD_NAME)
                     .getAsString();
-            final String updatedEntryRegex = event.getValue("lb-entry-regex")
+            final String updatedEntryRegex = event.getValue(FIELD_REGEX)
                     .getAsString();
-            final String updatedEntryDescription = event.getValue("lb-entry-desc")
+            final String updatedEntryDescription = event.getValue(FIELD_DESCRIPTION)
                     .getAsString();
-            final String playerId = retrieveDiscordPlayerId(event.getValue("lb-entry-player"), event.getUser()
+            final String playerId = retrieveDiscordPlayerId(event.getValue(FIELD_PLAYER), event.getUser()
                     .getId());
 
             final LorebookEntryRegexEntity updatedEntry = updateEntry(updatedEntryDescription, entryId,
@@ -171,7 +177,7 @@ public class LorebookEditHandler {
                     lorebookEntryRegexRepository.save(lorebookRegex);
                     return lorebookRegex;
                 })
-                .orElseThrow(() -> new IllegalArgumentException("Not Found"));
+                .orElseThrow(LorebookEntryNotFoundException::new);
     }
 
     private String retrieveDiscordPlayerId(final ModalMapping modalMapping, final String id) {
@@ -185,7 +191,7 @@ public class LorebookEditHandler {
     private Modal buildEntryUpdateModal(final LorebookEntryRegexEntity lorebookRegex) {
 
         LOGGER.debug("Building entry update modal");
-        final TextInput lorebookEntryName = TextInput.create("lb-entry-name", "Name", TextInputStyle.SHORT)
+        final TextInput lorebookEntryName = TextInput.create(FIELD_NAME, "Name", TextInputStyle.SHORT)
                 .setValue(lorebookRegex.getLorebookEntry()
                         .getName())
                 .setRequired(true)
@@ -195,12 +201,12 @@ public class LorebookEditHandler {
                 .orElse(lorebookRegex.getLorebookEntry()
                         .getName());
         final TextInput lorebookEntryRegex = TextInput
-                .create("lb-entry-regex", "Regular expression (optional)", TextInputStyle.SHORT)
+                .create(FIELD_REGEX, "Regular expression (optional)", TextInputStyle.SHORT)
                 .setValue(regex)
                 .setRequired(false)
                 .build();
         final TextInput lorebookEntryDescription = TextInput
-                .create("lb-entry-desc", "Description", TextInputStyle.PARAGRAPH)
+                .create(FIELD_DESCRIPTION, "Description", TextInputStyle.PARAGRAPH)
                 .setValue(lorebookRegex.getLorebookEntry()
                         .getDescription())
                 .setRequired(true)
@@ -208,13 +214,13 @@ public class LorebookEditHandler {
         String isPlayerCharacter = StringUtils.isBlank(lorebookRegex.getLorebookEntry()
                 .getPlayerDiscordId()) ? "n" : "y";
         final TextInput lorebookEntryPlayer = TextInput
-                .create("lb-entry-player", "Is this a player character?", TextInputStyle.SHORT)
+                .create(FIELD_PLAYER, "Is this a player character?", TextInputStyle.SHORT)
                 .setValue(isPlayerCharacter)
                 .setMaxLength(1)
                 .setRequired(true)
                 .build();
 
-        return Modal.create("update-lb-entry-data", "Lorebook Entry Update")
+        return Modal.create(MODAL_ID, "Lorebook Entry Update")
                 .addComponents(ActionRow.of(lorebookEntryName), ActionRow.of(lorebookEntryRegex),
                         ActionRow.of(lorebookEntryDescription), ActionRow.of(lorebookEntryPlayer))
                 .build();

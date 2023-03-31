@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.chconf;
+package es.thalesalv.chatrpg.application.service.commands.channel;
 
 import java.text.MessageFormat;
 import java.util.Optional;
@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class ChConfSetHandler {
+public class ChannelConfigSetHandler {
 
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
@@ -31,7 +31,7 @@ public class ChConfSetHandler {
     private static final String CHANNEL_LINKED_CONFIG = "Channel `{0}` was linked to configuration `{1}` (with persona `{2}`).";
     private static final String ERROR_SETTING_DEFINITION = "An error occurred while setting a definition";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when attaching config to channel. Please try again.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChConfSetHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigSetHandler.class);
 
     public void handleCommand(final SlashCommandInteractionEvent event) {
 

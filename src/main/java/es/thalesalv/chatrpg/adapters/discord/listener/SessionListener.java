@@ -1,6 +1,6 @@
 package es.thalesalv.chatrpg.adapters.discord.listener;
 
-import es.thalesalv.chatrpg.application.service.BotCommands;
+import es.thalesalv.chatrpg.application.service.commands.BotCommands;
 import es.thalesalv.chatrpg.application.service.commands.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class SessionListener {
 
     private final BotCommands commands;
-    private final HelpCommandService helpService;
+    private final HelpInteractionHandler helpService;
 
     @Value("${chatrpg.discord.status-channel-id}")
     private final String statusChannelId;

@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.commands.chconf;
+package es.thalesalv.chatrpg.application.service.commands.channel;
 
 import java.text.MessageFormat;
 import java.util.Optional;
@@ -25,14 +25,14 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class ChConfGetHandler {
+public class ChannelConfigGetHandler {
 
     private final ObjectWriter prettyPrintObjectMapper;
     private final ChannelEntityToDTO channelEntityToDTO;
 
     private final ChannelRepository channelRepository;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChConfGetHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigGetHandler.class);
 
     private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration attached to it.";

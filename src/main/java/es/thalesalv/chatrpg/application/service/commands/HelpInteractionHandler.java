@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import es.thalesalv.chatrpg.application.service.BotCommands;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +23,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 
 @Service
 @RequiredArgsConstructor
-public class HelpCommandService implements DiscordCommand {
+public class HelpInteractionHandler implements DiscordInteractionHandler {
 
     private static final String COMMAND_STRING = "help";
 
@@ -39,7 +38,7 @@ public class HelpCommandService implements DiscordCommand {
     private static final String HELP_COMMAND_TITLE = "This is the list of commands avaiable for {}. Some commands are within <> encapsulation to demonstrate that information of a specific type is needed, do not include <> brackets in the command.\n\n";
     private static final String UNKNOWN_ERROR = "An unknown error was caught while tokenizing string";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong running the command. Please try again.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(HelpCommandService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HelpInteractionHandler.class);
 
     @Override
     public void handleCommand(final SlashCommandInteractionEvent event) {
@@ -65,7 +64,8 @@ public class HelpCommandService implements DiscordCommand {
                         cmds.stream()
                                 .findAny()
                                 .map(a -> sb.append(EXAMPLES_INDENT));
-                        cmds.forEach(desc -> sb.append(DESC_INDENT + desc));
+                        cmds.forEach(desc -> sb.append(DESC_INDENT)
+                                .append(desc));
                         return sb.toString()
                                 .trim();
                     })
