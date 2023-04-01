@@ -1,18 +1,16 @@
 package es.thalesalv.chatrpg.adapters.rest.controller;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.List;
 
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookRepository;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntityToDTO;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
+import es.thalesalv.chatrpg.application.service.api.LorebookService;
+import es.thalesalv.chatrpg.domain.exception.LorebookNotFoundException;
+import es.thalesalv.chatrpg.domain.model.api.ApiError;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,27 +24,23 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/lore")
+@RequestMapping("/lore/book")
 public class LorebookController {
 
-    private final LorebookDTOToEntity lorebookDTOToEntity;
-    private final LorebookEntityToDTO lorebookEntityToDTO;
-    private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
-    private final LorebookRepository lorebookRepository;
-    private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
+    private final LorebookService lorebookService;
 
     private static final String RETRIEVE_ALL_LOREBOOKS_REQUEST = "Received request for listing all lorebooks";
-    private static final String RETRIEVE_ALL_LOREBOOKS_RESPONSE = "Returning response for listing all lorebooks request -> {}";
     private static final String RETRIEVE_LOREBOOK_BY_ID_REQUEST = "Received request for retrieving lorebook with id {}";
-    private static final String RETRIEVE_LOREBOOK_BY_ID_RESPONSE = "Returning response for listing lorebook with id {} request -> {}";
-    private static final String RETRIEVE_LOREBOOK_ENTRY_BY_ID_REQUEST = "Received request for retrieving lorebook entry with id {}";
-    private static final String RETRIEVE_LOREBOOK_ENTRY_BY_ID_RESPONSE = "Returning response for listing lorebook entry with id {} request -> {}";
     private static final String SAVE_LOREBOOK_REQUEST = "Received request for saving lorebook -> {}";
-    private static final String SAVE_LOREBOOK_RESPONSE = "Returning response for saving lorebook request -> {}";
     private static final String UPDATE_LOREBOOK_REQUEST = "Received request for updating lorebook with ID {} -> {}";
-    private static final String UPDATE_LOREBOOK_RESPONSE = "Returning response for updating lorebook with id {} request -> {}";
     private static final String DELETE_LOREBOOK_REQUEST = "Received request for deleting lorebook with ID {}";
     private static final String DELETE_LOREBOOK_RESPONSE = "Returning response for deleting lorebook with ID {}";
+    private static final String ID_CANNOT_BE_NULL = "Lorebook ID cannot be null";
+    private static final String ERROR_RETRIEVING_WITH_ID = "Error retrieving lorebook with id {}";
+    private static final String GENERAL_ERROR_MESSAGE = "An error occurred processing the request";
+    private static final String REQUESTED_NOT_FOUND = "The requested lorebook was not found";
+    private static final String LOREBOOK_WITH_ID_NOT_FOUND = "Couldn't find requested lorebook with ID {}";
+    private static final String ITEM_INSERTED_CANNOT_BE_NULL = "The item to be inserted cannot be null";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookController.class);
 
@@ -54,60 +48,40 @@ public class LorebookController {
     public Mono<ResponseEntity<ApiResponse>> getAllLorebooks() {
 
         LOGGER.info(RETRIEVE_ALL_LOREBOOKS_REQUEST);
-        return Mono.just(lorebookRepository.findAll())
-                .map(l -> l.stream()
-                        .map(lorebookEntityToDTO)
-                        .collect(Collectors.toList()))
-                .map(l -> ApiResponse.builder()
-                        .lorebooks(l)
-                        .build())
-                .map(l -> {
-                    LOGGER.info(RETRIEVE_ALL_LOREBOOKS_RESPONSE, l);
-                    return ResponseEntity.ok()
+        return lorebookService.retrieveAllLorebooks()
+                .map(this::buildResponse)
+                .onErrorResume(e -> {
+                    LOGGER.error("Error retrieving all lorebooks", e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(l);
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
-    @GetMapping("book/{lorebook-id}")
+    @GetMapping("{lorebook-id}")
     public Mono<ResponseEntity<ApiResponse>> getLorebookById(
             @PathVariable(value = "lorebook-id") final String lorebookId) {
 
         LOGGER.info(RETRIEVE_LOREBOOK_BY_ID_REQUEST, lorebookId);
-        return Mono.just(lorebookRepository.findById(lorebookId))
-                .map(l -> l.map(lorebookEntityToDTO)
-                        .orElseThrow(() -> new RuntimeException()))
-                .map(l -> Stream.of(l)
-                        .collect(Collectors.toList()))
-                .map(l -> ApiResponse.builder()
-                        .lorebooks(l)
-                        .build())
-                .map(l -> {
-                    LOGGER.info(RETRIEVE_LOREBOOK_BY_ID_RESPONSE, lorebookId, l);
-                    return ResponseEntity.ok()
+        return lorebookService.retrieveLorebookById(lorebookId)
+                .map(this::buildResponse)
+                .onErrorResume(LorebookNotFoundException.class, e -> {
+                    LOGGER.error(LOREBOOK_WITH_ID_NOT_FOUND, lorebookId, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(l);
-                });
-    }
-
-    @GetMapping("entry/{entry-id}")
-    public Mono<ResponseEntity<ApiResponse>> getLorebookEntryById(
-            @PathVariable(value = "entry-id") final String lorebookId) {
-
-        LOGGER.info(RETRIEVE_LOREBOOK_ENTRY_BY_ID_REQUEST, lorebookId);
-        return Mono.just(lorebookEntryRegexRepository.findById(lorebookId))
-                .map(l -> l.map(lorebookEntryEntityToDTO)
-                        .orElseThrow(() -> new RuntimeException()))
-                .map(l -> Stream.of(l)
-                        .collect(Collectors.toList()))
-                .map(l -> ApiResponse.builder()
-                        .lorebookEntries(l)
-                        .build())
-                .map(l -> {
-                    LOGGER.info(RETRIEVE_LOREBOOK_ENTRY_BY_ID_RESPONSE, lorebookId, l);
-                    return ResponseEntity.ok()
+                            .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, REQUESTED_NOT_FOUND)));
+                })
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ID_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(l);
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ID_CANNOT_BE_NULL)));
+                })
+                .onErrorResume(e -> {
+                    LOGGER.error(ERROR_RETRIEVING_WITH_ID, lorebookId, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
@@ -115,54 +89,87 @@ public class LorebookController {
     public Mono<ResponseEntity<ApiResponse>> saveLorebook(final Lorebook lorebook) {
 
         LOGGER.info(SAVE_LOREBOOK_REQUEST, lorebook);
-        return Mono.just(lorebookDTOToEntity.apply(lorebook))
-                .map(lorebookRepository::save)
-                .map(l -> Stream.of(l)
-                        .map(lorebookEntityToDTO)
-                        .collect(Collectors.toList()))
-                .map(l -> ApiResponse.builder()
-                        .lorebooks(l)
-                        .build())
-                .map(l -> {
-                    LOGGER.info(SAVE_LOREBOOK_RESPONSE, l);
-                    return ResponseEntity.ok()
-                            .body(l);
+        return lorebookService.saveLorebook(lorebook)
+                .map(this::buildResponse)
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
+                })
+                .onErrorResume(e -> {
+                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
     @PatchMapping("{lorebook-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateLorebookById(
-            @PathVariable(value = "lorebook-id") final String lorebookId, final Lorebook lorebook) {
+    public Mono<ResponseEntity<ApiResponse>> updateLorebook(@PathVariable(value = "lorebook-id") final String lorebookId,
+            final Lorebook lorebook) {
 
         LOGGER.info(UPDATE_LOREBOOK_REQUEST, lorebookId, lorebook);
-        return Mono.just(lorebookDTOToEntity.apply(lorebook))
-                .map(l -> {
-                    l.setId(lorebookId);
-                    return lorebookRepository.save(l);
+        return lorebookService.updateLorebook(lorebookId, lorebook)
+                .map(this::buildResponse)
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
                 })
-                .map(l -> Stream.of(l)
-                        .map(lorebookEntityToDTO)
-                        .collect(Collectors.toList()))
-                .map(l -> ApiResponse.builder()
-                        .lorebooks(l)
-                        .build())
-                .map(l -> {
-                    LOGGER.info(UPDATE_LOREBOOK_RESPONSE, lorebookId, l);
-                    return ResponseEntity.ok()
-                            .body(l);
+                .onErrorResume(e -> {
+                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
     @DeleteMapping("{lorebook-id}")
-    public Mono<ResponseEntity<?>> deleteLorebookById(@PathVariable(value = "lorebook-id") final String lorebookId) {
+    public Mono<ResponseEntity<ApiResponse>> deleteLorebook(@PathVariable(value = "lorebook-id") final String lorebookId) {
 
         LOGGER.info(DELETE_LOREBOOK_REQUEST, lorebookId);
         return Mono.just(lorebookId)
                 .map(id -> {
-                    lorebookRepository.deleteById(id);
+                    lorebookService.deleteLorebook(lorebookId);
                     LOGGER.info(DELETE_LOREBOOK_RESPONSE, lorebookId);
-                    return ResponseEntity.ok()
-                            .build();
+                    return buildResponse(null);
+                })
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
+                })
+                .onErrorResume(e -> {
+                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
+    }
+
+    private ResponseEntity<ApiResponse> buildResponse(List<Lorebook> lorebooks) {
+
+        LOGGER.info("Sending response for lorebooks -> {}", lorebooks);
+        final ApiResponse respose = ApiResponse.builder()
+                .lorebooks(lorebooks)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(respose);
+    }
+
+    private ApiResponse buildErrorResponse(HttpStatus status, String message) {
+
+        LOGGER.debug("Building error response object for lorebooks");
+        return ApiResponse.builder()
+                .error(ApiError.builder()
+                        .message(message)
+                        .status(status)
+                        .build())
+                .build();
     }
 }

@@ -2,11 +2,11 @@ package es.thalesalv.chatrpg.adapters.rest.controller;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.application.service.api.ModerationSettingsService;
-import es.thalesalv.chatrpg.domain.exception.ModerationSettingsNotFoundException;
+import es.thalesalv.chatrpg.application.service.api.LorebookService;
+import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.model.api.ApiError;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
-import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
+import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,48 +24,49 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/moderation-settings")
-public class ModerationSettingsController {
+@RequestMapping("/lore/entry")
+public class LorebookEntryController {
 
-    private final ModerationSettingsService moderationSettingsService;
+    private final LorebookService lorebookService;
 
-    private static final String RETRIEVE_ALL_MODERATION_SETTINGS_REQUEST = "Received request for listing all moderation settings";
-    private static final String RETRIEVE_MODERATION_SETTINGS_BY_ID_REQUEST = "Received request for retrieving moderation settings with id {}";
-    private static final String SAVE_MODERATION_SETTINGS_REQUEST = "Received request for saving moderation settings -> {}";
-    private static final String UPDATE_MODERATION_SETTINGS_REQUEST = "Received request for updating moderation settings with ID {} -> {}";
-    private static final String DELETE_MODERATION_SETTINGS_REQUEST = "Received request for deleting moderation settings with ID {}";
-    private static final String DELETE_MODERATION_SETTINGS_RESPONSE = "Returning response for deleting moderation settings with ID {}";
-    private static final String ID_CANNOT_BE_NULL = "moderation settings ID cannot be null";
-    private static final String ERROR_RETRIEVING_WITH_ID = "Error retrieving moderation settings with id {}";
+    private static final String RETRIEVE_ALL_LOREBOOKS_REQUEST = "Received request for listing all lorebookEntries";
+    private static final String RETRIEVE_LOREBOOK_ENTRY_BY_ID_REQUEST = "Received request for retrieving lorebookEntry with id {}";
+    private static final String SAVE_LOREBOOK_ENTRY_REQUEST = "Received request for saving lorebookEntry -> {}";
+    private static final String UPDATE_LOREBOOK_ENTRY_REQUEST = "Received request for updating lorebookEntry with ID {} -> {}";
+    private static final String DELETE_LOREBOOK_ENTRY_REQUEST = "Received request for deleting lorebookEntry with ID {}";
+    private static final String DELETE_LOREBOOK_ENTRY_RESPONSE = "Returning response for deleting lorebookEntry with ID {}";
+    private static final String ID_CANNOT_BE_NULL = "LorebookEntry ID cannot be null";
+    private static final String ERROR_RETRIEVING_WITH_ID = "Error retrieving lorebookEntry with id {}";
     private static final String GENERAL_ERROR_MESSAGE = "An error occurred processing the request";
-    private static final String REQUESTED_NOT_FOUND = "The requested moderation settings was not found";
-    private static final String MODERATION_SETTINGS_WITH_ID_NOT_FOUND = "Couldn't find requested moderation settings with ID {}";
+    private static final String REQUESTED_NOT_FOUND = "The requested lorebookEntry was not found";
+    private static final String LOREBOOK_WITH_ID_NOT_FOUND = "Couldn't find requested lorebookEntry with ID {}";
     private static final String ITEM_INSERTED_CANNOT_BE_NULL = "The item to be inserted cannot be null";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModerationSettingsController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LorebookEntryController.class);
 
     @GetMapping
-    public Mono<ResponseEntity<ApiResponse>> getAllModerationSettings() {
+    public Mono<ResponseEntity<ApiResponse>> getAllLorebookEntries() {
 
-        LOGGER.info(RETRIEVE_ALL_MODERATION_SETTINGS_REQUEST);
-        return moderationSettingsService.retrieveAllModerationSettings()
+        LOGGER.info(RETRIEVE_ALL_LOREBOOKS_REQUEST);
+        return lorebookService.retrieveAllLorebookEntries()
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
-                    LOGGER.error("Error retrieving all moderation settings", e);
+                    LOGGER.error("Error retrieving all lorebookEntries", e);
                     return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
-    @GetMapping("{moderation-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> getModerationSettingsById(@PathVariable(value = "moderation-settings-id") final String moderationSettingsId) {
+    @GetMapping("{lorebook-entry-id}")
+    public Mono<ResponseEntity<ApiResponse>> getLorebookEntryById(
+            @PathVariable(value = "lorebook-entry-id") final String lorebookEntryId) {
 
-        LOGGER.info(RETRIEVE_MODERATION_SETTINGS_BY_ID_REQUEST, moderationSettingsId);
-        return moderationSettingsService.retrieveModerationSettingsById(moderationSettingsId)
+        LOGGER.info(RETRIEVE_LOREBOOK_ENTRY_BY_ID_REQUEST, lorebookEntryId);
+        return lorebookService.retrieveLorebookEntryById(lorebookEntryId)
                 .map(this::buildResponse)
-                .onErrorResume(ModerationSettingsNotFoundException.class, e -> {
-                    LOGGER.error(MODERATION_SETTINGS_WITH_ID_NOT_FOUND, moderationSettingsId, e);
+                .onErrorResume(LorebookEntryNotFoundException.class, e -> {
+                    LOGGER.error(LOREBOOK_WITH_ID_NOT_FOUND, lorebookEntryId, e);
                     return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, REQUESTED_NOT_FOUND)));
@@ -77,7 +78,7 @@ public class ModerationSettingsController {
                             .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ID_CANNOT_BE_NULL)));
                 })
                 .onErrorResume(e -> {
-                    LOGGER.error(ERROR_RETRIEVING_WITH_ID, moderationSettingsId, e);
+                    LOGGER.error(ERROR_RETRIEVING_WITH_ID, lorebookEntryId, e);
                     return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
@@ -85,10 +86,10 @@ public class ModerationSettingsController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> saveModerationSettings(final ModerationSettings moderationSettings) {
+    public Mono<ResponseEntity<ApiResponse>> saveLorebookEntry(final LorebookEntry lorebookEntry) {
 
-        LOGGER.info(SAVE_MODERATION_SETTINGS_REQUEST, moderationSettings);
-        return moderationSettingsService.saveModerationSettings(moderationSettings)
+        LOGGER.info(SAVE_LOREBOOK_ENTRY_REQUEST, lorebookEntry);
+        return lorebookService.saveLorebookEntry(lorebookEntry)
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -104,12 +105,12 @@ public class ModerationSettingsController {
                 });
     }
 
-    @PatchMapping("{moderation-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateModerationSettings(@PathVariable(value = "moderation-settings-id") final String moderationSettingsId,
-            final ModerationSettings moderationSettings) {
+    @PatchMapping("{lorebook-entry-id}")
+    public Mono<ResponseEntity<ApiResponse>> updateLorebookEntry(@PathVariable(value = "lorebook-entry-id") final String lorebookEntryId,
+            final LorebookEntry lorebookEntry) {
 
-        LOGGER.info(UPDATE_MODERATION_SETTINGS_REQUEST, moderationSettingsId, moderationSettings);
-        return moderationSettingsService.updateModerationSettings(moderationSettingsId, moderationSettings)
+        LOGGER.info(UPDATE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId, lorebookEntry);
+        return lorebookService.updateLorebookEntry(lorebookEntryId, lorebookEntry)
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -125,15 +126,14 @@ public class ModerationSettingsController {
                 });
     }
 
-    @DeleteMapping("{moderation-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> deleteModerationSettings(
-            @PathVariable(value = "moderation-settings-id") final String moderationSettingsId) {
+    @DeleteMapping("{lorebook-entry-id}")
+    public Mono<ResponseEntity<ApiResponse>> deleteLorebookEntry(@PathVariable(value = "lorebook-entry-id") final String lorebookEntryId) {
 
-        LOGGER.info(DELETE_MODERATION_SETTINGS_REQUEST, moderationSettingsId);
-        return Mono.just(moderationSettingsId)
+        LOGGER.info(DELETE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId);
+        return Mono.just(lorebookEntryId)
                 .map(id -> {
-                    moderationSettingsService.deleteModerationSettings(moderationSettingsId);
-                    LOGGER.info(DELETE_MODERATION_SETTINGS_RESPONSE, moderationSettingsId);
+                    lorebookService.deleteLorebookEntry(lorebookEntryId);
+                    LOGGER.info(DELETE_LOREBOOK_ENTRY_RESPONSE, lorebookEntryId);
                     return buildResponse(null);
                 })
                 .onErrorResume(IllegalArgumentException.class, e -> {
@@ -150,11 +150,11 @@ public class ModerationSettingsController {
                 });
     }
 
-    private ResponseEntity<ApiResponse> buildResponse(List<ModerationSettings> moderationSettings) {
+    private ResponseEntity<ApiResponse> buildResponse(List<LorebookEntry> lorebookEntries) {
 
-        LOGGER.info("Sending response for moderation settings -> {}", moderationSettings);
+        LOGGER.info("Sending response for lorebookEntries -> {}", lorebookEntries);
         final ApiResponse respose = ApiResponse.builder()
-                .moderationSettings(moderationSettings)
+                .lorebookEntries(lorebookEntries)
                 .build();
 
         return ResponseEntity.ok()
@@ -164,7 +164,7 @@ public class ModerationSettingsController {
 
     private ApiResponse buildErrorResponse(HttpStatus status, String message) {
 
-        LOGGER.debug("Building error response object for moderation settings");
+        LOGGER.debug("Building error response object for lorebookEntries");
         return ApiResponse.builder()
                 .error(ApiError.builder()
                         .message(message)

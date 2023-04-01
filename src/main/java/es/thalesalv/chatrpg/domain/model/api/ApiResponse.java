@@ -35,6 +35,4 @@ public class ApiResponse {
     private List<ModerationSettings> moderationSettings;
     private List<ModelSettings> modelSettings;
     private ApiError error;
-    private String statusCode;
-    private String message;
 }

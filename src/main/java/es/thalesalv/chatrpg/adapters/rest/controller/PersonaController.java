@@ -1,16 +1,16 @@
 package es.thalesalv.chatrpg.adapters.rest.controller;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.List;
 
-import es.thalesalv.chatrpg.adapters.data.repository.PersonaRepository;
-import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaDTOToEntity;
-import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaEntityToDTO;
+import es.thalesalv.chatrpg.application.service.api.PersonaService;
+import es.thalesalv.chatrpg.domain.exception.PersonaNotFoundException;
+import es.thalesalv.chatrpg.domain.model.api.ApiError;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,20 +27,20 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/persona")
 public class PersonaController {
 
-    private final PersonaRepository personaRepository;
-    private final PersonaEntityToDTO personaEntityToDTO;
-    private final PersonaDTOToEntity personaDTOToEntity;
+    private final PersonaService personaService;
 
     private static final String RETRIEVE_ALL_PERSONAS_REQUEST = "Received request for listing all personas";
-    private static final String RETRIEVE_ALL_PERSONAS_RESPONSE = "Returning response for listing all personas request -> {}";
     private static final String RETRIEVE_PERSONA_BY_ID_REQUEST = "Received request for retrieving persona with id {}";
-    private static final String RETRIEVE_PERSONA_BY_ID_RESPONSE = "Returning response for listing persona with id {} request -> {}";
     private static final String SAVE_PERSONA_REQUEST = "Received request for saving persona -> {}";
-    private static final String SAVE_PERSONA_RESPONSE = "Returning response for saving persona request -> {}";
     private static final String UPDATE_PERSONA_REQUEST = "Received request for updating persona with ID {} -> {}";
-    private static final String UPDATE_PERSONA_RESPONSE = "Returning response for updating persona with id {} request -> {}";
     private static final String DELETE_PERSONA_REQUEST = "Received request for deleting persona with ID {}";
     private static final String DELETE_PERSONA_RESPONSE = "Returning response for deleting persona with ID {}";
+    private static final String ID_CANNOT_BE_NULL = "Persona ID cannot be null";
+    private static final String ERROR_RETRIEVING_WITH_ID = "Error retrieving persona with id {}";
+    private static final String GENERAL_ERROR_MESSAGE = "An error occurred processing the request";
+    private static final String REQUESTED_NOT_FOUND = "The requested persona was not found";
+    private static final String PERSONA_WITH_ID_NOT_FOUND = "Couldn't find requested persona with ID {}";
+    private static final String ITEM_INSERTED_CANNOT_BE_NULL = "The item to be inserted cannot be null";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonaController.class);
 
@@ -48,18 +48,13 @@ public class PersonaController {
     public Mono<ResponseEntity<ApiResponse>> getAllPersonas() {
 
         LOGGER.info(RETRIEVE_ALL_PERSONAS_REQUEST);
-        return Mono.just(personaRepository.findAll())
-                .map(p -> p.stream()
-                        .map(personaEntityToDTO)
-                        .collect(Collectors.toList()))
-                .map(p -> ApiResponse.builder()
-                        .personas(p)
-                        .build())
-                .map(p -> {
-                    LOGGER.info(RETRIEVE_ALL_PERSONAS_RESPONSE, p);
-                    return ResponseEntity.ok()
+        return personaService.retrieveAllPersonas()
+                .map(this::buildResponse)
+                .onErrorResume(e -> {
+                    LOGGER.error("Error retrieving all personas", e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(p);
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
@@ -68,74 +63,113 @@ public class PersonaController {
             @PathVariable(value = "persona-id") final String personaId) {
 
         LOGGER.info(RETRIEVE_PERSONA_BY_ID_REQUEST, personaId);
-        return Mono.just(personaRepository.findById(personaId))
-                .map(p -> p.map(personaEntityToDTO)
-                        .orElseThrow(() -> new RuntimeException()))
-                .map(p -> Stream.of(p)
-                        .collect(Collectors.toList()))
-                .map(p -> ApiResponse.builder()
-                        .personas(p)
-                        .build())
-                .map(p -> {
-                    LOGGER.info(RETRIEVE_PERSONA_BY_ID_RESPONSE, personaId, p);
-                    return ResponseEntity.ok()
+        return personaService.retrievePersonaById(personaId)
+                .map(this::buildResponse)
+                .onErrorResume(PersonaNotFoundException.class, e -> {
+                    LOGGER.error(PERSONA_WITH_ID_NOT_FOUND, personaId, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(p);
+                            .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, REQUESTED_NOT_FOUND)));
+                })
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ID_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ID_CANNOT_BE_NULL)));
+                })
+                .onErrorResume(e -> {
+                    LOGGER.error(ERROR_RETRIEVING_WITH_ID, personaId, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> saveLorebook(final Persona persona) {
+    public Mono<ResponseEntity<ApiResponse>> savePersona(final Persona persona) {
 
         LOGGER.info(SAVE_PERSONA_REQUEST, persona);
-        return Mono.just(personaDTOToEntity.apply(persona))
-                .map(personaRepository::save)
-                .map(p -> Stream.of(p)
-                        .map(personaEntityToDTO)
-                        .collect(Collectors.toList()))
-                .map(p -> ApiResponse.builder()
-                        .personas(p)
-                        .build())
-                .map(p -> {
-                    LOGGER.info(SAVE_PERSONA_RESPONSE, p);
-                    return ResponseEntity.ok()
-                            .body(p);
+        return personaService.savePersona(persona)
+                .map(this::buildResponse)
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
+                })
+                .onErrorResume(e -> {
+                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
     @PatchMapping("{persona-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateLorebookById(
-            @PathVariable(value = "persona-id") final String personaId, final Persona persona) {
+    public Mono<ResponseEntity<ApiResponse>> updatePersona(@PathVariable(value = "persona-id") final String personaId,
+            final Persona persona) {
 
         LOGGER.info(UPDATE_PERSONA_REQUEST, personaId, persona);
-        return Mono.just(personaDTOToEntity.apply(persona))
-                .map(p -> {
-                    p.setId(personaId);
-                    return personaRepository.save(p);
+        return personaService.updatePersona(personaId, persona)
+                .map(this::buildResponse)
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
                 })
-                .map(p -> Stream.of(p)
-                        .map(personaEntityToDTO)
-                        .collect(Collectors.toList()))
-                .map(p -> ApiResponse.builder()
-                        .personas(p)
-                        .build())
-                .map(p -> {
-                    LOGGER.info(UPDATE_PERSONA_RESPONSE, personaId, p);
-                    return ResponseEntity.ok()
-                            .body(p);
+                .onErrorResume(e -> {
+                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
     @DeleteMapping("{persona-id}")
-    public Mono<ResponseEntity<?>> deleteLorebookById(@PathVariable(value = "persona-id") final String personaId) {
+    public Mono<ResponseEntity<ApiResponse>> deletePersona(@PathVariable(value = "persona-id") final String personaId) {
 
         LOGGER.info(DELETE_PERSONA_REQUEST, personaId);
         return Mono.just(personaId)
                 .map(id -> {
-                    personaRepository.deleteById(id);
+                    personaService.deletePersona(personaId);
                     LOGGER.info(DELETE_PERSONA_RESPONSE, personaId);
-                    return ResponseEntity.ok()
-                            .build();
+                    return buildResponse(null);
+                })
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
+                })
+                .onErrorResume(e -> {
+                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
+    }
+
+    private ResponseEntity<ApiResponse> buildResponse(List<Persona> personas) {
+
+        LOGGER.info("Sending response for personas -> {}", personas);
+        final ApiResponse respose = ApiResponse.builder()
+                .personas(personas)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(respose);
+    }
+
+    private ApiResponse buildErrorResponse(HttpStatus status, String message) {
+
+        LOGGER.debug("Building error response object for personas");
+        return ApiResponse.builder()
+                .error(ApiError.builder()
+                        .message(message)
+                        .status(status)
+                        .build())
+                .build();
     }
 }

@@ -1,16 +1,16 @@
 package es.thalesalv.chatrpg.adapters.rest.controller;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.List;
 
-import es.thalesalv.chatrpg.adapters.data.repository.ModelSettingsRepository;
-import es.thalesalv.chatrpg.application.mapper.chconfig.ModelSettingsDTOToEntity;
-import es.thalesalv.chatrpg.application.mapper.chconfig.ModelSettingsEntityToDTO;
+import es.thalesalv.chatrpg.application.service.api.ModelSettingsService;
+import es.thalesalv.chatrpg.domain.exception.ModelSettingsNotFoundException;
+import es.thalesalv.chatrpg.domain.model.api.ApiError;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,120 +24,152 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/settings")
+@RequestMapping("/model-settings")
 public class ModelSettingsController {
 
-    private final ModelSettingsDTOToEntity modelSettingsDTOToEntity;
-    private final ModelSettingsEntityToDTO modelSettingsEntityToDTO;
-    private final ModelSettingsRepository modelSettingsRepository;
+    private final ModelSettingsService modelSettingsService;
 
-    private static final String RETRIEVE_ALL_SETTINGS_REQUEST = "Received request for listing all model settings";
-    private static final String RETRIEVE_ALL_SETTINGS_RESPONSE = "Returning response for listing all model settings request -> {}";
-    private static final String RETRIEVE_SETTINGS_BY_ID_REQUEST = "Received request for retrieving model settings with id {}";
-    private static final String RETRIEVE_SETTINGS_BY_ID_RESPONSE = "Returning response for listing model settings with id {} request -> {}";
-    private static final String SAVE_SETTINGS_REQUEST = "Received request for saving model settings -> {}";
-    private static final String SAVE_SETTINGS_RESPONSE = "Returning response for saving model settings request -> {}";
-    private static final String UPDATE_SETTINGS_REQUEST = "Received request for updating model settings with ID {} -> {}";
-    private static final String UPDATE_SETTINGS_RESPONSE = "Returning response for updating model settings with id {} request -> {}";
-    private static final String DELETE_SETTINGS_REQUEST = "Received request for deleting model settings with ID {}";
-    private static final String DELETE_SETTINGS_RESPONSE = "Returning response for deleting model settings with ID {}";
+    private static final String RETRIEVE_ALL_MODEL_SETTINGS_REQUEST = "Received request for listing all model settings";
+    private static final String RETRIEVE_MODEL_SETTINGS_BY_ID_REQUEST = "Received request for retrieving model settings with id {}";
+    private static final String SAVE_MODEL_SETTINGS_REQUEST = "Received request for saving model settings -> {}";
+    private static final String UPDATE_MODEL_SETTINGS_REQUEST = "Received request for updating model settings with ID {} -> {}";
+    private static final String DELETE_MODEL_SETTINGS_REQUEST = "Received request for deleting model settings with ID {}";
+    private static final String DELETE_MODEL_SETTINGS_RESPONSE = "Returning response for deleting model settings with ID {}";
+    private static final String ID_CANNOT_BE_NULL = "model settings ID cannot be null";
+    private static final String ERROR_RETRIEVING_WITH_ID = "Error retrieving model settings with id {}";
+    private static final String GENERAL_ERROR_MESSAGE = "An error occurred processing the request";
+    private static final String REQUESTED_NOT_FOUND = "The requested model settings was not found";
+    private static final String MODEL_SETTINGS_WITH_ID_NOT_FOUND = "Couldn't find requested model settings with ID {}";
+    private static final String ITEM_INSERTED_CANNOT_BE_NULL = "The item to be inserted cannot be null";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelSettingsController.class);
 
     @GetMapping
-    public Mono<ResponseEntity<ApiResponse>> getAllSettings() {
+    public Mono<ResponseEntity<ApiResponse>> getAllModelSettings() {
 
-        LOGGER.info(RETRIEVE_ALL_SETTINGS_REQUEST);
-        return Mono.just(modelSettingsRepository.findAll())
-                .map(p -> p.stream()
-                        .map(modelSettingsEntityToDTO)
-                        .collect(Collectors.toList()))
-                .map(p -> ApiResponse.builder()
-                        .modelSettings(p)
-                        .build())
-                .map(p -> {
-                    LOGGER.info(RETRIEVE_ALL_SETTINGS_RESPONSE, p);
-                    return ResponseEntity.ok()
+        LOGGER.info(RETRIEVE_ALL_MODEL_SETTINGS_REQUEST);
+        return modelSettingsService.retrieveAllModelSettings()
+                .map(this::buildResponse)
+                .onErrorResume(e -> {
+                    LOGGER.error("Error retrieving all model settings", e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(p);
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
     @GetMapping("{model-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> getModelSettingsById(
-            @PathVariable(value = "model-settings-id") final String modelSettingsId) {
+    public Mono<ResponseEntity<ApiResponse>> getModelSettingsById(@PathVariable(value = "model-settings-id") final String modelSettingsId) {
 
-        LOGGER.info(RETRIEVE_SETTINGS_BY_ID_REQUEST, modelSettingsId);
-        return Mono.just(modelSettingsRepository.findById(modelSettingsId))
-                .map(p -> p.map(modelSettingsEntityToDTO)
-                        .orElseThrow(() -> new RuntimeException()))
-                .map(p -> Stream.of(p)
-                        .collect(Collectors.toList()))
-                .map(p -> ApiResponse.builder()
-                        .modelSettings(p)
-                        .build())
-                .map(p -> {
-                    LOGGER.info(RETRIEVE_SETTINGS_BY_ID_RESPONSE, modelSettingsId, p);
-                    return ResponseEntity.ok()
+        LOGGER.info(RETRIEVE_MODEL_SETTINGS_BY_ID_REQUEST, modelSettingsId);
+        return modelSettingsService.retrieveModelSettingsById(modelSettingsId)
+                .map(this::buildResponse)
+                .onErrorResume(ModelSettingsNotFoundException.class, e -> {
+                    LOGGER.error(MODEL_SETTINGS_WITH_ID_NOT_FOUND, modelSettingsId, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(p);
+                            .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, REQUESTED_NOT_FOUND)));
+                })
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ID_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ID_CANNOT_BE_NULL)));
+                })
+                .onErrorResume(e -> {
+                    LOGGER.error(ERROR_RETRIEVING_WITH_ID, modelSettingsId, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
     @PutMapping
     public Mono<ResponseEntity<ApiResponse>> saveModelSettings(final ModelSettings modelSettings) {
 
-        LOGGER.info(SAVE_SETTINGS_REQUEST, modelSettings);
-        return Mono.just(modelSettingsDTOToEntity.apply(modelSettings))
-                .map(modelSettingsRepository::save)
-                .map(p -> Stream.of(p)
-                        .map(modelSettingsEntityToDTO)
-                        .collect(Collectors.toList()))
-                .map(p -> ApiResponse.builder()
-                        .modelSettings(p)
-                        .build())
-                .map(p -> {
-                    LOGGER.info(SAVE_SETTINGS_RESPONSE, p);
-                    return ResponseEntity.ok()
-                            .body(p);
+        LOGGER.info(SAVE_MODEL_SETTINGS_REQUEST, modelSettings);
+        return modelSettingsService.saveModelSettings(modelSettings)
+                .map(this::buildResponse)
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
+                })
+                .onErrorResume(e -> {
+                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
     @PatchMapping("{model-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateModelSettingsById(
-            @PathVariable(value = "model-settings-id") final String modelSettingsId,
+    public Mono<ResponseEntity<ApiResponse>> updateModelSettings(@PathVariable(value = "model-settings-id") final String modelSettingsId,
             final ModelSettings modelSettings) {
 
-        LOGGER.info(UPDATE_SETTINGS_REQUEST, modelSettingsId, modelSettings);
-        return Mono.just(modelSettingsDTOToEntity.apply(modelSettings))
-                .map(p -> {
-                    p.setId(modelSettingsId);
-                    return modelSettingsRepository.save(p);
+        LOGGER.info(UPDATE_MODEL_SETTINGS_REQUEST, modelSettingsId, modelSettings);
+        return modelSettingsService.updateModelSettings(modelSettingsId, modelSettings)
+                .map(this::buildResponse)
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
                 })
-                .map(p -> Stream.of(p)
-                        .map(modelSettingsEntityToDTO)
-                        .collect(Collectors.toList()))
-                .map(p -> ApiResponse.builder()
-                        .modelSettings(p)
-                        .build())
-                .map(p -> {
-                    LOGGER.info(UPDATE_SETTINGS_RESPONSE, modelSettingsId, p);
-                    return ResponseEntity.ok()
-                            .body(p);
+                .onErrorResume(e -> {
+                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
     @DeleteMapping("{model-settings-id}")
-    public Mono<ResponseEntity<?>> deleteModelSettingsById(
+    public Mono<ResponseEntity<ApiResponse>> deleteModelSettings(
             @PathVariable(value = "model-settings-id") final String modelSettingsId) {
 
-        LOGGER.info(DELETE_SETTINGS_REQUEST, modelSettingsId);
+        LOGGER.info(DELETE_MODEL_SETTINGS_REQUEST, modelSettingsId);
         return Mono.just(modelSettingsId)
                 .map(id -> {
-                    modelSettingsRepository.deleteById(id);
-                    LOGGER.info(DELETE_SETTINGS_RESPONSE, modelSettingsId);
-                    return ResponseEntity.ok()
-                            .build();
+                    modelSettingsService.deleteModelSettings(modelSettingsId);
+                    LOGGER.info(DELETE_MODEL_SETTINGS_RESPONSE, modelSettingsId);
+                    return buildResponse(null);
+                })
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
+                })
+                .onErrorResume(e -> {
+                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
+    }
+
+    private ResponseEntity<ApiResponse> buildResponse(List<ModelSettings> modelSettings) {
+
+        LOGGER.info("Sending response for model settings -> {}", modelSettings);
+        final ApiResponse respose = ApiResponse.builder()
+                .modelSettings(modelSettings)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(respose);
+    }
+
+    private ApiResponse buildErrorResponse(HttpStatus status, String message) {
+
+        LOGGER.debug("Building error response object for model settings");
+        return ApiResponse.builder()
+                .error(ApiError.builder()
+                        .message(message)
+                        .status(status)
+                        .build())
+                .build();
     }
 }

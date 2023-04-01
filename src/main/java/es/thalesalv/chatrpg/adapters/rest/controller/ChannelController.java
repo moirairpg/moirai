@@ -2,11 +2,11 @@ package es.thalesalv.chatrpg.adapters.rest.controller;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.application.service.api.ModerationSettingsService;
-import es.thalesalv.chatrpg.domain.exception.ModerationSettingsNotFoundException;
+import es.thalesalv.chatrpg.application.service.api.ChannelConfigService;
+import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.model.api.ApiError;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
-import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
+import es.thalesalv.chatrpg.domain.model.chconf.Channel;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,48 +24,49 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/moderation-settings")
-public class ModerationSettingsController {
+@RequestMapping("/channel")
+public class ChannelController {
 
-    private final ModerationSettingsService moderationSettingsService;
+    private final ChannelConfigService channelConfigService;
 
-    private static final String RETRIEVE_ALL_MODERATION_SETTINGS_REQUEST = "Received request for listing all moderation settings";
-    private static final String RETRIEVE_MODERATION_SETTINGS_BY_ID_REQUEST = "Received request for retrieving moderation settings with id {}";
-    private static final String SAVE_MODERATION_SETTINGS_REQUEST = "Received request for saving moderation settings -> {}";
-    private static final String UPDATE_MODERATION_SETTINGS_REQUEST = "Received request for updating moderation settings with ID {} -> {}";
-    private static final String DELETE_MODERATION_SETTINGS_REQUEST = "Received request for deleting moderation settings with ID {}";
-    private static final String DELETE_MODERATION_SETTINGS_RESPONSE = "Returning response for deleting moderation settings with ID {}";
-    private static final String ID_CANNOT_BE_NULL = "moderation settings ID cannot be null";
-    private static final String ERROR_RETRIEVING_WITH_ID = "Error retrieving moderation settings with id {}";
+    private static final String RETRIEVE_ALL_CHANNEL_REQUEST = "Received request for listing all configs";
+    private static final String RETRIEVE_CHANNEL_BY_ID_REQUEST = "Received request for retrieving config with Discord id {}";
+    private static final String SAVE_CHANNEL_REQUEST = "Received request for saving config -> {}";
+    private static final String UPDATE_CHANNEL_REQUEST = "Received request for updating config with ID {} -> {}";
+    private static final String DELETE_CHANNEL_REQUEST = "Received request for deleting config with ID {}";
+    private static final String DELETE_CHANNEL_RESPONSE = "Returning response for deleting lorebook with ID {}";
     private static final String GENERAL_ERROR_MESSAGE = "An error occurred processing the request";
-    private static final String REQUESTED_NOT_FOUND = "The requested moderation settings was not found";
-    private static final String MODERATION_SETTINGS_WITH_ID_NOT_FOUND = "Couldn't find requested moderation settings with ID {}";
+    private static final String REQUESTED_NOT_FOUND = "The requested configuration was not found";
+    private static final String CONFIG_WITH_ID_NOT_FOUND = "Couldn't find requested configuration with ID {}";
+    private static final String ID_CANNOT_BE_NULL = "Channel ID cannot be null";
+    private static final String ERROR_RETRIEVING_WITH_ID = "Error retrieving configuration with id {}";
     private static final String ITEM_INSERTED_CANNOT_BE_NULL = "The item to be inserted cannot be null";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModerationSettingsController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelController.class);
 
     @GetMapping
-    public Mono<ResponseEntity<ApiResponse>> getAllModerationSettings() {
+    public Mono<ResponseEntity<ApiResponse>> getAllChannelConfigs() {
 
-        LOGGER.info(RETRIEVE_ALL_MODERATION_SETTINGS_REQUEST);
-        return moderationSettingsService.retrieveAllModerationSettings()
+        LOGGER.info(RETRIEVE_ALL_CHANNEL_REQUEST);
+        return channelConfigService.retrieveAllChannels()
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
-                    LOGGER.error("Error retrieving all moderation settings", e);
+                    LOGGER.error("Error retrieving all configurations", e);
                     return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
                 });
     }
 
-    @GetMapping("{moderation-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> getModerationSettingsById(@PathVariable(value = "moderation-settings-id") final String moderationSettingsId) {
+    @GetMapping("{channel-id}")
+    public Mono<ResponseEntity<ApiResponse>> getChannelConfigByChannelId(
+            @PathVariable(value = "channel-id") final String channelId) {
 
-        LOGGER.info(RETRIEVE_MODERATION_SETTINGS_BY_ID_REQUEST, moderationSettingsId);
-        return moderationSettingsService.retrieveModerationSettingsById(moderationSettingsId)
+        LOGGER.info(RETRIEVE_CHANNEL_BY_ID_REQUEST, channelId);
+        return channelConfigService.retrieveChannelConfigsByChannelId(channelId)
                 .map(this::buildResponse)
-                .onErrorResume(ModerationSettingsNotFoundException.class, e -> {
-                    LOGGER.error(MODERATION_SETTINGS_WITH_ID_NOT_FOUND, moderationSettingsId, e);
+                .onErrorResume(ChannelConfigNotFoundException.class, e -> {
+                    LOGGER.error(CONFIG_WITH_ID_NOT_FOUND, channelId, e);
                     return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, REQUESTED_NOT_FOUND)));
@@ -77,7 +78,7 @@ public class ModerationSettingsController {
                             .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ID_CANNOT_BE_NULL)));
                 })
                 .onErrorResume(e -> {
-                    LOGGER.error(ERROR_RETRIEVING_WITH_ID, moderationSettingsId, e);
+                    LOGGER.error(ERROR_RETRIEVING_WITH_ID, channelId, e);
                     return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
@@ -85,10 +86,10 @@ public class ModerationSettingsController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> saveModerationSettings(final ModerationSettings moderationSettings) {
+    public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(final Channel channel) {
 
-        LOGGER.info(SAVE_MODERATION_SETTINGS_REQUEST, moderationSettings);
-        return moderationSettingsService.saveModerationSettings(moderationSettings)
+        LOGGER.info(SAVE_CHANNEL_REQUEST, channel);
+        return channelConfigService.saveChannel(channel)
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -104,12 +105,12 @@ public class ModerationSettingsController {
                 });
     }
 
-    @PatchMapping("{moderation-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateModerationSettings(@PathVariable(value = "moderation-settings-id") final String moderationSettingsId,
-            final ModerationSettings moderationSettings) {
+    @PatchMapping("{channel-id}")
+    public Mono<ResponseEntity<ApiResponse>> updateChannelConfig(
+            @PathVariable(value = "channel-id") final String channelId, final Channel channel) {
 
-        LOGGER.info(UPDATE_MODERATION_SETTINGS_REQUEST, moderationSettingsId, moderationSettings);
-        return moderationSettingsService.updateModerationSettings(moderationSettingsId, moderationSettings)
+        LOGGER.info(UPDATE_CHANNEL_REQUEST, channelId, channel);
+        return channelConfigService.updateChannel(channelId, channel)
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -125,16 +126,18 @@ public class ModerationSettingsController {
                 });
     }
 
-    @DeleteMapping("{moderation-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> deleteModerationSettings(
-            @PathVariable(value = "moderation-settings-id") final String moderationSettingsId) {
+    @DeleteMapping("{channel-id}")
+    public Mono<ResponseEntity<ApiResponse>> deleteChannelConfig(
+            @PathVariable(value = "channel-id") final String channelId) {
 
-        LOGGER.info(DELETE_MODERATION_SETTINGS_REQUEST, moderationSettingsId);
-        return Mono.just(moderationSettingsId)
+        LOGGER.info(DELETE_CHANNEL_REQUEST, channelId);
+        return Mono.just(channelId)
                 .map(id -> {
-                    moderationSettingsService.deleteModerationSettings(moderationSettingsId);
-                    LOGGER.info(DELETE_MODERATION_SETTINGS_RESPONSE, moderationSettingsId);
-                    return buildResponse(null);
+                    channelConfigService.deleteChannel(channelId);
+                    LOGGER.info(DELETE_CHANNEL_RESPONSE, channelId);
+                    return ResponseEntity.ok()
+                            .body(ApiResponse.builder()
+                                    .build());
                 })
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -150,11 +153,11 @@ public class ModerationSettingsController {
                 });
     }
 
-    private ResponseEntity<ApiResponse> buildResponse(List<ModerationSettings> moderationSettings) {
+    private ResponseEntity<ApiResponse> buildResponse(List<Channel> channels) {
 
-        LOGGER.info("Sending response for moderation settings -> {}", moderationSettings);
+        LOGGER.info("Sending response for channels -> {}", channels);
         final ApiResponse respose = ApiResponse.builder()
-                .moderationSettings(moderationSettings)
+                .channels(channels)
                 .build();
 
         return ResponseEntity.ok()
@@ -164,7 +167,7 @@ public class ModerationSettingsController {
 
     private ApiResponse buildErrorResponse(HttpStatus status, String message) {
 
-        LOGGER.debug("Building error response object for moderation settings");
+        LOGGER.debug("Building error response object for channels");
         return ApiResponse.builder()
                 .error(ApiError.builder()
                         .message(message)
