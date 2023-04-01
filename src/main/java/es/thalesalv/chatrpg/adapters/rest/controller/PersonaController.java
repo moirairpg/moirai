@@ -64,7 +64,8 @@ public class PersonaController {
     }
 
     @GetMapping("{persona-id}")
-    public Mono<ResponseEntity<ApiResponse>> getPersonaById(@PathVariable(value = "persona-id") final String personaId) {
+    public Mono<ResponseEntity<ApiResponse>> getPersonaById(
+            @PathVariable(value = "persona-id") final String personaId) {
 
         LOGGER.info(RETRIEVE_PERSONA_BY_ID_REQUEST, personaId);
         return Mono.just(personaRepository.findById(personaId))
