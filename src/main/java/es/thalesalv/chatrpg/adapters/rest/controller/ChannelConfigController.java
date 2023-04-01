@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/channel-config")
+@RequestMapping("/channel-config")
 public class ChannelConfigController {
 
     private final ChannelEntityToDTO channelEntityToDTO;

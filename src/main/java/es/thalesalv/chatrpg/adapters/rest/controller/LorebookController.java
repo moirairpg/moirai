@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/lore")
+@RequestMapping("/lore")
 public class LorebookController {
 
     private final LorebookEntityToDTO lorebookEntityToDTO;

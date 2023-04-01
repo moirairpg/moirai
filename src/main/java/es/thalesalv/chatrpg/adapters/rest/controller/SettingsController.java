@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/settings")
+@RequestMapping("/settings")
 public class SettingsController {
 
     private final ModelSettingsEntityToDTO modelSettingsEntityToDTO;

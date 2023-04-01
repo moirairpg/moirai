@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/world")
+@RequestMapping("/world")
 public class WorldController {
 
     private final WorldEntityToDTO worldEntityToDTO;

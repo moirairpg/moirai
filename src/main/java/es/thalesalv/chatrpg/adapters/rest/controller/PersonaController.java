@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/persona")
+@RequestMapping("/persona")
 public class PersonaController {
 
     private final PersonaRepository personaRepository;
