@@ -106,8 +106,8 @@ public class LorebookController {
     }
 
     @PatchMapping("{lorebook-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateLorebook(@PathVariable(value = "lorebook-id") final String lorebookId,
-            final Lorebook lorebook) {
+    public Mono<ResponseEntity<ApiResponse>> updateLorebook(
+            @PathVariable(value = "lorebook-id") final String lorebookId, final Lorebook lorebook) {
 
         LOGGER.info(UPDATE_LOREBOOK_REQUEST, lorebookId, lorebook);
         return lorebookService.updateLorebook(lorebookId, lorebook)
@@ -127,7 +127,8 @@ public class LorebookController {
     }
 
     @DeleteMapping("{lorebook-id}")
-    public Mono<ResponseEntity<ApiResponse>> deleteLorebook(@PathVariable(value = "lorebook-id") final String lorebookId) {
+    public Mono<ResponseEntity<ApiResponse>> deleteLorebook(
+            @PathVariable(value = "lorebook-id") final String lorebookId) {
 
         LOGGER.info(DELETE_LOREBOOK_REQUEST, lorebookId);
         return Mono.just(lorebookId)

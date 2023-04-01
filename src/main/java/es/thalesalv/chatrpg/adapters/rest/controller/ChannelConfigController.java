@@ -107,7 +107,8 @@ public class ChannelConfigController {
 
     @PatchMapping("{channel-config-id}")
     public Mono<ResponseEntity<ApiResponse>> updateChannelConfigById(
-            @PathVariable(value = "channel-config-id") final String channelConfigId, final ChannelConfig channelConfig) {
+            @PathVariable(value = "channel-config-id") final String channelConfigId,
+            final ChannelConfig channelConfig) {
 
         LOGGER.info(UPDATE_CHANNEL_CONFIG_REQUEST, channelConfigId, channelConfig);
         return channelConfigService.updateChannelConfig(channelConfigId, channelConfig)

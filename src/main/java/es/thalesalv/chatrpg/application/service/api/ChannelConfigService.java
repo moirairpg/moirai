@@ -109,7 +109,8 @@ public class ChannelConfigService {
                         .toList());
     }
 
-    public Mono<List<ChannelConfig>> updateChannelConfig(final String channelConfigId, final ChannelConfig channelConfig) {
+    public Mono<List<ChannelConfig>> updateChannelConfig(final String channelConfigId,
+            final ChannelConfig channelConfig) {
 
         LOGGER.debug("Updating channel config data from request");
         return Mono.just(channelConfigDTOToEntity.apply(channelConfig))

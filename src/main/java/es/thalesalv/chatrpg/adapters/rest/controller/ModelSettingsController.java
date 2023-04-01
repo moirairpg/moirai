@@ -59,7 +59,8 @@ public class ModelSettingsController {
     }
 
     @GetMapping("{model-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> getModelSettingsById(@PathVariable(value = "model-settings-id") final String modelSettingsId) {
+    public Mono<ResponseEntity<ApiResponse>> getModelSettingsById(
+            @PathVariable(value = "model-settings-id") final String modelSettingsId) {
 
         LOGGER.info(RETRIEVE_MODEL_SETTINGS_BY_ID_REQUEST, modelSettingsId);
         return modelSettingsService.retrieveModelSettingsById(modelSettingsId)
@@ -105,7 +106,8 @@ public class ModelSettingsController {
     }
 
     @PatchMapping("{model-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateModelSettings(@PathVariable(value = "model-settings-id") final String modelSettingsId,
+    public Mono<ResponseEntity<ApiResponse>> updateModelSettings(
+            @PathVariable(value = "model-settings-id") final String modelSettingsId,
             final ModelSettings modelSettings) {
 
         LOGGER.info(UPDATE_MODEL_SETTINGS_REQUEST, modelSettingsId, modelSettings);

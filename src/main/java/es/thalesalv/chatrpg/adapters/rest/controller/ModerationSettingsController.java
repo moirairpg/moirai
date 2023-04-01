@@ -59,7 +59,8 @@ public class ModerationSettingsController {
     }
 
     @GetMapping("{moderation-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> getModerationSettingsById(@PathVariable(value = "moderation-settings-id") final String moderationSettingsId) {
+    public Mono<ResponseEntity<ApiResponse>> getModerationSettingsById(
+            @PathVariable(value = "moderation-settings-id") final String moderationSettingsId) {
 
         LOGGER.info(RETRIEVE_MODERATION_SETTINGS_BY_ID_REQUEST, moderationSettingsId);
         return moderationSettingsService.retrieveModerationSettingsById(moderationSettingsId)
@@ -105,7 +106,8 @@ public class ModerationSettingsController {
     }
 
     @PatchMapping("{moderation-settings-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateModerationSettings(@PathVariable(value = "moderation-settings-id") final String moderationSettingsId,
+    public Mono<ResponseEntity<ApiResponse>> updateModerationSettings(
+            @PathVariable(value = "moderation-settings-id") final String moderationSettingsId,
             final ModerationSettings moderationSettings) {
 
         LOGGER.info(UPDATE_MODERATION_SETTINGS_REQUEST, moderationSettingsId, moderationSettings);
