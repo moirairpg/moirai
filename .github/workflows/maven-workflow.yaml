@@ -13,7 +13,8 @@ jobs:
           distribution: "adopt"
       - name: Build
         run: |
-            git pull && mvn package -DskipTests
+            git pull
+            mvn package -DskipTests
             echo "CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
       - name: Format code to pattern
         uses: actions-js/push@master
