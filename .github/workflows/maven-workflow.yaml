@@ -11,13 +11,16 @@ jobs:
           java-version: "17"
           distribution: "adopt"
       - name: Build with Maven
-        run: git pull && mvn package -DskipTests
+        run: >
+            git pull && mvn package -DskipTests &&\
+            echo "CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
       - name: Push formatted code
         uses: actions-js/push@master
         with:
           message: "Automated commit: fix code style according to format"
+          branch: ${{env.CURRENT_BRANCH}}
           author_email: 'github-actions[bot]@users.noreply.github.com'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{secrets.GITHUB_TOKEN}}
       - name: Unit tests
         if: github.ref != 'refs/heads/master'
         run: mvn test
