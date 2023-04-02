@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 @Transactional
 @RequiredArgsConstructor
 public class ChannelConfigSetHandler {
+
     private static final String ID_OPTION = "id";
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
@@ -28,9 +29,10 @@ public class ChannelConfigSetHandler {
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String ID_MISSING = "Configuration ID is required for attaching a a config to the current channel and cannot be empty.";
     private static final String CHANNEL_CONFIG_NOT_FOUND = "The requested channel configuration could not be found.";
-    private static final String CHANNEL_LINKED_CONFIG = "Channel `{0}` was linked to configuration `{1}` (with persona `{2}`).";
+    private static final String CHANNEL_LINKED_CONFIG = "Channel `{0}` (ID `{1}`) has been linked to configuration `{2}` (with persona `{3}`).";
     private static final String ERROR_SETTING_DEFINITION = "An error occurred while setting a definition";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when attaching config to channel. Please try again.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigSetHandler.class);
 
     public void handleCommand(final SlashCommandInteractionEvent event) {
@@ -44,23 +46,23 @@ public class ChannelConfigSetHandler {
 
             channelConfigRepository.findById(id)
                     .map(config -> {
-                        final ChannelEntity entity = channelRepository.findByChannelId(event.getChannel()
+                        final ChannelEntity entity = channelRepository.findById(event.getChannel()
                                 .getId())
                                 .map(e -> {
                                     e.setChannelConfig(config);
-                                    e.setChannelId(event.getChannel()
+                                    e.setId(event.getChannel()
                                             .getId());
                                     return e;
                                 })
                                 .orElseGet(() -> ChannelEntity.builder()
                                         .channelConfig(config)
-                                        .channelId(event.getChannel()
+                                        .id(event.getChannel()
                                                 .getId())
                                         .build());
 
                         channelRepository.save(entity);
                         event.reply(MessageFormat.format(CHANNEL_LINKED_CONFIG, event.getChannel()
-                                .getName(), entity.getId(),
+                                .getName(), entity.getId(), config.getId(),
                                 config.getPersona()
                                         .getName()))
                                 .setEphemeral(true)

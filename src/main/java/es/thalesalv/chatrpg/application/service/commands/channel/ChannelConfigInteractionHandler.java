@@ -18,15 +18,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ChannelConfigInteractionHandler implements DiscordInteractionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigInteractionHandler.class);
-    private static final String COMMAND_STRING = "chconf";
-    private static final String ACTION_OPTION = "action";
-    private static final String ID_OPTION = "id";
-    private static final String USER_ACTION_NOT_FOUND = "User tried an action that does not exist";
     private final ChannelConfigGetHandler getHandler;
     private final ChannelConfigSetHandler setHandler;
     private final ChannelConfigListHandler listHandler;
     private final ChannelConfigUnsetHandler unsetHandler;
+
+    private static final String COMMAND_STRING = "chconf";
+    private static final String ACTION_OPTION = "action";
+    private static final String ID_OPTION = "id";
+    private static final String USER_ACTION_NOT_FOUND = "User tried an action that does not exist";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigInteractionHandler.class);
 
     @Override
     public void handleCommand(final SlashCommandInteractionEvent event) {
@@ -53,6 +55,7 @@ public class ChannelConfigInteractionHandler implements DiscordInteractionHandle
         LOGGER.debug("Registering slash command for channel config retrieval");
         String actionDescription = MessageFormat.format("One of the following: {0}.",
                 ChannelConfigAction.listAsString());
+
         return Commands
                 .slash(COMMAND_STRING, "Used with subcommands for management of the current channel's configuration.")
                 .addOption(OptionType.STRING, ACTION_OPTION, actionDescription, true)

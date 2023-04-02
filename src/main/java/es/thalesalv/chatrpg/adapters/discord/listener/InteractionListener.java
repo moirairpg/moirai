@@ -21,6 +21,9 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 @RequiredArgsConstructor
 public class InteractionListener {
 
+    private final BotCommands botCommands;
+    private final HelpInteractionHandler helpService;
+
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String COMMAND_IS_NULL = "Command is null: {0}";
     private static final String UNKNOWN_ERROR = "Unknown exception caught while running commands";
@@ -28,10 +31,8 @@ public class InteractionListener {
     private static final String NON_EXISTING_COMMAND = "The command requested does not exist. Please try again.";
     private static final String NULL_POINTER_ERROR = "A null pointer exception was thrown during command execution.";
     private static final String SOMETHING_WENT_WRONG_ERROR = "Something went wrong with the command. Please try again.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(InteractionListener.class);
 
-    private final BotCommands botCommands;
-    private final HelpInteractionHandler helpService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(InteractionListener.class);
 
     public void onSlashCommand(SlashCommandInteractionEvent event) {
 

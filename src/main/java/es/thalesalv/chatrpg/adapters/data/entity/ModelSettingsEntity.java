@@ -31,23 +31,32 @@ public class ModelSettingsEntity {
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
     @Column(name = "id", unique = true, nullable = false)
     private String id;
+
     @Column(name = "owner_discord_id")
     private String owner;
+
     @Column(name = "model_name")
     private String modelName;
+
     @Column(name = "max_tokens")
     private int maxTokens;
+
     @Column(name = "chat_history_memory")
     private int chatHistoryMemory;
+
     @Column(name = "temperature")
     private double temperature;
+
     @Column(name = "frequency_penalty")
     private double frequencyPenalty;
+
     @Column(name = "presence_penalty")
     private double presencePenalty;
+
     @Column(name = "stop_sequence")
     @Convert(converter = StringListConverter.class)
     private List<String> stopSequence;
+
     @Column(name = "logit_bias")
     @Convert(converter = StringMapDoubleConverter.class)
     private Map<String, Double> logitBias;

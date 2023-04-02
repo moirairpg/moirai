@@ -18,11 +18,12 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CommonErrorHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommonErrorHandler.class);
     private static final String EMPTY_RESPONSE = "The model did not generate an output due to a problem. Please try again. Your message will be removed.\n**Message content:** {0}";
     private static final String UNKNOWN_ERROR = "An error occured and the message could not be sent to the model. Your message will be removed. Please try again.\n**Message content:** {0}";
     private static final String MESSAGE_TOO_LONG = "The message you sent or the total context exceeds the maximum number of available tokens. Send a smaller message or contact the administrator. Your message will be removed.\n**Message content:** {0}";
     private static final String SOMETHING_WRONG = "Something went wrong. Please try again.";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommonErrorHandler.class);
 
     public void handleEmptyResponse(final EventData eventData) {
 

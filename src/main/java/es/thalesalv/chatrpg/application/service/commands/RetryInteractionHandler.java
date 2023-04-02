@@ -31,19 +31,21 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 @RequiredArgsConstructor
 public class RetryInteractionHandler implements DiscordInteractionHandler {
 
-    private static final String COMMAND_STRING = "retry";
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
     private final EventDataMapper eventDataMapper;
-    private static final String USE_CASE = "UseCase";
+
     private static final int DELETE_EPHEMERAL_TIMER = 20;
+    private static final String USE_CASE = "UseCase";
+    private static final String COMMAND_STRING = "retry";
     private static final String BOT_INSTRUCTION = " Simply react and respond to {0}''s message: {1}";
     private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
     private static final String ERROR_OUTPUT_GENERATION = "Error regenerating output";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when editing the message. Please try again.";
     private static final String BOT_MESSAGE_NOT_FOUND = "No bot message found.";
     private static final String USER_MESSAGE_NOT_FOUND = "No user message found.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RetryInteractionHandler.class);
 
     @Override
@@ -55,7 +57,7 @@ public class RetryInteractionHandler implements DiscordInteractionHandler {
             final SelfUser bot = event.getJDA()
                     .getSelfUser();
             final MessageChannelUnion channel = event.getChannel();
-            channelRepository.findByChannelId(channel.getId())
+            channelRepository.findById(channel.getId())
                     .map(channelEntityToDTO)
                     .map(ch -> {
                         final Persona persona = ch.getChannelConfig()

@@ -19,8 +19,10 @@ public class ChatCompletionRequestMapper {
 
         final ModelSettings modelSettings = channelConfig.getSettings()
                 .getModelSettings();
+
         final String modelName = AIModel.findByInternalName(modelSettings.getModelName())
                 .getModelName();
+
         return ChatCompletionRequest.builder()
                 .messages(chatMessages)
                 .model(modelName)

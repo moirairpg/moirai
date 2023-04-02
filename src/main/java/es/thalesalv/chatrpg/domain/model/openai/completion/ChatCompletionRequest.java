@@ -22,22 +22,30 @@ public class ChatCompletionRequest {
 
     @JsonProperty("model")
     private String model;
+
     @JsonProperty("messages")
     private List<ChatMessage> messages;
+
     @JsonProperty("stop")
     private List<String> stop; // max of 4 elements
     @JsonProperty("max_tokens")
     private Integer maxTokens;
+
     @JsonProperty("n")
     private Integer n;
+
     @JsonProperty("temperature")
     private Double temperature;
+
     @JsonProperty("top_p")
     private Double topP;
+
     @JsonProperty("presence_penalty")
     private Double presencePenalty;
+
     @JsonProperty("frequency_penalty")
     private Double frequencyPenalty;
+
     @JsonProperty("logit_bias")
     private Map<String, Double> logitBias;
 }

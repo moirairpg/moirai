@@ -67,31 +67,40 @@ public class IngestDefaultChannelConfiguration {
         try {
             final InputStream yamlFile = new ClassPathResource(YAML_FILE_PATH).getInputStream();
             final ChannelConfigYaml yaml = yamlObjectMapper.readValue(yamlFile, ChannelConfigYaml.class);
+
             LOGGER.info(DEFAULT_CONFIG_FOUND);
+
             final AtomicInteger i = new AtomicInteger(1);
             for (ChannelConfig config : yaml.getConfigs()) {
                 LOGGER.debug(INGESTING_WORLD, config);
                 final String botId = jda.getSelfUser()
                         .getId();
+
                 final String id = String.valueOf(i.get());
                 config.setId(id);
                 config.getPersona()
                         .setId(id);
+
                 config.getSettings()
                         .getModelSettings()
                         .setId(id);
+
                 config.getSettings()
                         .getModerationSettings()
                         .setId(id);
+
                 config.setOwner(botId);
                 config.getPersona()
                         .setOwner(botId);
+
                 config.getSettings()
                         .getModelSettings()
                         .setOwner(botId);
+
                 config.getSettings()
                         .getModerationSettings()
                         .setOwner(botId);
+
                 config.setWorld(worldRepository.findById(id)
                         .map(worldEntityToDTO)
                         .orElseGet(() -> buildEmptyWorld(botId)));
@@ -123,6 +132,7 @@ public class IngestDefaultChannelConfiguration {
                         .entries(new HashSet<>())
                         .build())
                 .build();
+
         final WorldEntity worldEntity = worldDTOToEntity.apply(world);
         lorebookRepository.save(worldEntity.getLorebook());
         worldRepository.save(worldEntity);

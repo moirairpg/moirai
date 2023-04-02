@@ -16,9 +16,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
-import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.mapper.world.WorldEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
@@ -55,22 +53,20 @@ public class WorldListHandler {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
 
-                            List<World> worlds = worldRepository.findAll()
-                                    .stream()
-                                    .map(worldEntityToDTO)
-                                    .map(w -> cleanWorld(w, event))
-                                    .collect(Collectors.toList());
+            List<World> worlds = worldRepository.findAll()
+                    .stream()
+                    .map(worldEntityToDTO)
+                    .map(w -> cleanWorld(w, event))
+                    .collect(Collectors.toList());
 
-                            final String worldJson = prettyPrintObjectMapper.writeValueAsString(worlds);
-                            final File file = File.createTempFile("lore-entries-", ".json");
-                            Files.write(file.toPath(), worldJson.getBytes(StandardCharsets.UTF_8),
-                                    StandardOpenOption.APPEND);
-                            final FileUpload fileUpload = FileUpload.fromData(file);
-                            event.replyFiles(fileUpload)
-                                    .setEphemeral(true)
-                                    .complete();
-                            fileUpload.close();
-
+            final String worldJson = prettyPrintObjectMapper.writeValueAsString(worlds);
+            final File file = File.createTempFile("lore-entries-", ".json");
+            Files.write(file.toPath(), worldJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+            final FileUpload fileUpload = FileUpload.fromData(file);
+            event.replyFiles(fileUpload)
+                    .setEphemeral(true)
+                    .complete();
+            fileUpload.close();
 
         } catch (WorldNotFoundException e) {
             LOGGER.info(QUERIED_WORLD_NOT_FOUND);

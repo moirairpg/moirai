@@ -38,21 +38,23 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @RequiredArgsConstructor
 public class PromptInteractionHandler implements DiscordInteractionHandler {
 
-    private static final String COMMAND_STRING = "prompt";
-    private static final String MESSAGE_CONTENT = "message-content";
-    private static final String GENERATE_OUTPUT = "generate-output";
-    private static final String MODAL_ID = COMMAND_STRING + "-message-dmassist-modal";
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ContextDatastore contextDatastore;
     private final ApplicationContext applicationContext;
     private final ChannelRepository channelRepository;
     private final EventDataMapper eventDataMapper;
-    private static final String USE_CASE = "UseCase";
+
     private static final int DELETE_EPHEMERAL_TIMER = 20;
+    private static final String USE_CASE = "UseCase";
+    private static final String COMMAND_STRING = "prompt";
+    private static final String MESSAGE_CONTENT = "message-content";
+    private static final String GENERATE_OUTPUT = "generate-output";
+    private static final String MODAL_ID = COMMAND_STRING + "-message-dmassist-modal";
     private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
     private static final String GENERATION_INSTRUCTION = " Simply generate the message from where it stopped.\n";
     private static final String ERROR_GENERATING = "Error generating message";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when generating the message. Please try again.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PromptInteractionHandler.class);
 
     @Override
@@ -62,7 +64,7 @@ public class PromptInteractionHandler implements DiscordInteractionHandler {
         try {
             event.deferReply();
             final MessageChannelUnion channel = event.getChannel();
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .map(ch -> {

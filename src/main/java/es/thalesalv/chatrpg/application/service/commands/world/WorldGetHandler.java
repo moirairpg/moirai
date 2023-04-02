@@ -28,10 +28,7 @@ public class WorldGetHandler {
 
     private final ObjectWriter prettyPrintObjectMapper;
     private final ChannelEntityToDTO channelEntityToDTO;
-
     private final ChannelRepository channelRepository;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WorldGetHandler.class);
 
     private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
     private static final String NO_CONFIG_OR_WORLD_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
@@ -40,12 +37,14 @@ public class WorldGetHandler {
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";
     private static final String WORLD_RETRIEVED = "Retrieved world with name **{0}**.\n```json\n{1}```";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorldGetHandler.class);
+
     public void handleCommand(final SlashCommandInteractionEvent event) {
 
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .map(channel -> Optional.ofNullable(channel.getChannelConfig())

@@ -25,15 +25,17 @@ public class MessageListener {
     private final ChannelRepository channelRepository;
     private final ApplicationContext applicationContext;
     private final EventDataMapper eventDataMapper;
+
     private static final String USE_CASE = "UseCase";
     private static final String MESSAGE_RECEIVED = "Received message by {} in {}: {}";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageListener.class);
 
     public void onMessageReceived(MessageReceivedEvent event) {
 
         if (!event.getAuthor()
                 .isBot()) {
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .ifPresent(channel -> {

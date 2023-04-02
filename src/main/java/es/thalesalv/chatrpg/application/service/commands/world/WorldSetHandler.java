@@ -34,6 +34,7 @@ public class WorldSetHandler {
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when attaching world to config. Please try again.";
     private static final String WORLD_ID_NOT_FOUND = "The world with the requested ID does not exist.";
     private static final String WORLD_LINKED_CHANNEL_CONFIG = "World `{0}` was linked to configuration to the configuration of channel `{1}` (with persona `{2}`)";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldSetHandler.class);
 
     public void handleCommand(final SlashCommandInteractionEvent event) {
@@ -47,7 +48,7 @@ public class WorldSetHandler {
                     .orElseThrow(() -> new IllegalArgumentException(ID_MISSING));
 
             worldRepository.findById(id)
-                    .map(world -> channelRepository.findByChannelId(event.getChannel()
+                    .map(world -> channelRepository.findById(event.getChannel()
                             .getId())
                             .map(channel -> attachWorldToConfig(channel, world, event))
                             .orElseThrow(() -> new ChannelConfigurationNotFoundException(CHANNEL_CONFIG_NOT_FOUND)))
@@ -74,8 +75,10 @@ public class WorldSetHandler {
                 event.getChannel()
                         .getName(),
                 channel.getId());
+
         channel.getChannelConfig()
                 .setWorld(world);
+
         channelRepository.save(channel);
         event.reply(MessageFormat.format(WORLD_LINKED_CHANNEL_CONFIG, world.getName(), channel.getId(),
                 channel.getChannelConfig()

@@ -53,7 +53,8 @@ public class LorebookDeleteHandler {
             LOGGER.debug("Received slash command for lore entry deletion");
             final String entryId = event.getOption("id")
                     .getAsString();
-            channelRepository.findByChannelId(event.getChannel()
+
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .ifPresentOrElse(channel -> {
@@ -61,12 +62,15 @@ public class LorebookDeleteHandler {
                                 .id(entryId)
                                 .build())
                                 .orElseThrow(LorebookEntryNotFoundException::new);
+
                         contextDatastore.setEventData(EventData.builder()
                                 .lorebookEntryId(entryId)
                                 .build());
+
                         final Modal modal = buildEntryDeletionModal();
                         event.replyModal(modal)
                                 .queue();
+
                     }, () -> event.reply(CHANNEL_CONFIG_NOT_FOUND)
                             .setEphemeral(true)
                             .queue(reply -> reply.deleteOriginal()
@@ -104,9 +108,11 @@ public class LorebookDeleteHandler {
         if (isUserSure) {
             final String id = contextDatastore.getEventData()
                     .getLorebookEntryId();
+
             final LorebookEntryEntity lorebookEntry = LorebookEntryEntity.builder()
                     .id(id)
                     .build();
+
             lorebookEntryRegexRepository.deleteByLorebookEntry(lorebookEntry);
             lorebookEntryRepository.delete(lorebookEntry);
             event.reply(LORE_ENTRY_DELETED)

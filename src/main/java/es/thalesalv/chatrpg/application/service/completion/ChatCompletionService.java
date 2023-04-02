@@ -36,6 +36,7 @@ public class ChatCompletionService implements CompletionService {
     private final CommonErrorHandler commonErrorHandler;
     private final ChatCompletionRequestMapper chatCompletionsRequestTranslator;
     private final OpenAIApiService openAiService;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatCompletionService.class);
 
     @Override

@@ -52,7 +52,7 @@ public class LorebookListHandler {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .map(channel -> {

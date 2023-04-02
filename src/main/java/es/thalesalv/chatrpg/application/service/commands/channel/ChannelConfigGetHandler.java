@@ -48,7 +48,7 @@ public class ChannelConfigGetHandler {
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findByChannelId(event.getChannel()
+            channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
                     .map(channel -> Optional.ofNullable(channel.getChannelConfig())
@@ -99,6 +99,7 @@ public class ChannelConfigGetHandler {
                 .retrieveUserById(config.getOwner())
                 .complete()
                 .getName();
+
         config.setOwner(configOwnerName);
 
         final World world = config.getWorld();
@@ -106,6 +107,7 @@ public class ChannelConfigGetHandler {
                 .retrieveUserById(world.getOwner())
                 .complete()
                 .getName();
+
         world.setOwner(worldOwnerName);
         world.setLorebook(null);
         world.setInitialPrompt(null);
@@ -116,6 +118,7 @@ public class ChannelConfigGetHandler {
                 .retrieveUserById(persona.getOwner())
                 .complete()
                 .getName();
+
         persona.setOwner(personaOwnerName);
         persona.setNudge(null);
         persona.setBump(null);
