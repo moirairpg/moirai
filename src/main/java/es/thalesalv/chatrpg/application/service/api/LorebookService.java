@@ -37,6 +37,8 @@ public class LorebookService {
     private final LorebookEntryRepository lorebookEntryRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
 
+    private static final String DEFAULT_LOREBOOK_ID = "0";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookService.class);
 
     public Mono<List<Lorebook>> retrieveAllLorebooks() {
@@ -95,7 +97,7 @@ public class LorebookService {
                     worldRepository.findByLorebook(lorebook)
                             .forEach(world -> {
                                 world.setLorebook(LorebookEntity.builder()
-                                        .id("0")
+                                        .id(DEFAULT_LOREBOOK_ID)
                                         .build());
 
                                 worldRepository.save(world);
