@@ -18,7 +18,8 @@ public class ObjectMapperConfiguration {
     @Bean(name = "objectMapper")
     public ObjectMapper objectMapper() {
 
-        return new ObjectMapper();
+        return new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY)
+                .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     }
 
     @Bean(name = "yamlObjectMapper")
