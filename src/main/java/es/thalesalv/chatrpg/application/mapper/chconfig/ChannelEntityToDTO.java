@@ -16,11 +16,11 @@ public class ChannelEntityToDTO implements Function<ChannelEntity, Channel> {
     private final ChannelConfigEntityToDTO channelConfigEntityToDTO;
 
     @Override
-    public Channel apply(ChannelEntity t) {
+    public Channel apply(ChannelEntity channelEntity) {
 
-        final ChannelConfig channelConfig = channelConfigEntityToDTO.apply(t.getChannelConfig());
+        final ChannelConfig channelConfig = channelConfigEntityToDTO.apply(channelEntity.getChannelConfig());
         return Channel.builder()
-                .id(t.getId())
+                .id(channelEntity.getId())
                 .channelConfig(channelConfig)
                 .build();
     }

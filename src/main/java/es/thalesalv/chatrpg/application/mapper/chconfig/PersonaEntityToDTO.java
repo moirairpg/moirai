@@ -17,16 +17,16 @@ import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 public class PersonaEntityToDTO implements Function<PersonaEntity, Persona> {
 
     @Override
-    public Persona apply(PersonaEntity t) {
+    public Persona apply(PersonaEntity personaEntity) {
 
         return Persona.builder()
-                .id(t.getId())
-                .name(t.getName())
-                .owner(t.getOwner())
-                .intent(t.getIntent())
-                .personality(t.getPersonality())
-                .bump(buildBump(t.getBump()))
-                .nudge(buildNudge(t.getNudge()))
+                .id(personaEntity.getId())
+                .name(personaEntity.getName())
+                .owner(personaEntity.getOwner())
+                .intent(personaEntity.getIntent())
+                .personality(personaEntity.getPersonality())
+                .bump(buildBump(personaEntity.getBump()))
+                .nudge(buildNudge(personaEntity.getNudge()))
                 .build();
     }
 
