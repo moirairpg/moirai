@@ -11,19 +11,19 @@ import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 public class ModelSettingsEntityToDTO implements Function<ModelSettingsEntity, ModelSettings> {
 
     @Override
-    public ModelSettings apply(ModelSettingsEntity t) {
+    public ModelSettings apply(ModelSettingsEntity modelSettingsEntity) {
 
         return ModelSettings.builder()
-                .id(t.getId())
-                .owner(t.getOwner())
-                .logitBias(t.getLogitBias())
-                .maxTokens(t.getMaxTokens())
-                .modelName(t.getModelName())
-                .temperature(t.getTemperature())
-                .stopSequence(t.getStopSequence())
-                .presencePenalty(t.getPresencePenalty())
-                .frequencyPenalty(t.getFrequencyPenalty())
-                .chatHistoryMemory(t.getChatHistoryMemory())
+                .id(modelSettingsEntity.getId())
+                .owner(modelSettingsEntity.getOwner())
+                .logitBias(modelSettingsEntity.getLogitBias())
+                .maxTokens(modelSettingsEntity.getMaxTokens())
+                .modelName(modelSettingsEntity.getModelName())
+                .temperature(modelSettingsEntity.getTemperature())
+                .stopSequence(modelSettingsEntity.getStopSequence())
+                .presencePenalty(modelSettingsEntity.getPresencePenalty())
+                .frequencyPenalty(modelSettingsEntity.getFrequencyPenalty())
+                .chatHistoryMemory(modelSettingsEntity.getChatHistoryMemory())
                 .build();
     }
 }

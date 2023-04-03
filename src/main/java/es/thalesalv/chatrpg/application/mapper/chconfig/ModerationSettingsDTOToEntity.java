@@ -11,13 +11,13 @@ import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
 public class ModerationSettingsDTOToEntity implements Function<ModerationSettings, ModerationSettingsEntity> {
 
     @Override
-    public ModerationSettingsEntity apply(ModerationSettings t) {
+    public ModerationSettingsEntity apply(ModerationSettings moderationSettings) {
 
         return ModerationSettingsEntity.builder()
-                .id(t.getId())
-                .owner(t.getOwner())
-                .isAbsolute(t.isAbsolute())
-                .thresholds(t.getThresholds())
+                .id(moderationSettings.getId())
+                .owner(moderationSettings.getOwner())
+                .isAbsolute(moderationSettings.isAbsolute())
+                .thresholds(moderationSettings.getThresholds())
                 .build();
     }
 }

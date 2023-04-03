@@ -14,20 +14,20 @@ import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 public class LorebookEntryDTOToEntity implements Function<LorebookEntry, LorebookEntryRegexEntity> {
 
     @Override
-    public LorebookEntryRegexEntity apply(LorebookEntry t) {
+    public LorebookEntryRegexEntity apply(LorebookEntry lorebookEntry) {
 
-        final String regex = Optional.ofNullable(t.getRegex())
+        final String regex = Optional.ofNullable(lorebookEntry.getRegex())
                 .filter(StringUtils::isNotBlank)
-                .orElse(t.getName());
+                .orElse(lorebookEntry.getName());
 
         return LorebookEntryRegexEntity.builder()
-                .id(t.getRegexId())
+                .id(lorebookEntry.getRegexId())
                 .regex(regex)
                 .lorebookEntry(LorebookEntryEntity.builder()
-                        .id(t.getId())
-                        .name(t.getName())
-                        .description(t.getDescription())
-                        .playerDiscordId(t.getPlayerDiscordId())
+                        .id(lorebookEntry.getId())
+                        .name(lorebookEntry.getName())
+                        .description(lorebookEntry.getDescription())
+                        .playerDiscordId(lorebookEntry.getPlayerDiscordId())
                         .build())
                 .build();
     }
