@@ -1,13 +1,5 @@
 package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
@@ -24,6 +16,13 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Transactional
@@ -35,6 +34,7 @@ public class LorebookDeleteHandler {
     private final LorebookEntryRepository lorebookEntryRepository;
     private final ChannelRepository channelRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
+    private static final String MODAL_ID = "lb-delete";
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String CHANNEL_CONFIG_NOT_FOUND = "The requested channel configuration could not be found";
     private static final String LORE_ENTRY_DELETED = "Lore entry deleted.";
@@ -100,7 +100,7 @@ public class LorebookDeleteHandler {
 
         LOGGER.debug("Received data from lore entry deletion modal");
         event.deferReply();
-        final boolean isUserSure = Optional.ofNullable(event.getValue("lb-entry-delete"))
+        final boolean isUserSure = Optional.ofNullable(event.getValue(MODAL_ID))
                 .filter(a -> a.getAsString()
                         .equals("y"))
                 .isPresent();
@@ -131,13 +131,13 @@ public class LorebookDeleteHandler {
 
         LOGGER.debug("Building entry deletion modal");
         final TextInput deleteLoreEntry = TextInput
-                .create("lb-entry-delete", "Are you sure you want to delete this entry?", TextInputStyle.SHORT)
+                .create(MODAL_ID, "Are you sure you want to delete this entry?", TextInputStyle.SHORT)
                 .setPlaceholder("y or n")
                 .setMaxLength(1)
                 .setRequired(true)
                 .build();
 
-        return Modal.create("delete-lb-entry-data", "Delete lore entry")
+        return Modal.create(MODAL_ID, "Delete lore entry")
                 .addComponents(ActionRow.of(deleteLoreEntry))
                 .build();
     }
