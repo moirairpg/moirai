@@ -54,8 +54,9 @@ public class LorebookInteractionHandler implements DiscordInteractionHandler {
 
         LOGGER.debug("handling " + COMMAND_STRING + " modal");
         final String modalId = event.getModalId();
-        final String commandName = modalId.split("-")[0];
-        LorebookAction action = Optional.ofNullable(commandName)
+        final String actionId = modalId.split("-")[1];
+        LOGGER.debug(MessageFormat.format("actionName: {0}", actionId));
+        LorebookAction action = Optional.ofNullable(actionId)
                 .flatMap(LorebookAction::byName)
                 .orElseThrow(() -> new RuntimeException(USER_ACTION_NOT_FOUND));
         switch (action) {

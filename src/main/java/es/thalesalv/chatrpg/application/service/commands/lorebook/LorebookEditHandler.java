@@ -1,18 +1,7 @@
 package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
-import java.text.MessageFormat;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
-
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
@@ -39,6 +28,15 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.text.MessageFormat;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Transactional
@@ -61,7 +59,7 @@ public class LorebookEditHandler {
     private static final String FIELD_REGEX = "lb-entry-regex";
     private static final String FIELD_DESCRIPTION = "lb-entry-desc";
     private static final String FIELD_PLAYER = "lb-entry-player";
-    private static final String MODAL_ID = "update-lb-entry-data";
+    private static final String MODAL_ID = "lb-edit";
     private static final String ERROR_PARSING_JSON = "Error parsing entry data into JSON";
     private static final String USER_UPDATE_ENTRY_NOT_FOUND = "The entry queried does not exist.";
     private static final String UNKNOWN_ERROR_CAUGHT = "Exception caught while updating lorebook entry";
