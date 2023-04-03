@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.1.0-SNAPSHOT</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <groupId>es.thalesalv</groupId>
@@ -20,6 +20,8 @@
         <java.version>17</java.version>
         <logback.version>1.4.5</logback.version>
         <test.webserver.version>4.0.1</test.webserver.version>
+        <pitest.skip>false</pitest.skip>
+        <pitest.withHistory>false</pitest.withHistory>
     </properties>
 
     <dependencies>
@@ -112,6 +114,12 @@
             <artifactId>tokenizers</artifactId>
             <version>0.21.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.pitest/pitest -->
+        <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest</artifactId>
+            <version>1.11.7</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -159,7 +167,8 @@
                     <excludes>
                         <exclude>
                             <groupId>
-                                org.projectlombok</groupId>
+                                org.projectlombok
+                            </groupId>
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
@@ -180,6 +189,37 @@
                         <configuration>
                             <configFile>formatter.xml</configFile>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.11.7</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>1.1.2</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <timestampedReports>true</timestampedReports>
+                    <targetClasses>
+                        <param>es.thalesalv.chatrpg*</param>
+                    </targetClasses>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <configuration>
+                            <threads>4</threads>
+                            <skip>${pitest.skip}</skip>
+                            <withHistory>${pitest.withHistory}</withHistory>
+                        </configuration>
+                        <goals>
+                            <goal>mutationCoverage</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

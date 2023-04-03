@@ -20,32 +20,32 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
     private final LorebookEntryEntityToDTO lorebookEntryToDTO;
 
     @Override
-    public World apply(WorldEntity t) {
+    public World apply(WorldEntity worldEntity) {
 
-        final Set<LorebookEntry> entries = t.getLorebook()
+        final Set<LorebookEntry> entries = worldEntity.getLorebook()
                 .getEntries()
                 .stream()
                 .map(lorebookEntryToDTO)
                 .collect(Collectors.toSet());
 
         return World.builder()
-                .editPermissions(t.getEditPermissions())
-                .id(t.getId())
-                .initialPrompt(t.getInitialPrompt())
-                .name(t.getName())
-                .owner(t.getOwner())
-                .visibility(t.getVisibility())
-                .description(t.getDescription())
+                .editPermissions(worldEntity.getEditPermissions())
+                .id(worldEntity.getId())
+                .initialPrompt(worldEntity.getInitialPrompt())
+                .name(worldEntity.getName())
+                .owner(worldEntity.getOwner())
+                .visibility(worldEntity.getVisibility())
+                .description(worldEntity.getDescription())
                 .lorebook(Lorebook.builder()
-                        .id(t.getLorebook()
+                        .id(worldEntity.getLorebook()
                                 .getId())
-                        .name(t.getLorebook()
+                        .name(worldEntity.getLorebook()
                                 .getName())
-                        .owner(t.getLorebook()
+                        .owner(worldEntity.getLorebook()
                                 .getOwner())
-                        .editPermissions(t.getLorebook()
+                        .editPermissions(worldEntity.getLorebook()
                                 .getEditPermissions())
-                        .description(t.getLorebook()
+                        .description(worldEntity.getLorebook()
                                 .getDescription())
                         .entries(entries)
                         .build())

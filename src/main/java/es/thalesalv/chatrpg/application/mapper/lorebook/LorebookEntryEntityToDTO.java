@@ -11,19 +11,19 @@ import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 public class LorebookEntryEntityToDTO implements Function<LorebookEntryRegexEntity, LorebookEntry> {
 
     @Override
-    public LorebookEntry apply(LorebookEntryRegexEntity t) {
+    public LorebookEntry apply(LorebookEntryRegexEntity lorebookEntryEntity) {
 
         return LorebookEntry.builder()
-                .id(t.getLorebookEntry()
+                .id(lorebookEntryEntity.getLorebookEntry()
                         .getId())
-                .description(t.getLorebookEntry()
+                .description(lorebookEntryEntity.getLorebookEntry()
                         .getDescription())
-                .playerDiscordId(t.getLorebookEntry()
+                .playerDiscordId(lorebookEntryEntity.getLorebookEntry()
                         .getPlayerDiscordId())
-                .name(t.getLorebookEntry()
+                .name(lorebookEntryEntity.getLorebookEntry()
                         .getName())
-                .regex(t.getRegex())
-                .regexId(t.getId())
+                .regex(lorebookEntryEntity.getRegex())
+                .regexId(lorebookEntryEntity.getId())
                 .build();
     }
 }

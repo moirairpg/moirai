@@ -20,32 +20,32 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
     private final LorebookEntryDTOToEntity lorebookEntryDTOToEntity;
 
     @Override
-    public WorldEntity apply(World t) {
+    public WorldEntity apply(World world) {
 
-        final List<LorebookEntryRegexEntity> entries = t.getLorebook()
+        final List<LorebookEntryRegexEntity> entries = world.getLorebook()
                 .getEntries()
                 .stream()
                 .map(lorebookEntryDTOToEntity)
                 .collect(Collectors.toList());
 
         return WorldEntity.builder()
-                .editPermissions(t.getEditPermissions())
-                .id(t.getId())
-                .initialPrompt(t.getInitialPrompt())
-                .name(t.getName())
-                .owner(t.getOwner())
-                .visibility(t.getVisibility())
-                .description(t.getDescription())
+                .editPermissions(world.getEditPermissions())
+                .id(world.getId())
+                .initialPrompt(world.getInitialPrompt())
+                .name(world.getName())
+                .owner(world.getOwner())
+                .visibility(world.getVisibility())
+                .description(world.getDescription())
                 .lorebook(LorebookEntity.builder()
-                        .id(t.getLorebook()
+                        .id(world.getLorebook()
                                 .getId())
-                        .name(t.getLorebook()
+                        .name(world.getLorebook()
                                 .getName())
-                        .owner(t.getLorebook()
+                        .owner(world.getLorebook()
                                 .getOwner())
-                        .editPermissions(t.getLorebook()
+                        .editPermissions(world.getLorebook()
                                 .getEditPermissions())
-                        .description(t.getLorebook()
+                        .description(world.getLorebook()
                                 .getDescription())
                         .entries(entries)
                         .build())
