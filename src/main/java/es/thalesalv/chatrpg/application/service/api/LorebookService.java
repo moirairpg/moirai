@@ -3,10 +3,12 @@ package es.thalesalv.chatrpg.application.service.api;
 import java.util.List;
 import java.util.stream.Stream;
 
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntityToDTO;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryDTOToEntity;
@@ -30,6 +32,7 @@ public class LorebookService {
     private final LorebookEntryDTOToEntity lorebookEntryDTOToEntity;
     private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
 
+    private final WorldRepository worldRepository;
     private final LorebookRepository lorebookRepository;
     private final LorebookEntryRepository lorebookEntryRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
@@ -81,7 +84,27 @@ public class LorebookService {
     public void deleteLorebook(final String lorebookId) {
 
         LOGGER.debug("Deleting lorebook data from request");
-        lorebookRepository.deleteById(lorebookId);
+        lorebookRepository.findById(lorebookId)
+                .ifPresentOrElse(lorebook -> {
+                    lorebook.getEntries()
+                            .forEach(entry -> {
+                                lorebookEntryRegexRepository.delete(entry);
+                                lorebookEntryRepository.delete(entry.getLorebookEntry());
+                            });
+
+                    worldRepository.findByLorebook(lorebook)
+                            .forEach(world -> {
+                                world.setLorebook(LorebookEntity.builder()
+                                        .id("0")
+                                        .build());
+
+                                worldRepository.save(world);
+                            });
+
+                    lorebookRepository.delete(lorebook);
+                }, () -> {
+                    throw new LorebookEntryNotFoundException("Could not find requested lorebook");
+                });
     }
 
     public Mono<List<LorebookEntry>> retrieveAllLorebookEntries() {
