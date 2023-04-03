@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -86,7 +87,7 @@ public class ChannelConfigController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(final ChannelConfig channelConfig) {
+    public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(@RequestBody final ChannelConfig channelConfig) {
 
         LOGGER.info(SAVE_CHANNEL_CONFIG_REQUEST, channelConfig);
         return channelConfigService.saveChannelConfig(channelConfig)
@@ -108,7 +109,7 @@ public class ChannelConfigController {
     @PatchMapping("{channel-config-id}")
     public Mono<ResponseEntity<ApiResponse>> updateChannelConfigById(
             @PathVariable(value = "channel-config-id") final String channelConfigId,
-            final ChannelConfig channelConfig) {
+            @RequestBody final ChannelConfig channelConfig) {
 
         LOGGER.info(UPDATE_CHANNEL_CONFIG_REQUEST, channelConfigId, channelConfig);
         return channelConfigService.updateChannelConfig(channelConfigId, channelConfig)

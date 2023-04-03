@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -86,7 +87,7 @@ public class ModelSettingsController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> saveModelSettings(final ModelSettings modelSettings) {
+    public Mono<ResponseEntity<ApiResponse>> saveModelSettings(@RequestBody final ModelSettings modelSettings) {
 
         LOGGER.info(SAVE_MODEL_SETTINGS_REQUEST, modelSettings);
         return modelSettingsService.saveModelSettings(modelSettings)
@@ -108,7 +109,7 @@ public class ModelSettingsController {
     @PatchMapping("{model-settings-id}")
     public Mono<ResponseEntity<ApiResponse>> updateModelSettings(
             @PathVariable(value = "model-settings-id") final String modelSettingsId,
-            final ModelSettings modelSettings) {
+            @RequestBody final ModelSettings modelSettings) {
 
         LOGGER.info(UPDATE_MODEL_SETTINGS_REQUEST, modelSettingsId, modelSettings);
         return modelSettingsService.updateModelSettings(modelSettingsId, modelSettings)

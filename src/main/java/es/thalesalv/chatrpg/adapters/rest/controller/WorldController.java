@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -85,7 +86,7 @@ public class WorldController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> saveWorld(final World world) {
+    public Mono<ResponseEntity<ApiResponse>> saveWorld(@RequestBody final World world) {
 
         LOGGER.info(SAVE_WORLD_REQUEST, world);
         return worldService.saveWorld(world)
@@ -106,7 +107,7 @@ public class WorldController {
 
     @PatchMapping("{world-id}")
     public Mono<ResponseEntity<ApiResponse>> updateWorld(@PathVariable(value = "world-id") final String worldId,
-            final World world) {
+            @RequestBody final World world) {
 
         LOGGER.info(UPDATE_WORLD_REQUEST, worldId, world);
         return worldService.updateWorld(worldId, world)

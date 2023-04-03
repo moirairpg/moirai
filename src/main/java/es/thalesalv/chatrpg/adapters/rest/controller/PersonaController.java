@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -86,7 +87,7 @@ public class PersonaController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> savePersona(final Persona persona) {
+    public Mono<ResponseEntity<ApiResponse>> savePersona(@RequestBody final Persona persona) {
 
         LOGGER.info(SAVE_PERSONA_REQUEST, persona);
         return personaService.savePersona(persona)
@@ -107,7 +108,7 @@ public class PersonaController {
 
     @PatchMapping("{persona-id}")
     public Mono<ResponseEntity<ApiResponse>> updatePersona(@PathVariable(value = "persona-id") final String personaId,
-            final Persona persona) {
+            @RequestBody final Persona persona) {
 
         LOGGER.info(UPDATE_PERSONA_REQUEST, personaId, persona);
         return personaService.updatePersona(personaId, persona)

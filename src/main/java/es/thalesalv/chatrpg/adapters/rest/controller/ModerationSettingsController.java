@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -86,7 +87,7 @@ public class ModerationSettingsController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> saveModerationSettings(final ModerationSettings moderationSettings) {
+    public Mono<ResponseEntity<ApiResponse>> saveModerationSettings(@RequestBody final ModerationSettings moderationSettings) {
 
         LOGGER.info(SAVE_MODERATION_SETTINGS_REQUEST, moderationSettings);
         return moderationSettingsService.saveModerationSettings(moderationSettings)
@@ -108,7 +109,7 @@ public class ModerationSettingsController {
     @PatchMapping("{moderation-settings-id}")
     public Mono<ResponseEntity<ApiResponse>> updateModerationSettings(
             @PathVariable(value = "moderation-settings-id") final String moderationSettingsId,
-            final ModerationSettings moderationSettings) {
+            @RequestBody final ModerationSettings moderationSettings) {
 
         LOGGER.info(UPDATE_MODERATION_SETTINGS_REQUEST, moderationSettingsId, moderationSettings);
         return moderationSettingsService.updateModerationSettings(moderationSettingsId, moderationSettings)

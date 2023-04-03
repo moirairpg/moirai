@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -86,7 +87,7 @@ public class LorebookEntryController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> saveLorebookEntry(final LorebookEntry lorebookEntry) {
+    public Mono<ResponseEntity<ApiResponse>> saveLorebookEntry(@RequestBody final LorebookEntry lorebookEntry) {
 
         LOGGER.info(SAVE_LOREBOOK_ENTRY_REQUEST, lorebookEntry);
         return lorebookService.saveLorebookEntry(lorebookEntry)
@@ -108,7 +109,7 @@ public class LorebookEntryController {
     @PatchMapping("{lorebook-entry-id}")
     public Mono<ResponseEntity<ApiResponse>> updateLorebookEntry(
             @PathVariable(value = "lorebook-entry-id") final String lorebookEntryId,
-            final LorebookEntry lorebookEntry) {
+            @RequestBody final LorebookEntry lorebookEntry) {
 
         LOGGER.info(UPDATE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId, lorebookEntry);
         return lorebookService.updateLorebookEntry(lorebookEntryId, lorebookEntry)
