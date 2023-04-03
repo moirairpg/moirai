@@ -1,15 +1,5 @@
 package es.thalesalv.chatrpg.application.service.commands;
 
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
@@ -25,11 +15,20 @@ import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +43,6 @@ public class EditInteractionHandler implements DiscordInteractionHandler {
     private static final String COMMAND_STRING = "edit";
     private static final String ID_OPTION = "id";
     private static final String MODAL_MESSAGE_CONTENT = "message-content";
-    private static final String MODAL_ID = COMMAND_STRING + "-message-dmassist-modal";
     private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
     private static final String ERROR_EDITING = "Error editing message";
     private static final String BOT_NOT_FOUND = "No bot message found.";
@@ -130,7 +128,7 @@ public class EditInteractionHandler implements DiscordInteractionHandler {
                 .setMaxLength(2000)
                 .setRequired(true)
                 .build();
-        return Modal.create(MODAL_ID, "Edit message content")
+        return Modal.create(COMMAND_STRING, "Edit message content")
                 .addComponents(ActionRow.of(messageContent))
                 .build();
     }
