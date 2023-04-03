@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -86,7 +87,7 @@ public class ChannelController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(final Channel channel) {
+    public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(@RequestBody final Channel channel) {
 
         LOGGER.info(SAVE_CHANNEL_REQUEST, channel);
         return channelConfigService.saveChannel(channel)
@@ -105,12 +106,11 @@ public class ChannelController {
                 });
     }
 
-    @PatchMapping("{channel-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateChannelConfig(
-            @PathVariable(value = "channel-id") final String channelId, final Channel channel) {
+    @PatchMapping
+    public Mono<ResponseEntity<ApiResponse>> updateChannelConfig(@RequestBody final Channel channel) {
 
-        LOGGER.info(UPDATE_CHANNEL_REQUEST, channelId, channel);
-        return channelConfigService.updateChannel(channelId, channel)
+        LOGGER.info(UPDATE_CHANNEL_REQUEST, channel.getId(), channel);
+        return channelConfigService.updateChannel(channel)
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

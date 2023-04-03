@@ -54,21 +54,34 @@ public class ChannelConfigService {
     public Mono<List<Channel>> saveChannel(final Channel channel) {
 
         LOGGER.debug("Saving channel data from request");
-        return Mono.just(channelDTOToEntity.apply(channel))
+        return Mono.just(channelConfigRepository.findById(channel.getChannelConfig()
+                .getId())
+                .orElseThrow(ChannelConfigNotFoundException::new))
+                .map(c -> {
+                    channel.setChannelConfig(channelConfigEntityToDTO.apply(c));
+                    return channelDTOToEntity.apply(channel);
+                })
                 .map(channelRepository::save)
                 .map(channelEntityToDTO)
                 .map(c -> Stream.of(c)
                         .toList());
     }
 
-    public Mono<List<Channel>> updateChannel(final String channelId, final Channel channel) {
+    public Mono<List<Channel>> updateChannel(final Channel channel) {
 
         LOGGER.debug("Updating channel data from request");
-        return Mono.just(channelDTOToEntity.apply(channel))
+        return Mono.just(channelRepository.findById(channel.getId())
+                .orElseThrow(() -> new ChannelConfigNotFoundException(
+                        "The requested channel does not have an entry saved.")))
                 .map(c -> {
-                    c.setId(channelId);
-                    return channelRepository.save(c);
+                    c.setChannelConfig(channelConfigRepository.findById(channel.getChannelConfig()
+                            .getId())
+                            .orElseThrow(() -> new ChannelConfigNotFoundException(
+                                    "The configuration requested does not exist")));
+
+                    return c;
                 })
+                .map(channelRepository::save)
                 .map(channelEntityToDTO)
                 .map(c -> Stream.of(c)
                         .toList());
