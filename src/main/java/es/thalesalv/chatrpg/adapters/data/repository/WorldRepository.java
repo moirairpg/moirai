@@ -9,5 +9,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface WorldRepository extends CrudRepository<WorldEntity, String> {
 
     List<WorldEntity> findAll();
+
     List<WorldEntity> findByLorebook(LorebookEntity lorebook);
 }
