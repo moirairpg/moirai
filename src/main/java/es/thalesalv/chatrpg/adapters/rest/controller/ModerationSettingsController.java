@@ -87,7 +87,8 @@ public class ModerationSettingsController {
     }
 
     @PutMapping
-    public Mono<ResponseEntity<ApiResponse>> saveModerationSettings(@RequestBody final ModerationSettings moderationSettings) {
+    public Mono<ResponseEntity<ApiResponse>> saveModerationSettings(
+            @RequestBody final ModerationSettings moderationSettings) {
 
         LOGGER.info(SAVE_MODERATION_SETTINGS_REQUEST, moderationSettings);
         return moderationSettingsService.saveModerationSettings(moderationSettings)
