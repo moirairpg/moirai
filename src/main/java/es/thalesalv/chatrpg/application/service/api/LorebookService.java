@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
-import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookRepository;
@@ -36,8 +35,6 @@ public class LorebookService {
     private final LorebookRepository lorebookRepository;
     private final LorebookEntryRepository lorebookEntryRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
-
-    private static final String DEFAULT_LOREBOOK_ID = "0";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookService.class);
 
@@ -72,7 +69,7 @@ public class LorebookService {
 
     public Mono<List<Lorebook>> updateLorebook(final String lorebookId, final Lorebook lorebook) {
 
-        LOGGER.debug("Updating lorebook data from request");
+        LOGGER.debug("Updating lorebook data from request. lorebookId -> {}", lorebookId);
         return Mono.just(lorebookDTOToEntity.apply(lorebook))
                 .map(c -> {
                     c.setId(lorebookId);
@@ -96,10 +93,10 @@ public class LorebookService {
 
                     worldRepository.findByLorebook(lorebook)
                             .forEach(world -> {
-                                world.setLorebook(LorebookEntity.builder()
-                                        .id(DEFAULT_LOREBOOK_ID)
-                                        .build());
+                                final LorebookEntity defaultLorebook = lorebookDTOToEntity
+                                        .apply(Lorebook.defaultLorebook());
 
+                                world.setLorebook(defaultLorebook);
                                 worldRepository.save(world);
                             });
 
@@ -121,15 +118,15 @@ public class LorebookService {
     public Mono<List<LorebookEntry>> retrieveLorebookEntryById(final String lorebookEntryId) {
 
         LOGGER.debug("Retrieving lorebookEntry by ID data from request");
-        final LorebookEntryEntity entry = LorebookEntryEntity.builder()
-                .id(lorebookEntryId)
-                .build();
-
-        return Mono.just(lorebookEntryRegexRepository.findByLorebookEntry(entry)
-                .orElseThrow(LorebookEntryNotFoundException::new))
+        return Mono.just(lorebookEntryRepository.findById(lorebookEntryId)
+                .map(entry -> {
+                    return lorebookEntryRegexRepository.findByLorebookEntry(entry)
+                            .orElseThrow(() -> new LorebookEntryNotFoundException("Lorebook entry regex not found"));
+                })
                 .map(lorebookEntry -> Stream.of(lorebookEntry)
                         .map(lorebookEntryEntityToDTO)
-                        .toList());
+                        .toList())
+                .orElseThrow(() -> new LorebookEntryNotFoundException("Lorebook entry not found")));
     }
 
     public Mono<List<LorebookEntry>> saveLorebookEntry(final LorebookEntry lorebookEntry) {
