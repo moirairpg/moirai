@@ -18,20 +18,20 @@ public class LorebookDTOToEntity implements Function<Lorebook, LorebookEntity> {
     private final LorebookEntryDTOToEntity lorebookEntryDTOToEntity;
 
     @Override
-    public LorebookEntity apply(Lorebook t) {
+    public LorebookEntity apply(Lorebook lorebook) {
 
-        final List<LorebookEntryRegexEntity> entries = t.getEntries()
+        final List<LorebookEntryRegexEntity> entries = lorebook.getEntries()
                 .stream()
                 .map(lorebookEntryDTOToEntity)
                 .collect(Collectors.toList());
 
         return LorebookEntity.builder()
-                .id(t.getId())
-                .description(t.getDescription())
-                .name(t.getName())
-                .editPermissions(t.getEditPermissions())
-                .owner(t.getOwner())
-                .visibility(t.getVisibility())
+                .id(lorebook.getId())
+                .description(lorebook.getDescription())
+                .name(lorebook.getName())
+                .editPermissions(lorebook.getEditPermissions())
+                .owner(lorebook.getOwner())
+                .visibility(lorebook.getVisibility())
                 .entries(entries)
                 .build();
     }
