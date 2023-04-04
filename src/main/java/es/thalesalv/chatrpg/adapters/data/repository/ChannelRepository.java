@@ -10,6 +10,8 @@ import org.springframework.data.repository.CrudRepository;
 public interface ChannelRepository extends CrudRepository<ChannelEntity, String> {
 
     List<ChannelEntity> findAll();
+
     List<ChannelEntity> findAllByChannelConfig(ChannelConfigEntity channelConfig);
+
     Optional<ChannelEntity> findByChannelConfig(ChannelConfigEntity channelConfig);
 }
