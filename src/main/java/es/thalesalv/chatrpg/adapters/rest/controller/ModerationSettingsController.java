@@ -15,8 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,7 +86,7 @@ public class ModerationSettingsController {
                 });
     }
 
-    @PutMapping
+    @PostMapping
     public Mono<ResponseEntity<ApiResponse>> saveModerationSettings(
             @RequestBody final ModerationSettings moderationSettings) {
 
@@ -107,7 +107,7 @@ public class ModerationSettingsController {
                 });
     }
 
-    @PatchMapping("{moderation-settings-id}")
+    @PutMapping("{moderation-settings-id}")
     public Mono<ResponseEntity<ApiResponse>> updateModerationSettings(
             @PathVariable(value = "moderation-settings-id") final String moderationSettingsId,
             @RequestBody final ModerationSettings moderationSettings) {
@@ -138,7 +138,8 @@ public class ModerationSettingsController {
                 .map(id -> {
                     moderationSettingsService.deleteModerationSettings(moderationSettingsId);
                     LOGGER.info(DELETE_MODERATION_SETTINGS_RESPONSE, moderationSettingsId);
-                    return buildResponse(null);
+                    return ResponseEntity.ok()
+                            .body(ApiResponse.empty());
                 })
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

@@ -15,8 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,7 +86,7 @@ public class ChannelController {
                 });
     }
 
-    @PutMapping
+    @PostMapping
     public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(@RequestBody final Channel channel) {
 
         LOGGER.info(SAVE_CHANNEL_REQUEST, channel);
@@ -106,11 +106,12 @@ public class ChannelController {
                 });
     }
 
-    @PatchMapping
-    public Mono<ResponseEntity<ApiResponse>> updateChannelConfig(@RequestBody final Channel channel) {
+    @PutMapping("{channel-id}")
+    public Mono<ResponseEntity<ApiResponse>> updateChannelConfig(
+            @PathVariable(value = "channel-id") final String channelId, @RequestBody final Channel channel) {
 
-        LOGGER.info(UPDATE_CHANNEL_REQUEST, channel.getId(), channel);
-        return channelConfigService.updateChannel(channel)
+        LOGGER.info(UPDATE_CHANNEL_REQUEST, channelId, channel);
+        return channelConfigService.updateChannel(channelId, channel)
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -136,8 +137,7 @@ public class ChannelController {
                     channelConfigService.deleteChannel(channelId);
                     LOGGER.info(DELETE_CHANNEL_RESPONSE, channelId);
                     return ResponseEntity.ok()
-                            .body(ApiResponse.builder()
-                                    .build());
+                            .body(ApiResponse.empty());
                 })
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

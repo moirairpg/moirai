@@ -15,8 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,7 +86,7 @@ public class ModelSettingsController {
                 });
     }
 
-    @PutMapping
+    @PostMapping
     public Mono<ResponseEntity<ApiResponse>> saveModelSettings(@RequestBody final ModelSettings modelSettings) {
 
         LOGGER.info(SAVE_MODEL_SETTINGS_REQUEST, modelSettings);
@@ -106,7 +106,7 @@ public class ModelSettingsController {
                 });
     }
 
-    @PatchMapping("{model-settings-id}")
+    @PutMapping("{model-settings-id}")
     public Mono<ResponseEntity<ApiResponse>> updateModelSettings(
             @PathVariable(value = "model-settings-id") final String modelSettingsId,
             @RequestBody final ModelSettings modelSettings) {
@@ -137,7 +137,8 @@ public class ModelSettingsController {
                 .map(id -> {
                     modelSettingsService.deleteModelSettings(modelSettingsId);
                     LOGGER.info(DELETE_MODEL_SETTINGS_RESPONSE, modelSettingsId);
-                    return buildResponse(null);
+                    return ResponseEntity.ok()
+                            .body(ApiResponse.empty());
                 })
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

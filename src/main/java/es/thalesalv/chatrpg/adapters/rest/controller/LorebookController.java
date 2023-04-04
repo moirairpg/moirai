@@ -15,8 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,7 +86,7 @@ public class LorebookController {
                 });
     }
 
-    @PutMapping
+    @PostMapping
     public Mono<ResponseEntity<ApiResponse>> saveLorebook(@RequestBody final Lorebook lorebook) {
 
         LOGGER.info(SAVE_LOREBOOK_REQUEST, lorebook);
@@ -106,7 +106,7 @@ public class LorebookController {
                 });
     }
 
-    @PatchMapping("{lorebook-id}")
+    @PutMapping("{lorebook-id}")
     public Mono<ResponseEntity<ApiResponse>> updateLorebook(
             @PathVariable(value = "lorebook-id") final String lorebookId, @RequestBody final Lorebook lorebook) {
 
@@ -136,7 +136,8 @@ public class LorebookController {
                 .map(id -> {
                     lorebookService.deleteLorebook(lorebookId);
                     LOGGER.info(DELETE_LOREBOOK_RESPONSE, lorebookId);
-                    return buildResponse(null);
+                    return ResponseEntity.ok()
+                            .body(ApiResponse.empty());
                 })
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

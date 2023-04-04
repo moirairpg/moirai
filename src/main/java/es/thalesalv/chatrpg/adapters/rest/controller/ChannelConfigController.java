@@ -15,8 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,7 +86,7 @@ public class ChannelConfigController {
                 });
     }
 
-    @PutMapping
+    @PostMapping
     public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(@RequestBody final ChannelConfig channelConfig) {
 
         LOGGER.info(SAVE_CHANNEL_CONFIG_REQUEST, channelConfig);
@@ -106,7 +106,7 @@ public class ChannelConfigController {
                 });
     }
 
-    @PatchMapping("{channel-config-id}")
+    @PutMapping("{channel-config-id}")
     public Mono<ResponseEntity<ApiResponse>> updateChannelConfigById(
             @PathVariable(value = "channel-config-id") final String channelConfigId,
             @RequestBody final ChannelConfig channelConfig) {
@@ -138,8 +138,7 @@ public class ChannelConfigController {
                     channelConfigService.deleteChannelConfig(channelConfigId);
                     LOGGER.info(DELETE_CHANNEL_CONFIG_RESPONSE, channelConfigId);
                     return ResponseEntity.ok()
-                            .body(ApiResponse.builder()
-                                    .build());
+                            .body(ApiResponse.empty());
                 })
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
