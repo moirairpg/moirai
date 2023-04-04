@@ -35,7 +35,7 @@ spring:
 logging:
   level:
     root: INFO
-    es.thalesalv: DEBUG
+    es.thalesalv: ${CHATRPG_LOG_LEVEL:INFO}
     org.hibernate: ERROR
     com.zaxxer.hikari: ERROR
     net.dv8tion.jda: INFO
