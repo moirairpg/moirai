@@ -1,7 +1,7 @@
 package es.thalesalv.chatrpg.application.service.api;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
@@ -52,9 +52,8 @@ public class LorebookService {
         LOGGER.debug("Retrieving lorebook by ID data from request");
         return Mono.just(lorebookRepository.findById(lorebookId)
                 .orElseThrow(LorebookNotFoundException::new))
-                .map(lorebook -> Stream.of(lorebook)
-                        .map(lorebookEntityToDTO)
-                        .toList());
+                .map(lorebookEntityToDTO)
+                .map(Arrays::asList);
     }
 
     public Mono<List<Lorebook>> saveLorebook(final Lorebook lorebook) {
@@ -63,8 +62,7 @@ public class LorebookService {
         return Mono.just(lorebookDTOToEntity.apply(lorebook))
                 .map(lorebookRepository::save)
                 .map(lorebookEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public Mono<List<Lorebook>> updateLorebook(final String lorebookId, final Lorebook lorebook) {
@@ -76,8 +74,7 @@ public class LorebookService {
                     return lorebookRepository.save(c);
                 })
                 .map(lorebookEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public void deleteLorebook(final String lorebookId) {
@@ -123,9 +120,8 @@ public class LorebookService {
                     return lorebookEntryRegexRepository.findByLorebookEntry(entry)
                             .orElseThrow(() -> new LorebookEntryNotFoundException("Lorebook entry regex not found"));
                 })
-                .map(lorebookEntry -> Stream.of(lorebookEntry)
-                        .map(lorebookEntryEntityToDTO)
-                        .toList())
+                .map(lorebookEntryEntityToDTO)
+                .map(Arrays::asList)
                 .orElseThrow(() -> new LorebookEntryNotFoundException("Lorebook entry not found")));
     }
 
@@ -138,8 +134,7 @@ public class LorebookService {
                     return lorebookEntryRegexRepository.save(c);
                 })
                 .map(lorebookEntryEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public Mono<List<LorebookEntry>> updateLorebookEntry(final String lorebookEntryId,
@@ -156,8 +151,7 @@ public class LorebookService {
                         })
                         .orElseThrow(LorebookEntryNotFoundException::new))
                 .map(lorebookEntryEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public void deleteLorebookEntry(final String lorebookEntryId) {

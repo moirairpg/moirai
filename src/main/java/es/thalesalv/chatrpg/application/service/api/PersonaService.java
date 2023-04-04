@@ -1,7 +1,7 @@
 package es.thalesalv.chatrpg.application.service.api;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import es.thalesalv.chatrpg.adapters.data.repository.PersonaRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaDTOToEntity;
@@ -39,9 +39,8 @@ public class PersonaService {
         LOGGER.debug("Retrieving persona by ID data from request");
         return Mono.just(personaRepository.findById(personaId)
                 .orElseThrow(PersonaNotFoundException::new))
-                .map(persona -> Stream.of(persona)
-                        .map(personaEntityToDTO)
-                        .toList());
+                .map(personaEntityToDTO)
+                .map(Arrays::asList);
     }
 
     public Mono<List<Persona>> savePersona(final Persona persona) {
@@ -50,8 +49,7 @@ public class PersonaService {
         return Mono.just(personaDTOToEntity.apply(persona))
                 .map(personaRepository::save)
                 .map(personaEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public Mono<List<Persona>> updatePersona(final String personaId, final Persona persona) {
@@ -63,8 +61,7 @@ public class PersonaService {
                     return personaRepository.save(c);
                 })
                 .map(personaEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public void deletePersona(final String personaId) {

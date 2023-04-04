@@ -1,8 +1,8 @@
 package es.thalesalv.chatrpg.application.service.api;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import es.thalesalv.chatrpg.adapters.data.entity.ChannelConfigEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.ModelSettingsEntity;
@@ -71,9 +71,8 @@ public class ChannelConfigService {
         LOGGER.debug("Retrieving channel by ID data from request");
         return Mono.just(channelRepository.findById(channelId)
                 .orElseThrow(ChannelConfigNotFoundException::new))
-                .map(channel -> Stream.of(channel)
-                        .map(channelEntityToDTO)
-                        .toList());
+                .map(channelEntityToDTO)
+                .map(Arrays::asList);
     }
 
     public Mono<List<Channel>> saveChannel(final Channel channel) {
@@ -88,8 +87,7 @@ public class ChannelConfigService {
                 })
                 .map(channelRepository::save)
                 .map(channelEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public Mono<List<Channel>> updateChannel(final String channelId, final Channel channel) {
@@ -108,8 +106,7 @@ public class ChannelConfigService {
                 })
                 .map(channelRepository::save)
                 .map(channelEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public void deleteChannel(final String channelId) {
@@ -132,9 +129,8 @@ public class ChannelConfigService {
         LOGGER.debug("Retrieving channel config by ID data from request");
         return Mono.just(channelConfigRepository.findById(channelConfigId)
                 .orElseThrow(ChannelConfigNotFoundException::new))
-                .map(channel -> Stream.of(channel)
-                        .map(channelConfigEntityToDTO)
-                        .toList());
+                .map(channelConfigEntityToDTO)
+                .map(Arrays::asList);
     }
 
     public Mono<List<ChannelConfig>> saveChannelConfig(final ChannelConfig channelConfig) {
@@ -143,8 +139,7 @@ public class ChannelConfigService {
         return Mono.just(buildNewChannelConfig(channelConfig))
                 .map(channelConfigRepository::save)
                 .map(channelConfigEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public Mono<List<ChannelConfig>> updateChannelConfig(final String channelConfigId,
@@ -157,8 +152,7 @@ public class ChannelConfigService {
                 .map(c -> buildUpdatedChannelConfig(channelConfigId, channelConfig, c))
                 .map(channelConfigRepository::save)
                 .map(channelConfigEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public void deleteChannelConfig(final String channelConfigId) {

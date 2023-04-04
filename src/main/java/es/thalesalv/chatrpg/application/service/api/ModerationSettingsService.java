@@ -1,7 +1,7 @@
 package es.thalesalv.chatrpg.application.service.api;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import es.thalesalv.chatrpg.adapters.data.repository.ModerationSettingsRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ModerationSettingsDTOToEntity;
@@ -39,9 +39,8 @@ public class ModerationSettingsService {
         LOGGER.debug("Retrieving moderation settings by ID data from request");
         return Mono.just(moderationSettingsServiceRepository.findById(moderationSettingsServiceId)
                 .orElseThrow(ModerationSettingsNotFoundException::new))
-                .map(moderationSettingsService -> Stream.of(moderationSettingsService)
-                        .map(moderationSettingsServiceEntityToDTO)
-                        .toList());
+                .map(moderationSettingsServiceEntityToDTO)
+                .map(Arrays::asList);
     }
 
     public Mono<List<ModerationSettings>> saveModerationSettings(final ModerationSettings moderationSettingsService) {
@@ -50,8 +49,7 @@ public class ModerationSettingsService {
         return Mono.just(moderationSettingsServiceDTOToEntity.apply(moderationSettingsService))
                 .map(moderationSettingsServiceRepository::save)
                 .map(moderationSettingsServiceEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public Mono<List<ModerationSettings>> updateModerationSettings(final String moderationSettingsServiceId,
@@ -64,8 +62,7 @@ public class ModerationSettingsService {
                     return moderationSettingsServiceRepository.save(c);
                 })
                 .map(moderationSettingsServiceEntityToDTO)
-                .map(c -> Stream.of(c)
-                        .toList());
+                .map(Arrays::asList);
     }
 
     public void deleteModerationSettings(final String moderationSettingsServiceId) {
