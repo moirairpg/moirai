@@ -20,4 +20,11 @@ public class Persona {
     private String owner;
     private Nudge nudge;
     private Bump bump;
+
+    public static Persona defaultPersona() {
+
+        return Persona.builder()
+                .id("0")
+                .build();
+    }
 }

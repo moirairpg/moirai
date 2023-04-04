@@ -14,4 +14,12 @@ public class Settings {
 
     private ModelSettings modelSettings;
     private ModerationSettings moderationSettings;
+
+    public static Settings defaultSettings() {
+
+        return Settings.builder()
+                .modelSettings(ModelSettings.defaultModelSettings())
+                .moderationSettings(ModerationSettings.defaultModerationSettings())
+                .build();
+    }
 }

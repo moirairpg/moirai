@@ -18,4 +18,11 @@ public class ChannelConfig {
     private World world;
     private Persona persona;
     private Settings settings;
+
+    public static ChannelConfig defaultChannelConfig() {
+
+        return ChannelConfig.builder()
+                .id("0")
+                .build();
+    }
 }

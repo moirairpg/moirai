@@ -35,4 +35,10 @@ public class ApiResponse {
     private List<ModerationSettings> moderationSettings;
     private List<ModelSettings> modelSettings;
     private ApiError error;
+
+    public static ApiResponse empty() {
+
+        return ApiResponse.builder()
+                .build();
+    }
 }
