@@ -49,7 +49,7 @@ public class WorldController {
     public Mono<ResponseEntity<ApiResponse>> getAllWorlds() {
 
         LOGGER.info(RETRIEVE_ALL_WORLDS_REQUEST);
-        return worldService.retrieveAllWorlds()
+        return Mono.just(worldService.retrieveAllWorlds())
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all worlds", e);
@@ -63,7 +63,7 @@ public class WorldController {
     public Mono<ResponseEntity<ApiResponse>> getWorldById(@PathVariable(value = "world-id") final String worldId) {
 
         LOGGER.info(RETRIEVE_WORLD_BY_ID_REQUEST, worldId);
-        return worldService.retrieveWorldById(worldId)
+        return Mono.just(worldService.retrieveWorldById(worldId))
                 .map(this::buildResponse)
                 .onErrorResume(WorldNotFoundException.class, e -> {
                     LOGGER.error(WORLD_WITH_ID_NOT_FOUND, worldId, e);
@@ -89,7 +89,7 @@ public class WorldController {
     public Mono<ResponseEntity<ApiResponse>> saveWorld(@RequestBody final World world) {
 
         LOGGER.info(SAVE_WORLD_REQUEST, world);
-        return worldService.saveWorld(world)
+        return Mono.just(worldService.saveWorld(world))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -110,7 +110,7 @@ public class WorldController {
             @RequestBody final World world) {
 
         LOGGER.info(UPDATE_WORLD_REQUEST, worldId, world);
-        return worldService.updateWorld(worldId, world)
+        return Mono.just(worldService.updateWorld(worldId, world))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

@@ -49,7 +49,7 @@ public class LorebookEntryController {
     public Mono<ResponseEntity<ApiResponse>> getAllLorebookEntries() {
 
         LOGGER.info(RETRIEVE_ALL_LOREBOOKS_REQUEST);
-        return lorebookService.retrieveAllLorebookEntries()
+        return Mono.just(lorebookService.retrieveAllLorebookEntries())
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all lorebookEntries", e);
@@ -64,7 +64,7 @@ public class LorebookEntryController {
             @PathVariable(value = "lorebook-entry-id") final String lorebookEntryId) {
 
         LOGGER.info(RETRIEVE_LOREBOOK_ENTRY_BY_ID_REQUEST, lorebookEntryId);
-        return lorebookService.retrieveLorebookEntryById(lorebookEntryId)
+        return Mono.just(lorebookService.retrieveLorebookEntryById(lorebookEntryId))
                 .map(this::buildResponse)
                 .onErrorResume(LorebookEntryNotFoundException.class, e -> {
                     LOGGER.error(LOREBOOK_WITH_ID_NOT_FOUND, lorebookEntryId, e);
@@ -114,7 +114,7 @@ public class LorebookEntryController {
             @RequestBody final LorebookEntry lorebookEntry) {
 
         LOGGER.info(UPDATE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId, lorebookEntry);
-        return lorebookService.updateLorebookEntry(lorebookEntryId, lorebookEntry)
+        return Mono.just(lorebookService.updateLorebookEntry(lorebookEntryId, lorebookEntry))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

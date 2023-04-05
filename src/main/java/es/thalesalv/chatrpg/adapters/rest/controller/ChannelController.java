@@ -49,7 +49,7 @@ public class ChannelController {
     public Mono<ResponseEntity<ApiResponse>> getAllChannelConfigs() {
 
         LOGGER.info(RETRIEVE_ALL_CHANNEL_REQUEST);
-        return channelConfigService.retrieveAllChannels()
+        return Mono.just(channelConfigService.retrieveAllChannels())
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all configurations", e);
@@ -64,7 +64,7 @@ public class ChannelController {
             @PathVariable(value = "channel-id") final String channelId) {
 
         LOGGER.info(RETRIEVE_CHANNEL_BY_ID_REQUEST, channelId);
-        return channelConfigService.retrieveChannelConfigsByChannelId(channelId)
+        return Mono.just(channelConfigService.retrieveChannelConfigsByChannelId(channelId))
                 .map(this::buildResponse)
                 .onErrorResume(ChannelConfigNotFoundException.class, e -> {
                     LOGGER.error(CONFIG_WITH_ID_NOT_FOUND, channelId, e);
@@ -90,7 +90,7 @@ public class ChannelController {
     public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(@RequestBody final Channel channel) {
 
         LOGGER.info(SAVE_CHANNEL_REQUEST, channel);
-        return channelConfigService.saveChannel(channel)
+        return Mono.just(channelConfigService.saveChannel(channel))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -111,7 +111,7 @@ public class ChannelController {
             @PathVariable(value = "channel-id") final String channelId, @RequestBody final Channel channel) {
 
         LOGGER.info(UPDATE_CHANNEL_REQUEST, channelId, channel);
-        return channelConfigService.updateChannel(channelId, channel)
+        return Mono.just(channelConfigService.updateChannel(channelId, channel))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

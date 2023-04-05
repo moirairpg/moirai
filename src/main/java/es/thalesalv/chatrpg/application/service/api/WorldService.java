@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.service.api;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
@@ -12,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -25,43 +25,45 @@ public class WorldService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldService.class);
 
-    public Mono<List<World>> retrieveAllWorlds() {
+    public List<World> retrieveAllWorlds() {
 
         LOGGER.debug("Retrieving world data from request");
-        return Mono.just(worldRepository.findAll())
-                .map(worlds -> worlds.stream()
-                        .map(worldEntityToDTO)
-                        .toList());
+        return worldRepository.findAll()
+                .stream()
+                .map(worldEntityToDTO)
+                .toList();
     }
 
-    public Mono<List<World>> retrieveWorldById(final String worldId) {
+    public List<World> retrieveWorldById(final String worldId) {
 
         LOGGER.debug("Retrieving world by ID data from request");
-        return Mono.just(worldRepository.findById(worldId)
-                .orElseThrow(WorldNotFoundException::new))
+        return worldRepository.findById(worldId)
                 .map(worldEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow(WorldNotFoundException::new);
     }
 
-    public Mono<List<World>> saveWorld(final World world) {
+    public List<World> saveWorld(final World world) {
 
         LOGGER.debug("Saving world data from request");
-        return Mono.just(worldDTOToEntity.apply(world))
+        return Optional.of(worldDTOToEntity.apply(world))
                 .map(worldRepository::save)
                 .map(worldEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow();
     }
 
-    public Mono<List<World>> updateWorld(final String worldId, final World world) {
+    public List<World> updateWorld(final String worldId, final World world) {
 
         LOGGER.debug("Updating world data from request");
-        return Mono.just(worldDTOToEntity.apply(world))
+        return Optional.of(worldDTOToEntity.apply(world))
                 .map(c -> {
                     c.setId(worldId);
                     return worldRepository.save(c);
                 })
                 .map(worldEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow();
     }
 
     public void deleteWorld(final String worldId) {

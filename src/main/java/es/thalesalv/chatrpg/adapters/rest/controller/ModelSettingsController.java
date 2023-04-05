@@ -49,7 +49,7 @@ public class ModelSettingsController {
     public Mono<ResponseEntity<ApiResponse>> getAllModelSettings() {
 
         LOGGER.info(RETRIEVE_ALL_MODEL_SETTINGS_REQUEST);
-        return modelSettingsService.retrieveAllModelSettings()
+        return Mono.just(modelSettingsService.retrieveAllModelSettings())
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all model settings", e);
@@ -64,7 +64,7 @@ public class ModelSettingsController {
             @PathVariable(value = "model-settings-id") final String modelSettingsId) {
 
         LOGGER.info(RETRIEVE_MODEL_SETTINGS_BY_ID_REQUEST, modelSettingsId);
-        return modelSettingsService.retrieveModelSettingsById(modelSettingsId)
+        return Mono.just(modelSettingsService.retrieveModelSettingsById(modelSettingsId))
                 .map(this::buildResponse)
                 .onErrorResume(ModelSettingsNotFoundException.class, e -> {
                     LOGGER.error(MODEL_SETTINGS_WITH_ID_NOT_FOUND, modelSettingsId, e);
@@ -90,7 +90,7 @@ public class ModelSettingsController {
     public Mono<ResponseEntity<ApiResponse>> saveModelSettings(@RequestBody final ModelSettings modelSettings) {
 
         LOGGER.info(SAVE_MODEL_SETTINGS_REQUEST, modelSettings);
-        return modelSettingsService.saveModelSettings(modelSettings)
+        return Mono.just(modelSettingsService.saveModelSettings(modelSettings))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -112,7 +112,7 @@ public class ModelSettingsController {
             @RequestBody final ModelSettings modelSettings) {
 
         LOGGER.info(UPDATE_MODEL_SETTINGS_REQUEST, modelSettingsId, modelSettings);
-        return modelSettingsService.updateModelSettings(modelSettingsId, modelSettings)
+        return Mono.just(modelSettingsService.updateModelSettings(modelSettingsId, modelSettings))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

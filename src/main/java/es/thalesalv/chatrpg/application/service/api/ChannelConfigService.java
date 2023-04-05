@@ -34,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -57,45 +56,43 @@ public class ChannelConfigService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigService.class);
 
-    public Mono<List<Channel>> retrieveAllChannels() {
+    public List<Channel> retrieveAllChannels() {
 
         LOGGER.debug("Retrieving channel data from request");
-        return Mono.just(channelRepository.findAll())
-                .map(channels -> channels.stream()
-                        .map(channelEntityToDTO)
-                        .toList());
-    }
-
-    public Mono<List<Channel>> retrieveChannelConfigsByChannelId(final String channelId) {
-
-        LOGGER.debug("Retrieving channel by ID data from request");
-        return Mono.just(channelRepository.findById(channelId)
-                .orElseThrow(ChannelConfigNotFoundException::new))
+        return channelRepository.findAll()
+                .stream()
                 .map(channelEntityToDTO)
-                .map(Arrays::asList);
+                .toList();
     }
 
-    public Mono<List<Channel>> saveChannel(final Channel channel) {
+    public List<Channel> retrieveChannelConfigsByChannelId(final String channelId) {
+
+        LOGGER.debug("Retrieving channel by ID data from request. channelId -> {}", channelId);
+        return channelRepository.findById(channelId)
+                .map(channelEntityToDTO)
+                .map(Arrays::asList)
+                .orElseThrow(ChannelConfigNotFoundException::new);
+    }
+
+    public List<Channel> saveChannel(final Channel channel) {
 
         LOGGER.debug("Saving channel data from request");
-        return Mono.just(channelConfigRepository.findById(channel.getChannelConfig()
+        return channelConfigRepository.findById(channel.getChannelConfig()
                 .getId())
-                .orElseThrow(ChannelConfigNotFoundException::new))
                 .map(c -> {
                     channel.setChannelConfig(channelConfigEntityToDTO.apply(c));
                     return channelDTOToEntity.apply(channel);
                 })
                 .map(channelRepository::save)
                 .map(channelEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow(ChannelConfigNotFoundException::new);
     }
 
-    public Mono<List<Channel>> updateChannel(final String channelId, final Channel channel) {
+    public List<Channel> updateChannel(final String channelId, final Channel channel) {
 
         LOGGER.debug("Updating channel data from request. channelId -> {}", channelId);
-        return Mono.just(channelRepository.findById(channelId)
-                .orElseThrow(() -> new ChannelConfigNotFoundException(
-                        "The requested channel does not have an entry saved.")))
+        return channelRepository.findById(channelId)
                 .map(c -> {
                     c.setChannelConfig(channelConfigRepository.findById(channel.getChannelConfig()
                             .getId())
@@ -106,7 +103,9 @@ public class ChannelConfigService {
                 })
                 .map(channelRepository::save)
                 .map(channelEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow(() -> new ChannelConfigNotFoundException(
+                        "The requested channel does not have an entry saved."));
     }
 
     public void deleteChannel(final String channelId) {
@@ -115,44 +114,44 @@ public class ChannelConfigService {
         channelRepository.deleteById(channelId);
     }
 
-    public Mono<List<ChannelConfig>> retrieveAllChannelConfigs() {
+    public List<ChannelConfig> retrieveAllChannelConfigs() {
 
         LOGGER.debug("Retrieving all available channel configs");
-        return Mono.just(channelConfigRepository.findAll())
-                .map(channels -> channels.stream()
-                        .map(channelConfigEntityToDTO)
-                        .toList());
+        return channelConfigRepository.findAll()
+                .stream()
+                .map(channelConfigEntityToDTO)
+                .toList();
     }
 
-    public Mono<List<ChannelConfig>> retrieveChannelConfigById(final String channelConfigId) {
+    public List<ChannelConfig> retrieveChannelConfigById(final String channelConfigId) {
 
         LOGGER.debug("Retrieving channel config by ID data from request");
-        return Mono.just(channelConfigRepository.findById(channelConfigId)
-                .orElseThrow(ChannelConfigNotFoundException::new))
+        return channelConfigRepository.findById(channelConfigId)
                 .map(channelConfigEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow(ChannelConfigNotFoundException::new);
     }
 
-    public Mono<List<ChannelConfig>> saveChannelConfig(final ChannelConfig channelConfig) {
+    public List<ChannelConfig> saveChannelConfig(final ChannelConfig channelConfig) {
 
         LOGGER.debug("Saving channel config data from request");
-        return Mono.just(buildNewChannelConfig(channelConfig))
+        return Optional.of(buildNewChannelConfig(channelConfig))
                 .map(channelConfigRepository::save)
                 .map(channelConfigEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow(() -> new RuntimeException("Error saving channel config"));
     }
 
-    public Mono<List<ChannelConfig>> updateChannelConfig(final String channelConfigId,
-            final ChannelConfig channelConfig) {
+    public List<ChannelConfig> updateChannelConfig(final String channelConfigId, final ChannelConfig channelConfig) {
 
         LOGGER.debug("Updating channel config data from request. channelConfigId -> {}", channelConfigId);
-        return Mono.just(channelConfigRepository.findById(channelConfigId)
-                .orElseThrow(() -> new ChannelConfigNotFoundException(
-                        "The channel config with the requested ID could not be found")))
+        return channelConfigRepository.findById(channelConfigId)
                 .map(c -> buildUpdatedChannelConfig(channelConfigId, channelConfig, c))
                 .map(channelConfigRepository::save)
                 .map(channelConfigEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow(() -> new ChannelConfigNotFoundException(
+                        "The channel config with the requested ID could not be found"));
     }
 
     public void deleteChannelConfig(final String channelConfigId) {

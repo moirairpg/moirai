@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.service.api;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import es.thalesalv.chatrpg.adapters.data.repository.ModelSettingsRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ModelSettingsDTOToEntity;
@@ -12,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -25,44 +25,46 @@ public class ModelSettingsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelSettingsService.class);
 
-    public Mono<List<ModelSettings>> retrieveAllModelSettings() {
+    public List<ModelSettings> retrieveAllModelSettings() {
 
         LOGGER.debug("Retrieving moderation settings data from request");
-        return Mono.just(moderationSettingsServiceRepository.findAll())
-                .map(moderationSettingsServices -> moderationSettingsServices.stream()
-                        .map(moderationSettingsServiceEntityToDTO)
-                        .toList());
+        return moderationSettingsServiceRepository.findAll()
+                .stream()
+                .map(moderationSettingsServiceEntityToDTO)
+                .toList();
     }
 
-    public Mono<List<ModelSettings>> retrieveModelSettingsById(final String moderationSettingsServiceId) {
+    public List<ModelSettings> retrieveModelSettingsById(final String moderationSettingsServiceId) {
 
         LOGGER.debug("Retrieving moderation settings by ID data from request");
-        return Mono.just(moderationSettingsServiceRepository.findById(moderationSettingsServiceId)
-                .orElseThrow(ModelSettingsNotFoundException::new))
+        return moderationSettingsServiceRepository.findById(moderationSettingsServiceId)
                 .map(moderationSettingsServiceEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow(ModelSettingsNotFoundException::new);
     }
 
-    public Mono<List<ModelSettings>> saveModelSettings(final ModelSettings moderationSettingsService) {
+    public List<ModelSettings> saveModelSettings(final ModelSettings moderationSettingsService) {
 
         LOGGER.debug("Saving moderation settings data from request");
-        return Mono.just(moderationSettingsServiceDTOToEntity.apply(moderationSettingsService))
+        return Optional.of(moderationSettingsServiceDTOToEntity.apply(moderationSettingsService))
                 .map(moderationSettingsServiceRepository::save)
                 .map(moderationSettingsServiceEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow();
     }
 
-    public Mono<List<ModelSettings>> updateModelSettings(final String moderationSettingsServiceId,
+    public List<ModelSettings> updateModelSettings(final String moderationSettingsServiceId,
             final ModelSettings moderationSettingsService) {
 
         LOGGER.debug("Updating moderation settings data from request");
-        return Mono.just(moderationSettingsServiceDTOToEntity.apply(moderationSettingsService))
+        return Optional.of(moderationSettingsServiceDTOToEntity.apply(moderationSettingsService))
                 .map(c -> {
                     c.setId(moderationSettingsServiceId);
                     return moderationSettingsServiceRepository.save(c);
                 })
                 .map(moderationSettingsServiceEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow();
     }
 
     public void deleteModelSettings(final String moderationSettingsServiceId) {

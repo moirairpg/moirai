@@ -49,7 +49,7 @@ public class ChannelConfigController {
     public Mono<ResponseEntity<ApiResponse>> getAllChannelConfigs() {
 
         LOGGER.info(RETRIEVE_ALL_CHANNEL_REQUEST);
-        return channelConfigService.retrieveAllChannelConfigs()
+        return Mono.just(channelConfigService.retrieveAllChannelConfigs())
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all channel configurations", e);
@@ -64,7 +64,7 @@ public class ChannelConfigController {
             @PathVariable(value = "channel-config-id") final String channelConfigId) {
 
         LOGGER.info(RETRIEVE_CHANNEL_CONFIG_BY_ID_REQUEST, channelConfigId);
-        return channelConfigService.retrieveChannelConfigById(channelConfigId)
+        return Mono.just(channelConfigService.retrieveChannelConfigById(channelConfigId))
                 .map(this::buildResponse)
                 .onErrorResume(ChannelConfigNotFoundException.class, e -> {
                     LOGGER.error(CONFIG_WITH_ID_NOT_FOUND, channelConfigId, e);
@@ -90,7 +90,7 @@ public class ChannelConfigController {
     public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(@RequestBody final ChannelConfig channelConfig) {
 
         LOGGER.info(SAVE_CHANNEL_CONFIG_REQUEST, channelConfig);
-        return channelConfigService.saveChannelConfig(channelConfig)
+        return Mono.just(channelConfigService.saveChannelConfig(channelConfig))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -112,7 +112,7 @@ public class ChannelConfigController {
             @RequestBody final ChannelConfig channelConfig) {
 
         LOGGER.info(UPDATE_CHANNEL_CONFIG_REQUEST, channelConfigId, channelConfig);
-        return channelConfigService.updateChannelConfig(channelConfigId, channelConfig)
+        return Mono.just(channelConfigService.updateChannelConfig(channelConfigId, channelConfig))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

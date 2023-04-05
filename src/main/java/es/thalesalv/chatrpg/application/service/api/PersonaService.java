@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.service.api;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import es.thalesalv.chatrpg.adapters.data.repository.PersonaRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaDTOToEntity;
@@ -12,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -25,43 +25,45 @@ public class PersonaService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonaService.class);
 
-    public Mono<List<Persona>> retrieveAllPersonas() {
+    public List<Persona> retrieveAllPersonas() {
 
         LOGGER.debug("Retrieving persona data from request");
-        return Mono.just(personaRepository.findAll())
-                .map(personas -> personas.stream()
-                        .map(personaEntityToDTO)
-                        .toList());
+        return personaRepository.findAll()
+                .stream()
+                .map(personaEntityToDTO)
+                .toList();
     }
 
-    public Mono<List<Persona>> retrievePersonaById(final String personaId) {
+    public List<Persona> retrievePersonaById(final String personaId) {
 
         LOGGER.debug("Retrieving persona by ID data from request");
-        return Mono.just(personaRepository.findById(personaId)
-                .orElseThrow(PersonaNotFoundException::new))
+        return personaRepository.findById(personaId)
                 .map(personaEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow(PersonaNotFoundException::new);
     }
 
-    public Mono<List<Persona>> savePersona(final Persona persona) {
+    public List<Persona> savePersona(final Persona persona) {
 
         LOGGER.debug("Saving persona data from request");
-        return Mono.just(personaDTOToEntity.apply(persona))
+        return Optional.of(personaDTOToEntity.apply(persona))
                 .map(personaRepository::save)
                 .map(personaEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow();
     }
 
-    public Mono<List<Persona>> updatePersona(final String personaId, final Persona persona) {
+    public List<Persona> updatePersona(final String personaId, final Persona persona) {
 
         LOGGER.debug("Updating persona data from request");
-        return Mono.just(personaDTOToEntity.apply(persona))
+        return Optional.of(personaDTOToEntity.apply(persona))
                 .map(c -> {
                     c.setId(personaId);
                     return personaRepository.save(c);
                 })
                 .map(personaEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow();
     }
 
     public void deletePersona(final String personaId) {

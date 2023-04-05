@@ -49,7 +49,7 @@ public class LorebookController {
     public Mono<ResponseEntity<ApiResponse>> getAllLorebooks() {
 
         LOGGER.info(RETRIEVE_ALL_LOREBOOKS_REQUEST);
-        return lorebookService.retrieveAllLorebooks()
+        return Mono.just(lorebookService.retrieveAllLorebooks())
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all lorebooks", e);
@@ -64,7 +64,7 @@ public class LorebookController {
             @PathVariable(value = "lorebook-id") final String lorebookId) {
 
         LOGGER.info(RETRIEVE_LOREBOOK_BY_ID_REQUEST, lorebookId);
-        return lorebookService.retrieveLorebookById(lorebookId)
+        return Mono.just(lorebookService.retrieveLorebookById(lorebookId))
                 .map(this::buildResponse)
                 .onErrorResume(LorebookNotFoundException.class, e -> {
                     LOGGER.error(LOREBOOK_WITH_ID_NOT_FOUND, lorebookId, e);
@@ -90,7 +90,7 @@ public class LorebookController {
     public Mono<ResponseEntity<ApiResponse>> saveLorebook(@RequestBody final Lorebook lorebook) {
 
         LOGGER.info(SAVE_LOREBOOK_REQUEST, lorebook);
-        return lorebookService.saveLorebook(lorebook)
+        return Mono.just(lorebookService.saveLorebook(lorebook))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -111,7 +111,7 @@ public class LorebookController {
             @PathVariable(value = "lorebook-id") final String lorebookId, @RequestBody final Lorebook lorebook) {
 
         LOGGER.info(UPDATE_LOREBOOK_REQUEST, lorebookId, lorebook);
-        return lorebookService.updateLorebook(lorebookId, lorebook)
+        return Mono.just(lorebookService.updateLorebook(lorebookId, lorebook))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

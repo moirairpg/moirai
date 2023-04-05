@@ -49,7 +49,7 @@ public class ModerationSettingsController {
     public Mono<ResponseEntity<ApiResponse>> getAllModerationSettings() {
 
         LOGGER.info(RETRIEVE_ALL_MODERATION_SETTINGS_REQUEST);
-        return moderationSettingsService.retrieveAllModerationSettings()
+        return Mono.just(moderationSettingsService.retrieveAllModerationSettings())
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all moderation settings", e);
@@ -64,7 +64,7 @@ public class ModerationSettingsController {
             @PathVariable(value = "moderation-settings-id") final String moderationSettingsId) {
 
         LOGGER.info(RETRIEVE_MODERATION_SETTINGS_BY_ID_REQUEST, moderationSettingsId);
-        return moderationSettingsService.retrieveModerationSettingsById(moderationSettingsId)
+        return Mono.just(moderationSettingsService.retrieveModerationSettingsById(moderationSettingsId))
                 .map(this::buildResponse)
                 .onErrorResume(ModerationSettingsNotFoundException.class, e -> {
                     LOGGER.error(MODERATION_SETTINGS_WITH_ID_NOT_FOUND, moderationSettingsId, e);
@@ -91,7 +91,7 @@ public class ModerationSettingsController {
             @RequestBody final ModerationSettings moderationSettings) {
 
         LOGGER.info(SAVE_MODERATION_SETTINGS_REQUEST, moderationSettings);
-        return moderationSettingsService.saveModerationSettings(moderationSettings)
+        return Mono.just(moderationSettingsService.saveModerationSettings(moderationSettings))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -113,7 +113,7 @@ public class ModerationSettingsController {
             @RequestBody final ModerationSettings moderationSettings) {
 
         LOGGER.info(UPDATE_MODERATION_SETTINGS_REQUEST, moderationSettingsId, moderationSettings);
-        return moderationSettingsService.updateModerationSettings(moderationSettingsId, moderationSettings)
+        return Mono.just(moderationSettingsService.updateModerationSettings(moderationSettingsId, moderationSettings))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

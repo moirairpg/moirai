@@ -49,7 +49,7 @@ public class PersonaController {
     public Mono<ResponseEntity<ApiResponse>> getAllPersonas() {
 
         LOGGER.info(RETRIEVE_ALL_PERSONAS_REQUEST);
-        return personaService.retrieveAllPersonas()
+        return Mono.just(personaService.retrieveAllPersonas())
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all personas", e);
@@ -64,7 +64,7 @@ public class PersonaController {
             @PathVariable(value = "persona-id") final String personaId) {
 
         LOGGER.info(RETRIEVE_PERSONA_BY_ID_REQUEST, personaId);
-        return personaService.retrievePersonaById(personaId)
+        return Mono.just(personaService.retrievePersonaById(personaId))
                 .map(this::buildResponse)
                 .onErrorResume(PersonaNotFoundException.class, e -> {
                     LOGGER.error(PERSONA_WITH_ID_NOT_FOUND, personaId, e);
@@ -90,7 +90,7 @@ public class PersonaController {
     public Mono<ResponseEntity<ApiResponse>> savePersona(@RequestBody final Persona persona) {
 
         LOGGER.info(SAVE_PERSONA_REQUEST, persona);
-        return personaService.savePersona(persona)
+        return Mono.just(personaService.savePersona(persona))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -111,7 +111,7 @@ public class PersonaController {
             @RequestBody final Persona persona) {
 
         LOGGER.info(UPDATE_PERSONA_REQUEST, personaId, persona);
-        return personaService.updatePersona(personaId, persona)
+        return Mono.just(personaService.updatePersona(personaId, persona))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
