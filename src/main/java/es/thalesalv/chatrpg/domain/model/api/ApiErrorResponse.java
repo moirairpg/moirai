@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ApiError {
+public class ApiErrorResponse {
 
     private String message;
     private HttpStatus status;

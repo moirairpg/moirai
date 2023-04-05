@@ -4,7 +4,7 @@ import java.util.List;
 
 import es.thalesalv.chatrpg.application.service.api.LorebookService;
 import es.thalesalv.chatrpg.domain.exception.LorebookNotFoundException;
-import es.thalesalv.chatrpg.domain.model.api.ApiError;
+import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import lombok.RequiredArgsConstructor;
@@ -169,7 +169,7 @@ public class LorebookController {
 
         LOGGER.debug("Building error response object for lorebooks");
         return ApiResponse.builder()
-                .error(ApiError.builder()
+                .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)
                         .build())

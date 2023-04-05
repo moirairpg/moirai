@@ -4,7 +4,7 @@ import java.util.List;
 
 import es.thalesalv.chatrpg.application.service.api.ModerationSettingsService;
 import es.thalesalv.chatrpg.domain.exception.ModerationSettingsNotFoundException;
-import es.thalesalv.chatrpg.domain.model.api.ApiError;
+import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
 import lombok.RequiredArgsConstructor;
@@ -171,7 +171,7 @@ public class ModerationSettingsController {
 
         LOGGER.debug("Building error response object for moderation settings");
         return ApiResponse.builder()
-                .error(ApiError.builder()
+                .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)
                         .build())

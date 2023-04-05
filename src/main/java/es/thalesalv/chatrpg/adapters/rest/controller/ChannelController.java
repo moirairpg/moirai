@@ -4,7 +4,7 @@ import java.util.List;
 
 import es.thalesalv.chatrpg.application.service.api.ChannelConfigService;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
-import es.thalesalv.chatrpg.domain.model.api.ApiError;
+import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
 import lombok.RequiredArgsConstructor;
@@ -169,7 +169,7 @@ public class ChannelController {
 
         LOGGER.debug("Building error response object for channels");
         return ApiResponse.builder()
-                .error(ApiError.builder()
+                .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)
                         .build())

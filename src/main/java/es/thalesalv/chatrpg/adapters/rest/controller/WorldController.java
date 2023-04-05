@@ -4,7 +4,7 @@ import java.util.List;
 
 import es.thalesalv.chatrpg.application.service.api.WorldService;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
-import es.thalesalv.chatrpg.domain.model.api.ApiError;
+import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
@@ -167,7 +167,7 @@ public class WorldController {
 
         LOGGER.debug("Building error response object for worlds");
         return ApiResponse.builder()
-                .error(ApiError.builder()
+                .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)
                         .build())

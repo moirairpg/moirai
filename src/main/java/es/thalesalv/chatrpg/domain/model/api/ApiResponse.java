@@ -34,7 +34,7 @@ public class ApiResponse {
     private List<LorebookEntry> lorebookEntries;
     private List<ModerationSettings> moderationSettings;
     private List<ModelSettings> modelSettings;
-    private ApiError error;
+    private ApiErrorResponse error;
 
     public static ApiResponse empty() {
 
