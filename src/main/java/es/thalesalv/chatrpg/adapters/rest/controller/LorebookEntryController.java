@@ -32,7 +32,7 @@ public class LorebookEntryController {
 
     private static final String RETRIEVE_ALL_LOREBOOKS_REQUEST = "Received request for listing all lorebookEntries";
     private static final String RETRIEVE_LOREBOOK_ENTRY_BY_ID_REQUEST = "Received request for retrieving lorebookEntry with id {}";
-    private static final String SAVE_LOREBOOK_ENTRY_REQUEST = "Received request for saving lorebookEntry -> {}";
+    private static final String SAVE_LOREBOOK_ENTRY_REQUEST = "Received request for saving lorebookEntry -> {}. lorebookId -> {}";
     private static final String UPDATE_LOREBOOK_ENTRY_REQUEST = "Received request for updating lorebookEntry with ID {} -> {}";
     private static final String DELETE_LOREBOOK_ENTRY_REQUEST = "Received request for deleting lorebookEntry with ID {}";
     private static final String DELETE_LOREBOOK_ENTRY_RESPONSE = "Returning response for deleting lorebookEntry with ID {}";
@@ -86,11 +86,13 @@ public class LorebookEntryController {
                 });
     }
 
-    @PostMapping
-    public Mono<ResponseEntity<ApiResponse>> saveLorebookEntry(@RequestBody final LorebookEntry lorebookEntry) {
+    @PostMapping("{lorebook-id}")
+    public Mono<ResponseEntity<ApiResponse>> saveLorebookEntry(
+            @PathVariable(value = "lorebook-id") final String lorebookId,
+            @RequestBody final LorebookEntry lorebookEntry) {
 
-        LOGGER.info(SAVE_LOREBOOK_ENTRY_REQUEST, lorebookEntry);
-        return lorebookService.saveLorebookEntry(lorebookEntry)
+        LOGGER.info(SAVE_LOREBOOK_ENTRY_REQUEST, lorebookEntry, lorebookId);
+        return Mono.just(lorebookService.saveLorebookEntry(lorebookEntry, lorebookId))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);

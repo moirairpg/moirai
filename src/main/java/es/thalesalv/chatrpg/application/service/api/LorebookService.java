@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookRepository;
@@ -16,6 +17,7 @@ import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.LorebookNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class LorebookService {
 
@@ -125,16 +128,20 @@ public class LorebookService {
                 .orElseThrow(() -> new LorebookEntryNotFoundException("Lorebook entry not found")));
     }
 
-    public Mono<List<LorebookEntry>> saveLorebookEntry(final LorebookEntry lorebookEntry) {
+    public List<LorebookEntry> saveLorebookEntry(final LorebookEntry lorebookEntry, final String lorebookId) {
 
         LOGGER.debug("Saving lorebookEntry data from request");
-        return Mono.just(lorebookEntryDTOToEntity.apply(lorebookEntry))
-                .map(c -> {
-                    lorebookEntryRepository.save(c.getLorebookEntry());
-                    return lorebookEntryRegexRepository.save(c);
+        return lorebookRepository.findById(lorebookId)
+                .map(lorebook -> {
+                    final LorebookEntryRegexEntity regexEntity = lorebookEntryDTOToEntity.apply(lorebookEntry);
+                    regexEntity.setLorebook(lorebook);
+                    lorebookEntryRepository.save(regexEntity.getLorebookEntry());
+                    return lorebookEntryRegexRepository.save(regexEntity);
                 })
                 .map(lorebookEntryEntityToDTO)
-                .map(Arrays::asList);
+                .map(Arrays::asList)
+                .orElseThrow(
+                        () -> new LorebookNotFoundException("The lorebook request to add this entry to was not found"));
     }
 
     public Mono<List<LorebookEntry>> updateLorebookEntry(final String lorebookEntryId,
@@ -158,7 +165,10 @@ public class LorebookService {
 
         LOGGER.debug("Deleting lorebookEntry data from request");
         lorebookEntryRepository.findById(lorebookEntryId)
-                .ifPresentOrElse(lorebookEntryRegexRepository::deleteByLorebookEntry, () -> {
+                .ifPresentOrElse(entry -> {
+                    lorebookEntryRegexRepository.deleteByLorebookEntry(entry);
+                    lorebookEntryRepository.delete(entry);
+                }, () -> {
                     throw new LorebookEntryNotFoundException("Could not find requested lore entry");
                 });
     }
