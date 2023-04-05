@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LorebookEntryRegexRepository extends JpaRepository<LorebookEntryRegexEntity, String> {
 
-
     void deleteByLorebookEntry(LorebookEntryEntity lorebookEntry);
 
     Optional<LorebookEntryRegexEntity> findByLorebookEntry(LorebookEntryEntity lorebookEntry);
