@@ -4,11 +4,9 @@ import java.util.List;
 
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface WorldRepository extends CrudRepository<WorldEntity, String> {
-
-    List<WorldEntity> findAll();
+public interface WorldRepository extends JpaRepository<WorldEntity, String> {
 
     List<WorldEntity> findByLorebook(LorebookEntity lorebook);
 }

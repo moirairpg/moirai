@@ -1,12 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.repository;
 
-import org.springframework.data.repository.CrudRepository;
-
-import java.util.List;
-
 import es.thalesalv.chatrpg.adapters.data.entity.ModerationSettingsEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ModerationSettingsRepository extends CrudRepository<ModerationSettingsEntity, String> {
-
-    List<ModerationSettingsEntity> findAll();
+public interface ModerationSettingsRepository extends JpaRepository<ModerationSettingsEntity, String> {
 }
