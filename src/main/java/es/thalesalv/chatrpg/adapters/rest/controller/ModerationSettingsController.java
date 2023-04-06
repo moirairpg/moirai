@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/moderation-settings")
+@RequestMapping("/settings/moderation")
 public class ModerationSettingsController {
 
     private final ModerationSettingsService moderationSettingsService;

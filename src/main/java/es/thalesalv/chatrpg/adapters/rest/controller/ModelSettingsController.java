@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/model-settings")
+@RequestMapping("/settings/model")
 public class ModelSettingsController {
 
     private final ModelSettingsService modelSettingsService;
