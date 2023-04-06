@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.application.mapper.chconfig;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.springframework.stereotype.Component;
@@ -13,11 +14,13 @@ import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.chconf.Settings;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.JDA;
 
 @Component
 @RequiredArgsConstructor
 public class ChannelConfigEntityToDTO implements Function<ChannelConfigEntity, ChannelConfig> {
 
+    private final JDA jda;
     private final WorldEntityToDTO worldEntityToDTO;
     private final PersonaEntityToDTO personaEntityToDTO;
     private final ModelSettingsEntityToDTO modelSettingsEntityToDTO;
@@ -35,7 +38,9 @@ public class ChannelConfigEntityToDTO implements Function<ChannelConfigEntity, C
         return ChannelConfig.builder()
                 .editPermissions(channelConfigEntity.getEditPermissions())
                 .id(channelConfigEntity.getId())
-                .owner(channelConfigEntity.getOwner())
+                .owner(Optional.ofNullable(channelConfigEntity.getOwner())
+                        .orElse(jda.getSelfUser()
+                                .getId()))
                 .persona(persona)
                 .world(world)
                 .settings(Settings.builder()

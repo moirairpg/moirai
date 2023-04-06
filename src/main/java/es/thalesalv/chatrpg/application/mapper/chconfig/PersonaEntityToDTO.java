@@ -12,9 +12,14 @@ import es.thalesalv.chatrpg.adapters.data.entity.PersonaEntity;
 import es.thalesalv.chatrpg.domain.model.chconf.Bump;
 import es.thalesalv.chatrpg.domain.model.chconf.Nudge;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.JDA;
 
 @Component
+@RequiredArgsConstructor
 public class PersonaEntityToDTO implements Function<PersonaEntity, Persona> {
+
+    private final JDA jda;
 
     @Override
     public Persona apply(PersonaEntity personaEntity) {
@@ -22,7 +27,9 @@ public class PersonaEntityToDTO implements Function<PersonaEntity, Persona> {
         return Persona.builder()
                 .id(personaEntity.getId())
                 .name(personaEntity.getName())
-                .owner(personaEntity.getOwner())
+                .owner(Optional.ofNullable(personaEntity.getOwner())
+                        .orElse(jda.getSelfUser()
+                                .getId()))
                 .intent(personaEntity.getIntent())
                 .personality(personaEntity.getPersonality())
                 .bump(buildBump(personaEntity.getBump()))
