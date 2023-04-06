@@ -18,55 +18,55 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ModelSettingsService {
 
-    private final ModelSettingsDTOToEntity moderationSettingsServiceDTOToEntity;
-    private final ModelSettingsEntityToDTO moderationSettingsServiceEntityToDTO;
+    private final ModelSettingsDTOToEntity moderationSettingsDTOToEntity;
+    private final ModelSettingsEntityToDTO moderationSettingsEntityToDTO;
 
-    private final ModelSettingsRepository moderationSettingsServiceRepository;
+    private final ModelSettingsRepository moderationSettingsRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelSettingsService.class);
 
     public List<ModelSettings> retrieveAllModelSettings() {
 
         LOGGER.debug("Retrieving moderation settings data from request");
-        return moderationSettingsServiceRepository.findAll()
+        return moderationSettingsRepository.findAll()
                 .stream()
-                .map(moderationSettingsServiceEntityToDTO)
+                .map(moderationSettingsEntityToDTO)
                 .toList();
     }
 
-    public ModelSettings retrieveModelSettingsById(final String moderationSettingsServiceId) {
+    public ModelSettings retrieveModelSettingsById(final String moderationSettingsId) {
 
         LOGGER.debug("Retrieving moderation settings by ID data from request");
-        return moderationSettingsServiceRepository.findById(moderationSettingsServiceId)
-                .map(moderationSettingsServiceEntityToDTO)
+        return moderationSettingsRepository.findById(moderationSettingsId)
+                .map(moderationSettingsEntityToDTO)
                 .orElseThrow(ModelSettingsNotFoundException::new);
     }
 
-    public ModelSettings saveModelSettings(final ModelSettings moderationSettingsService) {
+    public ModelSettings saveModelSettings(final ModelSettings moderationSettings) {
 
         LOGGER.debug("Saving moderation settings data from request");
-        return Optional.of(moderationSettingsServiceDTOToEntity.apply(moderationSettingsService))
-                .map(moderationSettingsServiceRepository::save)
-                .map(moderationSettingsServiceEntityToDTO)
+        return Optional.of(moderationSettingsDTOToEntity.apply(moderationSettings))
+                .map(moderationSettingsRepository::save)
+                .map(moderationSettingsEntityToDTO)
                 .orElseThrow();
     }
 
-    public ModelSettings updateModelSettings(final String moderationSettingsServiceId,
-            final ModelSettings moderationSettingsService) {
+    public ModelSettings updateModelSettings(final String moderationSettingsId,
+            final ModelSettings moderationSettings) {
 
         LOGGER.debug("Updating moderation settings data from request");
-        return Optional.of(moderationSettingsServiceDTOToEntity.apply(moderationSettingsService))
+        return Optional.of(moderationSettingsDTOToEntity.apply(moderationSettings))
                 .map(c -> {
-                    c.setId(moderationSettingsServiceId);
-                    return moderationSettingsServiceRepository.save(c);
+                    c.setId(moderationSettingsId);
+                    return moderationSettingsRepository.save(c);
                 })
-                .map(moderationSettingsServiceEntityToDTO)
+                .map(moderationSettingsEntityToDTO)
                 .orElseThrow();
     }
 
-    public void deleteModelSettings(final String moderationSettingsServiceId) {
+    public void deleteModelSettings(final String moderationSettingsId) {
 
         LOGGER.debug("Deleting moderation settings data from request");
-        moderationSettingsServiceRepository.deleteById(moderationSettingsServiceId);
+        moderationSettingsRepository.deleteById(moderationSettingsId);
     }
 }
