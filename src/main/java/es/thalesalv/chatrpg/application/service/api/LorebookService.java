@@ -23,12 +23,14 @@ import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.JDA;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class LorebookService {
 
+    private final JDA jda;
     private final LorebookDTOToEntity lorebookDTOToEntity;
     private final LorebookEntityToDTO lorebookEntityToDTO;
     private final LorebookEntryDTOToEntity lorebookEntryDTOToEntity;
@@ -62,6 +64,13 @@ public class LorebookService {
 
         LOGGER.debug("Saving lorebook data from request");
         return Optional.of(lorebookDTOToEntity.apply(lorebook))
+                .map(c -> {
+                    c.setOwner(Optional.ofNullable(c.getOwner())
+                            .orElse(jda.getSelfUser()
+                                    .getId()));
+
+                    return c;
+                })
                 .map(lorebookRepository::save)
                 .map(lorebookEntityToDTO)
                 .orElseThrow(() -> new RuntimeException("There was a problem saving the new lorebook"));
@@ -72,6 +81,10 @@ public class LorebookService {
         LOGGER.debug("Updating lorebook data from request. lorebookId -> {}", lorebookId);
         return Optional.of(lorebookDTOToEntity.apply(lorebook))
                 .map(c -> {
+                    c.setOwner(Optional.ofNullable(c.getOwner())
+                            .orElse(jda.getSelfUser()
+                                    .getId()));
+
                     c.setId(lorebookId);
                     return lorebookRepository.save(c);
                 })

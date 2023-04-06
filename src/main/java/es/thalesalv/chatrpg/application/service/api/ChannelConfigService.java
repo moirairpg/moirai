@@ -34,11 +34,13 @@ import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.chconf.Settings;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.JDA;
 
 @Service
 @RequiredArgsConstructor
 public class ChannelConfigService {
 
+    private final JDA jda;
     private final PersonaDTOToEntity personaDTOToEntity;
     private final WorldDTOToEntity worldDTOToEntity;
     private final ModerationSettingsDTOToEntity moderationSettingsDTOToEntity;
@@ -79,6 +81,9 @@ public class ChannelConfigService {
         return channelConfigRepository.findById(channel.getChannelConfig()
                 .getId())
                 .map(c -> {
+                    c.setOwner(Optional.ofNullable(c.getOwner())
+                            .orElse(jda.getSelfUser()
+                                    .getId()));
                     channel.setChannelConfig(channelConfigEntityToDTO.apply(c));
                     return channelDTOToEntity.apply(channel);
                 })
@@ -97,6 +102,11 @@ public class ChannelConfigService {
                             .orElseThrow(() -> new ChannelConfigNotFoundException(
                                     "The configuration requested does not exist")));
 
+                    c.getChannelConfig()
+                            .setOwner(Optional.ofNullable(c.getChannelConfig()
+                                    .getOwner())
+                                    .orElse(jda.getSelfUser()
+                                            .getId()));
                     return c;
                 })
                 .map(channelRepository::save)

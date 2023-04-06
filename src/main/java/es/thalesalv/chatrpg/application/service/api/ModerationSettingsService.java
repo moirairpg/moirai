@@ -13,11 +13,13 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.ModerationSettingsEntity
 import es.thalesalv.chatrpg.domain.exception.ModerationSettingsNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.JDA;
 
 @Service
 @RequiredArgsConstructor
 public class ModerationSettingsService {
 
+    private final JDA jda;
     private final ModerationSettingsDTOToEntity moderationSettingsDTOToEntity;
     private final ModerationSettingsEntityToDTO moderationSettingsEntityToDTO;
 
@@ -46,6 +48,13 @@ public class ModerationSettingsService {
 
         LOGGER.debug("Saving moderation settings data from request");
         return Optional.of(moderationSettingsDTOToEntity.apply(moderationSettings))
+                .map(c -> {
+                    c.setOwner(Optional.ofNullable(c.getOwner())
+                            .orElse(jda.getSelfUser()
+                                    .getId()));
+
+                    return c;
+                })
                 .map(moderationSettingsRepository::save)
                 .map(moderationSettingsEntityToDTO)
                 .orElseThrow();
@@ -57,6 +66,10 @@ public class ModerationSettingsService {
         LOGGER.debug("Updating moderation settings data from request");
         return Optional.of(moderationSettingsDTOToEntity.apply(moderationSettings))
                 .map(c -> {
+                    c.setOwner(Optional.ofNullable(c.getOwner())
+                            .orElse(jda.getSelfUser()
+                                    .getId()));
+
                     c.setId(moderationSettingsId);
                     return moderationSettingsRepository.save(c);
                 })
