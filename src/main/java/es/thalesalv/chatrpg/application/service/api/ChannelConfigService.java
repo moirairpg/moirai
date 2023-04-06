@@ -1,8 +1,11 @@
 package es.thalesalv.chatrpg.application.service.api;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.entity.ChannelConfigEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.ModelSettingsEntity;
@@ -31,9 +34,6 @@ import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.chconf.Settings;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -65,16 +65,15 @@ public class ChannelConfigService {
                 .toList();
     }
 
-    public List<Channel> retrieveChannelConfigsByChannelId(final String channelId) {
+    public Channel retrieveChannelConfigByChannelId(final String channelId) {
 
         LOGGER.debug("Retrieving channel by ID data from request. channelId -> {}", channelId);
         return channelRepository.findById(channelId)
                 .map(channelEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(ChannelConfigNotFoundException::new);
     }
 
-    public List<Channel> saveChannel(final Channel channel) {
+    public Channel saveChannel(final Channel channel) {
 
         LOGGER.debug("Saving channel data from request");
         return channelConfigRepository.findById(channel.getChannelConfig()
@@ -85,11 +84,10 @@ public class ChannelConfigService {
                 })
                 .map(channelRepository::save)
                 .map(channelEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(ChannelConfigNotFoundException::new);
     }
 
-    public List<Channel> updateChannel(final String channelId, final Channel channel) {
+    public Channel updateChannel(final String channelId, final Channel channel) {
 
         LOGGER.debug("Updating channel data from request. channelId -> {}", channelId);
         return channelRepository.findById(channelId)
@@ -103,7 +101,6 @@ public class ChannelConfigService {
                 })
                 .map(channelRepository::save)
                 .map(channelEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(() -> new ChannelConfigNotFoundException(
                         "The requested channel does not have an entry saved."));
     }
@@ -123,33 +120,30 @@ public class ChannelConfigService {
                 .toList();
     }
 
-    public List<ChannelConfig> retrieveChannelConfigById(final String channelConfigId) {
+    public ChannelConfig retrieveChannelConfigById(final String channelConfigId) {
 
         LOGGER.debug("Retrieving channel config by ID data from request");
         return channelConfigRepository.findById(channelConfigId)
                 .map(channelConfigEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(ChannelConfigNotFoundException::new);
     }
 
-    public List<ChannelConfig> saveChannelConfig(final ChannelConfig channelConfig) {
+    public ChannelConfig saveChannelConfig(final ChannelConfig channelConfig) {
 
         LOGGER.debug("Saving channel config data from request");
         return Optional.of(buildNewChannelConfig(channelConfig))
                 .map(channelConfigRepository::save)
                 .map(channelConfigEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(() -> new RuntimeException("Error saving channel config"));
     }
 
-    public List<ChannelConfig> updateChannelConfig(final String channelConfigId, final ChannelConfig channelConfig) {
+    public ChannelConfig updateChannelConfig(final String channelConfigId, final ChannelConfig channelConfig) {
 
         LOGGER.debug("Updating channel config data from request. channelConfigId -> {}", channelConfigId);
         return channelConfigRepository.findById(channelConfigId)
                 .map(c -> buildUpdatedChannelConfig(channelConfigId, channelConfig, c))
                 .map(channelConfigRepository::save)
                 .map(channelConfigEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(() -> new ChannelConfigNotFoundException(
                         "The channel config with the requested ID could not be found"));
     }

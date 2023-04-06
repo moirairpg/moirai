@@ -64,7 +64,7 @@ public class ChannelController {
             @PathVariable(value = "channel-id") final String channelId) {
 
         LOGGER.info(RETRIEVE_CHANNEL_BY_ID_REQUEST, channelId);
-        return Mono.just(channelConfigService.retrieveChannelConfigsByChannelId(channelId))
+        return Mono.just(channelConfigService.retrieveChannelConfigByChannelId(channelId))
                 .map(this::buildResponse)
                 .onErrorResume(ChannelConfigNotFoundException.class, e -> {
                     LOGGER.error(CONFIG_WITH_ID_NOT_FOUND, channelId, e);
@@ -158,6 +158,18 @@ public class ChannelController {
         LOGGER.info("Sending response for channels -> {}", channels);
         final ApiResponse respose = ApiResponse.builder()
                 .channels(channels)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(respose);
+    }
+
+    private ResponseEntity<ApiResponse> buildResponse(Channel channel) {
+
+        LOGGER.info("Sending response for channels -> {}", channel);
+        final ApiResponse respose = ApiResponse.builder()
+                .channel(channel)
                 .build();
 
         return ResponseEntity.ok()

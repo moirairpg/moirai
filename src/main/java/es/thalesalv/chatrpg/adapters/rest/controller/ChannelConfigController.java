@@ -166,6 +166,18 @@ public class ChannelConfigController {
                 .body(respose);
     }
 
+    private ResponseEntity<ApiResponse> buildResponse(ChannelConfig channelConfig) {
+
+        LOGGER.info("Sending response for channel configs -> {}", channelConfig);
+        final ApiResponse respose = ApiResponse.builder()
+                .channelConfig(channelConfig)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(respose);
+    }
+
     private ApiResponse buildErrorResponse(HttpStatus status, String message) {
 
         LOGGER.debug("Building error response object for channel configs");

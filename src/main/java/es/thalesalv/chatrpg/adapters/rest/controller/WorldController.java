@@ -163,6 +163,18 @@ public class WorldController {
                 .body(respose);
     }
 
+    private ResponseEntity<ApiResponse> buildResponse(World world) {
+
+        LOGGER.info("Sending response for worlds -> {}", world);
+        final ApiResponse respose = ApiResponse.builder()
+                .world(world)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(respose);
+    }
+
     private ApiResponse buildErrorResponse(HttpStatus status, String message) {
 
         LOGGER.debug("Building error response object for worlds");

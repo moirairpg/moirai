@@ -158,6 +158,18 @@ public class ModelSettingsController {
 
         LOGGER.info("Sending response for model settings -> {}", modelSettings);
         final ApiResponse respose = ApiResponse.builder()
+                .modelSettingsList(modelSettings)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(respose);
+    }
+
+    private ResponseEntity<ApiResponse> buildResponse(ModelSettings modelSettings) {
+
+        LOGGER.info("Sending response for model settings -> {}", modelSettings);
+        final ApiResponse respose = ApiResponse.builder()
                 .modelSettings(modelSettings)
                 .build();
 

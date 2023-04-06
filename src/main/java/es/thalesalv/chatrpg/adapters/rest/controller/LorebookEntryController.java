@@ -168,6 +168,18 @@ public class LorebookEntryController {
                 .body(respose);
     }
 
+    private ResponseEntity<ApiResponse> buildResponse(LorebookEntry lorebookEntry) {
+
+        LOGGER.info("Sending response for lorebookEntries -> {}", lorebookEntry);
+        final ApiResponse respose = ApiResponse.builder()
+                .lorebookEntry(lorebookEntry)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(respose);
+    }
+
     private ApiResponse buildErrorResponse(HttpStatus status, String message) {
 
         LOGGER.debug("Building error response object for lorebookEntries");

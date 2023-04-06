@@ -32,8 +32,16 @@ public class ApiResponse {
     private List<World> worlds;
     private List<Lorebook> lorebooks;
     private List<LorebookEntry> lorebookEntries;
-    private List<ModerationSettings> moderationSettings;
-    private List<ModelSettings> modelSettings;
+    private List<ModerationSettings> moderationSettingsList;
+    private List<ModelSettings> modelSettingsList;
+    private Channel channel;
+    private ChannelConfig channelConfig;
+    private Persona persona;
+    private World world;
+    private Lorebook lorebook;
+    private LorebookEntry lorebookEntry;
+    private ModerationSettings moderationSettings;
+    private ModelSettings modelSettings;
     private ApiErrorResponse error;
 
     public static ApiResponse empty() {

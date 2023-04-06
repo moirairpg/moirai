@@ -1,8 +1,11 @@
 package es.thalesalv.chatrpg.application.service.api;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.repository.PersonaRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaDTOToEntity;
@@ -10,9 +13,6 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.PersonaNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -34,26 +34,24 @@ public class PersonaService {
                 .toList();
     }
 
-    public List<Persona> retrievePersonaById(final String personaId) {
+    public Persona retrievePersonaById(final String personaId) {
 
         LOGGER.debug("Retrieving persona by ID data from request");
         return personaRepository.findById(personaId)
                 .map(personaEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(PersonaNotFoundException::new);
     }
 
-    public List<Persona> savePersona(final Persona persona) {
+    public Persona savePersona(final Persona persona) {
 
         LOGGER.debug("Saving persona data from request");
         return Optional.of(personaDTOToEntity.apply(persona))
                 .map(personaRepository::save)
                 .map(personaEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow();
     }
 
-    public List<Persona> updatePersona(final String personaId, final Persona persona) {
+    public Persona updatePersona(final String personaId, final Persona persona) {
 
         LOGGER.debug("Updating persona data from request");
         return Optional.of(personaDTOToEntity.apply(persona))
@@ -62,7 +60,6 @@ public class PersonaService {
                     return personaRepository.save(c);
                 })
                 .map(personaEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow();
     }
 

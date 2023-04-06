@@ -1,8 +1,11 @@
 package es.thalesalv.chatrpg.application.service.api;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
@@ -10,9 +13,6 @@ import es.thalesalv.chatrpg.application.mapper.world.WorldEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -34,26 +34,24 @@ public class WorldService {
                 .toList();
     }
 
-    public List<World> retrieveWorldById(final String worldId) {
+    public World retrieveWorldById(final String worldId) {
 
         LOGGER.debug("Retrieving world by ID data from request");
         return worldRepository.findById(worldId)
                 .map(worldEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(WorldNotFoundException::new);
     }
 
-    public List<World> saveWorld(final World world) {
+    public World saveWorld(final World world) {
 
         LOGGER.debug("Saving world data from request");
         return Optional.of(worldDTOToEntity.apply(world))
                 .map(worldRepository::save)
                 .map(worldEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow();
     }
 
-    public List<World> updateWorld(final String worldId, final World world) {
+    public World updateWorld(final String worldId, final World world) {
 
         LOGGER.debug("Updating world data from request");
         return Optional.of(worldDTOToEntity.apply(world))
@@ -62,7 +60,6 @@ public class WorldService {
                     return worldRepository.save(c);
                 })
                 .map(worldEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow();
     }
 

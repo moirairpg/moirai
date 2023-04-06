@@ -164,6 +164,18 @@ public class PersonaController {
                 .body(respose);
     }
 
+    private ResponseEntity<ApiResponse> buildResponse(Persona persona) {
+
+        LOGGER.info("Sending response for personas -> {}", persona);
+        final ApiResponse respose = ApiResponse.builder()
+                .persona(persona)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(respose);
+    }
+
     private ApiResponse buildErrorResponse(HttpStatus status, String message) {
 
         LOGGER.debug("Building error response object for personas");

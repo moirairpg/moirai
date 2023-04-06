@@ -1,8 +1,11 @@
 package es.thalesalv.chatrpg.application.service.api;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
@@ -20,9 +23,6 @@ import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -50,26 +50,24 @@ public class LorebookService {
                 .toList();
     }
 
-    public List<Lorebook> retrieveLorebookById(final String lorebookId) {
+    public Lorebook retrieveLorebookById(final String lorebookId) {
 
         LOGGER.debug("Retrieving lorebook by ID data from request");
         return lorebookRepository.findById(lorebookId)
                 .map(lorebookEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(LorebookNotFoundException::new);
     }
 
-    public List<Lorebook> saveLorebook(final Lorebook lorebook) {
+    public Lorebook saveLorebook(final Lorebook lorebook) {
 
         LOGGER.debug("Saving lorebook data from request");
         return Optional.of(lorebookDTOToEntity.apply(lorebook))
                 .map(lorebookRepository::save)
                 .map(lorebookEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(() -> new RuntimeException("There was a problem saving the new lorebook"));
     }
 
-    public List<Lorebook> updateLorebook(final String lorebookId, final Lorebook lorebook) {
+    public Lorebook updateLorebook(final String lorebookId, final Lorebook lorebook) {
 
         LOGGER.debug("Updating lorebook data from request. lorebookId -> {}", lorebookId);
         return Optional.of(lorebookDTOToEntity.apply(lorebook))
@@ -78,7 +76,6 @@ public class LorebookService {
                     return lorebookRepository.save(c);
                 })
                 .map(lorebookEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(() -> new RuntimeException("There was a problem updating the new lorebook"));
     }
 
@@ -117,7 +114,7 @@ public class LorebookService {
                 .toList();
     }
 
-    public List<LorebookEntry> retrieveLorebookEntryById(final String lorebookEntryId) {
+    public LorebookEntry retrieveLorebookEntryById(final String lorebookEntryId) {
 
         LOGGER.debug("Retrieving lorebookEntry by ID data from request");
         return lorebookEntryRepository.findById(lorebookEntryId)
@@ -126,11 +123,10 @@ public class LorebookService {
                             .orElseThrow(() -> new LorebookEntryNotFoundException("Lorebook entry regex not found"));
                 })
                 .map(lorebookEntryEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(() -> new LorebookEntryNotFoundException("Lorebook entry not found"));
     }
 
-    public List<LorebookEntry> saveLorebookEntry(final LorebookEntry lorebookEntry, final String lorebookId) {
+    public LorebookEntry saveLorebookEntry(final LorebookEntry lorebookEntry, final String lorebookId) {
 
         LOGGER.debug("Saving lorebookEntry data from request");
         return lorebookRepository.findById(lorebookId)
@@ -141,12 +137,11 @@ public class LorebookService {
                     return lorebookEntryRegexRepository.save(regexEntity);
                 })
                 .map(lorebookEntryEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(
                         () -> new LorebookNotFoundException("The lorebook request to add this entry to was not found"));
     }
 
-    public List<LorebookEntry> updateLorebookEntry(final String lorebookEntryId, final LorebookEntry lorebookEntry) {
+    public LorebookEntry updateLorebookEntry(final String lorebookEntryId, final LorebookEntry lorebookEntry) {
 
         LOGGER.debug("Updating lorebookEntry data from request");
         lorebookEntry.setId(lorebookEntryId);
@@ -159,7 +154,6 @@ public class LorebookService {
                         })
                         .orElseThrow(LorebookEntryNotFoundException::new))
                 .map(lorebookEntryEntityToDTO)
-                .map(Arrays::asList)
                 .orElseThrow(LorebookEntryNotFoundException::new);
     }
 

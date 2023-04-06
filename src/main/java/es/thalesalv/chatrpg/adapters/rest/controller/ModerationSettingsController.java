@@ -159,6 +159,18 @@ public class ModerationSettingsController {
 
         LOGGER.info("Sending response for moderation settings -> {}", moderationSettings);
         final ApiResponse respose = ApiResponse.builder()
+                .moderationSettingsList(moderationSettings)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(respose);
+    }
+
+    private ResponseEntity<ApiResponse> buildResponse(ModerationSettings moderationSettings) {
+
+        LOGGER.info("Sending response for moderation settings -> {}", moderationSettings);
+        final ApiResponse respose = ApiResponse.builder()
                 .moderationSettings(moderationSettings)
                 .build();
 
