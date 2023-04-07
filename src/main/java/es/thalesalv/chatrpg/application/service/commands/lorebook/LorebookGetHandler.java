@@ -1,10 +1,8 @@
 package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
 import java.text.MessageFormat;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
