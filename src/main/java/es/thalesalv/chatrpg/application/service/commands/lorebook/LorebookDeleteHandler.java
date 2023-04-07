@@ -151,10 +151,10 @@ public class LorebookDeleteHandler {
         final boolean isOwner = lorebook.getOwner()
                 .equals(userId);
 
-        final boolean canRead = lorebook.getReadPermissions()
+        final boolean canWrite = lorebook.getWritePermissions()
                 .contains(userId);
 
-        final boolean isAllowed = isOwner || canRead;
+        final boolean isAllowed = isOwner || canWrite;
         if (isPrivate && !isAllowed) {
             event.reply("You don't have permission from the owner of this private lorebook to see it")
                     .setEphemeral(true)

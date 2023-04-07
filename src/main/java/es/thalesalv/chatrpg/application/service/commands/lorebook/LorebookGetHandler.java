@@ -140,7 +140,9 @@ public class LorebookGetHandler {
                 .equals(userId);
 
         final boolean canRead = lorebook.getReadPermissions()
-                .contains(userId);
+                .contains(userId)
+                || lorebook.getWritePermissions()
+                        .contains(userId);
 
         final boolean isAllowed = isOwner || canRead;
         if (isPrivate && !isAllowed) {
