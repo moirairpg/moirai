@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -10,11 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
+import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.EventData;
-import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
@@ -76,16 +76,9 @@ public class RpgUseCase implements BotUseCase {
     private List<String> handleMessageHistory(final EventData eventData) {
 
         LOGGER.debug("Entered message history handling for RPG");
-        final ModelSettings modelSettings = eventData.getChannelDefinitions()
-                .getChannelConfig()
-                .getSettings()
-                .getModelSettings();
-        final MessageChannelUnion channel = eventData.getCurrentChannel();
+        final List<String> formattedReplies = getFormattedReplies(eventData);
         final Predicate<Message> skipFilter = skipFilter(eventData);
-        List<String> messages = channel.getHistory()
-                .retrievePast(modelSettings.getChatHistoryMemory())
-                .complete()
-                .stream()
+        List<String> messages = getHistory(eventData).stream()
                 .filter(skipFilter)
                 .map(m -> MessageFormat.format("{0} said: {1}", m.getAuthor()
                         .getName(),
@@ -93,6 +86,7 @@ public class RpgUseCase implements BotUseCase {
                                 .trim()))
                 .collect(Collectors.toList());
         Collections.reverse(messages);
+        messages.addAll(formattedReplies);
         return messages;
     }
 
@@ -103,5 +97,45 @@ public class RpgUseCase implements BotUseCase {
                 .trim()
                 .equals(bot.getAsMention()
                         .trim());
+    }
+
+    private List<String> getFormattedReplies(final EventData eventData) {
+
+        final Message message = eventData.getMessage();
+        final Message reply = message.getReferencedMessage();
+        if (null == reply) {
+            return Collections.emptyList();
+        } else {
+            String formattedReference = MessageFormat.format("{0} said earlier: {1}", reply.getAuthor()
+                    .getName(), reply.getContentDisplay());
+            String formattedReply = MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
+                    message.getAuthor()
+                            .getName(),
+                    reply.getAuthor()
+                            .getName(),
+                    message.getContentDisplay());
+            return Arrays.asList(formattedReference, formattedReply);
+        }
+    }
+
+    private List<Message> getHistory(final EventData eventData) {
+
+        final MessageChannelUnion channel = eventData.getCurrentChannel();
+        final Message repliedMessage = eventData.getMessage()
+                .getReferencedMessage();
+        final int historySize = eventData.getChannelDefinitions()
+                .getChannelConfig()
+                .getSettings()
+                .getModelSettings()
+                .getChatHistoryMemory();
+        if (null == repliedMessage) {
+            return channel.getHistory()
+                    .retrievePast(historySize)
+                    .complete();
+        } else {
+            return channel.getHistoryBefore(repliedMessage, historySize)
+                    .complete()
+                    .getRetrievedHistory();
+        }
     }
 }
