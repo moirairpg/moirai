@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
@@ -13,7 +16,6 @@ import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryDTOToEntity
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -45,9 +47,12 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
                         .id(lorebook.getId())
                         .name(lorebook.getName())
                         .owner(lorebook.getOwner())
-                        .writePermissions(lorebook.getWritePermissions())
-                        .readPermissions(lorebook.getReadPermissions())
+                        .writePermissions(Optional.ofNullable(lorebook.getWritePermissions())
+                                .orElse(StringUtils.EMPTY))
+                        .readPermissions(Optional.ofNullable(lorebook.getReadPermissions())
+                                .orElse(StringUtils.EMPTY))
                         .description(lorebook.getDescription())
+                        .visibility(lorebook.getVisibility())
                         .entries(entries)
                         .build())
                 .build();

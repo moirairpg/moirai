@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -14,12 +17,9 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
-import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
-import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
+import es.thalesalv.chatrpg.adapters.data.repository.LorebookRepository;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntityToDTO;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
-import es.thalesalv.chatrpg.domain.model.chconf.World;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -31,112 +31,74 @@ import net.dv8tion.jda.api.utils.FileUpload;
 public class LorebookListHandler {
 
     private final ObjectWriter prettyPrintObjectMapper;
-    private final ChannelEntityToDTO channelEntityToDTO;
+    private final LorebookEntityToDTO lorebookEntityToDTO;
 
-    private final ChannelRepository channelRepository;
+    private final LorebookRepository lorebookRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookListHandler.class);
 
-    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
-    private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
-    private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";
-    private static final String NO_ENTRIES_FOUND = "There are no lorebook entries saved";
     private static final String ERROR_HANDLING_ENTRY = "Error handling lore entries file.";
     private static final String ERROR_RETRIEVE = "An error occurred while retrieving lorebook data";
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
-    private static final String QUERIED_ENTRY_NOT_FOUND = "The entry queried does not exist.";
 
     public void handleCommand(SlashCommandInteractionEvent event) {
 
         try {
             LOGGER.debug("Received slash command for lore entry retrieval");
             event.deferReply();
-            channelRepository.findById(event.getChannel()
-                    .getId())
-                    .map(channelEntityToDTO)
-                    .map(channel -> {
-                        try {
-                            final World world = channel.getChannelConfig()
-                                    .getWorld();
-
-                            retrieveAllLoreEntries(world, event);
-                        } catch (JsonProcessingException e) {
-                            LOGGER.error(ERROR_SERIALIZATION, e);
-                            event.reply(ERROR_RETRIEVE)
-                                    .setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal()
-                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-                        } catch (IOException e) {
-                            LOGGER.error(ERROR_HANDLING_ENTRY, e);
-                            event.reply(ERROR_RETRIEVE)
-                                    .setEphemeral(true)
-                                    .queue(m -> m.deleteOriginal()
-                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-                        }
-
-                        return channel;
-                    })
-                    .orElseThrow(ChannelConfigNotFoundException::new);
-        } catch (LorebookEntryNotFoundException e) {
-            LOGGER.info(QUERIED_ENTRY_NOT_FOUND);
-            event.reply(QUERIED_ENTRY_NOT_FOUND)
-                    .setEphemeral(true)
-                    .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-        } catch (ChannelConfigNotFoundException e) {
-            LOGGER.info(CHANNEL_CONFIG_NOT_FOUND);
-            event.reply(CHANNEL_NO_CONFIG_ATTACHED)
-                    .setEphemeral(true)
-                    .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+            try {
+                retrieveAllLorebooks(event);
+            } catch (JsonProcessingException e) {
+                LOGGER.error(ERROR_SERIALIZATION, e);
+                event.reply(ERROR_RETRIEVE)
+                        .setEphemeral(true)
+                        .queue(m -> m.deleteOriginal()
+                                .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            } catch (IOException e) {
+                LOGGER.error(ERROR_HANDLING_ENTRY, e);
+                event.reply(ERROR_RETRIEVE)
+                        .setEphemeral(true)
+                        .queue(m -> m.deleteOriginal()
+                                .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+            }
         } catch (Exception e) {
             LOGGER.error(ERROR_RETRIEVE, e);
             event.reply(USER_ERROR_RETRIEVE)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
-    private void retrieveAllLoreEntries(final World world, final SlashCommandInteractionEvent event)
-            throws IOException {
+    private void retrieveAllLorebooks(final SlashCommandInteractionEvent event) throws IOException {
 
-        final String userId = event.getUser()
-                .getId();
+        List<Lorebook> lorebooks = lorebookRepository.findAll()
+                .stream()
+                .map(lorebookEntityToDTO)
+                .filter(l -> filterAllowedLorebooks(l, event))
+                .map(l -> {
+                    final String ownerName = event.getJDA()
+                            .retrieveUserById(l.getOwner())
+                            .complete()
+                            .getName();
 
-        final Lorebook lorebook = world.getLorebook();
-        if (lorebook.getVisibility()
-                .equals("private")
-                && (!lorebook.getOwner()
-                        .equals(userId)
-                        || !lorebook.getReadPermissions()
-                                .contains(userId))) {
-            event.reply("You don't have permission of the owner to see this private lorebook")
+                    l.setOwner(ownerName);
+                    return l;
+                })
+                .toList();
+
+        if (lorebooks.isEmpty()) {
+            event.reply("There are no lorebooks to show.")
                     .setEphemeral(true)
-                    .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                    .complete();
 
             return;
         }
 
-        if (lorebook.getEntries()
-                .isEmpty()) {
-            event.reply(NO_ENTRIES_FOUND)
-                    .setEphemeral(true)
-                    .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
-
-            return;
-        }
-
-        lorebook.setOwner(event.getJDA()
-                .retrieveUserById(world.getOwner())
-                .complete()
-                .getName());
-
-        final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebook);
-        final File file = File.createTempFile("lorebook-", ".json");
+        final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebooks);
+        final File file = File.createTempFile("lorebooks-", ".json");
         Files.write(file.toPath(), lorebookJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
         final FileUpload fileUpload = FileUpload.fromData(file);
 
@@ -145,5 +107,26 @@ public class LorebookListHandler {
                 .complete();
 
         fileUpload.close();
+    }
+
+    private boolean filterAllowedLorebooks(final Lorebook lorebook, SlashCommandInteractionEvent event) {
+
+        final String userId = event.getUser()
+                .getId();
+
+        final boolean isPrivate = Optional.ofNullable(lorebook.getVisibility())
+                .orElse(StringUtils.EMPTY)
+                .equals("private");
+
+        final boolean isOwner = Optional.ofNullable(lorebook.getOwner())
+                .orElse(StringUtils.EMPTY)
+                .equals(userId);
+
+        final boolean canRead = Optional.ofNullable(lorebook.getReadPermissions())
+                .orElse(StringUtils.EMPTY)
+                .contains(userId);
+
+        final boolean isAllowed = isOwner || canRead;
+        return isPrivate && !isAllowed;
     }
 }

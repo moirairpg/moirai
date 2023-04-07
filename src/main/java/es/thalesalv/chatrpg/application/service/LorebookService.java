@@ -77,6 +77,7 @@ public class LorebookService {
                 .map(l -> {
                     l.getEntries()
                             .forEach(e -> {
+                                e.setLorebook(l);
                                 lorebookEntryRepository.save(e.getLorebookEntry());
                                 lorebookEntryRegexRepository.save(e);
                             });

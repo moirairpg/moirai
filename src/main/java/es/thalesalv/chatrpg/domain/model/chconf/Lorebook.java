@@ -28,6 +28,8 @@ public class Lorebook {
 
         return Lorebook.builder()
                 .id("0")
+                .name("DEFAULT LOREBOOK")
+                .visibility("private")
                 .entries(Collections.emptySet())
                 .build();
     }

@@ -1,6 +1,16 @@
 package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
+import java.text.MessageFormat;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.ObjectWriter;
+
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
@@ -14,6 +24,7 @@ import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
+import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import jakarta.transaction.Transactional;
@@ -26,14 +37,6 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import java.text.MessageFormat;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @Transactional
@@ -49,6 +52,7 @@ public class LorebookCreateHandler {
     private final ChannelEntityToDTO channelEntityToDTO;
     private final LorebookDTOToEntity lorebookDTOToEntity;
     private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
+
     private static final String MODAL_ID = "lb-create";
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String COMMAND_WRONG_CHANNEL = "This command cannot be issued from this channel.";
@@ -64,6 +68,10 @@ public class LorebookCreateHandler {
                 .getId())
                 .map(channelEntityToDTO)
                 .ifPresentOrElse(channel -> {
+                    final World world = channel.getChannelConfig()
+                            .getWorld();
+
+                    checkPermissions(world, event);
                     saveEventDataToContext(channel, event.getChannel());
                     final Modal modal = buildEntryCreationModal();
                     event.replyModal(modal)
@@ -182,5 +190,32 @@ public class LorebookCreateHandler {
                 .channelDefinitions(channelConfig)
                 .currentChannel(channel)
                 .build());
+    }
+
+    private void checkPermissions(World world, SlashCommandInteractionEvent event) {
+
+        final Lorebook lorebook = world.getLorebook();
+        final String userId = event.getUser()
+                .getId();
+
+        final boolean isPrivate = Optional.ofNullable(lorebook.getVisibility())
+                .orElse(StringUtils.EMPTY)
+                .equals("private");
+
+        final boolean isOwner = Optional.ofNullable(lorebook.getOwner())
+                .orElse(StringUtils.EMPTY)
+                .equals(userId);
+
+        final boolean canRead = Optional.ofNullable(lorebook.getReadPermissions())
+                .orElse(StringUtils.EMPTY)
+                .contains(userId);
+
+        final boolean isAllowed = isOwner || canRead;
+        if (isPrivate && !isAllowed) {
+            event.reply("You don't have permission from the owner of this private lorebook to see it")
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+        }
     }
 }
