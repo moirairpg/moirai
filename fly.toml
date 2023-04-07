@@ -8,3 +8,10 @@ processes = []
   POSTGRES_DB = "chatrpg"
   POSTGRES_HOST = "chatrpg-db.internal:5432"
   POSTGRES_USER = "chatrpg"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = "8080"
