@@ -20,4 +20,11 @@ public class World {
     private String visibility;
     private String initialPrompt;
     private Lorebook lorebook;
+
+    public static World defaultWorld() {
+
+        return World.builder()
+                .id("0")
+                .build();
+    }
 }

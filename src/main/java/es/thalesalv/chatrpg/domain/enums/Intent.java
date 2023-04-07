@@ -1,8 +1,9 @@
 package es.thalesalv.chatrpg.domain.enums;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.stream.Stream;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum Intent {
 
@@ -26,6 +27,7 @@ public enum Intent {
         return text;
     }
 
+    @JsonCreator
     public static Intent fromString(String text) {
 
         return Stream.of(values())

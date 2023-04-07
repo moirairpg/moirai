@@ -21,4 +21,11 @@ public class Lorebook {
     private String editPermissions;
     private String visibility;
     private Set<LorebookEntry> entries;
+
+    public static Lorebook defaultLorebook() {
+
+        return Lorebook.builder()
+                .id("0")
+                .build();
+    }
 }

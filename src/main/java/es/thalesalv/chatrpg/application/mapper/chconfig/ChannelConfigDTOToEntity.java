@@ -30,8 +30,9 @@ public class ChannelConfigDTOToEntity implements Function<ChannelConfig, Channel
         final ModelSettingsEntity modelSettings = modelSettingsDTOToEntity.apply(channelConfig.getSettings()
                 .getModelSettings());
 
-        final ModerationSettingsEntity moderationSettings = moderationSettingsDTOToEntity.apply(channelConfig.getSettings()
-                .getModerationSettings());
+        final ModerationSettingsEntity moderationSettings = moderationSettingsDTOToEntity
+                .apply(channelConfig.getSettings()
+                        .getModerationSettings());
 
         return ChannelConfigEntity.builder()
                 .editPermissions(channelConfig.getEditPermissions())
