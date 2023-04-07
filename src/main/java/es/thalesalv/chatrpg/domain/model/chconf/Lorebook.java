@@ -19,7 +19,8 @@ public class Lorebook {
     private String name;
     private String description;
     private String owner;
-    private String editPermissions;
+    private String writePermissions;
+    private String readPermissions;
     private String visibility;
     private Set<LorebookEntry> entries;
 

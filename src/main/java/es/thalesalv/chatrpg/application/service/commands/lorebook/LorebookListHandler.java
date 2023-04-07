@@ -59,6 +59,7 @@ public class LorebookListHandler {
                         try {
                             final World world = channel.getChannelConfig()
                                     .getWorld();
+
                             retrieveAllLoreEntries(world, event);
                         } catch (JsonProcessingException e) {
                             LOGGER.error(ERROR_SERIALIZATION, e);
@@ -101,7 +102,24 @@ public class LorebookListHandler {
     private void retrieveAllLoreEntries(final World world, final SlashCommandInteractionEvent event)
             throws IOException {
 
+        final String userId = event.getUser()
+                .getId();
+
         final Lorebook lorebook = world.getLorebook();
+        if (lorebook.getVisibility()
+                .equals("private")
+                && (!lorebook.getOwner()
+                        .equals(userId)
+                        || !lorebook.getReadPermissions()
+                                .contains(userId))) {
+            event.reply("You don't have permission of the owner to see this private lorebook")
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+
+            return;
+        }
+
         if (lorebook.getEntries()
                 .isEmpty()) {
             event.reply(NO_ENTRIES_FOUND)
@@ -116,6 +134,7 @@ public class LorebookListHandler {
                 .retrieveUserById(world.getOwner())
                 .complete()
                 .getName());
+
         final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebook);
         final File file = File.createTempFile("lorebook-", ".json");
         Files.write(file.toPath(), lorebookJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
@@ -124,6 +143,7 @@ public class LorebookListHandler {
         event.replyFiles(fileUpload)
                 .setEphemeral(true)
                 .complete();
+
         fileUpload.close();
     }
 }

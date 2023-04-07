@@ -61,7 +61,7 @@ public class ChannelConfigListHandler {
                     .collect(Collectors.toList());
 
             final String configJson = prettyPrintObjectMapper.writeValueAsString(config);
-            final File file = File.createTempFile("lore-entries-", ".json");
+            final File file = File.createTempFile("channel-configs-", ".json");
             Files.write(file.toPath(), configJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
 
             final FileUpload fileUpload = FileUpload.fromData(file);
