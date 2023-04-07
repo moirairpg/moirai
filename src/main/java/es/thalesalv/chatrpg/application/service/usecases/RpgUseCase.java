@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -75,6 +76,7 @@ public class RpgUseCase implements BotUseCase {
     private List<String> handleMessageHistory(final EventData eventData) {
 
         LOGGER.debug("Entered message history handling for RPG");
+        final List<String> formattedReplies = getFormattedReplies(eventData);
         final Predicate<Message> skipFilter = skipFilter(eventData);
         List<String> messages = getHistory(eventData).stream()
                 .filter(skipFilter)
@@ -84,6 +86,7 @@ public class RpgUseCase implements BotUseCase {
                                 .trim()))
                 .collect(Collectors.toList());
         Collections.reverse(messages);
+        messages.addAll(formattedReplies);
         return messages;
     }
 
@@ -94,6 +97,25 @@ public class RpgUseCase implements BotUseCase {
                 .trim()
                 .equals(bot.getAsMention()
                         .trim());
+    }
+
+    private List<String> getFormattedReplies(final EventData eventData) {
+
+        final Message message = eventData.getMessage();
+        final Message reply = message.getReferencedMessage();
+        if (null == reply) {
+            return Collections.emptyList();
+        } else {
+            String formattedReference = MessageFormat.format("{0} said earlier: {1}", reply.getAuthor()
+                    .getName(), reply.getContentDisplay());
+            String formattedReply = MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
+                    message.getAuthor()
+                            .getName(),
+                    reply.getAuthor()
+                            .getName(),
+                    message.getContentDisplay());
+            return Arrays.asList(formattedReference, formattedReply);
+        }
     }
 
     private List<Message> getHistory(final EventData eventData) {
