@@ -270,16 +270,13 @@ public class LorebookEditHandler {
         final String userId = event.getUser()
                 .getId();
 
-        final boolean isPrivate = Optional.ofNullable(lorebook.getVisibility())
-                .orElse(StringUtils.EMPTY)
+        final boolean isPrivate = lorebook.getVisibility()
                 .equals("private");
 
-        final boolean isOwner = Optional.ofNullable(lorebook.getOwner())
-                .orElse(StringUtils.EMPTY)
+        final boolean isOwner = lorebook.getOwner()
                 .equals(userId);
 
-        final boolean canRead = Optional.ofNullable(lorebook.getReadPermissions())
-                .orElse(StringUtils.EMPTY)
+        final boolean canRead = lorebook.getReadPermissions()
                 .contains(userId);
 
         final boolean isAllowed = isOwner || canRead;
