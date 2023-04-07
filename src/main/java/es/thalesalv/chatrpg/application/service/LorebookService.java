@@ -162,13 +162,13 @@ public class LorebookService {
         lorebookEntry.setId(lorebookEntryId);
         return Optional.of(lorebookEntryDTOToEntity.apply(lorebookEntry))
                 .map(c -> lorebookEntryRegexRepository.findByLorebookEntry(c.getLorebookEntry())
-                            .map(regexEntry -> {
-                                c.setId(regexEntry.getId());
-                                c.setLorebook(regexEntry.getLorebook());
-                                lorebookEntryRepository.save(c.getLorebookEntry());
-                                return lorebookEntryRegexRepository.save(c);
-                            })
-                            .orElseThrow(LorebookEntryNotFoundException::new))
+                        .map(regexEntry -> {
+                            c.setId(regexEntry.getId());
+                            c.setLorebook(regexEntry.getLorebook());
+                            lorebookEntryRepository.save(c.getLorebookEntry());
+                            return lorebookEntryRegexRepository.save(c);
+                        })
+                        .orElseThrow(LorebookEntryNotFoundException::new))
                 .map(lorebookEntryEntityToDTO)
                 .orElseThrow(() -> new LorebookNotFoundException("Error updating lorebook entry: "
                         + LOREBOOK_ENTRY_ID_NOT_FOUND.replace("LOREBOOK_ENTRY_ID", lorebookEntryId)));
