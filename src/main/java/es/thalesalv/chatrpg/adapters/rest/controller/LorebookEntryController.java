@@ -2,7 +2,7 @@ package es.thalesalv.chatrpg.adapters.rest.controller;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.application.service.api.LorebookService;
+import es.thalesalv.chatrpg.application.service.LorebookService;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;

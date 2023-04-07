@@ -2,7 +2,7 @@ package es.thalesalv.chatrpg.adapters.rest.controller;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.application.service.api.ModerationSettingsService;
+import es.thalesalv.chatrpg.application.service.ModerationSettingsService;
 import es.thalesalv.chatrpg.domain.exception.ModerationSettingsNotFoundException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;

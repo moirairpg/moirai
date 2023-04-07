@@ -1,17 +1,11 @@
+# FROM openjdk:17-alpine AS builder
 FROM eclipse-temurin:17.0.6_10-jdk-jammy AS builder
 
 WORKDIR /opt/chatrpg
 
 ADD ./ ./
 
-RUN apt update -y &&\
-    apt install -y wget &&\
-    wget https://dlcdn.apache.org/maven/maven-3/3.9.1/binaries/apache-maven-3.9.1-bin.tar.gz -P /tmp &&\
-    wget https://gist.githubusercontent.com/thaalesalves/6aaf8d0601a777593888415558e7f6d4/raw/channel-config.yaml -P src/main/resources &&\
-    wget https://gist.githubusercontent.com/thaalesalves/bdca44fd096d91d0e85a9de00e15dfb8/raw/worlds.yaml -P src/main/resources &&\
-    tar xf /tmp/apache-maven-*.tar.gz -C /opt &&\
-    ln -s /opt/apache-maven-3.9.1 /opt/maven &&\
-    /opt/maven/bin/mvn clean package -e -DskipTests -DskipFormat=true
+RUN ./mvnw clean package -e -DskipTests -DskipFormat=true
 
 FROM eclipse-temurin:17.0.6_10-jre-jammy
 

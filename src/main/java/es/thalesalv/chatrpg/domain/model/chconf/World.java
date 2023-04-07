@@ -25,6 +25,8 @@ public class World {
 
         return World.builder()
                 .id("0")
+                .name("DEFAULT WORLD")
+                .lorebook(Lorebook.defaultLorebook())
                 .build();
     }
 }
