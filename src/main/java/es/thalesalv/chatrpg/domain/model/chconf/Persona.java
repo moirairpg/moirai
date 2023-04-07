@@ -25,6 +25,8 @@ public class Persona {
 
         return Persona.builder()
                 .id("0")
+                .name("DEFAULT PERSONA")
+                .intent(Intent.CHAT)
                 .build();
     }
 }

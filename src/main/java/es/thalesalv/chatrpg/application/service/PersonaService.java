@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.api;
+package es.thalesalv.chatrpg.application.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +24,7 @@ public class PersonaService {
     private final PersonaEntityToDTO personaEntityToDTO;
     private final PersonaRepository personaRepository;
 
+    private static final String PERSONA_ID_NOT_FOUND = "persona with id PERSONA_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonaService.class);
 
     public List<Persona> retrieveAllPersonas() {
@@ -40,7 +41,8 @@ public class PersonaService {
         LOGGER.debug("Retrieving persona by ID data from request");
         return personaRepository.findById(personaId)
                 .map(personaEntityToDTO)
-                .orElseThrow(PersonaNotFoundException::new);
+                .orElseThrow(() -> new PersonaNotFoundException(
+                        "Error retrieving persona by id: " + PERSONA_ID_NOT_FOUND.replace("PERSONA_ID", personaId)));
     }
 
     public Persona savePersona(final Persona persona) {
@@ -56,7 +58,7 @@ public class PersonaService {
                 })
                 .map(personaRepository::save)
                 .map(personaEntityToDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Error saving persona"));
     }
 
     public Persona updatePersona(final String personaId, final Persona persona) {
@@ -72,7 +74,8 @@ public class PersonaService {
                     return personaRepository.save(c);
                 })
                 .map(personaEntityToDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new PersonaNotFoundException(
+                        "Error updating persona: " + PERSONA_ID_NOT_FOUND.replace("PERSONA_ID", personaId)));
     }
 
     public void deletePersona(final String personaId) {

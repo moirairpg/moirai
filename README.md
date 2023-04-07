@@ -32,24 +32,21 @@ You need to have both yout Discord API Key and your OpenAI API key in hand to se
 
 ### Building
 1. Clone the repo
-2. Create copies of `channel-config-sample.yaml` and `worlds-sample.yaml` and tweak as you see fit.
-    - Follow the proper format to create configurations and worlds with their own lorebooks
-3. Add both keys to the bot's `application.yaml`
+2. Add both keys to the bot's `application.yaml`
     - The recommended way of doing this is setting the keys to the `DISCORD_BOT_API_TOKEN` and `OPENAI_API_TOKEN` environment variables respectively, in which case you won't need to modify those values in the YAML; and everything is also safer that way
-4. Enable Developer Mode on your Discord client and right click > copy ID of the channels you want the bot to have access to
-5. Add those IDs to the desired persona by following the proper format described.
-6. Set up the database and either rewrite the values in the YAML or add the values to their respective environment variable
+3. Enable Developer Mode on your Discord client and right click > copy ID of the channels you want the bot to have access to
+4. Add those IDs to the desired persona by following the proper format described.
+5. Set up the database and either rewrite the values in the YAML or add the values to their respective environment variable
     - Same advice as for the API keys: instead of rewriting the config file, add the proper environment variables
-7. Tweak the persona as you'd like, always keeping in mind that it has restrictions and a proper way to be used
+6. Tweak the persona as you'd like, always keeping in mind that it has restrictions and a proper way to be used
     - The `personality` field can be tricky because the way to describe a persona varies by model used. A persona that works well for `text-davinci-003` might not work well for `text-babbage-001` or `gpt-3.5-turbo`. Keep that in mind.
     - Tweak the moderation values as you see fit. For more info on those, check OpenAI's moderation API documentation. Moderation can either be by topic value or absolute.
     - For info on the other configs such as model names, values for temperature and such, refer to OpenAI's completion API documentation.
-8. Compile the code with `mvn clean package`
-9. Run the bot
+7. Compile the code with `mvn clean package`
+8. Run the bot
     - Through the IDE of your choice
     - Through the console with Maven by running `mvn spring-boot:run` on the bot's root folder
     - Through the console by running the JAR file directly with `java -jar chatrpg-0.0.1-SNAPSHOT.jar`
-10. Run `/chconf set <config-id>` to link a configuration from the YAML to the channel where the command is run
 
 ## Features
 ChatRPG was made with RPG DM'ing in mind, so we're striving to add commands and features that make that experience richer.

@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.api;
+package es.thalesalv.chatrpg.application.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +25,7 @@ public class ModerationSettingsService {
 
     private final ModerationSettingsRepository moderationSettingsRepository;
 
+    private static final String SETTING_ID_NOT_FOUND = "moderation setting with id SETTING_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(ModerationSettingsService.class);
 
     public List<ModerationSettings> retrieveAllModerationSettings() {
@@ -41,7 +42,8 @@ public class ModerationSettingsService {
         LOGGER.debug("Retrieving moderation settings by ID data from request");
         return moderationSettingsRepository.findById(moderationSettingsId)
                 .map(moderationSettingsEntityToDTO)
-                .orElseThrow(ModerationSettingsNotFoundException::new);
+                .orElseThrow(() -> new ModerationSettingsNotFoundException("Error retrieving moderation setting by id: "
+                        + SETTING_ID_NOT_FOUND.replace("SETTING_ID", moderationSettingsId)));
     }
 
     public ModerationSettings saveModerationSettings(final ModerationSettings moderationSettings) {
@@ -57,7 +59,7 @@ public class ModerationSettingsService {
                 })
                 .map(moderationSettingsRepository::save)
                 .map(moderationSettingsEntityToDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Error saving moderation setting"));
     }
 
     public ModerationSettings updateModerationSettings(final String moderationSettingsId,
@@ -74,7 +76,8 @@ public class ModerationSettingsService {
                     return moderationSettingsRepository.save(c);
                 })
                 .map(moderationSettingsEntityToDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new ModerationSettingsNotFoundException("Error updating moderation setting: "
+                        + SETTING_ID_NOT_FOUND.replace("SETTING_ID", moderationSettingsId)));
     }
 
     public void deleteModerationSettings(final String moderationSettingsId) {

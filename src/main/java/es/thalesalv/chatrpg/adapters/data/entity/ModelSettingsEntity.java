@@ -35,16 +35,16 @@ public class ModelSettingsEntity {
     @Column(name = "owner_discord_id")
     private String owner;
 
-    @Column(name = "model_name")
+    @Column(name = "model_name", nullable = false)
     private String modelName;
 
-    @Column(name = "max_tokens")
+    @Column(name = "max_tokens", nullable = false)
     private int maxTokens;
 
-    @Column(name = "chat_history_memory")
+    @Column(name = "chat_history_memory", nullable = false)
     private int chatHistoryMemory;
 
-    @Column(name = "temperature")
+    @Column(name = "temperature", nullable = false)
     private double temperature;
 
     @Column(name = "frequency_penalty")

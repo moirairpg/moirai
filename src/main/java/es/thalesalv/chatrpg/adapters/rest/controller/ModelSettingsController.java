@@ -2,7 +2,7 @@ package es.thalesalv.chatrpg.adapters.rest.controller;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.application.service.api.ModelSettingsService;
+import es.thalesalv.chatrpg.application.service.ModelSettingsService;
 import es.thalesalv.chatrpg.domain.exception.ModelSettingsNotFoundException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;

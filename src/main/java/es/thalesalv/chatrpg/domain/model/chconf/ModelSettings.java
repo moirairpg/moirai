@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.domain.model.chconf;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,12 @@ public class ModelSettings {
 
         return ModelSettings.builder()
                 .id("0")
+                .modelName("chatgpt")
+                .temperature(0.7)
+                .frequencyPenalty(1.2)
+                .presencePenalty(1.2)
+                .chatHistoryMemory(10)
+                .stopSequence(Arrays.asList(new String[] { "\n" }))
                 .build();
     }
 }

@@ -23,6 +23,7 @@ public class ModerationSettings {
 
         return ModerationSettings.builder()
                 .id("0")
+                .absolute(true)
                 .build();
     }
 }
