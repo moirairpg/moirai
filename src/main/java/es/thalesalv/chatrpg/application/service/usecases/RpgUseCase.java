@@ -76,8 +76,7 @@ public class RpgUseCase implements BotUseCase {
 
         LOGGER.debug("Entered message history handling for RPG");
         final Predicate<Message> skipFilter = skipFilter(eventData);
-        List<String> messages = getHistory(eventData)
-                .stream()
+        List<String> messages = getHistory(eventData).stream()
                 .filter(skipFilter)
                 .map(m -> MessageFormat.format("{0} said: {1}", m.getAuthor()
                         .getName(),
