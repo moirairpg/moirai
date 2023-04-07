@@ -47,6 +47,7 @@ public class PersonaEntity {
     @Column(name = "nudge", length = 10000)
     @Convert(converter = NudgeConverter.class)
     private NudgeEntity nudge;
+
     @Column(name = "bump", length = 10000)
     @Convert(converter = BumpConverter.class)
     private BumpEntity bump;

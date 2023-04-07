@@ -1,17 +1,19 @@
 package es.thalesalv.chatrpg.application.mapper.world;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
-
-import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryDTOToEntity;
+import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -22,8 +24,11 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
     @Override
     public WorldEntity apply(World world) {
 
-        final List<LorebookEntryRegexEntity> entries = world.getLorebook()
-                .getEntries()
+        final Lorebook lorebook = Optional.ofNullable(world.getLorebook())
+                .orElse(Lorebook.defaultLorebook());
+
+        final List<LorebookEntryRegexEntity> entries = Optional.ofNullable(lorebook.getEntries())
+                .orElse(new HashSet<>())
                 .stream()
                 .map(lorebookEntryDTOToEntity)
                 .collect(Collectors.toList());
@@ -37,16 +42,11 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
                 .visibility(world.getVisibility())
                 .description(world.getDescription())
                 .lorebook(LorebookEntity.builder()
-                        .id(world.getLorebook()
-                                .getId())
-                        .name(world.getLorebook()
-                                .getName())
-                        .owner(world.getLorebook()
-                                .getOwner())
-                        .editPermissions(world.getLorebook()
-                                .getEditPermissions())
-                        .description(world.getLorebook()
-                                .getDescription())
+                        .id(lorebook.getId())
+                        .name(lorebook.getName())
+                        .owner(lorebook.getOwner())
+                        .editPermissions(lorebook.getEditPermissions())
+                        .description(lorebook.getDescription())
                         .entries(entries)
                         .build())
                 .build();

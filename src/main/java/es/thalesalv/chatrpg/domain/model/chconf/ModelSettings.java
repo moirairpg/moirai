@@ -25,4 +25,11 @@ public class ModelSettings {
     private double presencePenalty;
     private List<String> stopSequence;
     private Map<String, Double> logitBias;
+
+    public static ModelSettings defaultModelSettings() {
+
+        return ModelSettings.builder()
+                .id("0")
+                .build();
+    }
 }

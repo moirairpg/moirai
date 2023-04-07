@@ -1,8 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.repository;
 
-import org.springframework.data.repository.CrudRepository;
-
 import es.thalesalv.chatrpg.adapters.data.entity.ModelSettingsEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ModelSettingsRepository extends CrudRepository<ModelSettingsEntity, String> {
+public interface ModelSettingsRepository extends JpaRepository<ModelSettingsEntity, String> {
 }
