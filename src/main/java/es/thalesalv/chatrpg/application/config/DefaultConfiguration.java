@@ -1,6 +1,8 @@
 package es.thalesalv.chatrpg.application.config;
 
 import java.io.IOException;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,7 @@ import net.dv8tion.jda.api.JDA;
 @Configuration
 @DependsOn("nanoId")
 @RequiredArgsConstructor
-public class InitialConfiguration {
+public class DefaultConfiguration {
 
     private final JDA jda;
     private final PersonaService personaService;
@@ -40,12 +42,18 @@ public class InitialConfiguration {
     private final ChannelConfigService channelConfigService;
 
     private static final String DEFAULT_ID = "0";
-    private static final Logger LOGGER = LoggerFactory.getLogger(InitialConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfiguration.class);
 
     @PostConstruct
     public void init() throws StreamReadException, DatabindException, IOException {
 
         LOGGER.debug("Initiating default values ingestion process");
+        Optional.ofNullable(channelConfigService.retrieveChannelConfigById(DEFAULT_ID))
+                .filter(Objects::isNull)
+                .map(a -> {
+
+                    return a;
+                });
         final String botId = jda.getSelfUser()
                 .getId();
 
