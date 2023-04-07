@@ -36,7 +36,7 @@ public class ModerationSettingsEntity {
     @Column(name = "is_absolute_moderation")
     private boolean isAbsolute;
 
-    @Column(name = "thresholds", nullable = false)
+    @Column(name = "thresholds")
     @Convert(converter = StringMapDoubleConverter.class)
     private Map<String, Double> thresholds;
 }

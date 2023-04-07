@@ -235,6 +235,7 @@ public class ChannelConfigService {
                 .orElse(worldDTOToEntity.apply(World.defaultWorld()));
 
         return ChannelConfigEntity.builder()
+                .id(channelConfig.getId())
                 .editPermissions(channelConfig.getEditPermissions())
                 .owner(channelConfig.getOwner())
                 .persona(persona)

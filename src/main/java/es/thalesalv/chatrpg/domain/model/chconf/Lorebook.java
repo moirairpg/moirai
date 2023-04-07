@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.domain.model.chconf;
 
+import java.util.Collections;
 import java.util.Set;
 
 import lombok.AccessLevel;
@@ -26,6 +27,7 @@ public class Lorebook {
 
         return Lorebook.builder()
                 .id("0")
+                .entries(Collections.emptySet())
                 .build();
     }
 }
