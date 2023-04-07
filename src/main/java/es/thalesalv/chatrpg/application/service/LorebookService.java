@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.application.service.api;
+package es.thalesalv.chatrpg.application.service;
 
 import java.util.List;
 import java.util.Optional;
