@@ -36,6 +36,7 @@ public class ModelSettings {
                 .frequencyPenalty(1.2)
                 .presencePenalty(1.2)
                 .chatHistoryMemory(10)
+                .maxTokens(300)
                 .stopSequence(Arrays.asList(new String[] { "\n" }))
                 .build();
     }
