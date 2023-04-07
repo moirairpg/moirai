@@ -5,7 +5,8 @@ WORKDIR /opt/chatrpg
 
 ADD ./ ./
 
-RUN ./mvnw clean package -e -DskipTests -DskipFormat=true
+RUN chmod +x mvnw &&\
+    ./mvnw clean package -e -DskipTests -DskipFormat=true
 
 FROM eclipse-temurin:17.0.6_10-jre-jammy
 
