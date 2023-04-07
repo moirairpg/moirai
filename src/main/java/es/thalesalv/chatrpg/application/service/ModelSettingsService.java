@@ -25,6 +25,7 @@ public class ModelSettingsService {
 
     private final ModelSettingsRepository moderationSettingsRepository;
 
+    private static final String SETTING_ID_NOT_FOUND = "model setting with id SETTING_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelSettingsService.class);
 
     public List<ModelSettings> retrieveAllModelSettings() {
@@ -41,7 +42,8 @@ public class ModelSettingsService {
         LOGGER.debug("Retrieving moderation settings by ID data from request");
         return moderationSettingsRepository.findById(moderationSettingsId)
                 .map(moderationSettingsEntityToDTO)
-                .orElseThrow(ModelSettingsNotFoundException::new);
+                .orElseThrow(() -> new ModelSettingsNotFoundException("Error retrieving model setting by id: "
+                        + SETTING_ID_NOT_FOUND.replace("SETTING_ID", moderationSettingsId)));
     }
 
     public ModelSettings saveModelSettings(final ModelSettings moderationSettings) {
@@ -57,7 +59,7 @@ public class ModelSettingsService {
                 })
                 .map(moderationSettingsRepository::save)
                 .map(moderationSettingsEntityToDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Error saving model setting"));
     }
 
     public ModelSettings updateModelSettings(final String moderationSettingsId,
@@ -74,7 +76,8 @@ public class ModelSettingsService {
                     return moderationSettingsRepository.save(c);
                 })
                 .map(moderationSettingsEntityToDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new ModelSettingsNotFoundException("Error updating model setting: "
+                        + SETTING_ID_NOT_FOUND.replace("SETTING_ID", moderationSettingsId)));
     }
 
     public void deleteModelSettings(final String moderationSettingsId) {

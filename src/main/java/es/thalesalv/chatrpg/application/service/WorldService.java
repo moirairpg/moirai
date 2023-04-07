@@ -20,9 +20,9 @@ public class WorldService {
 
     private final WorldDTOToEntity worldDTOToEntity;
     private final WorldEntityToDTO worldEntityToDTO;
-
     private final WorldRepository worldRepository;
 
+    private static final String WORLD_ID_NOT_FOUND = "world with id WORLD_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldService.class);
 
     public List<World> retrieveAllWorlds() {
@@ -39,7 +39,8 @@ public class WorldService {
         LOGGER.debug("Retrieving world by ID data from request");
         return worldRepository.findById(worldId)
                 .map(worldEntityToDTO)
-                .orElseThrow(WorldNotFoundException::new);
+                .orElseThrow(() -> new WorldNotFoundException(
+                        "Error retrieving world by id: " + WORLD_ID_NOT_FOUND.replace("WORLD_ID", worldId)));
     }
 
     public World saveWorld(final World world) {
@@ -48,7 +49,7 @@ public class WorldService {
         return Optional.of(worldDTOToEntity.apply(world))
                 .map(worldRepository::save)
                 .map(worldEntityToDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Error saving world"));
     }
 
     public World updateWorld(final String worldId, final World world) {
@@ -60,7 +61,8 @@ public class WorldService {
                     return worldRepository.save(c);
                 })
                 .map(worldEntityToDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new WorldNotFoundException(
+                        "Error retrieving world by id: " + WORLD_ID_NOT_FOUND.replace("WORLD_ID", worldId)));
     }
 
     public void deleteWorld(final String worldId) {

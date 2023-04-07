@@ -56,6 +56,8 @@ public class ChannelConfigService {
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
 
+    private static final String CHANNEL_CONFIG_ID_NOT_FOUND = "Channel config with id CHANNEL_CONFIG_ID could not be found in database.";
+    private static final String CHANNEL_ID_NOT_FOUND = "discord channel with id CHANNEL_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigService.class);
 
     public List<Channel> retrieveAllChannels() {
@@ -72,14 +74,17 @@ public class ChannelConfigService {
         LOGGER.debug("Retrieving channel by ID data from request. channelId -> {}", channelId);
         return channelRepository.findById(channelId)
                 .map(channelEntityToDTO)
-                .orElseThrow(ChannelConfigNotFoundException::new);
+                .orElseThrow(() -> new ChannelConfigNotFoundException(
+                        "Error retrieving channel by ID: " + CHANNEL_ID_NOT_FOUND.replace("CHANNEL_ID", channelId)));
     }
 
     public Channel saveChannel(final Channel channel) {
 
         LOGGER.debug("Saving channel data from request");
-        return channelConfigRepository.findById(channel.getChannelConfig()
-                .getId())
+        final String channelConfigId = channel.getChannelConfig()
+                .getId();
+
+        return channelConfigRepository.findById(channelConfigId)
                 .map(c -> {
                     c.setOwner(Optional.ofNullable(c.getOwner())
                             .orElse(jda.getSelfUser()
@@ -89,7 +94,7 @@ public class ChannelConfigService {
                 })
                 .map(channelRepository::save)
                 .map(channelEntityToDTO)
-                .orElseThrow(ChannelConfigNotFoundException::new);
+                .orElseThrow(() -> new ChannelConfigNotFoundException("Error saving channel"));
     }
 
     public Channel updateChannel(final String channelId, final Channel channel) {
@@ -97,10 +102,12 @@ public class ChannelConfigService {
         LOGGER.debug("Updating channel data from request. channelId -> {}", channelId);
         return channelRepository.findById(channelId)
                 .map(c -> {
-                    c.setChannelConfig(channelConfigRepository.findById(channel.getChannelConfig()
-                            .getId())
+                    final String channelConfigId = channel.getChannelConfig()
+                            .getId();
+
+                    c.setChannelConfig(channelConfigRepository.findById(channelConfigId)
                             .orElseThrow(() -> new ChannelConfigNotFoundException(
-                                    "The configuration requested does not exist")));
+                                    CHANNEL_CONFIG_ID_NOT_FOUND.replace("CHANNEL_CONFIG_ID", channelConfigId))));
 
                     c.getChannelConfig()
                             .setOwner(Optional.ofNullable(c.getChannelConfig()
@@ -112,12 +119,12 @@ public class ChannelConfigService {
                 .map(channelRepository::save)
                 .map(channelEntityToDTO)
                 .orElseThrow(() -> new ChannelConfigNotFoundException(
-                        "The requested channel does not have an entry saved."));
+                        "Error updating channel wih ID: " + CHANNEL_ID_NOT_FOUND.replace("CHANNEL_ID", channelId)));
     }
 
     public void deleteChannel(final String channelId) {
 
-        LOGGER.debug("Deleting channel data from request");
+        LOGGER.debug("Deleting channel data from request. channelId -> {}", channelId);
         channelRepository.deleteById(channelId);
     }
 
@@ -132,10 +139,11 @@ public class ChannelConfigService {
 
     public ChannelConfig retrieveChannelConfigById(final String channelConfigId) {
 
-        LOGGER.debug("Retrieving channel config by ID data from request");
+        LOGGER.debug("Retrieving channel config by ID data from request -> {}", channelConfigId);
         return channelConfigRepository.findById(channelConfigId)
                 .map(channelConfigEntityToDTO)
-                .orElseThrow(ChannelConfigNotFoundException::new);
+                .orElseThrow(() -> new ChannelConfigNotFoundException("Error retrieving channel config: "
+                        + CHANNEL_CONFIG_ID_NOT_FOUND.replace("CHANNEL_CONFIG_ID", channelConfigId)));
     }
 
     public ChannelConfig saveChannelConfig(final ChannelConfig channelConfig) {
@@ -154,8 +162,8 @@ public class ChannelConfigService {
                 .map(c -> buildUpdatedChannelConfig(channelConfigId, channelConfig, c))
                 .map(channelConfigRepository::save)
                 .map(channelConfigEntityToDTO)
-                .orElseThrow(() -> new ChannelConfigNotFoundException(
-                        "The channel config with the requested ID could not be found"));
+                .orElseThrow(() -> new ChannelConfigNotFoundException(("Error updating channel config: "
+                        + CHANNEL_CONFIG_ID_NOT_FOUND.replace("CHANNEL_CONFIG_ID", channelConfigId))));
     }
 
     public void deleteChannelConfig(final String channelConfigId) {
@@ -169,7 +177,8 @@ public class ChannelConfigService {
                     channelConfigRepository.delete(config);
                     return config;
                 })
-                .orElseThrow(() -> new ChannelConfigNotFoundException("Channel config request for deletion not found"));
+                .orElseThrow(() -> new ChannelConfigNotFoundException(("Error deleting channel config: "
+                        + CHANNEL_CONFIG_ID_NOT_FOUND.replace("CHANNEL_CONFIG_ID", channelConfigId))));
     }
 
     private ChannelConfigEntity buildUpdatedChannelConfig(final String channelConfigId,
