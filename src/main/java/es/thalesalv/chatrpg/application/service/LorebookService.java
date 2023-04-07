@@ -67,12 +67,21 @@ public class LorebookService {
 
         LOGGER.debug("Saving lorebook data from request");
         return Optional.of(lorebookDTOToEntity.apply(lorebook))
-                .map(c -> {
-                    c.setOwner(Optional.ofNullable(c.getOwner())
+                .map(l -> {
+                    l.setOwner(Optional.ofNullable(l.getOwner())
                             .orElse(jda.getSelfUser()
                                     .getId()));
 
-                    return c;
+                    return l;
+                })
+                .map(l -> {
+                    l.getEntries()
+                            .forEach(e -> {
+                                lorebookEntryRepository.save(e.getLorebookEntry());
+                                lorebookEntryRegexRepository.save(e);
+                            });
+
+                    return l;
                 })
                 .map(lorebookRepository::save)
                 .map(lorebookEntityToDTO)
