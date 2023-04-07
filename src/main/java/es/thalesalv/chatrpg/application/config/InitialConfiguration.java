@@ -60,7 +60,8 @@ public class InitialConfiguration {
 
         persona.setOwner(botId);
         world.setOwner(botId);
-        world.getLorebook().setOwner(botId);
+        world.getLorebook()
+                .setOwner(botId);
         moderationSettings.setOwner(botId);
         modelSettings.setOwner(botId);
 
