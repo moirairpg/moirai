@@ -38,6 +38,7 @@ public class ChatUseCase implements BotUseCase {
         eventData.getCurrentChannel()
                 .sendTyping()
                 .complete();
+
         final Message message = eventData.getMessage();
         final SelfUser bot = eventData.getBot();
         if (message.getContentRaw()
@@ -86,28 +87,10 @@ public class ChatUseCase implements BotUseCase {
                         m.getContentDisplay()
                                 .trim()))
                 .collect(Collectors.toList());
+
         Collections.reverse(messages);
         messages.addAll(formattedReplies);
         return messages;
-    }
-
-    private List<String> getFormattedReplies(final EventData eventData) {
-
-        final Message message = eventData.getMessage();
-        final Message reply = message.getReferencedMessage();
-        if (null == reply) {
-            return Collections.emptyList();
-        } else {
-            String formattedReference = MessageFormat.format("{0} said earlier: {1}", reply.getAuthor()
-                    .getName(), reply.getContentDisplay());
-            String formattedReply = MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
-                    message.getAuthor()
-                            .getName(),
-                    reply.getAuthor()
-                            .getName(),
-                    message.getContentDisplay());
-            return Arrays.asList(formattedReference, formattedReply);
-        }
     }
 
     private Predicate<Message> stopFilter(final EventData eventData) {
@@ -115,10 +98,12 @@ public class ChatUseCase implements BotUseCase {
         final SelfUser bot = eventData.getBot();
         final Predicate<Message> isBotTagged = DelayedPredicate.withTest(m -> m.getContentRaw()
                 .contains(bot.getAsMention()));
+
         final Predicate<Message> hasStopReaction = message -> message.getReactions()
                 .stream()
                 .anyMatch(r -> STOP_MEMORY_EMOJI.equals(r.getEmoji()
                         .getName()));
+
         return isBotTagged.or(hasStopReaction);
     }
 
@@ -131,16 +116,39 @@ public class ChatUseCase implements BotUseCase {
                         .trim());
     }
 
+    private List<String> getFormattedReplies(final EventData eventData) {
+
+        final Message message = eventData.getMessage();
+        final Message reply = message.getReferencedMessage();
+        if (null == reply) {
+            return Collections.emptyList();
+        } else {
+            String formattedReference = MessageFormat.format("{0} said earlier: {1}", reply.getAuthor()
+                    .getName(), reply.getContentDisplay());
+
+            String formattedReply = MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
+                    message.getAuthor()
+                            .getName(),
+                    reply.getAuthor()
+                            .getName(),
+                    message.getContentDisplay());
+
+            return Arrays.asList(formattedReference, formattedReply);
+        }
+    }
+
     private List<Message> getHistory(final EventData eventData) {
 
         final MessageChannelUnion channel = eventData.getCurrentChannel();
         final Message repliedMessage = eventData.getMessage()
                 .getReferencedMessage();
+
         final int historySize = eventData.getChannelDefinitions()
                 .getChannelConfig()
                 .getSettings()
                 .getModelSettings()
                 .getChatHistoryMemory();
+
         if (null == repliedMessage) {
             return channel.getHistory()
                     .retrievePast(historySize)
