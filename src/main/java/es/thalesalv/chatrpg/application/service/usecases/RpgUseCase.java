@@ -36,10 +36,12 @@ public class RpgUseCase implements BotUseCase {
         final Message message = eventData.getMessage();
         final SelfUser bot = eventData.getBot();
         final Mentions mentions = message.getMentions();
+
         if (mentions.isMentioned(eventData.getBot(), Message.MentionType.USER)) {
             eventData.getCurrentChannel()
                     .sendTyping()
                     .complete();
+
             if (message.getContentRaw()
                     .trim()
                     .equals(bot.getAsMention()
@@ -53,7 +55,7 @@ public class RpgUseCase implements BotUseCase {
                             }
                         });
             }
-            final List<String> messages = handleMessageHistory(eventData);
+            final List<String> messages = handleHistory(eventData);
             moderationService.moderate(messages, eventData)
                     .subscribe(inputModeration -> model.generate(messages, eventData)
                             .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
@@ -73,7 +75,7 @@ public class RpgUseCase implements BotUseCase {
      * @param eventData Object containing the event's important data to be processed
      * @return The list of messages for history
      */
-    private List<String> handleMessageHistory(final EventData eventData) {
+    private List<String> handleHistory(final EventData eventData) {
 
         LOGGER.debug("Entered message history handling for RPG");
         final List<String> formattedReplies = getFormattedReplies(eventData);
@@ -85,6 +87,7 @@ public class RpgUseCase implements BotUseCase {
                         m.getContentDisplay()
                                 .trim()))
                 .collect(Collectors.toList());
+
         Collections.reverse(messages);
         messages.addAll(formattedReplies);
         return messages;
@@ -108,12 +111,14 @@ public class RpgUseCase implements BotUseCase {
         } else {
             String formattedReference = MessageFormat.format("{0} said earlier: {1}", reply.getAuthor()
                     .getName(), reply.getContentDisplay());
+
             String formattedReply = MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
                     message.getAuthor()
                             .getName(),
                     reply.getAuthor()
                             .getName(),
                     message.getContentDisplay());
+
             return Arrays.asList(formattedReference, formattedReply);
         }
     }
@@ -123,11 +128,13 @@ public class RpgUseCase implements BotUseCase {
         final MessageChannelUnion channel = eventData.getCurrentChannel();
         final Message repliedMessage = eventData.getMessage()
                 .getReferencedMessage();
+
         final int historySize = eventData.getChannelDefinitions()
                 .getChannelConfig()
                 .getSettings()
                 .getModelSettings()
                 .getChatHistoryMemory();
+
         if (null == repliedMessage) {
             return channel.getHistory()
                     .retrievePast(historySize)
