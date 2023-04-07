@@ -15,8 +15,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookRepository;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntityToDTO;
+import es.thalesalv.chatrpg.application.service.LorebookService;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +28,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 public class LorebookListHandler {
 
     private final ObjectWriter prettyPrintObjectMapper;
-    private final LorebookEntityToDTO lorebookEntityToDTO;
-
-    private final LorebookRepository lorebookRepository;
+    private final LorebookService lorebookService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookListHandler.class);
 
@@ -72,9 +69,8 @@ public class LorebookListHandler {
 
     private void retrieveAllLorebooks(final SlashCommandInteractionEvent event) throws IOException {
 
-        List<Lorebook> lorebooks = lorebookRepository.findAll()
+        List<Lorebook> lorebooks = lorebookService.retrieveAllLorebooks()
                 .stream()
-                .map(lorebookEntityToDTO)
                 .filter(l -> filterAllowedLorebooks(l, event))
                 .map(l -> {
                     final String ownerName = event.getJDA()

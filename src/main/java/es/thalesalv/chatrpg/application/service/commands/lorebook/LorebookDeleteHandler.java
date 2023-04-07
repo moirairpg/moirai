@@ -8,16 +8,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
+import es.thalesalv.chatrpg.application.service.LorebookService;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
+import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -34,11 +33,11 @@ public class LorebookDeleteHandler {
 
     private final ContextDatastore contextDatastore;
     private final ChannelEntityToDTO channelEntityToDTO;
-    private final LorebookEntryRepository lorebookEntryRepository;
     private final ChannelRepository channelRepository;
-    private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
-    private static final String MODAL_ID = "lb-delete";
+    private final LorebookService lorebookService;
+
     private static final int DELETE_EPHEMERAL_TIMER = 20;
+    private static final String MODAL_ID = "lb-delete";
     private static final String CHANNEL_CONFIG_NOT_FOUND = "The requested channel configuration could not be found";
     private static final String LORE_ENTRY_DELETED = "Lore entry deleted.";
     private static final String QUERIED_ENTRY_NOT_FOUND = "The entry queried does not exist.";
@@ -65,13 +64,9 @@ public class LorebookDeleteHandler {
                                 .getWorld();
 
                         checkPermissions(world, event);
-                        lorebookEntryRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
-                                .id(entryId)
-                                .build())
-                                .orElseThrow(LorebookEntryNotFoundException::new);
-
+                        final LorebookEntry entry = lorebookService.retrieveLorebookEntryById(entryId);
                         contextDatastore.setEventData(EventData.builder()
-                                .lorebookEntryId(entryId)
+                                .lorebookEntry(entry)
                                 .build());
 
                         final Modal modal = buildEntryDeletionModal();
@@ -113,15 +108,10 @@ public class LorebookDeleteHandler {
                 .isPresent();
 
         if (isUserSure) {
-            final String id = contextDatastore.getEventData()
-                    .getLorebookEntryId();
+            final LorebookEntry entry = contextDatastore.getEventData()
+                    .getLorebookEntry();
 
-            final LorebookEntryEntity lorebookEntry = LorebookEntryEntity.builder()
-                    .id(id)
-                    .build();
-
-            lorebookEntryRegexRepository.deleteByLorebookEntry(lorebookEntry);
-            lorebookEntryRepository.delete(lorebookEntry);
+            lorebookService.deleteLorebookEntry(entry.getId());
             event.reply(LORE_ENTRY_DELETED)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()

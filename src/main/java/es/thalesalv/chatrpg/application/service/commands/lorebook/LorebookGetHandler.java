@@ -30,6 +30,7 @@ public class LorebookGetHandler {
     private final ObjectWriter prettyPrintObjectMapper;
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ChannelRepository channelRepository;
+
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
     private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
@@ -56,7 +57,6 @@ public class LorebookGetHandler {
                                     .getWorld();
 
                             checkPermissions(world, event);
-
                             if (entryId != null) {
                                 retrieveLoreEntryById(entryId.getAsString(), world, event);
                                 return channel;

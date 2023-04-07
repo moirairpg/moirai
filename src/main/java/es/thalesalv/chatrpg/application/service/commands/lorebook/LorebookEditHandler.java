@@ -13,15 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
-import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
-import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
+import es.thalesalv.chatrpg.application.service.LorebookService;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
@@ -47,14 +41,11 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 public class LorebookEditHandler {
 
     private final ChannelEntityToDTO channelEntityToDTO;
-    private final LorebookDTOToEntity lorebookDTOToEntity;
-    private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
     private final ContextDatastore contextDatastore;
     private final ObjectWriter prettyPrintObjectMapper;
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
-    private final LorebookEntryRepository lorebookRepository;
-    private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
+    private final LorebookService lorebookService;
 
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String ID_OPTION = "id";
@@ -89,8 +80,9 @@ public class LorebookEditHandler {
                                 .getWorld();
 
                         checkPermissions(world, event);
-                        saveEventDataToContext(entryId, channel, event.getChannel());
-                        final LorebookEntryRegexEntity entry = buildEntity(entryId);
+                        final LorebookEntry entry = lorebookService.retrieveLorebookEntryById(entryId);
+
+                        saveEventDataToContext(entry, channel, event.getChannel());
                         final Modal modalEntry = buildEntryUpdateModal(entry);
                         event.replyModal(modalEntry)
                                 .queue();
@@ -129,31 +121,11 @@ public class LorebookEditHandler {
                     .getChannelConfig()
                     .getWorld();
 
-            final String entryId = contextDatastore.getEventData()
-                    .getLorebookEntryId();
-
-            final String updatedEntryName = event.getValue(FIELD_NAME)
-                    .getAsString();
-
-            final String updatedEntryRegex = event.getValue(FIELD_REGEX)
-                    .getAsString();
-
-            final String updatedEntryDescription = event.getValue(FIELD_DESCRIPTION)
-                    .getAsString();
-
-            final String playerId = retrieveDiscordPlayerId(event.getValue(FIELD_PLAYER), event.getUser()
-                    .getId());
-
-            final LorebookEntryRegexEntity updatedEntry = updateEntry(updatedEntryDescription, entryId,
-                    updatedEntryName, playerId, updatedEntryRegex, world);
-
-            final LorebookEntry entry = lorebookEntryEntityToDTO.apply(updatedEntry);
-            final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(entry);
-
+            final LorebookEntry updatedEntry = updateEntry(world, eventData, event);
+            final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(updatedEntry);
             moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event)
                     .subscribe(response -> event
-                            .reply(MessageFormat.format(ENTRY_UPDATED, updatedEntry.getLorebookEntry()
-                                    .getName(), loreEntryJson))
+                            .reply(MessageFormat.format(ENTRY_UPDATED, updatedEntry.getName(), loreEntryJson))
                             .setEphemeral(true)
                             .queue(m -> m.deleteOriginal()
                                     .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS)));
@@ -166,35 +138,6 @@ public class LorebookEditHandler {
         }
     }
 
-    private LorebookEntryRegexEntity updateEntry(final String description, final String entryId, final String name,
-            final String playerId, final String entryRegex, final World world) {
-
-        final LorebookEntryEntity lorebookEntry = LorebookEntryEntity.builder()
-                .description(description)
-                .id(entryId)
-                .name(name)
-                .playerDiscordId(playerId)
-                .build();
-
-        final LorebookEntity lorebook = lorebookDTOToEntity.apply(world.getLorebook());
-        return lorebookEntryRegexRepository.findByLorebookEntry(lorebookEntry)
-                .map(re -> {
-                    final LorebookEntryRegexEntity lorebookRegex = LorebookEntryRegexEntity.builder()
-                            .id(re.getId())
-                            .regex(Optional.ofNullable(entryRegex)
-                                    .filter(StringUtils::isNotBlank)
-                                    .orElse(name))
-                            .lorebookEntry(lorebookEntry)
-                            .lorebook(lorebook)
-                            .build();
-
-                    lorebookRepository.save(lorebookEntry);
-                    lorebookEntryRegexRepository.save(lorebookRegex);
-                    return lorebookRegex;
-                })
-                .orElseThrow(LorebookEntryNotFoundException::new);
-    }
-
     private String retrieveDiscordPlayerId(final ModalMapping modalMapping, final String id) {
 
         return Optional.of(modalMapping.getAsString())
@@ -203,19 +146,17 @@ public class LorebookEditHandler {
                 .orElse(null);
     }
 
-    private Modal buildEntryUpdateModal(final LorebookEntryRegexEntity lorebookRegex) {
+    private Modal buildEntryUpdateModal(final LorebookEntry lorebookEntry) {
 
         LOGGER.debug("Building entry update modal");
         final TextInput lorebookEntryName = TextInput.create(FIELD_NAME, "Name", TextInputStyle.SHORT)
-                .setValue(lorebookRegex.getLorebookEntry()
-                        .getName())
+                .setValue(lorebookEntry.getName())
                 .setRequired(true)
                 .build();
 
-        final String regex = Optional.ofNullable(lorebookRegex.getRegex())
+        final String regex = Optional.ofNullable(lorebookEntry.getRegex())
                 .filter(StringUtils::isNotBlank)
-                .orElse(lorebookRegex.getLorebookEntry()
-                        .getName());
+                .orElse(lorebookEntry.getName());
 
         final TextInput lorebookEntryRegex = TextInput
                 .create(FIELD_REGEX, "Regular expression (optional)", TextInputStyle.SHORT)
@@ -225,13 +166,11 @@ public class LorebookEditHandler {
 
         final TextInput lorebookEntryDescription = TextInput
                 .create(FIELD_DESCRIPTION, "Description", TextInputStyle.PARAGRAPH)
-                .setValue(lorebookRegex.getLorebookEntry()
-                        .getDescription())
+                .setValue(lorebookEntry.getDescription())
                 .setRequired(true)
                 .build();
 
-        String isPlayerCharacter = StringUtils.isBlank(lorebookRegex.getLorebookEntry()
-                .getPlayerDiscordId()) ? "n" : "y";
+        String isPlayerCharacter = StringUtils.isBlank(lorebookEntry.getPlayerDiscordId()) ? "n" : "y";
 
         final TextInput lorebookEntryPlayer = TextInput
                 .create(FIELD_PLAYER, "Is this a player character?", TextInputStyle.SHORT)
@@ -246,22 +185,14 @@ public class LorebookEditHandler {
                 .build();
     }
 
-    private void saveEventDataToContext(final String entryId, final Channel channelDefinitions,
+    private void saveEventDataToContext(final LorebookEntry entry, final Channel channelDefinitions,
             final MessageChannelUnion channel) {
 
         contextDatastore.setEventData(EventData.builder()
-                .lorebookEntryId(entryId)
+                .lorebookEntry(entry)
                 .currentChannel(channel)
                 .channelDefinitions(channelDefinitions)
                 .build());
-    }
-
-    private LorebookEntryRegexEntity buildEntity(final String entryId) {
-
-        return lorebookEntryRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
-                .id(entryId)
-                .build())
-                .orElseThrow(LorebookEntryNotFoundException::new);
     }
 
     private void checkPermissions(World world, SlashCommandInteractionEvent event) {
@@ -286,5 +217,33 @@ public class LorebookEditHandler {
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
+    }
+
+    private LorebookEntry updateEntry(final World world, final EventData eventData, final ModalInteractionEvent event) {
+
+        final LorebookEntry oldEntry = eventData.getLorebookEntry();
+        final String updatedEntryName = Optional.ofNullable(event.getValue(FIELD_NAME))
+                .map(ModalMapping::getAsString)
+                .orElse(oldEntry.getName());
+
+        final String updatedEntryRegex = Optional.ofNullable(event.getValue(FIELD_REGEX))
+                .map(ModalMapping::getAsString)
+                .orElse(oldEntry.getRegex());
+
+        final String updatedEntryDescription = Optional.ofNullable(event.getValue(FIELD_DESCRIPTION))
+                .map(ModalMapping::getAsString)
+                .orElse(oldEntry.getDescription());
+
+        final String playerId = Optional
+                .ofNullable(retrieveDiscordPlayerId(event.getValue(FIELD_PLAYER), event.getUser()
+                        .getId()))
+                .orElse(oldEntry.getPlayerDiscordId());
+
+        return lorebookService.updateLorebookEntry(oldEntry.getId(), LorebookEntry.builder()
+                .name(updatedEntryName)
+                .description(updatedEntryDescription)
+                .regex(updatedEntryRegex)
+                .playerDiscordId(playerId)
+                .build());
     }
 }
