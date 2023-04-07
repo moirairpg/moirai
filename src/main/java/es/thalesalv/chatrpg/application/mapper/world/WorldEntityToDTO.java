@@ -53,8 +53,9 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
                                 .orElse(StringUtils.EMPTY))
                         .description(worldEntity.getLorebook()
                                 .getDescription())
-                        .visibility(worldEntity.getLorebook()
+                        .visibility(Optional.ofNullable(worldEntity.getLorebook()
                                 .getVisibility())
+                                .orElse("private"))
                         .entries(entries)
                         .build())
                 .build();

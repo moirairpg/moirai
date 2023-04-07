@@ -36,7 +36,8 @@ public class LorebookEntityToDTO implements Function<LorebookEntity, Lorebook> {
                 .readPermissions(Optional.ofNullable(lorebookEntity.getReadPermissions())
                         .orElse(StringUtils.EMPTY))
                 .owner(lorebookEntity.getOwner())
-                .visibility(lorebookEntity.getVisibility())
+                .visibility(Optional.ofNullable(lorebookEntity.getVisibility())
+                        .orElse("private"))
                 .entries(entries)
                 .build();
     }

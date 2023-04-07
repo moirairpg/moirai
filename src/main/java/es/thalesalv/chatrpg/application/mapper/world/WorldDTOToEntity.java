@@ -52,7 +52,8 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
                         .readPermissions(Optional.ofNullable(lorebook.getReadPermissions())
                                 .orElse(StringUtils.EMPTY))
                         .description(lorebook.getDescription())
-                        .visibility(lorebook.getVisibility())
+                        .visibility(Optional.ofNullable(lorebook.getVisibility())
+                                .orElse("private"))
                         .entries(entries)
                         .build())
                 .build();
