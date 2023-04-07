@@ -1,7 +1,6 @@
 package es.thalesalv.chatrpg.application.config;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,41 +46,38 @@ public class DefaultConfiguration {
     public void init() throws StreamReadException, DatabindException, IOException {
 
         LOGGER.debug("Initiating default values ingestion process");
-        Optional.ofNullable(channelConfigService.retrieveChannelConfigById(DEFAULT_ID))
-                .orElseGet(() -> {
-                    final String botId = jda.getSelfUser()
-                            .getId();
+        final String botId = jda.getSelfUser()
+                .getId();
 
-                    final Persona persona = Persona.defaultPersona();
-                    final World world = World.defaultWorld();
-                    final ModerationSettings moderationSettings = ModerationSettings.defaultModerationSettings();
-                    final ModelSettings modelSettings = ModelSettings.defaultModelSettings();
-                    final Settings settings = Settings.builder()
-                            .modelSettings(modelSettings)
-                            .moderationSettings(moderationSettings)
-                            .build();
+        final Persona persona = Persona.defaultPersona();
+        final World world = World.defaultWorld();
+        final ModerationSettings moderationSettings = ModerationSettings.defaultModerationSettings();
+        final ModelSettings modelSettings = ModelSettings.defaultModelSettings();
+        final Settings settings = Settings.builder()
+                .modelSettings(modelSettings)
+                .moderationSettings(moderationSettings)
+                .build();
 
-                    persona.setOwner(botId);
-                    world.setOwner(botId);
-                    world.getLorebook()
-                            .setOwner(botId);
-                    moderationSettings.setOwner(botId);
-                    modelSettings.setOwner(botId);
+        persona.setOwner(botId);
+        world.setOwner(botId);
+        world.getLorebook()
+                .setOwner(botId);
+        moderationSettings.setOwner(botId);
+        modelSettings.setOwner(botId);
 
-                    final ChannelConfig channelConfig = ChannelConfig.builder()
-                            .id(DEFAULT_ID)
-                            .owner(botId)
-                            .persona(persona)
-                            .world(world)
-                            .settings(settings)
-                            .build();
+        final ChannelConfig channelConfig = ChannelConfig.builder()
+                .id(DEFAULT_ID)
+                .owner(botId)
+                .persona(persona)
+                .world(world)
+                .settings(settings)
+                .build();
 
-                    personaService.savePersona(persona);
-                    lorebookService.saveLorebook(world.getLorebook());
-                    worldService.saveWorld(world);
-                    moderationSettingsService.saveModerationSettings(moderationSettings);
-                    modelSettingsService.saveModelSettings(modelSettings);
-                    return channelConfigService.saveChannelConfig(channelConfig);
-                });
+        personaService.savePersona(persona);
+        lorebookService.saveLorebook(world.getLorebook());
+        worldService.saveWorld(world);
+        moderationSettingsService.saveModerationSettings(moderationSettings);
+        modelSettingsService.saveModelSettings(modelSettings);
+        channelConfigService.saveChannelConfig(channelConfig);
     }
 }
