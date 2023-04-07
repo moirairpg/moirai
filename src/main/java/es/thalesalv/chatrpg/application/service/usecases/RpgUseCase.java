@@ -10,11 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
+import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.EventData;
-import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
@@ -76,15 +75,8 @@ public class RpgUseCase implements BotUseCase {
     private List<String> handleMessageHistory(final EventData eventData) {
 
         LOGGER.debug("Entered message history handling for RPG");
-        final ModelSettings modelSettings = eventData.getChannelDefinitions()
-                .getChannelConfig()
-                .getSettings()
-                .getModelSettings();
-        final MessageChannelUnion channel = eventData.getCurrentChannel();
         final Predicate<Message> skipFilter = skipFilter(eventData);
-        List<String> messages = channel.getHistory()
-                .retrievePast(modelSettings.getChatHistoryMemory())
-                .complete()
+        List<String> messages = getHistory(eventData)
                 .stream()
                 .filter(skipFilter)
                 .map(m -> MessageFormat.format("{0} said: {1}", m.getAuthor()
@@ -103,5 +95,26 @@ public class RpgUseCase implements BotUseCase {
                 .trim()
                 .equals(bot.getAsMention()
                         .trim());
+    }
+
+    private List<Message> getHistory(final EventData eventData) {
+
+        final MessageChannelUnion channel = eventData.getCurrentChannel();
+        final Message repliedMessage = eventData.getMessage()
+                .getReferencedMessage();
+        final int historySize = eventData.getChannelDefinitions()
+                .getChannelConfig()
+                .getSettings()
+                .getModelSettings()
+                .getChatHistoryMemory();
+        if (null == repliedMessage) {
+            return channel.getHistory()
+                    .retrievePast(historySize)
+                    .complete();
+        } else {
+            return channel.getHistoryBefore(repliedMessage, historySize)
+                    .complete()
+                    .getRetrievedHistory();
+        }
     }
 }
