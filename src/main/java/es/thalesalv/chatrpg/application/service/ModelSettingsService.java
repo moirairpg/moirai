@@ -33,7 +33,8 @@ public class ModelSettingsService {
         LOGGER.debug("Retrieving moderation settings data from request");
         return moderationSettingsRepository.findAll()
                 .stream()
-                .filter(l -> !l.getId().equals(DEFAULT_ID))
+                .filter(l -> !l.getId()
+                        .equals(DEFAULT_ID))
                 .map(moderationSettingsEntityToDTO)
                 .toList();
     }

@@ -31,7 +31,8 @@ public class WorldService {
         LOGGER.debug("Retrieving world data from request");
         return worldRepository.findAll()
                 .stream()
-                .filter(l -> !l.getId().equals(DEFAULT_ID))
+                .filter(l -> !l.getId()
+                        .equals(DEFAULT_ID))
                 .map(worldEntityToDTO)
                 .toList();
     }

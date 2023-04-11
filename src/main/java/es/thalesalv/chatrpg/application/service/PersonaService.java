@@ -33,7 +33,8 @@ public class PersonaService {
         LOGGER.debug("Retrieving persona data from request");
         return personaRepository.findAll()
                 .stream()
-                .filter(l -> !l.getId().equals(DEFAULT_ID))
+                .filter(l -> !l.getId()
+                        .equals(DEFAULT_ID))
                 .map(personaEntityToDTO)
                 .toList();
     }
