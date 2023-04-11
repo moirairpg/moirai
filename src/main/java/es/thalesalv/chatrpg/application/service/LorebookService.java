@@ -49,7 +49,8 @@ public class LorebookService {
         LOGGER.debug("Retrieving lorebook data from request");
         return lorebookRepository.findAll()
                 .stream()
-                .filter(l -> !l.getId().equals(DEFAULT_ID))
+                .filter(l -> !l.getId()
+                        .equals(DEFAULT_ID))
                 .map(lorebookEntityToDTO)
                 .toList();
     }
@@ -126,7 +127,8 @@ public class LorebookService {
         LOGGER.debug("Retrieving lorebookEntry data from request");
         return lorebookEntryRegexRepository.findAll()
                 .stream()
-                .filter(l -> !l.getId().equals(DEFAULT_ID))
+                .filter(l -> !l.getId()
+                        .equals(DEFAULT_ID))
                 .map(lorebookEntryEntityToDTO)
                 .toList();
     }
