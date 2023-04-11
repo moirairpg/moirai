@@ -34,7 +34,7 @@ public class ChannelConfigGetHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigGetHandler.class);
 
-    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration attached to it.";
     private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
     private static final String ERROR_RETRIEVE = "An error occurred while retrieving config data";
@@ -65,7 +65,7 @@ public class ChannelConfigGetHandler {
                                     event.reply(ERROR_RETRIEVE)
                                             .setEphemeral(true)
                                             .queue(m -> m.deleteOriginal()
-                                                    .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                                                    .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
                                 }
 
                                 return config;
@@ -77,19 +77,19 @@ public class ChannelConfigGetHandler {
             event.reply(QUERIED_CONFIG_NOT_FOUND)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.info(CHANNEL_CONFIG_NOT_FOUND);
             event.reply(CHANNEL_NO_CONFIG_ATTACHED)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_RETRIEVE, e);
             event.reply(USER_ERROR_RETRIEVE)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 

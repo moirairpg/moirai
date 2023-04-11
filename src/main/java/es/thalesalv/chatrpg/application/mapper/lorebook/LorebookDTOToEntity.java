@@ -10,6 +10,8 @@ import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import lombok.RequiredArgsConstructor;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,9 +33,13 @@ public class LorebookDTOToEntity implements Function<Lorebook, LorebookEntity> {
                 .id(lorebook.getId())
                 .description(lorebook.getDescription())
                 .name(lorebook.getName())
-                .editPermissions(lorebook.getEditPermissions())
+                .writePermissions(Optional.ofNullable(lorebook.getWritePermissions())
+                        .orElse(StringUtils.EMPTY))
+                .readPermissions(Optional.ofNullable(lorebook.getReadPermissions())
+                        .orElse(StringUtils.EMPTY))
                 .owner(lorebook.getOwner())
-                .visibility(lorebook.getVisibility())
+                .visibility(Optional.ofNullable(lorebook.getVisibility())
+                        .orElse("private"))
                 .entries(entries)
                 .build();
     }
