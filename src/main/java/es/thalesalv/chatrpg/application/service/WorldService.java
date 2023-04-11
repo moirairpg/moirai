@@ -22,6 +22,7 @@ public class WorldService {
     private final WorldEntityToDTO worldEntityToDTO;
     private final WorldRepository worldRepository;
 
+    private static final String DEFAULT_ID = "0";
     private static final String WORLD_ID_NOT_FOUND = "world with id WORLD_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldService.class);
 
@@ -30,6 +31,7 @@ public class WorldService {
         LOGGER.debug("Retrieving world data from request");
         return worldRepository.findAll()
                 .stream()
+                .filter(l -> !l.getId().equals(DEFAULT_ID))
                 .map(worldEntityToDTO)
                 .toList();
     }
