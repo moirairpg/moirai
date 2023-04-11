@@ -30,7 +30,7 @@ public class WorldGetHandler {
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ChannelRepository channelRepository;
 
-    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String NO_CONFIG_OR_WORLD_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
     private static final String ERROR_RETRIEVE = "An error occurred while retrieving world data";
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
@@ -61,7 +61,7 @@ public class WorldGetHandler {
                                     event.reply(ERROR_RETRIEVE)
                                             .setEphemeral(true)
                                             .queue(m -> m.deleteOriginal()
-                                                    .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                                                    .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
                                 }
 
                                 return world;
@@ -73,13 +73,13 @@ public class WorldGetHandler {
             event.reply(NO_CONFIG_OR_WORLD_ATTACHED)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_RETRIEVE, e);
             event.reply(USER_ERROR_RETRIEVE)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 

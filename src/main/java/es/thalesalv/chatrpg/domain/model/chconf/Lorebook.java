@@ -19,7 +19,8 @@ public class Lorebook {
     private String name;
     private String description;
     private String owner;
-    private String editPermissions;
+    private String writePermissions;
+    private String readPermissions;
     private String visibility;
     private Set<LorebookEntry> entries;
 
@@ -27,6 +28,8 @@ public class Lorebook {
 
         return Lorebook.builder()
                 .id("0")
+                .name("DEFAULT LOREBOOK")
+                .visibility("private")
                 .entries(Collections.emptySet())
                 .build();
     }

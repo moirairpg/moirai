@@ -39,8 +39,11 @@ public class LorebookEntity {
     @Column(name = "owner_discord_id")
     private String owner;
 
-    @Column(name = "edit_permission_discord_ids")
-    private String editPermissions;
+    @Column(name = "write_permission_discord_ids")
+    private String writePermissions;
+
+    @Column(name = "read_permission_discord_ids")
+    private String readPermissions;
 
     @Column(name = "visibility")
     private String visibility;
