@@ -23,14 +23,12 @@ import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.JDA;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class LorebookService {
 
-    private final JDA jda;
     private final LorebookDTOToEntity lorebookDTOToEntity;
     private final LorebookEntityToDTO lorebookEntityToDTO;
     private final LorebookEntryDTOToEntity lorebookEntryDTOToEntity;
@@ -68,15 +66,9 @@ public class LorebookService {
         LOGGER.debug("Saving lorebook data from request");
         return Optional.of(lorebookDTOToEntity.apply(lorebook))
                 .map(l -> {
-                    l.setOwner(Optional.ofNullable(l.getOwner())
-                            .orElse(jda.getSelfUser()
-                                    .getId()));
-
-                    return l;
-                })
-                .map(l -> {
                     l.getEntries()
                             .forEach(e -> {
+                                e.setLorebook(l);
                                 lorebookEntryRepository.save(e.getLorebookEntry());
                                 lorebookEntryRegexRepository.save(e);
                             });
@@ -93,10 +85,6 @@ public class LorebookService {
         LOGGER.debug("Updating lorebook data from request. lorebookId -> {}", lorebookId);
         return Optional.of(lorebookDTOToEntity.apply(lorebook))
                 .map(c -> {
-                    c.setOwner(Optional.ofNullable(c.getOwner())
-                            .orElse(jda.getSelfUser()
-                                    .getId()));
-
                     c.setId(lorebookId);
                     return lorebookRepository.save(c);
                 })
@@ -175,9 +163,10 @@ public class LorebookService {
         return Optional.of(lorebookEntryDTOToEntity.apply(lorebookEntry))
                 .map(c -> lorebookEntryRegexRepository.findByLorebookEntry(c.getLorebookEntry())
                         .map(regexEntry -> {
-                            regexEntry.setRegex(c.getRegex());
-                            lorebookEntryRepository.save(regexEntry.getLorebookEntry());
-                            return lorebookEntryRegexRepository.save(regexEntry);
+                            c.setId(regexEntry.getId());
+                            c.setLorebook(regexEntry.getLorebook());
+                            lorebookEntryRepository.save(c.getLorebookEntry());
+                            return lorebookEntryRegexRepository.save(c);
                         })
                         .orElseThrow(LorebookEntryNotFoundException::new))
                 .map(lorebookEntryEntityToDTO)
