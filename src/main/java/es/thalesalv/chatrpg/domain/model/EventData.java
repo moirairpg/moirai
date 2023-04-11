@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.domain.model;
 
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
+import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,10 +24,9 @@ public class EventData {
     private Message message;
     private User messageAuthor;
     private SelfUser discordUser;
-    private String lorebookEntryId;
+    private LorebookEntry lorebookEntry;
     private Message responseMessage;
     private Message messageToBeEdited;
-    private String lorebookEntryRegexId;
     private Channel channelDefinitions;
     private MessageChannelUnion currentChannel;
 }
