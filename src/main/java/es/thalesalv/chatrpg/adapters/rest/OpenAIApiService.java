@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.domain.exception.ErrorBotResponseException;
-import es.thalesalv.chatrpg.domain.exception.ModerationException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
 import es.thalesalv.chatrpg.domain.model.openai.completion.CompletionResponse;
@@ -91,10 +90,7 @@ public class OpenAIApiService {
                     return response;
                 })
                 .doOnError(ErrorBotResponseException.class::isInstance,
-                        e -> commonErrorHandler.handleResponseError(eventData))
-                .retryWhen(Retry.fixedDelay(moderationAttempts, Duration.ofSeconds(moderationDelay))
-                        .filter(ModerationException.class::isInstance))
-                .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
+                        e -> commonErrorHandler.handleResponseError(eventData));
     }
 
     public Mono<CompletionResponse> callGptApi(final TextCompletionRequest request, final EventData eventData) {
@@ -121,10 +117,7 @@ public class OpenAIApiService {
                     return response;
                 })
                 .doOnError(ErrorBotResponseException.class::isInstance,
-                        e -> commonErrorHandler.handleResponseError(eventData))
-                .retryWhen(Retry.fixedDelay(moderationAttempts, Duration.ofSeconds(moderationDelay))
-                        .filter(ModerationException.class::isInstance))
-                .retryWhen(Retry.fixedDelay(errorAttemps, Duration.ofSeconds(errorDelay)));
+                        e -> commonErrorHandler.handleResponseError(eventData));
     }
 
     public Mono<ModerationResponse> callModerationApi(final ModerationRequest request) {
