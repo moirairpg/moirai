@@ -2,17 +2,12 @@ package es.thalesalv.chatrpg.adapters.rest.controller;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.application.service.WorldService;
-import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
-import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
-import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
-import es.thalesalv.chatrpg.domain.model.chconf.World;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,8 +16,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import es.thalesalv.chatrpg.application.service.WorldService;
+import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
+import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
+import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
+import es.thalesalv.chatrpg.domain.model.chconf.World;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/world")
