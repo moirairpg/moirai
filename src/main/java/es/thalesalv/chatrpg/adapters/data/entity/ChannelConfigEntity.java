@@ -35,18 +35,18 @@ public class ChannelConfigEntity {
     private String editPermissions;
 
     @OneToOne
-    @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false, unique = false)
     private PersonaEntity persona;
 
     @OneToOne
-    @JoinColumn(name = "model_settings_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "model_settings_id", referencedColumnName = "id", nullable = false, unique = false)
     private ModelSettingsEntity modelSettings;
 
     @OneToOne
-    @JoinColumn(name = "moderation_settings_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "moderation_settings_id", referencedColumnName = "id", nullable = false, unique = false)
     private ModerationSettingsEntity moderationSettings;
 
     @OneToOne
-    @JoinColumn(name = "world_id", referencedColumnName = "id")
+    @JoinColumn(name = "world_id", referencedColumnName = "id", unique = false)
     private WorldEntity world;
 }
