@@ -24,6 +24,7 @@ public class PersonaService {
     private final PersonaEntityToDTO personaEntityToDTO;
     private final PersonaRepository personaRepository;
 
+    private static final String DEFAULT_ID = "0";
     private static final String PERSONA_ID_NOT_FOUND = "persona with id PERSONA_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonaService.class);
 
@@ -32,6 +33,7 @@ public class PersonaService {
         LOGGER.debug("Retrieving persona data from request");
         return personaRepository.findAll()
                 .stream()
+                .filter(l -> !l.getId().equals(DEFAULT_ID))
                 .map(personaEntityToDTO)
                 .toList();
     }

@@ -39,6 +39,7 @@ public class LorebookService {
     private final LorebookEntryRepository lorebookEntryRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
 
+    private static final String DEFAULT_ID = "0";
     private static final String LOREBOOK_ID_NOT_FOUND = "lorebook with id LOREBOOK_ID could not be found in database.";
     private static final String LOREBOOK_ENTRY_ID_NOT_FOUND = "lorebook entry with id LOREBOOK_ENTRY_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookService.class);
@@ -48,6 +49,7 @@ public class LorebookService {
         LOGGER.debug("Retrieving lorebook data from request");
         return lorebookRepository.findAll()
                 .stream()
+                .filter(l -> !l.getId().equals(DEFAULT_ID))
                 .map(lorebookEntityToDTO)
                 .toList();
     }
@@ -124,6 +126,7 @@ public class LorebookService {
         LOGGER.debug("Retrieving lorebookEntry data from request");
         return lorebookEntryRegexRepository.findAll()
                 .stream()
+                .filter(l -> !l.getId().equals(DEFAULT_ID))
                 .map(lorebookEntryEntityToDTO)
                 .toList();
     }

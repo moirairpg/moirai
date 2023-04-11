@@ -22,9 +22,9 @@ public class ModerationSettingsService {
     private final JDA jda;
     private final ModerationSettingsDTOToEntity moderationSettingsDTOToEntity;
     private final ModerationSettingsEntityToDTO moderationSettingsEntityToDTO;
-
     private final ModerationSettingsRepository moderationSettingsRepository;
 
+    private static final String DEFAULT_ID = "0";
     private static final String SETTING_ID_NOT_FOUND = "moderation setting with id SETTING_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(ModerationSettingsService.class);
 
@@ -33,6 +33,7 @@ public class ModerationSettingsService {
         LOGGER.debug("Retrieving moderation settings data from request");
         return moderationSettingsRepository.findAll()
                 .stream()
+                .filter(l -> !l.getId().equals(DEFAULT_ID))
                 .map(moderationSettingsEntityToDTO)
                 .toList();
     }
