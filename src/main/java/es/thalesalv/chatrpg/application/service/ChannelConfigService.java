@@ -66,7 +66,8 @@ public class ChannelConfigService {
         LOGGER.debug("Retrieving channel data from request");
         return channelRepository.findAll()
                 .stream()
-                .filter(l -> !l.getId().equals(DEFAULT_ID))
+                .filter(l -> !l.getId()
+                        .equals(DEFAULT_ID))
                 .map(channelEntityToDTO)
                 .toList();
     }
@@ -135,7 +136,8 @@ public class ChannelConfigService {
         LOGGER.debug("Retrieving all available channel configs");
         return channelConfigRepository.findAll()
                 .stream()
-                .filter(l -> !l.getId().equals(DEFAULT_ID))
+                .filter(l -> !l.getId()
+                        .equals(DEFAULT_ID))
                 .map(channelConfigEntityToDTO)
                 .toList();
     }
