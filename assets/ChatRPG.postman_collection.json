@@ -1,959 +1,959 @@
 {
-    "info": {
-        "_postman_id": "17b4014f-2b6b-4e0a-bea8-5e0c3452a35b",
-        "name": "ChatRPG",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-        "_exporter_id": "3769904"
-    },
-    "item": [
-        {
-            "name": "Channel Config",
-            "item": [
-                {
-                    "name": "Create",
-                    "request": {
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"owner\": \"5634645\",\r\n    \"world\": {\r\n        \"id\": \"0\"\r\n    },\r\n    \"persona\": {\r\n        \"id\": \"0\"\r\n    },\r\n    \"settings\": {\r\n        \"model_settings\": {\r\n            \"id\": \"0\"\r\n        },\r\n        \"moderation_settings\": {\r\n            \"id\": \"0\"\r\n        }\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/channel-config",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "channel-config"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update",
-                    "request": {
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"owner\": \"5634645\",\r\n    \"edit_permissions\": \"523452345\",\r\n    \"world\": {\r\n        \"id\": \"0\"\r\n    },\r\n    \"persona\": {\r\n        \"id\": \"0\"\r\n    },\r\n    \"settings\": {\r\n        \"model_settings\": {\r\n            \"id\": \"0\"\r\n        },\r\n        \"moderation_settings\": {\r\n            \"id\": \"0\"\r\n        }\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/channel-config/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "channel-config",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/channel-config/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "channel-config",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve by ID",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/channel-config/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "channel-config",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve all",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/channel-config",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "channel-config"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "Channel",
-            "item": [
-                {
-                    "name": "Create",
-                    "request": {
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"id\": \"1084218269986201731\",\r\n    \"channel_config\": {\r\n        \"id\": \"0\"\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/channel",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "channel"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update",
-                    "request": {
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"channel_config\": {\r\n        \"id\": \"0\"\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/channel/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "channel",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/channel/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "channel",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve by ID",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/channel/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "channel",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve all",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/channel",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "channel"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "Lorebook",
-            "item": [
-                {
-                    "name": "Create",
-                    "request": {
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"name\": \"Lorebook name\",\r\n    \"description\": \"Lorebook description\",\r\n    \"owner\": \"4235345\",\r\n    \"visibility\": \"private\"\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/lore/book",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "lore",
-                                "book"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update",
-                    "request": {
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"name\": \"Lorebook name\",\r\n    \"description\": \"Lorebook description\",\r\n    \"owner\": \"4235345\",\r\n    \"visibility\": \"private\"\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/lore/book/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "lore",
-                                "book",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/lore/book/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "lore",
-                                "book",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve by ID",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/lore/book/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "lore",
-                                "book",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve all",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/lore/book",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "lore",
-                                "book"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "Lorebook entry",
-            "item": [
-                {
-                    "name": "Create",
-                    "request": {
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"name\": \"Lorebook name\",\r\n    \"description\": \"Lorebook description\",\r\n    \"regex\": \".*\",\r\n    \"player_discord_id\": \"53245346\" // this one is optional, use only if it's a player character; otherwise, deleted it from here\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/lore/entry/5235345",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "lore",
-                                "entry",
-                                "5235345"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update",
-                    "request": {
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"name\": \"Lorebook name\",\r\n    \"description\": \"Lorebook description\",\r\n    \"regex\": \".*\",\r\n    \"player_discord_id\": \"53245346\" // this one is optional, use only if it's a player character; otherwise, deleted it from here\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/lore/entry/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "lore",
-                                "entry",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/lore/entry/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "lore",
-                                "entry",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve by ID",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/lore/entry/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "lore",
-                                "entry",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve all",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/lore/entry",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "lore",
-                                "entry"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "Model settings",
-            "item": [
-                {
-                    "name": "Create",
-                    "request": {
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"model_name\": \"chatgpt\",\r\n    \"owner\": \"543534\",\r\n    \"max_tokens\": 500,\r\n    \"chat_history_memory\": 10,\r\n    \"temperature\": 1.0,\r\n    \"frequency_penalty\": 1.2,\r\n    \"presence_penalty\": 1.2,\r\n    \"stop_sequence\": [\r\n        \"\\n\"\r\n    ],\r\n    \"logit_bias\": {\r\n        \"656565\": 150.0\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/settings/model",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "settings",
-                                "model"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update",
-                    "request": {
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"model_name\": \"chatgpt\",\r\n    \"owner\": \"543534\",\r\n    \"max_tokens\": 500,\r\n    \"chat_history_memory\": 10,\r\n    \"temperature\": 1.0,\r\n    \"frequency_penalty\": 1.2,\r\n    \"presence_penalty\": 1.2,\r\n    \"stop_sequence\": [\r\n        \"\\n\"\r\n    ],\r\n    \"logit_bias\": {\r\n        \"656565\": 150.0\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/settings/model/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "settings",
-                                "model",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/settings/model/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "settings",
-                                "model",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve by ID",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/settings/model/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "settings",
-                                "model",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve all",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/settings/model",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "settings",
-                                "model"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "Moderation settings",
-            "item": [
-                {
-                    "name": "Create",
-                    "request": {
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"owner\": \"5453453\",\r\n    \"absolute\": false, // set this to true if you want to trigger moderation for any subject and ignore thresholds\r\n    \"thresholds\": {\r\n        \"hate\": 0.5,\r\n        \"hate/threatening\": 0.5,\r\n        \"self-harm\": 0.5,\r\n        \"sexual\": 0.5,\r\n        \"sexual/minors\": 0.5,\r\n        \"violence\": 0.5,\r\n        \"violence/graphic\": 0.5\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/settings/moderation",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "settings",
-                                "moderation"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update",
-                    "request": {
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"owner\": \"5453453\",\r\n    \"absolute\": false, // set this to true if you want to trigger moderation for any subject and ignore thresholds\r\n    \"thresholds\": {\r\n        \"hate\": 0.5,\r\n        \"hate/threatening\": 0.5,\r\n        \"self-harm\": 0.5,\r\n        \"sexual\": 0.5,\r\n        \"sexual/minors\": 0.5,\r\n        \"violence\": 0.5,\r\n        \"violence/graphic\": 0.5\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/settings/moderation/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "settings",
-                                "moderation",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/settings/moderation/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "settings",
-                                "moderation",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve by ID",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/settings/moderation/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "settings",
-                                "moderation",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve all",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/settings/moderation",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "settings",
-                                "moderation"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "Persona",
-            "item": [
-                {
-                    "name": "Create",
-                    "request": {
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"name\": \"John the Bot\",\r\n    \"intent\": \"chat\", // chat or rpg\r\n    \"owner\": \"5345345\",\r\n    \"personality\": \"I {0} and I am a helpful chatbot and talk like a robot all the time.\",\r\n    \"nudge\": {\r\n        \"role\": \"system\", // system, assistant or user\r\n        \"content\": \"I will always stay in character and reply like a robot\"\r\n    },\r\n    \"bump\": {\r\n        \"role\": \"system\", // system, assistant or user\r\n        \"content\": \"I will always stay in character and reply like a robot\",\r\n        \"frequency\": 5\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/persona",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "persona"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update",
-                    "request": {
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"name\": \"John the Bot\",\r\n    \"intent\": \"chat\", // chat or rpg\r\n    \"owner\": \"5345345\",\r\n    \"personality\": \"I {0} and I am a helpful chatbot and talk like a robot all the time.\",\r\n    \"nudge\": {\r\n        \"role\": \"system\", // system, assistant or user\r\n        \"content\": \"I will always stay in character and reply like a robot\"\r\n    },\r\n    \"bump\": {\r\n        \"role\": \"system\", // system, assistant or user\r\n        \"content\": \"I will always stay in character and reply like a robot\",\r\n        \"frequency\": 5\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/persona/0",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "persona",
-                                "0"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/persona/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "persona",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve by ID",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/persona/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "persona",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve all",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/persona",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "persona"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "World",
-            "item": [
-                {
-                    "name": "Create",
-                    "request": {
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"name\": \"Eldrida\",\r\n    \"description\": \"Eldrida is a fantasy world\",\r\n    \"owner\": \"5435345\",\r\n    \"visibility\": \"private\",\r\n    \"initial_prompt\": \"You are a warrior in the world of Eldrida\",\r\n    \"lorebook\": {\r\n        \"id\": \"0\"\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/world",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "world"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update",
-                    "request": {
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"name\": \"Eldrida\",\r\n    \"description\": \"Eldrida is a fantasy world\",\r\n    \"owner\": \"5435345\",\r\n    \"visibility\": \"private\",\r\n    \"initial_prompt\": \"You are a warrior in the world of Eldrida\",\r\n    \"lorebook\": {\r\n        \"id\": \"0\"\r\n    }\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/world/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "world",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/world/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "world",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve by ID",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/world/1084218269986201731",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "world",
-                                "1084218269986201731"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Retrieve all",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{scheme}}://{{host}}/world",
-                            "protocol": "{{scheme}}",
-                            "host": [
-                                "{{host}}"
-                            ],
-                            "path": [
-                                "world"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        }
-    ]
+	"info": {
+		"_postman_id": "0ec1b4d3-6c5b-4a3d-a1f1-5ddb443d4172",
+		"name": "ChatRPG",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3769904"
+	},
+	"item": [
+		{
+			"name": "Channel Config",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"owner\": \"1083867535658725536\",\r\n    \"world\": {\r\n        \"id\": \"0\"\r\n    },\r\n    \"persona\": {\r\n        \"id\": \"0\"\r\n    },\r\n    \"settings\": {\r\n        \"model_settings\": {\r\n            \"id\": \"0\"\r\n        },\r\n        \"moderation_settings\": {\r\n            \"id\": \"0\"\r\n        }\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/channel-config",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"channel-config"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"owner\": \"1083867535658725536\",\r\n    \"edit_permissions\": \"523452345\",\r\n    \"world\": {\r\n        \"id\": \"0\"\r\n    },\r\n    \"persona\": {\r\n        \"id\": \"0\"\r\n    },\r\n    \"settings\": {\r\n        \"model_settings\": {\r\n            \"id\": \"0\"\r\n        },\r\n        \"moderation_settings\": {\r\n            \"id\": \"0\"\r\n        }\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/channel-config/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"channel-config",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/channel-config/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"channel-config",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/channel-config/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"channel-config",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/channel-config",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"channel-config"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Channel",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"1084218269986201731\",\r\n    \"channel_config\": {\r\n        \"id\": \"0\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/channel",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"channel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"channel_config\": {\r\n        \"id\": \"0\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/channel/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"channel",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/channel/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"channel",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/channel/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"channel",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/channel",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"channel"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lorebook",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Lorebook name\",\r\n    \"description\": \"Lorebook description\",\r\n    \"owner\": \"1083867535658725536\",\r\n    \"visibility\": \"private\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/lore/book",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lore",
+								"book"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Lorebook name\",\r\n    \"description\": \"Lorebook description\",\r\n    \"owner\": \"1083867535658725536\",\r\n    \"visibility\": \"private\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/lore/book/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lore",
+								"book",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/lore/book/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lore",
+								"book",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/lore/book/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lore",
+								"book",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/lore/book",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lore",
+								"book"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lorebook entry",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Lorebook name\",\r\n    \"description\": \"Lorebook description\",\r\n    \"regex\": \".*\",\r\n    \"player_discord_id\": \"53245346\" // this one is optional, use only if it's a player character; otherwise, deleted it from here\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/lore/entry/5235345",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lore",
+								"entry",
+								"5235345"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Lorebook name\",\r\n    \"description\": \"Lorebook description\",\r\n    \"regex\": \".*\",\r\n    \"player_discord_id\": \"53245346\" // this one is optional, use only if it's a player character; otherwise, deleted it from here\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/lore/entry/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lore",
+								"entry",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/lore/entry/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lore",
+								"entry",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/lore/entry/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lore",
+								"entry",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/lore/entry",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lore",
+								"entry"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Model settings",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"model_name\": \"chatgpt\",\r\n    \"owner\": \"1083867535658725536\",\r\n    \"max_tokens\": 500,\r\n    \"chat_history_memory\": 10,\r\n    \"temperature\": 1.0,\r\n    \"frequency_penalty\": 1.2,\r\n    \"presence_penalty\": 1.2,\r\n    \"stop_sequence\": [\r\n        \"\\n\"\r\n    ],\r\n    \"logit_bias\": {\r\n        \"20185\": -50, // AI\r\n        \"3303\": -50, // language\r\n        \"2746\": -50 // model\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/settings/model",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"settings",
+								"model"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"model_name\": \"chatgpt\",\r\n    \"owner\": \"1083867535658725536\",\r\n    \"max_tokens\": 500,\r\n    \"chat_history_memory\": 10,\r\n    \"temperature\": 1.0,\r\n    \"frequency_penalty\": 1.2,\r\n    \"presence_penalty\": 1.2,\r\n    \"stop_sequence\": [\r\n        \"\\n\"\r\n    ],\r\n    \"logit_bias\": {\r\n        \"656565\": 150.0\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/settings/model/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"settings",
+								"model",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/settings/model/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"settings",
+								"model",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/settings/model/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"settings",
+								"model",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/settings/model",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"settings",
+								"model"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Moderation settings",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"owner\": \"1083867535658725536\",\r\n    \"absolute\": false, // set this to true if you want to trigger moderation for any subject and ignore thresholds\r\n    \"thresholds\": {\r\n        \"hate\": 0.5,\r\n        \"hate/threatening\": 0.5,\r\n        \"self-harm\": 0.5,\r\n        \"sexual\": 0.5,\r\n        \"sexual/minors\": 0.5,\r\n        \"violence\": 0.5,\r\n        \"violence/graphic\": 0.5\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/settings/moderation",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"settings",
+								"moderation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"owner\": \"1083867535658725536\",\r\n    \"absolute\": false, // set this to true if you want to trigger moderation for any subject and ignore thresholds\r\n    \"thresholds\": {\r\n        \"hate\": 0.5,\r\n        \"hate/threatening\": 0.5,\r\n        \"self-harm\": 0.5,\r\n        \"sexual\": 0.5,\r\n        \"sexual/minors\": 0.5,\r\n        \"violence\": 0.5,\r\n        \"violence/graphic\": 0.5\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/settings/moderation/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"settings",
+								"moderation",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/settings/moderation/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"settings",
+								"moderation",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/settings/moderation/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"settings",
+								"moderation",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/settings/moderation",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"settings",
+								"moderation"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Persona",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"John the Bot\",\r\n    \"intent\": \"chat\", // chat or rpg\r\n    \"owner\": \"1083867535658725536\",\r\n    \"personality\": \"I {0} and I am a helpful chatbot and talk like a robot all the time.\",\r\n    \"nudge\": {\r\n        \"role\": \"system\", // system, assistant or user\r\n        \"content\": \"I will always stay in character and reply like a robot\"\r\n    },\r\n    \"bump\": {\r\n        \"role\": \"system\", // system, assistant or user\r\n        \"content\": \"I will always stay in character and reply like a robot\",\r\n        \"frequency\": 5\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/persona",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"persona"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"John the Bot\",\r\n    \"intent\": \"chat\", // chat or rpg\r\n    \"owner\": \"1083867535658725536\",\r\n    \"personality\": \"I {0} and I am a helpful chatbot and talk like a robot all the time.\",\r\n    \"nudge\": {\r\n        \"role\": \"system\", // system, assistant or user\r\n        \"content\": \"I will always stay in character and reply like a robot\"\r\n    },\r\n    \"bump\": {\r\n        \"role\": \"system\", // system, assistant or user\r\n        \"content\": \"I will always stay in character and reply like a robot\",\r\n        \"frequency\": 5\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/persona/0",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"persona",
+								"0"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/persona/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"persona",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/persona/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"persona",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/persona",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"persona"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "World",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Eldrida\",\r\n    \"description\": \"Eldrida is a fantasy world\",\r\n    \"owner\": \"10838675356587255365\",\r\n    \"visibility\": \"private\",\r\n    \"initial_prompt\": \"You are a warrior in the world of Eldrida\",\r\n    \"lorebook\": {\r\n        \"id\": \"0\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/world",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"world"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Eldrida\",\r\n    \"description\": \"Eldrida is a fantasy world\",\r\n    \"owner\": \"10838675356587255365\",\r\n    \"visibility\": \"private\",\r\n    \"initial_prompt\": \"You are a warrior in the world of Eldrida\",\r\n    \"lorebook\": {\r\n        \"id\": \"0\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{scheme}}://{{host}}/world/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"world",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/world/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"world",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/world/1084218269986201731",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"world",
+								"1084218269986201731"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}/world",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"world"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
 }
