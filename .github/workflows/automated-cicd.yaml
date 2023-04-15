@@ -36,11 +36,13 @@ jobs:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
       - name: Build and push image to GitLab Container Registry
+        if: github.ref == 'refs/heads/master'
         run: |
-              echo ${{ secrets.GITLAB_ACCESS_TOKEN }} | docker login registry.gitlab.com -u thaalesalves --password-stdin
-              docker build -t registry.gitlab.com/thaalesalves/chatrpg:back-end .
-              docker push registry.gitlab.com/thaalesalves/chatrpg:back-end
+          echo ${{ secrets.GITLAB_ACCESS_TOKEN }} | docker login registry.gitlab.com -u thaalesalves --password-stdin
+          docker build -t registry.gitlab.com/thaalesalves/chatrpg:back-end .
+          docker push registry.gitlab.com/thaalesalves/chatrpg:back-end
       - name: Deploy to Digital Ocean
+        if: github.ref == 'refs/heads/master'
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
