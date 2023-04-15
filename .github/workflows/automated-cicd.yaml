@@ -50,7 +50,7 @@ jobs:
             echo $POSTGRES_HOST
             echo ${{ secrets.GITLAB_ACCESS_TOKEN }} | sudo docker login registry.gitlab.com -u thaalesalves --password-stdin
             sudo docker rm -f chatrpg-be
-            sudo docker rmi -f chatrpg:back-end
+            sudo docker rmi -f registry.gitlab.com/thaalesalves/chatrpg:back-end
             sudo docker run -d \
               --name chatrpg-be \
               --hostname chatrpg-be \
