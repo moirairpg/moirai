@@ -35,11 +35,27 @@ jobs:
         with:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
-      - name: Install flyctl
-        if: github.ref == 'refs/heads/master'
-        uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: Deploy to fly.io
-        if: github.ref == 'refs/heads/master'
-        run: flyctl deploy -a chatrpg
-        env:
-          FLY_API_TOKEN: ${{secrets.FLY_API_TOKEN}}
+      # - name: Install flyctl
+      #   if: github.ref == 'refs/heads/master'
+      #   uses: superfly/flyctl-actions/setup-flyctl@master
+      # - name: Deploy to fly.io
+      #   if: github.ref == 'refs/heads/master'
+      #   run: flyctl deploy -a chatrpg
+      #   env:
+      #     FLY_API_TOKEN: ${{secrets.FLY_API_TOKEN}}
+      - name: Build and push image to GitLab Container Registry
+        run: |
+              echo ${{ secrets.GITLAB_ACCESS_TOKEN }} | docker login registry.gitlab.com -u thaalesalves --password-stdin
+              docker build -t registry.gitlab.com/thaalesalves/chatrpg:back-end .
+              docker push registry.gitlab.com/thaalesalves/chatrpg:back-end
+      - name: Deploy to Digital Ocean
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo ${{ secrets.GITLAB_ACCESS_TOKEN }} | sudo docker login registry.gitlab.com -u thaalesalves --password-stdin
+            sudo docker rm -f chatrpg
+            sudo docker rmi -f chatrpg:back-end
+            sudo docker run -d --name chatrpg --hostname chatrpg -p 80:80 registry.gitlab.com/thaalesalves/chatrpg:back-end
