@@ -34,6 +34,7 @@ public class LorebookEntryController {
     private final LorebookService lorebookService;
 
     private static final String RETRIEVE_ALL_LOREBOOKS_REQUEST = "Received request for listing all lorebookEntries";
+    private static final String RETRIEVE_ALL_LOREBOOKS_IN_LOREBOOK_REQUEST = "Received request for listing all lorebookEntries in loreboko with id {}";
     private static final String RETRIEVE_LOREBOOK_ENTRY_BY_ID_REQUEST = "Received request for retrieving lorebookEntry with id {}";
     private static final String SAVE_LOREBOOK_ENTRY_REQUEST = "Received request for saving lorebookEntry -> {}. lorebookId -> {}";
     private static final String UPDATE_LOREBOOK_ENTRY_REQUEST = "Received request for updating lorebookEntry with ID {} -> {}";
@@ -56,6 +57,21 @@ public class LorebookEntryController {
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all lorebookEntries", e);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+                });
+    }
+
+    @GetMapping("lorebook/{lorebook-id}")
+    public Mono<ResponseEntity<ApiResponse>> getAllLorebookEntriesFromLorebook(
+            @PathVariable(value = "lorebook-id") final String lorebookId) {
+
+        LOGGER.info(RETRIEVE_ALL_LOREBOOKS_IN_LOREBOOK_REQUEST, lorebookId);
+        return Mono.just(lorebookService.retrieveAllLorebookEntriesInLorebook(lorebookId))
+                .map(this::buildResponse)
+                .onErrorResume(e -> {
+                    LOGGER.error("Error retrieving all lorebookEntries from lorebook", e);
                     return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
