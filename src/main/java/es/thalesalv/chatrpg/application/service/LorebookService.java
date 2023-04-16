@@ -133,6 +133,18 @@ public class LorebookService {
                 .toList();
     }
 
+    public List<LorebookEntry> retrieveAllLorebookEntriesInLorebook(final String lorebookId) {
+
+        LOGGER.debug("Retrieving lorebookEntry data from lorebook with id {} from request", lorebookId);
+        return lorebookEntryRegexRepository.findAll()
+                .stream()
+                .filter(l -> !l.getId()
+                        .equals(DEFAULT_ID))
+                .filter(l -> l.getLorebook().getId().equals(lorebookId))
+                .map(lorebookEntryEntityToDTO)
+                .toList();
+    }
+
     public LorebookEntry retrieveLorebookEntryById(final String lorebookEntryId) {
 
         LOGGER.debug("Retrieving lorebookEntry by ID data from request");
