@@ -63,6 +63,9 @@ jobs:
               -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
               -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
               -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+              -e DISCORD_BOT_CLIENT_ID=${{ secrets.DISCORD_BOT_CLIENT_ID }} \
+              -e DISCORD_BOT_CLIENT_SECRET=${{ secrets.DISCORD_BOT_CLIENT_SECRET }} \
+              -e DISCORD_BOT_REDIRECT_URL=${{ secrets.DISCORD_BOT_REDIRECT_URL }} \
               -e CHATRPG_LOG_LEVEL=INFO \
               -p 8080:8080 \
               registry.gitlab.com/thaalesalves/chatrpg:back-end
