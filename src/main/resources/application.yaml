@@ -9,6 +9,11 @@ chatrpg:
     default-frequency-penalty: 0.2
     default-threshold: 1.0
   discord:
+    oauth:
+      client-id: ${DISCORD_BOT_CLIENT_ID}
+      client-secret: ${DISCORD_BOT_CLIENT_SECRET}
+      redirect-url: ${DISCORD_BOT_REDIRECT_URL}
+    api-base-url: https://discord.com/api
     status-channel-id: "1085340376698716283"
     api-token: ${DISCORD_BOT_API_TOKEN}
     retry:
