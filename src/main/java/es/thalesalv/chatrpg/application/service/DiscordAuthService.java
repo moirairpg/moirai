@@ -26,7 +26,8 @@ public class DiscordAuthService {
     public DiscordUserData retrieveDiscordUserById(final String userId) {
 
         LOGGER.debug("Retrieving discord user by ID {}", userId);
-        final User retrievedUser = jda.retrieveUserById(userId).complete();
+        final User retrievedUser = jda.retrieveUserById(userId)
+                .complete();
         return jdaUserToDiscordUser.apply(retrievedUser);
     }
 }
