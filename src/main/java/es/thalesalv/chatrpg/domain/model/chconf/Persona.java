@@ -18,6 +18,7 @@ public class Persona {
     private Intent intent;
     private String personality;
     private String owner;
+    private String visibility;
     private Nudge nudge;
     private Bump bump;
 
@@ -27,6 +28,7 @@ public class Persona {
                 .id("0")
                 .name("DEFAULT PERSONA")
                 .intent(Intent.CHAT)
+                .visibility("private")
                 .build();
     }
 }

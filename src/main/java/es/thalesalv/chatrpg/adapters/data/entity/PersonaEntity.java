@@ -44,6 +44,9 @@ public class PersonaEntity {
     @Column(name = "owner_discord_id")
     private String owner;
 
+    @Column(name = "visibility")
+    private String visibility;
+
     @Column(name = "nudge", length = 10000)
     @Convert(converter = NudgeConverter.class)
     private NudgeEntity nudge;

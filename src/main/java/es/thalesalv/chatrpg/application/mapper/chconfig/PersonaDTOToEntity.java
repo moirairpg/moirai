@@ -25,6 +25,7 @@ public class PersonaDTOToEntity implements Function<Persona, PersonaEntity> {
                 .owner(persona.getOwner())
                 .intent(persona.getIntent())
                 .personality(persona.getPersonality())
+                .visibility(persona.getVisibility())
                 .bump(buildBump(persona.getBump()))
                 .nudge(buildNudge(persona.getNudge()))
                 .build();
