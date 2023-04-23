@@ -140,7 +140,9 @@ public class LorebookService {
                 .stream()
                 .filter(l -> !l.getId()
                         .equals(DEFAULT_ID))
-                .filter(l -> l.getLorebook().getId().equals(lorebookId))
+                .filter(l -> l.getLorebook()
+                        .getId()
+                        .equals(lorebookId))
                 .map(lorebookEntryEntityToDTO)
                 .toList();
     }
