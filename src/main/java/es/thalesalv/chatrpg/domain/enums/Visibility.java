@@ -14,6 +14,7 @@ public enum Visibility {
 
     public static boolean isPublic(final String v) {
 
-        return PUBLIC.getVisibility().equals(v);
+        return PUBLIC.getVisibility()
+                .equals(v);
     }
 }
