@@ -35,7 +35,7 @@ public class PersonaService {
         LOGGER.debug("Entering retrieveAllPersonas. userId -> {}", userId);
         return personaRepository.findAll()
                 .stream()
-                .filter(p -> filterReadPermissions(p, userId))
+                .filter(p -> hasReadPermissions(p, userId))
                 .map(personaEntityToDTO)
                 .toList();
     }
@@ -44,7 +44,7 @@ public class PersonaService {
 
         LOGGER.debug("Entering retrievePersonaById. personaId -> {}, userId -> {}", personaId, userId);
         return personaRepository.findById(personaId)
-                .filter(p -> filterReadPermissions(p, userId))
+                .filter(p -> hasReadPermissions(p, userId))
                 .map(personaEntityToDTO)
                 .orElseThrow(() -> new PersonaNotFoundException(
                         "Error retrieving persona by id: " + PERSONA_ID_NOT_FOUND.replace("PERSONA_ID", personaId)));
@@ -73,7 +73,7 @@ public class PersonaService {
 
         return Optional.of(personaDTOToEntity.apply(persona))
                 .map(p -> {
-                    if (!filterWritePermissions(p, userId)) {
+                    if (!hasWritePermissions(p, userId)) {
                         throw new InsufficientPermissionException("Not enough permissions to modify this persona");
                     }
 
@@ -94,7 +94,7 @@ public class PersonaService {
         LOGGER.debug("Entering deletePersona. personaId -> {}, userId -> {}", personaId, userId);
         personaRepository.findById(personaId)
                 .ifPresent(persona -> {
-                    if (!filterWritePermissions(persona, userId)) {
+                    if (!hasWritePermissions(persona, userId)) {
                         throw new InsufficientPermissionException("Not enough permissions to delete this persona");
                     }
 
@@ -102,7 +102,7 @@ public class PersonaService {
                 });
     }
 
-    private boolean filterReadPermissions(final PersonaEntity persona, final String userId) {
+    private boolean hasReadPermissions(final PersonaEntity persona, final String userId) {
 
         final boolean isPublic = Visibility.isPublic(persona.getVisibility());
         final boolean isOwner = persona.getOwner()
@@ -116,7 +116,7 @@ public class PersonaService {
         return isPublic || (isOwner || canRead);
     }
 
-    private boolean filterWritePermissions(final PersonaEntity persona, final String userId) {
+    private boolean hasWritePermissions(final PersonaEntity persona, final String userId) {
 
         final boolean isOwner = persona.getOwner()
                 .equals(userId);
