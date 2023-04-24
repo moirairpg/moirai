@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -106,12 +107,12 @@ public class LorebookEntryController {
     }
 
     @PostMapping("{lorebook-id}")
-    public Mono<ResponseEntity<ApiResponse>> saveLorebookEntry(
+    public Mono<ResponseEntity<ApiResponse>> saveLorebookEntry(@RequestHeader("requester") String requesterUserId,
             @PathVariable(value = "lorebook-id") final String lorebookId,
             @RequestBody final LorebookEntry lorebookEntry) {
 
         LOGGER.info(SAVE_LOREBOOK_ENTRY_REQUEST, lorebookEntry, lorebookId);
-        return Mono.just(lorebookService.saveLorebookEntry(lorebookEntry, lorebookId))
+        return Mono.just(lorebookService.saveLorebookEntry(lorebookEntry, lorebookId, requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -128,12 +129,12 @@ public class LorebookEntryController {
     }
 
     @PutMapping("{lorebook-entry-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateLorebookEntry(
+    public Mono<ResponseEntity<ApiResponse>> updateLorebookEntry(@RequestHeader("requester") String requesterUserId,
             @PathVariable(value = "lorebook-entry-id") final String lorebookEntryId,
             @RequestBody final LorebookEntry lorebookEntry) {
 
         LOGGER.info(UPDATE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId, lorebookEntry);
-        return Mono.just(lorebookService.updateLorebookEntry(lorebookEntryId, lorebookEntry))
+        return Mono.just(lorebookService.updateLorebookEntry(lorebookEntryId, lorebookEntry, requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -150,13 +151,13 @@ public class LorebookEntryController {
     }
 
     @DeleteMapping("{lorebook-entry-id}")
-    public Mono<ResponseEntity<ApiResponse>> deleteLorebookEntry(
+    public Mono<ResponseEntity<ApiResponse>> deleteLorebookEntry(@RequestHeader("requester") String requesterUserId,
             @PathVariable(value = "lorebook-entry-id") final String lorebookEntryId) {
 
         LOGGER.info(DELETE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId);
         return Mono.just(lorebookEntryId)
                 .map(id -> {
-                    lorebookService.deleteLorebookEntry(lorebookEntryId);
+                    lorebookService.deleteLorebookEntry(lorebookEntryId, requesterUserId);
                     LOGGER.info(DELETE_LOREBOOK_ENTRY_RESPONSE, lorebookEntryId);
                     return ResponseEntity.ok()
                             .body(ApiResponse.empty());

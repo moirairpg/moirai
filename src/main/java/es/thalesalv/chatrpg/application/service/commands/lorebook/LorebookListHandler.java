@@ -69,9 +69,11 @@ public class LorebookListHandler {
 
     private void retrieveAllLorebooks(final SlashCommandInteractionEvent event) throws IOException {
 
-        List<Lorebook> lorebooks = lorebookService.retrieveAllLorebooks()
+        final String eventAuthorId = event.getUser()
+                .getId();
+
+        final List<Lorebook> lorebooks = lorebookService.retrieveAllLorebooks(eventAuthorId)
                 .stream()
-                .filter(l -> filterAllowedLorebooks(l, event))
                 .map(l -> {
                     final String ownerName = event.getJDA()
                             .retrieveUserById(l.getOwner())
@@ -101,25 +103,5 @@ public class LorebookListHandler {
                 .complete();
 
         fileUpload.close();
-    }
-
-    private boolean filterAllowedLorebooks(final Lorebook lorebook, SlashCommandInteractionEvent event) {
-
-        final String userId = event.getUser()
-                .getId();
-
-        final boolean isPrivate = lorebook.getVisibility()
-                .equals("private");
-
-        final boolean isOwner = lorebook.getOwner()
-                .equals(userId);
-
-        final boolean canRead = lorebook.getReadPermissions()
-                .contains(userId)
-                || lorebook.getWritePermissions()
-                        .contains(userId);
-
-        final boolean isAllowed = isOwner || canRead;
-        return isPrivate && !isAllowed;
     }
 }

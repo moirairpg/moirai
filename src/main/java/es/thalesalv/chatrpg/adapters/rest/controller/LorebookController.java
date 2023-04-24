@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,10 +50,10 @@ public class LorebookController {
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookController.class);
 
     @GetMapping
-    public Mono<ResponseEntity<ApiResponse>> getAllLorebooks() {
+    public Mono<ResponseEntity<ApiResponse>> getAllLorebooks(@RequestHeader("requester") String requesterUserId) {
 
         LOGGER.info(RETRIEVE_ALL_LOREBOOKS_REQUEST);
-        return Mono.just(lorebookService.retrieveAllLorebooks())
+        return Mono.just(lorebookService.retrieveAllLorebooks(requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all lorebooks", e);
@@ -63,7 +64,7 @@ public class LorebookController {
     }
 
     @GetMapping("{lorebook-id}")
-    public Mono<ResponseEntity<ApiResponse>> getLorebookById(
+    public Mono<ResponseEntity<ApiResponse>> getLorebookById(@RequestHeader("requester") String requesterUserId,
             @PathVariable(value = "lorebook-id") final String lorebookId) {
 
         LOGGER.info(RETRIEVE_LOREBOOK_BY_ID_REQUEST, lorebookId);
@@ -110,11 +111,11 @@ public class LorebookController {
     }
 
     @PutMapping("{lorebook-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateLorebook(
+    public Mono<ResponseEntity<ApiResponse>> updateLorebook(@RequestHeader("requester") String requesterUserId,
             @PathVariable(value = "lorebook-id") final String lorebookId, @RequestBody final Lorebook lorebook) {
 
         LOGGER.info(UPDATE_LOREBOOK_REQUEST, lorebookId, lorebook);
-        return Mono.just(lorebookService.updateLorebook(lorebookId, lorebook))
+        return Mono.just(lorebookService.updateLorebook(lorebookId, lorebook, requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -131,13 +132,13 @@ public class LorebookController {
     }
 
     @DeleteMapping("{lorebook-id}")
-    public Mono<ResponseEntity<ApiResponse>> deleteLorebook(
+    public Mono<ResponseEntity<ApiResponse>> deleteLorebook(@RequestHeader("requester") String requesterUserId,
             @PathVariable(value = "lorebook-id") final String lorebookId) {
 
         LOGGER.info(DELETE_LOREBOOK_REQUEST, lorebookId);
         return Mono.just(lorebookId)
                 .map(id -> {
-                    lorebookService.deleteLorebook(lorebookId);
+                    lorebookService.deleteLorebook(lorebookId, requesterUserId);
                     LOGGER.info(DELETE_LOREBOOK_RESPONSE, lorebookId);
                     return ResponseEntity.ok()
                             .body(ApiResponse.empty());

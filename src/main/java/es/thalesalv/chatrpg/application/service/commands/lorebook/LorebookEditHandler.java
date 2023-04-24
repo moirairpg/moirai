@@ -212,7 +212,7 @@ public class LorebookEditHandler {
 
         final boolean isAllowed = isOwner || canWrite;
         if (isPrivate && !isAllowed) {
-            event.reply("You don't have permission from the owner of this private lorebook to see it")
+            event.reply("You don't have permission from the owner of this private lorebook to modify it")
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
@@ -220,6 +220,9 @@ public class LorebookEditHandler {
     }
 
     private LorebookEntry updateEntry(final World world, final EventData eventData, final ModalInteractionEvent event) {
+
+        final String eventAuthorId = event.getUser()
+                .getId();
 
         final LorebookEntry oldEntry = eventData.getLorebookEntry();
         final String updatedEntryName = Optional.ofNullable(event.getValue(FIELD_NAME))
@@ -239,11 +242,13 @@ public class LorebookEditHandler {
                         .getId()))
                 .orElse(oldEntry.getPlayerDiscordId());
 
-        return lorebookService.updateLorebookEntry(oldEntry.getId(), LorebookEntry.builder()
+        final LorebookEntry entry = LorebookEntry.builder()
                 .name(updatedEntryName)
                 .description(updatedEntryDescription)
                 .regex(updatedEntryRegex)
                 .playerDiscordId(playerId)
-                .build());
+                .build();
+
+        return lorebookService.updateLorebookEntry(oldEntry.getId(), entry, eventAuthorId);
     }
 }
