@@ -76,11 +76,14 @@ public class LorebookEditHandler {
                         final String entryId = event.getOption(ID_OPTION)
                                 .getAsString();
 
+                        final String eventAuthorId = event.getUser()
+                                .getId();
+
                         final World world = channel.getChannelConfig()
                                 .getWorld();
 
                         checkPermissions(world, event);
-                        final LorebookEntry entry = lorebookService.retrieveLorebookEntryById(entryId);
+                        final LorebookEntry entry = lorebookService.retrieveLorebookEntryById(entryId, eventAuthorId);
 
                         saveEventDataToContext(entry, channel, event.getChannel());
                         final Modal modalEntry = buildEntryUpdateModal(entry);

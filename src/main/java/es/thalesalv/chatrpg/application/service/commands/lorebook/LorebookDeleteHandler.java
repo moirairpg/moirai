@@ -56,6 +56,9 @@ public class LorebookDeleteHandler {
             final String entryId = event.getOption("id")
                     .getAsString();
 
+            final String eventAuthorId = event.getUser()
+                    .getId();
+
             channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
@@ -64,7 +67,7 @@ public class LorebookDeleteHandler {
                                 .getWorld();
 
                         checkPermissions(world, event);
-                        final LorebookEntry entry = lorebookService.retrieveLorebookEntryById(entryId);
+                        final LorebookEntry entry = lorebookService.retrieveLorebookEntryById(entryId, eventAuthorId);
                         contextDatastore.setEventData(EventData.builder()
                                 .lorebookEntry(entry)
                                 .build());
