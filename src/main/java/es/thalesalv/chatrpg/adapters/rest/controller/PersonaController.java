@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.application.service.PersonaService;
-import es.thalesalv.chatrpg.domain.exception.PersonaNotFoundException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
@@ -34,55 +34,23 @@ public class PersonaController {
     private final PersonaService personaService;
 
     private static final String RETRIEVE_ALL_PERSONAS_REQUEST = "Received request for listing all personas";
-    private static final String RETRIEVE_PERSONA_BY_ID_REQUEST = "Received request for retrieving persona with id {}";
     private static final String SAVE_PERSONA_REQUEST = "Received request for saving persona -> {}";
     private static final String UPDATE_PERSONA_REQUEST = "Received request for updating persona with ID {} -> {}";
     private static final String DELETE_PERSONA_REQUEST = "Received request for deleting persona with ID {}";
     private static final String DELETE_PERSONA_RESPONSE = "Returning response for deleting persona with ID {}";
-    private static final String ID_CANNOT_BE_NULL = "Persona ID cannot be null";
-    private static final String ERROR_RETRIEVING_WITH_ID = "Error retrieving persona with id {}";
     private static final String GENERAL_ERROR_MESSAGE = "An error occurred processing the request";
-    private static final String REQUESTED_NOT_FOUND = "The requested persona was not found";
-    private static final String PERSONA_WITH_ID_NOT_FOUND = "Couldn't find requested persona with ID {}";
     private static final String ITEM_INSERTED_CANNOT_BE_NULL = "The item to be inserted cannot be null";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonaController.class);
 
     @GetMapping
-    public Mono<ResponseEntity<ApiResponse>> getAllPersonas() {
+    public Mono<ResponseEntity<ApiResponse>> getAllPersonas(@RequestHeader("requester") String requesterUserId) {
 
         LOGGER.info(RETRIEVE_ALL_PERSONAS_REQUEST);
-        return Mono.just(personaService.retrieveAllPersonas())
+        return Mono.just(personaService.retrieveAllPersonas(requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all personas", e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
-                });
-    }
-
-    @GetMapping("{persona-id}")
-    public Mono<ResponseEntity<ApiResponse>> getPersonaById(
-            @PathVariable(value = "persona-id") final String personaId) {
-
-        LOGGER.info(RETRIEVE_PERSONA_BY_ID_REQUEST, personaId);
-        return Mono.just(personaService.retrievePersonaById(personaId))
-                .map(this::buildResponse)
-                .onErrorResume(PersonaNotFoundException.class, e -> {
-                    LOGGER.error(PERSONA_WITH_ID_NOT_FOUND, personaId, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, REQUESTED_NOT_FOUND)));
-                })
-                .onErrorResume(IllegalArgumentException.class, e -> {
-                    LOGGER.error(ID_CANNOT_BE_NULL, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ID_CANNOT_BE_NULL)));
-                })
-                .onErrorResume(e -> {
-                    LOGGER.error(ERROR_RETRIEVING_WITH_ID, personaId, e);
                     return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
@@ -110,11 +78,11 @@ public class PersonaController {
     }
 
     @PutMapping("{persona-id}")
-    public Mono<ResponseEntity<ApiResponse>> updatePersona(@PathVariable(value = "persona-id") final String personaId,
-            @RequestBody final Persona persona) {
+    public Mono<ResponseEntity<ApiResponse>> updatePersona(@RequestHeader("requester") String requesterUserId,
+            @PathVariable(value = "persona-id") final String personaId, @RequestBody final Persona persona) {
 
         LOGGER.info(UPDATE_PERSONA_REQUEST, personaId, persona);
-        return Mono.just(personaService.updatePersona(personaId, persona))
+        return Mono.just(personaService.updatePersona(personaId, persona, requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -131,12 +99,13 @@ public class PersonaController {
     }
 
     @DeleteMapping("{persona-id}")
-    public Mono<ResponseEntity<ApiResponse>> deletePersona(@PathVariable(value = "persona-id") final String personaId) {
+    public Mono<ResponseEntity<ApiResponse>> deletePersona(@RequestHeader("requester") String requesterUserId,
+            @PathVariable(value = "persona-id") final String personaId) {
 
         LOGGER.info(DELETE_PERSONA_REQUEST, personaId);
         return Mono.just(personaId)
                 .map(id -> {
-                    personaService.deletePersona(personaId);
+                    personaService.deletePersona(personaId, requesterUserId);
                     LOGGER.info(DELETE_PERSONA_RESPONSE, personaId);
                     return ResponseEntity.ok()
                             .body(ApiResponse.empty());

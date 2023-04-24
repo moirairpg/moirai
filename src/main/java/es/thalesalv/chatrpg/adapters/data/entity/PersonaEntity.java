@@ -47,6 +47,12 @@ public class PersonaEntity {
     @Column(name = "visibility")
     private String visibility;
 
+    @Column(name = "write_permission_discord_ids")
+    private String writePermissions;
+
+    @Column(name = "read_permission_discord_ids")
+    private String readPermissions;
+
     @Column(name = "nudge", length = 10000)
     @Convert(converter = NudgeConverter.class)
     private NudgeEntity nudge;

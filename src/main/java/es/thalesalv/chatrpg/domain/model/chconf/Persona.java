@@ -19,6 +19,8 @@ public class Persona {
     private String personality;
     private String owner;
     private String visibility;
+    private String writePermissions;
+    private String readPermissions;
     private Nudge nudge;
     private Bump bump;
 
