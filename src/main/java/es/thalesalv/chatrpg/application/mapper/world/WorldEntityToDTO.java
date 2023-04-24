@@ -31,12 +31,13 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
                 .collect(Collectors.toSet());
 
         return World.builder()
-                .editPermissions(worldEntity.getEditPermissions())
                 .id(worldEntity.getId())
                 .initialPrompt(worldEntity.getInitialPrompt())
                 .name(worldEntity.getName())
                 .owner(worldEntity.getOwner())
                 .visibility(worldEntity.getVisibility())
+                .visibility(worldEntity.getVisibility())
+                .readPermissions(worldEntity.getReadPermissions())
                 .description(worldEntity.getDescription())
                 .lorebook(Lorebook.builder()
                         .id(worldEntity.getLorebook()

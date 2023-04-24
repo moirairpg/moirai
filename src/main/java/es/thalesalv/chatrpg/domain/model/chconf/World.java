@@ -16,8 +16,9 @@ public class World {
     private String name;
     private String description;
     private String owner;
-    private String editPermissions;
     private String visibility;
+    private String writePermissions;
+    private String readPermissions;
     private String initialPrompt;
     private Lorebook lorebook;
 

@@ -7,9 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.world.WorldEntityToDTO;
+import es.thalesalv.chatrpg.domain.enums.Visibility;
+import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
@@ -22,25 +25,24 @@ public class WorldService {
     private final WorldEntityToDTO worldEntityToDTO;
     private final WorldRepository worldRepository;
 
-    private static final String DEFAULT_ID = "0";
     private static final String WORLD_ID_NOT_FOUND = "world with id WORLD_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldService.class);
 
-    public List<World> retrieveAllWorlds() {
+    public List<World> retrieveAllWorlds(final String userId) {
 
-        LOGGER.debug("Retrieving world data from request");
+        LOGGER.debug("Entering retrieveAllWorlds. userId -> {}", userId);
         return worldRepository.findAll()
                 .stream()
-                .filter(l -> !l.getId()
-                        .equals(DEFAULT_ID))
+                .filter(w -> hasReadPermissions(w, userId))
                 .map(worldEntityToDTO)
                 .toList();
     }
 
-    public World retrieveWorldById(final String worldId) {
+    public World retrieveWorldById(final String worldId, final String userId) {
 
-        LOGGER.debug("Retrieving world by ID data from request");
+        LOGGER.debug("Entering retrieveWorldById. worldId -> {}, userId -> {}", worldId, userId);
         return worldRepository.findById(worldId)
+                .filter(w -> hasReadPermissions(w, userId))
                 .map(worldEntityToDTO)
                 .orElseThrow(() -> new WorldNotFoundException(
                         "Error retrieving world by id: " + WORLD_ID_NOT_FOUND.replace("WORLD_ID", worldId)));
@@ -48,29 +50,65 @@ public class WorldService {
 
     public World saveWorld(final World world) {
 
-        LOGGER.debug("Saving world data from request");
+        LOGGER.debug("Entering saveWorld. world -> {}", world);
         return Optional.of(worldDTOToEntity.apply(world))
                 .map(worldRepository::save)
                 .map(worldEntityToDTO)
                 .orElseThrow(() -> new RuntimeException("Error saving world"));
     }
 
-    public World updateWorld(final String worldId, final World world) {
+    public World updateWorld(final String worldId, final World world, final String userId) {
 
-        LOGGER.debug("Updating world data from request");
+        LOGGER.debug("Entering updateWorld. worldId -> {}, userId -> {}, world -> {}", worldId, userId, world);
         return Optional.of(worldDTOToEntity.apply(world))
-                .map(c -> {
-                    c.setId(worldId);
-                    return worldRepository.save(c);
+                .map(w -> {
+                    if (!hasWritePermissions(w, userId)) {
+                        throw new InsufficientPermissionException("Not enough permissions to modify this world");
+                    }
+
+                    w.setId(worldId);
+                    return worldRepository.save(w);
                 })
                 .map(worldEntityToDTO)
                 .orElseThrow(() -> new WorldNotFoundException(
                         "Error retrieving world by id: " + WORLD_ID_NOT_FOUND.replace("WORLD_ID", worldId)));
     }
 
-    public void deleteWorld(final String worldId) {
+    public void deleteWorld(final String worldId, final String userId) {
 
-        LOGGER.debug("Deleting world data from request");
-        worldRepository.deleteById(worldId);
+        LOGGER.debug("Entering deleteWorld. worldId -> {}, userId -> {}", worldId, userId);
+        worldRepository.findById(worldId)
+                .ifPresent(world -> {
+                    if (!hasWritePermissions(world, userId)) {
+                        throw new InsufficientPermissionException("Not enough permissions to delete this world");
+                    }
+
+                    worldRepository.delete(world);
+                });
+    }
+
+    private boolean hasReadPermissions(final WorldEntity world, final String userId) {
+
+        final boolean isPublic = Visibility.isPublic(world.getVisibility());
+        final boolean isOwner = world.getOwner()
+                .equals(userId);
+
+        final boolean canRead = world.getReadPermissions()
+                .contains(userId)
+                || world.getWritePermissions()
+                        .contains(userId);
+
+        return isPublic || (isOwner || canRead);
+    }
+
+    private boolean hasWritePermissions(final WorldEntity world, final String userId) {
+
+        final boolean isOwner = world.getOwner()
+                .equals(userId);
+
+        final boolean canWrite = world.getWritePermissions()
+                .contains(userId);
+
+        return isOwner || canWrite;
     }
 }
