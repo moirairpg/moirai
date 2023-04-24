@@ -1,11 +1,11 @@
 package es.thalesalv.chatrpg.application.mapper.world;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
@@ -48,10 +48,10 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
                                 .getOwner())
                         .writePermissions(Optional.ofNullable(worldEntity.getLorebook()
                                 .getWritePermissions())
-                                .orElse(StringUtils.EMPTY))
+                                .orElse(new ArrayList<String>()))
                         .readPermissions(Optional.ofNullable(worldEntity.getLorebook()
                                 .getReadPermissions())
-                                .orElse(StringUtils.EMPTY))
+                                .orElse(new ArrayList<String>()))
                         .description(worldEntity.getLorebook()
                                 .getDescription())
                         .visibility(Optional.ofNullable(worldEntity.getLorebook()

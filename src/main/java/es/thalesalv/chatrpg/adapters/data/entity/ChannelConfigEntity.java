@@ -1,8 +1,12 @@
 package es.thalesalv.chatrpg.adapters.data.entity;
 
+import java.util.List;
+
 import org.hibernate.annotations.GenericGenerator;
 
+import es.thalesalv.chatrpg.application.util.dbutils.StringListConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -31,8 +35,16 @@ public class ChannelConfigEntity {
     @Column(name = "owner_discord_id", nullable = false)
     private String owner;
 
-    @Column(name = "edit_permission_discord_ids")
-    private String editPermissions;
+    @Column(name = "visibility")
+    private String visibility;
+
+    @Column(name = "write_permission_discord_ids")
+    @Convert(converter = StringListConverter.class)
+    private List<String> writePermissions;
+
+    @Column(name = "read_permission_discord_ids")
+    @Convert(converter = StringListConverter.class)
+    private List<String> readPermissions;
 
     @OneToOne
     @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false, unique = false)

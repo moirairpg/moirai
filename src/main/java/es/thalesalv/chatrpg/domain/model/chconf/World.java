@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.domain.model.chconf;
 
+import java.util.List;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,8 +19,8 @@ public class World {
     private String description;
     private String owner;
     private String visibility;
-    private String writePermissions;
-    private String readPermissions;
+    private List<String> writePermissions;
+    private List<String> readPermissions;
     private String initialPrompt;
     private Lorebook lorebook;
 

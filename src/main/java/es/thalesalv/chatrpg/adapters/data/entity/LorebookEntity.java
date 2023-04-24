@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import es.thalesalv.chatrpg.application.util.dbutils.StringListConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -40,10 +42,12 @@ public class LorebookEntity {
     private String owner;
 
     @Column(name = "write_permission_discord_ids")
-    private String writePermissions;
+    @Convert(converter = StringListConverter.class)
+    private List<String> writePermissions;
 
     @Column(name = "read_permission_discord_ids")
-    private String readPermissions;
+    @Convert(converter = StringListConverter.class)
+    private List<String> readPermissions;
 
     @Column(name = "visibility")
     private String visibility;

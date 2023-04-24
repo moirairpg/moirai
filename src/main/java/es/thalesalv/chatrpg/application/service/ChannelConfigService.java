@@ -214,7 +214,6 @@ public class ChannelConfigService {
 
         return ChannelConfigEntity.builder()
                 .id(channelConfigId)
-                .editPermissions(newConfigInfo.getEditPermissions())
                 .owner(newConfigInfo.getOwner())
                 .persona(persona)
                 .world(world)
@@ -250,7 +249,6 @@ public class ChannelConfigService {
 
         return ChannelConfigEntity.builder()
                 .id(channelConfig.getId())
-                .editPermissions(channelConfig.getEditPermissions())
                 .owner(channelConfig.getOwner())
                 .persona(persona)
                 .world(world)

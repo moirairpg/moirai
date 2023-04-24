@@ -1,11 +1,14 @@
 package es.thalesalv.chatrpg.adapters.data.entity;
 
-import es.thalesalv.chatrpg.application.util.dbutils.IntentConverter;
-import es.thalesalv.chatrpg.domain.enums.Intent;
+import java.util.List;
+
 import org.hibernate.annotations.GenericGenerator;
 
 import es.thalesalv.chatrpg.application.util.dbutils.BumpConverter;
+import es.thalesalv.chatrpg.application.util.dbutils.IntentConverter;
 import es.thalesalv.chatrpg.application.util.dbutils.NudgeConverter;
+import es.thalesalv.chatrpg.application.util.dbutils.StringListConverter;
+import es.thalesalv.chatrpg.domain.enums.Intent;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -48,10 +51,12 @@ public class PersonaEntity {
     private String visibility;
 
     @Column(name = "write_permission_discord_ids")
-    private String writePermissions;
+    @Convert(converter = StringListConverter.class)
+    private List<String> writePermissions;
 
     @Column(name = "read_permission_discord_ids")
-    private String readPermissions;
+    @Convert(converter = StringListConverter.class)
+    private List<String> readPermissions;
 
     @Column(name = "nudge", length = 10000)
     @Convert(converter = NudgeConverter.class)

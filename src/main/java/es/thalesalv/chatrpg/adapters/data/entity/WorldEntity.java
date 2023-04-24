@@ -1,8 +1,12 @@
 package es.thalesalv.chatrpg.adapters.data.entity;
 
+import java.util.List;
+
 import org.hibernate.annotations.GenericGenerator;
 
+import es.thalesalv.chatrpg.application.util.dbutils.StringListConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -41,10 +45,12 @@ public class WorldEntity {
     private String visibility;
 
     @Column(name = "write_permission_discord_ids")
-    private String writePermissions;
+    @Convert(converter = StringListConverter.class)
+    private List<String> writePermissions;
 
     @Column(name = "read_permission_discord_ids")
-    private String readPermissions;
+    @Convert(converter = StringListConverter.class)
+    private List<String> readPermissions;
 
     @Column(name = "initial_prompt", length = 2000)
     private String initialPrompt;

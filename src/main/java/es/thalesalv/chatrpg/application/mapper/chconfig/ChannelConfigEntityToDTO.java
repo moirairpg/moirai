@@ -33,7 +33,6 @@ public class ChannelConfigEntityToDTO implements Function<ChannelConfigEntity, C
                 .apply(channelConfigEntity.getModerationSettings());
 
         return ChannelConfig.builder()
-                .editPermissions(channelConfigEntity.getEditPermissions())
                 .id(channelConfigEntity.getId())
                 .owner(channelConfigEntity.getOwner())
                 .persona(persona)

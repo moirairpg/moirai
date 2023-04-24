@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.domain.model.chconf;
 
+import java.util.List;
+
 import es.thalesalv.chatrpg.domain.enums.Intent;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,8 +21,8 @@ public class Persona {
     private String personality;
     private String owner;
     private String visibility;
-    private String writePermissions;
-    private String readPermissions;
+    private List<String> writePermissions;
+    private List<String> readPermissions;
     private Nudge nudge;
     private Bump bump;
 
