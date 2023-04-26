@@ -50,7 +50,7 @@ public class PromptInteractionHandler implements DiscordInteractionHandler {
     private static final String GENERATE_OUTPUT = "generate-output";
     private static final String MODAL_ID = COMMAND_STRING + "-message-dmassist-modal";
     private static final String NO_CONFIG_ATTACHED = "No configuration is attached to channel.";
-    private static final String GENERATION_INSTRUCTION = " Simply generate the message from where it stopped.\n";
+    private static final String GENERATION_INSTRUCTION = "Simply generate the message from where it stopped.\n";
     private static final String ERROR_GENERATING = "Error generating message";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when generating the message. Please try again.";
 
@@ -135,8 +135,10 @@ public class PromptInteractionHandler implements DiscordInteractionHandler {
                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                 useCase.generateResponse(eventData, model);
             }
+
             message.editMessage(message.getContentRaw()
-                    .replace(bot.getAsMention() + GENERATION_INSTRUCTION, StringUtils.EMPTY)
+                    .replace(GENERATION_INSTRUCTION, StringUtils.EMPTY)
+                    .replace(bot.getAsMention(), StringUtils.EMPTY)
                     .trim())
                     .complete();
         } catch (Exception e) {
@@ -150,7 +152,7 @@ public class PromptInteractionHandler implements DiscordInteractionHandler {
 
     private String formatInput(Intent intent, String prompt, SelfUser bot) {
 
-        return Intent.RPG.equals(intent) ? bot.getAsMention() + prompt : prompt;
+        return Intent.RPG.equals(intent) ? prompt + " " + bot.getAsMention() : prompt;
     }
 
     private Modal buildEditMessageModal() {
