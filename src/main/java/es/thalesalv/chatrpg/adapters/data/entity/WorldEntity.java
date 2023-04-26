@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -11,7 +12,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,7 +56,10 @@ public class WorldEntity {
     @Column(name = "initial_prompt", length = 2000)
     private String initialPrompt;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "lorebook", referencedColumnName = "id")
     private LorebookEntity lorebook;
+
+    @OneToMany(mappedBy = "world")
+    private Set<ChannelConfigEntity> channelConfigs;
 }

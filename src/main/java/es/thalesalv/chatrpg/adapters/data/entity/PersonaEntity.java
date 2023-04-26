@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -14,6 +15,7 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -64,4 +66,7 @@ public class PersonaEntity {
     @Column(name = "bump", length = 10000)
     @Convert(converter = BumpConverter.class)
     private BumpEntity bump;
+
+    @OneToMany(mappedBy = "persona")
+    private Set<ChannelConfigEntity> channelConfigs;
 }

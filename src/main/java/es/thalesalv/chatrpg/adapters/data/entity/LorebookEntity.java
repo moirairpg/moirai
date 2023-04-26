@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -53,4 +54,7 @@ public class LorebookEntity {
 
     @OneToMany(mappedBy = "lorebook", fetch = FetchType.EAGER)
     private List<LorebookEntryRegexEntity> entries;
+
+    @OneToMany(mappedBy = "lorebook")
+    private Set<WorldEntity> worlds;
 }

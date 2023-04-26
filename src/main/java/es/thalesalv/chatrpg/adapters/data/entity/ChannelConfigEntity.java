@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -11,7 +12,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,19 +50,22 @@ public class ChannelConfigEntity {
     @Convert(converter = StringListConverter.class)
     private List<String> readPermissions;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false, unique = false)
     private PersonaEntity persona;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "model_settings_id", referencedColumnName = "id", nullable = false, unique = false)
     private ModelSettingsEntity modelSettings;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "moderation_settings_id", referencedColumnName = "id", nullable = false)
     private ModerationSettingsEntity moderationSettings;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "world_id", referencedColumnName = "id", nullable = false)
     private WorldEntity world;
+
+    @OneToMany(mappedBy = "channelConfig")
+    private Set<ChannelEntity> channels;
 }

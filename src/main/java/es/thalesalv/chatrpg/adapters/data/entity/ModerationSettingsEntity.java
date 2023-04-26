@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.entity;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -10,6 +11,7 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,4 +40,7 @@ public class ModerationSettingsEntity {
     @Column(name = "thresholds")
     @Convert(converter = StringMapDoubleConverter.class)
     private Map<String, Double> thresholds;
+
+    @OneToMany(mappedBy = "moderationSettings")
+    private Set<ChannelConfigEntity> channelConfigs;
 }
