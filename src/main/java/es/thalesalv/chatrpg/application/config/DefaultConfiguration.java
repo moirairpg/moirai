@@ -59,7 +59,9 @@ public class DefaultConfiguration {
             LOGGER.debug("Initiating default values ingestion process");
             final SelfUser bot = jda.getSelfUser();
             final InputStream yamlFile = new ClassPathResource(YAML_FILE_PATH).getInputStream();
-            final List<ChannelConfig> defaultConfigs = yamlObjectMapper.readValue(yamlFile, new TypeReference<List<ChannelConfig>>(){});
+            final List<ChannelConfig> defaultConfigs = yamlObjectMapper.readValue(yamlFile,
+                    new TypeReference<List<ChannelConfig>>() {
+                    });
 
             defaultConfigs.stream()
                     .filter(c -> !channelConfigRepository.existsById(c.getId()))
