@@ -10,7 +10,6 @@ import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
-import es.thalesalv.chatrpg.domain.model.chconf.Settings;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
 
@@ -34,13 +33,12 @@ public class ChannelConfigEntityToDTO implements Function<ChannelConfigEntity, C
 
         return ChannelConfig.builder()
                 .id(channelConfigEntity.getId())
+                .name(channelConfigEntity.getName())
                 .owner(channelConfigEntity.getOwner())
                 .persona(persona)
                 .world(world)
-                .settings(Settings.builder()
-                        .modelSettings(modelSettings)
-                        .moderationSettings(moderationSettings)
-                        .build())
+                .modelSettings(modelSettings)
+                .moderationSettings(moderationSettings)
                 .build();
     }
 }

@@ -128,9 +128,7 @@ public class ModerationServiceImpl implements ModerationService {
     private void checkModerationThresholds(final ModerationResult moderationResult, final ChannelConfig channelConfig,
             final String prompt) {
 
-        final ModerationSettings moderationSettings = channelConfig.getSettings()
-                .getModerationSettings();
-
+        final ModerationSettings moderationSettings = channelConfig.getModerationSettings();
         if (moderationSettings.isAbsolute() && moderationResult.getFlagged()
                 .booleanValue())
             throw new ModerationException(UNSAFE_CONTENT_FOUND);

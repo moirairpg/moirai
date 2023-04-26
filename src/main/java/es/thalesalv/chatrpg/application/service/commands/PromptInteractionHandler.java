@@ -2,9 +2,6 @@ package es.thalesalv.chatrpg.application.service.commands;
 
 import java.util.concurrent.TimeUnit;
 
-import es.thalesalv.chatrpg.domain.enums.Intent;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +14,7 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
-import es.thalesalv.chatrpg.domain.enums.AIModel;
+import es.thalesalv.chatrpg.domain.enums.Intent;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
@@ -29,6 +26,8 @@ import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
@@ -99,30 +98,39 @@ public class PromptInteractionHandler implements DiscordInteractionHandler {
             event.deferReply();
             final MessageChannelUnion channel = contextDatastore.getEventData()
                     .getCurrentChannel();
+
             final Channel channelDefinition = contextDatastore.getEventData()
                     .getChannelDefinitions();
+
             final Persona persona = channelDefinition.getChannelConfig()
                     .getPersona();
+
             final ModelSettings modelSettings = channelDefinition.getChannelConfig()
-                    .getSettings()
                     .getModelSettings();
+
             final SelfUser bot = event.getJDA()
                     .getSelfUser();
+
             final String input = event.getValue(MESSAGE_CONTENT)
                     .getAsString();
+
             final String generateOutput = event.getValue(GENERATE_OUTPUT)
                     .getAsString();
+
             final String formattedInput = formatInput(persona.getIntent(), GENERATION_INSTRUCTION + input, bot);
             final Message message = channel.sendMessage(formattedInput)
                     .complete();
+
             event.reply("Assisted prompt used.")
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(1, TimeUnit.MILLISECONDS));
+
             if (generateOutput.equals("y")) {
                 final EventData eventData = eventDataMapper.translate(bot, channel, channelDefinition, message);
-                final String completionType = AIModel.findByInternalName(modelSettings.getModelName())
+                final String completionType = modelSettings.getModelName()
                         .getCompletionType();
+
                 final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                 final BotUseCase useCase = (BotUseCase) applicationContext.getBean(persona.getIntent() + USE_CASE);
                 useCase.generateResponse(eventData, model);

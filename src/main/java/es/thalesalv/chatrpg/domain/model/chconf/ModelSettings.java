@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import es.thalesalv.chatrpg.domain.enums.AIModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,8 +18,9 @@ import lombok.NoArgsConstructor;
 public class ModelSettings {
 
     private String id;
-    private String modelName;
     private String owner;
+    private String name;
+    private AIModel modelName;
     private int maxTokens;
     private int chatHistoryMemory;
     private double temperature;
@@ -31,7 +33,7 @@ public class ModelSettings {
 
         return ModelSettings.builder()
                 .id("0")
-                .modelName("chatgpt")
+                .modelName(AIModel.CHATGPT)
                 .temperature(0.7)
                 .frequencyPenalty(1.2)
                 .presencePenalty(1.2)

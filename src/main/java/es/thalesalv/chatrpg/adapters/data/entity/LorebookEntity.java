@@ -29,7 +29,6 @@ public class LorebookEntity {
     @Id
     @GeneratedValue(generator = "nanoid-generator")
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
-    @Column(name = "id", unique = true, nullable = false)
     private String id;
 
     @Column(name = "lorebook_name")

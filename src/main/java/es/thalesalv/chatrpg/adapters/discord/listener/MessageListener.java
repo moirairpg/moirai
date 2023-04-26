@@ -10,7 +10,6 @@ import es.thalesalv.chatrpg.application.mapper.EventDataMapper;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
-import es.thalesalv.chatrpg.domain.enums.AIModel;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
@@ -43,13 +42,16 @@ public class MessageListener {
                                 .getName(),
                                 event.getMessage()
                                         .getContentDisplay());
+
                         final Persona persona = channel.getChannelConfig()
                                 .getPersona();
+
                         final ModelSettings modelSettings = channel.getChannelConfig()
-                                .getSettings()
                                 .getModelSettings();
-                        final String completionType = AIModel.findByInternalName(modelSettings.getModelName())
+
+                        final String completionType = modelSettings.getModelName()
                                 .getCompletionType();
+
                         final EventData eventData = eventDataMapper.translate(event, channel);
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                         final BotUseCase useCase = (BotUseCase) applicationContext

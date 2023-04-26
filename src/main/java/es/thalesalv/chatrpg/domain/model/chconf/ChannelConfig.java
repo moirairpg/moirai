@@ -13,16 +13,11 @@ import lombok.NoArgsConstructor;
 public class ChannelConfig {
 
     private String id;
+    private String name;
     private String owner;
     private String editPermissions;
     private World world;
     private Persona persona;
-    private Settings settings;
-
-    public static ChannelConfig defaultChannelConfig() {
-
-        return ChannelConfig.builder()
-                .id("0")
-                .build();
-    }
+    private ModelSettings modelSettings;
+    private ModerationSettings moderationSettings;
 }

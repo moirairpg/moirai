@@ -29,13 +29,15 @@ public class ChannelConfigEntity {
     @Id
     @GeneratedValue(generator = "nanoid-generator")
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
-    @Column(name = "id", unique = true, nullable = false)
     private String id;
 
     @Column(name = "owner_discord_id", nullable = false)
     private String owner;
 
-    @Column(name = "visibility")
+    @Column(name = "name", nullable = true)
+    private String name;
+
+    @Column(name = "visibility", nullable = false)
     private String visibility;
 
     @Column(name = "write_permission_discord_ids")
@@ -55,10 +57,10 @@ public class ChannelConfigEntity {
     private ModelSettingsEntity modelSettings;
 
     @OneToOne
-    @JoinColumn(name = "moderation_settings_id", referencedColumnName = "id", nullable = false, unique = false)
+    @JoinColumn(name = "moderation_settings_id", referencedColumnName = "id", nullable = false)
     private ModerationSettingsEntity moderationSettings;
 
     @OneToOne
-    @JoinColumn(name = "world_id", referencedColumnName = "id", unique = false)
+    @JoinColumn(name = "world_id", referencedColumnName = "id", nullable = false)
     private WorldEntity world;
 }

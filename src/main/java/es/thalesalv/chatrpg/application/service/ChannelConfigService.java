@@ -31,7 +31,6 @@ import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
-import es.thalesalv.chatrpg.domain.model.chconf.Settings;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
@@ -189,15 +188,12 @@ public class ChannelConfigService {
     private ChannelConfigEntity buildUpdatedChannelConfig(final String channelConfigId,
             final ChannelConfig newConfigInfo, final ChannelConfigEntity currentConfigInfo) {
 
-        final Settings settings = Optional.ofNullable(newConfigInfo.getSettings())
-                .orElse(Settings.defaultSettings());
-
-        final ModerationSettingsEntity moderationSettings = Optional.ofNullable(settings.getModerationSettings())
+        final ModerationSettingsEntity moderationSettings = Optional.ofNullable(newConfigInfo.getModerationSettings())
                 .map(p -> moderationSettingsRepository.findById(p.getId())
                         .orElse(currentConfigInfo.getModerationSettings()))
                 .orElse(moderationSettingsDTOToEntity.apply(ModerationSettings.defaultModerationSettings()));
 
-        final ModelSettingsEntity modelSettings = Optional.ofNullable(settings.getModelSettings())
+        final ModelSettingsEntity modelSettings = Optional.ofNullable(newConfigInfo.getModelSettings())
                 .map(p -> modelSettingsRepository.findById(p.getId())
                         .orElse(currentConfigInfo.getModelSettings()))
                 .orElse(modelSettingsDTOToEntity.apply(ModelSettings.defaultModelSettings()));
@@ -224,20 +220,17 @@ public class ChannelConfigService {
 
     private ChannelConfigEntity buildNewChannelConfig(ChannelConfig channelConfig) {
 
-        final Settings settings = Optional.ofNullable(channelConfig.getSettings())
-                .orElse(Settings.defaultSettings());
-
         final PersonaEntity persona = Optional.ofNullable(channelConfig.getPersona())
                 .map(p -> personaRepository.findById(p.getId())
                         .orElse(personaDTOToEntity.apply(Persona.defaultPersona())))
                 .orElse(personaDTOToEntity.apply(Persona.defaultPersona()));
 
-        final ModerationSettingsEntity moderationSettings = Optional.ofNullable(settings.getModerationSettings())
+        final ModerationSettingsEntity moderationSettings = Optional.ofNullable(channelConfig.getModerationSettings())
                 .map(p -> moderationSettingsRepository.findById(p.getId())
                         .orElse(moderationSettingsDTOToEntity.apply(ModerationSettings.defaultModerationSettings())))
                 .orElse(moderationSettingsDTOToEntity.apply(ModerationSettings.defaultModerationSettings()));
 
-        final ModelSettingsEntity modelSettings = Optional.ofNullable(settings.getModelSettings())
+        final ModelSettingsEntity modelSettings = Optional.ofNullable(channelConfig.getModelSettings())
                 .map(p -> modelSettingsRepository.findById(p.getId())
                         .orElse(modelSettingsDTOToEntity.apply(ModelSettings.defaultModelSettings())))
                 .orElse(modelSettingsDTOToEntity.apply(ModelSettings.defaultModelSettings()));
