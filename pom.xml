@@ -149,14 +149,18 @@
                         <exclude>**/YamlPropertySourceFactory*</exclude>
                         <exclude>**/JsonLoggerFormatter*</exclude>
                         <exclude>**/application/config/*</exclude>
-                        <exclude>**/dto/*</exclude>
                         <exclude>**/model/**</exclude>
+                        <exclude>**/util/**</exclude>
+                        <exclude>**/dto/*</exclude>
                         <exclude>**/exception/*</exclude>
                         <exclude>**/beans/*</exclude>
                         <exclude>**/repository/*</exclude>
                         <exclude>**/entity/*</exclude>
                         <exclude>**/translator/*</exclude>
                         <exclude>**/listener/*</exclude>
+                        <exclude>**/errorhandling/*</exclude>
+                        <exclude>**/commands/*</exclude>
+                        <exclude>**/enums/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
