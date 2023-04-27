@@ -36,7 +36,7 @@ public class ChannelConfigEntity {
     @Column(name = "owner_discord_id", nullable = false)
     private String owner;
 
-    @Column(name = "name", nullable = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "visibility", nullable = false)
@@ -51,11 +51,11 @@ public class ChannelConfigEntity {
     private List<String> readPermissions;
 
     @ManyToOne
-    @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false, unique = false)
+    @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false)
     private PersonaEntity persona;
 
     @ManyToOne
-    @JoinColumn(name = "model_settings_id", referencedColumnName = "id", nullable = false, unique = false)
+    @JoinColumn(name = "model_settings_id", referencedColumnName = "id", nullable = false)
     private ModelSettingsEntity modelSettings;
 
     @ManyToOne

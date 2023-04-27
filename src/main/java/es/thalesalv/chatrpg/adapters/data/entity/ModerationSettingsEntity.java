@@ -31,13 +31,13 @@ public class ModerationSettingsEntity {
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
     private String id;
 
-    @Column(name = "owner_discord_id")
+    @Column(name = "owner_discord_id", nullable = false)
     private String owner;
 
-    @Column(name = "is_absolute_moderation")
+    @Column(name = "is_absolute_moderation", nullable = false, columnDefinition = "boolean default false")
     private boolean isAbsolute;
 
-    @Column(name = "thresholds")
+    @Column(name = "thresholds", nullable = true)
     @Convert(converter = StringMapDoubleConverter.class)
     private Map<String, Double> thresholds;
 

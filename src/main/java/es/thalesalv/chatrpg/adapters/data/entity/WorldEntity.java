@@ -36,13 +36,13 @@ public class WorldEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", length = 2000)
+    @Column(name = "description", length = 2000, nullable = false)
     private String description;
 
-    @Column(name = "owner_discord_id")
+    @Column(name = "owner_discord_id", nullable = false)
     private String owner;
 
-    @Column(name = "visibility")
+    @Column(name = "visibility", nullable = false)
     private String visibility;
 
     @Column(name = "write_permission_discord_ids")
@@ -57,7 +57,7 @@ public class WorldEntity {
     private String initialPrompt;
 
     @ManyToOne
-    @JoinColumn(name = "lorebook", referencedColumnName = "id")
+    @JoinColumn(name = "lorebook", referencedColumnName = "id", nullable = false)
     private LorebookEntity lorebook;
 
     @OneToMany(mappedBy = "world")

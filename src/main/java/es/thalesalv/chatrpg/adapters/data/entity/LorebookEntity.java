@@ -32,13 +32,13 @@ public class LorebookEntity {
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
     private String id;
 
-    @Column(name = "lorebook_name")
+    @Column(name = "lorebook_name", nullable = false)
     private String name;
 
-    @Column(name = "lorebook_description", length = 2000)
+    @Column(name = "lorebook_description", length = 2000, nullable = false)
     private String description;
 
-    @Column(name = "owner_discord_id")
+    @Column(name = "owner_discord_id", nullable = false)
     private String owner;
 
     @Column(name = "write_permission_discord_ids")
@@ -49,7 +49,7 @@ public class LorebookEntity {
     @Convert(converter = StringListConverter.class)
     private List<String> readPermissions;
 
-    @Column(name = "visibility")
+    @Column(name = "visibility", nullable = false)
     private String visibility;
 
     @OneToMany(mappedBy = "lorebook", fetch = FetchType.EAGER)

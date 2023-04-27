@@ -35,20 +35,20 @@ public class PersonaEntity {
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
     private String id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "intent")
+    @Column(name = "intent", nullable = false)
     @Convert(converter = IntentConverter.class)
     private Intent intent;
 
-    @Column(name = "personality", length = 10000)
+    @Column(name = "personality", length = 10000, nullable = false)
     private String personality;
 
-    @Column(name = "owner_discord_id")
+    @Column(name = "owner_discord_id", nullable = false)
     private String owner;
 
-    @Column(name = "visibility")
+    @Column(name = "visibility", nullable = false)
     private String visibility;
 
     @Column(name = "write_permission_discord_ids")
