@@ -93,12 +93,13 @@
   world:
     id: 'CHAT'
     visibility: 'private'
-    name: 'DEFAULT WORLD'
+    name: 'Default world for chatbot'
+    description: 'Default world for chatbot'
     lorebook:
       id: 'CHAT'
-      name: 'DEFAULT LOREBOOK'
+      name: 'Default lorebook for chatbot'
       visibility: 'private'
-      lorebook: Default loerbook for chatbot.
+      description: Default lorebook for chatbot.
   persona:
     id: 'CHAT'
     intent: 'chat'
