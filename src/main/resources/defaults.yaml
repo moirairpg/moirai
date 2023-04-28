@@ -98,6 +98,7 @@
       id: 'CHAT'
       name: 'DEFAULT LOREBOOK'
       visibility: 'private'
+      lorebook: Default loerbook for chatbot.
   persona:
     id: 'CHAT'
     intent: 'chat'
