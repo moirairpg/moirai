@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -38,7 +37,6 @@ public class ObjectMapperConfiguration {
     public ObjectMapper objectMapper() {
 
         return new ObjectMapper(jsonFactory()).setSerializationInclusion(Include.NON_EMPTY)
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     }
 
@@ -53,7 +51,6 @@ public class ObjectMapperConfiguration {
     public ObjectWriter prettyPrintObjectMapper() {
 
         return new ObjectMapper(jsonFactory()).setSerializationInclusion(Include.NON_EMPTY)
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .writerWithDefaultPrettyPrinter();
     }
 }
