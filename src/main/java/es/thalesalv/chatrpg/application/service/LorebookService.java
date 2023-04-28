@@ -56,33 +56,18 @@ public class LorebookService {
                 .toList();
     }
 
-    public Lorebook retrieveLorebookById(final String lorebookId, final String userId) {
-
-        LOGGER.debug("Entering retrieveLorebookById. lorebookId -> {}, userId -> {}", lorebookId, userId);
-        return lorebookRepository.findById(lorebookId)
-                .filter(l -> hasReadPermissions(l, userId))
-                .map(lorebookEntityToDTO)
-                .orElseThrow(() -> new LorebookNotFoundException(
-                        "Error retrieving lorebook: " + LOREBOOK_ID_NOT_FOUND.replace("LOREBOOK_ID", lorebookId)));
-    }
-
     public Lorebook saveLorebook(final Lorebook lorebook) {
 
         LOGGER.debug("Entering saveLorebook. lorebook -> {}", lorebook);
-        return Optional.of(lorebookDTOToEntity.apply(lorebook))
-                .map(l -> {
-                    l.getEntries()
-                            .forEach(e -> {
-                                e.setLorebook(l);
-                                lorebookEntryRepository.save(e.getLorebookEntry());
-                                lorebookEntryRegexRepository.save(e);
-                            });
+        final LorebookEntity convertedEntity = lorebookDTOToEntity.apply(lorebook);
+        convertedEntity.getEntries()
+                .forEach(entry -> {
+                    lorebookEntryRepository.save(entry.getLorebookEntry());
+                    lorebookEntryRegexRepository.save(entry);
+                });
 
-                    return l;
-                })
-                .map(lorebookRepository::save)
-                .map(lorebookEntityToDTO)
-                .orElseThrow(() -> new RuntimeException("There was a problem saving the new lorebook"));
+        final LorebookEntity updatedEntity = lorebookRepository.save(convertedEntity);
+        return lorebookEntityToDTO.apply(updatedEntity);
     }
 
     public Lorebook updateLorebook(final String lorebookId, final Lorebook lorebook, final String userId) {
@@ -90,24 +75,25 @@ public class LorebookService {
         LOGGER.debug("Entering updateLorebook. lorebookId -> {}, userId -> {}, lorebook -> {}", lorebookId, userId,
                 lorebook);
 
-        return Optional.of(lorebookDTOToEntity.apply(lorebook))
-                .map(c -> {
-                    if (!hasWritePermissions(c, userId)) {
-                        throw new InsufficientPermissionException("Not enough permissions to modify this lorebook");
-                    }
+        lorebookRepository.findById(lorebookId)
+                .orElseThrow(
+                        () -> new LorebookNotFoundException("The requested lorebook for update could not be found"));
 
-                    c.setId(lorebookId);
-                    return lorebookRepository.save(c);
-                })
-                .map(lorebookEntityToDTO)
-                .orElseThrow(() -> new LorebookNotFoundException("Error updating lorebook with id " + lorebookId));
+        final LorebookEntity lorebookEntity = lorebookDTOToEntity.apply(lorebook);
+        if (!hasWritePermissions(lorebookEntity, userId)) {
+            throw new InsufficientPermissionException("Not enough permissions to modify this lorebook");
+        }
+
+        lorebookEntity.setId(lorebookId);
+        final LorebookEntity updatedEntity = lorebookRepository.save(lorebookEntity);
+        return lorebookEntityToDTO.apply(updatedEntity);
     }
 
     public void deleteLorebook(final String lorebookId, final String userId) {
 
         LOGGER.debug("Entering deleteLorebook. lorebookId -> {}, userId -> {}", lorebookId, userId);
         lorebookRepository.findById(lorebookId)
-                .map(lorebook -> {
+                .ifPresentOrElse(lorebook -> {
                     if (!hasWritePermissions(lorebook, userId)) {
                         throw new InsufficientPermissionException("Not enough permissions to delete this lorebook");
                     }
@@ -128,10 +114,10 @@ public class LorebookService {
                             });
 
                     lorebookRepository.delete(lorebook);
-                    return lorebook;
-                })
-                .orElseThrow(() -> new LorebookNotFoundException(
-                        "Error deleting lorebook: " + LOREBOOK_ID_NOT_FOUND.replace("LOREBOOK_ID", lorebookId)));
+                }, () -> {
+                    throw new LorebookNotFoundException(
+                            "Error deleting lorebook: " + LOREBOOK_ID_NOT_FOUND.replace("LOREBOOK_ID", lorebookId));
+                });
     }
 
     public List<LorebookEntry> retrieveAllLorebookEntriesInLorebook(final String lorebookId, final String userId) {

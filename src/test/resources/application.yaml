@@ -1,0 +1,9 @@
+logging:
+  level:
+    root: ERROR
+    es.thalesalv: ERROR
+    org.hibernate: ERROR
+    com.zaxxer.hikari: ERROR
+    net.dv8tion.jda: ERROR
+    org.springframework: ERROR
+    ch.qos.logback: ERROR

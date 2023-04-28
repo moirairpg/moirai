@@ -23,13 +23,7 @@ public class LorebookDTOToEntity implements Function<Lorebook, LorebookEntity> {
     @Override
     public LorebookEntity apply(Lorebook lorebook) {
 
-        final List<LorebookEntryRegexEntity> entries = Optional.ofNullable(lorebook.getEntries())
-                .orElse(new HashSet<>())
-                .stream()
-                .map(lorebookEntryDTOToEntity)
-                .collect(Collectors.toList());
-
-        return LorebookEntity.builder()
+        final LorebookEntity entity = LorebookEntity.builder()
                 .id(lorebook.getId())
                 .description(lorebook.getDescription())
                 .name(lorebook.getName())
@@ -40,7 +34,19 @@ public class LorebookDTOToEntity implements Function<Lorebook, LorebookEntity> {
                 .owner(lorebook.getOwner())
                 .visibility(Optional.ofNullable(lorebook.getVisibility())
                         .orElse("private"))
-                .entries(entries)
                 .build();
+
+        final List<LorebookEntryRegexEntity> entries = Optional.ofNullable(lorebook.getEntries())
+                .orElse(new HashSet<>())
+                .stream()
+                .map(lorebookEntryDTOToEntity)
+                .map(e -> {
+                    e.setLorebook(entity);
+                    return e;
+                })
+                .collect(Collectors.toList());
+
+        entity.setEntries(entries);
+        return entity;
     }
 }
