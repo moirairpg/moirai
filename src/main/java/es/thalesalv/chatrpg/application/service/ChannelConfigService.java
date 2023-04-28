@@ -175,6 +175,7 @@ public class ChannelConfigService {
         return ChannelConfigEntity.builder()
                 .id(channelConfig.getId())
                 .owner(channelConfig.getOwner())
+                .name(channelConfig.getName())
                 .visibility(channelConfig.getVisibility())
                 .readPermissions(channelConfig.getReadPermissions())
                 .writePermissions(channelConfig.getWritePermissions())
