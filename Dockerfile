@@ -6,8 +6,4 @@ COPY ./target/chatrpg-0.0.1-SNAPSHOT.jar chatrpg-0.0.1-SNAPSHOT.jar
 
 EXPOSE 8080
 
-# CMD ["java", "-jar", "/opt/chatrpg/chatrpg-0.0.1-SNAPSHOT.jar"]
-RUN apt update -y && \
-    apt install jq -y
-
-CMD ["java", "-jar", "/opt/chatrpg/chatrpg-0.0.1-SNAPSHOT.jar", "&&", "sleep", "5", "tail", "-f", "/opt/chatrpg/logs/bot.log", "|", "jq", "-R", "fromjson?"]
+CMD ["java", "-jar", "/opt/chatrpg/chatrpg-0.0.1-SNAPSHOT.jar"]
