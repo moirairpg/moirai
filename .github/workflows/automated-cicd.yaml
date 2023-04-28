@@ -35,6 +35,9 @@ jobs:
       #   with:
       #     coverageCommand: mvn test
       #     coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
+      - name: Test container build image
+        if: github.ref != 'refs/heads/master'
+        run: docker build -t registry.gitlab.com/thaalesalves/chatrpg:back-end .
       - name: Build and push image to GitLab Container Registry
         if: github.ref == 'refs/heads/master'
         run: |
