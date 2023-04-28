@@ -66,7 +66,7 @@ public class DefaultConfiguration {
             defaultConfigs.stream()
                     .filter(c -> !channelConfigRepository.existsById(c.getId()))
                     .forEach(config -> {
-                        LOGGER.info("Default config ID {} not in DB. Ingesting -> {}", config.getId(), config);
+                        LOGGER.info("Default config named {} not in DB. Ingesting it.", config.getName());
                         final World world = config.getWorld();
                         final Lorebook lorebook = world.getLorebook();
                         final Persona persona = config.getPersona();
