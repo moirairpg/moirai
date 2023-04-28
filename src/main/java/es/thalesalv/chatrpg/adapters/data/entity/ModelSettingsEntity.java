@@ -2,16 +2,20 @@ package es.thalesalv.chatrpg.adapters.data.entity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import es.thalesalv.chatrpg.application.util.dbutils.AIModelConverter;
 import es.thalesalv.chatrpg.application.util.dbutils.StringListConverter;
 import es.thalesalv.chatrpg.application.util.dbutils.StringMapDoubleConverter;
+import es.thalesalv.chatrpg.domain.enums.AIModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,14 +33,17 @@ public class ModelSettingsEntity {
     @Id
     @GeneratedValue(generator = "nanoid-generator")
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
-    @Column(name = "id", unique = true, nullable = false)
     private String id;
 
     @Column(name = "owner_discord_id")
     private String owner;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "model_name", nullable = false)
-    private String modelName;
+    @Convert(converter = AIModelConverter.class)
+    private AIModel modelName;
 
     @Column(name = "max_tokens", nullable = false)
     private int maxTokens;
@@ -60,4 +67,7 @@ public class ModelSettingsEntity {
     @Column(name = "logit_bias")
     @Convert(converter = StringMapDoubleConverter.class)
     private Map<String, Double> logitBias;
+
+    @OneToMany(mappedBy = "modelSettings")
+    private Set<ChannelConfigEntity> channelConfigs;
 }

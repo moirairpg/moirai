@@ -63,13 +63,14 @@ public class EditInteractionHandler implements DiscordInteractionHandler {
                     .map(channelEntityToDTO)
                     .map(channel -> {
                         final ModelSettings modelSettings = channel.getChannelConfig()
-                                .getSettings()
                                 .getModelSettings();
+
                         final Message message = retrieveMessageToBeEdited(event, modelSettings, bot);
                         final Modal editMessageModal = buildEditMessageModal(message);
                         saveEventDataToContext(message, channel);
                         event.replyModal(editMessageModal)
                                 .queue();
+
                         return channel;
                     })
                     .orElseThrow(ChannelConfigNotFoundException::new);

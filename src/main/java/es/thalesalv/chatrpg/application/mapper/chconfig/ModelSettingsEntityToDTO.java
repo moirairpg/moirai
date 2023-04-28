@@ -16,6 +16,7 @@ public class ModelSettingsEntityToDTO implements Function<ModelSettingsEntity, M
         return ModelSettings.builder()
                 .id(modelSettingsEntity.getId())
                 .owner(modelSettingsEntity.getOwner())
+                .name(modelSettingsEntity.getName())
                 .logitBias(modelSettingsEntity.getLogitBias())
                 .maxTokens(modelSettingsEntity.getMaxTokens())
                 .modelName(modelSettingsEntity.getModelName())

@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.application.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,9 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import es.thalesalv.chatrpg.adapters.data.entity.PersonaEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.PersonaRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaEntityToDTO;
+import es.thalesalv.chatrpg.domain.enums.Visibility;
+import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.PersonaNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
@@ -24,66 +28,95 @@ public class PersonaService {
     private final PersonaEntityToDTO personaEntityToDTO;
     private final PersonaRepository personaRepository;
 
-    private static final String DEFAULT_ID = "0";
     private static final String PERSONA_ID_NOT_FOUND = "persona with id PERSONA_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonaService.class);
 
-    public List<Persona> retrieveAllPersonas() {
+    public List<Persona> retrieveAllPersonas(final String userId) {
 
-        LOGGER.debug("Retrieving persona data from request");
+        LOGGER.debug("Entering retrieveAllPersonas. userId -> {}", userId);
         return personaRepository.findAll()
                 .stream()
-                .filter(l -> !l.getId()
-                        .equals(DEFAULT_ID))
+                .filter(p -> hasReadPermissions(p, userId))
                 .map(personaEntityToDTO)
                 .toList();
     }
 
-    public Persona retrievePersonaById(final String personaId) {
-
-        LOGGER.debug("Retrieving persona by ID data from request");
-        return personaRepository.findById(personaId)
-                .map(personaEntityToDTO)
-                .orElseThrow(() -> new PersonaNotFoundException(
-                        "Error retrieving persona by id: " + PERSONA_ID_NOT_FOUND.replace("PERSONA_ID", personaId)));
-    }
-
     public Persona savePersona(final Persona persona) {
 
-        LOGGER.debug("Saving persona data from request");
-        return Optional.of(personaDTOToEntity.apply(persona))
-                .map(personaEntity -> {
-                    personaEntity.setOwner(Optional.ofNullable(personaEntity.getOwner())
-                            .orElse(jda.getSelfUser()
-                                    .getId()));
+        LOGGER.debug("Entering savePersona. persona -> {}", persona);
+        final PersonaEntity personaEntity = personaDTOToEntity.apply(persona);
+        personaEntity.setOwner(Optional.ofNullable(personaEntity.getOwner())
+                .orElse(jda.getSelfUser()
+                        .getId()));
 
-                    return personaEntity;
-                })
-                .map(personaRepository::save)
-                .map(personaEntityToDTO)
-                .orElseThrow(() -> new RuntimeException("Error saving persona"));
+        return personaEntityToDTO.apply(personaRepository.save(personaEntity));
     }
 
-    public Persona updatePersona(final String personaId, final Persona persona) {
+    public Persona updatePersona(final String personaId, final Persona persona, final String userId) {
 
-        LOGGER.debug("Updating persona data from request");
-        return Optional.of(personaDTOToEntity.apply(persona))
-                .map(c -> {
-                    c.setId(personaId);
-                    c.setOwner(Optional.ofNullable(c.getOwner())
+        LOGGER.debug("Entering updatePersona. personaId -> {}, userId -> {}, persona -> {}", personaId, userId,
+                persona);
+
+        return personaRepository.findById(personaId)
+                .map(p -> personaDTOToEntity.apply(persona))
+                .map(p -> {
+                    if (!hasWritePermissions(p, userId)) {
+                        throw new InsufficientPermissionException("Not enough permissions to modify this persona");
+                    }
+
+                    p.setId(personaId);
+                    p.setOwner(Optional.ofNullable(p.getOwner())
                             .orElse(jda.getSelfUser()
                                     .getId()));
 
-                    return personaRepository.save(c);
+                    return personaRepository.save(p);
                 })
                 .map(personaEntityToDTO)
                 .orElseThrow(() -> new PersonaNotFoundException(
                         "Error updating persona: " + PERSONA_ID_NOT_FOUND.replace("PERSONA_ID", personaId)));
     }
 
-    public void deletePersona(final String personaId) {
+    public void deletePersona(final String personaId, final String userId) {
 
-        LOGGER.debug("Deleting persona data from request");
-        personaRepository.deleteById(personaId);
+        LOGGER.debug("Entering deletePersona. personaId -> {}, userId -> {}", personaId, userId);
+        personaRepository.findById(personaId)
+                .ifPresentOrElse(persona -> {
+                    if (!hasWritePermissions(persona, userId)) {
+                        throw new InsufficientPermissionException("Not enough permissions to delete this persona");
+                    }
+
+                    personaRepository.delete(persona);
+                }, () -> {
+                    throw new PersonaNotFoundException(
+                            "Error deleting persona: " + PERSONA_ID_NOT_FOUND.replace("PERSONA_ID", personaId));
+                });
+    }
+
+    private boolean hasReadPermissions(final PersonaEntity persona, final String userId) {
+
+        final boolean isPublic = Visibility.isPublic(persona.getVisibility());
+        final boolean isOwner = persona.getOwner()
+                .equals(userId);
+
+        final List<String> readPermissions = Optional.ofNullable(persona.getReadPermissions())
+                .orElse(Collections.emptyList());
+
+        final List<String> writePermissions = Optional.ofNullable(persona.getWritePermissions())
+                .orElse(Collections.emptyList());
+
+        final boolean canRead = readPermissions.contains(userId) || writePermissions.contains(userId);
+        return isPublic || (isOwner || canRead);
+    }
+
+    private boolean hasWritePermissions(final PersonaEntity persona, final String userId) {
+
+        final List<String> writePermissions = Optional.ofNullable(persona.getWritePermissions())
+                .orElse(Collections.emptyList());
+
+        final boolean isOwner = persona.getOwner()
+                .equals(userId);
+
+        final boolean canWrite = writePermissions.contains(userId);
+        return isOwner || canWrite;
     }
 }

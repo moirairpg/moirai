@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,10 +50,10 @@ public class WorldController {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldController.class);
 
     @GetMapping
-    public Mono<ResponseEntity<ApiResponse>> getAllWorlds() {
+    public Mono<ResponseEntity<ApiResponse>> getAllWorlds(@RequestHeader("requester") String requesterUserId) {
 
         LOGGER.info(RETRIEVE_ALL_WORLDS_REQUEST);
-        return Mono.just(worldService.retrieveAllWorlds())
+        return Mono.just(worldService.retrieveAllWorlds(requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all worlds", e);
@@ -63,10 +64,11 @@ public class WorldController {
     }
 
     @GetMapping("{world-id}")
-    public Mono<ResponseEntity<ApiResponse>> getWorldById(@PathVariable(value = "world-id") final String worldId) {
+    public Mono<ResponseEntity<ApiResponse>> getWorldById(@RequestHeader("requester") String requesterUserId,
+            @PathVariable(value = "world-id") final String worldId) {
 
         LOGGER.info(RETRIEVE_WORLD_BY_ID_REQUEST, worldId);
-        return Mono.just(worldService.retrieveWorldById(worldId))
+        return Mono.just(worldService.retrieveWorldById(worldId, requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(WorldNotFoundException.class, e -> {
                     LOGGER.error(WORLD_WITH_ID_NOT_FOUND, worldId, e);
@@ -109,11 +111,11 @@ public class WorldController {
     }
 
     @PutMapping("{world-id}")
-    public Mono<ResponseEntity<ApiResponse>> updateWorld(@PathVariable(value = "world-id") final String worldId,
-            @RequestBody final World world) {
+    public Mono<ResponseEntity<ApiResponse>> updateWorld(@RequestHeader("requester") String requesterUserId,
+            @PathVariable(value = "world-id") final String worldId, @RequestBody final World world) {
 
         LOGGER.info(UPDATE_WORLD_REQUEST, worldId, world);
-        return Mono.just(worldService.updateWorld(worldId, world))
+        return Mono.just(worldService.updateWorld(worldId, world, requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -130,12 +132,13 @@ public class WorldController {
     }
 
     @DeleteMapping("{world-id}")
-    public Mono<ResponseEntity<ApiResponse>> deleteWorld(@PathVariable(value = "world-id") final String worldId) {
+    public Mono<ResponseEntity<ApiResponse>> deleteWorld(@RequestHeader("requester") String requesterUserId,
+            @PathVariable(value = "world-id") final String worldId) {
 
         LOGGER.info(DELETE_WORLD_REQUEST, worldId);
         return Mono.just(worldId)
                 .map(id -> {
-                    worldService.deleteWorld(worldId);
+                    worldService.deleteWorld(worldId, requesterUserId);
                     LOGGER.info(DELETE_WORLD_RESPONSE, worldId);
                     return ResponseEntity.ok()
                             .body(ApiResponse.empty());

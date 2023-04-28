@@ -3,9 +3,6 @@ package es.thalesalv.chatrpg.application.service.commands;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import es.thalesalv.chatrpg.domain.enums.Intent;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +14,7 @@ import es.thalesalv.chatrpg.application.mapper.EventDataMapper;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
-import es.thalesalv.chatrpg.domain.enums.AIModel;
+import es.thalesalv.chatrpg.domain.enums.Intent;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.EventData;
@@ -29,6 +26,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 @Service
 @RequiredArgsConstructor
@@ -63,10 +62,11 @@ public class StartInteractionHandler implements DiscordInteractionHandler {
                     .map(ch -> {
                         final World world = ch.getChannelConfig()
                                 .getWorld();
+
                         final Persona persona = ch.getChannelConfig()
                                 .getPersona();
+
                         final ModelSettings modelSettings = ch.getChannelConfig()
-                                .getSettings()
                                 .getModelSettings();
 
                         final String initialPrompt = Optional.ofNullable(world.getInitialPrompt())
@@ -75,21 +75,26 @@ public class StartInteractionHandler implements DiscordInteractionHandler {
                         final String input = formatInput(persona.getIntent(), initialPrompt, bot);
                         final Message message = channel.sendMessage(input)
                                 .complete();
-                        final String completionType = AIModel.findByInternalName(modelSettings.getModelName())
+
+                        final String completionType = modelSettings.getModelName()
                                 .getCompletionType();
+
                         final EventData eventData = eventDataMapper.translate(bot, channel, ch, message);
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                         final BotUseCase useCase = (BotUseCase) applicationContext
                                 .getBean(persona.getIntent() + USE_CASE);
+
                         event.reply("Starting world...")
                                 .setEphemeral(true)
                                 .queue(a -> a.deleteOriginal()
                                         .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+
                         useCase.generateResponse(eventData, model);
                         message.editMessage(message.getContentRaw()
                                 .replace(bot.getAsMention(), StringUtils.EMPTY)
                                 .trim())
                                 .complete();
+
                         return ch;
                     })
                     .orElseThrow(ChannelConfigNotFoundException::new);

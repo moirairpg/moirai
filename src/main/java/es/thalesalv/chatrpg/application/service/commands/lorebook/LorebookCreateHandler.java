@@ -86,7 +86,12 @@ public class LorebookCreateHandler {
                     .getLorebook();
 
             final LorebookEntry builtEntry = buildEntry(event);
-            final LorebookEntry insertedEntry = lorebookService.saveLorebookEntry(builtEntry, lorebook.getId());
+            final String eventAuthorId = event.getUser()
+                    .getId();
+
+            final LorebookEntry insertedEntry = lorebookService.saveLorebookEntry(builtEntry, lorebook.getId(),
+                    eventAuthorId);
+
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(insertedEntry);
 
             moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event)
