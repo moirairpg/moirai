@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.domain.model.chconf;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import lombok.AccessLevel;
@@ -19,8 +20,8 @@ public class Lorebook {
     private String name;
     private String description;
     private String owner;
-    private String writePermissions;
-    private String readPermissions;
+    private List<String> writePermissions;
+    private List<String> readPermissions;
     private String visibility;
     private Set<LorebookEntry> entries;
 

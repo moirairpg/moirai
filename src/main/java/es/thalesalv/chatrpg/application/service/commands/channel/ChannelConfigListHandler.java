@@ -134,7 +134,9 @@ public class ChannelConfigListHandler {
         persona.setBump(null);
         persona.setPersonality(null);
         config.setPersona(persona);
-        config.setSettings(null);
+
+        config.setModelSettings(null);
+        config.setModerationSettings(null);
         return config;
     }
 }

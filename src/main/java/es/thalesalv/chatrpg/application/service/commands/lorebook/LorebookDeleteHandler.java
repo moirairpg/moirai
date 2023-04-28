@@ -56,6 +56,9 @@ public class LorebookDeleteHandler {
             final String entryId = event.getOption("id")
                     .getAsString();
 
+            final String eventAuthorId = event.getUser()
+                    .getId();
+
             channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
@@ -64,7 +67,7 @@ public class LorebookDeleteHandler {
                                 .getWorld();
 
                         checkPermissions(world, event);
-                        final LorebookEntry entry = lorebookService.retrieveLorebookEntryById(entryId);
+                        final LorebookEntry entry = lorebookService.retrieveLorebookEntryById(entryId, eventAuthorId);
                         contextDatastore.setEventData(EventData.builder()
                                 .lorebookEntry(entry)
                                 .build());
@@ -102,6 +105,9 @@ public class LorebookDeleteHandler {
 
         LOGGER.debug("Received data from lore entry deletion modal");
         event.deferReply();
+        final String eventAuthorId = event.getUser()
+                .getId();
+
         final boolean isUserSure = Optional.ofNullable(event.getValue(MODAL_ID))
                 .filter(a -> a.getAsString()
                         .equals("y"))
@@ -111,7 +117,7 @@ public class LorebookDeleteHandler {
             final LorebookEntry entry = contextDatastore.getEventData()
                     .getLorebookEntry();
 
-            lorebookService.deleteLorebookEntry(entry.getId());
+            lorebookService.deleteLorebookEntry(entry.getId(), eventAuthorId);
             event.reply(LORE_ENTRY_DELETED)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
@@ -156,7 +162,7 @@ public class LorebookDeleteHandler {
 
         final boolean isAllowed = isOwner || canWrite;
         if (isPrivate && !isAllowed) {
-            event.reply("You don't have permission from the owner of this private lorebook to see it")
+            event.reply("You don't have permission from the owner of this private lorebook to modify it")
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));

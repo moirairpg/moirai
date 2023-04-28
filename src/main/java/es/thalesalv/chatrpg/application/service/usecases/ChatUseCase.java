@@ -145,7 +145,6 @@ public class ChatUseCase implements BotUseCase {
 
         final int historySize = eventData.getChannelDefinitions()
                 .getChannelConfig()
-                .getSettings()
                 .getModelSettings()
                 .getChatHistoryMemory();
 

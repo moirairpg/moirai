@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRegexRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
@@ -17,6 +18,8 @@ import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntityToDTO;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
+import es.thalesalv.chatrpg.domain.enums.Visibility;
+import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.LorebookNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
@@ -39,26 +42,25 @@ public class LorebookService {
     private final LorebookEntryRepository lorebookEntryRepository;
     private final LorebookEntryRegexRepository lorebookEntryRegexRepository;
 
-    private static final String DEFAULT_ID = "0";
     private static final String LOREBOOK_ID_NOT_FOUND = "lorebook with id LOREBOOK_ID could not be found in database.";
     private static final String LOREBOOK_ENTRY_ID_NOT_FOUND = "lorebook entry with id LOREBOOK_ENTRY_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookService.class);
 
-    public List<Lorebook> retrieveAllLorebooks() {
+    public List<Lorebook> retrieveAllLorebooks(final String userId) {
 
-        LOGGER.debug("Retrieving lorebook data from request");
+        LOGGER.debug("Entering retrieveAllLorebooks. userId -> {}", userId);
         return lorebookRepository.findAll()
                 .stream()
-                .filter(l -> !l.getId()
-                        .equals(DEFAULT_ID))
+                .filter(l -> hasReadPermissions(l, userId))
                 .map(lorebookEntityToDTO)
                 .toList();
     }
 
-    public Lorebook retrieveLorebookById(final String lorebookId) {
+    public Lorebook retrieveLorebookById(final String lorebookId, final String userId) {
 
-        LOGGER.debug("Retrieving lorebook by ID data from request");
+        LOGGER.debug("Entering retrieveLorebookById. lorebookId -> {}, userId -> {}", lorebookId, userId);
         return lorebookRepository.findById(lorebookId)
+                .filter(l -> hasReadPermissions(l, userId))
                 .map(lorebookEntityToDTO)
                 .orElseThrow(() -> new LorebookNotFoundException(
                         "Error retrieving lorebook: " + LOREBOOK_ID_NOT_FOUND.replace("LOREBOOK_ID", lorebookId)));
@@ -66,7 +68,7 @@ public class LorebookService {
 
     public Lorebook saveLorebook(final Lorebook lorebook) {
 
-        LOGGER.debug("Saving lorebook data from request");
+        LOGGER.debug("Entering saveLorebook. lorebook -> {}", lorebook);
         return Optional.of(lorebookDTOToEntity.apply(lorebook))
                 .map(l -> {
                     l.getEntries()
@@ -83,11 +85,17 @@ public class LorebookService {
                 .orElseThrow(() -> new RuntimeException("There was a problem saving the new lorebook"));
     }
 
-    public Lorebook updateLorebook(final String lorebookId, final Lorebook lorebook) {
+    public Lorebook updateLorebook(final String lorebookId, final Lorebook lorebook, final String userId) {
 
-        LOGGER.debug("Updating lorebook data from request. lorebookId -> {}", lorebookId);
+        LOGGER.debug("Entering updateLorebook. lorebookId -> {}, userId -> {}, lorebook -> {}", lorebookId, userId,
+                lorebook);
+
         return Optional.of(lorebookDTOToEntity.apply(lorebook))
                 .map(c -> {
+                    if (!hasWritePermissions(c, userId)) {
+                        throw new InsufficientPermissionException("Not enough permissions to modify this lorebook");
+                    }
+
                     c.setId(lorebookId);
                     return lorebookRepository.save(c);
                 })
@@ -95,11 +103,15 @@ public class LorebookService {
                 .orElseThrow(() -> new LorebookNotFoundException("Error updating lorebook with id " + lorebookId));
     }
 
-    public void deleteLorebook(final String lorebookId) {
+    public void deleteLorebook(final String lorebookId, final String userId) {
 
-        LOGGER.debug("Deleting lorebook data from request");
+        LOGGER.debug("Entering deleteLorebook. lorebookId -> {}, userId -> {}", lorebookId, userId);
         lorebookRepository.findById(lorebookId)
                 .map(lorebook -> {
+                    if (!hasWritePermissions(lorebook, userId)) {
+                        throw new InsufficientPermissionException("Not enough permissions to delete this lorebook");
+                    }
+
                     lorebook.getEntries()
                             .forEach(entry -> {
                                 lorebookEntryRegexRepository.delete(entry);
@@ -122,49 +134,63 @@ public class LorebookService {
                         "Error deleting lorebook: " + LOREBOOK_ID_NOT_FOUND.replace("LOREBOOK_ID", lorebookId)));
     }
 
-    public List<LorebookEntry> retrieveAllLorebookEntries() {
+    public List<LorebookEntry> retrieveAllLorebookEntriesInLorebook(final String lorebookId, final String userId) {
 
-        LOGGER.debug("Retrieving lorebookEntry data from request");
-        return lorebookEntryRegexRepository.findAll()
-                .stream()
-                .filter(l -> !l.getId()
-                        .equals(DEFAULT_ID))
-                .map(lorebookEntryEntityToDTO)
-                .toList();
+        LOGGER.debug("Entering retrieveAllLorebookEntriesInLorebook. lorebookId -> {}, userId -> {}", lorebookId,
+                userId);
+
+        return lorebookRepository.findById(lorebookId)
+                .map(l -> {
+                    if (!hasReadPermissions(l, userId)) {
+                        throw new InsufficientPermissionException(
+                                "Not enough permissions to retrieve entries in this lorebook");
+                    }
+
+                    return l.getEntries();
+                })
+                .map(es -> es.stream()
+                        .map(e -> {
+                            return lorebookEntryEntityToDTO.apply(e);
+                        })
+                        .toList())
+                .orElseThrow(() -> new LorebookNotFoundException("The lorebook requested could not be found"));
     }
 
-    public List<LorebookEntry> retrieveAllLorebookEntriesInLorebook(final String lorebookId) {
+    public LorebookEntry retrieveLorebookEntryById(final String lorebookEntryId, final String userId) {
 
-        LOGGER.debug("Retrieving lorebookEntry data from lorebook with id {} from request", lorebookId);
-        return lorebookEntryRegexRepository.findAll()
-                .stream()
-                .filter(l -> !l.getId()
-                        .equals(DEFAULT_ID))
-                .filter(l -> l.getLorebook()
-                        .getId()
-                        .equals(lorebookId))
-                .map(lorebookEntryEntityToDTO)
-                .toList();
-    }
-
-    public LorebookEntry retrieveLorebookEntryById(final String lorebookEntryId) {
-
-        LOGGER.debug("Retrieving lorebookEntry by ID data from request");
+        LOGGER.debug("Entering retrieveLorebookEntryById. lorebookEntryId -> {}. userId -> {}", lorebookEntryId,
+                userId);
         return lorebookEntryRepository.findById(lorebookEntryId)
                 .map(entry -> {
                     return lorebookEntryRegexRepository.findByLorebookEntry(entry)
                             .orElseThrow(() -> new LorebookEntryNotFoundException("Lorebook entry regex not found"));
+                })
+                .map(e -> {
+                    if (!hasReadPermissions(e.getLorebook(), userId)) {
+                        throw new InsufficientPermissionException(
+                                "Not enough permissions to retrieve entries in this lorebook");
+                    }
+
+                    return e;
                 })
                 .map(lorebookEntryEntityToDTO)
                 .orElseThrow(() -> new LorebookNotFoundException("Error retrieving lorebook entry: "
                         + LOREBOOK_ENTRY_ID_NOT_FOUND.replace("LOREBOOK_ENTRY_ID", lorebookEntryId)));
     }
 
-    public LorebookEntry saveLorebookEntry(final LorebookEntry lorebookEntry, final String lorebookId) {
+    public LorebookEntry saveLorebookEntry(final LorebookEntry lorebookEntry, final String lorebookId,
+            final String userId) {
 
-        LOGGER.debug("Saving lorebookEntry data from request");
+        LOGGER.debug("Entering saveLorebookEntry. lorebookId -> {}, userId -> {}, lorebookEntry -> {}", lorebookId,
+                userId, lorebookEntry);
+
         return lorebookRepository.findById(lorebookId)
                 .map(lorebook -> {
+                    if (!hasWritePermissions(lorebook, userId)) {
+                        throw new InsufficientPermissionException(
+                                "Not enough permissions to add entries to this lorebook");
+                    }
+
                     final LorebookEntryRegexEntity regexEntity = lorebookEntryDTOToEntity.apply(lorebookEntry);
                     regexEntity.setLorebook(lorebook);
                     lorebookEntryRepository.save(regexEntity.getLorebookEntry());
@@ -175,11 +201,22 @@ public class LorebookService {
                         + LOREBOOK_ID_NOT_FOUND.replace("LOREBOOK_ID", lorebookId)));
     }
 
-    public LorebookEntry updateLorebookEntry(final String lorebookEntryId, final LorebookEntry lorebookEntry) {
+    public LorebookEntry updateLorebookEntry(final String lorebookEntryId, final LorebookEntry lorebookEntry,
+            final String userId) {
 
-        LOGGER.debug("Updating lorebookEntry data from request");
+        LOGGER.debug("Entering updateLorebookEntry. lorebookEntryId -> {}, userId -> {}, lorebookEntry -> {}",
+                lorebookEntryId, userId, lorebookEntry);
+
         lorebookEntry.setId(lorebookEntryId);
         return Optional.of(lorebookEntryDTOToEntity.apply(lorebookEntry))
+                .map(c -> {
+                    if (!hasWritePermissions(c.getLorebook(), userId)) {
+                        throw new InsufficientPermissionException(
+                                "Not enough permissions to modify entries in this lorebook");
+                    }
+
+                    return c;
+                })
                 .map(c -> lorebookEntryRegexRepository.findByLorebookEntry(c.getLorebookEntry())
                         .map(regexEntry -> {
                             c.setId(regexEntry.getId());
@@ -193,16 +230,51 @@ public class LorebookService {
                         + LOREBOOK_ENTRY_ID_NOT_FOUND.replace("LOREBOOK_ENTRY_ID", lorebookEntryId)));
     }
 
-    public void deleteLorebookEntry(final String lorebookEntryId) {
+    public void deleteLorebookEntry(final String lorebookEntryId, final String userId) {
 
-        LOGGER.debug("Deleting lorebookEntry data from request");
+        LOGGER.debug("Entering deleteLorebookEntry. lorebookEntryId -> {}, userId -> {}", lorebookEntryId, userId);
         lorebookEntryRepository.findById(lorebookEntryId)
                 .map(entry -> {
+                    lorebookEntryRegexRepository.findByLorebookEntry(LorebookEntryEntity.builder()
+                            .id(lorebookEntryId)
+                            .build())
+                            .ifPresent(e -> {
+                                if (!hasWritePermissions(e.getLorebook(), userId)) {
+                                    throw new InsufficientPermissionException(
+                                            "Not enough permissions to delete entries in this lorebook");
+                                }
+                            });
+
                     lorebookEntryRegexRepository.deleteByLorebookEntry(entry);
                     lorebookEntryRepository.delete(entry);
                     return entry;
                 })
                 .orElseThrow(() -> new LorebookNotFoundException("Error deleting lorebook entry: "
                         + LOREBOOK_ENTRY_ID_NOT_FOUND.replace("LOREBOOK_ENTRY_ID", lorebookEntryId)));
+    }
+
+    private boolean hasReadPermissions(final LorebookEntity lorebook, final String userId) {
+
+        final boolean isPublic = Visibility.isPublic(lorebook.getVisibility());
+        final boolean isOwner = lorebook.getOwner()
+                .equals(userId);
+
+        final boolean canRead = lorebook.getReadPermissions()
+                .contains(userId)
+                || lorebook.getWritePermissions()
+                        .contains(userId);
+
+        return isPublic || (isOwner || canRead);
+    }
+
+    private boolean hasWritePermissions(final LorebookEntity lorebook, final String userId) {
+
+        final boolean isOwner = lorebook.getOwner()
+                .equals(userId);
+
+        final boolean canWrite = lorebook.getWritePermissions()
+                .contains(userId);
+
+        return isOwner || canWrite;
     }
 }

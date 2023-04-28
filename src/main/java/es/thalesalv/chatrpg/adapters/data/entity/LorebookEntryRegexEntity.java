@@ -29,15 +29,15 @@ public class LorebookEntryRegexEntity {
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
     private String id;
 
-    @Column(name = "regex")
+    @Column(name = "regex", nullable = false)
     private String regex;
 
     @OneToOne
-    @JoinColumn(name = "lorebook_entry_id", referencedColumnName = "id")
+    @JoinColumn(name = "lorebook_entry_id", referencedColumnName = "id", nullable = false)
     private LorebookEntryEntity lorebookEntry;
 
     @ManyToOne
     @ToString.Exclude
-    @JoinColumn(name = "lorebook_id", referencedColumnName = "id")
+    @JoinColumn(name = "lorebook_id", referencedColumnName = "id", nullable = false)
     private LorebookEntity lorebook;
 }

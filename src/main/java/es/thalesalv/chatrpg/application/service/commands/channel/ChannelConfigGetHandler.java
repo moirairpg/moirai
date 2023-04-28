@@ -125,7 +125,8 @@ public class ChannelConfigGetHandler {
         persona.setPersonality(null);
         config.setPersona(persona);
 
-        config.setSettings(null);
+        config.setModelSettings(null);
+        config.setModerationSettings(null);
         return config;
     }
 }

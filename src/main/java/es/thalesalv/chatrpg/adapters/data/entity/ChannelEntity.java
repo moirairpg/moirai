@@ -1,9 +1,10 @@
 package es.thalesalv.chatrpg.adapters.data.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,9 +20,10 @@ import lombok.NoArgsConstructor;
 public class ChannelEntity {
 
     @Id
+    @Column(name = "discord_channel_id", nullable = false, unique = true)
     private String id;
 
-    @OneToOne
-    @JoinColumn(name = "channel_config_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "channel_config_id", referencedColumnName = "id", nullable = false)
     private ChannelConfigEntity channelConfig;
 }

@@ -14,7 +14,7 @@ chatrpg:
       client-secret: ${DISCORD_BOT_CLIENT_SECRET}
       redirect-url: ${DISCORD_BOT_REDIRECT_URL}
     api-base-url: https://discord.com/api
-    status-channel-id: "1085340376698716283"
+    status-channel-id: '1085340376698716283'
     api-token: ${DISCORD_BOT_API_TOKEN}
     retry:
       error-attempts: 3
@@ -30,7 +30,7 @@ chatrpg:
 
 spring:
   profiles.active: ${SPRING_APPLICATION_PROFILES:default}
-  main.banner-mode: "off"
+  main.banner-mode: 'off'
   jpa.hibernate.ddl-auto: update
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST}/${POSTGRES_DB}
