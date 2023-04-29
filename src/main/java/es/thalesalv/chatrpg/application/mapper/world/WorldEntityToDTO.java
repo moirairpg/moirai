@@ -2,16 +2,12 @@ package es.thalesalv.chatrpg.application.mapper.world;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
-import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntityToDTO;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
 
@@ -19,16 +15,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorldEntityToDTO implements Function<WorldEntity, World> {
 
-    private final LorebookEntryEntityToDTO lorebookEntryToDTO;
+    private final LorebookEntityToDTO lorebookEntityToDTO;
 
     @Override
     public World apply(WorldEntity worldEntity) {
-
-        final Set<LorebookEntry> entries = worldEntity.getLorebook()
-                .getEntries()
-                .stream()
-                .map(lorebookEntryToDTO)
-                .collect(Collectors.toSet());
 
         return World.builder()
                 .id(worldEntity.getId())
@@ -36,29 +26,12 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
                 .name(worldEntity.getName())
                 .owner(worldEntity.getOwner())
                 .visibility(worldEntity.getVisibility())
-                .visibility(worldEntity.getVisibility())
-                .readPermissions(worldEntity.getReadPermissions())
+                .writePermissions(Optional.ofNullable(worldEntity.getWritePermissions())
+                        .orElse(new ArrayList<String>()))
+                .readPermissions(Optional.ofNullable(worldEntity.getReadPermissions())
+                        .orElse(new ArrayList<String>()))
                 .description(worldEntity.getDescription())
-                .lorebook(Lorebook.builder()
-                        .id(worldEntity.getLorebook()
-                                .getId())
-                        .name(worldEntity.getLorebook()
-                                .getName())
-                        .owner(worldEntity.getLorebook()
-                                .getOwner())
-                        .writePermissions(Optional.ofNullable(worldEntity.getLorebook()
-                                .getWritePermissions())
-                                .orElse(new ArrayList<String>()))
-                        .readPermissions(Optional.ofNullable(worldEntity.getLorebook()
-                                .getReadPermissions())
-                                .orElse(new ArrayList<String>()))
-                        .description(worldEntity.getLorebook()
-                                .getDescription())
-                        .visibility(Optional.ofNullable(worldEntity.getLorebook()
-                                .getVisibility())
-                                .orElse("private"))
-                        .entries(entries)
-                        .build())
+                .lorebook(lorebookEntityToDTO.apply(worldEntity.getLorebook()))
                 .build();
     }
 }

@@ -12,12 +12,11 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Builder
 @NoArgsConstructor
@@ -38,6 +37,7 @@ public class LorebookEntryRegexEntity {
     private LorebookEntryEntity lorebookEntry;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "lorebook_id", referencedColumnName = "id", nullable = false)
     private LorebookEntity lorebook;
 }

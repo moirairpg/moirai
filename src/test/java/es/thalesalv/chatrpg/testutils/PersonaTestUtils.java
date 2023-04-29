@@ -21,6 +21,7 @@ public class PersonaTestUtils {
 
     public static Persona buildSimplePublicPersona() {
 
+        final List<String> emptyPermissions = new ArrayList<>();
         return Persona.builder()
                 .id(NANO_ID)
                 .name("Test persona")
@@ -28,6 +29,8 @@ public class PersonaTestUtils {
                 .intent(Intent.CHAT)
                 .owner("1083867535658725536")
                 .visibility("public")
+                .writePermissions(emptyPermissions)
+                .readPermissions(emptyPermissions)
                 .nudge(Nudge.builder()
                         .role("system")
                         .content("this is a nugde")

@@ -1,7 +1,6 @@
 package es.thalesalv.chatrpg.application.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,39 +50,39 @@ public class WorldService {
     public World saveWorld(final World world) {
 
         LOGGER.debug("Entering saveWorld. world -> {}", world);
-        return Optional.of(worldDTOToEntity.apply(world))
-                .map(worldRepository::save)
-                .map(worldEntityToDTO)
-                .orElseThrow(() -> new RuntimeException("Error saving world"));
+        final WorldEntity worldEntity = worldDTOToEntity.apply(world);
+        return worldEntityToDTO.apply(worldRepository.save(worldEntity));
     }
 
     public World updateWorld(final String worldId, final World world, final String userId) {
 
         LOGGER.debug("Entering updateWorld. worldId -> {}, userId -> {}, world -> {}", worldId, userId, world);
-        return Optional.of(worldDTOToEntity.apply(world))
-                .map(w -> {
-                    if (!hasWritePermissions(w, userId)) {
-                        throw new InsufficientPermissionException("Not enough permissions to modify this world");
-                    }
-
-                    w.setId(worldId);
-                    return worldRepository.save(w);
-                })
-                .map(worldEntityToDTO)
+        worldRepository.findById(worldId)
                 .orElseThrow(() -> new WorldNotFoundException(
-                        "Error retrieving world by id: " + WORLD_ID_NOT_FOUND.replace("WORLD_ID", worldId)));
+                        "Error updating world: " + WORLD_ID_NOT_FOUND.replace("WORLD_ID", worldId)));
+
+        final WorldEntity worldEntity = worldDTOToEntity.apply(world);
+        if (!hasWritePermissions(worldEntity, userId)) {
+            throw new InsufficientPermissionException("Not enough permissions to modify this world");
+        }
+
+        worldEntity.setId(worldId);
+        return worldEntityToDTO.apply(worldRepository.save(worldEntity));
     }
 
     public void deleteWorld(final String worldId, final String userId) {
 
         LOGGER.debug("Entering deleteWorld. worldId -> {}, userId -> {}", worldId, userId);
         worldRepository.findById(worldId)
-                .ifPresent(world -> {
+                .ifPresentOrElse(world -> {
                     if (!hasWritePermissions(world, userId)) {
                         throw new InsufficientPermissionException("Not enough permissions to delete this world");
                     }
 
                     worldRepository.delete(world);
+                }, () -> {
+                    throw new WorldNotFoundException(
+                            "Error deleting world: " + WORLD_ID_NOT_FOUND.replace("WORLD_ID", worldId));
                 });
     }
 

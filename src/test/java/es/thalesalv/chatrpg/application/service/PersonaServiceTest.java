@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -30,14 +29,9 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.PersonaNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.SelfUser;
 
 @ExtendWith(MockitoExtension.class)
 public class PersonaServiceTest {
-
-    @Mock
-    private JDA jda;
 
     @Mock
     private PersonaRepository personaRepository;
@@ -53,16 +47,14 @@ public class PersonaServiceTest {
 
         personaDTOToEntity = new PersonaDTOToEntity();
         personaEntityToDTO = new PersonaEntityToDTO();
-        personaService = new PersonaService(jda, personaDTOToEntity, personaEntityToDTO, personaRepository);
+        personaService = new PersonaService(personaDTOToEntity, personaEntityToDTO, personaRepository);
     }
 
     @Test
     public void insertPersonaTest() {
 
         final PersonaEntity entity = buildSimplePublicPersonaEntity();
-        final SelfUser bot = mock(SelfUser.class);
 
-        when(jda.getSelfUser()).thenReturn(bot);
         when(personaRepository.save(buildSimplePublicPersonaEntity())).thenReturn(entity);
 
         final Persona persona = personaService.savePersona(buildSimplePublicPersona());
@@ -93,13 +85,11 @@ public class PersonaServiceTest {
         final String userId = "302796314822049793";
         final Persona persona = buildSimplePublicPersona();
         final PersonaEntity entity = buildSimplePublicPersonaEntity();
-        final SelfUser bot = mock(SelfUser.class);
 
         persona.setOwner(userId);
         entity.setOwner(userId);
 
         when(personaRepository.findById(NANO_ID)).thenReturn(Optional.of(entity));
-        when(jda.getSelfUser()).thenReturn(bot);
         when(personaRepository.save(entity)).thenReturn(entity);
 
         final Persona result = personaService.updatePersona(NANO_ID, persona, userId);

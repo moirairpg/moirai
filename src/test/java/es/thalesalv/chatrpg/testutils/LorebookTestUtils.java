@@ -27,6 +27,7 @@ public class LorebookTestUtils {
         final LorebookEntry entry = LorebookEntry.builder()
                 .name("Test entry")
                 .description("Test description")
+                .regex("test")
                 .build();
 
         entries.add(entry);

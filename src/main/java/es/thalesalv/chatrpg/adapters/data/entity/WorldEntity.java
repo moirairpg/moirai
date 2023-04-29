@@ -17,12 +17,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Builder
 @NoArgsConstructor
@@ -59,6 +58,7 @@ public class WorldEntity {
     private String initialPrompt;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "lorebook", referencedColumnName = "id", nullable = false)
     private LorebookEntity lorebook;
 

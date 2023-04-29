@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -51,18 +52,22 @@ public class ChannelConfigEntity {
     private List<String> readPermissions;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false)
     private PersonaEntity persona;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "model_settings_id", referencedColumnName = "id", nullable = false)
     private ModelSettingsEntity modelSettings;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "moderation_settings_id", referencedColumnName = "id", nullable = false)
     private ModerationSettingsEntity moderationSettings;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "world_id", referencedColumnName = "id", nullable = false)
     private WorldEntity world;
 
