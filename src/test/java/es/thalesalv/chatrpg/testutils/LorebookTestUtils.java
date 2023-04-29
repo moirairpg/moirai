@@ -21,14 +21,32 @@ public class LorebookTestUtils {
 
     private static final String NANO_ID = "241OZASGM6CESV7";
 
-    public static Lorebook buildSimplePublicLorebook() {
+    public static LorebookEntry buildSimpleLorebookEntry() {
 
-        final Set<LorebookEntry> entries = new HashSet<>();
-        final LorebookEntry entry = LorebookEntry.builder()
+        return LorebookEntry.builder()
                 .name("Test entry")
                 .description("Test description")
                 .regex("test")
                 .build();
+    }
+
+    public static LorebookEntryRegexEntity buildSimpleLorebookEntryEntity() {
+
+        final LorebookEntryEntity entry = LorebookEntryEntity.builder()
+                .name("Test entry")
+                .description("Test description")
+                .build();
+
+        return LorebookEntryRegexEntity.builder()
+                .regex("test")
+                .lorebookEntry(entry)
+                .build();
+    }
+
+    public static Lorebook buildSimplePublicLorebook() {
+
+        final Set<LorebookEntry> entries = new HashSet<>();
+        final LorebookEntry entry = buildSimpleLorebookEntry();
 
         entries.add(entry);
 
@@ -47,16 +65,7 @@ public class LorebookTestUtils {
     public static LorebookEntity buildSimplePublicLorebookEntity() {
 
         final List<LorebookEntryRegexEntity> entries = new ArrayList<>();
-        final LorebookEntryEntity entry = LorebookEntryEntity.builder()
-                .name("Test entry")
-                .description("Test description")
-                .build();
-
-        final LorebookEntryRegexEntity regexEntity = LorebookEntryRegexEntity.builder()
-                .regex("test")
-                .lorebookEntry(entry)
-                .build();
-
+        final LorebookEntryRegexEntity regexEntity = buildSimpleLorebookEntryEntity();
         final LorebookEntity lorebook = LorebookEntity.builder()
                 .id(NANO_ID)
                 .name("Test lorebook")

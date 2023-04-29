@@ -154,6 +154,7 @@ public class WorldServiceTest {
                 .delete(entity);
 
         worldService.deleteWorld(NANO_ID, userId);
+        assertTrue(hasWritePermissions(world, userId));
     }
 
     @Test
