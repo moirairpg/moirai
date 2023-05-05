@@ -1,18 +1,13 @@
 package es.thalesalv.chatrpg.application.mapper.world;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
-import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryDTOToEntity;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorldDTOToEntity implements Function<World, WorldEntity> {
 
-    private final LorebookEntryDTOToEntity lorebookEntryDTOToEntity;
+    private final LorebookDTOToEntity lorebookDTOToEntity;
 
     @Override
     public WorldEntity apply(World world) {
@@ -29,34 +24,18 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
         final Lorebook lorebook = Optional.ofNullable(world.getLorebook())
                 .orElse(Lorebook.defaultLorebook());
 
-        final List<LorebookEntryRegexEntity> entries = Optional.ofNullable(lorebook.getEntries())
-                .orElse(new HashSet<>())
-                .stream()
-                .map(lorebookEntryDTOToEntity)
-                .collect(Collectors.toList());
-
         return WorldEntity.builder()
                 .id(world.getId())
                 .initialPrompt(world.getInitialPrompt())
                 .name(world.getName())
                 .owner(world.getOwner())
                 .visibility(world.getVisibility())
-                .visibility(world.getVisibility())
-                .readPermissions(world.getReadPermissions())
+                .writePermissions(Optional.ofNullable(world.getWritePermissions())
+                        .orElse(new ArrayList<String>()))
+                .readPermissions(Optional.ofNullable(world.getReadPermissions())
+                        .orElse(new ArrayList<String>()))
                 .description(world.getDescription())
-                .lorebook(LorebookEntity.builder()
-                        .id(lorebook.getId())
-                        .name(lorebook.getName())
-                        .owner(lorebook.getOwner())
-                        .writePermissions(Optional.ofNullable(lorebook.getWritePermissions())
-                                .orElse(new ArrayList<String>()))
-                        .readPermissions(Optional.ofNullable(lorebook.getReadPermissions())
-                                .orElse(new ArrayList<String>()))
-                        .description(lorebook.getDescription())
-                        .visibility(Optional.ofNullable(lorebook.getVisibility())
-                                .orElse("private"))
-                        .entries(entries)
-                        .build())
+                .lorebook(lorebookDTOToEntity.apply(lorebook))
                 .build();
     }
 }

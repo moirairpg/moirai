@@ -159,7 +159,7 @@
                         <exclude>**/translator/*</exclude>
                         <exclude>**/listener/*</exclude>
                         <exclude>**/errorhandling/*</exclude>
-                        <exclude>**/commands/*</exclude>
+                        <exclude>**/commands/**</exclude>
                         <exclude>**/enums/*</exclude>
                     </excludes>
                 </configuration>

@@ -17,13 +17,11 @@ import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.PersonaNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.JDA;
 
 @Service
 @RequiredArgsConstructor
 public class PersonaService {
 
-    private final JDA jda;
     private final PersonaDTOToEntity personaDTOToEntity;
     private final PersonaEntityToDTO personaEntityToDTO;
     private final PersonaRepository personaRepository;
@@ -45,10 +43,6 @@ public class PersonaService {
 
         LOGGER.debug("Entering savePersona. persona -> {}", persona);
         final PersonaEntity personaEntity = personaDTOToEntity.apply(persona);
-        personaEntity.setOwner(Optional.ofNullable(personaEntity.getOwner())
-                .orElse(jda.getSelfUser()
-                        .getId()));
-
         return personaEntityToDTO.apply(personaRepository.save(personaEntity));
     }
 
@@ -57,23 +51,17 @@ public class PersonaService {
         LOGGER.debug("Entering updatePersona. personaId -> {}, userId -> {}, persona -> {}", personaId, userId,
                 persona);
 
-        return personaRepository.findById(personaId)
-                .map(p -> personaDTOToEntity.apply(persona))
-                .map(p -> {
-                    if (!hasWritePermissions(p, userId)) {
-                        throw new InsufficientPermissionException("Not enough permissions to modify this persona");
-                    }
-
-                    p.setId(personaId);
-                    p.setOwner(Optional.ofNullable(p.getOwner())
-                            .orElse(jda.getSelfUser()
-                                    .getId()));
-
-                    return personaRepository.save(p);
-                })
-                .map(personaEntityToDTO)
+        personaRepository.findById(personaId)
                 .orElseThrow(() -> new PersonaNotFoundException(
                         "Error updating persona: " + PERSONA_ID_NOT_FOUND.replace("PERSONA_ID", personaId)));
+
+        final PersonaEntity personaEntity = personaDTOToEntity.apply(persona);
+        if (!hasWritePermissions(personaEntity, userId)) {
+            throw new InsufficientPermissionException("Not enough permissions to modify this persona");
+        }
+
+        personaEntity.setId(personaId);
+        return personaEntityToDTO.apply(personaRepository.save(personaEntity));
     }
 
     public void deletePersona(final String personaId, final String userId) {
