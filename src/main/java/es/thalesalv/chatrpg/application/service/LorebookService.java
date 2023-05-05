@@ -143,7 +143,6 @@ public class LorebookService {
 
         LOGGER.debug("Entering retrieveLorebookEntryById. lorebookEntryId -> {}. userId -> {}", lorebookEntryId,
                 userId);
-
         return lorebookEntryRepository.findById(lorebookEntryId)
                 .map(entry -> {
                     return lorebookEntryRegexRepository.findByLorebookEntry(entry)
