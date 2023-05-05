@@ -1,15 +1,13 @@
 package es.thalesalv.chatrpg.application.mapper.world;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
-import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntityToDTO;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
 
@@ -17,38 +15,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorldEntityToDTO implements Function<WorldEntity, World> {
 
-    private final LorebookEntryEntityToDTO lorebookEntryToDTO;
+    private final LorebookEntityToDTO lorebookEntityToDTO;
 
     @Override
     public World apply(WorldEntity worldEntity) {
 
-        final Set<LorebookEntry> entries = worldEntity.getLorebook()
-                .getEntries()
-                .stream()
-                .map(lorebookEntryToDTO)
-                .collect(Collectors.toSet());
-
         return World.builder()
-                .editPermissions(worldEntity.getEditPermissions())
                 .id(worldEntity.getId())
                 .initialPrompt(worldEntity.getInitialPrompt())
                 .name(worldEntity.getName())
                 .owner(worldEntity.getOwner())
                 .visibility(worldEntity.getVisibility())
+                .writePermissions(Optional.ofNullable(worldEntity.getWritePermissions())
+                        .orElse(new ArrayList<String>()))
+                .readPermissions(Optional.ofNullable(worldEntity.getReadPermissions())
+                        .orElse(new ArrayList<String>()))
                 .description(worldEntity.getDescription())
-                .lorebook(Lorebook.builder()
-                        .id(worldEntity.getLorebook()
-                                .getId())
-                        .name(worldEntity.getLorebook()
-                                .getName())
-                        .owner(worldEntity.getLorebook()
-                                .getOwner())
-                        .editPermissions(worldEntity.getLorebook()
-                                .getEditPermissions())
-                        .description(worldEntity.getLorebook()
-                                .getDescription())
-                        .entries(entries)
-                        .build())
+                .lorebook(lorebookEntityToDTO.apply(worldEntity.getLorebook()))
                 .build();
     }
 }

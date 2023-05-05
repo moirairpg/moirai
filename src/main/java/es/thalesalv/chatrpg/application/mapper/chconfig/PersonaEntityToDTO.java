@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.application.mapper.chconfig;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -25,6 +26,11 @@ public class PersonaEntityToDTO implements Function<PersonaEntity, Persona> {
                 .owner(personaEntity.getOwner())
                 .intent(personaEntity.getIntent())
                 .personality(personaEntity.getPersonality())
+                .visibility(personaEntity.getVisibility())
+                .writePermissions(Optional.ofNullable(personaEntity.getWritePermissions())
+                        .orElse(new ArrayList<String>()))
+                .readPermissions(Optional.ofNullable(personaEntity.getReadPermissions())
+                        .orElse(new ArrayList<String>()))
                 .bump(buildBump(personaEntity.getBump()))
                 .nudge(buildNudge(personaEntity.getNudge()))
                 .build();

@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.application.mapper.lorebook;
 
+import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -29,9 +31,13 @@ public class LorebookEntityToDTO implements Function<LorebookEntity, Lorebook> {
                 .id(lorebookEntity.getId())
                 .description(lorebookEntity.getDescription())
                 .name(lorebookEntity.getName())
-                .editPermissions(lorebookEntity.getEditPermissions())
+                .writePermissions(Optional.ofNullable(lorebookEntity.getWritePermissions())
+                        .orElse(new ArrayList<String>()))
+                .readPermissions(Optional.ofNullable(lorebookEntity.getReadPermissions())
+                        .orElse(new ArrayList<String>()))
                 .owner(lorebookEntity.getOwner())
-                .visibility(lorebookEntity.getVisibility())
+                .visibility(Optional.ofNullable(lorebookEntity.getVisibility())
+                        .orElse("private"))
                 .entries(entries)
                 .build();
     }

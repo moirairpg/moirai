@@ -3,9 +3,6 @@ package es.thalesalv.chatrpg.application.service.commands;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import es.thalesalv.chatrpg.domain.enums.Intent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -16,7 +13,7 @@ import es.thalesalv.chatrpg.application.mapper.EventDataMapper;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.usecases.BotUseCase;
-import es.thalesalv.chatrpg.domain.enums.AIModel;
+import es.thalesalv.chatrpg.domain.enums.Intent;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
@@ -26,6 +23,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 @Service
 @RequiredArgsConstructor
@@ -56,28 +55,37 @@ public class RetryInteractionHandler implements DiscordInteractionHandler {
             event.deferReply();
             final SelfUser bot = event.getJDA()
                     .getSelfUser();
+
             final MessageChannelUnion channel = event.getChannel();
             channelRepository.findById(channel.getId())
                     .map(channelEntityToDTO)
                     .map(ch -> {
                         final Persona persona = ch.getChannelConfig()
                                 .getPersona();
+
                         final ModelSettings modelSettings = ch.getChannelConfig()
-                                .getSettings()
                                 .getModelSettings();
-                        final Message botMessage = retrieveBotMessage(channel, modelSettings, bot, persona);
-                        final String completionType = AIModel.findByInternalName(modelSettings.getModelName())
+
+                        final String messageId = prepareMessageAndRetrieveId(channel, modelSettings, bot, persona);
+                        final Message botMessage = channel.retrieveMessageById(messageId)
+                                .complete();
+
+                        final String completionType = modelSettings.getModelName()
                                 .getCompletionType();
+
                         final EventData eventData = eventDataMapper.translate(bot, channel, ch, botMessage);
                         final CompletionService model = (CompletionService) applicationContext.getBean(completionType);
                         final BotUseCase useCase = (BotUseCase) applicationContext
                                 .getBean(persona.getIntent() + USE_CASE);
+
                         event.reply("Re-generating output...")
                                 .setEphemeral(true)
                                 .queue(a -> a.deleteOriginal()
                                         .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+
                         botMessage.delete()
                                 .complete();
+
                         useCase.generateResponse(eventData, model);
                         return ch;
                     })
@@ -101,6 +109,7 @@ public class RetryInteractionHandler implements DiscordInteractionHandler {
 
         final String authorName = message.getAuthor()
                 .getName();
+
         final String msgContent = message.getContentDisplay();
         final String formattedContent = MessageFormat.format(BOT_INSTRUCTION, authorName, msgContent);
         return Intent.RPG.equals(intent) ? bot.getAsMention() + formattedContent : formattedContent;
@@ -116,7 +125,7 @@ public class RetryInteractionHandler implements DiscordInteractionHandler {
                 .orElseThrow(() -> new IndexOutOfBoundsException(USER_MESSAGE_NOT_FOUND));
     }
 
-    private Message retrieveBotMessage(final MessageChannelUnion channel, final ModelSettings modelSettings,
+    private String prepareMessageAndRetrieveId(final MessageChannelUnion channel, final ModelSettings modelSettings,
             final SelfUser bot, final Persona persona) {
 
         return channel.getHistory()
@@ -131,9 +140,11 @@ public class RetryInteractionHandler implements DiscordInteractionHandler {
                     final Message lastMessage = retrieveLastMessage(channel, msg);
                     final String originalContent = formatInput(persona.getIntent(), lastMessage, channel.getJDA()
                             .getSelfUser());
+
                     msg.editMessage(originalContent)
                             .complete();
-                    return msg;
+
+                    return msg.getId();
                 })
                 .orElseThrow(() -> new IndexOutOfBoundsException(BOT_MESSAGE_NOT_FOUND));
     }

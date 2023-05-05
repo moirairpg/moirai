@@ -30,7 +30,8 @@ public class LorebookGetHandler {
     private final ObjectWriter prettyPrintObjectMapper;
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ChannelRepository channelRepository;
-    private static final int DELETE_EPHEMERAL_20_SECONDS = 20;
+
+    private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String CHANNEL_NO_CONFIG_ATTACHED = "This channel does not have a configuration with a valid world/lorebook attached to it.";
     private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";
@@ -51,9 +52,11 @@ public class LorebookGetHandler {
                     .map(channelEntityToDTO)
                     .map(channel -> {
                         try {
+                            final OptionMapping entryId = event.getOption("id");
                             final World world = channel.getChannelConfig()
                                     .getWorld();
-                            final OptionMapping entryId = event.getOption("id");
+
+                            checkPermissions(world, event);
                             if (entryId != null) {
                                 retrieveLoreEntryById(entryId.getAsString(), world, event);
                                 return channel;
@@ -66,7 +69,7 @@ public class LorebookGetHandler {
                             event.reply(ERROR_RETRIEVE)
                                     .setEphemeral(true)
                                     .queue(m -> m.deleteOriginal()
-                                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
                         }
                         return channel;
                     })
@@ -76,19 +79,19 @@ public class LorebookGetHandler {
             event.reply(QUERIED_ENTRY_NOT_FOUND)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (ChannelConfigNotFoundException e) {
             LOGGER.info(CHANNEL_CONFIG_NOT_FOUND);
             event.reply(CHANNEL_NO_CONFIG_ATTACHED)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOGGER.error(ERROR_RETRIEVE, e);
             event.reply(USER_ERROR_RETRIEVE)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
-                            .queueAfter(DELETE_EPHEMERAL_20_SECONDS, TimeUnit.SECONDS));
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
         }
     }
 
@@ -96,11 +99,11 @@ public class LorebookGetHandler {
             throws JsonProcessingException {
 
         final Lorebook lorebook = world.getLorebook();
-        lorebook.setEntries(null);
         lorebook.setOwner(event.getJDA()
                 .retrieveUserById(world.getOwner())
                 .complete()
                 .getName());
+
         final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebook);
         event.reply(MessageFormat.format(LOREBOOK_RETRIEVED, lorebook.getName(), lorebookJson))
                 .setEphemeral(true)
@@ -117,9 +120,36 @@ public class LorebookGetHandler {
                         .equals(entryId))
                 .findFirst()
                 .orElseThrow(LorebookEntryNotFoundException::new);
+
         final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(entry);
         event.reply(MessageFormat.format(ENTRY_RETRIEVED, entry.getName(), loreEntryJson))
                 .setEphemeral(true)
                 .complete();
+    }
+
+    private void checkPermissions(World world, SlashCommandInteractionEvent event) {
+
+        final Lorebook lorebook = world.getLorebook();
+        final String userId = event.getUser()
+                .getId();
+
+        final boolean isPrivate = lorebook.getVisibility()
+                .equals("private");
+
+        final boolean isOwner = lorebook.getOwner()
+                .equals(userId);
+
+        final boolean canRead = lorebook.getReadPermissions()
+                .contains(userId)
+                || lorebook.getWritePermissions()
+                        .contains(userId);
+
+        final boolean isAllowed = isOwner || canRead;
+        if (isPrivate && !isAllowed) {
+            event.reply("You don't have permission from the owner of this private lorebook to see it")
+                    .setEphemeral(true)
+                    .queue(m -> m.deleteOriginal()
+                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+        }
     }
 }

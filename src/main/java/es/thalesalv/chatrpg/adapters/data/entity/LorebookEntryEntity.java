@@ -23,13 +23,12 @@ public class LorebookEntryEntity {
     @Id
     @GeneratedValue(generator = "nanoid-generator")
     @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.application.util.dbutils.NanoIdIdentifierGenerator")
-    @Column(name = "id", unique = true, nullable = false)
     private String id;
 
-    @Column(name = "entry_name")
+    @Column(name = "entry_name", nullable = false)
     private String name;
 
-    @Column(name = "entry_description", length = 2000)
+    @Column(name = "entry_description", length = 2000, nullable = false)
     private String description;
 
     @Column(name = "player_discord_id", nullable = true)

@@ -1,8 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.repository;
 
-import org.springframework.data.repository.CrudRepository;
-
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface LorebookRepository extends CrudRepository<LorebookEntity, String> {
+public interface LorebookRepository extends JpaRepository<LorebookEntity, String> {
 }

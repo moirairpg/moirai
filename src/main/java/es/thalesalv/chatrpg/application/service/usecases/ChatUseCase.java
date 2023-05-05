@@ -38,6 +38,7 @@ public class ChatUseCase implements BotUseCase {
         eventData.getCurrentChannel()
                 .sendTyping()
                 .complete();
+
         final Message message = eventData.getMessage();
         final SelfUser bot = eventData.getBot();
         if (message.getContentRaw()
@@ -83,9 +84,33 @@ public class ChatUseCase implements BotUseCase {
                 .takeWhile(stopFilter.negate())
                 .map(StringProcessors.chatFormatter())
                 .collect(Collectors.toList());
+
         Collections.reverse(messages);
         messages.addAll(formattedReplies);
         return messages;
+    }
+
+    private Predicate<Message> stopFilter(final EventData eventData) {
+
+        final SelfUser bot = eventData.getBot();
+        final Predicate<Message> isBotTagged = DelayedPredicate.withTest(m -> m.getContentRaw()
+                .contains(bot.getAsMention()));
+
+        final Predicate<Message> hasStopReaction = message -> message.getReactions()
+                .stream()
+                .anyMatch(r -> STOP_MEMORY_EMOJI.equals(r.getEmoji()
+                        .getName()));
+
+        return isBotTagged.or(hasStopReaction);
+    }
+
+    private Predicate<Message> skipFilter(final EventData eventData) {
+
+        final SelfUser bot = eventData.getBot();
+        return m -> !m.getContentRaw()
+                .trim()
+                .equals(bot.getAsMention()
+                        .trim());
     }
 
     private List<String> getFormattedReplies(final EventData eventData) {
@@ -102,37 +127,17 @@ public class ChatUseCase implements BotUseCase {
         }
     }
 
-    private Predicate<Message> stopFilter(final EventData eventData) {
-
-        final SelfUser bot = eventData.getBot();
-        final Predicate<Message> isBotTagged = DelayedPredicate.withTest(m -> m.getContentRaw()
-                .contains(bot.getAsMention()));
-        final Predicate<Message> hasStopReaction = message -> message.getReactions()
-                .stream()
-                .anyMatch(r -> STOP_MEMORY_EMOJI.equals(r.getEmoji()
-                        .getName()));
-        return isBotTagged.or(hasStopReaction);
-    }
-
-    private Predicate<Message> skipFilter(final EventData eventData) {
-
-        final SelfUser bot = eventData.getBot();
-        return m -> !m.getContentRaw()
-                .trim()
-                .equals(bot.getAsMention()
-                        .trim());
-    }
-
     private List<Message> getHistory(final EventData eventData) {
 
         final MessageChannelUnion channel = eventData.getCurrentChannel();
         final Message repliedMessage = eventData.getMessage()
                 .getReferencedMessage();
+
         final int historySize = eventData.getChannelDefinitions()
                 .getChannelConfig()
-                .getSettings()
                 .getModelSettings()
                 .getChatHistoryMemory();
+
         if (null == repliedMessage) {
             return channel.getHistory()
                     .retrievePast(historySize)

@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service.commands;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -24,7 +25,7 @@ public class TkInteractionHandler implements DiscordInteractionHandler {
     private static final String COMMAND_STRING = "tk";
     private static final String TEXT_OPTION = "text";
     private static final int DELETE_EPHEMERAL_TIMER = 20;
-    private static final String TOKEN_REPLY_MESSAGE = "**Tokens:** {0} (contains {1} total tokens).";
+    private static final String TOKEN_REPLY_MESSAGE = "**Tokens:** {0}\n**Token IDs:** {1} (contains {2} total tokens).";
     private static final String UNKNOWN_ERROR = "An unknown error was caught while tokenizing string";
     private static final String SOMETHING_WRONG_TRY_AGAIN = "Something went wrong when tokenizing the text. Please try again.";
 
@@ -38,8 +39,9 @@ public class TkInteractionHandler implements DiscordInteractionHandler {
             final String text = event.getOption(TEXT_OPTION)
                     .getAsString();
             final String tokens = tokenizerService.tokenize(text);
+            final String tokenIds = Arrays.toString(tokenizerService.toTokenIds(text));
             final int tokenCount = tokenizerService.countTokens(text);
-            event.reply(MessageFormat.format(TOKEN_REPLY_MESSAGE, tokens, tokenCount))
+            event.reply(MessageFormat.format(TOKEN_REPLY_MESSAGE, tokens, tokenIds, tokenCount))
                     .setEphemeral(true)
                     .queue();
         } catch (Exception e) {

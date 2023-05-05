@@ -1,12 +1,7 @@
 package es.thalesalv.chatrpg.adapters.data.repository;
 
-import java.util.List;
-
-import org.springframework.data.repository.CrudRepository;
-
 import es.thalesalv.chatrpg.adapters.data.entity.ChannelConfigEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ChannelConfigRepository extends CrudRepository<ChannelConfigEntity, String> {
-
-    List<ChannelConfigEntity> findAll();
+public interface ChannelConfigRepository extends JpaRepository<ChannelConfigEntity, String> {
 }

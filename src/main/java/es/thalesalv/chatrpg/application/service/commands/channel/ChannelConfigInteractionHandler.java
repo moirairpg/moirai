@@ -43,8 +43,10 @@ public class ChannelConfigInteractionHandler implements DiscordInteractionHandle
             case SET -> setHandler.handleCommand(event);
             case LIST -> listHandler.handleCommand(event);
             case UNSET -> unsetHandler.handleCommand(event);
-            default -> throw new RuntimeException(USER_ACTION_NOT_FOUND); // not redundant if you add a
-                                                                          // ChannelConfigAction but forget to add it to
+            default -> throw new RuntimeException(USER_ACTION_NOT_FOUND); // not redundant if you
+                                                                          // add a
+                                                                          // ChannelConfigAction but
+                                                                          // forget to add it to
                                                                           // the switch
         }
     }

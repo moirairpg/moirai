@@ -27,16 +27,18 @@ public class ChannelConfigDTOToEntity implements Function<ChannelConfig, Channel
 
         final WorldEntity world = worldDTOToEntity.apply(channelConfig.getWorld());
         final PersonaEntity persona = personaDTOToEntity.apply(channelConfig.getPersona());
-        final ModelSettingsEntity modelSettings = modelSettingsDTOToEntity.apply(channelConfig.getSettings()
-                .getModelSettings());
+        final ModelSettingsEntity modelSettings = modelSettingsDTOToEntity.apply(channelConfig.getModelSettings());
 
-        final ModerationSettingsEntity moderationSettings = moderationSettingsDTOToEntity.apply(channelConfig.getSettings()
-                .getModerationSettings());
+        final ModerationSettingsEntity moderationSettings = moderationSettingsDTOToEntity
+                .apply(channelConfig.getModerationSettings());
 
         return ChannelConfigEntity.builder()
-                .editPermissions(channelConfig.getEditPermissions())
                 .id(channelConfig.getId())
+                .name(channelConfig.getName())
                 .owner(channelConfig.getOwner())
+                .visibility(channelConfig.getVisibility())
+                .readPermissions(channelConfig.getReadPermissions())
+                .writePermissions(channelConfig.getWritePermissions())
                 .persona(persona)
                 .modelSettings(modelSettings)
                 .moderationSettings(moderationSettings)

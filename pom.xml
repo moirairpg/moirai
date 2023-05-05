@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.1.0-SNAPSHOT</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <groupId>es.thalesalv</groupId>
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-beta.4</version>
+            <version>5.0.0-beta.9</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -149,14 +149,18 @@
                         <exclude>**/YamlPropertySourceFactory*</exclude>
                         <exclude>**/JsonLoggerFormatter*</exclude>
                         <exclude>**/application/config/*</exclude>
-                        <exclude>**/dto/*</exclude>
                         <exclude>**/model/**</exclude>
+                        <exclude>**/util/**</exclude>
+                        <exclude>**/dto/*</exclude>
                         <exclude>**/exception/*</exclude>
                         <exclude>**/beans/*</exclude>
                         <exclude>**/repository/*</exclude>
                         <exclude>**/entity/*</exclude>
                         <exclude>**/translator/*</exclude>
                         <exclude>**/listener/*</exclude>
+                        <exclude>**/errorhandling/*</exclude>
+                        <exclude>**/commands/**</exclude>
+                        <exclude>**/enums/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -179,6 +183,7 @@
                 <artifactId>formatter-maven-plugin</artifactId>
                 <version>2.22.0</version>
                 <configuration>
+                    <lineEnding>LF</lineEnding>
                     <configFile>${project.basedir}/formatter.xml</configFile>
                 </configuration>
                 <executions>
@@ -187,6 +192,7 @@
                             <goal>format</goal>
                         </goals>
                         <configuration>
+                            <lineEnding>LF</lineEnding>
                             <configFile>formatter.xml</configFile>
                         </configuration>
                     </execution>

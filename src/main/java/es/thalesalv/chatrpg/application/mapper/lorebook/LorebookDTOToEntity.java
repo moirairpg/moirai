@@ -1,6 +1,9 @@
 package es.thalesalv.chatrpg.application.mapper.lorebook;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -20,19 +23,30 @@ public class LorebookDTOToEntity implements Function<Lorebook, LorebookEntity> {
     @Override
     public LorebookEntity apply(Lorebook lorebook) {
 
-        final List<LorebookEntryRegexEntity> entries = lorebook.getEntries()
-                .stream()
-                .map(lorebookEntryDTOToEntity)
-                .collect(Collectors.toList());
-
-        return LorebookEntity.builder()
+        final LorebookEntity entity = LorebookEntity.builder()
                 .id(lorebook.getId())
                 .description(lorebook.getDescription())
                 .name(lorebook.getName())
-                .editPermissions(lorebook.getEditPermissions())
+                .writePermissions(Optional.ofNullable(lorebook.getWritePermissions())
+                        .orElse(new ArrayList<String>()))
+                .readPermissions(Optional.ofNullable(lorebook.getReadPermissions())
+                        .orElse(new ArrayList<String>()))
                 .owner(lorebook.getOwner())
-                .visibility(lorebook.getVisibility())
-                .entries(entries)
+                .visibility(Optional.ofNullable(lorebook.getVisibility())
+                        .orElse("private"))
                 .build();
+
+        final List<LorebookEntryRegexEntity> entries = Optional.ofNullable(lorebook.getEntries())
+                .orElse(new HashSet<>())
+                .stream()
+                .map(lorebookEntryDTOToEntity)
+                .map(e -> {
+                    e.setLorebook(entity);
+                    return e;
+                })
+                .collect(Collectors.toList());
+
+        entity.setEntries(entries);
+        return entity;
     }
 }

@@ -18,4 +18,12 @@ public class ModerationSettings {
     private String owner;
     private boolean absolute;
     private Map<String, Double> thresholds;
+
+    public static ModerationSettings defaultModerationSettings() {
+
+        return ModerationSettings.builder()
+                .id("0")
+                .absolute(true)
+                .build();
+    }
 }
