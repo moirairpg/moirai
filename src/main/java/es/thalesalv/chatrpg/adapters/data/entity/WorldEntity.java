@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -57,6 +58,7 @@ public class WorldEntity {
     private String initialPrompt;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "lorebook", referencedColumnName = "id", nullable = false)
     private LorebookEntity lorebook;
 
