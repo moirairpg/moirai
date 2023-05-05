@@ -4,7 +4,6 @@ import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.util.StringProcessors;
 import es.thalesalv.chatrpg.application.util.TokenCountingStringPredicate;
-import es.thalesalv.chatrpg.domain.enums.AIModel;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Bump;
@@ -109,7 +108,6 @@ public class AuthorUseCase implements BotUseCase {
         final MessageChannelUnion channel = eventData.getCurrentChannel();
         final int historySize = eventData.getChannelDefinitions()
                 .getChannelConfig()
-                .getSettings()
                 .getModelSettings()
                 .getChatHistoryMemory();
         return channel.getHistory()
@@ -119,9 +117,8 @@ public class AuthorUseCase implements BotUseCase {
 
     private Predicate<String> tokenPredicate(final EventData eventData) {
 
-        ModelSettings model = eventData.getChannelDefinitions()
+        ModelSettings modelSettings = eventData.getChannelDefinitions()
                 .getChannelConfig()
-                .getSettings()
                 .getModelSettings();
         Persona persona = eventData.getChannelDefinitions()
                 .getChannelConfig()
@@ -131,12 +128,13 @@ public class AuthorUseCase implements BotUseCase {
         Nudge nudge = persona.getNudge();
         Bump bump = persona.getBump();
 
-        int tokens = AIModel.findByInternalName(model.getModelName())
+        int tokens = modelSettings.getModelName()
                 .getTokenCap();
         TokenCountingStringPredicate filter = new TokenCountingStringPredicate(tokens);
+        filter.reserve(modelSettings.getMaxTokens());
         filter.reserve(personality);
         filter.reserve(nudge.content);
-        for (int n = 1; n < Math.floorDiv(model.getChatHistoryMemory(), bump.frequency); n++) {
+        for (int n = 1; n < Math.floorDiv(modelSettings.getChatHistoryMemory(), bump.frequency); n++) {
             filter.reserve(bump.content);
         }
         return filter;
