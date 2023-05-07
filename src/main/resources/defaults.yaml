@@ -77,7 +77,7 @@
       frequency: 3
   model-settings:
     id: 'RPG'
-    model-name: 'CHATGPT'
+    model-name: 'chatgpt'
     name: 'Default dungeon master settings'
     max-tokens: 350
     chat-history-memory: 5
@@ -118,7 +118,7 @@
   model-settings:
     id: 'CHATBOT'
     name: 'Default chatbot settings'
-    model-name: 'CHATGPT'
+    model-name: 'chatgpt'
     max-tokens: 100
     chat-history-memory: 5
     temperature: 0.8
