@@ -1,7 +1,6 @@
 ---
 - id: 'ELDRIDA'
   name: 'Eldrida'
-  visibility: 'public'
   world:
     id: 'ELDRIDA'
     name: 'Eldrida'
@@ -89,7 +88,6 @@
     absolute: true
 - id: 'CHAT'
   name: 'Basic Chatbot'
-  visibility: 'public'
   world:
     id: 'CHAT'
     visibility: 'private'

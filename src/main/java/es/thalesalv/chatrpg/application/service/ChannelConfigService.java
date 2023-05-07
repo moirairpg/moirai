@@ -57,7 +57,7 @@ public class ChannelConfigService {
         LOGGER.debug("Entered retrieveAllChannelConfigs. userId -> {}", userId);
         return channelConfigRepository.findAll()
                 .stream()
-                .filter(l -> !l.getOwner()
+                .filter(l -> l.getOwner()
                         .equals(userId))
                 .map(channelConfigEntityToDTO)
                 .toList();
@@ -66,10 +66,11 @@ public class ChannelConfigService {
     public ChannelConfig saveChannelConfig(final ChannelConfig channelConfig) {
 
         LOGGER.debug("Entered saveChannelConfig. channelConfig -> {}", channelConfig);
-        return Optional.of(buildNewChannelConfig(channelConfig))
-                .map(channelConfigRepository::save)
-                .map(channelConfigEntityToDTO)
-                .orElseThrow(() -> new RuntimeException("Error saving channel config"));
+        final ChannelConfigEntity entity = buildNewChannelConfig(channelConfig);
+        final ModelSettingsEntity modelSettings = modelSettingsRepository.save(entity.getModelSettings());
+        entity.setModelSettings(modelSettings);
+
+        return channelConfigEntityToDTO.apply(channelConfigRepository.save(entity));
     }
 
     public ChannelConfig updateChannelConfig(final String channelConfigId, final ChannelConfig channelConfig,
@@ -162,21 +163,17 @@ public class ChannelConfigService {
                         .orElse(moderationSettingsDTOToEntity.apply(ModerationSettings.defaultModerationSettings())))
                 .orElse(moderationSettingsDTOToEntity.apply(ModerationSettings.defaultModerationSettings()));
 
-        final ModelSettingsEntity modelSettings = Optional.ofNullable(channelConfig.getModelSettings())
-                .map(p -> modelSettingsRepository.findById(p.getId())
-                        .orElse(modelSettingsDTOToEntity.apply(ModelSettings.defaultModelSettings())))
-                .orElse(modelSettingsDTOToEntity.apply(ModelSettings.defaultModelSettings()));
-
         final WorldEntity world = Optional.ofNullable(channelConfig.getWorld())
                 .map(p -> worldRepository.findById(p.getId())
                         .orElse(worldDTOToEntity.apply(World.defaultWorld())))
                 .orElse(worldDTOToEntity.apply(World.defaultWorld()));
 
+        final ModelSettingsEntity modelSettings = modelSettingsDTOToEntity.apply(ModelSettings.defaultModelSettings());
+
         return ChannelConfigEntity.builder()
                 .id(channelConfig.getId())
                 .owner(channelConfig.getOwner())
                 .name(channelConfig.getName())
-                .visibility(channelConfig.getVisibility())
                 .readPermissions(channelConfig.getReadPermissions())
                 .writePermissions(channelConfig.getWritePermissions())
                 .persona(persona)
