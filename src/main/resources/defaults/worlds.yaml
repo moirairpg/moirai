@@ -1,6 +1,6 @@
 ---
 - id: 'CHAT'
-  visibility: 'private'
+  visibility: 'public'
   name: 'Default world for chatbot'
   description: 'Default world for chatbot'
   lorebook:
@@ -10,6 +10,7 @@
     description: Default lorebook for chatbot.
 
 - id: 'ELDRIDA'
+  visibility: 'public'
   name: 'Eldrida'
   description: >
     Eldrida is a massive continent with vast stretches of open plains,
