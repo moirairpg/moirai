@@ -1,0 +1,22 @@
+---
+- id: 'CHAT'
+  name: 'Basic Chatbot'
+  world:
+    id: 'CHAT'
+  persona:
+    id: 'CHAT'
+  model-settings:
+    id: 'CHATBOT'
+  moderation-settings:
+    id: 'STRICT'
+
+- id: 'ELDRIDA'
+  name: 'Eldrida'
+  world:
+    id: 'ELDRIDA'
+  persona:
+    id: 'RPG'
+  model-settings:
+    id: 'RPG'
+  moderation-settings:
+    id: 'STRICT'

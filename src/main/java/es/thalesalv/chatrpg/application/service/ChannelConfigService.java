@@ -31,11 +31,13 @@ import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.JDA;
 
 @Service
 @RequiredArgsConstructor
 public class ChannelConfigService {
 
+    private final JDA jda;
     private final PersonaDTOToEntity personaDTOToEntity;
     private final WorldDTOToEntity worldDTOToEntity;
     private final ModerationSettingsDTOToEntity moderationSettingsDTOToEntity;
@@ -57,8 +59,17 @@ public class ChannelConfigService {
         LOGGER.debug("Entered retrieveAllChannelConfigs. userId -> {}", userId);
         return channelConfigRepository.findAll()
                 .stream()
-                .filter(l -> l.getOwner()
-                        .equals(userId))
+                .filter(l -> {
+                    final String botId = jda.getSelfUser()
+                            .getId();
+                    final boolean isOwner = l.getOwner()
+                            .equals(userId);
+
+                    final boolean isDefault = l.getOwner()
+                            .equals(botId);
+
+                    return isOwner || isDefault;
+                })
                 .map(channelConfigEntityToDTO)
                 .toList();
     }
