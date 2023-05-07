@@ -154,6 +154,7 @@ public class ChannelConfigService {
 
         return ChannelConfigEntity.builder()
                 .id(channelConfigId)
+                .name(newConfigInfo.getName())
                 .owner(newConfigInfo.getOwner())
                 .persona(persona)
                 .world(world)
