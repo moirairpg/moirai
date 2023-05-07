@@ -16,6 +16,10 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelConfigRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.ModelSettingsRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.ModerationSettingsRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.PersonaRepository;
+import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.service.ChannelConfigService;
 import es.thalesalv.chatrpg.application.service.LorebookService;
 import es.thalesalv.chatrpg.application.service.ModelSettingsService;
@@ -45,11 +49,20 @@ public class DefaultConfiguration {
     private final ModerationSettingsService moderationSettingsService;
     private final ModelSettingsService modelSettingsService;
     private final ChannelConfigService channelConfigService;
+
+    private final ModelSettingsRepository modelSettingsRepository;
+    private final ModerationSettingsRepository moderationSettingsRepository;
+    private final PersonaRepository personaRepository;
+    private final WorldRepository worldRepository;
     private final ChannelConfigRepository channelConfigRepository;
 
     private final ObjectMapper yamlObjectMapper;
 
-    private static final String YAML_FILE_PATH = "defaults.yaml";
+    private static final String CHCONF_YAML_FILE_PATH = "defaults/channel-configs.yaml";
+    private static final String PERSONAS_YAML_FILE_PATH = "defaults/personas.yaml";
+    private static final String WORLDS_FILE_PATH = "defaults/worlds.yaml";
+    private static final String MODEL_SETS_FILE_PATH = "defaults/model-settings.yaml";
+    private static final String MODER_SETS_FILE_PATH = "defaults/moderation-settings.yaml";
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfiguration.class);
 
     @PostConstruct
@@ -58,34 +71,72 @@ public class DefaultConfiguration {
         try {
             LOGGER.debug("Initiating default values ingestion process");
             final SelfUser bot = jda.getSelfUser();
-            final InputStream yamlFile = new ClassPathResource(YAML_FILE_PATH).getInputStream();
-            final List<ChannelConfig> defaultConfigs = yamlObjectMapper.readValue(yamlFile,
+            final InputStream configsYamlFile = new ClassPathResource(CHCONF_YAML_FILE_PATH).getInputStream();
+            final List<ChannelConfig> defaultConfigs = yamlObjectMapper.readValue(configsYamlFile,
                     new TypeReference<List<ChannelConfig>>() {
+                    });
+
+            final InputStream personasYamlFile = new ClassPathResource(PERSONAS_YAML_FILE_PATH).getInputStream();
+            final List<Persona> defaultPersonas = yamlObjectMapper.readValue(personasYamlFile,
+                    new TypeReference<List<Persona>>() {
+                    });
+
+            final InputStream worldsYamlFile = new ClassPathResource(WORLDS_FILE_PATH).getInputStream();
+            final List<World> defaultWorlds = yamlObjectMapper.readValue(worldsYamlFile,
+                    new TypeReference<List<World>>() {
+                    });
+
+            final InputStream modelSetsYamlFile = new ClassPathResource(MODEL_SETS_FILE_PATH).getInputStream();
+            final List<ModelSettings> defaultModelSets = yamlObjectMapper.readValue(modelSetsYamlFile,
+                    new TypeReference<List<ModelSettings>>() {
+                    });
+
+            final InputStream moderSetsYaml = new ClassPathResource(MODER_SETS_FILE_PATH).getInputStream();
+            final List<ModerationSettings> defaultModSets = yamlObjectMapper.readValue(moderSetsYaml,
+                    new TypeReference<List<ModerationSettings>>() {
+                    });
+
+            defaultPersonas.stream()
+                    .filter(p -> !personaRepository.existsById(p.getId()))
+                    .forEach(persona -> {
+                        LOGGER.info("Default persona named {} not in DB. Ingesting it.", persona.getName());
+                        persona.setOwner(bot.getId());
+                        personaService.savePersona(persona);
+                    });
+
+            defaultWorlds.stream()
+                    .filter(w -> !worldRepository.existsById(w.getId()))
+                    .forEach(world -> {
+                        LOGGER.info("Default world named {} not in DB. Ingesting it.", world.getName());
+                        final Lorebook lorebook = world.getLorebook();
+                        lorebook.setOwner(bot.getId());
+                        lorebookService.saveLorebook(lorebook);
+
+                        world.setOwner(bot.getId());
+                        worldService.saveWorld(world);
+                    });
+
+            defaultModelSets.stream()
+                    .filter(m -> !modelSettingsRepository.existsById(m.getId()))
+                    .forEach(modelsets -> {
+                        LOGGER.info("Default model setting named {} not in DB. Ingesting it.", modelsets.getName());
+                        modelsets.setOwner(bot.getId());
+                        modelSettingsService.saveModelSettings(modelsets);
+                    });
+
+            defaultModSets.stream()
+                    .filter(m -> !moderationSettingsRepository.existsById(m.getId()))
+                    .forEach(modsets -> {
+                        LOGGER.info("Default moderation setting with ID {} not in DB. Ingesting it.", modsets.getId());
+                        modsets.setOwner(bot.getId());
+                        moderationSettingsService.saveModerationSettings(modsets);
                     });
 
             defaultConfigs.stream()
                     .filter(c -> !channelConfigRepository.existsById(c.getId()))
                     .forEach(config -> {
                         LOGGER.info("Default config named {} not in DB. Ingesting it.", config.getName());
-                        final World world = config.getWorld();
-                        final Lorebook lorebook = world.getLorebook();
-                        final Persona persona = config.getPersona();
-                        final ModerationSettings modsets = config.getModerationSettings();
-                        final ModelSettings modelsets = config.getModelSettings();
-
                         config.setOwner(bot.getId());
-                        world.setOwner(bot.getId());
-                        lorebook.setOwner(bot.getId());
-                        persona.setOwner(bot.getId());
-                        persona.setName(bot.getName());
-                        modsets.setOwner(bot.getId());
-                        modelsets.setOwner(bot.getId());
-
-                        modelSettingsService.saveModelSettings(modelsets);
-                        moderationSettingsService.saveModerationSettings(modsets);
-                        personaService.savePersona(persona);
-                        lorebookService.saveLorebook(lorebook);
-                        worldService.saveWorld(world);
                         channelConfigService.saveChannelConfig(config);
                     });
         } catch (IOException e) {

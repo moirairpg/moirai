@@ -1,0 +1,14 @@
+---
+- id: 'STRICT'
+  absolute: true
+
+- id: 'PERMISSIVE'
+  absolute: false
+  thresholds:
+    "hate": 1.5
+    "hate/threatening": 1.5
+    "self-harm": 1.5
+    "sexual": 1.5
+    "sexual/minors": 1.5
+    "violence": 1.5
+    "violence/graphic": 1.5
