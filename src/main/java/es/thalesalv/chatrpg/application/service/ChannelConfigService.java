@@ -26,7 +26,6 @@ import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
-import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
@@ -100,7 +99,10 @@ public class ChannelConfigService {
                     return c;
                 })
                 .map(c -> buildUpdatedChannelConfig(channelConfigId, channelConfig, c))
-                .map(channelConfigRepository::save)
+                .map(c -> {
+                    modelSettingsRepository.save(c.getModelSettings());
+                    return channelConfigRepository.save(c);
+                })
                 .map(channelConfigEntityToDTO)
                 .orElseThrow(() -> new ChannelConfigNotFoundException(("Error updating channel config: "
                         + CHANNEL_CONFIG_ID_NOT_FOUND.replace("CHANNEL_CONFIG_ID", channelConfigId))));
@@ -137,10 +139,9 @@ public class ChannelConfigService {
                         .orElse(currentConfigInfo.getModerationSettings()))
                 .orElse(moderationSettingsDTOToEntity.apply(ModerationSettings.defaultModerationSettings()));
 
-        final ModelSettingsEntity modelSettings = Optional.ofNullable(newConfigInfo.getModelSettings())
-                .map(p -> modelSettingsRepository.findById(p.getId())
-                        .orElse(currentConfigInfo.getModelSettings()))
-                .orElse(modelSettingsDTOToEntity.apply(ModelSettings.defaultModelSettings()));
+        final ModelSettingsEntity modelSettings = modelSettingsDTOToEntity.apply(newConfigInfo.getModelSettings());
+        modelSettings.setId(currentConfigInfo.getModelSettings()
+                .getId());
 
         final WorldEntity world = Optional.ofNullable(newConfigInfo.getWorld())
                 .map(p -> worldRepository.findById(p.getId())
@@ -180,7 +181,7 @@ public class ChannelConfigService {
                         .orElse(worldDTOToEntity.apply(World.defaultWorld())))
                 .orElse(worldDTOToEntity.apply(World.defaultWorld()));
 
-        final ModelSettingsEntity modelSettings = modelSettingsDTOToEntity.apply(ModelSettings.defaultModelSettings());
+        final ModelSettingsEntity modelSettings = modelSettingsDTOToEntity.apply(channelConfig.getModelSettings());
 
         return ChannelConfigEntity.builder()
                 .id(channelConfig.getId())
