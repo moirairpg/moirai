@@ -35,7 +35,6 @@ public class ChannelConfigEntityToDTO implements Function<ChannelConfigEntity, C
                 .id(channelConfigEntity.getId())
                 .name(channelConfigEntity.getName())
                 .owner(channelConfigEntity.getOwner())
-                .visibility(channelConfigEntity.getVisibility())
                 .readPermissions(channelConfigEntity.getReadPermissions())
                 .writePermissions(channelConfigEntity.getWritePermissions())
                 .persona(persona)

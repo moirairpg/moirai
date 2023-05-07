@@ -36,7 +36,6 @@ public class ChannelConfigDTOToEntity implements Function<ChannelConfig, Channel
                 .id(channelConfig.getId())
                 .name(channelConfig.getName())
                 .owner(channelConfig.getOwner())
-                .visibility(channelConfig.getVisibility())
                 .readPermissions(channelConfig.getReadPermissions())
                 .writePermissions(channelConfig.getWritePermissions())
                 .persona(persona)

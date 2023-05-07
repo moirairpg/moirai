@@ -17,7 +17,6 @@ public class ChannelConfig {
     private String id;
     private String name;
     private String owner;
-    private String visibility;
     private List<String> writePermissions;
     private List<String> readPermissions;
     private World world;
