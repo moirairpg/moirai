@@ -9,8 +9,10 @@ public enum Intent {
 
     @JsonProperty("rpg")
     RPG("rpg"),
+
     @JsonProperty("chat")
     CHAT("chat"),
+
     @JsonProperty("author")
     AUTHOR("author");
 

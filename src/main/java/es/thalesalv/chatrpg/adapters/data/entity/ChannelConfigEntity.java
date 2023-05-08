@@ -40,9 +40,6 @@ public class ChannelConfigEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "visibility", nullable = false)
-    private String visibility;
-
     @Column(name = "write_permission_discord_ids")
     @Convert(converter = StringListConverter.class)
     private List<String> writePermissions;

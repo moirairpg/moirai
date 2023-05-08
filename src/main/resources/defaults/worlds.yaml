@@ -1,0 +1,63 @@
+---
+- id: 'CHAT'
+  visibility: 'public'
+  name: 'Default world for chatbot'
+  description: 'Default world for chatbot'
+  lorebook:
+    id: 'CHAT'
+    name: 'Default lorebook for chatbot'
+    visibility: 'private'
+    description: Default lorebook for chatbot.
+
+- id: 'ELDRIDA'
+  visibility: 'public'
+  name: 'Eldrida'
+  description: >
+    Eldrida is a massive continent with vast stretches of open plains,
+    sprawling forests and treacherous mountain ranges.The land is divided into
+    kingdoms and territories, some ruled by powerful monarchs, while others by
+    wealthy merchants,cunning warlords or fearsome beasts. Alongside the sentient
+    beings such as humans, dwarves, elves and halflings,there exist an array of
+    monsters too - gnolls, ogres, trolls - who are constantly at odds and threaten
+    to disrupt the country's peace.
+  visibility: 'public'
+  initial-prompt: >
+    The city of Ironhaven is situated on the coast of Eldrida, where
+    the clouds bring a salty tang and hardy ships dock regularly from elven ports
+    in the east or human settlements in the west. As you arrive, it is apparent
+    that this bustling town thrives on its mechanical wonders, such as the towering
+    automatons that tower over every street corner, as well as mechanical transports
+    running all around.
+
+    As you stroll through the city streets, taking in the
+    sounds and sights of clanking gears and belching steam stacks, something strange
+    catches your attention. You hear noises coming from an alleyway - animals
+    screeching, objects being thrown around and a strange rumbling sound. At first,
+    you think it might be some simple scuffle or merchants having a heated argument.
+    But, as you move closer and peek down the narrow lane – all thoughts of simple
+    misunderstandings vanish.
+
+    What initially seems to be a brawl turns out
+    to be a group of heavily-armored golems cornering a terrified half-elf merchant.
+    You hear him cry out for help but there isn't anyone else-it's just you facing
+    down these dangerous automata. They are unyielding machines with huge pistons
+    carrying heavy metal fists that crack into walls whenever they quake forward.
+    From their imposing heights, they snarl at his pleas to release him and step
+    closer menacingly with every second.
+
+    The half-elf's face is a mask of terror
+    when he finally spots you behind them. His eyes widen with both hope and fear
+    as he sees that you can help him out. "Please! Someone get me out of here
+    before I become scrap metal," he cries desperately.
+  lorebook:
+    id: 'ELDRIDA'
+    name: 'Eldrida'
+    description: >
+      Eldrida is a massive continent with vast stretches of open plains,
+      sprawling forests and treacherous mountain ranges.The land is divided into
+      kingdoms and territories, some ruled by powerful monarchs, while others
+      by wealthy merchants,cunning warlords or fearsome beasts. Alongside the
+      sentient beings such as humans, dwarves, elves and halflings,there exist
+      an array of monsters too - gnolls, ogres, trolls - who are constantly at
+      odds and threaten to disrupt the country's peace.
+    visibility: 'public'
