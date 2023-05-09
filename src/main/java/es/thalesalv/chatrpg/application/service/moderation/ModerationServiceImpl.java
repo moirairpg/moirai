@@ -130,20 +130,24 @@ public class ModerationServiceImpl implements ModerationService {
 
         final ModerationSettings moderationSettings = channelConfig.getModerationSettings();
         if (moderationSettings.isAbsolute() && moderationResult.getFlagged()
-                .booleanValue())
+                .booleanValue()) {
             throw new ModerationException(UNSAFE_CONTENT_FOUND);
+        }
 
-        final List<String> flaggedTopics = moderationResult.getCategoryScores()
-                .entrySet()
-                .stream()
-                .filter(entry -> Double.valueOf(entry.getValue()) > Optional
-                        .ofNullable(moderationSettings.getThresholds()
-                                .get(entry.getKey()))
-                        .orElse(defaultThreshold))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-        if (!flaggedTopics.isEmpty())
-            throw new ModerationException(UNSAFE_CONTENT_FOUND, flaggedTopics, prompt);
+        if (!moderationSettings.isAbsolute()) {
+            final List<String> flaggedTopics = moderationResult.getCategoryScores()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> Double.valueOf(entry.getValue()) > Optional
+                            .ofNullable(moderationSettings.getThresholds()
+                                    .get(entry.getKey()))
+                            .orElse(defaultThreshold))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+            if (!flaggedTopics.isEmpty()) {
+                throw new ModerationException(UNSAFE_CONTENT_FOUND, flaggedTopics, prompt);
+            }
+        }
     }
 
     private void handleFlags(final List<String> flaggedTopics, final EventData eventData) {
