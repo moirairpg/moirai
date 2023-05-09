@@ -29,6 +29,7 @@
     automatons that tower over every street corner, as well as mechanical transports
     running all around.
 
+
     As you stroll through the city streets, taking in the
     sounds and sights of clanking gears and belching steam stacks, something strange
     catches your attention. You hear noises coming from an alleyway - animals
@@ -36,6 +37,7 @@
     you think it might be some simple scuffle or merchants having a heated argument.
     But, as you move closer and peek down the narrow lane – all thoughts of simple
     misunderstandings vanish.
+
 
     What initially seems to be a brawl turns out
     to be a group of heavily-armored golems cornering a terrified half-elf merchant.
@@ -45,10 +47,13 @@
     From their imposing heights, they snarl at his pleas to release him and step
     closer menacingly with every second.
 
+
     The half-elf's face is a mask of terror
     when he finally spots you behind them. His eyes widen with both hope and fear
     as he sees that you can help him out. "Please! Someone get me out of here
-    before I become scrap metal," he cries desperately.
+    before I become scrap metal," he cries desperately."
+
+    ** **
   lorebook:
     id: 'ELDRIDA'
     name: 'Eldrida'
