@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service.moderation;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -128,14 +129,20 @@ public class ModerationServiceImpl implements ModerationService {
     private void checkModerationThresholds(final ModerationResult moderationResult, final ChannelConfig channelConfig,
             final String prompt) {
 
+        List<String> flaggedTopics = new ArrayList<>();
         final ModerationSettings moderationSettings = channelConfig.getModerationSettings();
         if (moderationSettings.isAbsolute() && moderationResult.getFlagged()
                 .booleanValue()) {
-            throw new ModerationException(UNSAFE_CONTENT_FOUND);
+            flaggedTopics = moderationResult.getCategories()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
         }
 
         if (!moderationSettings.isAbsolute()) {
-            final List<String> flaggedTopics = moderationResult.getCategoryScores()
+            flaggedTopics = moderationResult.getCategoryScores()
                     .entrySet()
                     .stream()
                     .filter(entry -> Double.valueOf(entry.getValue()) > Optional
@@ -144,9 +151,10 @@ public class ModerationServiceImpl implements ModerationService {
                             .orElse(defaultThreshold))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
-            if (!flaggedTopics.isEmpty()) {
-                throw new ModerationException(UNSAFE_CONTENT_FOUND, flaggedTopics, prompt);
-            }
+        }
+
+        if (!flaggedTopics.isEmpty()) {
+            throw new ModerationException(UNSAFE_CONTENT_FOUND, flaggedTopics, prompt);
         }
     }
 
