@@ -98,9 +98,6 @@ public class ModerationServiceImpl implements ModerationService {
                     checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
                             .getChannelConfig(), prompt);
                 })
-                .doOnNext(response -> {
-                    eventData.setInputModerationResult(eventData.getInputModerationResult());
-                })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
                     handleFlags(e.getFlaggedTopics(), eventData);
@@ -126,9 +123,6 @@ public class ModerationServiceImpl implements ModerationService {
                     eventData.setOutputModerationResult(moderationResult);
                     checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
                             .getChannelConfig(), output);
-                })
-                .doOnNext(response -> {
-                    eventData.setOutputModerationResult(eventData.getOutputModerationResult());
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
