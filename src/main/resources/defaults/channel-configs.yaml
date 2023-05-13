@@ -15,7 +15,7 @@
     frequency-penalty: 0.2
     presence-penalty: 0.2
     stop-sequence:
-      - "\n"
+      - "\\n"
   moderation-settings:
     id: 'STRICT'
 

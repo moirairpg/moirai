@@ -1,9 +1,10 @@
 package es.thalesalv.chatrpg.application.util.dbutils;
 
-import static java.util.Collections.emptyList;
-
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -16,12 +17,22 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
     @Override
     public String convertToDatabaseColumn(List<String> stringList) {
 
-        return stringList != null ? String.join(SPLIT_CHAR, stringList) : "";
+        return Optional.ofNullable(stringList)
+                .filter(a -> !a.isEmpty())
+                .map(a -> {
+                    return String.join(SPLIT_CHAR, stringList);
+                })
+                .orElse(null);
     }
 
     @Override
     public List<String> convertToEntityAttribute(String string) {
 
-        return string != null ? Arrays.asList(string.split(SPLIT_CHAR)) : emptyList();
+        return Optional.ofNullable(string)
+                .filter(StringUtils::isNotBlank)
+                .map(s -> {
+                    return Arrays.asList(string.split(SPLIT_CHAR));
+                })
+                .orElse(null);
     }
 }
