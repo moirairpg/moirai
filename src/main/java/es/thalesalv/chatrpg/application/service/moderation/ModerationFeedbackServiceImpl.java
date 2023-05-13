@@ -49,9 +49,9 @@ public class ModerationFeedbackServiceImpl implements ModerationFeedbackService 
                         .getName(),
                 inputValues, outputValues);
 
-        Optional.ofNullable(eventData.getGuild()
-                .getTextChannelById("1106915692202184755"))
-                .ifPresent(c -> c.sendMessage(message)
-                        .complete());
+        Optional.ofNullable(eventData.getGuild())
+                .map(guild -> guild.getTextChannelById("1106915692202184755"))
+                .ifPresentOrElse(c -> c.sendMessage(message)
+                        .complete(), () -> LOGGER.debug("Cannot send moderation message to this guild"));
     }
 }
