@@ -61,7 +61,7 @@ jobs:
               --network deployuser_dockerlan \
               -e DISCORD_BOT_API_TOKEN=${{ secrets.DISCORD_BOT_API_TOKEN }} \
               -e OPENAI_API_TOKEN=${{ secrets.OPENAI_API_TOKEN }} \
-              -e SPRING_APPLICATION_PROFILES=${{ secrets.SPRING_APPLICATION_PROFILES }} \
+              -e SPRING_APPLICATION_PROFILES=${{ vars.SPRING_APPLICATION_PROFILES }} \
               -e POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} \
               -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
               -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
