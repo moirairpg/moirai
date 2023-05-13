@@ -126,7 +126,7 @@ public class LorebookEditHandler {
 
             final LorebookEntry updatedEntry = updateEntry(world, eventData, event);
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(updatedEntry);
-            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event)
+            moderationService.moderateInteraction(loreEntryJson, contextDatastore.getEventData(), event)
                     .subscribe(response -> event
                             .reply(MessageFormat.format(ENTRY_UPDATED, updatedEntry.getName(), loreEntryJson))
                             .setEphemeral(true)

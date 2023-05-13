@@ -52,7 +52,7 @@ public class ModerationServiceImpl implements ModerationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModerationServiceImpl.class);
 
     @Override
-    public Mono<ModerationResponse> moderate(final String content, final EventData eventData,
+    public Mono<ModerationResponse> moderateInteraction(final String content, final EventData eventData,
             final ModalInteractionEvent event) {
 
         if (StringUtils.isBlank(content))
@@ -67,6 +67,7 @@ public class ModerationServiceImpl implements ModerationService {
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult()
                             .get(0);
+
                     checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
                             .getChannelConfig(), content);
                 })
@@ -77,7 +78,7 @@ public class ModerationServiceImpl implements ModerationService {
     }
 
     @Override
-    public Mono<ModerationResponse> moderate(final List<String> messages, final EventData eventData) {
+    public Mono<ModerationResponse> moderateInput(final List<String> messages, final EventData eventData) {
 
         final String prompt = messageFormatHelper.stringifyMessages(messages);
         if (StringUtils.isBlank(prompt))
@@ -92,8 +93,13 @@ public class ModerationServiceImpl implements ModerationService {
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult()
                             .get(0);
+
+                    eventData.setInputModerationResult(moderationResult);
                     checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
                             .getChannelConfig(), prompt);
+                })
+                .doOnNext(response -> {
+                    eventData.setInputModerationResult(eventData.getInputModerationResult());
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;
@@ -116,8 +122,13 @@ public class ModerationServiceImpl implements ModerationService {
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult()
                             .get(0);
+
+                    eventData.setOutputModerationResult(moderationResult);
                     checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
                             .getChannelConfig(), output);
+                })
+                .doOnNext(response -> {
+                    eventData.setOutputModerationResult(eventData.getOutputModerationResult());
                 })
                 .doOnError(ModerationException.class::isInstance, ex -> {
                     final ModerationException e = (ModerationException) ex;

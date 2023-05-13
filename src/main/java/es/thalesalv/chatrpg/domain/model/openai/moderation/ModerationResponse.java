@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.domain.model.openai.moderation;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,4 +28,10 @@ public class ModerationResponse {
 
     @JsonProperty("results")
     private List<ModerationResult> moderationResult;
+
+    @JsonIgnore
+    private ModerationResult inputModerationResult;
+
+    @JsonIgnore
+    private ModerationResult outputModerationResult;
 }
