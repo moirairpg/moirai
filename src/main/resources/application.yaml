@@ -29,7 +29,7 @@ chatrpg:
     api-token: ${OPENAI_API_TOKEN}
 
 spring:
-  profiles.active: ${SPRING_APPLICATION_PROFILES:default}, test-moderation
+  profiles.active: ${SPRING_APPLICATION_PROFILES:default}
   main.banner-mode: 'off'
   jpa.hibernate.ddl-auto: update
   datasource:
