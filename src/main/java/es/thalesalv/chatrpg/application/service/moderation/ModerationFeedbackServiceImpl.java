@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service.moderation;
 
 import java.text.MessageFormat;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -48,9 +49,9 @@ public class ModerationFeedbackServiceImpl implements ModerationFeedbackService 
                         .getName(),
                 inputValues, outputValues);
 
-        eventData.getGuild()
-                .getTextChannelById("1106915692202184755")
-                .sendMessage(message)
-                .complete();
+        Optional.ofNullable(eventData.getGuild()
+                .getTextChannelById("1106915692202184755"))
+                .ifPresent(c -> c.sendMessage(message)
+                        .complete());
     }
 }
