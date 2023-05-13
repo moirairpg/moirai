@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import es.thalesalv.chatrpg.application.service.moderation.ModerationFeedbackService;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
@@ -26,13 +27,14 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 public class ChatUseCase implements BotUseCase {
 
     private final ModerationService moderationService;
+    private final ModerationFeedbackService moderationFeedbackService;
 
     private static final String STOP_MEMORY_EMOJI = "chatrpg_stop";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatUseCase.class);
 
     @Override
-    public EventData generateResponse(final EventData eventData, final CompletionService model) {
+    public void generateResponse(final EventData eventData, final CompletionService model) {
 
         LOGGER.debug("Entered generation for normal text.");
         eventData.getCurrentChannel()
@@ -54,18 +56,23 @@ public class ChatUseCase implements BotUseCase {
                         }
                     });
         }
-
         final List<String> messages = handleHistory(eventData);
         moderationService.moderateInput(messages, eventData)
                 .subscribe(inputModeration -> model.generate(messages, eventData)
                         .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
                                 .subscribe(outputModeration -> {
+                                    eventData.setInputModerationResult(inputModeration.getModerationResult()
+                                            .get(0));
+
+                                    eventData.setOutputModerationResult(outputModeration.getModerationResult()
+                                            .get(0));
+
+                                    moderationFeedbackService.sendModerationFeedback(eventData);
+
                                     eventData.getCurrentChannel()
                                             .sendMessage(textResponse)
                                             .complete();
                                 })));
-
-        return eventData;
     }
 
     /**

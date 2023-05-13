@@ -10,7 +10,6 @@ public interface BotUseCase {
      *
      * @param eventData Object containing data on the message event
      * @param model     Model to be used for generation
-     * @return eventData together with the bot's response
      */
-    EventData generateResponse(final EventData eventData, final CompletionService model);
+    void generateResponse(final EventData eventData, final CompletionService model);
 }
