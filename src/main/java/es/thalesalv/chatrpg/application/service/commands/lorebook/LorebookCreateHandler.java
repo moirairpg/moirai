@@ -94,7 +94,7 @@ public class LorebookCreateHandler {
 
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(insertedEntry);
 
-            moderationService.moderate(loreEntryJson, contextDatastore.getEventData(), event)
+            moderationService.moderateInteraction(loreEntryJson, contextDatastore.getEventData(), event)
                     .subscribe(response -> event
                             .reply(MessageFormat.format(LORE_ENTRY_CREATED, insertedEntry.getName(), loreEntryJson))
                             .setEphemeral(true)

@@ -55,17 +55,18 @@ public class RpgUseCase implements BotUseCase {
                             }
                         });
             }
+
             final List<String> messages = handleHistory(eventData);
-            moderationService.moderate(messages, eventData)
+            moderationService.moderateInput(messages, eventData)
                     .subscribe(inputModeration -> model.generate(messages, eventData)
                             .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
                                     .subscribe(outputModeration -> {
-                                        final Message responseMessage = eventData.getCurrentChannel()
+                                        eventData.getCurrentChannel()
                                                 .sendMessage(textResponse)
                                                 .complete();
-                                        eventData.setResponseMessage(responseMessage);
                                     })));
         }
+
         return eventData;
     }
 

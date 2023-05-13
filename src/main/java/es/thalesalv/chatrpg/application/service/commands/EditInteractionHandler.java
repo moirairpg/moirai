@@ -99,7 +99,7 @@ public class EditInteractionHandler implements DiscordInteractionHandler {
                     .getAsString();
             final EventData eventData = contextDatastore.getEventData();
             final Message message = eventData.getMessageToBeEdited();
-            moderationService.moderate(messageContent, eventData, event)
+            moderationService.moderateInteraction(messageContent, eventData, event)
                     .subscribe(response -> message.editMessage(messageContent)
                             .submit()
                             .whenComplete((msg, error) -> {
