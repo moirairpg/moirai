@@ -29,7 +29,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/world")
-@CrossOrigin(origins = {"http://localhost:5173"})
+@CrossOrigin(origins = { "http://localhost:5173" })
 public class WorldController {
 
     private final WorldService worldService;
