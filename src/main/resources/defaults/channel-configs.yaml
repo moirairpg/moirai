@@ -34,5 +34,7 @@
     temperature: 0.8
     frequency-penalty: 0.2
     presence-penalty: 0.2
+    logit-bias:
+      "20185": -100
   moderation-settings:
     id: 'STRICT'

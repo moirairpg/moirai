@@ -16,19 +16,16 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelConfigRepository;
-import es.thalesalv.chatrpg.adapters.data.repository.ModelSettingsRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.ModerationSettingsRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.PersonaRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.service.ChannelConfigService;
 import es.thalesalv.chatrpg.application.service.LorebookService;
-import es.thalesalv.chatrpg.application.service.ModelSettingsService;
 import es.thalesalv.chatrpg.application.service.ModerationSettingsService;
 import es.thalesalv.chatrpg.application.service.PersonaService;
 import es.thalesalv.chatrpg.application.service.WorldService;
 import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
-import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
@@ -47,10 +44,8 @@ public class DefaultConfiguration {
     private final LorebookService lorebookService;
     private final WorldService worldService;
     private final ModerationSettingsService moderationSettingsService;
-    private final ModelSettingsService modelSettingsService;
     private final ChannelConfigService channelConfigService;
 
-    private final ModelSettingsRepository modelSettingsRepository;
     private final ModerationSettingsRepository moderationSettingsRepository;
     private final PersonaRepository personaRepository;
     private final WorldRepository worldRepository;
@@ -61,7 +56,6 @@ public class DefaultConfiguration {
     private static final String CHCONF_YAML_FILE_PATH = "defaults/channel-configs.yaml";
     private static final String PERSONAS_YAML_FILE_PATH = "defaults/personas.yaml";
     private static final String WORLDS_FILE_PATH = "defaults/worlds.yaml";
-    private static final String MODEL_SETS_FILE_PATH = "defaults/model-settings.yaml";
     private static final String MODER_SETS_FILE_PATH = "defaults/moderation-settings.yaml";
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfiguration.class);
 
@@ -84,11 +78,6 @@ public class DefaultConfiguration {
             final InputStream worldsYamlFile = new ClassPathResource(WORLDS_FILE_PATH).getInputStream();
             final List<World> defaultWorlds = yamlObjectMapper.readValue(worldsYamlFile,
                     new TypeReference<List<World>>() {
-                    });
-
-            final InputStream modelSetsYamlFile = new ClassPathResource(MODEL_SETS_FILE_PATH).getInputStream();
-            final List<ModelSettings> defaultModelSets = yamlObjectMapper.readValue(modelSetsYamlFile,
-                    new TypeReference<List<ModelSettings>>() {
                     });
 
             final InputStream moderSetsYaml = new ClassPathResource(MODER_SETS_FILE_PATH).getInputStream();
@@ -114,14 +103,6 @@ public class DefaultConfiguration {
 
                         world.setOwner(bot.getId());
                         worldService.saveWorld(world);
-                    });
-
-            defaultModelSets.stream()
-                    .filter(m -> !modelSettingsRepository.existsById(m.getId()))
-                    .forEach(modelsets -> {
-                        LOGGER.info("Default model setting named {} not in DB. Ingesting it.", modelsets.getName());
-                        modelsets.setOwner(bot.getId());
-                        modelSettingsService.saveModelSettings(modelsets);
                     });
 
             defaultModSets.stream()
