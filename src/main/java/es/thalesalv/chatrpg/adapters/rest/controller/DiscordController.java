@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/discord")
-@CrossOrigin(origins = {"http://localhost:5173"})
+@CrossOrigin(origins = { "http://localhost:5173" })
 public class DiscordController {
 
     @Value("${chatrpg.discord.api-token}")

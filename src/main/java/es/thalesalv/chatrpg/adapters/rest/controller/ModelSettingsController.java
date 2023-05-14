@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/settings/model")
-@CrossOrigin(origins = {"http://localhost:5173"})
+@CrossOrigin(origins = { "http://localhost:5173" })
 public class ModelSettingsController {
 
     private final ModelSettingsService modelSettingsService;
