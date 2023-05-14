@@ -1,6 +1,8 @@
 package es.thalesalv.chatrpg.application.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,25 +90,30 @@ public class WorldService {
 
     private boolean hasReadPermissions(final WorldEntity world, final String userId) {
 
+        final List<String> readPermissions = Optional.ofNullable(world.getReadPermissions())
+                .orElse(Collections.emptyList());
+
+        final List<String> writePermissions = Optional.ofNullable(world.getWritePermissions())
+                .orElse(Collections.emptyList());
+
         final boolean isPublic = Visibility.isPublic(world.getVisibility());
         final boolean isOwner = world.getOwner()
                 .equals(userId);
 
-        final boolean canRead = world.getReadPermissions()
-                .contains(userId)
-                || world.getWritePermissions()
-                        .contains(userId);
+        final boolean canRead = readPermissions.contains(userId) || writePermissions.contains(userId);
 
         return isPublic || (isOwner || canRead);
     }
 
     private boolean hasWritePermissions(final WorldEntity world, final String userId) {
 
+        final List<String> writePermissions = Optional.ofNullable(world.getWritePermissions())
+                .orElse(Collections.emptyList());
+
         final boolean isOwner = world.getOwner()
                 .equals(userId);
 
-        final boolean canWrite = world.getWritePermissions()
-                .contains(userId);
+        final boolean canWrite = writePermissions.contains(userId);
 
         return isOwner || canWrite;
     }
