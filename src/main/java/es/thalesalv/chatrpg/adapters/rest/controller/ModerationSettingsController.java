@@ -25,10 +25,10 @@ import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/settings/moderation")
+@CrossOrigin(origins = { "http://localhost:5173" })
 public class ModerationSettingsController {
 
     private final ModerationSettingsService moderationSettingsService;

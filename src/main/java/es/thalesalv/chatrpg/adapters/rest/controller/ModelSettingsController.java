@@ -25,10 +25,10 @@ import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/settings/model")
+@CrossOrigin(origins = { "http://localhost:5173" })
 public class ModelSettingsController {
 
     private final ModelSettingsService modelSettingsService;

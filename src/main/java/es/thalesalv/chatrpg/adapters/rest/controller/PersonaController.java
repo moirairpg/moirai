@@ -25,10 +25,10 @@ import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/persona")
+@CrossOrigin(origins = { "http://localhost:5173" })
 public class PersonaController {
 
     private final PersonaService personaService;

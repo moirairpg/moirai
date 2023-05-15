@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service.moderation;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,7 +52,7 @@ public class ModerationServiceImpl implements ModerationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModerationServiceImpl.class);
 
     @Override
-    public Mono<ModerationResponse> moderate(final String content, final EventData eventData,
+    public Mono<ModerationResponse> moderateInteraction(final String content, final EventData eventData,
             final ModalInteractionEvent event) {
 
         if (StringUtils.isBlank(content))
@@ -66,6 +67,7 @@ public class ModerationServiceImpl implements ModerationService {
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult()
                             .get(0);
+
                     checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
                             .getChannelConfig(), content);
                 })
@@ -76,7 +78,7 @@ public class ModerationServiceImpl implements ModerationService {
     }
 
     @Override
-    public Mono<ModerationResponse> moderate(final List<String> messages, final EventData eventData) {
+    public Mono<ModerationResponse> moderateInput(final List<String> messages, final EventData eventData) {
 
         final String prompt = messageFormatHelper.stringifyMessages(messages);
         if (StringUtils.isBlank(prompt))
@@ -91,6 +93,8 @@ public class ModerationServiceImpl implements ModerationService {
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult()
                             .get(0);
+
+                    eventData.setInputModerationResult(moderationResult);
                     checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
                             .getChannelConfig(), prompt);
                 })
@@ -115,6 +119,8 @@ public class ModerationServiceImpl implements ModerationService {
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult()
                             .get(0);
+
+                    eventData.setOutputModerationResult(moderationResult);
                     checkModerationThresholds(moderationResult, eventData.getChannelDefinitions()
                             .getChannelConfig(), output);
                 })
@@ -128,22 +134,33 @@ public class ModerationServiceImpl implements ModerationService {
     private void checkModerationThresholds(final ModerationResult moderationResult, final ChannelConfig channelConfig,
             final String prompt) {
 
+        List<String> flaggedTopics = new ArrayList<>();
         final ModerationSettings moderationSettings = channelConfig.getModerationSettings();
         if (moderationSettings.isAbsolute() && moderationResult.getFlagged()
-                .booleanValue())
-            throw new ModerationException(UNSAFE_CONTENT_FOUND);
+                .booleanValue()) {
+            flaggedTopics = moderationResult.getCategories()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+        }
 
-        final List<String> flaggedTopics = moderationResult.getCategoryScores()
-                .entrySet()
-                .stream()
-                .filter(entry -> Double.valueOf(entry.getValue()) > Optional
-                        .ofNullable(moderationSettings.getThresholds()
-                                .get(entry.getKey()))
-                        .orElse(defaultThreshold))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-        if (!flaggedTopics.isEmpty())
+        if (!moderationSettings.isAbsolute()) {
+            flaggedTopics = moderationResult.getCategoryScores()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> Double.valueOf(entry.getValue()) > Optional
+                            .ofNullable(moderationSettings.getThresholds()
+                                    .get(entry.getKey()))
+                            .orElse(defaultThreshold))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+        }
+
+        if (!flaggedTopics.isEmpty()) {
             throw new ModerationException(UNSAFE_CONTENT_FOUND, flaggedTopics, prompt);
+        }
     }
 
     private void handleFlags(final List<String> flaggedTopics, final EventData eventData) {

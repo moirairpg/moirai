@@ -8,7 +8,7 @@
     "hate": 0.7
     "hate/threatening": 0.6
     "self-harm": 0.3
-    "sexual": 0.7
-    "sexual/minors": 0.2
-    "violence": 0.7
+    "sexual": 0.5
+    "sexual/minors": 0.1
+    "violence": 1.1
     "violence/graphic": 0.4

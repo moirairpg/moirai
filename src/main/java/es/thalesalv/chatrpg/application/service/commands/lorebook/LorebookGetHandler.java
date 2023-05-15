@@ -1,5 +1,10 @@
 package es.thalesalv.chatrpg.application.service.commands.lorebook;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +26,7 @@ import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.utils.FileUpload;
 
 @Component
 @Transactional
@@ -36,7 +42,7 @@ public class LorebookGetHandler {
     private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel does not have configuration attached";
     private static final String ERROR_SERIALIZATION = "Error serializing entry data.";
     private static final String ENTRY_RETRIEVED = "Retrieved lore entry with name **{0}**.\n```json\n{1}```";
-    private static final String LOREBOOK_RETRIEVED = "Retrieved lorebook with name **{0}**.\n```json\n{1}```";
+    private static final String ERROR_HANDLING_ENTRY = "Error handling lore entries file.";
     private static final String ERROR_RETRIEVE = "An error occurred while retrieving lorebook data";
     private static final String USER_ERROR_RETRIEVE = "There was an error parsing your request. Please try again.";
     private static final String QUERIED_ENTRY_NOT_FOUND = "The entry queried does not exist.";
@@ -70,6 +76,12 @@ public class LorebookGetHandler {
                                     .setEphemeral(true)
                                     .queue(m -> m.deleteOriginal()
                                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
+                        } catch (IOException e) {
+                            LOGGER.error(ERROR_HANDLING_ENTRY, e);
+                            event.reply(ERROR_RETRIEVE)
+                                    .setEphemeral(true)
+                                    .queue(m -> m.deleteOriginal()
+                                            .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
                         }
                         return channel;
                     })
@@ -96,7 +108,7 @@ public class LorebookGetHandler {
     }
 
     private void retrieveLorebook(final World world, final SlashCommandInteractionEvent event)
-            throws JsonProcessingException {
+            throws JsonProcessingException, IOException {
 
         final Lorebook lorebook = world.getLorebook();
         lorebook.setOwner(event.getJDA()
@@ -105,9 +117,15 @@ public class LorebookGetHandler {
                 .getName());
 
         final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebook);
-        event.reply(MessageFormat.format(LOREBOOK_RETRIEVED, lorebook.getName(), lorebookJson))
+        final File file = File.createTempFile("lorebook-", ".json");
+        Files.write(file.toPath(), lorebookJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+        final FileUpload fileUpload = FileUpload.fromData(file);
+
+        event.replyFiles(fileUpload)
                 .setEphemeral(true)
                 .complete();
+
+        fileUpload.close();
     }
 
     private void retrieveLoreEntryById(final String entryId, final World world,

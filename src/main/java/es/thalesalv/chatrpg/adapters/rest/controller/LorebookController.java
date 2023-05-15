@@ -25,10 +25,10 @@ import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/lore/book")
+@CrossOrigin(origins = { "http://localhost:5173" })
 public class LorebookController {
 
     private final LorebookService lorebookService;

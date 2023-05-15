@@ -19,10 +19,10 @@ import es.thalesalv.chatrpg.domain.model.DiscordUserData;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/discord")
+@CrossOrigin(origins = { "http://localhost:5173" })
 public class DiscordController {
 
     @Value("${chatrpg.discord.api-token}")

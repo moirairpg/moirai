@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.domain.model;
 
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResult;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +26,9 @@ public class EventData {
     private User messageAuthor;
     private SelfUser discordUser;
     private LorebookEntry lorebookEntry;
-    private Message responseMessage;
     private Message messageToBeEdited;
     private Channel channelDefinitions;
     private MessageChannelUnion currentChannel;
+    private ModerationResult inputModerationResult;
+    private ModerationResult outputModerationResult;
 }

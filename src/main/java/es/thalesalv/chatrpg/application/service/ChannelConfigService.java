@@ -125,6 +125,7 @@ public class ChannelConfigService {
                             .forEach(channelRepository::delete);
 
                     channelConfigRepository.delete(config);
+                    modelSettingsRepository.delete(config.getModelSettings());
                     return config;
                 })
                 .orElseThrow(() -> new ChannelConfigNotFoundException(("Error deleting channel config: "

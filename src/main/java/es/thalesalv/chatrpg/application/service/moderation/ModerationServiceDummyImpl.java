@@ -19,7 +19,8 @@ public class ModerationServiceDummyImpl implements ModerationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModerationServiceDummyImpl.class);
 
     @Override
-    public Mono<ModerationResponse> moderate(String content, EventData eventData, ModalInteractionEvent event) {
+    public Mono<ModerationResponse> moderateInteraction(String content, EventData eventData,
+            ModalInteractionEvent event) {
 
         LOGGER.info("Debug mode enabled. Skipping moderation.");
         return Mono.just(ModerationResponse.builder()
@@ -27,7 +28,7 @@ public class ModerationServiceDummyImpl implements ModerationService {
     }
 
     @Override
-    public Mono<ModerationResponse> moderate(List<String> messages, EventData eventData) {
+    public Mono<ModerationResponse> moderateInput(List<String> messages, EventData eventData) {
 
         LOGGER.info("Debug mode enabled. Skipping moderation.");
         return Mono.just(ModerationResponse.builder()

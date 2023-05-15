@@ -25,10 +25,10 @@ import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/channel-config")
+@CrossOrigin(origins = { "http://localhost:5173" })
 public class ChannelConfigController {
 
     private final ChannelConfigService channelConfigService;

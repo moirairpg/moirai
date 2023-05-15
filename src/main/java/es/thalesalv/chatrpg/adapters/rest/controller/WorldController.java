@@ -26,10 +26,10 @@ import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/world")
+@CrossOrigin(origins = { "http://localhost:5173" })
 public class WorldController {
 
     private final WorldService worldService;
