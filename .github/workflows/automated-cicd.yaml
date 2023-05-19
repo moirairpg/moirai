@@ -26,15 +26,15 @@ jobs:
       - name: Unit tests
         if: github.ref != 'refs/heads/master'
         run: mvn test
-      # - name: Code coverage
-      #   if: github.ref == 'refs/heads/master'
-      #   uses: paambaati/codeclimate-action@v3.2.0
-      #   env:
-      #     CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-      #     JACOCO_SOURCE_PATH: "${{github.workspace}}/src/main/java"
-      #   with:
-      #     coverageCommand: mvn test
-      #     coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
+      - name: Code coverage
+        if: github.ref == 'refs/heads/master'
+        uses: paambaati/codeclimate-action@v3.2.0
+        env:
+          CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+          JACOCO_SOURCE_PATH: "${{github.workspace}}/src/main/java"
+        with:
+          coverageCommand: mvn test
+          coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
       - name: Test container build image
         if: github.ref != 'refs/heads/master'
         run: docker build -t registry.gitlab.com/thaalesalves/chatrpg:back-end .
