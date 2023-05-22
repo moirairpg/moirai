@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,7 +54,7 @@ public class ChannelConfigEntity {
     @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false)
     private PersonaEntity persona;
 
-    @ManyToOne
+    @OneToOne
     @ToString.Exclude
     @JoinColumn(name = "model_settings_id", referencedColumnName = "id", nullable = false)
     private ModelSettingsEntity modelSettings;
