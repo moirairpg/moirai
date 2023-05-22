@@ -6,6 +6,7 @@ import java.util.Set;
 import org.hibernate.annotations.GenericGenerator;
 
 import es.thalesalv.chatrpg.application.util.dbutils.StringListConverter;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -49,22 +50,22 @@ public class ChannelConfigEntity {
     @Convert(converter = StringListConverter.class)
     private List<String> readPermissions;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @ToString.Exclude
     @JoinColumn(name = "persona_id", referencedColumnName = "id", nullable = false)
     private PersonaEntity persona;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @ToString.Exclude
     @JoinColumn(name = "model_settings_id", referencedColumnName = "id", nullable = false)
     private ModelSettingsEntity modelSettings;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @ToString.Exclude
     @JoinColumn(name = "moderation_settings_id", referencedColumnName = "id", nullable = false)
     private ModerationSettingsEntity moderationSettings;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @ToString.Exclude
     @JoinColumn(name = "world_id", referencedColumnName = "id", nullable = false)
     private WorldEntity world;

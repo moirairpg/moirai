@@ -93,12 +93,6 @@ public class LorebookService {
                         throw new InsufficientPermissionException("Not enough permissions to delete this lorebook");
                     }
 
-                    lorebook.getEntries()
-                            .forEach(entry -> {
-                                lorebookEntryRegexRepository.delete(entry);
-                                lorebookEntryRepository.delete(entry.getLorebookEntry());
-                            });
-
                     worldRepository.findByLorebook(lorebook)
                             .forEach(world -> {
                                 final LorebookEntity defaultLorebook = lorebookDTOToEntity
