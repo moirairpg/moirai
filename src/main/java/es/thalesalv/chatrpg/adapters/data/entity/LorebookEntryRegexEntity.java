@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.adapters.data.entity;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,7 +33,7 @@ public class LorebookEntryRegexEntity {
     @Column(name = "regex", nullable = false)
     private String regex;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "lorebook_entry_id", referencedColumnName = "id", nullable = false)
     private LorebookEntryEntity lorebookEntry;
 
