@@ -36,9 +36,6 @@ public class ModelSettingsEntity {
     @Column(name = "owner_discord_id")
     private String owner;
 
-    @Column(name = "name")
-    private String name;
-
     @Column(name = "model_name", nullable = false)
     @Convert(converter = AIModelConverter.class)
     private AIModel modelName;
