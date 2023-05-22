@@ -61,12 +61,6 @@ public class LorebookService {
 
         LOGGER.debug("Entering saveLorebook. lorebook -> {}", lorebook);
         final LorebookEntity convertedEntity = lorebookDTOToEntity.apply(lorebook);
-        convertedEntity.getEntries()
-                .forEach(entry -> {
-                    lorebookEntryRepository.save(entry.getLorebookEntry());
-                    lorebookEntryRegexRepository.save(entry);
-                });
-
         final LorebookEntity updatedEntity = lorebookRepository.save(convertedEntity);
         return lorebookEntityToDTO.apply(updatedEntity);
     }
