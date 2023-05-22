@@ -6,6 +6,7 @@ import java.util.Set;
 import org.hibernate.annotations.GenericGenerator;
 
 import es.thalesalv.chatrpg.application.util.dbutils.StringListConverter;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -52,7 +53,7 @@ public class LorebookEntity {
     @Column(name = "visibility", nullable = false)
     private String visibility;
 
-    @OneToMany(mappedBy = "lorebook", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "lorebook", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<LorebookEntryRegexEntity> entries;
 
     @OneToMany(mappedBy = "lorebook")
