@@ -26,8 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookDTOToEntity;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntityToDTO;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
 import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
@@ -42,8 +40,6 @@ public class WorldServiceTest {
     @Mock
     private WorldRepository worldRepository;
 
-    private LorebookEntityToDTO lorebookEntityToDTO;
-    private LorebookDTOToEntity lorebookDTOToEntity;
     private LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
     private LorebookEntryDTOToEntity lorebookEntryDTOToEntity;
     private WorldDTOToEntity worldDTOToEntity;
@@ -57,10 +53,8 @@ public class WorldServiceTest {
 
         lorebookEntryDTOToEntity = new LorebookEntryDTOToEntity();
         lorebookEntryEntityToDTO = new LorebookEntryEntityToDTO();
-        lorebookEntityToDTO = new LorebookEntityToDTO(lorebookEntryEntityToDTO);
-        lorebookDTOToEntity = new LorebookDTOToEntity(lorebookEntryDTOToEntity);
-        worldDTOToEntity = new WorldDTOToEntity(lorebookDTOToEntity);
-        worldEntityToDTO = new WorldEntityToDTO(lorebookEntityToDTO);
+        worldDTOToEntity = new WorldDTOToEntity(lorebookEntryDTOToEntity);
+        worldEntityToDTO = new WorldEntityToDTO(lorebookEntryEntityToDTO);
         worldService = new WorldService(worldDTOToEntity, worldEntityToDTO, worldRepository);
     }
 

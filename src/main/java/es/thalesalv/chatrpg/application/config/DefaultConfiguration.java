@@ -20,12 +20,10 @@ import es.thalesalv.chatrpg.adapters.data.repository.ModerationSettingsRepositor
 import es.thalesalv.chatrpg.adapters.data.repository.PersonaRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.service.ChannelConfigService;
-import es.thalesalv.chatrpg.application.service.LorebookService;
 import es.thalesalv.chatrpg.application.service.ModerationSettingsService;
 import es.thalesalv.chatrpg.application.service.PersonaService;
 import es.thalesalv.chatrpg.application.service.WorldService;
 import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
-import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
@@ -41,7 +39,6 @@ public class DefaultConfiguration {
 
     private final JDA jda;
     private final PersonaService personaService;
-    private final LorebookService lorebookService;
     private final WorldService worldService;
     private final ModerationSettingsService moderationSettingsService;
     private final ChannelConfigService channelConfigService;
@@ -97,10 +94,6 @@ public class DefaultConfiguration {
                     .filter(w -> !worldRepository.existsById(w.getId()))
                     .forEach(world -> {
                         LOGGER.info("Default world named {} not in DB. Ingesting it.", world.getName());
-                        final Lorebook lorebook = world.getLorebook();
-                        lorebook.setOwner(bot.getId());
-                        lorebookService.saveLorebook(lorebook);
-
                         world.setOwner(bot.getId());
                         worldService.saveWorld(world);
                     });

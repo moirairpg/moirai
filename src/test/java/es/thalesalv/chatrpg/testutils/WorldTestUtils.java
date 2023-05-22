@@ -1,15 +1,14 @@
 package es.thalesalv.chatrpg.testutils;
 
-import static es.thalesalv.chatrpg.testutils.LorebookTestUtils.buildSimplePublicLorebook;
-import static es.thalesalv.chatrpg.testutils.LorebookTestUtils.buildSimplePublicLorebookEntity;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
 import es.thalesalv.chatrpg.domain.enums.Visibility;
+import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 
 public class WorldTestUtils {
@@ -19,12 +18,18 @@ public class WorldTestUtils {
     public static World buildSimplePublicWorld() {
 
         final List<String> emptyPermissions = new ArrayList<>();
+        final List<LorebookEntry> lorebook = new ArrayList<>();
+        lorebook.add(buildSimpleLorebookEntry());
+        lorebook.add(buildSimpleLorebookEntry());
+        lorebook.add(buildSimpleLorebookEntry());
+        lorebook.add(buildSimpleLorebookEntry());
+
         return World.builder()
                 .id(NANO_ID)
                 .name("Test world")
                 .description("This is a test world")
                 .initialPrompt("This is an initial prompt")
-                .lorebook(buildSimplePublicLorebook())
+                .lorebook(lorebook)
                 .owner("1083867535658725536")
                 .visibility("public")
                 .writePermissions(emptyPermissions)
@@ -35,12 +40,18 @@ public class WorldTestUtils {
     public static WorldEntity buildSimplePublicWorldEntity() {
 
         final List<String> emptyPermissions = new ArrayList<>();
+        final List<LorebookEntryEntity> lorebook = new ArrayList<>();
+        lorebook.add(buildSimpleLorebookEntryEntity());
+        lorebook.add(buildSimpleLorebookEntryEntity());
+        lorebook.add(buildSimpleLorebookEntryEntity());
+        lorebook.add(buildSimpleLorebookEntryEntity());
+
         return WorldEntity.builder()
                 .id(NANO_ID)
                 .name("Test world")
                 .description("This is a test world")
                 .initialPrompt("This is an initial prompt")
-                .lorebook(buildSimplePublicLorebookEntity())
+                .lorebook(lorebook)
                 .owner("1083867535658725536")
                 .visibility("public")
                 .writePermissions(emptyPermissions)
@@ -192,6 +203,24 @@ public class WorldTestUtils {
         worlds.add(ownPrivateWorldWithAllPermissions);
 
         return worlds;
+    }
+
+    public static LorebookEntry buildSimpleLorebookEntry() {
+
+        return LorebookEntry.builder()
+                .name("Test entry")
+                .description("Test description")
+                .regex("test")
+                .build();
+    }
+
+    public static LorebookEntryEntity buildSimpleLorebookEntryEntity() {
+
+        return LorebookEntryEntity.builder()
+                .name("Test entry")
+                .regex("test")
+                .description("Test description")
+                .build();
     }
 
     public static boolean hasReadPermissions(final World world, final String userId) {

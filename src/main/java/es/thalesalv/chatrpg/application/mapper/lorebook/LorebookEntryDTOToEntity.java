@@ -7,28 +7,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
-import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryRegexEntity;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 
 @Component
-public class LorebookEntryDTOToEntity implements Function<LorebookEntry, LorebookEntryRegexEntity> {
+public class LorebookEntryDTOToEntity implements Function<LorebookEntry, LorebookEntryEntity> {
 
     @Override
-    public LorebookEntryRegexEntity apply(LorebookEntry lorebookEntry) {
+    public LorebookEntryEntity apply(LorebookEntry lorebookEntry) {
 
         final String regex = Optional.ofNullable(lorebookEntry.getRegex())
                 .filter(StringUtils::isNotBlank)
                 .orElse(lorebookEntry.getName());
 
-        return LorebookEntryRegexEntity.builder()
-                .id(lorebookEntry.getRegexId())
+        return LorebookEntryEntity.builder()
+                .id(lorebookEntry.getId())
+                .name(lorebookEntry.getName())
                 .regex(regex)
-                .lorebookEntry(LorebookEntryEntity.builder()
-                        .id(lorebookEntry.getId())
-                        .name(lorebookEntry.getName())
-                        .description(lorebookEntry.getDescription())
-                        .playerDiscordId(lorebookEntry.getPlayerDiscordId())
-                        .build())
+                .description(lorebookEntry.getDescription())
+                .playerDiscordId(lorebookEntry.getPlayerDiscordId())
                 .build();
     }
 }
