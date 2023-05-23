@@ -182,18 +182,14 @@ public class WorldService {
     public void deleteLorebookEntry(final String lorebookEntryId, final String userId) {
 
         LOGGER.debug("Entering deleteLorebookEntry. lorebookEntryId -> {}, userId -> {}", lorebookEntryId, userId);
-        lorebookEntryRepository.findById(lorebookEntryId)
-                .ifPresentOrElse(entry -> {
-                    if (!hasWritePermissions(entry.getWorld(), userId)) {
-                        throw new InsufficientPermissionException(
-                                "Not enough permissions to delete entries in this lorebook");
-                    }
+        final LorebookEntryEntity entry = lorebookEntryRepository.findById(lorebookEntryId)
+                .orElseThrow(() -> new LorebookEntryNotFoundException("Lorebook entry not found"));
 
-                    lorebookEntryRepository.delete(entry);
-                }, () -> {
-                    throw new LorebookEntryNotFoundException("Error deleting entry: "
-                            + LOREBOOK_ENTRY_ID_NOT_FOUND.replace("LOREBOOK_ENTRY_ID", lorebookEntryId));
-                });
+        if (!hasWritePermissions(entry.getWorld(), userId)) {
+            throw new InsufficientPermissionException("Not enough permissions to delete entries in this lorebook");
+        }
+
+        lorebookEntryRepository.delete(entry);
     }
 
     private boolean hasReadPermissions(final WorldEntity world, final String userId) {
