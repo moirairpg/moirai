@@ -24,7 +24,9 @@ public class LorebookEntryDTOToEntity implements Function<LorebookEntry, Loreboo
                 .name(lorebookEntry.getName())
                 .regex(regex)
                 .description(lorebookEntry.getDescription())
-                .playerDiscordId(lorebookEntry.getPlayerDiscordId())
+                .playerDiscordId(Optional.ofNullable(lorebookEntry.getPlayerDiscordId())
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(null))
                 .build();
     }
 }

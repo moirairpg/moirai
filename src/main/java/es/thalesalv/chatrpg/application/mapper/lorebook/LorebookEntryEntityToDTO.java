@@ -22,7 +22,9 @@ public class LorebookEntryEntityToDTO implements Function<LorebookEntryEntity, L
         return LorebookEntry.builder()
                 .id(lorebookEntryEntity.getId())
                 .description(lorebookEntryEntity.getDescription())
-                .playerDiscordId(lorebookEntryEntity.getPlayerDiscordId())
+                .playerDiscordId(Optional.ofNullable(lorebookEntryEntity.getPlayerDiscordId())
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(null))
                 .name(lorebookEntryEntity.getName())
                 .regex(regex)
                 .build();
