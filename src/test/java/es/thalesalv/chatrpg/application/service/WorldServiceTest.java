@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
+import es.thalesalv.chatrpg.adapters.data.repository.LorebookEntryRepository;
 import es.thalesalv.chatrpg.adapters.data.repository.WorldRepository;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
@@ -39,6 +40,9 @@ public class WorldServiceTest {
 
     @Mock
     private WorldRepository worldRepository;
+
+    @Mock
+    private LorebookEntryRepository lorebookEntryRepository;
 
     private LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
     private LorebookEntryDTOToEntity lorebookEntryDTOToEntity;
@@ -55,7 +59,8 @@ public class WorldServiceTest {
         lorebookEntryEntityToDTO = new LorebookEntryEntityToDTO();
         worldDTOToEntity = new WorldDTOToEntity(lorebookEntryDTOToEntity);
         worldEntityToDTO = new WorldEntityToDTO(lorebookEntryEntityToDTO);
-        worldService = new WorldService(worldDTOToEntity, worldEntityToDTO, worldRepository);
+        worldService = new WorldService(worldDTOToEntity, worldEntityToDTO, lorebookEntryDTOToEntity,
+                lorebookEntryEntityToDTO, worldRepository, lorebookEntryRepository);
     }
 
     @Test
