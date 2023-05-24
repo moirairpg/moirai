@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
 import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
-import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
@@ -30,7 +30,6 @@ public class ApiResponse {
     private List<ChannelConfig> channelConfigs;
     private List<Persona> personas;
     private List<World> worlds;
-    private List<Lorebook> lorebooks;
     private List<LorebookEntry> lorebookEntries;
     private List<ModerationSettings> moderationSettingsList;
     private List<ModelSettings> modelSettingsList;
@@ -38,7 +37,6 @@ public class ApiResponse {
     private ChannelConfig channelConfig;
     private Persona persona;
     private World world;
-    private Lorebook lorebook;
     private LorebookEntry lorebookEntry;
     private ModerationSettings moderationSettings;
     private ModelSettings modelSettings;

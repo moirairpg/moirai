@@ -13,12 +13,11 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.service.LorebookService;
+import es.thalesalv.chatrpg.application.service.WorldService;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
-import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import jakarta.transaction.Transactional;
@@ -40,7 +39,7 @@ public class LorebookCreateHandler {
     private final ContextDatastore contextDatastore;
     private final ObjectWriter prettyPrintObjectMapper;
 
-    private final LorebookService lorebookService;
+    private final WorldService worldService;
     private final ModerationService moderationService;
     private final ChannelRepository channelRepository;
     private final ChannelEntityToDTO channelEntityToDTO;
@@ -80,16 +79,15 @@ public class LorebookCreateHandler {
             LOGGER.debug("Received data from lore entry creation modal -> {}", event.getValues());
             event.deferReply();
             final EventData eventData = contextDatastore.getEventData();
-            final Lorebook lorebook = eventData.getChannelDefinitions()
+            final World world = eventData.getChannelDefinitions()
                     .getChannelConfig()
-                    .getWorld()
-                    .getLorebook();
+                    .getWorld();
 
             final LorebookEntry builtEntry = buildEntry(event);
             final String eventAuthorId = event.getUser()
                     .getId();
 
-            final LorebookEntry insertedEntry = lorebookService.saveLorebookEntry(builtEntry, lorebook.getId(),
+            final LorebookEntry insertedEntry = worldService.saveLorebookEntry(builtEntry, world.getId(),
                     eventAuthorId);
 
             final String loreEntryJson = prettyPrintObjectMapper.writeValueAsString(insertedEntry);
@@ -152,22 +150,21 @@ public class LorebookCreateHandler {
 
     private void checkPermissions(World world, SlashCommandInteractionEvent event) {
 
-        final Lorebook lorebook = world.getLorebook();
         final String userId = event.getUser()
                 .getId();
 
-        final boolean isPrivate = lorebook.getVisibility()
+        final boolean isPrivate = world.getVisibility()
                 .equals("private");
 
-        final boolean isOwner = lorebook.getOwner()
+        final boolean isOwner = world.getOwner()
                 .equals(userId);
 
-        final boolean canWrite = lorebook.getWritePermissions()
+        final boolean canWrite = world.getWritePermissions()
                 .contains(userId);
 
         final boolean isAllowed = isOwner || canWrite;
         if (isPrivate && !isAllowed) {
-            event.reply("You don't have permission from the owner of this private lorebook to see it")
+            event.reply("You don't have permission from the owner of this private world to see it")
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));

@@ -90,7 +90,6 @@ public class WorldGetHandler {
                 .complete()
                 .getName();
         world.setOwner(ownerName);
-        world.setLorebook(null);
         world.setInitialPrompt(null);
         return world;
     }

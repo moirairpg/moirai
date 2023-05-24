@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -55,12 +54,11 @@ public class MessageFormatHelper {
      * @param world        World containing the lore entries that should be used for
      *                     matching
      */
-    public void handlePlayerCharacterEntries(final Set<LorebookEntry> entriesFound, final List<String> messages,
+    public void handlePlayerCharacterEntries(final List<LorebookEntry> entriesFound, final List<String> messages,
             final User player, final Mentions mentions, final World world) {
 
         LOGGER.debug("Entered player character entry handling");
-        final Set<LorebookEntry> entries = world.getLorebook()
-                .getEntries();
+        final List<LorebookEntry> entries = world.getLorebook();
         entries.stream()
                 .filter(entry -> StringUtils.isNotBlank(entry.getPlayerDiscordId()))
                 .filter(entry -> entry.getPlayerDiscordId()
@@ -93,12 +91,11 @@ public class MessageFormatHelper {
      *                    matching
      * @return Set containing all entries found
      */
-    public Set<LorebookEntry> handleEntriesMentioned(final List<String> messageList, final World world) {
+    public List<LorebookEntry> handleEntriesMentioned(final List<String> messageList, final World world) {
 
         LOGGER.debug("Entered mentioned entries handling");
         final String messages = String.join("\n", messageList);
         return world.getLorebook()
-                .getEntries()
                 .stream()
                 .map(entry -> {
                     Pattern p = Pattern.compile(entry.getRegex());
@@ -109,10 +106,10 @@ public class MessageFormatHelper {
                     return null;
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
-    public void processEntriesFoundForRpg(final Set<LorebookEntry> entriesFound, final List<String> messages,
+    public void processEntriesFoundForRpg(final List<LorebookEntry> entriesFound, final List<String> messages,
             final JDA jda) {
 
         entriesFound.forEach(entry -> {
@@ -131,7 +128,7 @@ public class MessageFormatHelper {
         });
     }
 
-    public void processEntriesFoundForChat(final Set<LorebookEntry> entriesFound, final List<String> messages) {
+    public void processEntriesFoundForChat(final List<LorebookEntry> entriesFound, final List<String> messages) {
 
         entriesFound.forEach(entry -> messages.add(0,
                 MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));

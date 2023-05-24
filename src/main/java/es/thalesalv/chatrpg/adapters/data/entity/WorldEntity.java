@@ -9,17 +9,15 @@ import es.thalesalv.chatrpg.application.util.dbutils.StringListConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
 @Entity
@@ -57,10 +55,8 @@ public class WorldEntity {
     @Column(name = "initial_prompt", length = 2000)
     private String initialPrompt;
 
-    @ManyToOne
-    @ToString.Exclude
-    @JoinColumn(name = "lorebook", referencedColumnName = "id", nullable = false)
-    private LorebookEntity lorebook;
+    @OneToMany(mappedBy = "world", fetch = FetchType.EAGER)
+    private List<LorebookEntryEntity> lorebook;
 
     @OneToMany(mappedBy = "world")
     private Set<ChannelConfigEntity> channelConfigs;

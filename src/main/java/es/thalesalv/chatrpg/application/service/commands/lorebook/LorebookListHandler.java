@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import es.thalesalv.chatrpg.application.service.LorebookService;
-import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
+import es.thalesalv.chatrpg.application.service.WorldService;
+import es.thalesalv.chatrpg.domain.model.chconf.World;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 public class LorebookListHandler {
 
     private final ObjectWriter prettyPrintObjectMapper;
-    private final LorebookService lorebookService;
+    private final WorldService worldService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookListHandler.class);
 
@@ -72,16 +72,17 @@ public class LorebookListHandler {
         final String eventAuthorId = event.getUser()
                 .getId();
 
-        final List<Lorebook> lorebooks = lorebookService.retrieveAllLorebooks(eventAuthorId)
+        final List<World> lorebooks = worldService.retrieveAllWorlds(eventAuthorId)
                 .stream()
-                .map(l -> {
+                .map(w -> {
+                    w.setInitialPrompt(null);
                     final String ownerName = event.getJDA()
-                            .retrieveUserById(l.getOwner())
+                            .retrieveUserById(w.getOwner())
                             .complete()
                             .getName();
 
-                    l.setOwner(ownerName);
-                    return l;
+                    w.setOwner(ownerName);
+                    return w;
                 })
                 .toList();
 
