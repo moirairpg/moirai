@@ -6,6 +6,7 @@ import java.util.Set;
 import org.hibernate.annotations.GenericGenerator;
 
 import es.thalesalv.chatrpg.application.util.dbutils.StringListConverter;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -55,7 +56,7 @@ public class WorldEntity {
     @Column(name = "initial_prompt", length = 2000)
     private String initialPrompt;
 
-    @OneToMany(mappedBy = "world", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "world", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<LorebookEntryEntity> lorebook;
 
     @OneToMany(mappedBy = "world")

@@ -23,7 +23,8 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
     @Override
     public World apply(WorldEntity worldEntity) {
 
-        final List<LorebookEntry> entries = worldEntity.getLorebook()
+        final List<LorebookEntry> entries = Optional.ofNullable(worldEntity.getLorebook())
+                .orElse(new ArrayList<>())
                 .stream()
                 .map(lorebookEntryEntityToDTO)
                 .collect(Collectors.toList());
