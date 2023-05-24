@@ -1,8 +1,10 @@
 package es.thalesalv.chatrpg.application.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +68,20 @@ public class WorldService {
 
         LOGGER.debug("Entering saveWorld. world -> {}", world);
         final WorldEntity worldEntity = worldDTOToEntity.apply(world);
-        return worldEntityToDTO.apply(worldRepository.save(worldEntity));
+        final List<LorebookEntryEntity> lorebook = worldEntity.getLorebook();
+
+        worldEntity.setLorebook(null);
+        final WorldEntity savedWorld = worldRepository.save(worldEntity);
+        savedWorld.setLorebook(Optional.ofNullable(lorebook)
+                .map(lb -> lb.stream()
+                        .map(entry -> {
+                            entry.setWorld(savedWorld);
+                            return lorebookEntryRepository.save(entry);
+                        })
+                        .collect(Collectors.toList()))
+                .orElse(new ArrayList<>()));
+
+        return worldEntityToDTO.apply(savedWorld);
     }
 
     public World updateWorld(final String worldId, final World world, final String userId) {
@@ -82,7 +97,20 @@ public class WorldService {
         }
 
         worldEntity.setId(worldId);
-        return worldEntityToDTO.apply(worldRepository.save(worldEntity));
+        final List<LorebookEntryEntity> lorebook = worldEntity.getLorebook();
+
+        worldEntity.setLorebook(null);
+        final WorldEntity savedWorld = worldRepository.save(worldEntity);
+        savedWorld.setLorebook(Optional.ofNullable(lorebook)
+                .map(lb -> lb.stream()
+                        .map(entry -> {
+                            entry.setWorld(savedWorld);
+                            return lorebookEntryRepository.save(entry);
+                        })
+                        .collect(Collectors.toList()))
+                .orElse(new ArrayList<>()));
+
+        return worldEntityToDTO.apply(worldRepository.save(savedWorld));
     }
 
     public void deleteWorld(final String worldId, final String userId) {
