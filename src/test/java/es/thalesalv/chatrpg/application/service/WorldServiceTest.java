@@ -74,8 +74,10 @@ public class WorldServiceTest {
 
         final World world = buildSimplePublicWorld();
         final WorldEntity entity = buildSimplePublicWorldEntity();
+        final LorebookEntryEntity entryEntity = buildSimpleLorebookEntryEntity();
 
         when(worldRepository.save(any(WorldEntity.class))).thenReturn(entity);
+        when(lorebookEntryRepository.save(any(LorebookEntryEntity.class))).thenReturn(entryEntity);
 
         final World savedWorld = worldService.saveWorld(world);
         assertEquals("Test world", savedWorld.getName());
@@ -105,12 +107,14 @@ public class WorldServiceTest {
         final String userId = "302796314822049793";
         final World world = buildSimplePublicWorld();
         final WorldEntity entity = buildSimplePublicWorldEntity();
+        final LorebookEntryEntity entryEntity = buildSimpleLorebookEntryEntity();
 
         world.setOwner(userId);
         entity.setOwner(userId);
 
         when(worldRepository.findById(NANO_ID)).thenReturn(Optional.of(entity));
         when(worldRepository.save(any(WorldEntity.class))).thenReturn(entity);
+        when(lorebookEntryRepository.save(any(LorebookEntryEntity.class))).thenReturn(entryEntity);
 
         final World result = worldService.updateWorld(NANO_ID, world, userId);
         assertEquals(world, result);
