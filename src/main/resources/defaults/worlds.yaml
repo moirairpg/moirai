@@ -3,11 +3,6 @@
   visibility: 'public'
   name: 'Default world for chatbot'
   description: 'Default world for chatbot'
-  lorebook:
-    id: 'CHAT'
-    name: 'Default lorebook for chatbot'
-    visibility: 'private'
-    description: Default lorebook for chatbot.
 
 - id: 'ELDRIDA'
   visibility: 'public'
@@ -55,8 +50,7 @@
 
     ** **
   lorebook:
-    id: 'ELDRIDA'
-    name: 'Eldrida'
+  - name: 'Eldrida'
     description: >
       Eldrida is a massive continent with vast stretches of open plains,
       sprawling forests and treacherous mountain ranges.The land is divided into
@@ -65,4 +59,3 @@
       sentient beings such as humans, dwarves, elves and halflings,there exist
       an array of monsters too - gnolls, ogres, trolls - who are constantly at
       odds and threaten to disrupt the country's peace.
-    visibility: 'public'

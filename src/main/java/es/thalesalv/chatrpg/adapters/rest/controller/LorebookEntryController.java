@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.thalesalv.chatrpg.application.service.LorebookService;
+import es.thalesalv.chatrpg.application.service.WorldService;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
@@ -30,7 +30,7 @@ import reactor.core.publisher.Mono;
 
 public class LorebookEntryController {
 
-    private final LorebookService lorebookService;
+    private final WorldService worldService;
 
     private static final String RETRIEVE_ALL_LOREBOOKS_IN_LOREBOOK_REQUEST = "Received request for listing all lorebookEntries in loreboko with id {}";
     private static final String SAVE_LOREBOOK_ENTRY_REQUEST = "Received request for saving lorebookEntry -> {}. lorebookId -> {}";
@@ -48,7 +48,7 @@ public class LorebookEntryController {
             @PathVariable(value = "lorebook-id") final String lorebookId) {
 
         LOGGER.info(RETRIEVE_ALL_LOREBOOKS_IN_LOREBOOK_REQUEST, lorebookId);
-        return Mono.just(lorebookService.retrieveAllLorebookEntriesInLorebook(lorebookId, requesterUserId))
+        return Mono.just(worldService.retrieveAllLorebookEntriesInLorebook(lorebookId, requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(e -> {
                     LOGGER.error("Error retrieving all lorebookEntries from lorebook", e);
@@ -64,7 +64,7 @@ public class LorebookEntryController {
             @RequestBody final LorebookEntry lorebookEntry) {
 
         LOGGER.info(SAVE_LOREBOOK_ENTRY_REQUEST, lorebookEntry, lorebookId);
-        return Mono.just(lorebookService.saveLorebookEntry(lorebookEntry, lorebookId, requesterUserId))
+        return Mono.just(worldService.saveLorebookEntry(lorebookEntry, lorebookId, requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -86,7 +86,7 @@ public class LorebookEntryController {
             @RequestBody final LorebookEntry lorebookEntry) {
 
         LOGGER.info(UPDATE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId, lorebookEntry);
-        return Mono.just(lorebookService.updateLorebookEntry(lorebookEntryId, lorebookEntry, requesterUserId))
+        return Mono.just(worldService.updateLorebookEntry(lorebookEntryId, lorebookEntry, requesterUserId))
                 .map(this::buildResponse)
                 .onErrorResume(IllegalArgumentException.class, e -> {
                     LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
@@ -109,7 +109,7 @@ public class LorebookEntryController {
         LOGGER.info(DELETE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId);
         return Mono.just(lorebookEntryId)
                 .map(id -> {
-                    lorebookService.deleteLorebookEntry(lorebookEntryId, requesterUserId);
+                    worldService.deleteLorebookEntry(lorebookEntryId, requesterUserId);
                     LOGGER.info(DELETE_LOREBOOK_ENTRY_RESPONSE, lorebookEntryId);
                     return ResponseEntity.ok()
                             .body(ApiResponse.empty());
