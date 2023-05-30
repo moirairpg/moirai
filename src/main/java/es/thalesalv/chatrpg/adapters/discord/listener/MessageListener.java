@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.adapters.discord.listener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -14,6 +15,8 @@ import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @Service
@@ -32,8 +35,9 @@ public class MessageListener {
 
     public void onMessageReceived(MessageReceivedEvent event) {
 
-        if (!event.getAuthor()
-                .isBot()) {
+        final User author = event.getAuthor();
+        final Message message = event.getMessage();
+        if (!author.isBot() && StringUtils.isNotBlank(message.getContentRaw())) {
             channelRepository.findById(event.getChannel()
                     .getId())
                     .map(channelEntityToDTO)
