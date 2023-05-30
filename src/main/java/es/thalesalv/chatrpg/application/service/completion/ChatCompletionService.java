@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
-import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
+import es.thalesalv.chatrpg.application.helper.LorebookHelper;
+import es.thalesalv.chatrpg.application.helper.MessageHelper;
 import es.thalesalv.chatrpg.application.mapper.airequest.ChatCompletionRequestMapper;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.enums.Intent;
@@ -31,7 +32,8 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ChatCompletionService implements CompletionService {
 
-    private final MessageFormatHelper messageFormatHelper;
+    private final LorebookHelper lorebookHelper;
+    private final MessageHelper<ChatMessage> messageHelper;
     private final CommonErrorHandler commonErrorHandler;
     private final ChatCompletionRequestMapper chatCompletionsRequestTranslator;
     private final OpenAIApiService openAiService;
@@ -77,16 +79,15 @@ public class ChatCompletionService implements CompletionService {
                         .matcher(s)
                         .replaceAll(StringUtils.EMPTY));
 
-        final List<LorebookEntry> entriesFound = messageFormatHelper.handleEntriesMentioned(messages, world);
+        final List<LorebookEntry> entriesFound = lorebookHelper.handleEntriesMentioned(messages, world);
         if (Intent.RPG.equals(persona.getIntent())) {
-            messageFormatHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
-            messageFormatHelper.processEntriesFoundForRpg(entriesFound, messages, author.getJDA());
+            lorebookHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
+            lorebookHelper.rpgModeLorebookEntries(entriesFound, messages, author.getJDA());
         } else {
-            messageFormatHelper.processEntriesFoundForChat(entriesFound, messages);
+            lorebookHelper.chatModeLorebookEntries(entriesFound, messages);
         }
-        final List<ChatMessage> chatMessages = messageFormatHelper.formatMessagesForChatCompletions(messages, eventData,
-                inputProcessor);
 
+        final List<ChatMessage> chatMessages = messageHelper.formatMessages(messages, eventData, inputProcessor);
         final ChatCompletionRequest request = chatCompletionsRequestTranslator.buildRequest(chatMessages,
                 eventData.getChannelDefinitions()
                         .getChannelConfig());
@@ -101,6 +102,7 @@ public class ChatCompletionService implements CompletionService {
                     if (StringUtils.isBlank(responseText)) {
                         throw new ModelResponseBlankException();
                     }
+
                     return outputProcessor.process(responseText.trim());
                 })
                 .doOnError(ModelResponseBlankException.class::isInstance,

@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
-import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
+import es.thalesalv.chatrpg.application.helper.MessageHelper;
 import es.thalesalv.chatrpg.domain.exception.ModerationException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
@@ -38,7 +38,7 @@ public class ModerationServiceImpl implements ModerationService {
     @Value("${chatrpg.generation.default-threshold}")
     private double defaultThreshold;
 
-    private final MessageFormatHelper messageFormatHelper;
+    private final MessageHelper<String> messageHelper;
     private final OpenAIApiService openAIApiService;
 
     private static final String UNSAFE_CONTENT_FOUND = "Unsafe content detected";
@@ -80,7 +80,7 @@ public class ModerationServiceImpl implements ModerationService {
     @Override
     public Mono<ModerationResponse> moderateInput(final List<String> messages, final EventData eventData) {
 
-        final String prompt = messageFormatHelper.stringifyMessages(messages);
+        final String prompt = messageHelper.stringifyMessages(messages);
         if (StringUtils.isBlank(prompt))
             return Mono.just(ModerationResponse.builder()
                     .build());
