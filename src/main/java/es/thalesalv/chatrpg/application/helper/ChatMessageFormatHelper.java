@@ -14,7 +14,7 @@ import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 
 @Component
-public class ChatMessageHelper implements MessageHelper<ChatMessage>, PersonaHelper<ChatMessage> {
+public class ChatMessageFormatHelper implements MessageHelper<ChatMessage>, PersonaHelper<ChatMessage> {
 
     @Override
     public List<ChatMessage> formatMessages(final List<String> messages, final EventData eventData,

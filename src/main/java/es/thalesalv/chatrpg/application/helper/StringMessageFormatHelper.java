@@ -12,7 +12,7 @@ import es.thalesalv.chatrpg.domain.model.chconf.Nudge;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 
 @Component
-public class StringMessageHelper implements MessageHelper<String>, PersonaHelper<String> {
+public class StringMessageFormatHelper implements MessageHelper<String>, PersonaHelper<String> {
 
     @Override
     public List<String> formatMessages(final List<String> messages, final EventData eventData,
