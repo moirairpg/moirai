@@ -150,10 +150,14 @@ public class ModerationServiceImpl implements ModerationService {
             flaggedTopics = moderationResult.getCategoryScores()
                     .entrySet()
                     .stream()
-                    .filter(entry -> Double.valueOf(entry.getValue()) > Optional
-                            .ofNullable(moderationSettings.getThresholds()
-                                    .get(entry.getKey()))
-                            .orElse(defaultThreshold))
+                    .filter(entry -> {
+                        final String correctedNumber = entry.getValue()
+                                .replace(",", ".");
+
+                        return Double.valueOf(correctedNumber) > Optional.ofNullable(moderationSettings.getThresholds()
+                                .get(entry.getKey()))
+                                .orElse(defaultThreshold);
+                    })
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
         }
