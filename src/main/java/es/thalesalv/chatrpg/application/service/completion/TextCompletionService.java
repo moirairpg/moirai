@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
+import es.thalesalv.chatrpg.adapters.rest.client.CompletionApiService;
 import es.thalesalv.chatrpg.application.errorhandling.CommonErrorHandler;
 import es.thalesalv.chatrpg.application.helper.MessageFormatHelper;
 import es.thalesalv.chatrpg.application.mapper.airequest.TextCompletionRequestMapper;
@@ -33,7 +33,7 @@ public class TextCompletionService implements CompletionService {
     private final MessageFormatHelper messageFormatHelper;
     private final CommonErrorHandler commonErrorHandler;
     private final TextCompletionRequestMapper textCompletionRequestTranslator;
-    private final OpenAIApiService openAiService;
+    private final CompletionApiService<TextCompletionRequest> completionApiService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextCompletionService.class);
 
@@ -89,7 +89,7 @@ public class TextCompletionService implements CompletionService {
                 eventData.getChannelDefinitions()
                         .getChannelConfig());
 
-        return openAiService.callGptApi(request, eventData)
+        return completionApiService.callCompletion(request, eventData)
                 .map(response -> {
                     final String responseText = response.getChoices()
                             .get(0)
