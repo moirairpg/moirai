@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.adapters.rest;
+package es.thalesalv.chatrpg.adapters.rest.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
