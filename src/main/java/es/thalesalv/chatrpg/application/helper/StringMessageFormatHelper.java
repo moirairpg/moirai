@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.application.helper;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -24,8 +25,13 @@ public class StringMessageFormatHelper implements MessageHelper<String>, Persona
 
         final String personality = inputProcessor.process(persona.getPersonality());
         messages.add(0, personality);
-        List<String> chatMessages = formatNudge(persona, messages, inputProcessor);
 
+        List<String> chatMessages = messages.stream()
+                .filter(msg -> !msg.trim()
+                        .equals((persona.getName() + SAID).trim()))
+                .collect(Collectors.toList());
+
+        chatMessages = formatNudge(persona, chatMessages, inputProcessor);
         return formatBump(persona, chatMessages, inputProcessor);
     }
 
