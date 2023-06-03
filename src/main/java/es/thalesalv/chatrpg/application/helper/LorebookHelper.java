@@ -28,7 +28,7 @@ public class LorebookHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookHelper.class);
 
-    public void rpgModeLorebookEntries(final List<LorebookEntry> entriesFound, final List<String> messages,
+    public List<String> rpgModeLorebookEntries(final List<LorebookEntry> entriesFound, final List<String> messages,
             final JDA jda) {
 
         LOGGER.debug("Entered processEntriesFoundForRpg");
@@ -42,17 +42,22 @@ public class LorebookHelper {
                     .ifPresent(id -> {
                         final User p = jda.retrieveUserById(id)
                                 .complete();
+
                         messages.replaceAll(m -> m.replaceAll(p.getAsTag(), entry.getName())
                                 .replaceAll(TAG_EXPRESSION + p.getName(), entry.getName()));
                     });
         });
+
+        return messages;
     }
 
-    public void chatModeLorebookEntries(final List<LorebookEntry> entriesFound, final List<String> messages) {
+    public List<String> chatModeLorebookEntries(final List<LorebookEntry> entriesFound, final List<String> messages) {
 
         LOGGER.debug("Entered processEntriesFoundForChat");
         entriesFound.forEach(entry -> messages.add(0,
                 MessageFormat.format(CHARACTER_DESCRIPTION, entry.getName(), entry.getDescription())));
+
+        return messages;
     }
 
     /**
@@ -66,8 +71,8 @@ public class LorebookHelper {
      * @param world        World containing the lore entries that should be used for
      *                     matching
      */
-    public void handlePlayerCharacterEntries(final List<LorebookEntry> entriesFound, final List<String> messages,
-            final User player, final Mentions mentions, final World world) {
+    public List<String> handlePlayerCharacterEntries(final List<LorebookEntry> entriesFound,
+            final List<String> messages, final User player, final Mentions mentions, final World world) {
 
         LOGGER.debug("Entered player character entry handling");
         final List<LorebookEntry> entries = world.getLorebook();
@@ -93,6 +98,8 @@ public class LorebookHelper {
                             messages.replaceAll(m -> m.replaceAll(mention.getAsTag(), entry.getName())
                                     .replaceAll(TAG_EXPRESSION + mention.getName(), entry.getName()));
                         }));
+
+        return messages;
     }
 
     /**

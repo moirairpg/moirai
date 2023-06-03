@@ -77,15 +77,17 @@ public class TextCompletionService implements CompletionService {
                         .matcher(s)
                         .replaceAll(StringUtils.EMPTY));
 
-        final List<LorebookEntry> entriesFound = lorebookHelper.handleEntriesMentioned(messages, world);
+        List<String> processedMessages = messages;
+        final List<LorebookEntry> entriesFound = lorebookHelper.handleEntriesMentioned(processedMessages, world);
         if (Intent.RPG.equals(persona.getIntent())) {
-            lorebookHelper.handlePlayerCharacterEntries(entriesFound, messages, author, mentions, world);
-            lorebookHelper.rpgModeLorebookEntries(entriesFound, messages, author.getJDA());
+            processedMessages = lorebookHelper.handlePlayerCharacterEntries(entriesFound, processedMessages, author,
+                    mentions, world);
+            processedMessages = lorebookHelper.rpgModeLorebookEntries(entriesFound, processedMessages, author.getJDA());
         } else {
-            lorebookHelper.chatModeLorebookEntries(entriesFound, messages);
+            processedMessages = lorebookHelper.chatModeLorebookEntries(entriesFound, processedMessages);
         }
 
-        final List<String> chatMessages = messageHelper.formatMessages(messages, eventData, inputProcessor);
+        final List<String> chatMessages = messageHelper.formatMessages(processedMessages, eventData, inputProcessor);
         final String chatifiedMessage = messageHelper.chatifyMessages(chatMessages, eventData, inputProcessor);
         final TextCompletionRequest request = textCompletionRequestTranslator.buildRequest(chatifiedMessage,
                 eventData.getChannelDefinitions()
