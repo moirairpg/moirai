@@ -11,8 +11,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import es.thalesalv.chatrpg.testutils.EventDataUtils;
+import es.thalesalv.chatrpg.testutils.PersonaTestUtils;
 import es.thalesalv.chatrpg.testutils.TextMessageUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,5 +79,32 @@ public class ChatMessageFormatHelperTest {
                 .getRole());
         Assertions.assertEquals("My name is ChatRPG and this is a nudge", chatMessages.get(7)
                 .getContent());
+    }
+
+    @Test
+    public void testDetermineRole_botMessage() {
+
+        final Persona persona = PersonaTestUtils.buildSimplePublicPersona();
+        final String msg = "ChatRPG said: this is a message";
+        final String result = chatMessageFormatHelper.determineRole(msg, persona);
+        Assertions.assertEquals("assistant", result);
+    }
+
+    @Test
+    public void testDetermineRole_userMessage() {
+
+        final Persona persona = PersonaTestUtils.buildSimplePublicPersona();
+        final String msg = "Julia said: this is a message";
+        final String result = chatMessageFormatHelper.determineRole(msg, persona);
+        Assertions.assertEquals("user", result);
+    }
+
+    @Test
+    public void testDetermineRole_systemMessage() {
+
+        final Persona persona = PersonaTestUtils.buildSimplePublicPersona();
+        final String msg = "[ This is a message ]";
+        final String result = chatMessageFormatHelper.determineRole(msg, persona);
+        Assertions.assertEquals("system", result);
     }
 }
