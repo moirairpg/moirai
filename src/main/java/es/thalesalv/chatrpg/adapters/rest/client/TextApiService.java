@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -15,6 +16,7 @@ import es.thalesalv.chatrpg.domain.model.openai.completion.CompletionResponse;
 import es.thalesalv.chatrpg.domain.model.openai.completion.TextCompletionRequest;
 import reactor.core.publisher.Mono;
 
+@Service
 public class TextApiService implements CompletionApiService<TextCompletionRequest> {
 
     @Value("${chatrpg.openai.api-token}")
