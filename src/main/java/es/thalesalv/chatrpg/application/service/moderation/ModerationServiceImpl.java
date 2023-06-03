@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.adapters.rest.OpenAIApiService;
+import es.thalesalv.chatrpg.adapters.rest.client.ModerationApiService;
 import es.thalesalv.chatrpg.application.helper.MessageHelper;
 import es.thalesalv.chatrpg.domain.exception.ModerationException;
 import es.thalesalv.chatrpg.domain.model.EventData;
@@ -39,7 +39,7 @@ public class ModerationServiceImpl implements ModerationService {
     private double defaultThreshold;
 
     private final MessageHelper<String> messageHelper;
-    private final OpenAIApiService openAIApiService;
+    private final ModerationApiService moderationApiService;
 
     private static final String UNSAFE_CONTENT_FOUND = "Unsafe content detected";
     private static final String FLAGGED_OUTPUT = "The AI generated outputs that were flagged as unsafe by OpenAI's moderation. Please edit the prompt so it doesn't contain unsafe content and try again. This message will disappear in a few seconds.";
@@ -63,7 +63,7 @@ public class ModerationServiceImpl implements ModerationService {
                 .input(content)
                 .build();
 
-        return openAIApiService.callModerationApi(request)
+        return moderationApiService.callModeration(request)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult()
                             .get(0);
@@ -89,7 +89,7 @@ public class ModerationServiceImpl implements ModerationService {
                 .input(prompt)
                 .build();
 
-        return openAIApiService.callModerationApi(request)
+        return moderationApiService.callModeration(request)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult()
                             .get(0);
@@ -115,7 +115,7 @@ public class ModerationServiceImpl implements ModerationService {
                 .input(output)
                 .build();
 
-        return openAIApiService.callModerationApi(request)
+        return moderationApiService.callModeration(request)
                 .doOnNext(response -> {
                     final ModerationResult moderationResult = response.getModerationResult()
                             .get(0);
@@ -150,10 +150,14 @@ public class ModerationServiceImpl implements ModerationService {
             flaggedTopics = moderationResult.getCategoryScores()
                     .entrySet()
                     .stream()
-                    .filter(entry -> Double.valueOf(entry.getValue()) > Optional
-                            .ofNullable(moderationSettings.getThresholds()
-                                    .get(entry.getKey()))
-                            .orElse(defaultThreshold))
+                    .filter(entry -> {
+                        final String correctedNumber = entry.getValue()
+                                .replace(",", ".");
+
+                        return Double.valueOf(correctedNumber) > Optional.ofNullable(moderationSettings.getThresholds()
+                                .get(entry.getKey()))
+                                .orElse(defaultThreshold);
+                    })
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
         }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.thalesalv.chatrpg.adapters.rest.DiscordApiService;
+import es.thalesalv.chatrpg.adapters.rest.client.DiscordApiService;
 import es.thalesalv.chatrpg.application.service.DiscordAuthService;
 import es.thalesalv.chatrpg.domain.model.DiscordUserData;
 import lombok.RequiredArgsConstructor;
