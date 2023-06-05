@@ -24,7 +24,7 @@ public class PersonaTestUtils {
         final List<String> emptyPermissions = new ArrayList<>();
         return Persona.builder()
                 .id(NANO_ID)
-                .name("Test persona")
+                .name("ChatRPG")
                 .personality("This is a test persona")
                 .intent(Intent.CHAT)
                 .owner("1083867535658725536")
@@ -33,7 +33,7 @@ public class PersonaTestUtils {
                 .readPermissions(emptyPermissions)
                 .nudge(Nudge.builder()
                         .role("system")
-                        .content("this is a nugde")
+                        .content("My name is {0} and this is a nudge")
                         .build())
                 .bump(Bump.builder()
                         .frequency(3)

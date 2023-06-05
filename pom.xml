@@ -149,6 +149,7 @@
                         <exclude>**/YamlPropertySourceFactory*</exclude>
                         <exclude>**/JsonLoggerFormatter*</exclude>
                         <exclude>**/application/config/*</exclude>
+                        <exclude>**/EventDispatcher*</exclude>
                         <exclude>**/model/**</exclude>
                         <exclude>**/util/**</exclude>
                         <exclude>**/dto/*</exclude>
@@ -161,6 +162,7 @@
                         <exclude>**/errorhandling/*</exclude>
                         <exclude>**/commands/**</exclude>
                         <exclude>**/enums/*</exclude>
+                        <exclude>**/mapper/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
