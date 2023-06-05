@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
+import es.thalesalv.chatrpg.application.service.moderation.ModerationFeedbackService;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.util.StringProcessors;
 import es.thalesalv.chatrpg.application.util.TokenCountingStringPredicate;
@@ -29,11 +30,13 @@ import java.util.stream.Collectors;
 public class AuthorUseCase implements BotUseCase {
 
     private final ModerationService moderationService;
+    private final ModerationFeedbackService moderationFeedbackService;
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorUseCase.class);
 
     @Override
-    public EventData generateResponse(final EventData eventData, final CompletionService model) {
+    public void generateResponse(final EventData eventData, final CompletionService model) {
 
         LOGGER.debug("Entered generation for normal text.");
         eventData.getCurrentChannel()
@@ -56,18 +59,22 @@ public class AuthorUseCase implements BotUseCase {
         }
 
         final List<String> messages = handleHistory(eventData);
-
-        moderationService.moderate(messages, eventData)
+        moderationService.moderateInput(messages, eventData)
                 .subscribe(inputModeration -> model.generate(messages, eventData)
                         .subscribe(textResponse -> moderationService.moderateOutput(textResponse, eventData)
                                 .subscribe(outputModeration -> {
-                                    final Message responseMessage = eventData.getCurrentChannel()
+                                    eventData.setInputModerationResult(inputModeration.getModerationResult()
+                                            .get(0));
+
+                                    eventData.setOutputModerationResult(outputModeration.getModerationResult()
+                                            .get(0));
+
+                                    moderationFeedbackService.sendModerationFeedback(eventData);
+
+                                    eventData.getCurrentChannel()
                                             .sendMessage(textResponse)
                                             .complete();
-                                    eventData.setResponseMessage(responseMessage);
                                 })));
-
-        return eventData;
     }
 
     /**
