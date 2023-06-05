@@ -32,7 +32,6 @@ public class AuthorUseCase implements BotUseCase {
     private final ModerationService moderationService;
     private final ModerationFeedbackService moderationFeedbackService;
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorUseCase.class);
 
     @Override
