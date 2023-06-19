@@ -1,12 +1,11 @@
 package es.thalesalv.chatrpg.domain.enums;
 
-import java.util.Arrays;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import es.thalesalv.chatrpg.domain.exception.AIModelNotSupportedException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.Arrays;
 
 @Getter
 @AllArgsConstructor
@@ -26,6 +25,9 @@ public enum AIModel {
 
     @JsonProperty("chatgpt")
     CHATGPT("chatgpt", "gpt-3.5-turbo", "chatCompletionService", 4096),
+
+    @JsonProperty("chatgpt16k")
+    CHATGPT16K("chatgpt16k", "gpt-3.5-turbo-16k-0613", "chatCompletionService", 16386),
 
     @JsonProperty("gpt4")
     GPT4("gpt4", "gpt-4", "chatCompletionService", 8192),
