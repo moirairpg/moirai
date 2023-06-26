@@ -48,8 +48,7 @@
 
     ** **
   lorebook:
-  - id: 7LG9M1ADOUFOSOK
-    name: Eldrida
+  - name: Eldrida
     regex: Eldrida
     description: Eldrida is a medieval fantasy world where magic and mythical creatures
       exist. The land is divided into several kingdoms that are in a constant state
@@ -57,15 +56,13 @@
       and are often faced with dangerous quests and legendary battles. The land is filled
       with enchanted forests, treacherous mountains, and sprawling plains. Eldrida is
       a world of adventure, where heroes are born and legends are made.
-  - id: 5ST7WT7VEGV0Z6Y
-    name: Ardenia
+  - name: Ardenia
     regex: Ardenia
     description: The Kingdom of Ardenia is in a long-standing war with the neighboring
       Kingdom of Dornia over control of a strategic port city. The two kingdoms have
       been at odds for generations and the conflict shows no signs of abating. Its capital
       is the port city of Valoria.
-  - id: B2ZFHTG4UEJNWPN
-    name: Valoria
+  - name: Valoria
     regex: Valoria
     description: Valoria is the bustling port capital city of Ardenia, with salty sea
       air mixing with the aromas of freshly baked bread and roasting meat. The city
@@ -75,30 +72,26 @@
       its spires rising high above the rooftops. The people of Valoria are a diverse
       and colorful bunch, speaking various languages and haggling over prices in the
       crowded market square.
-  - id: XI7JQ2WCMOBFDR7
-    name: Eryndor
+  - name: Eryndor
     regex: Eryndor
     description: The Kingdom of Eryndor is ruled by a cruel and power-hungry monarch
       who has alienated many of the neighboring kingdoms. Several of the neighboring
       kingdoms have formed an alliance to resist Eryndor's aggression and to protect
       their own interests. Its capital is the city of Dragonhold.
-  - id: J7TE0LYQ180SKE5
-    name: Thalassia
+  - name: Thalassia
     regex: Thalassia
     description: The Kingdom of Thalassia is home to an ancient and powerful artifact
       that many believe holds the key to controlling the magic in Eldrida. Several of
       the neighboring kingdoms have sent spies to try and steal the artifact, leading
       to a complex web of espionage and deceit. Its capital is the city of Seabreak.
-  - id: W5DHLIYCTEPWVOZ
-    name: Ostia
+  - name: Ostia
     regex: Ostia
     description: The Kingdom of Ostia is facing a rebellion from its own people. The
       monarchy has grown increasingly tyrannical, and a group of rebels has formed to
       overthrow the current regime. The rebels are gaining support from neighboring
       kingdoms, but the monarchy is determined to hold onto power. Its capital is the
       city of Ironhold.
-  - id: M5D8JYO8M8FZJ66
-    name: Dragonhold
+  - name: Dragonhold
     regex: Dragonhold
     description: Dragonhold a place of grandeur and lavishness. The towering spires
       of the palace and other buildings are made of white marble, and are trimmed with
@@ -107,8 +100,7 @@
       sense of tension and unease. The monarch rules with an iron fist, and the people
       are beginning to grow tired of their oppression. They whisper of rebellion and
       unrest, but many fear the consequences of speaking out.
-  - id: IXW5XTDBGJ8IPX8
-    name: Seabreak
+  - name: Seabreak
     regex: Seabreak
     description: Seabreak city is a marvel of engineering and architecture. Carved into
       the side of a great cliff, the city offers stunning views of the sea below. The
@@ -117,8 +109,7 @@
       are also wary. The ancient artifact that many seek is rumored to be hidden somewhere
       within the city, and the constant influx of spies and thieves has made the streets
       dangerous.
-  - id: F285PUAHT5G9JID
-    name: Ironhold
+  - name: Ironhold
     regex: Ironhold
     description: Ironhold is a place of industry and technology. The factories and machines
       are always churning, and the air is thick with smoke. The buildings are made of
@@ -126,30 +117,25 @@
       The people of Ironhold are hardworking and practical, with little time for leisure
       or frivolity. Despite the city's reputation for progress and innovation, many
       of its citizens feel trapped and suffocated by the constant noise and pollution.
-  - id: Z7TELN40Z1UCRB2
-    name: Human
+  - name: Human
     regex: "[Hh]uman(s|)"
     description: The most common race in Eldrida, humans inhabit most of the kingdoms
       and are the driving force behind the politics and conflicts.
-  - id: W9BGXM683GK0D6Y
-    name: Elf
+  - name: Elf
     regex: "[Ee]l(f(s|)|ves)"
     description: A graceful and long-lived race, Elves have a deep connection to nature
       and magic. They often live in secluded forests and have a strong sense of duty
       to protect the land.
-  - id: EAQUX4WKJLV2HI1
-    name: Dwarf
+  - name: Dwarf
     regex: "[Dd]war(f(s|)|ves)"
     description: Short and stout, Dwarves are skilled miners and craftsmen. They live
       in underground cities and have a love for gold and jewels.
-  - id: 29W58EIJITA91C9
-    name: Orc
+  - name: Orc
     regex: "[Oo]rc(s|)"
     description: A fierce and brutish race, Orcs are skilled warriors and often live
       in tribes. They have a reputation for being violent and are often feared by other
       races.
-  - id: DRATL7JGTNCUT2Y
-    name: Gnome
+  - name: Gnome
     regex: "[Gg]nome(s|)"
     description: Small and quirky, Gnomes are known for their love of tinkering and
       inventing. They often live in hidden underground lairs and have a deep knowledge
