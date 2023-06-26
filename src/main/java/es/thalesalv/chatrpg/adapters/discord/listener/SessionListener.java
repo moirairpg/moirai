@@ -40,7 +40,7 @@ public class SessionListener {
                     .addCommands(commands.listWith(helpService))
                     .complete();
             Optional.ofNullable(statusChannelId)
-                    .filter(StringUtils::isNotEmpty)
+                    .filter(StringUtils::isNotBlank)
                     .ifPresent(id -> event.getJDA()
                             .getChannelById(TextChannel.class, id)
                             .sendMessage(bot.getName() + " is ready to chat!")
