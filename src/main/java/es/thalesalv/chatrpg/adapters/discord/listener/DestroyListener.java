@@ -27,7 +27,7 @@ public class DestroyListener {
 
         try {
             Optional.ofNullable(statusChannelId)
-                    .filter(StringUtils::isNotEmpty)
+                    .filter(StringUtils::isNotBlank)
                     .ifPresent(id -> jda.getChannelById(TextChannel.class, id)
                             .sendMessage(jda.getSelfUser()
                                     .getName() + " is ready to chat!")
