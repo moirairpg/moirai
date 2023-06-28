@@ -1,26 +1,25 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import es.thalesalv.chatrpg.application.util.DelayedPredicate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
+import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationFeedbackService;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
-import es.thalesalv.chatrpg.application.service.completion.CompletionService;
+import es.thalesalv.chatrpg.application.util.DelayedPredicate;
+import es.thalesalv.chatrpg.application.util.StringProcessors;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -90,10 +89,7 @@ public class ChatUseCase implements BotUseCase {
         List<String> messages = getHistory(eventData).stream()
                 .filter(skipFilter)
                 .takeWhile(stopFilter.negate())
-                .map(m -> MessageFormat.format("{0} said: {1}", m.getAuthor()
-                        .getName(),
-                        m.getContentDisplay()
-                                .trim()))
+                .map(StringProcessors.chatFormatter())
                 .collect(Collectors.toList());
 
         Collections.reverse(messages);
@@ -126,21 +122,14 @@ public class ChatUseCase implements BotUseCase {
 
     private List<String> getFormattedReplies(final EventData eventData) {
 
-        final Message message = eventData.getMessage();
-        final Message reply = message.getReferencedMessage();
-        if (null == reply) {
+        if (null == eventData.getMessage()
+                .getReferencedMessage()) {
             return Collections.emptyList();
         } else {
-            String formattedReference = MessageFormat.format("{0} said earlier: {1}", reply.getAuthor()
-                    .getName(), reply.getContentDisplay());
-
-            String formattedReply = MessageFormat.format("{0} quoted the message from {1} and replied with: {2}",
-                    message.getAuthor()
-                            .getName(),
-                    reply.getAuthor()
-                            .getName(),
-                    message.getContentDisplay());
-
+            String formattedReference = StringProcessors.formattedReference()
+                    .apply(eventData.getMessage());
+            String formattedReply = StringProcessors.formattedResponse()
+                    .apply(eventData.getMessage());
             return Arrays.asList(formattedReference, formattedReply);
         }
     }
