@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.application.service.ChannelConfigService;
+import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
+import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
@@ -36,44 +38,41 @@ public class ChannelConfigController {
     private static final String SAVE_CHANNEL_CONFIG_REQUEST = "Received request for saving channel config -> {}";
     private static final String UPDATE_CHANNEL_CONFIG_REQUEST = "Received request for updating channel config with ID {} -> {}";
     private static final String DELETE_CHANNEL_CONFIG_REQUEST = "Received request for deleting channel config with ID {}";
-    private static final String DELETE_CHANNEL_CONFIG_RESPONSE = "Returning response for deleting lorebook with ID {}";
     private static final String GENERAL_ERROR_MESSAGE = "An error occurred processing the request";
-    private static final String ITEM_INSERTED_CANNOT_BE_NULL = "The item to be inserted cannot be null";
+    private static final String REQUESTED_NOT_FOUND = "The requested channel config was not found";
+    private static final String CHCONF_WITH_ID_NOT_FOUND = "Couldn't find requested channel config with ID {}";
+    private static final String NOT_ENOUGH_PERMISSION = "Not enough permissions to modify this persona";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigController.class);
 
     @GetMapping
     public Mono<ResponseEntity<ApiResponse>> getAllChannelConfigs(@RequestHeader("requester") String requesterUserId) {
 
-        LOGGER.info(RETRIEVE_ALL_CHANNEL_REQUEST);
-        return Mono.just(channelConfigService.retrieveAllChannelConfigs(requesterUserId))
-                .map(this::buildResponse)
-                .onErrorResume(e -> {
-                    LOGGER.error("Error retrieving all channel configurations", e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
-                });
+        try {
+            LOGGER.info(RETRIEVE_ALL_CHANNEL_REQUEST);
+            final List<ChannelConfig> channelConfigs = channelConfigService.retrieveAllChannelConfigs(requesterUserId);
+            return Mono.just(buildResponse(channelConfigs));
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving all channel configurations", e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+        }
     }
 
     @PostMapping
     public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(@RequestBody final ChannelConfig channelConfig) {
 
-        LOGGER.info(SAVE_CHANNEL_CONFIG_REQUEST, channelConfig);
-        return Mono.just(channelConfigService.saveChannelConfig(channelConfig))
-                .map(this::buildResponse)
-                .onErrorResume(IllegalArgumentException.class, e -> {
-                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
-                })
-                .onErrorResume(e -> {
-                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
-                });
+        try {
+            LOGGER.info(SAVE_CHANNEL_CONFIG_REQUEST, channelConfig);
+            final ChannelConfig newChannelConfig = channelConfigService.saveChannelConfig(channelConfig);
+            return Mono.just(buildResponse(newChannelConfig));
+        } catch (Exception e) {
+            LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+        }
     }
 
     @PutMapping("{channel-config-id}")
@@ -81,47 +80,55 @@ public class ChannelConfigController {
             @PathVariable(value = "channel-config-id") final String channelConfigId,
             @RequestBody final ChannelConfig channelConfig) {
 
-        LOGGER.info(UPDATE_CHANNEL_CONFIG_REQUEST, channelConfigId, channelConfig);
-        return Mono.just(channelConfigService.updateChannelConfig(channelConfigId, channelConfig, requesterUserId))
-                .map(this::buildResponse)
-                .onErrorResume(IllegalArgumentException.class, e -> {
-                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
-                })
-                .onErrorResume(e -> {
-                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
-                });
+        try {
+            LOGGER.info(UPDATE_CHANNEL_CONFIG_REQUEST, channelConfigId, channelConfig);
+            final ChannelConfig updatedChannelConfig = channelConfigService.updateChannelConfig(channelConfigId,
+                    channelConfig, requesterUserId);
+
+            return Mono.just(buildResponse(updatedChannelConfig));
+        } catch (InsufficientPermissionException e) {
+            LOGGER.error(NOT_ENOUGH_PERMISSION, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.FORBIDDEN, NOT_ENOUGH_PERMISSION)));
+        } catch (ChannelConfigNotFoundException e) {
+            LOGGER.error(CHCONF_WITH_ID_NOT_FOUND, channelConfigId, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, REQUESTED_NOT_FOUND)));
+        } catch (Exception e) {
+            LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+        }
     }
 
     @DeleteMapping("{channel-config-id}")
     public Mono<ResponseEntity<ApiResponse>> deleteChannelConfigById(@RequestHeader("requester") String requesterUserId,
             @PathVariable(value = "channel-config-id") final String channelConfigId) {
 
-        LOGGER.info(DELETE_CHANNEL_CONFIG_REQUEST, channelConfigId);
-        return Mono.just(channelConfigId)
-                .map(id -> {
-                    channelConfigService.deleteChannelConfig(channelConfigId, requesterUserId);
-                    LOGGER.info(DELETE_CHANNEL_CONFIG_RESPONSE, channelConfigId);
-                    return ResponseEntity.ok()
-                            .body(ApiResponse.empty());
-                })
-                .onErrorResume(IllegalArgumentException.class, e -> {
-                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
-                })
-                .onErrorResume(e -> {
-                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
-                });
+        try {
+            LOGGER.info(DELETE_CHANNEL_CONFIG_REQUEST, channelConfigId);
+            channelConfigService.deleteChannelConfig(channelConfigId, requesterUserId);
+            return Mono.just(ResponseEntity.ok()
+                    .body(ApiResponse.empty()));
+        } catch (InsufficientPermissionException e) {
+            LOGGER.error(NOT_ENOUGH_PERMISSION, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.FORBIDDEN, NOT_ENOUGH_PERMISSION)));
+        } catch (ChannelConfigNotFoundException e) {
+            LOGGER.error(CHCONF_WITH_ID_NOT_FOUND, channelConfigId, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, REQUESTED_NOT_FOUND)));
+        } catch (Exception e) {
+            LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+        }
     }
 
     private ResponseEntity<ApiResponse> buildResponse(List<ChannelConfig> channelConfigs) {
