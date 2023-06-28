@@ -35,7 +35,6 @@ public class WorldController {
     private final WorldService worldService;
 
     private static final String RETRIEVE_ALL_WORLDS_REQUEST = "Received request for listing all worlds";
-    private static final String RETRIEVE_WORLD_BY_ID_REQUEST = "Received request for retrieving world with id {}";
     private static final String SAVE_WORLD_REQUEST = "Received request for saving world -> {}";
     private static final String UPDATE_WORLD_REQUEST = "Received request for updating world with ID {} -> {}";
     private static final String DELETE_WORLD_REQUEST = "Received request for deleting world with ID {}";
@@ -60,32 +59,6 @@ public class WorldController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
 
-        }
-    }
-
-    @GetMapping("{world-id}")
-    public Mono<ResponseEntity<ApiResponse>> getWorldById(@RequestHeader("requester") String requesterUserId,
-            @PathVariable(value = "world-id") final String worldId) {
-
-        try {
-            LOGGER.info(RETRIEVE_WORLD_BY_ID_REQUEST, worldId);
-            final World world = worldService.retrieveWorldById(worldId, requesterUserId);
-            return Mono.just(buildResponse(world));
-        } catch (InsufficientPermissionException e) {
-            LOGGER.error(NOT_ENOUGH_PERMISSION, e);
-            return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN.value())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(this.buildErrorResponse(HttpStatus.FORBIDDEN, NOT_ENOUGH_PERMISSION)));
-        } catch (WorldNotFoundException e) {
-            LOGGER.error(WORLD_WITH_ID_NOT_FOUND, worldId, e);
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, REQUESTED_NOT_FOUND)));
-        } catch (Exception e) {
-            LOGGER.error(ERROR_RETRIEVING_WITH_ID, worldId, e);
-            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
         }
     }
 
