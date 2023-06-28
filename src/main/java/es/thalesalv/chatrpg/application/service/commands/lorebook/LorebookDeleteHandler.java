@@ -10,12 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
-import es.thalesalv.chatrpg.application.service.LorebookService;
+import es.thalesalv.chatrpg.application.service.WorldService;
 import es.thalesalv.chatrpg.application.util.ContextDatastore;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.MissingRequiredSlashCommandOptionException;
 import es.thalesalv.chatrpg.domain.model.EventData;
-import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +33,7 @@ public class LorebookDeleteHandler {
     private final ContextDatastore contextDatastore;
     private final ChannelEntityToDTO channelEntityToDTO;
     private final ChannelRepository channelRepository;
-    private final LorebookService lorebookService;
+    private final WorldService worldService;
 
     private static final int DELETE_EPHEMERAL_TIMER = 20;
     private static final String MODAL_ID = "lb-delete";
@@ -67,7 +66,7 @@ public class LorebookDeleteHandler {
                                 .getWorld();
 
                         checkPermissions(world, event);
-                        final LorebookEntry entry = lorebookService.retrieveLorebookEntryById(entryId, eventAuthorId);
+                        final LorebookEntry entry = worldService.retrieveLorebookEntryById(entryId, eventAuthorId);
                         contextDatastore.setEventData(EventData.builder()
                                 .lorebookEntry(entry)
                                 .build());
@@ -117,7 +116,7 @@ public class LorebookDeleteHandler {
             final LorebookEntry entry = contextDatastore.getEventData()
                     .getLorebookEntry();
 
-            lorebookService.deleteLorebookEntry(entry.getId(), eventAuthorId);
+            worldService.deleteLorebookEntry(entry.getId(), eventAuthorId);
             event.reply(LORE_ENTRY_DELETED)
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
@@ -147,22 +146,21 @@ public class LorebookDeleteHandler {
 
     private void checkPermissions(World world, SlashCommandInteractionEvent event) {
 
-        final Lorebook lorebook = world.getLorebook();
         final String userId = event.getUser()
                 .getId();
 
-        final boolean isPrivate = lorebook.getVisibility()
+        final boolean isPrivate = world.getVisibility()
                 .equals("private");
 
-        final boolean isOwner = lorebook.getOwner()
+        final boolean isOwner = world.getOwner()
                 .equals(userId);
 
-        final boolean canWrite = lorebook.getWritePermissions()
+        final boolean canWrite = world.getWritePermissions()
                 .contains(userId);
 
         final boolean isAllowed = isOwner || canWrite;
         if (isPrivate && !isAllowed) {
-            event.reply("You don't have permission from the owner of this private lorebook to modify it")
+            event.reply("You don't have permission from the owner of this private world to modify it")
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));

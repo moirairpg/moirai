@@ -1,13 +1,16 @@
 package es.thalesalv.chatrpg.application.mapper.world;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
-import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntityToDTO;
+import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
+import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
 
@@ -15,10 +18,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorldEntityToDTO implements Function<WorldEntity, World> {
 
-    private final LorebookEntityToDTO lorebookEntityToDTO;
+    private final LorebookEntryEntityToDTO lorebookEntryEntityToDTO;
 
     @Override
     public World apply(WorldEntity worldEntity) {
+
+        final List<LorebookEntry> entries = Optional.ofNullable(worldEntity.getLorebook())
+                .orElse(new ArrayList<>())
+                .stream()
+                .map(lorebookEntryEntityToDTO)
+                .collect(Collectors.toList());
 
         return World.builder()
                 .id(worldEntity.getId())
@@ -31,7 +40,7 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
                 .readPermissions(Optional.ofNullable(worldEntity.getReadPermissions())
                         .orElse(new ArrayList<String>()))
                 .description(worldEntity.getDescription())
-                .lorebook(lorebookEntityToDTO.apply(worldEntity.getLorebook()))
+                .lorebook(entries)
                 .build();
     }
 }

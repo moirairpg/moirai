@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.domain.model.chconf;
 
+import java.util.Collections;
 import java.util.List;
 
 import lombok.AccessLevel;
@@ -19,17 +20,17 @@ public class World {
     private String description;
     private String owner;
     private String visibility;
+    private String initialPrompt;
     private List<String> writePermissions;
     private List<String> readPermissions;
-    private String initialPrompt;
-    private Lorebook lorebook;
+    private List<LorebookEntry> lorebook;
 
     public static World defaultWorld() {
 
         return World.builder()
                 .id("0")
                 .name("DEFAULT WORLD")
-                .lorebook(Lorebook.defaultLorebook())
+                .lorebook(Collections.emptyList())
                 .build();
     }
 }

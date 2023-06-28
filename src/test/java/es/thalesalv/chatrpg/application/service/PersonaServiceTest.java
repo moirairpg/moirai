@@ -58,7 +58,7 @@ public class PersonaServiceTest {
         when(personaRepository.save(buildSimplePublicPersonaEntity())).thenReturn(entity);
 
         final Persona persona = personaService.savePersona(buildSimplePublicPersona());
-        assertEquals("Test persona", persona.getName());
+        assertEquals("ChatRPG", persona.getName());
         assertEquals("This is a test persona", persona.getPersonality());
     }
 

@@ -41,6 +41,7 @@ public class AuthorUseCase implements BotUseCase {
         eventData.getCurrentChannel()
                 .sendTyping()
                 .complete();
+
         final Message message = eventData.getMessage();
         final SelfUser bot = eventData.getBot();
         if (message.getContentRaw()
@@ -56,7 +57,6 @@ public class AuthorUseCase implements BotUseCase {
                         }
                     });
         }
-
         final List<String> messages = handleHistory(eventData);
         moderationService.moderateInput(messages, eventData)
                 .subscribe(inputModeration -> model.generate(messages, eventData)
@@ -93,6 +93,7 @@ public class AuthorUseCase implements BotUseCase {
                 .map(messageMapper)
                 .takeWhile(tokenFilter)
                 .collect(Collectors.toList());
+
         Collections.reverse(messages);
         return messages;
     }

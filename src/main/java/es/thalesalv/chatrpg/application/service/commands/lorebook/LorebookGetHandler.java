@@ -20,7 +20,6 @@ import es.thalesalv.chatrpg.adapters.data.repository.ChannelRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ChannelEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
-import es.thalesalv.chatrpg.domain.model.chconf.Lorebook;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 import lombok.RequiredArgsConstructor;
@@ -110,13 +109,12 @@ public class LorebookGetHandler {
     private void retrieveLorebook(final World world, final SlashCommandInteractionEvent event)
             throws JsonProcessingException, IOException {
 
-        final Lorebook lorebook = world.getLorebook();
-        lorebook.setOwner(event.getJDA()
+        world.setOwner(event.getJDA()
                 .retrieveUserById(world.getOwner())
                 .complete()
                 .getName());
 
-        final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(lorebook);
+        final String lorebookJson = prettyPrintObjectMapper.writeValueAsString(world.getLorebook());
         final File file = File.createTempFile("lorebook-", ".json");
         Files.write(file.toPath(), lorebookJson.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
         final FileUpload fileUpload = FileUpload.fromData(file);
@@ -132,7 +130,6 @@ public class LorebookGetHandler {
             final SlashCommandInteractionEvent event) throws JsonProcessingException {
 
         final LorebookEntry entry = world.getLorebook()
-                .getEntries()
                 .stream()
                 .filter(e -> e.getId()
                         .equals(entryId))
@@ -147,24 +144,23 @@ public class LorebookGetHandler {
 
     private void checkPermissions(World world, SlashCommandInteractionEvent event) {
 
-        final Lorebook lorebook = world.getLorebook();
         final String userId = event.getUser()
                 .getId();
 
-        final boolean isPrivate = lorebook.getVisibility()
+        final boolean isPrivate = world.getVisibility()
                 .equals("private");
 
-        final boolean isOwner = lorebook.getOwner()
+        final boolean isOwner = world.getOwner()
                 .equals(userId);
 
-        final boolean canRead = lorebook.getReadPermissions()
+        final boolean canRead = world.getReadPermissions()
                 .contains(userId)
-                || lorebook.getWritePermissions()
+                || world.getWritePermissions()
                         .contains(userId);
 
         final boolean isAllowed = isOwner || canRead;
         if (isPrivate && !isAllowed) {
-            event.reply("You don't have permission from the owner of this private lorebook to see it")
+            event.reply("You don't have permission from the owner of this private world to see it")
                     .setEphemeral(true)
                     .queue(m -> m.deleteOriginal()
                             .queueAfter(DELETE_EPHEMERAL_TIMER, TimeUnit.SECONDS));
