@@ -13,7 +13,9 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.application.util.StringProcessor;
+import es.thalesalv.chatrpg.application.util.StringProcessors;
 import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.testutils.EventDataUtils;
 import es.thalesalv.chatrpg.testutils.TextMessageUtils;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -30,17 +32,16 @@ public class StringMessageFormatHelperTest {
         final List<String> messages = TextMessageUtils.createChat();
         final EventData eventData = EventDataUtils.buildEventData();
         final StringProcessor stringProcessor = new StringProcessor();
-        stringProcessor.addRule(s -> Pattern.compile("\\{0\\}")
-                .matcher(s)
-                .replaceAll(r -> eventData.getChannelDefinitions()
-                        .getChannelConfig()
-                        .getPersona()
-                        .getName()));
+        final Persona persona = eventData.getChannelDefinitions()
+                .getChannelConfig()
+                .getPersona();
+
+        stringProcessor.addRule(StringProcessors.replacePlaceholderWithPersona(persona));
 
         final List<String> chatMessages = stringMessageFormatHelper.formatMessages(messages, eventData,
                 stringProcessor);
 
-        assertEquals("This is a test persona", chatMessages.get(0));
+        assertEquals("This is a test persona. My name is ChatRPG", chatMessages.get(0));
         assertEquals("John said: Hello", chatMessages.get(1));
         assertEquals("Martha said: Hello, how are you?", chatMessages.get(2));
         assertEquals("this is a bump", chatMessages.get(3));

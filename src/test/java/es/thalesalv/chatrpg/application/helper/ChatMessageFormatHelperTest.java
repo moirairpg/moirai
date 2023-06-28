@@ -3,7 +3,6 @@ package es.thalesalv.chatrpg.application.helper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.application.util.StringProcessor;
+import es.thalesalv.chatrpg.application.util.StringProcessors;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
@@ -30,19 +30,19 @@ public class ChatMessageFormatHelperTest {
         final List<String> messages = TextMessageUtils.createChat();
         final EventData eventData = EventDataUtils.buildEventData();
         final StringProcessor stringProcessor = new StringProcessor();
-        stringProcessor.addRule(s -> Pattern.compile("\\{0\\}")
-                .matcher(s)
-                .replaceAll(r -> eventData.getChannelDefinitions()
-                        .getChannelConfig()
-                        .getPersona()
-                        .getName()));
+        final Persona persona = eventData.getChannelDefinitions()
+                .getChannelConfig()
+                .getPersona();
+
+        stringProcessor.addRule(StringProcessors.replacePlaceholderWithPersona(persona));
 
         final List<ChatMessage> chatMessages = chatMessageFormatHelper.formatMessages(messages, eventData,
                 stringProcessor);
 
         assertEquals("system", chatMessages.get(0)
                 .getRole());
-        assertEquals("This is a test persona", chatMessages.get(0)
+
+        assertEquals("This is a test persona. My name is ChatRPG", chatMessages.get(0)
                 .getContent());
 
         assertEquals("user", chatMessages.get(1)
