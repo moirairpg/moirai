@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.application.mapper;
 
+import org.springframework.stereotype.Component;
+
 import es.thalesalv.chatrpg.domain.model.EventData;
 import es.thalesalv.chatrpg.domain.model.chconf.Channel;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +9,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

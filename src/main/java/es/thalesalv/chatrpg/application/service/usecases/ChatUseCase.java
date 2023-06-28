@@ -1,16 +1,10 @@
 package es.thalesalv.chatrpg.application.service.usecases;
 
 import es.thalesalv.chatrpg.application.service.completion.CompletionService;
+import es.thalesalv.chatrpg.application.service.moderation.ModerationFeedbackService;
 import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.util.DelayedPredicate;
 import es.thalesalv.chatrpg.application.util.StringProcessors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import es.thalesalv.chatrpg.application.service.moderation.ModerationFeedbackService;
-import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
-import es.thalesalv.chatrpg.application.service.completion.CompletionService;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.EventData;
 import lombok.RequiredArgsConstructor;
