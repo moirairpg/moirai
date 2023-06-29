@@ -59,7 +59,7 @@ public class PersonaServiceTest {
 
         final Persona persona = personaService.savePersona(buildSimplePublicPersona());
         assertEquals("ChatRPG", persona.getName());
-        assertEquals("This is a test persona", persona.getPersonality());
+        assertEquals("This is a test persona. My name is {0}", persona.getPersonality());
     }
 
     @Test

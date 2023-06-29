@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.application.service.WorldService;
+import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
+import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
+import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
@@ -36,9 +39,10 @@ public class LorebookEntryController {
     private static final String SAVE_LOREBOOK_ENTRY_REQUEST = "Received request for saving lorebookEntry -> {}. lorebookId -> {}";
     private static final String UPDATE_LOREBOOK_ENTRY_REQUEST = "Received request for updating lorebookEntry with ID {} -> {}";
     private static final String DELETE_LOREBOOK_ENTRY_REQUEST = "Received request for deleting lorebookEntry with ID {}";
-    private static final String DELETE_LOREBOOK_ENTRY_RESPONSE = "Returning response for deleting lorebookEntry with ID {}";
     private static final String GENERAL_ERROR_MESSAGE = "An error occurred processing the request";
-    private static final String ITEM_INSERTED_CANNOT_BE_NULL = "The item to be inserted cannot be null";
+    private static final String NOT_ENOUGH_PERMISSION = "Not enough permissions to modify this world";
+    private static final String LOREBOOK_NOT_FOUND = "The requested world for modification does not exist";
+    private static final String LOREBOOK_ENTRY_NOT_FOUND = "The requested entry for modification does not exist";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LorebookEntryController.class);
 
@@ -47,15 +51,18 @@ public class LorebookEntryController {
             @RequestHeader("requester") String requesterUserId,
             @PathVariable(value = "lorebook-id") final String lorebookId) {
 
-        LOGGER.info(RETRIEVE_ALL_LOREBOOKS_IN_LOREBOOK_REQUEST, lorebookId);
-        return Mono.just(worldService.retrieveAllLorebookEntriesInLorebook(lorebookId, requesterUserId))
-                .map(this::buildResponse)
-                .onErrorResume(e -> {
-                    LOGGER.error("Error retrieving all lorebookEntries from lorebook", e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
-                });
+        try {
+            LOGGER.info(RETRIEVE_ALL_LOREBOOKS_IN_LOREBOOK_REQUEST, lorebookId);
+            final List<LorebookEntry> lorebookEntries = worldService.retrieveAllLorebookEntriesInLorebook(lorebookId,
+                    requesterUserId);
+
+            return Mono.just(buildResponse(lorebookEntries));
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving all lorebookEntries from lorebook", e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+        }
     }
 
     @PostMapping("{lorebook-id}")
@@ -63,21 +70,28 @@ public class LorebookEntryController {
             @PathVariable(value = "lorebook-id") final String lorebookId,
             @RequestBody final LorebookEntry lorebookEntry) {
 
-        LOGGER.info(SAVE_LOREBOOK_ENTRY_REQUEST, lorebookEntry, lorebookId);
-        return Mono.just(worldService.saveLorebookEntry(lorebookEntry, lorebookId, requesterUserId))
-                .map(this::buildResponse)
-                .onErrorResume(IllegalArgumentException.class, e -> {
-                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
-                })
-                .onErrorResume(e -> {
-                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
-                });
+        try {
+            LOGGER.info(SAVE_LOREBOOK_ENTRY_REQUEST, lorebookEntry, lorebookId);
+            final LorebookEntry createdLorebookEntry = worldService.saveLorebookEntry(lorebookEntry, lorebookId,
+                    requesterUserId);
+
+            return Mono.just(buildResponse(createdLorebookEntry));
+        } catch (InsufficientPermissionException e) {
+            LOGGER.error(NOT_ENOUGH_PERMISSION, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.FORBIDDEN, NOT_ENOUGH_PERMISSION)));
+        } catch (WorldNotFoundException e) {
+            LOGGER.error(LOREBOOK_NOT_FOUND, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, LOREBOOK_NOT_FOUND)));
+        } catch (Exception e) {
+            LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+        }
     }
 
     @PutMapping("{lorebook-entry-id}")
@@ -85,47 +99,55 @@ public class LorebookEntryController {
             @PathVariable(value = "lorebook-entry-id") final String lorebookEntryId,
             @RequestBody final LorebookEntry lorebookEntry) {
 
-        LOGGER.info(UPDATE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId, lorebookEntry);
-        return Mono.just(worldService.updateLorebookEntry(lorebookEntryId, lorebookEntry, requesterUserId))
-                .map(this::buildResponse)
-                .onErrorResume(IllegalArgumentException.class, e -> {
-                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
-                })
-                .onErrorResume(e -> {
-                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
-                });
+        try {
+            LOGGER.info(UPDATE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId, lorebookEntry);
+            final LorebookEntry updatedLorebookEntry = worldService.updateLorebookEntry(lorebookEntryId, lorebookEntry,
+                    requesterUserId);
+
+            return Mono.just(buildResponse(updatedLorebookEntry));
+        } catch (InsufficientPermissionException e) {
+            LOGGER.error(NOT_ENOUGH_PERMISSION, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.FORBIDDEN, NOT_ENOUGH_PERMISSION)));
+        } catch (LorebookEntryNotFoundException e) {
+            LOGGER.error(LOREBOOK_ENTRY_NOT_FOUND, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, LOREBOOK_ENTRY_NOT_FOUND)));
+        } catch (Exception e) {
+            LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+        }
     }
 
     @DeleteMapping("{lorebook-entry-id}")
     public Mono<ResponseEntity<ApiResponse>> deleteLorebookEntry(@RequestHeader("requester") String requesterUserId,
             @PathVariable(value = "lorebook-entry-id") final String lorebookEntryId) {
 
-        LOGGER.info(DELETE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId);
-        return Mono.just(lorebookEntryId)
-                .map(id -> {
-                    worldService.deleteLorebookEntry(lorebookEntryId, requesterUserId);
-                    LOGGER.info(DELETE_LOREBOOK_ENTRY_RESPONSE, lorebookEntryId);
-                    return ResponseEntity.ok()
-                            .body(ApiResponse.empty());
-                })
-                .onErrorResume(IllegalArgumentException.class, e -> {
-                    LOGGER.error(ITEM_INSERTED_CANNOT_BE_NULL, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.BAD_REQUEST, ITEM_INSERTED_CANNOT_BE_NULL)));
-                })
-                .onErrorResume(e -> {
-                    LOGGER.error(GENERAL_ERROR_MESSAGE, e);
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
-                });
+        try {
+            LOGGER.info(DELETE_LOREBOOK_ENTRY_REQUEST, lorebookEntryId);
+            worldService.deleteLorebookEntry(lorebookEntryId, requesterUserId);
+            return Mono.just(ResponseEntity.ok()
+                    .body(ApiResponse.empty()));
+        } catch (InsufficientPermissionException e) {
+            LOGGER.error(NOT_ENOUGH_PERMISSION, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.FORBIDDEN, NOT_ENOUGH_PERMISSION)));
+        } catch (LorebookEntryNotFoundException e) {
+            LOGGER.error(LOREBOOK_ENTRY_NOT_FOUND, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.NOT_FOUND, LOREBOOK_ENTRY_NOT_FOUND)));
+        } catch (Exception e) {
+            LOGGER.error(GENERAL_ERROR_MESSAGE, e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+        }
     }
 
     private ResponseEntity<ApiResponse> buildResponse(List<LorebookEntry> lorebookEntries) {

@@ -25,7 +25,7 @@ public class PersonaTestUtils {
         return Persona.builder()
                 .id(NANO_ID)
                 .name("ChatRPG")
-                .personality("This is a test persona")
+                .personality("This is a test persona. My name is {0}")
                 .intent(Intent.CHAT)
                 .owner("1083867535658725536")
                 .visibility("public")
