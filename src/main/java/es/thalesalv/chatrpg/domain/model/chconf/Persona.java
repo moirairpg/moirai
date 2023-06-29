@@ -21,6 +21,7 @@ public class Persona {
     private String personality;
     private String owner;
     private String visibility;
+    private Boolean isMultiplayer;
     private List<String> writePermissions;
     private List<String> readPermissions;
     private Nudge nudge;

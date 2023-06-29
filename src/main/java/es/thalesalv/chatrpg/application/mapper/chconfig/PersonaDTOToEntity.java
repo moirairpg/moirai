@@ -27,6 +27,8 @@ public class PersonaDTOToEntity implements Function<Persona, PersonaEntity> {
                 .intent(persona.getIntent())
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility())
+                .isMultiplayer(persona.getIsMultiplayer()
+                        .booleanValue())
                 .writePermissions(Optional.ofNullable(persona.getWritePermissions())
                         .orElse(new ArrayList<String>()))
                 .readPermissions(Optional.ofNullable(persona.getReadPermissions())

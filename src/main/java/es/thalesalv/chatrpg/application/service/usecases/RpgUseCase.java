@@ -6,6 +6,7 @@ import es.thalesalv.chatrpg.application.service.moderation.ModerationService;
 import es.thalesalv.chatrpg.application.util.StringProcessors;
 import es.thalesalv.chatrpg.domain.exception.DiscordFunctionException;
 import es.thalesalv.chatrpg.domain.model.EventData;
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
@@ -38,8 +39,11 @@ public class RpgUseCase implements BotUseCase {
         final Message message = eventData.getMessage();
         final SelfUser bot = eventData.getBot();
         final Mentions mentions = message.getMentions();
+        final Persona persona = eventData.getChannelDefinitions()
+                .getChannelConfig()
+                .getPersona();
 
-        if (mentions.isMentioned(eventData.getBot(), Message.MentionType.USER)) {
+        if (mentions.isMentioned(eventData.getBot(), Message.MentionType.USER) || persona.getIsMultiplayer()) {
             eventData.getCurrentChannel()
                     .sendTyping()
                     .complete();
@@ -57,6 +61,7 @@ public class RpgUseCase implements BotUseCase {
                             }
                         });
             }
+
             final List<String> messages = handleHistory(eventData);
             moderationService.moderateInput(messages, eventData)
                     .subscribe(inputModeration -> model.generate(messages, eventData)

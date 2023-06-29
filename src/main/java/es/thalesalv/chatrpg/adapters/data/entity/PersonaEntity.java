@@ -51,6 +51,9 @@ public class PersonaEntity {
     @Column(name = "visibility", nullable = false)
     private String visibility;
 
+    @Column(name = "isMultiplayer", nullable = false, columnDefinition = "boolean default false")
+    private boolean isMultiplayer;
+
     @Column(name = "write_permission_discord_ids")
     @Convert(converter = StringListConverter.class)
     private List<String> writePermissions;

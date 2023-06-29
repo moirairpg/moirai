@@ -31,6 +31,7 @@ public class PersonaTestUtils {
                 .visibility("public")
                 .writePermissions(emptyPermissions)
                 .readPermissions(emptyPermissions)
+                .isMultiplayer(false)
                 .nudge(Nudge.builder()
                         .role("system")
                         .content("My name is {0} and this is a nudge")
