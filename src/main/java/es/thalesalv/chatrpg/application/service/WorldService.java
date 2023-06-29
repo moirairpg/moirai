@@ -21,7 +21,6 @@ import es.thalesalv.chatrpg.application.mapper.world.WorldEntityToDTO;
 import es.thalesalv.chatrpg.domain.enums.Visibility;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
-import es.thalesalv.chatrpg.domain.exception.LorebookNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
@@ -161,7 +160,7 @@ public class WorldService {
                 .map(es -> es.stream()
                         .map(lorebookEntryEntityToDTO::apply)
                         .toList())
-                .orElseThrow(() -> new LorebookNotFoundException("The lorebook requested could not be found"));
+                .orElseThrow(() -> new WorldNotFoundException("The lorebook requested could not be found"));
     }
 
     public LorebookEntry saveLorebookEntry(final LorebookEntry lorebookEntry, final String worldId,
@@ -182,7 +181,7 @@ public class WorldService {
                     return lorebookEntryRepository.save(entryEntity);
                 })
                 .map(lorebookEntryEntityToDTO)
-                .orElseThrow(() -> new LorebookNotFoundException("Error saving lorebook entry to lorebook: "
+                .orElseThrow(() -> new WorldNotFoundException("Error saving lorebook entry to lorebook: "
                         + LOREBOOK_ID_NOT_FOUND.replace("LOREBOOK_ID", worldId)));
     }
 

@@ -42,7 +42,7 @@ public class StringProcessors {
 
     public static UnaryOperator<String> replacePlaceholderWithPersona(Persona persona) {
 
-        return s -> Pattern.compile("\\b\\{0\\}\\b")
+        return s -> Pattern.compile("\\{0\\}")
                 .matcher(s)
                 .replaceAll(r -> persona.getName());
     }

@@ -9,7 +9,7 @@ public class EventDataUtils {
     public static EventData buildEventData() {
 
         final Channel channelDefinitions = Channel.builder()
-                .channelConfig(ChannelConfigUtils.buildChannelConfig())
+                .channelConfig(ChannelConfigTestUtils.buildChannelConfig())
                 .build();
 
         return EventData.builder()
@@ -20,7 +20,7 @@ public class EventDataUtils {
     public static EventData buildEventData(final SelfUser bot) {
 
         final Channel channelDefinitions = Channel.builder()
-                .channelConfig(ChannelConfigUtils.buildChannelConfig())
+                .channelConfig(ChannelConfigTestUtils.buildChannelConfig())
                 .build();
 
         return EventData.builder()

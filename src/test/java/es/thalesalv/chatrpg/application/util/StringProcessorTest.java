@@ -1,19 +1,23 @@
 package es.thalesalv.chatrpg.application.util;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.regex.Pattern;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.testutils.PersonaTestUtils;
 
 class StringProcessorTest {
 
-    String toTest = "Shel said: [ The man draws his sword. ]";
+    final StringProcessor processor = new StringProcessor();
+    final String toTest = "Shel said: [ The man draws his sword. ]";
+    final String botMessageTest = "{0} said: I am {0}, it's a pleasure!";
 
     @Test
     public void test() {
 
-        StringProcessor processor = new StringProcessor();
         processor.addRule(s -> Pattern.compile("Selkie")
                 .matcher(s)
                 .replaceAll(r -> "Janet"));
@@ -21,4 +25,25 @@ class StringProcessorTest {
         assertEquals(toTest, processor.process(toTest));
     }
 
+    @Test
+    public void testSimpleName() {
+
+        final Persona persona = PersonaTestUtils.buildSimplePublicPersona();
+        final String processed = StringProcessors.replacePlaceholderWithPersona(persona)
+                .apply(persona.getPersonality());
+
+        assertEquals("This is a test persona. My name is ChatRPG", processed);
+    }
+
+    @Test
+    public void testCompositeName() {
+
+        final Persona persona = PersonaTestUtils.buildSimplePublicPersona();
+        persona.setName("ChatRPG the DM Bot");
+
+        final String processed = StringProcessors.replacePlaceholderWithPersona(persona)
+                .apply(persona.getPersonality());
+
+        assertEquals("This is a test persona. My name is ChatRPG the DM Bot", processed);
+    }
 }

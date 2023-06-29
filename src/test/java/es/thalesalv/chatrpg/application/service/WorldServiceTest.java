@@ -36,7 +36,6 @@ import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.world.WorldEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
-import es.thalesalv.chatrpg.domain.exception.LorebookNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
@@ -237,7 +236,7 @@ public class WorldServiceTest {
 
         when(worldRepository.findById(NANO_ID)).thenReturn(Optional.empty());
 
-        final LorebookNotFoundException thrown = assertThrows(LorebookNotFoundException.class,
+        final WorldNotFoundException thrown = assertThrows(WorldNotFoundException.class,
                 () -> worldService.saveLorebookEntry(entry, NANO_ID, userId));
 
         assertEquals(
@@ -333,7 +332,7 @@ public class WorldServiceTest {
 
         when(worldRepository.findById(NANO_ID)).thenReturn(Optional.empty());
 
-        final LorebookNotFoundException thrown = assertThrows(LorebookNotFoundException.class,
+        final WorldNotFoundException thrown = assertThrows(WorldNotFoundException.class,
                 () -> worldService.retrieveAllLorebookEntriesInLorebook(NANO_ID, userId));
 
         assertEquals("The lorebook requested could not be found", thrown.getMessage());
