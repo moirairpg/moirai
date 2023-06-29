@@ -14,6 +14,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import es.thalesalv.chatrpg.application.service.WorldService;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
+import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.testutils.WorldTestUtils;
 
@@ -186,6 +187,46 @@ public class LorebookEntryControllerTest {
                 .exchange()
                 .expectStatus()
                 .is5xxServerError();
+    }
+
+    @Test
+    public void testSaveLorebookEntry_worldNotFound_shouldReturnNotFound() {
+
+        final List<LorebookEntry> lorebookEntries = WorldTestUtils.buildSimplePublicWorld()
+                .getLorebook();
+
+        final LorebookEntry lorebookEntry = lorebookEntries.get(0);
+
+        Mockito.when(worldService.saveLorebookEntry(lorebookEntry, lorebookEntry.getId(), "123456"))
+                .thenThrow(WorldNotFoundException.class);
+
+        webTestClient.post()
+                .uri("/lore/entry/" + lorebookEntry.getId())
+                .bodyValue(lorebookEntry)
+                .header("requester", "123456")
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    public void testSaveLorebookEntry_insufficientPermission() {
+
+        final List<LorebookEntry> lorebookEntries = WorldTestUtils.buildSimplePublicWorld()
+                .getLorebook();
+
+        final LorebookEntry lorebookEntry = lorebookEntries.get(0);
+
+        Mockito.when(worldService.saveLorebookEntry(lorebookEntry, lorebookEntry.getId(), "123456"))
+                .thenThrow(InsufficientPermissionException.class);
+
+        webTestClient.post()
+                .uri("/lore/entry/" + lorebookEntry.getId())
+                .bodyValue(lorebookEntry)
+                .header("requester", "123456")
+                .exchange()
+                .expectStatus()
+                .isForbidden();
     }
 
     @Test
