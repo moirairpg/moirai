@@ -208,6 +208,7 @@ public class WorldTestUtils {
     public static LorebookEntry buildSimpleLorebookEntry() {
 
         return LorebookEntry.builder()
+                .id(NANO_ID)
                 .name("Test entry")
                 .description("Test description")
                 .regex("test")
@@ -217,6 +218,7 @@ public class WorldTestUtils {
     public static LorebookEntryEntity buildSimpleLorebookEntryEntity() {
 
         return LorebookEntryEntity.builder()
+                .id(NANO_ID)
                 .name("Test entry")
                 .regex("test")
                 .description("Test description")
