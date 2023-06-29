@@ -41,7 +41,7 @@ public class ChannelConfigController {
     private static final String GENERAL_ERROR_MESSAGE = "An error occurred processing the request";
     private static final String REQUESTED_NOT_FOUND = "The requested channel config was not found";
     private static final String CHCONF_WITH_ID_NOT_FOUND = "Couldn't find requested channel config with ID {}";
-    private static final String NOT_ENOUGH_PERMISSION = "Not enough permissions to modify this persona";
+    private static final String NOT_ENOUGH_PERMISSION = "Not enough permissions to modify this channel config";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigController.class);
 
