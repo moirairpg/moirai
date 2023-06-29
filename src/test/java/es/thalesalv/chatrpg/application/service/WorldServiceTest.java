@@ -37,7 +37,6 @@ import es.thalesalv.chatrpg.application.mapper.world.WorldEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
-import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.chconf.World;
 
