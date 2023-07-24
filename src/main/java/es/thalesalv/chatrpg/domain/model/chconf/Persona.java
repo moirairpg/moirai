@@ -34,6 +34,7 @@ public class Persona {
                 .name("DEFAULT PERSONA")
                 .intent(Intent.CHAT)
                 .visibility("private")
+                .isMultiplayer(false)
                 .build();
     }
 }

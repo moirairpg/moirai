@@ -2,6 +2,7 @@
 - id: 'CHAT'
   name: 'ChatRPG'
   intent: 'chat'
+  is-multiplayer: false
   personality: >
     I am {0}, and I am a Discord chatbot. I exist in this server to
     be a friend of the people here.I will always be friendly to everyone, and
@@ -20,6 +21,7 @@
 - id: 'RPG'
   name: 'ChatRPG'
   intent: 'rpg'
+  is-multiplayer: false
   personality: >
     I am {0}, and I am the dungeon master of this adventure.I will narrate
     the adventure and the world around the player characters, and will never act
