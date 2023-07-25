@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.adapters.rest.client.DiscordApiService;
 import es.thalesalv.chatrpg.application.service.DiscordAuthService;
+import es.thalesalv.chatrpg.domain.exception.DiscordAuthenticationException;
+import es.thalesalv.chatrpg.domain.model.discord.DiscordErrorResponse;
 import es.thalesalv.chatrpg.domain.model.discord.DiscordUserData;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -63,6 +65,15 @@ public class DiscordController {
                     .map(response -> ResponseEntity.ok()
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(response));
+        } catch (DiscordAuthenticationException e) {
+            LOGGER.error("Error authenticating user on Discord", e);
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(DiscordUserData.builder()
+                            .error(DiscordErrorResponse.builder()
+                                    .error(e.getMessage())
+                                    .build())
+                            .build()));
         } catch (Exception e) {
             LOGGER.error("Error authenticating user", e);
             return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())

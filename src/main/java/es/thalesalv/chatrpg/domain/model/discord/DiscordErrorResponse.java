@@ -15,14 +15,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DiscordUserData {
+public class DiscordErrorResponse {
 
-    private String id;
-    private String username;
-    private String globalName;
-    private String displayName;
-    private String avatar;
-    private String discriminator;
-    private String email;
-    private DiscordErrorResponse error;
+    private String error;
 }

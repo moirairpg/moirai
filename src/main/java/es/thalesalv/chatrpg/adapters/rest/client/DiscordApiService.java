@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MimeTypeUtils;
@@ -16,8 +17,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.thalesalv.chatrpg.domain.exception.DiscordAuthenticationException;
 import es.thalesalv.chatrpg.domain.model.discord.DiscordAuthRequest;
 import es.thalesalv.chatrpg.domain.model.discord.DiscordAuthResponse;
+import es.thalesalv.chatrpg.domain.model.discord.DiscordErrorResponse;
 import es.thalesalv.chatrpg.domain.model.discord.DiscordUserData;
 import reactor.core.publisher.Mono;
 
@@ -66,6 +69,14 @@ public class DiscordApiService {
                 })
                 .body(BodyInserters.fromFormData(valueMap))
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(DiscordErrorResponse.class)
+                        .map(errorResponse -> {
+                            LOGGER.error("Error HTTP {} authenticating user on discord -> {}", response.statusCode()
+                                    .value(), errorResponse.getError());
+
+                            return new DiscordAuthenticationException(
+                                    "Error authenticating user on discord: " + errorResponse.getError());
+                        }))
                 .bodyToMono(DiscordAuthResponse.class);
     }
 }
