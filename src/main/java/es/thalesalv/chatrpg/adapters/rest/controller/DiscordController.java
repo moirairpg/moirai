@@ -4,17 +4,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.adapters.rest.client.DiscordApiService;
 import es.thalesalv.chatrpg.application.service.DiscordAuthService;
-import es.thalesalv.chatrpg.domain.model.DiscordUserData;
+import es.thalesalv.chatrpg.domain.model.discord.DiscordUserData;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -51,5 +53,21 @@ public class DiscordController {
                 .map(user -> ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(user));
+    }
+
+    @PostMapping("/auth/{authCode}")
+    public Mono<ResponseEntity<DiscordUserData>> authenticateUser(@PathVariable("authCode") final String authCode) {
+
+        try {
+            return discordAuthService.authenticate(authCode)
+                    .map(response -> ResponseEntity.ok()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(response));
+        } catch (Exception e) {
+            LOGGER.error("Error authenticating user", e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(null));
+        }
     }
 }

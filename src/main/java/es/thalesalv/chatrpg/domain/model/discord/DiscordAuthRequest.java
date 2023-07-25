@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.domain.model;
+package es.thalesalv.chatrpg.domain.model.discord;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,13 +15,12 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DiscordUserData {
+public class DiscordAuthRequest {
 
-    private String id;
-    private String username;
-    private String globalName;
-    private String displayName;
-    private String avatar;
-    private String discriminator;
-    private String email;
+    private String clientId;
+    private String clientSecret;
+    private String grantType;
+    private String redirectUri;
+    private String scope;
+    private String code;
 }

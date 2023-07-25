@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.domain.model.DiscordUserData;
+import es.thalesalv.chatrpg.domain.model.discord.DiscordUserData;
 import net.dv8tion.jda.api.entities.User;
 
 @Component
