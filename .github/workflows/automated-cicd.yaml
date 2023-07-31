@@ -24,10 +24,10 @@ jobs:
           author_email: 'github-actions[bot]@users.noreply.github.com'
           github_token: ${{secrets.GITHUB_TOKEN}}
       - name: Unit tests
-        if: github.ref != 'refs/heads/master'
+        if: github.ref != 'refs/heads/main'
         run: mvn test
       - name: Code coverage
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: paambaati/codeclimate-action@v3.2.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
@@ -36,16 +36,16 @@ jobs:
           coverageCommand: mvn test
           coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
       - name: Test container build image
-        if: github.ref != 'refs/heads/master'
+        if: github.ref != 'refs/heads/main'
         run: docker build -t registry.gitlab.com/thaalesalves/chatrpg:back-end .
       - name: Build and push image to GitLab Container Registry
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           echo ${{ secrets.GITLAB_ACCESS_TOKEN }} | docker login registry.gitlab.com -u thaalesalves --password-stdin
           docker build -t registry.gitlab.com/thaalesalves/chatrpg:back-end .
           docker push registry.gitlab.com/thaalesalves/chatrpg:back-end
       - name: Deploy to Digital Ocean
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
