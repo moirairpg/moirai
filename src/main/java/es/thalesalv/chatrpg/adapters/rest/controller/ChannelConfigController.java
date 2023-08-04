@@ -29,7 +29,6 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/channel-config")
-
 public class ChannelConfigController {
 
     private final ChannelConfigService channelConfigService;

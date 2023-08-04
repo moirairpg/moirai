@@ -25,7 +25,6 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/discord")
-
 public class DiscordController {
 
     @Value("${chatrpg.discord.api-token}")
