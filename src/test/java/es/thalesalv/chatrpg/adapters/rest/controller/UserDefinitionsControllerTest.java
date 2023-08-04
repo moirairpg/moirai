@@ -68,4 +68,52 @@ public class UserDefinitionsControllerTest {
                 .expectStatus()
                 .is5xxServerError();
     }
+
+    @Test
+    public void testRetrieveUserDefinitionById_missingHeader() {
+
+        Mockito.when(userDefinitionsService.retrieveUserDefinitions("4234234"))
+                .thenThrow(RuntimeException.class);
+
+        webTestClient.get()
+                .uri("/userdef")
+                .exchange()
+                .expectStatus()
+                .is4xxClientError();
+    }
+
+    @Test
+    public void testUpdateUserDefinitions_shouldReturnOk() {
+
+        final UserDefinitions userDefinitions = UserDefinitions.builder()
+                .id("4234234")
+                .build();
+
+        Mockito.when(userDefinitionsService.updateUserDefinitions(userDefinitions))
+                .thenReturn(userDefinitions);
+
+        webTestClient.get()
+                .uri("/userdef")
+                .header("requester", "4234234")
+                .exchange()
+                .expectStatus()
+                .isOk();
+    }
+
+    @Test
+    public void testUpdateUserDefinitions_missingHeader() {
+
+        final UserDefinitions userDefinitions = UserDefinitions.builder()
+                .id("4234234")
+                .build();
+
+        Mockito.when(userDefinitionsService.updateUserDefinitions(userDefinitions))
+                .thenReturn(userDefinitions);
+
+        webTestClient.get()
+                .uri("/userdef")
+                .exchange()
+                .expectStatus()
+                .is4xxClientError();
+    }
 }
