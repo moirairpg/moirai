@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
-import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.bot.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatCompletionRequest;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import lombok.RequiredArgsConstructor;

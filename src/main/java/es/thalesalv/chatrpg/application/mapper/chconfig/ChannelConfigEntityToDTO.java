@@ -6,11 +6,11 @@ import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.ChannelConfigEntity;
 import es.thalesalv.chatrpg.application.mapper.world.WorldEntityToDTO;
-import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
-import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
-import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
-import es.thalesalv.chatrpg.domain.model.chconf.World;
+import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.bot.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.bot.ModerationSettings;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.World;
 import lombok.RequiredArgsConstructor;
 
 @Component

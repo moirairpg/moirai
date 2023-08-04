@@ -22,7 +22,7 @@ import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
-import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 

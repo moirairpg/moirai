@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
-import es.thalesalv.chatrpg.domain.model.chconf.World;
+import es.thalesalv.chatrpg.domain.model.bot.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.bot.World;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.User;

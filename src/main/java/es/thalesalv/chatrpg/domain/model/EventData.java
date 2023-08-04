@@ -1,7 +1,7 @@
 package es.thalesalv.chatrpg.domain.model;
 
-import es.thalesalv.chatrpg.domain.model.chconf.Channel;
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.bot.Channel;
+import es.thalesalv.chatrpg.domain.model.bot.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.openai.moderation.ModerationResult;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

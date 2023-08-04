@@ -1,6 +1,6 @@
 package es.thalesalv.chatrpg.testutils;
 
-import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 
 public class ChannelConfigTestUtils {
 

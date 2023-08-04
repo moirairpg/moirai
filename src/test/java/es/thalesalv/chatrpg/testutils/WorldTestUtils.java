@@ -8,8 +8,8 @@ import java.util.Optional;
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
 import es.thalesalv.chatrpg.domain.enums.Visibility;
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
-import es.thalesalv.chatrpg.domain.model.chconf.World;
+import es.thalesalv.chatrpg.domain.model.bot.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.bot.World;
 
 public class WorldTestUtils {
 

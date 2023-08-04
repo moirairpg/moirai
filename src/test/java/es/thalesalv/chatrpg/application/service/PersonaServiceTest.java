@@ -28,7 +28,7 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.PersonaNotFoundException;
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
 
 @ExtendWith(MockitoExtension.class)
 public class PersonaServiceTest {

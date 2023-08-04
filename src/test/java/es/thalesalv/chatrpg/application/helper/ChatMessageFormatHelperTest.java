@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.application.util.StringProcessors;
 import es.thalesalv.chatrpg.domain.model.EventData;
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 import es.thalesalv.chatrpg.testutils.EventDataUtils;
 import es.thalesalv.chatrpg.testutils.PersonaTestUtils;

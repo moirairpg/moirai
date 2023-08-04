@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.domain.model.chconf;
+package es.thalesalv.chatrpg.domain.model.bot;
 
 import java.util.Arrays;
 import java.util.List;

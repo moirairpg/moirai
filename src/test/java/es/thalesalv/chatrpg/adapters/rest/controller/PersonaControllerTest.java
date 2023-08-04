@@ -15,7 +15,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import es.thalesalv.chatrpg.application.service.PersonaService;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.PersonaNotFoundException;
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
 import es.thalesalv.chatrpg.testutils.PersonaTestUtils;
 
 @RunWith(SpringRunner.class)

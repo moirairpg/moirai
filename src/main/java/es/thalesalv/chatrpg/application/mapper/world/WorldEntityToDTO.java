@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
 import es.thalesalv.chatrpg.application.mapper.lorebook.LorebookEntryEntityToDTO;
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
-import es.thalesalv.chatrpg.domain.model.chconf.World;
+import es.thalesalv.chatrpg.domain.model.bot.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.bot.World;
 import lombok.RequiredArgsConstructor;
 
 @Component

@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
 import es.thalesalv.chatrpg.testutils.PersonaTestUtils;
 
 class StringProcessorTest {

@@ -15,7 +15,7 @@ import es.thalesalv.chatrpg.application.service.WorldService;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.bot.LorebookEntry;
 import es.thalesalv.chatrpg.testutils.WorldTestUtils;
 
 @RunWith(SpringRunner.class)

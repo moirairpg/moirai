@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.LorebookEntryEntity;
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.bot.LorebookEntry;
 
 @Component
 public class LorebookEntryEntityToDTO implements Function<LorebookEntryEntity, LorebookEntry> {

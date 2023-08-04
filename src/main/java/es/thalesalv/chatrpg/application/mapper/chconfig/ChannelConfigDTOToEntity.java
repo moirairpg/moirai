@@ -10,7 +10,7 @@ import es.thalesalv.chatrpg.adapters.data.entity.ModerationSettingsEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.PersonaEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.WorldEntity;
 import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
-import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 import lombok.RequiredArgsConstructor;
 
 @Component

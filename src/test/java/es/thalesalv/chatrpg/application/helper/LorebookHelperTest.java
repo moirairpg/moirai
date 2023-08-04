@@ -15,8 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.domain.model.chconf.LorebookEntry;
-import es.thalesalv.chatrpg.domain.model.chconf.World;
+import es.thalesalv.chatrpg.domain.model.bot.LorebookEntry;
+import es.thalesalv.chatrpg.domain.model.bot.World;
 import es.thalesalv.chatrpg.testutils.TextMessageUtils;
 import es.thalesalv.chatrpg.testutils.WorldTestUtils;
 import net.dv8tion.jda.api.JDA;

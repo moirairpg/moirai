@@ -1,7 +1,7 @@
 package es.thalesalv.chatrpg.testutils;
 
 import es.thalesalv.chatrpg.domain.model.EventData;
-import es.thalesalv.chatrpg.domain.model.chconf.Channel;
+import es.thalesalv.chatrpg.domain.model.bot.Channel;
 import net.dv8tion.jda.api.entities.SelfUser;
 
 public class EventDataUtils {

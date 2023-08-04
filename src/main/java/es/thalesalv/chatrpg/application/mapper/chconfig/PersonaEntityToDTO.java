@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 import es.thalesalv.chatrpg.adapters.data.entity.BumpEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.NudgeEntity;
 import es.thalesalv.chatrpg.adapters.data.entity.PersonaEntity;
-import es.thalesalv.chatrpg.domain.model.chconf.Bump;
-import es.thalesalv.chatrpg.domain.model.chconf.Nudge;
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.Bump;
+import es.thalesalv.chatrpg.domain.model.bot.Nudge;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
 
 @Component
 public class PersonaEntityToDTO implements Function<PersonaEntity, Persona> {

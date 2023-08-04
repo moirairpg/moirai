@@ -1,8 +1,9 @@
 package es.thalesalv.chatrpg.application.util;
 
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
 import net.dv8tion.jda.api.entities.Message;
 import org.apache.commons.lang3.StringUtils;
+
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
 
 import java.text.MessageFormat;
 import java.util.function.Function;

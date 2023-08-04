@@ -15,7 +15,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import es.thalesalv.chatrpg.application.service.WorldService;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
-import es.thalesalv.chatrpg.domain.model.chconf.World;
+import es.thalesalv.chatrpg.domain.model.bot.World;
 import es.thalesalv.chatrpg.testutils.WorldTestUtils;
 
 @RunWith(SpringRunner.class)

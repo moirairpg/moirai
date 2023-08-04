@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.model.EventData;
-import es.thalesalv.chatrpg.domain.model.chconf.Bump;
-import es.thalesalv.chatrpg.domain.model.chconf.Nudge;
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.Bump;
+import es.thalesalv.chatrpg.domain.model.bot.Nudge;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
 import es.thalesalv.chatrpg.domain.model.openai.completion.ChatMessage;
 
 @Component

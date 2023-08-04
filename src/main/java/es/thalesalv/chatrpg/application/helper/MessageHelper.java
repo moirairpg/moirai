@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import es.thalesalv.chatrpg.application.util.StringProcessor;
 import es.thalesalv.chatrpg.domain.model.EventData;
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
 
 public interface MessageHelper<T> {
 

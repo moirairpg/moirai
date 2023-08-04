@@ -3,7 +3,7 @@ package es.thalesalv.chatrpg.application.helper;
 import java.util.List;
 
 import es.thalesalv.chatrpg.application.util.StringProcessor;
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
 
 public interface PersonaHelper<T> {
 

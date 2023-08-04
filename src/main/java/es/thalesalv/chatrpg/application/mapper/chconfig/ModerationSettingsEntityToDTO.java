@@ -5,7 +5,7 @@ import java.util.function.Function;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.ModerationSettingsEntity;
-import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
+import es.thalesalv.chatrpg.domain.model.bot.ModerationSettings;
 
 @Component
 public class ModerationSettingsEntityToDTO implements Function<ModerationSettingsEntity, ModerationSettings> {

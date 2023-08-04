@@ -5,8 +5,8 @@ import java.util.function.Function;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.data.entity.ChannelEntity;
-import es.thalesalv.chatrpg.domain.model.chconf.Channel;
-import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.bot.Channel;
+import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 import lombok.RequiredArgsConstructor;
 
 @Component

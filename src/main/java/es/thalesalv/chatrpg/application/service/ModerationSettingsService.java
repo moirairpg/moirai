@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import es.thalesalv.chatrpg.adapters.data.repository.ModerationSettingsRepository;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ModerationSettingsDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.chconfig.ModerationSettingsEntityToDTO;
-import es.thalesalv.chatrpg.domain.model.chconf.ModerationSettings;
+import es.thalesalv.chatrpg.domain.model.bot.ModerationSettings;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 

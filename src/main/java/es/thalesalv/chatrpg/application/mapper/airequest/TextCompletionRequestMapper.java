@@ -2,8 +2,8 @@ package es.thalesalv.chatrpg.application.mapper.airequest;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.domain.model.chconf.ChannelConfig;
-import es.thalesalv.chatrpg.domain.model.chconf.ModelSettings;
+import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.bot.ModelSettings;
 import es.thalesalv.chatrpg.domain.model.openai.completion.TextCompletionRequest;
 
 @Component

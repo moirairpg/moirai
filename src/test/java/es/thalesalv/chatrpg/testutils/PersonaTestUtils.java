@@ -10,9 +10,9 @@ import es.thalesalv.chatrpg.adapters.data.entity.PersonaEntity;
 import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaDTOToEntity;
 import es.thalesalv.chatrpg.domain.enums.Intent;
 import es.thalesalv.chatrpg.domain.enums.Visibility;
-import es.thalesalv.chatrpg.domain.model.chconf.Bump;
-import es.thalesalv.chatrpg.domain.model.chconf.Nudge;
-import es.thalesalv.chatrpg.domain.model.chconf.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.Bump;
+import es.thalesalv.chatrpg.domain.model.bot.Nudge;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
 
 public class PersonaTestUtils {
 

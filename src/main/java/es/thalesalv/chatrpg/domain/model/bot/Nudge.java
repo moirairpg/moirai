@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.domain.model.chconf;
+package es.thalesalv.chatrpg.domain.model.bot;
 
 import java.util.function.Predicate;
 
@@ -14,11 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Bump {
+public class Nudge {
 
     public String role;
     public String content;
-    public Integer frequency;
-    public final static Predicate<Bump> isValid = bump -> null != bump.frequency && bump.frequency > 1
-            && !StringUtils.isEmpty(bump.role) && !StringUtils.isEmpty(bump.content);
+    public final static Predicate<Nudge> isValid = nudge -> !StringUtils.isEmpty(nudge.role)
+            && !StringUtils.isEmpty(nudge.content);
 }
