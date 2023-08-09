@@ -22,6 +22,7 @@ import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
+import es.thalesalv.chatrpg.domain.model.api.ChannelConfigPaginationResponse;
 import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -57,6 +58,29 @@ public class ChannelConfigController {
             return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+        }
+    }
+
+    @GetMapping("paged/{page-number}/{number-items}")
+    public Mono<ResponseEntity<ChannelConfigPaginationResponse>> getAllChannelsByPage(
+            @RequestHeader("requester") String requesterUserId,
+            @PathVariable(value = "page-number") final int pageNumber,
+            @PathVariable(value = "number-items") final int amountOfItems) {
+
+        try {
+            LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
+            final ChannelConfigPaginationResponse channelConfigPaginationResponse = channelConfigService
+                    .retrieveAllWithPagination(requesterUserId, pageNumber, amountOfItems);
+
+            return Mono.just(ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(channelConfigPaginationResponse));
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving all channel configurations", e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponseForPagination(HttpStatus.INTERNAL_SERVER_ERROR,
+                            GENERAL_ERROR_MESSAGE)));
         }
     }
 
@@ -153,6 +177,17 @@ public class ChannelConfigController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(respose);
+    }
+
+    private ChannelConfigPaginationResponse buildErrorResponseForPagination(HttpStatus status, String message) {
+
+        LOGGER.debug("Building error response object for channel configs");
+        return ChannelConfigPaginationResponse.builder()
+                .error(ApiErrorResponse.builder()
+                        .message(message)
+                        .status(status)
+                        .build())
+                .build();
     }
 
     private ApiResponse buildErrorResponse(HttpStatus status, String message) {
