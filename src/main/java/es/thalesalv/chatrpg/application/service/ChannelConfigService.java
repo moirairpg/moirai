@@ -135,8 +135,7 @@ public class ChannelConfigService {
         Page<ChannelConfigEntity> page;
         if (StringUtils.isBlank(searchField) || StringUtils.isBlank(searchCriteria)) {
             final String sortByField = StringUtils.isBlank(sortBy) ? "name" : sortBy;
-            page = channelConfigRepository
-                    .findAll(PageRequest.of(pageNumber - 1, amountOfItems, Sort.by(sortByField)));
+            page = channelConfigRepository.findAll(PageRequest.of(pageNumber - 1, amountOfItems, Sort.by(sortByField)));
 
             return buildChannelConfigPage(requesterDiscordId, page);
         }
