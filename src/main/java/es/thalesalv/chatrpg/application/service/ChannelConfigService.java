@@ -28,7 +28,6 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.ModerationSettingsDTOToE
 import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
 import es.thalesalv.chatrpg.domain.criteria.ChannelConfigSpecification;
-import es.thalesalv.chatrpg.domain.criteria.SearchCriteria;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.model.api.ChannelConfigPaginationResponse;
@@ -65,18 +64,8 @@ public class ChannelConfigService {
         LOGGER.debug("Entered retrieveAllChannelConfigs. userId -> {}", userId);
         return channelConfigRepository.findAll()
                 .stream()
-                .filter(l -> {
-                    final String botId = jda.getSelfUser()
-                            .getId();
-                    final boolean isOwner = l.getOwner()
-                            .equals(userId);
-
-                    final boolean isDefault = l.getOwner()
-                            .equals(botId);
-
-                    return isOwner || isDefault;
-                })
                 .map(channelConfigEntityToDTO)
+                .filter(c -> this.hasReadAccessToConfig(userId, c))
                 .toList();
     }
 
@@ -150,17 +139,7 @@ public class ChannelConfigService {
                 .get(pageNumber - 1)
                 .stream()
                 .map(channelConfigEntityToDTO)
-                .filter(c -> {
-                    final String botId = jda.getSelfUser()
-                            .getId();
-                    final boolean isOwner = c.getOwner()
-                            .equals(requesterDiscordId);
-
-                    final boolean isDefault = c.getOwner()
-                            .equals(botId);
-
-                    return isOwner || isDefault;
-                })
+                .filter(c -> this.hasReadAccessToConfig(requesterDiscordId, c))
                 .collect(Collectors.toList());
 
         return ChannelConfigPaginationResponse.builder()
@@ -172,12 +151,10 @@ public class ChannelConfigService {
                 .build();
     }
 
-    public ChannelConfigPaginationResponse retrieveWithPaginationByNameOrOwner(final String requesterDiscordId,
+    public ChannelConfigPaginationResponse retrieveWithPaginationBySearchCriteria(final String requesterDiscordId,
             final String searchCriteria, final String searchField, final int pageNumber, final int amountOfItems) {
 
-        final ChannelConfigSpecification spec = new ChannelConfigSpecification(
-                new SearchCriteria(searchField, ":", searchCriteria));
-
+        final ChannelConfigSpecification spec = new ChannelConfigSpecification(searchField, searchCriteria);
         final List<ChannelConfigEntity> allChannelConfigs = channelConfigRepository.findAll(spec);
         Collections.sort(allChannelConfigs, Comparator.comparing(ChannelConfigEntity::getName));
 
@@ -186,17 +163,7 @@ public class ChannelConfigService {
                 .get(pageNumber - 1)
                 .stream()
                 .map(channelConfigEntityToDTO)
-                .filter(c -> {
-                    final String botId = jda.getSelfUser()
-                            .getId();
-                    final boolean isOwner = c.getOwner()
-                            .equals(requesterDiscordId);
-
-                    final boolean isDefault = c.getOwner()
-                            .equals(botId);
-
-                    return isOwner || isDefault;
-                })
+                .filter(c -> this.hasReadAccessToConfig(requesterDiscordId, c))
                 .collect(Collectors.toList());
 
         return ChannelConfigPaginationResponse.builder()
@@ -271,5 +238,18 @@ public class ChannelConfigService {
                 .moderationSettings(moderationSettings)
                 .modelSettings(modelSettings)
                 .build();
+    }
+
+    private boolean hasReadAccessToConfig(final String requesterDiscordId, final ChannelConfig channelConfig) {
+
+        final String botId = jda.getSelfUser()
+                .getId();
+        final boolean isOwner = channelConfig.getOwner()
+                .equals(requesterDiscordId);
+
+        final boolean isDefault = channelConfig.getOwner()
+                .equals(botId);
+
+        return isOwner || isDefault;
     }
 }

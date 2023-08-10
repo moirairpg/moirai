@@ -95,7 +95,7 @@ public class ChannelConfigController {
         try {
             LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
             final ChannelConfigPaginationResponse channelConfigPaginationResponse = channelConfigService
-                    .retrieveWithPaginationByNameOrOwner(requesterUserId, searchCriteria, searchField, pageNumber,
+                    .retrieveWithPaginationBySearchCriteria(requesterUserId, searchCriteria, searchField, pageNumber,
                             amountOfItems);
 
             return Mono.just(ResponseEntity.ok()
