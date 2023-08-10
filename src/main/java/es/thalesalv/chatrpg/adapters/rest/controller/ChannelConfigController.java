@@ -23,7 +23,7 @@ import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
-import es.thalesalv.chatrpg.domain.model.api.ChannelConfigPaginationResponse;
+import es.thalesalv.chatrpg.domain.model.api.ChannelConfigPage;
 import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -63,14 +63,14 @@ public class ChannelConfigController {
     }
 
     @GetMapping("paged")
-    public Mono<ResponseEntity<ChannelConfigPaginationResponse>> getAllChannelsByPage(
+    public Mono<ResponseEntity<ChannelConfigPage>> getAllChannelsByPage(
             @RequestHeader("requester") String requesterUserId,
             @RequestParam(value = "pagenumber") final int pageNumber,
             @RequestParam(value = "itemamount") final int amountOfItems) {
 
         try {
             LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
-            final ChannelConfigPaginationResponse channelConfigPaginationResponse = channelConfigService
+            final ChannelConfigPage channelConfigPaginationResponse = channelConfigService
                     .retrieveAllWithPagination(requesterUserId, pageNumber, amountOfItems);
 
             return Mono.just(ResponseEntity.ok()
@@ -86,7 +86,7 @@ public class ChannelConfigController {
     }
 
     @GetMapping("paged/search")
-    public Mono<ResponseEntity<ChannelConfigPaginationResponse>> getAllChannelsByPageWithSearchCriteria(
+    public Mono<ResponseEntity<ChannelConfigPage>> getAllChannelsByPageWithSearchCriteria(
             @RequestHeader("requester") String requesterUserId,
             @RequestParam(value = "pagenumber") final int pageNumber,
             @RequestParam(value = "itemamount") final int amountOfItems,
@@ -95,7 +95,7 @@ public class ChannelConfigController {
 
         try {
             LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
-            final ChannelConfigPaginationResponse channelConfigPaginationResponse = channelConfigService
+            final ChannelConfigPage channelConfigPaginationResponse = channelConfigService
                     .retrieveWithPaginationBySearchCriteria(requesterUserId, searchCriteria, searchField, pageNumber,
                             amountOfItems);
 
@@ -206,10 +206,10 @@ public class ChannelConfigController {
                 .body(respose);
     }
 
-    private ChannelConfigPaginationResponse buildErrorResponseForPagination(HttpStatus status, String message) {
+    private ChannelConfigPage buildErrorResponseForPagination(HttpStatus status, String message) {
 
         LOGGER.debug("Building error response object for channel configs");
-        return ChannelConfigPaginationResponse.builder()
+        return ChannelConfigPage.builder()
                 .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)

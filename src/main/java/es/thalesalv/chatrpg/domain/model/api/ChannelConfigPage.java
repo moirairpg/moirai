@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ChannelConfigPaginationResponse {
+public class ChannelConfigPage {
 
     private ApiErrorResponse error;
     private Integer numberOfItemsInPage;
