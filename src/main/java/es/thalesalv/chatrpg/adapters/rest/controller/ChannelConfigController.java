@@ -80,7 +80,7 @@ public class ChannelConfigController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(channelConfigPaginationResponse));
         } catch (Exception e) {
-            LOGGER.error("Error retrieving all channel configurations", e);
+            LOGGER.error("Error retrieving filtered channel configurations", e);
             return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(this.buildErrorResponseForPagination(HttpStatus.INTERNAL_SERVER_ERROR,
