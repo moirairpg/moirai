@@ -1,14 +1,14 @@
 package es.thalesalv.chatrpg.application.service;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.adapters.data.entity.ChannelConfigEntity;
@@ -130,18 +130,23 @@ public class ChannelConfigService {
     }
 
     public ChannelConfigPage retrieveAllWithPagination(final String requesterDiscordId, final String searchCriteria,
-            final String searchField, final int pageNumber, final int amountOfItems) {
+            final String searchField, final int pageNumber, final int amountOfItems, final String sortBy) {
 
-        List<ChannelConfigEntity> allChannelConfigs;
+        Page<ChannelConfigEntity> page;
         if (StringUtils.isBlank(searchField) || StringUtils.isBlank(searchCriteria)) {
-            allChannelConfigs = channelConfigRepository.findAll();
-        } else {
-            final ChannelConfigSpecification spec = new ChannelConfigSpecification(searchField, searchCriteria);
-            allChannelConfigs = channelConfigRepository.findAll(spec);
+            final String sortByField = StringUtils.isBlank(sortBy) ? "name" : sortBy;
+            page = channelConfigRepository
+                    .findAll(PageRequest.of(pageNumber - 1, amountOfItems, Sort.by(sortByField)));
+
+            return buildChannelConfigPage(requesterDiscordId, page);
         }
 
-        Collections.sort(allChannelConfigs, Comparator.comparing(ChannelConfigEntity::getName));
-        return buildChannelConfigPage(allChannelConfigs, pageNumber, amountOfItems, requesterDiscordId);
+        final ChannelConfigSpecification spec = new ChannelConfigSpecification(searchField, searchCriteria);
+        final String sortByField = StringUtils.isBlank(sortBy) ? "name" : sortBy;
+        page = channelConfigRepository.findAll(spec,
+                PageRequest.of(pageNumber - 1, amountOfItems, Sort.by(sortByField)));
+
+        return buildChannelConfigPage(requesterDiscordId, page);
     }
 
     private ChannelConfigEntity buildUpdatedChannelConfig(final String channelConfigId,
@@ -222,23 +227,20 @@ public class ChannelConfigService {
         return isOwner || isDefault;
     }
 
-    private ChannelConfigPage buildChannelConfigPage(final List<ChannelConfigEntity> allChannelConfigs,
-            final int pageNumber, final int amountOfItems, final String requesterDiscordId) {
+    private ChannelConfigPage buildChannelConfigPage(final String requesterDiscordId, Page<ChannelConfigEntity> page) {
 
-        final int numberOfPages = (int) Math.ceil((double) allChannelConfigs.size() / amountOfItems);
-        final List<ChannelConfig> channelConfigPage = ListUtils.partition(allChannelConfigs, amountOfItems)
-                .get(pageNumber - 1)
+        final List<ChannelConfig> channelConfigPage = page.getContent()
                 .stream()
                 .map(channelConfigEntityToDTO)
                 .filter(c -> this.hasReadAccessToConfig(requesterDiscordId, c))
                 .collect(Collectors.toList());
 
         return ChannelConfigPage.builder()
-                .currentPage(pageNumber)
-                .numberOfPages(numberOfPages)
+                .currentPage(page.getNumber() + 1)
+                .numberOfPages(page.getTotalPages())
                 .channelConfigs(channelConfigPage)
-                .totalNumberOfItems(allChannelConfigs.size())
-                .numberOfItemsInPage(channelConfigPage.size())
+                .totalNumberOfItems((int) page.getTotalElements())
+                .numberOfItemsInPage(page.getNumberOfElements())
                 .build();
     }
 }

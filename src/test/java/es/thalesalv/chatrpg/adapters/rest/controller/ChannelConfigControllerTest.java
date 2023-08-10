@@ -280,13 +280,13 @@ public class ChannelConfigControllerTest {
                 .numberOfItemsInPage(channelConfigPage.size())
                 .build();
 
-        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", "name", "Eldrida", 2, 20))
+        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", "name", "Eldrida", 2, 20, "name"))
                 .thenReturn(response);
 
         // TODO improve tests to actually account for body values rather than just
         // status code
         webTestClient.get()
-                .uri("/channel-config/paged/1/20")
+                .uri("/channel-config/paged?searchfield=&criteria=&sortby=&pagenumber=1&itemamount=20")
                 .header("requester", "123456")
                 .exchange()
                 .expectStatus()
@@ -315,13 +315,13 @@ public class ChannelConfigControllerTest {
                 .numberOfItemsInPage(channelConfigPage.size())
                 .build();
 
-        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", "name", "Eldrida", 2, 20))
+        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", "name", "Eldrida", 2, 20, "name"))
                 .thenReturn(response);
 
         // TODO improve tests to actually account for body values rather than just
         // status code
         webTestClient.get()
-                .uri("/channel-config/paged/1/20/search/owner/123456")
+                .uri("/channel-config/paged?searchfield=&criteria=&sortby=&pagenumber=1&itemamount=20")
                 .header("requester", "123456")
                 .exchange()
                 .expectStatus()

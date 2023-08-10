@@ -68,12 +68,13 @@ public class ChannelConfigController {
             @RequestParam(value = "pagenumber") final int pageNumber,
             @RequestParam(value = "itemamount") final int amountOfItems,
             @RequestParam(value = "searchfield") final String searchField,
-            @RequestParam(value = "criteria") final String searchCriteria) {
+            @RequestParam(value = "criteria") final String searchCriteria,
+            @RequestParam(value = "sortby") final String sortBy) {
 
         try {
             LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
             final ChannelConfigPage channelConfigPaginationResponse = channelConfigService
-                    .retrieveAllWithPagination(requesterUserId, searchCriteria, searchField, pageNumber, amountOfItems);
+                    .retrieveAllWithPagination(requesterUserId, searchCriteria, searchField, pageNumber, amountOfItems, sortBy);
 
             return Mono.just(ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
