@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.application.service.ChannelConfigService;
@@ -61,11 +62,11 @@ public class ChannelConfigController {
         }
     }
 
-    @GetMapping("paged/{page-number}/{number-items}")
+    @GetMapping("paged")
     public Mono<ResponseEntity<ChannelConfigPaginationResponse>> getAllChannelsByPage(
             @RequestHeader("requester") String requesterUserId,
-            @PathVariable(value = "page-number") final int pageNumber,
-            @PathVariable(value = "number-items") final int amountOfItems) {
+            @RequestParam(value = "pagenumber") final int pageNumber,
+            @RequestParam(value = "itemamount") final int amountOfItems) {
 
         try {
             LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
@@ -84,13 +85,13 @@ public class ChannelConfigController {
         }
     }
 
-    @GetMapping("paged/{page-number}/{number-items}/search/{search-field}/{search-criteria}")
+    @GetMapping("paged/search")
     public Mono<ResponseEntity<ChannelConfigPaginationResponse>> getAllChannelsByPageWithSearchCriteria(
             @RequestHeader("requester") String requesterUserId,
-            @PathVariable(value = "page-number") final int pageNumber,
-            @PathVariable(value = "number-items") final int amountOfItems,
-            @PathVariable(value = "search-field") final String searchField,
-            @PathVariable(value = "search-criteria") final String searchCriteria) {
+            @RequestParam(value = "pagenumber") final int pageNumber,
+            @RequestParam(value = "itemamount") final int amountOfItems,
+            @RequestParam(value = "searchfield") final String searchField,
+            @RequestParam(value = "criteria") final String searchCriteria) {
 
         try {
             LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
