@@ -63,29 +63,6 @@ public class ChannelConfigController {
     }
 
     @GetMapping("paged")
-    public Mono<ResponseEntity<ChannelConfigPage>> getAllChannelsByPage(
-            @RequestHeader("requester") String requesterUserId,
-            @RequestParam(value = "pagenumber") final int pageNumber,
-            @RequestParam(value = "itemamount") final int amountOfItems) {
-
-        try {
-            LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
-            final ChannelConfigPage channelConfigPaginationResponse = channelConfigService
-                    .retrieveAllWithPagination(requesterUserId, pageNumber, amountOfItems);
-
-            return Mono.just(ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(channelConfigPaginationResponse));
-        } catch (Exception e) {
-            LOGGER.error("Error retrieving all channel configurations", e);
-            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(this.buildErrorResponseForPagination(HttpStatus.INTERNAL_SERVER_ERROR,
-                            GENERAL_ERROR_MESSAGE)));
-        }
-    }
-
-    @GetMapping("paged/search")
     public Mono<ResponseEntity<ChannelConfigPage>> getAllChannelsByPageWithSearchCriteria(
             @RequestHeader("requester") String requesterUserId,
             @RequestParam(value = "pagenumber") final int pageNumber,
@@ -96,8 +73,7 @@ public class ChannelConfigController {
         try {
             LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
             final ChannelConfigPage channelConfigPaginationResponse = channelConfigService
-                    .retrieveWithPaginationBySearchCriteria(requesterUserId, searchCriteria, searchField, pageNumber,
-                            amountOfItems);
+                    .retrieveAllWithPagination(requesterUserId, searchCriteria, searchField, pageNumber, amountOfItems);
 
             return Mono.just(ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)

@@ -280,7 +280,7 @@ public class ChannelConfigControllerTest {
                 .numberOfItemsInPage(channelConfigPage.size())
                 .build();
 
-        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", 2, 20))
+        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", "name", "Eldrida", 2, 20))
                 .thenReturn(response);
 
         // TODO improve tests to actually account for body values rather than just
@@ -315,7 +315,7 @@ public class ChannelConfigControllerTest {
                 .numberOfItemsInPage(channelConfigPage.size())
                 .build();
 
-        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", 2, 20))
+        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", "name", "Eldrida", 2, 20))
                 .thenReturn(response);
 
         // TODO improve tests to actually account for body values rather than just

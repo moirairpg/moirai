@@ -37,6 +37,7 @@ import es.thalesalv.chatrpg.domain.model.bot.Persona;
 import es.thalesalv.chatrpg.domain.model.bot.World;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
+import net.logstash.logback.encoder.org.apache.commons.lang.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -128,22 +129,18 @@ public class ChannelConfigService {
                         + CHANNEL_CONFIG_ID_NOT_FOUND.replace("CHANNEL_CONFIG_ID", channelConfigId))));
     }
 
-    public ChannelConfigPage retrieveAllWithPagination(final String requesterDiscordId, final int pageNumber,
-            final int amountOfItems) {
+    public ChannelConfigPage retrieveAllWithPagination(final String requesterDiscordId, final String searchCriteria,
+            final String searchField, final int pageNumber, final int amountOfItems) {
 
-        final List<ChannelConfigEntity> allChannelConfigs = channelConfigRepository.findAll();
+        List<ChannelConfigEntity> allChannelConfigs;
+        if (StringUtils.isBlank(searchField) || StringUtils.isBlank(searchCriteria)) {
+            allChannelConfigs = channelConfigRepository.findAll();
+        } else {
+            final ChannelConfigSpecification spec = new ChannelConfigSpecification(searchField, searchCriteria);
+            allChannelConfigs = channelConfigRepository.findAll(spec);
+        }
+
         Collections.sort(allChannelConfigs, Comparator.comparing(ChannelConfigEntity::getName));
-
-        return buildChannelConfigPage(allChannelConfigs, pageNumber, amountOfItems, requesterDiscordId);
-    }
-
-    public ChannelConfigPage retrieveWithPaginationBySearchCriteria(final String requesterDiscordId,
-            final String searchCriteria, final String searchField, final int pageNumber, final int amountOfItems) {
-
-        final ChannelConfigSpecification spec = new ChannelConfigSpecification(searchField, searchCriteria);
-        final List<ChannelConfigEntity> allChannelConfigs = channelConfigRepository.findAll(spec);
-        Collections.sort(allChannelConfigs, Comparator.comparing(ChannelConfigEntity::getName));
-
         return buildChannelConfigPage(allChannelConfigs, pageNumber, amountOfItems, requesterDiscordId);
     }
 
