@@ -84,6 +84,32 @@ public class ChannelConfigController {
         }
     }
 
+    @GetMapping("paged/{page-number}/{number-items}/search/{search-field}/{search-criteria}")
+    public Mono<ResponseEntity<ChannelConfigPaginationResponse>> getAllChannelsByPageWithSearchCriteria(
+            @RequestHeader("requester") String requesterUserId,
+            @PathVariable(value = "page-number") final int pageNumber,
+            @PathVariable(value = "number-items") final int amountOfItems,
+            @PathVariable(value = "search-field") final String searchField,
+            @PathVariable(value = "search-criteria") final String searchCriteria) {
+
+        try {
+            LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
+            final ChannelConfigPaginationResponse channelConfigPaginationResponse = channelConfigService
+                    .retrieveWithPaginationByNameOrOwner(requesterUserId, searchCriteria, searchField, pageNumber,
+                            amountOfItems);
+
+            return Mono.just(ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(channelConfigPaginationResponse));
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving all channel configurations", e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponseForPagination(HttpStatus.INTERNAL_SERVER_ERROR,
+                            GENERAL_ERROR_MESSAGE)));
+        }
+    }
+
     @PostMapping
     public Mono<ResponseEntity<ApiResponse>> saveChannelConfig(@RequestBody final ChannelConfig channelConfig) {
 

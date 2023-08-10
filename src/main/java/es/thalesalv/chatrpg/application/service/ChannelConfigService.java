@@ -27,6 +27,8 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.ModelSettingsDTOToEntity
 import es.thalesalv.chatrpg.application.mapper.chconfig.ModerationSettingsDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
+import es.thalesalv.chatrpg.domain.criteria.ChannelConfigSpecification;
+import es.thalesalv.chatrpg.domain.criteria.SearchCriteria;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.model.api.ChannelConfigPaginationResponse;
@@ -141,6 +143,42 @@ public class ChannelConfigService {
             final int pageNumber, final int amountOfItems) {
 
         final List<ChannelConfigEntity> allChannelConfigs = channelConfigRepository.findAll();
+        Collections.sort(allChannelConfigs, Comparator.comparing(ChannelConfigEntity::getName));
+
+        final int numberOfPages = (int) Math.ceil((double) allChannelConfigs.size() / amountOfItems);
+        final List<ChannelConfig> channelConfigPage = ListUtils.partition(allChannelConfigs, amountOfItems)
+                .get(pageNumber - 1)
+                .stream()
+                .map(channelConfigEntityToDTO)
+                .filter(c -> {
+                    final String botId = jda.getSelfUser()
+                            .getId();
+                    final boolean isOwner = c.getOwner()
+                            .equals(requesterDiscordId);
+
+                    final boolean isDefault = c.getOwner()
+                            .equals(botId);
+
+                    return isOwner || isDefault;
+                })
+                .collect(Collectors.toList());
+
+        return ChannelConfigPaginationResponse.builder()
+                .currentPage(pageNumber)
+                .numberOfPages(numberOfPages)
+                .channelConfigs(channelConfigPage)
+                .totalNumberOfItems(allChannelConfigs.size())
+                .numberOfItemsInPage(channelConfigPage.size())
+                .build();
+    }
+
+    public ChannelConfigPaginationResponse retrieveWithPaginationByNameOrOwner(final String requesterDiscordId,
+            final String searchCriteria, final String searchField, final int pageNumber, final int amountOfItems) {
+
+        final ChannelConfigSpecification spec = new ChannelConfigSpecification(
+                new SearchCriteria(searchField, ":", searchCriteria));
+
+        final List<ChannelConfigEntity> allChannelConfigs = channelConfigRepository.findAll(spec);
         Collections.sort(allChannelConfigs, Comparator.comparing(ChannelConfigEntity::getName));
 
         final int numberOfPages = (int) Math.ceil((double) allChannelConfigs.size() / amountOfItems);

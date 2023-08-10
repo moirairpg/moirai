@@ -292,4 +292,39 @@ public class ChannelConfigControllerTest {
                 .expectStatus()
                 .is2xxSuccessful();
     }
+
+    @Test
+    public void testRetrieveAllWithPaginationWithSearchCriteria_shouldWork() {
+
+        final int amountOfItems = 20;
+        final int pageNumber = 1;
+        final ChannelConfig channelConfig = ChannelConfigTestUtils.buildChannelConfig();
+        final List<ChannelConfig> channelConfigs = ChannelConfigTestUtils.createList(67);
+        channelConfigs.add(channelConfig);
+
+        Collections.sort(channelConfigs, Comparator.comparing(ChannelConfig::getName));
+        final int numberOfPages = (int) Math.ceil((double) channelConfigs.size() / amountOfItems);
+        final List<ChannelConfig> channelConfigPage = ListUtils.partition(channelConfigs, amountOfItems)
+                .get(pageNumber - 1);
+
+        final ChannelConfigPaginationResponse response = ChannelConfigPaginationResponse.builder()
+                .currentPage(pageNumber)
+                .numberOfPages(numberOfPages)
+                .channelConfigs(channelConfigPage)
+                .totalNumberOfItems(channelConfigs.size())
+                .numberOfItemsInPage(channelConfigPage.size())
+                .build();
+
+        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", 2, 20))
+                .thenReturn(response);
+
+        // TODO improve tests to actually account for body values rather than just
+        // status code
+        webTestClient.get()
+                .uri("/channel-config/paged/1/20/search/owner/123456")
+                .header("requester", "123456")
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful();
+    }
 }
