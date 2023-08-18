@@ -167,7 +167,7 @@ public class PersonaService {
                 .map(discordUserId -> {
                     return discordAuthService.retrieveDiscordUserById(discordUserId);
                 })
-                .collect(Collectors.toMap(DiscordUserData::getId, DiscordUserData::getUsername));
+                .collect(Collectors.toMap(DiscordUserData::getId, DiscordUserData::getUsername, (p1, p2) -> p1));
     }
 
     private List<Persona> addOwnerToPersonas(List<Persona> personas, Map<String, String> discordUsers) {

@@ -262,7 +262,7 @@ public class ChannelConfigService {
                 .map(discordUserId -> {
                     return discordAuthService.retrieveDiscordUserById(discordUserId);
                 })
-                .collect(Collectors.toMap(DiscordUserData::getId, DiscordUserData::getUsername));
+                .collect(Collectors.toMap(DiscordUserData::getId, DiscordUserData::getUsername, (c1, c2) -> c1));
     }
 
     private List<ChannelConfig> addOwnerToChannelConfigs(List<ChannelConfig> channelConfigs,

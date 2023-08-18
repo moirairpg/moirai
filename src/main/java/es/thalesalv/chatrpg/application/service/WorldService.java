@@ -310,7 +310,7 @@ public class WorldService {
                 .map(discordUserId -> {
                     return discordAuthService.retrieveDiscordUserById(discordUserId);
                 })
-                .collect(Collectors.toMap(DiscordUserData::getId, DiscordUserData::getUsername));
+                .collect(Collectors.toMap(DiscordUserData::getId, DiscordUserData::getUsername, (w1, w2) -> w1));
     }
 
     private List<World> addOwnerToWorlds(List<World> worlds, Map<String, String> discordUsers) {

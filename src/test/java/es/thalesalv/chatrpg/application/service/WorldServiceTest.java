@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +41,7 @@ import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.bot.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.bot.World;
+import es.thalesalv.chatrpg.domain.model.discord.DiscordUserData;
 
 @ExtendWith(MockitoExtension.class)
 public class WorldServiceTest {
@@ -91,8 +93,14 @@ public class WorldServiceTest {
 
         final String userId = "302796314822049793";
         final List<World> completeList = buildSimplePublicWorldList();
+        final DiscordUserData discordUserData = DiscordUserData.builder()
+                .id(userId)
+                .username("userId")
+                .build();
 
         when(worldRepository.findAll()).thenReturn(buildSimplePublicWorldEntityList());
+        doReturn(discordUserData).when(discordAuthService)
+                .retrieveDiscordUserById(anyString());
 
         final List<World> filteredList = worldService.retrieveAllWorlds(userId);
         assertEquals(8, filteredList.size());

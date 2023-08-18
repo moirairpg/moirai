@@ -10,8 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -30,6 +31,7 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaEntityToDTO;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.PersonaNotFoundException;
 import es.thalesalv.chatrpg.domain.model.bot.Persona;
+import es.thalesalv.chatrpg.domain.model.discord.DiscordUserData;
 
 @ExtendWith(MockitoExtension.class)
 public class PersonaServiceTest {
@@ -37,10 +39,12 @@ public class PersonaServiceTest {
     @Mock
     private PersonaRepository personaRepository;
 
+    @Mock
+    private DiscordAuthService discordAuthService;
+
     private PersonaDTOToEntity personaDTOToEntity;
     private PersonaEntityToDTO personaEntityToDTO;
     private PersonaService personaService;
-    private DiscordAuthService discordAuthService;
 
     private static final String NANO_ID = "241OZASGM6CESV7";
 
@@ -49,7 +53,6 @@ public class PersonaServiceTest {
 
         personaDTOToEntity = new PersonaDTOToEntity();
         personaEntityToDTO = new PersonaEntityToDTO();
-        discordAuthService = mock(DiscordAuthService.class);
         personaService = new PersonaService(personaDTOToEntity, personaEntityToDTO, personaRepository,
                 discordAuthService);
     }
@@ -71,8 +74,14 @@ public class PersonaServiceTest {
 
         final String userId = "302796314822049793";
         final List<Persona> completeList = buildSimplePublicPersonaList();
+        final DiscordUserData discordUserData = DiscordUserData.builder()
+                .id(userId)
+                .username("userId")
+                .build();
 
         when(personaRepository.findAll()).thenReturn(buildSimplePublicPersonaEntityList());
+        doReturn(discordUserData).when(discordAuthService)
+                .retrieveDiscordUserById(anyString());
 
         final List<Persona> filteredList = personaService.retrieveAllPersonas(userId);
         assertEquals(8, filteredList.size());
