@@ -245,9 +245,7 @@ public class ChannelConfigService {
         return ChannelConfigPage.builder()
                 .currentPage(page.getNumber() + 1)
                 .numberOfPages(page.getTotalPages())
-                .channelConfigs(
-                        addOwnerToChannelConfigs(
-                                channelConfigs, discordUsers))
+                .channelConfigs(addOwnerToChannelConfigs(channelConfigs, discordUsers))
                 .totalNumberOfItems((int) page.getTotalElements())
                 .numberOfItemsInPage(page.getNumberOfElements())
                 .build();
