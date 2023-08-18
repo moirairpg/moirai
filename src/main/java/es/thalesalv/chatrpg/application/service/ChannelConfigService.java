@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.application.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.bot.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.bot.Persona;
 import es.thalesalv.chatrpg.domain.model.bot.World;
+import es.thalesalv.chatrpg.domain.model.discord.DiscordUserData;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.logstash.logback.encoder.org.apache.commons.lang.StringUtils;
@@ -56,6 +58,8 @@ public class ChannelConfigService {
     private final ModelSettingsRepository modelSettingsRepository;
     private final ChannelRepository channelRepository;
     private final ChannelConfigRepository channelConfigRepository;
+
+    private final DiscordAuthService discordAuthService;
 
     private static final String CHANNEL_CONFIG_ID_NOT_FOUND = "Channel config with id CHANNEL_CONFIG_ID could not be found in database.";
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelConfigService.class);
@@ -88,7 +92,7 @@ public class ChannelConfigService {
 
         return channelConfigRepository.findById(channelConfigId)
                 .map(c -> {
-                    if (!c.getOwner()
+                    if (!c.getOwnerDiscordId()
                             .equals(userId)) {
                         throw new InsufficientPermissionException("Only the owner of a channel config can edit it");
                     }
@@ -110,7 +114,7 @@ public class ChannelConfigService {
         LOGGER.debug("Entered deleteChannelConfig. channelConfigId -> {}, userId -> {}", channelConfigId, userId);
         channelConfigRepository.findById(channelConfigId)
                 .map(c -> {
-                    if (!c.getOwner()
+                    if (!c.getOwnerDiscordId()
                             .equals(userId)) {
                         throw new InsufficientPermissionException("Only the owner of a channel config can delete it");
                     }
@@ -133,15 +137,13 @@ public class ChannelConfigService {
             final String searchField, final int pageNumber, final int amountOfItems, final String sortBy) {
 
         Page<ChannelConfigEntity> page;
+        final String sortByField = StringUtils.isBlank(sortBy) ? "name" : sortBy;
         if (StringUtils.isBlank(searchField) || StringUtils.isBlank(searchCriteria)) {
-            final String sortByField = StringUtils.isBlank(sortBy) ? "name" : sortBy;
             page = channelConfigRepository.findAll(PageRequest.of(pageNumber - 1, amountOfItems, Sort.by(sortByField)));
-
             return buildChannelConfigPage(requesterDiscordId, page);
         }
 
         final ChannelConfigSpecification spec = new ChannelConfigSpecification(searchField, searchCriteria);
-        final String sortByField = StringUtils.isBlank(sortBy) ? "name" : sortBy;
         page = channelConfigRepository.findAll(spec,
                 PageRequest.of(pageNumber - 1, amountOfItems, Sort.by(sortByField)));
 
@@ -173,7 +175,7 @@ public class ChannelConfigService {
         return ChannelConfigEntity.builder()
                 .id(channelConfigId)
                 .name(newConfigInfo.getName())
-                .owner(newConfigInfo.getOwner())
+                .ownerDiscordId(newConfigInfo.getOwnerDiscordId())
                 .persona(persona)
                 .world(world)
                 .moderationSettings(moderationSettings)
@@ -202,7 +204,7 @@ public class ChannelConfigService {
 
         return ChannelConfigEntity.builder()
                 .id(channelConfig.getId())
-                .owner(channelConfig.getOwner())
+                .ownerDiscordId(channelConfig.getOwnerDiscordId())
                 .name(channelConfig.getName())
                 .readPermissions(channelConfig.getReadPermissions())
                 .writePermissions(channelConfig.getWritePermissions())
@@ -217,10 +219,10 @@ public class ChannelConfigService {
 
         final String botId = jda.getSelfUser()
                 .getId();
-        final boolean isOwner = channelConfig.getOwner()
+        final boolean isOwner = channelConfig.getOwnerDiscordId()
                 .equals(requesterDiscordId);
 
-        final boolean isDefault = channelConfig.getOwner()
+        final boolean isDefault = channelConfig.getOwnerDiscordId()
                 .equals(botId);
 
         return isOwner || isDefault;
@@ -228,16 +230,38 @@ public class ChannelConfigService {
 
     private ChannelConfigPage buildChannelConfigPage(final String requesterDiscordId, Page<ChannelConfigEntity> page) {
 
-        final List<ChannelConfig> channelConfigPage = page.getContent()
+        final List<ChannelConfig> channelConfigs = page.getContent()
                 .stream()
                 .map(channelConfigEntityToDTO)
                 .filter(c -> this.hasReadAccessToConfig(requesterDiscordId, c))
                 .collect(Collectors.toList());
 
+        final Map<String, String> discordUsers = channelConfigs.stream()
+                .map(channelConfig -> {
+                    return channelConfig.getOwnerDiscordId();
+                })
+                .collect(Collectors.toSet())
+                .stream()
+                .map(discordUserId -> {
+                    return discordAuthService.retrieveDiscordUserById(discordUserId);
+                })
+                .collect(Collectors.toMap(DiscordUserData::getId, DiscordUserData::getUsername));
+
+        channelConfigs.stream()
+                .forEach(channelConfig -> {
+                    discordUsers.entrySet()
+                            .stream()
+                            .filter(entry -> entry.getKey()
+                                    .equals(channelConfig.getOwnerDiscordId()))
+                            .forEach(entry -> {
+                                channelConfig.setOwnerUsername(entry.getValue());
+                            });
+                });
+
         return ChannelConfigPage.builder()
                 .currentPage(page.getNumber() + 1)
                 .numberOfPages(page.getTotalPages())
-                .channelConfigs(channelConfigPage)
+                .channelConfigs(channelConfigs)
                 .totalNumberOfItems((int) page.getTotalElements())
                 .numberOfItemsInPage(page.getNumberOfElements())
                 .build();

@@ -36,7 +36,7 @@ public class ChannelConfigEntity {
     private String id;
 
     @Column(name = "owner_discord_id", nullable = false)
-    private String owner;
+    private String ownerDiscordId;
 
     @Column(name = "name", nullable = false)
     private String name;

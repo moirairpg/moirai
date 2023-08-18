@@ -96,11 +96,11 @@ public class ChannelConfigGetHandler {
     private ChannelConfig cleanConfig(final ChannelConfig config, final SlashCommandInteractionEvent event) {
 
         final String configOwnerName = event.getJDA()
-                .retrieveUserById(config.getOwner())
+                .retrieveUserById(config.getOwnerDiscordId())
                 .complete()
                 .getName();
 
-        config.setOwner(configOwnerName);
+        config.setOwnerDiscordId(configOwnerName);
 
         final World world = config.getWorld();
         final String worldOwnerName = event.getJDA()

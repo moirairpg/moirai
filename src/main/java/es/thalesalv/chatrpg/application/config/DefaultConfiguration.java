@@ -110,7 +110,7 @@ public class DefaultConfiguration {
                     .filter(c -> !channelConfigRepository.existsById(c.getId()))
                     .forEach(config -> {
                         LOGGER.info("Default config named {} not in DB. Ingesting it.", config.getName());
-                        config.setOwner(bot.getId());
+                        config.setOwnerDiscordId(bot.getId());
                         channelConfigService.saveChannelConfig(config);
                     });
         } catch (IOException e) {
