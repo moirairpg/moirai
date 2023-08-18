@@ -86,10 +86,11 @@ public class WorldGetHandler {
     private World cleanWorld(final World world, final SlashCommandInteractionEvent event) {
 
         final String ownerName = event.getJDA()
-                .retrieveUserById(world.getOwner())
+                .retrieveUserById(world.getOwnerDiscordId())
                 .complete()
                 .getName();
-        world.setOwner(ownerName);
+
+        world.setOwnerDiscordId(ownerName);
         world.setInitialPrompt(null);
         return world;
     }

@@ -94,7 +94,7 @@ public class DefaultConfiguration {
                     .filter(w -> !worldRepository.existsById(w.getId()))
                     .forEach(world -> {
                         LOGGER.info("Default world named {} not in DB. Ingesting it.", world.getName());
-                        world.setOwner(bot.getId());
+                        world.setOwnerDiscordId(bot.getId());
                         worldService.saveWorld(world);
                     });
 

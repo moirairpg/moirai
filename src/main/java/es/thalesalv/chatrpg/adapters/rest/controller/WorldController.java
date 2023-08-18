@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.application.service.WorldService;
@@ -22,6 +23,7 @@ import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
+import es.thalesalv.chatrpg.domain.model.api.PagedResponse;
 import es.thalesalv.chatrpg.domain.model.bot.World;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -59,6 +61,32 @@ public class WorldController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
 
+        }
+    }
+
+    @GetMapping("paged")
+    public Mono<ResponseEntity<PagedResponse>> getAllWorldsByPageWithSearchCriteria(
+            @RequestHeader("requester") String requesterUserId,
+            @RequestParam(value = "pagenumber") final int pageNumber,
+            @RequestParam(value = "itemamount") final int amountOfItems,
+            @RequestParam(value = "searchfield") final String searchField,
+            @RequestParam(value = "criteria") final String searchCriteria,
+            @RequestParam(value = "sortby") final String sortBy) {
+
+        try {
+            LOGGER.info("Retrieving {} personas in page {}", amountOfItems, pageNumber);
+            final PagedResponse worldPaginationResponse = worldService.retrieveAllWithPagination(requesterUserId,
+                    searchCriteria, searchField, pageNumber, amountOfItems, sortBy);
+
+            return Mono.just(ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(worldPaginationResponse));
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving filtered worlds", e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponseForPagination(HttpStatus.INTERNAL_SERVER_ERROR,
+                            GENERAL_ERROR_MESSAGE)));
         }
     }
 
@@ -159,6 +187,17 @@ public class WorldController {
 
         LOGGER.debug("Building error response object for worlds");
         return ApiResponse.builder()
+                .error(ApiErrorResponse.builder()
+                        .message(message)
+                        .status(status)
+                        .build())
+                .build();
+    }
+
+    private PagedResponse buildErrorResponseForPagination(HttpStatus status, String message) {
+
+        LOGGER.debug("Building error response object for channel configs");
+        return PagedResponse.builder()
                 .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)

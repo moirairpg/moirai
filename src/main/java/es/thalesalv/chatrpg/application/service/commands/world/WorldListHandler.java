@@ -104,10 +104,11 @@ public class WorldListHandler {
     private World cleanWorld(final World world, final SlashCommandInteractionEvent event) {
 
         final String ownerName = event.getJDA()
-                .retrieveUserById(world.getOwner())
+                .retrieveUserById(world.getOwnerDiscordId())
                 .complete()
                 .getName();
-        world.setOwner(ownerName);
+
+        world.setOwnerDiscordId(ownerName);
         world.setLorebook(null);
         world.setInitialPrompt(null);
         return world;

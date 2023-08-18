@@ -18,7 +18,8 @@ public class World {
     private String id;
     private String name;
     private String description;
-    private String owner;
+    private String ownerDiscordId;
+    private String ownerUsername;
     private String visibility;
     private String initialPrompt;
     private List<String> writePermissions;

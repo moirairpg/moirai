@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -54,6 +55,7 @@ public class WorldServiceTest {
     private WorldDTOToEntity worldDTOToEntity;
     private WorldEntityToDTO worldEntityToDTO;
     private WorldService worldService;
+    private DiscordAuthService discordAuthService;
 
     private static final String NANO_ID = "241OZASGM6CESV7";
 
@@ -64,8 +66,9 @@ public class WorldServiceTest {
         lorebookEntryEntityToDTO = new LorebookEntryEntityToDTO();
         worldDTOToEntity = new WorldDTOToEntity(lorebookEntryDTOToEntity);
         worldEntityToDTO = new WorldEntityToDTO(lorebookEntryEntityToDTO);
+        discordAuthService = mock(DiscordAuthService.class);
         worldService = new WorldService(worldDTOToEntity, worldEntityToDTO, lorebookEntryDTOToEntity,
-                lorebookEntryEntityToDTO, worldRepository, lorebookEntryRepository);
+                lorebookEntryEntityToDTO, worldRepository, lorebookEntryRepository, discordAuthService);
     }
 
     @Test
@@ -108,8 +111,8 @@ public class WorldServiceTest {
         final WorldEntity entity = buildSimplePublicWorldEntity();
         final LorebookEntryEntity entryEntity = buildSimpleLorebookEntryEntity();
 
-        world.setOwner(userId);
-        entity.setOwner(userId);
+        world.setOwnerDiscordId(userId);
+        entity.setOwnerDiscordId(userId);
 
         when(worldRepository.findById(NANO_ID)).thenReturn(Optional.of(entity));
         when(worldRepository.save(any(WorldEntity.class))).thenReturn(entity);
@@ -154,8 +157,8 @@ public class WorldServiceTest {
         final World world = buildSimplePublicWorld();
         final WorldEntity entity = buildSimplePublicWorldEntity();
 
-        world.setOwner(userId);
-        entity.setOwner(userId);
+        world.setOwnerDiscordId(userId);
+        entity.setOwnerDiscordId(userId);
 
         when(worldRepository.findById(NANO_ID)).thenReturn(Optional.of(entity));
         doNothing().when(worldRepository)

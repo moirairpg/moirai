@@ -30,7 +30,7 @@ public class WorldTestUtils {
                 .description("This is a test world")
                 .initialPrompt("This is an initial prompt")
                 .lorebook(lorebook)
-                .owner("1083867535658725536")
+                .ownerDiscordId("1083867535658725536")
                 .visibility("public")
                 .writePermissions(emptyPermissions)
                 .readPermissions(emptyPermissions)
@@ -52,7 +52,7 @@ public class WorldTestUtils {
                 .description("This is a test world")
                 .initialPrompt("This is an initial prompt")
                 .lorebook(lorebook)
-                .owner("1083867535658725536")
+                .ownerDiscordId("1083867535658725536")
                 .visibility("public")
                 .writePermissions(emptyPermissions)
                 .readPermissions(emptyPermissions)
@@ -86,33 +86,33 @@ public class WorldTestUtils {
         privateWorld.setReadPermissions(emptyPermissions);
 
         someonesElsesPrivateWorld.setVisibility("private");
-        someonesElsesPrivateWorld.setOwner("463004243411075072");
-        someonesElsesPublicWorld.setOwner("463004243411075072");
+        someonesElsesPrivateWorld.setOwnerDiscordId("463004243411075072");
+        someonesElsesPublicWorld.setOwnerDiscordId("463004243411075072");
 
         ownPublicWorldWithAllPermissions.setWritePermissions(permissions);
         ownPublicWorldWithAllPermissions.setReadPermissions(permissions);
-        ownPublicWorldWithAllPermissions.setOwner("302796314822049793");
+        ownPublicWorldWithAllPermissions.setOwnerDiscordId("302796314822049793");
         ownPublicWorldWithAllPermissions.setVisibility("private");
 
         ownPrivateWorldWithAllPermissions.setWritePermissions(permissions);
         ownPrivateWorldWithAllPermissions.setReadPermissions(permissions);
-        ownPrivateWorldWithAllPermissions.setOwner("302796314822049793");
+        ownPrivateWorldWithAllPermissions.setOwnerDiscordId("302796314822049793");
         ownPrivateWorldWithAllPermissions.setVisibility("private");
 
         someonesElsesPrivateWorldWithAllPermissions.setWritePermissions(permissions);
         someonesElsesPrivateWorldWithAllPermissions.setReadPermissions(permissions);
-        someonesElsesPrivateWorldWithAllPermissions.setOwner("463004243411075072");
+        someonesElsesPrivateWorldWithAllPermissions.setOwnerDiscordId("463004243411075072");
         someonesElsesPrivateWorldWithAllPermissions.setVisibility("private");
 
         someonesElsesPublicWorldWithAllPermissions.setWritePermissions(permissions);
         someonesElsesPublicWorldWithAllPermissions.setReadPermissions(permissions);
-        someonesElsesPublicWorldWithAllPermissions.setOwner("463004243411075072");
+        someonesElsesPublicWorldWithAllPermissions.setOwnerDiscordId("463004243411075072");
         someonesElsesPublicWorldWithAllPermissions.setVisibility("public");
 
         someonesElsesPrivateWorldWithWritePersmissions.setVisibility("private");
         someonesElsesPrivateWorldWithReadPermissions.setVisibility("private");
-        someonesElsesPrivateWorldWithWritePersmissions.setOwner("463004243411075072");
-        someonesElsesPrivateWorldWithReadPermissions.setOwner("463004243411075072");
+        someonesElsesPrivateWorldWithWritePersmissions.setOwnerDiscordId("463004243411075072");
+        someonesElsesPrivateWorldWithReadPermissions.setOwnerDiscordId("463004243411075072");
         someonesElsesPrivateWorldWithWritePersmissions.setWritePermissions(permissions);
         someonesElsesPrivateWorldWithReadPermissions.setReadPermissions(permissions);
 
@@ -160,33 +160,33 @@ public class WorldTestUtils {
         privateWorld.setReadPermissions(emptyPermissions);
 
         someonesElsesPrivateWorld.setVisibility("private");
-        someonesElsesPrivateWorld.setOwner("463004243411075072");
-        someonesElsesPublicWorld.setOwner("463004243411075072");
+        someonesElsesPrivateWorld.setOwnerDiscordId("463004243411075072");
+        someonesElsesPublicWorld.setOwnerDiscordId("463004243411075072");
 
         ownPublicWorldWithAllPermissions.setWritePermissions(permissions);
         ownPublicWorldWithAllPermissions.setReadPermissions(permissions);
-        ownPublicWorldWithAllPermissions.setOwner("302796314822049793");
+        ownPublicWorldWithAllPermissions.setOwnerDiscordId("302796314822049793");
         ownPublicWorldWithAllPermissions.setVisibility("private");
 
         ownPrivateWorldWithAllPermissions.setWritePermissions(permissions);
         ownPrivateWorldWithAllPermissions.setReadPermissions(permissions);
-        ownPrivateWorldWithAllPermissions.setOwner("302796314822049793");
+        ownPrivateWorldWithAllPermissions.setOwnerDiscordId("302796314822049793");
         ownPrivateWorldWithAllPermissions.setVisibility("private");
 
         someonesElsesPrivateWorldWithAllPermissions.setWritePermissions(permissions);
         someonesElsesPrivateWorldWithAllPermissions.setReadPermissions(permissions);
-        someonesElsesPrivateWorldWithAllPermissions.setOwner("463004243411075072");
+        someonesElsesPrivateWorldWithAllPermissions.setOwnerDiscordId("463004243411075072");
         someonesElsesPrivateWorldWithAllPermissions.setVisibility("private");
 
         someonesElsesPublicWorldWithAllPermissions.setWritePermissions(permissions);
         someonesElsesPublicWorldWithAllPermissions.setReadPermissions(permissions);
-        someonesElsesPublicWorldWithAllPermissions.setOwner("463004243411075072");
+        someonesElsesPublicWorldWithAllPermissions.setOwnerDiscordId("463004243411075072");
         someonesElsesPublicWorldWithAllPermissions.setVisibility("public");
 
         someonesElsesPrivateWorldWithWritePersmissions.setVisibility("private");
         someonesElsesPrivateWorldWithReadPermissions.setVisibility("private");
-        someonesElsesPrivateWorldWithWritePersmissions.setOwner("463004243411075072");
-        someonesElsesPrivateWorldWithReadPermissions.setOwner("463004243411075072");
+        someonesElsesPrivateWorldWithWritePersmissions.setOwnerDiscordId("463004243411075072");
+        someonesElsesPrivateWorldWithReadPermissions.setOwnerDiscordId("463004243411075072");
         someonesElsesPrivateWorldWithWritePersmissions.setWritePermissions(permissions);
         someonesElsesPrivateWorldWithReadPermissions.setReadPermissions(permissions);
 
@@ -228,7 +228,7 @@ public class WorldTestUtils {
     public static boolean hasReadPermissions(final World world, final String userId) {
 
         final boolean isPublic = Visibility.isPublic(world.getVisibility());
-        final boolean isOwner = world.getOwner()
+        final boolean isOwner = world.getOwnerDiscordId()
                 .equals(userId);
 
         final List<String> readPermissions = Optional.ofNullable(world.getReadPermissions())
@@ -246,7 +246,7 @@ public class WorldTestUtils {
         final List<String> writePermissions = Optional.ofNullable(world.getWritePermissions())
                 .orElse(Collections.emptyList());
 
-        final boolean isOwner = world.getOwner()
+        final boolean isOwner = world.getOwnerDiscordId()
                 .equals(userId);
 
         final boolean canWrite = writePermissions.contains(userId);

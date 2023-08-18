@@ -40,7 +40,7 @@ public class WorldEntity {
     private String description;
 
     @Column(name = "owner_discord_id", nullable = false)
-    private String owner;
+    private String ownerDiscordId;
 
     @Column(name = "visibility", nullable = false)
     private String visibility;

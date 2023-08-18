@@ -71,7 +71,7 @@ public class PersonaController {
             @RequestParam(value = "sortby") final String sortBy) {
 
         try {
-            LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
+            LOGGER.info("Retrieving {} personas in page {}", amountOfItems, pageNumber);
             final PagedResponse channelConfigPaginationResponse = personaService.retrieveAllWithPagination(
                     requesterUserId, searchCriteria, searchField, pageNumber, amountOfItems, sortBy);
 
@@ -79,7 +79,7 @@ public class PersonaController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(channelConfigPaginationResponse));
         } catch (Exception e) {
-            LOGGER.error("Error retrieving filtered channel configurations", e);
+            LOGGER.error("Error retrieving filtered personas", e);
             return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(this.buildErrorResponseForPagination(HttpStatus.INTERNAL_SERVER_ERROR,

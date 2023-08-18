@@ -109,8 +109,8 @@ public class LorebookGetHandler {
     private void retrieveLorebook(final World world, final SlashCommandInteractionEvent event)
             throws JsonProcessingException, IOException {
 
-        world.setOwner(event.getJDA()
-                .retrieveUserById(world.getOwner())
+        world.setOwnerDiscordId(event.getJDA()
+                .retrieveUserById(world.getOwnerDiscordId())
                 .complete()
                 .getName());
 
@@ -150,7 +150,7 @@ public class LorebookGetHandler {
         final boolean isPrivate = world.getVisibility()
                 .equals("private");
 
-        final boolean isOwner = world.getOwner()
+        final boolean isOwner = world.getOwnerDiscordId()
                 .equals(userId);
 
         final boolean canRead = world.getReadPermissions()

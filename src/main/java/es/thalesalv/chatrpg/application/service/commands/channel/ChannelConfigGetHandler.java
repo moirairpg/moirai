@@ -104,11 +104,11 @@ public class ChannelConfigGetHandler {
 
         final World world = config.getWorld();
         final String worldOwnerName = event.getJDA()
-                .retrieveUserById(world.getOwner())
+                .retrieveUserById(world.getOwnerDiscordId())
                 .complete()
                 .getName();
 
-        world.setOwner(worldOwnerName);
+        world.setOwnerDiscordId(worldOwnerName);
         world.setLorebook(null);
         world.setInitialPrompt(null);
         config.setWorld(world);
