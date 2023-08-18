@@ -18,7 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import es.thalesalv.chatrpg.application.service.ChannelConfigService;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
-import es.thalesalv.chatrpg.domain.model.api.ChannelConfigPage;
+import es.thalesalv.chatrpg.domain.model.api.PagedResponse;
 import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 import es.thalesalv.chatrpg.testutils.ChannelConfigTestUtils;
 
@@ -272,7 +272,7 @@ public class ChannelConfigControllerTest {
         final List<ChannelConfig> channelConfigPage = ListUtils.partition(channelConfigs, amountOfItems)
                 .get(pageNumber - 1);
 
-        final ChannelConfigPage response = ChannelConfigPage.builder()
+        final PagedResponse response = PagedResponse.builder()
                 .currentPage(pageNumber)
                 .numberOfPages(numberOfPages)
                 .channelConfigs(channelConfigPage)
@@ -307,7 +307,7 @@ public class ChannelConfigControllerTest {
         final List<ChannelConfig> channelConfigPage = ListUtils.partition(channelConfigs, amountOfItems)
                 .get(pageNumber - 1);
 
-        final ChannelConfigPage response = ChannelConfigPage.builder()
+        final PagedResponse response = PagedResponse.builder()
                 .currentPage(pageNumber)
                 .numberOfPages(numberOfPages)
                 .channelConfigs(channelConfigPage)

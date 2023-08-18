@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class PersonaServiceTest {
     private PersonaDTOToEntity personaDTOToEntity;
     private PersonaEntityToDTO personaEntityToDTO;
     private PersonaService personaService;
+    private DiscordAuthService discordAuthService;
 
     private static final String NANO_ID = "241OZASGM6CESV7";
 
@@ -47,7 +49,9 @@ public class PersonaServiceTest {
 
         personaDTOToEntity = new PersonaDTOToEntity();
         personaEntityToDTO = new PersonaEntityToDTO();
-        personaService = new PersonaService(personaDTOToEntity, personaEntityToDTO, personaRepository);
+        discordAuthService = mock(DiscordAuthService.class);
+        personaService = new PersonaService(personaDTOToEntity, personaEntityToDTO, personaRepository,
+                discordAuthService);
     }
 
     @Test
@@ -86,8 +90,8 @@ public class PersonaServiceTest {
         final Persona persona = buildSimplePublicPersona();
         final PersonaEntity entity = buildSimplePublicPersonaEntity();
 
-        persona.setOwner(userId);
-        entity.setOwner(userId);
+        persona.setOwnerDiscordId(userId);
+        entity.setOwnerDiscordId(userId);
 
         when(personaRepository.findById(NANO_ID)).thenReturn(Optional.of(entity));
         when(personaRepository.save(entity)).thenReturn(entity);
@@ -131,8 +135,8 @@ public class PersonaServiceTest {
         final Persona persona = buildSimplePublicPersona();
         final PersonaEntity entity = buildSimplePublicPersonaEntity();
 
-        persona.setOwner(userId);
-        entity.setOwner(userId);
+        persona.setOwnerDiscordId(userId);
+        entity.setOwnerDiscordId(userId);
 
         when(personaRepository.findById(NANO_ID)).thenReturn(Optional.of(entity));
         doNothing().when(personaRepository)

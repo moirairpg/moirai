@@ -23,7 +23,7 @@ import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
-import es.thalesalv.chatrpg.domain.model.api.ChannelConfigPage;
+import es.thalesalv.chatrpg.domain.model.api.PagedResponse;
 import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -63,7 +63,7 @@ public class ChannelConfigController {
     }
 
     @GetMapping("paged")
-    public Mono<ResponseEntity<ChannelConfigPage>> getAllChannelsByPageWithSearchCriteria(
+    public Mono<ResponseEntity<PagedResponse>> getAllChannelsByPageWithSearchCriteria(
             @RequestHeader("requester") String requesterUserId,
             @RequestParam(value = "pagenumber") final int pageNumber,
             @RequestParam(value = "itemamount") final int amountOfItems,
@@ -73,7 +73,7 @@ public class ChannelConfigController {
 
         try {
             LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
-            final ChannelConfigPage channelConfigPaginationResponse = channelConfigService.retrieveAllWithPagination(
+            final PagedResponse channelConfigPaginationResponse = channelConfigService.retrieveAllWithPagination(
                     requesterUserId, searchCriteria, searchField, pageNumber, amountOfItems, sortBy);
 
             return Mono.just(ResponseEntity.ok()
@@ -183,10 +183,10 @@ public class ChannelConfigController {
                 .body(respose);
     }
 
-    private ChannelConfigPage buildErrorResponseForPagination(HttpStatus status, String message) {
+    private PagedResponse buildErrorResponseForPagination(HttpStatus status, String message) {
 
         LOGGER.debug("Building error response object for channel configs");
-        return ChannelConfigPage.builder()
+        return PagedResponse.builder()
                 .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)

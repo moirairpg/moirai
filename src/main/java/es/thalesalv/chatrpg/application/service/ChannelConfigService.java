@@ -28,10 +28,10 @@ import es.thalesalv.chatrpg.application.mapper.chconfig.ModelSettingsDTOToEntity
 import es.thalesalv.chatrpg.application.mapper.chconfig.ModerationSettingsDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.chconfig.PersonaDTOToEntity;
 import es.thalesalv.chatrpg.application.mapper.world.WorldDTOToEntity;
-import es.thalesalv.chatrpg.domain.criteria.ChannelConfigSpecification;
+import es.thalesalv.chatrpg.domain.criteria.AssetSpecification;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
-import es.thalesalv.chatrpg.domain.model.api.ChannelConfigPage;
+import es.thalesalv.chatrpg.domain.model.api.PagedResponse;
 import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 import es.thalesalv.chatrpg.domain.model.bot.ModerationSettings;
 import es.thalesalv.chatrpg.domain.model.bot.Persona;
@@ -137,7 +137,7 @@ public class ChannelConfigService {
                         + CHANNEL_CONFIG_ID_NOT_FOUND.replace("CHANNEL_CONFIG_ID", channelConfigId))));
     }
 
-    public ChannelConfigPage retrieveAllWithPagination(final String requesterDiscordId, final String searchCriteria,
+    public PagedResponse retrieveAllWithPagination(final String requesterDiscordId, final String searchCriteria,
             final String searchField, final int pageNumber, final int amountOfItems, final String sortBy) {
 
         Page<ChannelConfigEntity> page;
@@ -147,7 +147,7 @@ public class ChannelConfigService {
             return buildChannelConfigPage(requesterDiscordId, page);
         }
 
-        final ChannelConfigSpecification spec = new ChannelConfigSpecification(searchField, searchCriteria);
+        final AssetSpecification<ChannelConfigEntity> spec = new AssetSpecification<>(searchField, searchCriteria);
         page = channelConfigRepository.findAll(spec,
                 PageRequest.of(pageNumber - 1, amountOfItems, Sort.by(sortByField)));
 
@@ -232,7 +232,7 @@ public class ChannelConfigService {
         return isOwner || isDefault;
     }
 
-    private ChannelConfigPage buildChannelConfigPage(final String requesterDiscordId, Page<ChannelConfigEntity> page) {
+    private PagedResponse buildChannelConfigPage(final String requesterDiscordId, Page<ChannelConfigEntity> page) {
 
         final List<ChannelConfig> channelConfigs = page.getContent()
                 .stream()
@@ -242,12 +242,10 @@ public class ChannelConfigService {
 
         final Map<String, String> discordUsers = retrieveOwnerUsername(channelConfigs);
 
-        return ChannelConfigPage.builder()
+        return PagedResponse.builder()
                 .currentPage(page.getNumber() + 1)
                 .numberOfPages(page.getTotalPages())
-                .channelConfigs(
-                        addOwnerToChannelConfigs(
-                                channelConfigs, discordUsers))
+                .channelConfigs(addOwnerToChannelConfigs(channelConfigs, discordUsers))
                 .totalNumberOfItems((int) page.getTotalElements())
                 .numberOfItemsInPage(page.getNumberOfElements())
                 .build();

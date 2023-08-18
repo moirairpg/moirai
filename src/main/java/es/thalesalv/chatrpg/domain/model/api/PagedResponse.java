@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
+import es.thalesalv.chatrpg.domain.model.bot.Persona;
+import es.thalesalv.chatrpg.domain.model.bot.World;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +20,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ChannelConfigPage {
+public class PagedResponse {
 
     private ApiErrorResponse error;
     private Integer numberOfItemsInPage;
@@ -26,4 +28,6 @@ public class ChannelConfigPage {
     private Integer currentPage;
     private Integer totalNumberOfItems;
     private List<ChannelConfig> channelConfigs;
+    private List<Persona> personas;
+    private List<World> worlds;
 }

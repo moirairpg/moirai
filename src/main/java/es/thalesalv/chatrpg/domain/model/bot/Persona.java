@@ -19,7 +19,8 @@ public class Persona {
     private String name;
     private Intent intent;
     private String personality;
-    private String owner;
+    private String ownerDiscordId;
+    private String ownerUsername;
     private String visibility;
     private Boolean isMultiplayer;
     private List<String> writePermissions;

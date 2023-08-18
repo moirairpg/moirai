@@ -115,11 +115,11 @@ public class ChannelConfigGetHandler {
 
         final Persona persona = config.getPersona();
         final String personaOwnerName = event.getJDA()
-                .retrieveUserById(persona.getOwner())
+                .retrieveUserById(persona.getOwnerDiscordId())
                 .complete()
                 .getName();
 
-        persona.setOwner(personaOwnerName);
+        persona.setOwnerDiscordId(personaOwnerName);
         persona.setNudge(null);
         persona.setBump(null);
         persona.setPersonality(null);

@@ -86,7 +86,7 @@ public class DefaultConfiguration {
                     .filter(p -> !personaRepository.existsById(p.getId()))
                     .forEach(persona -> {
                         LOGGER.info("Default persona named {} not in DB. Ingesting it.", persona.getName());
-                        persona.setOwner(bot.getId());
+                        persona.setOwnerDiscordId(bot.getId());
                         personaService.savePersona(persona);
                     });
 
