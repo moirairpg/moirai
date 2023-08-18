@@ -67,11 +67,15 @@ public class ChannelConfigService {
     public List<ChannelConfig> retrieveAllChannelConfigs(final String userId) {
 
         LOGGER.debug("Entered retrieveAllChannelConfigs. userId -> {}", userId);
-        return channelConfigRepository.findAll()
+
+        final List<ChannelConfig> channelConfigs = channelConfigRepository.findAll()
                 .stream()
                 .map(channelConfigEntityToDTO)
                 .filter(c -> this.hasReadAccessToConfig(userId, c))
                 .toList();
+
+        final Map<String, String> discordUsers = retrieveOwnerUsername(channelConfigs);
+        return addOwnerToChannelConfigs(channelConfigs, discordUsers);
     }
 
     public ChannelConfig saveChannelConfig(final ChannelConfig channelConfig) {
@@ -236,7 +240,22 @@ public class ChannelConfigService {
                 .filter(c -> this.hasReadAccessToConfig(requesterDiscordId, c))
                 .collect(Collectors.toList());
 
-        final Map<String, String> discordUsers = channelConfigs.stream()
+        final Map<String, String> discordUsers = retrieveOwnerUsername(channelConfigs);
+
+        return ChannelConfigPage.builder()
+                .currentPage(page.getNumber() + 1)
+                .numberOfPages(page.getTotalPages())
+                .channelConfigs(
+                        addOwnerToChannelConfigs(
+                                channelConfigs, discordUsers))
+                .totalNumberOfItems((int) page.getTotalElements())
+                .numberOfItemsInPage(page.getNumberOfElements())
+                .build();
+    }
+
+    private Map<String, String> retrieveOwnerUsername(List<ChannelConfig> channelConfigs) {
+
+        return channelConfigs.stream()
                 .map(channelConfig -> {
                     return channelConfig.getOwnerDiscordId();
                 })
@@ -246,9 +265,13 @@ public class ChannelConfigService {
                     return discordAuthService.retrieveDiscordUserById(discordUserId);
                 })
                 .collect(Collectors.toMap(DiscordUserData::getId, DiscordUserData::getUsername));
+    }
 
-        channelConfigs.stream()
-                .forEach(channelConfig -> {
+    private List<ChannelConfig> addOwnerToChannelConfigs(List<ChannelConfig> channelConfigs,
+            Map<String, String> discordUsers) {
+
+        return channelConfigs.stream()
+                .map(channelConfig -> {
                     discordUsers.entrySet()
                             .stream()
                             .filter(entry -> entry.getKey()
@@ -256,14 +279,9 @@ public class ChannelConfigService {
                             .forEach(entry -> {
                                 channelConfig.setOwnerUsername(entry.getValue());
                             });
-                });
 
-        return ChannelConfigPage.builder()
-                .currentPage(page.getNumber() + 1)
-                .numberOfPages(page.getTotalPages())
-                .channelConfigs(channelConfigs)
-                .totalNumberOfItems((int) page.getTotalElements())
-                .numberOfItemsInPage(page.getNumberOfElements())
-                .build();
+                    return channelConfig;
+                })
+                .collect(Collectors.toList());
     }
 }
