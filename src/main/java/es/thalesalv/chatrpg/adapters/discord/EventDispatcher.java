@@ -27,6 +27,7 @@ public class EventDispatcher extends ListenerAdapter {
 
     @PostConstruct
     public void init() {
+
         jda.addEventListener(this);
     }
 

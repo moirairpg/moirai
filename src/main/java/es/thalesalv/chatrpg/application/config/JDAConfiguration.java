@@ -23,6 +23,7 @@ public class JDAConfiguration {
 
     @Bean
     public JDA jda() {
+
         if (null == jda) {
             synchronized (lock) {
                 if (null == jda) {
