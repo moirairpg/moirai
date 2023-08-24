@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.adapters.discord;
 
+import jakarta.annotation.PostConstruct;
+import net.dv8tion.jda.api.JDA;
 import org.springframework.stereotype.Component;
 
 import es.thalesalv.chatrpg.adapters.discord.listener.InteractionListener;
@@ -21,6 +23,12 @@ public class EventDispatcher extends ListenerAdapter {
     private final SessionListener sessionListener;
     private final InteractionListener interactionListener;
     private final MessageListener messageListener;
+    private final JDA jda;
+
+    @PostConstruct
+    public void init() {
+        jda.addEventListener(this);
+    }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {

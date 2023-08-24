@@ -17,14 +17,21 @@ public class JDAConfiguration {
     @Value("${chatrpg.discord.api-token}")
     private String discordApiToken;
 
-    private final EventDispatcher dispatcherListenerAdapter;
+    private final Object lock = new Object();
+
+    private volatile JDA jda;
 
     @Bean
     public JDA jda() {
-
-        return JDABuilder.createDefault(discordApiToken)
-                .addEventListeners(dispatcherListenerAdapter)
-                .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS)
-                .build();
+        if (null == jda) {
+            synchronized (lock) {
+                if (null == jda) {
+                    jda = JDABuilder.createDefault(discordApiToken)
+                            .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS)
+                            .build();
+                }
+            }
+        }
+        return jda;
     }
 }
