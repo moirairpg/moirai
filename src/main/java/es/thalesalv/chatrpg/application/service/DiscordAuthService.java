@@ -33,6 +33,7 @@ public class DiscordAuthService {
     private final JDA jda;
     private final JDAUserToDiscordUser jdaUserToDiscordUser;
     private final DiscordApiService discordApiService;
+    private final UserDefinitionsService userDefinitionsService;
 
     private static final String DISCORD_SCOPE = "identify";
     private static final String DISCORD_GRANT_TYPE = "authorization_code";
@@ -61,7 +62,11 @@ public class DiscordAuthService {
 
         return discordApiService.authenticate(request)
                 .flatMap(response -> {
-                    return discordApiService.retrieveLoggedUser(response.getAccessToken());
+                    return discordApiService.retrieveLoggedUser(response.getAccessToken())
+                            .map(user -> {
+                                userDefinitionsService.persistUser(user);
+                                return user;
+                            });
                 });
 
     }

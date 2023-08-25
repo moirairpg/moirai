@@ -30,7 +30,6 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/lore/entry")
-
 public class LorebookEntryController {
 
     private final WorldService worldService;
