@@ -31,7 +31,6 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/persona")
-
 public class PersonaController {
 
     private final PersonaService personaService;

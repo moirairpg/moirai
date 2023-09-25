@@ -31,7 +31,6 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/world")
-
 public class WorldController {
 
     private final WorldService worldService;
