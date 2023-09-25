@@ -63,18 +63,19 @@ public class ChannelConfigController {
     }
 
     @GetMapping("paged")
-    public Mono<ResponseEntity<PagedResponse>> getAllChannelsByPageWithSearchCriteria(
+    public Mono<ResponseEntity<PagedResponse<ChannelConfig>>> getAllChannelsByPageWithSearchCriteria(
             @RequestHeader("requester") String requesterUserId,
-            @RequestParam(value = "pagenumber") final int pageNumber,
-            @RequestParam(value = "itemamount") final int amountOfItems,
+            @RequestParam(value = "page", required = true) final int page,
+            @RequestParam(value = "itemamount", required = true) final int amountOfItems,
             @RequestParam(value = "searchfield") final String searchField,
             @RequestParam(value = "criteria") final String searchCriteria,
             @RequestParam(value = "sortby") final String sortBy) {
 
         try {
-            LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, pageNumber);
-            final PagedResponse channelConfigPaginationResponse = channelConfigService.retrieveAllWithPagination(
-                    requesterUserId, searchCriteria, searchField, pageNumber, amountOfItems, sortBy);
+            LOGGER.info("Retrieving {} channel configurations in page {}", amountOfItems, page);
+            final PagedResponse<ChannelConfig> channelConfigPaginationResponse = channelConfigService
+                    .retrieveAllWithPagination(requesterUserId, searchCriteria, searchField, page, amountOfItems,
+                            sortBy);
 
             return Mono.just(ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -183,10 +184,10 @@ public class ChannelConfigController {
                 .body(respose);
     }
 
-    private PagedResponse buildErrorResponseForPagination(HttpStatus status, String message) {
+    private PagedResponse<ChannelConfig> buildErrorResponseForPagination(HttpStatus status, String message) {
 
         LOGGER.debug("Building error response object for channel configs");
-        return PagedResponse.builder()
+        return PagedResponse.<ChannelConfig>builder()
                 .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)

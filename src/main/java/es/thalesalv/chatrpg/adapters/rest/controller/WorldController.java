@@ -65,18 +65,18 @@ public class WorldController {
     }
 
     @GetMapping("paged")
-    public Mono<ResponseEntity<PagedResponse>> getAllWorldsByPageWithSearchCriteria(
+    public Mono<ResponseEntity<PagedResponse<World>>> getAllWorldsByPageWithSearchCriteria(
             @RequestHeader("requester") String requesterUserId,
-            @RequestParam(value = "pagenumber") final int pageNumber,
-            @RequestParam(value = "itemamount") final int amountOfItems,
+            @RequestParam(value = "page", required = true) final int page,
+            @RequestParam(value = "itemamount", required = true) final int amountOfItems,
             @RequestParam(value = "searchfield") final String searchField,
             @RequestParam(value = "criteria") final String searchCriteria,
             @RequestParam(value = "sortby") final String sortBy) {
 
         try {
-            LOGGER.info("Retrieving {} personas in page {}", amountOfItems, pageNumber);
-            final PagedResponse worldPaginationResponse = worldService.retrieveAllWithPagination(requesterUserId,
-                    searchCriteria, searchField, pageNumber, amountOfItems, sortBy);
+            LOGGER.info("Retrieving {} personas in page {}", amountOfItems, page);
+            final PagedResponse<World> worldPaginationResponse = worldService.retrieveAllWithPagination(requesterUserId,
+                    searchCriteria, searchField, page, amountOfItems, sortBy);
 
             return Mono.just(ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -194,10 +194,10 @@ public class WorldController {
                 .build();
     }
 
-    private PagedResponse buildErrorResponseForPagination(HttpStatus status, String message) {
+    private PagedResponse<World> buildErrorResponseForPagination(HttpStatus status, String message) {
 
         LOGGER.debug("Building error response object for channel configs");
-        return PagedResponse.builder()
+        return PagedResponse.<World>builder()
                 .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)

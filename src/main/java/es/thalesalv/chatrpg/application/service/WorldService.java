@@ -141,7 +141,7 @@ public class WorldService {
                 });
     }
 
-    public PagedResponse retrieveAllWithPagination(final String requesterDiscordId, final String searchCriteria,
+    public PagedResponse<World> retrieveAllWithPagination(final String requesterDiscordId, final String searchCriteria,
             final String searchField, final int pageNumber, final int amountOfItems, final String sortBy) {
 
         Page<WorldEntity> page;
@@ -281,7 +281,7 @@ public class WorldService {
         return isOwner || canWrite;
     }
 
-    private PagedResponse buildWorldPage(final String requesterDiscordId, Page<WorldEntity> page) {
+    private PagedResponse<World> buildWorldPage(final String requesterDiscordId, Page<WorldEntity> page) {
 
         final List<World> worlds = page.getContent()
                 .stream()
@@ -290,10 +290,10 @@ public class WorldService {
                 .collect(Collectors.toList());
 
         final Map<String, String> discordUsers = retrieveOwnerUsername(worlds);
-        return PagedResponse.builder()
+        return PagedResponse.<World>builder()
                 .currentPage(page.getNumber() + 1)
                 .numberOfPages(page.getTotalPages())
-                .worlds(addOwnerToWorlds(worlds, discordUsers))
+                .data(addOwnerToWorlds(worlds, discordUsers))
                 .totalNumberOfItems((int) page.getTotalElements())
                 .numberOfItemsInPage(page.getNumberOfElements())
                 .build();

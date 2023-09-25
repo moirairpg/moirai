@@ -137,8 +137,9 @@ public class ChannelConfigService {
                         + CHANNEL_CONFIG_ID_NOT_FOUND.replace("CHANNEL_CONFIG_ID", channelConfigId))));
     }
 
-    public PagedResponse retrieveAllWithPagination(final String requesterDiscordId, final String searchCriteria,
-            final String searchField, final int pageNumber, final int amountOfItems, final String sortBy) {
+    public PagedResponse<ChannelConfig> retrieveAllWithPagination(final String requesterDiscordId,
+            final String searchCriteria, final String searchField, final int pageNumber, final int amountOfItems,
+            final String sortBy) {
 
         Page<ChannelConfigEntity> page;
         final String sortByField = StringUtils.isBlank(sortBy) ? "name" : sortBy;
@@ -232,7 +233,8 @@ public class ChannelConfigService {
         return isOwner || isDefault;
     }
 
-    private PagedResponse buildChannelConfigPage(final String requesterDiscordId, Page<ChannelConfigEntity> page) {
+    private PagedResponse<ChannelConfig> buildChannelConfigPage(final String requesterDiscordId,
+            Page<ChannelConfigEntity> page) {
 
         final List<ChannelConfig> channelConfigs = page.getContent()
                 .stream()
@@ -242,10 +244,10 @@ public class ChannelConfigService {
 
         final Map<String, String> discordUsers = retrieveOwnerUsername(channelConfigs);
 
-        return PagedResponse.builder()
+        return PagedResponse.<ChannelConfig>builder()
                 .currentPage(page.getNumber() + 1)
                 .numberOfPages(page.getTotalPages())
-                .channelConfigs(addOwnerToChannelConfigs(channelConfigs, discordUsers))
+                .data(addOwnerToChannelConfigs(channelConfigs, discordUsers))
                 .totalNumberOfItems((int) page.getTotalElements())
                 .numberOfItemsInPage(page.getNumberOfElements())
                 .build();

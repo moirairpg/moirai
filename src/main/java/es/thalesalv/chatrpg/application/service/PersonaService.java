@@ -93,8 +93,9 @@ public class PersonaService {
                 });
     }
 
-    public PagedResponse retrieveAllWithPagination(final String requesterDiscordId, final String searchCriteria,
-            final String searchField, final int pageNumber, final int amountOfItems, final String sortBy) {
+    public PagedResponse<Persona> retrieveAllWithPagination(final String requesterDiscordId,
+            final String searchCriteria, final String searchField, final int pageNumber, final int amountOfItems,
+            final String sortBy) {
 
         Page<PersonaEntity> page;
         final String sortByField = StringUtils.isBlank(sortBy) ? "name" : sortBy;
@@ -137,7 +138,7 @@ public class PersonaService {
         return isOwner || canWrite;
     }
 
-    private PagedResponse buildPersonaPage(final String requesterDiscordId, Page<PersonaEntity> page) {
+    private PagedResponse<Persona> buildPersonaPage(final String requesterDiscordId, Page<PersonaEntity> page) {
 
         final List<Persona> personas = page.getContent()
                 .stream()
@@ -147,10 +148,10 @@ public class PersonaService {
 
         final Map<String, String> discordUsers = retrieveOwnerUsername(personas);
 
-        return PagedResponse.builder()
+        return PagedResponse.<Persona>builder()
                 .currentPage(page.getNumber() + 1)
                 .numberOfPages(page.getTotalPages())
-                .personas(addOwnerToPersonas(personas, discordUsers))
+                .data(addOwnerToPersonas(personas, discordUsers))
                 .totalNumberOfItems((int) page.getTotalElements())
                 .numberOfItemsInPage(page.getNumberOfElements())
                 .build();

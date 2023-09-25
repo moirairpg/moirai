@@ -62,18 +62,18 @@ public class PersonaController {
     }
 
     @GetMapping("paged")
-    public Mono<ResponseEntity<PagedResponse>> getAllPersonasByPageWithSearchCriteria(
+    public Mono<ResponseEntity<PagedResponse<Persona>>> getAllPersonasByPageWithSearchCriteria(
             @RequestHeader("requester") String requesterUserId,
-            @RequestParam(value = "pagenumber") final int pageNumber,
-            @RequestParam(value = "itemamount") final int amountOfItems,
+            @RequestParam(value = "page", required = true) final int page,
+            @RequestParam(value = "itemamount", required = true) final int amountOfItems,
             @RequestParam(value = "searchfield") final String searchField,
             @RequestParam(value = "criteria") final String searchCriteria,
             @RequestParam(value = "sortby") final String sortBy) {
 
         try {
-            LOGGER.info("Retrieving {} personas in page {}", amountOfItems, pageNumber);
-            final PagedResponse channelConfigPaginationResponse = personaService.retrieveAllWithPagination(
-                    requesterUserId, searchCriteria, searchField, pageNumber, amountOfItems, sortBy);
+            LOGGER.info("Retrieving {} personas in page {}", amountOfItems, page);
+            final PagedResponse<Persona> channelConfigPaginationResponse = personaService.retrieveAllWithPagination(
+                    requesterUserId, searchCriteria, searchField, page, amountOfItems, sortBy);
 
             return Mono.just(ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -190,10 +190,10 @@ public class PersonaController {
                 .build();
     }
 
-    private PagedResponse buildErrorResponseForPagination(HttpStatus status, String message) {
+    private PagedResponse<Persona> buildErrorResponseForPagination(HttpStatus status, String message) {
 
         LOGGER.debug("Building error response object for channel configs");
-        return PagedResponse.builder()
+        return PagedResponse.<Persona>builder()
                 .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)

@@ -272,10 +272,10 @@ public class ChannelConfigControllerTest {
         final List<ChannelConfig> channelConfigPage = ListUtils.partition(channelConfigs, amountOfItems)
                 .get(pageNumber - 1);
 
-        final PagedResponse response = PagedResponse.builder()
+        final PagedResponse<ChannelConfig> response = PagedResponse.<ChannelConfig>builder()
                 .currentPage(pageNumber)
                 .numberOfPages(numberOfPages)
-                .channelConfigs(channelConfigPage)
+                .data(channelConfigPage)
                 .totalNumberOfItems(channelConfigs.size())
                 .numberOfItemsInPage(channelConfigPage.size())
                 .build();
@@ -286,7 +286,7 @@ public class ChannelConfigControllerTest {
         // TODO improve tests to actually account for body values rather than just
         // status code
         webTestClient.get()
-                .uri("/channel-config/paged?searchfield=&criteria=&sortby=&pagenumber=1&itemamount=20")
+                .uri("/channel-config/paged?searchfield=&criteria=&sortby=&page=1&itemamount=20")
                 .header("requester", "123456")
                 .exchange()
                 .expectStatus()
@@ -307,10 +307,10 @@ public class ChannelConfigControllerTest {
         final List<ChannelConfig> channelConfigPage = ListUtils.partition(channelConfigs, amountOfItems)
                 .get(pageNumber - 1);
 
-        final PagedResponse response = PagedResponse.builder()
+        final PagedResponse<ChannelConfig> response = PagedResponse.<ChannelConfig>builder()
                 .currentPage(pageNumber)
                 .numberOfPages(numberOfPages)
-                .channelConfigs(channelConfigPage)
+                .data(channelConfigPage)
                 .totalNumberOfItems(channelConfigs.size())
                 .numberOfItemsInPage(channelConfigPage.size())
                 .build();
@@ -321,7 +321,7 @@ public class ChannelConfigControllerTest {
         // TODO improve tests to actually account for body values rather than just
         // status code
         webTestClient.get()
-                .uri("/channel-config/paged?searchfield=&criteria=&sortby=&pagenumber=1&itemamount=20")
+                .uri("/channel-config/paged?searchfield=&criteria=&sortby=&page=1&itemamount=20")
                 .header("requester", "123456")
                 .exchange()
                 .expectStatus()
