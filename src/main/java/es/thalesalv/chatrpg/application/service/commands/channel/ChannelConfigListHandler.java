@@ -106,30 +106,30 @@ public class ChannelConfigListHandler {
     private ChannelConfig cleanConfig(final ChannelConfig config, final SlashCommandInteractionEvent event) {
 
         final String configOwnerName = event.getJDA()
-                .retrieveUserById(config.getOwner())
+                .retrieveUserById(config.getOwnerDiscordId())
                 .complete()
                 .getName();
 
-        config.setOwner(configOwnerName);
+        config.setOwnerDiscordId(configOwnerName);
 
         final World world = config.getWorld();
         final String worldOwnerName = event.getJDA()
-                .retrieveUserById(world.getOwner())
+                .retrieveUserById(world.getOwnerDiscordId())
                 .complete()
                 .getName();
 
-        world.setOwner(worldOwnerName);
+        world.setOwnerDiscordId(worldOwnerName);
         world.setLorebook(null);
         world.setInitialPrompt(null);
         config.setWorld(world);
 
         final Persona persona = config.getPersona();
         final String personaOwnerName = event.getJDA()
-                .retrieveUserById(persona.getOwner())
+                .retrieveUserById(persona.getOwnerDiscordId())
                 .complete()
                 .getName();
 
-        persona.setOwner(personaOwnerName);
+        persona.setOwnerDiscordId(personaOwnerName);
         persona.setNudge(null);
         persona.setBump(null);
         persona.setPersonality(null);

@@ -15,6 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -39,6 +41,7 @@ import es.thalesalv.chatrpg.domain.exception.LorebookEntryNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.WorldNotFoundException;
 import es.thalesalv.chatrpg.domain.model.bot.LorebookEntry;
 import es.thalesalv.chatrpg.domain.model.bot.World;
+import es.thalesalv.chatrpg.domain.model.discord.DiscordUserData;
 
 @ExtendWith(MockitoExtension.class)
 public class WorldServiceTest {
@@ -54,6 +57,7 @@ public class WorldServiceTest {
     private WorldDTOToEntity worldDTOToEntity;
     private WorldEntityToDTO worldEntityToDTO;
     private WorldService worldService;
+    private DiscordAuthService discordAuthService;
 
     private static final String NANO_ID = "241OZASGM6CESV7";
 
@@ -64,8 +68,9 @@ public class WorldServiceTest {
         lorebookEntryEntityToDTO = new LorebookEntryEntityToDTO();
         worldDTOToEntity = new WorldDTOToEntity(lorebookEntryDTOToEntity);
         worldEntityToDTO = new WorldEntityToDTO(lorebookEntryEntityToDTO);
+        discordAuthService = mock(DiscordAuthService.class);
         worldService = new WorldService(worldDTOToEntity, worldEntityToDTO, lorebookEntryDTOToEntity,
-                lorebookEntryEntityToDTO, worldRepository, lorebookEntryRepository);
+                lorebookEntryEntityToDTO, worldRepository, lorebookEntryRepository, discordAuthService);
     }
 
     @Test
@@ -88,8 +93,14 @@ public class WorldServiceTest {
 
         final String userId = "302796314822049793";
         final List<World> completeList = buildSimplePublicWorldList();
+        final DiscordUserData discordUserData = DiscordUserData.builder()
+                .id(userId)
+                .username("userId")
+                .build();
 
         when(worldRepository.findAll()).thenReturn(buildSimplePublicWorldEntityList());
+        doReturn(discordUserData).when(discordAuthService)
+                .retrieveDiscordUserById(anyString());
 
         final List<World> filteredList = worldService.retrieveAllWorlds(userId);
         assertEquals(8, filteredList.size());
@@ -108,8 +119,8 @@ public class WorldServiceTest {
         final WorldEntity entity = buildSimplePublicWorldEntity();
         final LorebookEntryEntity entryEntity = buildSimpleLorebookEntryEntity();
 
-        world.setOwner(userId);
-        entity.setOwner(userId);
+        world.setOwnerDiscordId(userId);
+        entity.setOwnerDiscordId(userId);
 
         when(worldRepository.findById(NANO_ID)).thenReturn(Optional.of(entity));
         when(worldRepository.save(any(WorldEntity.class))).thenReturn(entity);
@@ -154,8 +165,8 @@ public class WorldServiceTest {
         final World world = buildSimplePublicWorld();
         final WorldEntity entity = buildSimplePublicWorldEntity();
 
-        world.setOwner(userId);
-        entity.setOwner(userId);
+        world.setOwnerDiscordId(userId);
+        entity.setOwnerDiscordId(userId);
 
         when(worldRepository.findById(NANO_ID)).thenReturn(Optional.of(entity));
         doNothing().when(worldRepository)

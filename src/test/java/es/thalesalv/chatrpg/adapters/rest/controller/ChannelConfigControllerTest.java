@@ -1,8 +1,11 @@
 package es.thalesalv.chatrpg.adapters.rest.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.collections4.ListUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -15,6 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import es.thalesalv.chatrpg.application.service.ChannelConfigService;
 import es.thalesalv.chatrpg.domain.exception.ChannelConfigNotFoundException;
 import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
+import es.thalesalv.chatrpg.domain.model.api.PagedResponse;
 import es.thalesalv.chatrpg.domain.model.bot.ChannelConfig;
 import es.thalesalv.chatrpg.testutils.ChannelConfigTestUtils;
 
@@ -252,5 +256,75 @@ public class ChannelConfigControllerTest {
                 .exchange()
                 .expectStatus()
                 .is5xxServerError();
+    }
+
+    @Test
+    public void testRetrieveAllWithPagination_shouldWork() {
+
+        final int amountOfItems = 20;
+        final int pageNumber = 1;
+        final ChannelConfig channelConfig = ChannelConfigTestUtils.buildChannelConfig();
+        final List<ChannelConfig> channelConfigs = ChannelConfigTestUtils.createList(67);
+        channelConfigs.add(channelConfig);
+
+        Collections.sort(channelConfigs, Comparator.comparing(ChannelConfig::getName));
+        final int numberOfPages = (int) Math.ceil((double) channelConfigs.size() / amountOfItems);
+        final List<ChannelConfig> channelConfigPage = ListUtils.partition(channelConfigs, amountOfItems)
+                .get(pageNumber - 1);
+
+        final PagedResponse<ChannelConfig> response = PagedResponse.<ChannelConfig>builder()
+                .currentPage(pageNumber)
+                .numberOfPages(numberOfPages)
+                .data(channelConfigPage)
+                .totalNumberOfItems(channelConfigs.size())
+                .numberOfItemsInPage(channelConfigPage.size())
+                .build();
+
+        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", "name", "Eldrida", 2, 20, "name"))
+                .thenReturn(response);
+
+        // TODO improve tests to actually account for body values rather than just
+        // status code
+        webTestClient.get()
+                .uri("/channel-config/paged?searchfield=&criteria=&sortby=&page=1&itemamount=20")
+                .header("requester", "123456")
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful();
+    }
+
+    @Test
+    public void testRetrieveAllWithPaginationWithSearchCriteria_shouldWork() {
+
+        final int amountOfItems = 20;
+        final int pageNumber = 1;
+        final ChannelConfig channelConfig = ChannelConfigTestUtils.buildChannelConfig();
+        final List<ChannelConfig> channelConfigs = ChannelConfigTestUtils.createList(67);
+        channelConfigs.add(channelConfig);
+
+        Collections.sort(channelConfigs, Comparator.comparing(ChannelConfig::getName));
+        final int numberOfPages = (int) Math.ceil((double) channelConfigs.size() / amountOfItems);
+        final List<ChannelConfig> channelConfigPage = ListUtils.partition(channelConfigs, amountOfItems)
+                .get(pageNumber - 1);
+
+        final PagedResponse<ChannelConfig> response = PagedResponse.<ChannelConfig>builder()
+                .currentPage(pageNumber)
+                .numberOfPages(numberOfPages)
+                .data(channelConfigPage)
+                .totalNumberOfItems(channelConfigs.size())
+                .numberOfItemsInPage(channelConfigPage.size())
+                .build();
+
+        Mockito.when(channelConfigService.retrieveAllWithPagination("123456", "name", "Eldrida", 2, 20, "name"))
+                .thenReturn(response);
+
+        // TODO improve tests to actually account for body values rather than just
+        // status code
+        webTestClient.get()
+                .uri("/channel-config/paged?searchfield=&criteria=&sortby=&page=1&itemamount=20")
+                .header("requester", "123456")
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful();
     }
 }

@@ -27,7 +27,7 @@ public class PersonaTestUtils {
                 .name("ChatRPG")
                 .personality("This is a test persona. My name is {0}")
                 .intent(Intent.CHAT)
-                .owner("1083867535658725536")
+                .ownerDiscordId("1083867535658725536")
                 .visibility("public")
                 .writePermissions(emptyPermissions)
                 .readPermissions(emptyPermissions)
@@ -61,33 +61,33 @@ public class PersonaTestUtils {
 
         privatePersona.setVisibility("private");
         someonesElsesPrivatePersona.setVisibility("private");
-        someonesElsesPublicPersona.setOwner("463004243411075072");
-        someonesElsesPrivatePersona.setOwner("463004243411075072");
+        someonesElsesPublicPersona.setOwnerDiscordId("463004243411075072");
+        someonesElsesPrivatePersona.setOwnerDiscordId("463004243411075072");
 
         ownPublicPersonaWithAllPermissions.setWritePermissions(permissions);
         ownPublicPersonaWithAllPermissions.setReadPermissions(permissions);
-        ownPublicPersonaWithAllPermissions.setOwner("302796314822049793");
+        ownPublicPersonaWithAllPermissions.setOwnerDiscordId("302796314822049793");
         ownPublicPersonaWithAllPermissions.setVisibility("private");
 
         ownPrivatePersonaWithAllPermissions.setWritePermissions(permissions);
         ownPrivatePersonaWithAllPermissions.setReadPermissions(permissions);
-        ownPrivatePersonaWithAllPermissions.setOwner("302796314822049793");
+        ownPrivatePersonaWithAllPermissions.setOwnerDiscordId("302796314822049793");
         ownPrivatePersonaWithAllPermissions.setVisibility("private");
 
         someonesElsesPrivatePersonaWithAllPermissions.setWritePermissions(permissions);
         someonesElsesPrivatePersonaWithAllPermissions.setReadPermissions(permissions);
-        someonesElsesPrivatePersonaWithAllPermissions.setOwner("463004243411075072");
+        someonesElsesPrivatePersonaWithAllPermissions.setOwnerDiscordId("463004243411075072");
         someonesElsesPrivatePersonaWithAllPermissions.setVisibility("private");
 
         someonesElsesPublicPersonaWithAllPermissions.setWritePermissions(permissions);
         someonesElsesPublicPersonaWithAllPermissions.setReadPermissions(permissions);
-        someonesElsesPublicPersonaWithAllPermissions.setOwner("463004243411075072");
+        someonesElsesPublicPersonaWithAllPermissions.setOwnerDiscordId("463004243411075072");
         someonesElsesPublicPersonaWithAllPermissions.setVisibility("public");
 
         someonesElsesPrivatePersonaWithWritePersmissions.setVisibility("private");
         someonesElsesPrivatePersonaWithReadPermissions.setVisibility("private");
-        someonesElsesPrivatePersonaWithWritePersmissions.setOwner("463004243411075072");
-        someonesElsesPrivatePersonaWithReadPermissions.setOwner("463004243411075072");
+        someonesElsesPrivatePersonaWithWritePersmissions.setOwnerDiscordId("463004243411075072");
+        someonesElsesPrivatePersonaWithReadPermissions.setOwnerDiscordId("463004243411075072");
         someonesElsesPrivatePersonaWithWritePersmissions.setWritePermissions(permissions);
         someonesElsesPrivatePersonaWithReadPermissions.setReadPermissions(permissions);
 
@@ -121,7 +121,7 @@ public class PersonaTestUtils {
     public static boolean hasReadPermissions(final Persona persona, final String userId) {
 
         final boolean isPublic = Visibility.isPublic(persona.getVisibility());
-        final boolean isOwner = persona.getOwner()
+        final boolean isOwner = persona.getOwnerDiscordId()
                 .equals(userId);
 
         final List<String> readPermissions = Optional.ofNullable(persona.getReadPermissions())
@@ -139,7 +139,7 @@ public class PersonaTestUtils {
         final List<String> writePermissions = Optional.ofNullable(persona.getWritePermissions())
                 .orElse(Collections.emptyList());
 
-        final boolean isOwner = persona.getOwner()
+        final boolean isOwner = persona.getOwnerDiscordId()
                 .equals(userId);
 
         final boolean canWrite = writePermissions.contains(userId);

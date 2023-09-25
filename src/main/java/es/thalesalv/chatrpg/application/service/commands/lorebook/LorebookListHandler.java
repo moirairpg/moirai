@@ -77,11 +77,11 @@ public class LorebookListHandler {
                 .map(w -> {
                     w.setInitialPrompt(null);
                     final String ownerName = event.getJDA()
-                            .retrieveUserById(w.getOwner())
+                            .retrieveUserById(w.getOwnerDiscordId())
                             .complete()
                             .getName();
 
-                    w.setOwner(ownerName);
+                    w.setOwnerDiscordId(ownerName);
                     return w;
                 })
                 .toList();

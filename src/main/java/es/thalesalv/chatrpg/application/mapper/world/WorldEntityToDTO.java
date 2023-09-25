@@ -33,7 +33,7 @@ public class WorldEntityToDTO implements Function<WorldEntity, World> {
                 .id(worldEntity.getId())
                 .initialPrompt(worldEntity.getInitialPrompt())
                 .name(worldEntity.getName())
-                .owner(worldEntity.getOwner())
+                .ownerDiscordId(worldEntity.getOwnerDiscordId())
                 .visibility(worldEntity.getVisibility())
                 .writePermissions(Optional.ofNullable(worldEntity.getWritePermissions())
                         .orElse(new ArrayList<String>()))

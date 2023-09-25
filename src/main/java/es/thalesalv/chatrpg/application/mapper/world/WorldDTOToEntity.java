@@ -27,7 +27,7 @@ public class WorldDTOToEntity implements Function<World, WorldEntity> {
                 .id(world.getId())
                 .initialPrompt(world.getInitialPrompt())
                 .name(world.getName())
-                .owner(world.getOwner())
+                .ownerDiscordId(world.getOwnerDiscordId())
                 .visibility(world.getVisibility())
                 .writePermissions(Optional.ofNullable(world.getWritePermissions())
                         .orElse(new ArrayList<String>()))

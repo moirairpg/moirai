@@ -23,7 +23,7 @@ public class PersonaEntityToDTO implements Function<PersonaEntity, Persona> {
         return Persona.builder()
                 .id(personaEntity.getId())
                 .name(personaEntity.getName())
-                .owner(personaEntity.getOwner())
+                .ownerDiscordId(personaEntity.getOwnerDiscordId())
                 .intent(personaEntity.getIntent())
                 .personality(personaEntity.getPersonality())
                 .visibility(personaEntity.getVisibility())

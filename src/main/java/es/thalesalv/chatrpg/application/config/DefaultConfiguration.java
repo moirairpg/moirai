@@ -86,7 +86,7 @@ public class DefaultConfiguration {
                     .filter(p -> !personaRepository.existsById(p.getId()))
                     .forEach(persona -> {
                         LOGGER.info("Default persona named {} not in DB. Ingesting it.", persona.getName());
-                        persona.setOwner(bot.getId());
+                        persona.setOwnerDiscordId(bot.getId());
                         personaService.savePersona(persona);
                     });
 
@@ -94,7 +94,7 @@ public class DefaultConfiguration {
                     .filter(w -> !worldRepository.existsById(w.getId()))
                     .forEach(world -> {
                         LOGGER.info("Default world named {} not in DB. Ingesting it.", world.getName());
-                        world.setOwner(bot.getId());
+                        world.setOwnerDiscordId(bot.getId());
                         worldService.saveWorld(world);
                     });
 
@@ -110,7 +110,7 @@ public class DefaultConfiguration {
                     .filter(c -> !channelConfigRepository.existsById(c.getId()))
                     .forEach(config -> {
                         LOGGER.info("Default config named {} not in DB. Ingesting it.", config.getName());
-                        config.setOwner(bot.getId());
+                        config.setOwnerDiscordId(bot.getId());
                         channelConfigService.saveChannelConfig(config);
                     });
         } catch (IOException e) {

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.application.service.PersonaService;
@@ -22,6 +23,7 @@ import es.thalesalv.chatrpg.domain.exception.InsufficientPermissionException;
 import es.thalesalv.chatrpg.domain.exception.PersonaNotFoundException;
 import es.thalesalv.chatrpg.domain.model.api.ApiErrorResponse;
 import es.thalesalv.chatrpg.domain.model.api.ApiResponse;
+import es.thalesalv.chatrpg.domain.model.api.PagedResponse;
 import es.thalesalv.chatrpg.domain.model.bot.Persona;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -55,6 +57,32 @@ public class PersonaController {
             return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(this.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERAL_ERROR_MESSAGE)));
+        }
+    }
+
+    @GetMapping("paged")
+    public Mono<ResponseEntity<PagedResponse<Persona>>> getAllPersonasByPageWithSearchCriteria(
+            @RequestHeader("requester") String requesterUserId,
+            @RequestParam(value = "page", required = true) final int page,
+            @RequestParam(value = "itemamount", required = true) final int amountOfItems,
+            @RequestParam(value = "searchfield") final String searchField,
+            @RequestParam(value = "criteria") final String searchCriteria,
+            @RequestParam(value = "sortby") final String sortBy) {
+
+        try {
+            LOGGER.info("Retrieving {} personas in page {}", amountOfItems, page);
+            final PagedResponse<Persona> channelConfigPaginationResponse = personaService.retrieveAllWithPagination(
+                    requesterUserId, searchCriteria, searchField, page, amountOfItems, sortBy);
+
+            return Mono.just(ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(channelConfigPaginationResponse));
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving filtered personas", e);
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(this.buildErrorResponseForPagination(HttpStatus.INTERNAL_SERVER_ERROR,
+                            GENERAL_ERROR_MESSAGE)));
         }
     }
 
@@ -154,6 +182,17 @@ public class PersonaController {
 
         LOGGER.debug("Building error response object for personas");
         return ApiResponse.builder()
+                .error(ApiErrorResponse.builder()
+                        .message(message)
+                        .status(status)
+                        .build())
+                .build();
+    }
+
+    private PagedResponse<Persona> buildErrorResponseForPagination(HttpStatus status, String message) {
+
+        LOGGER.debug("Building error response object for channel configs");
+        return PagedResponse.<Persona>builder()
                 .error(ApiErrorResponse.builder()
                         .message(message)
                         .status(status)

@@ -34,7 +34,7 @@ public class ChannelConfigEntityToDTO implements Function<ChannelConfigEntity, C
         return ChannelConfig.builder()
                 .id(channelConfigEntity.getId())
                 .name(channelConfigEntity.getName())
-                .owner(channelConfigEntity.getOwner())
+                .ownerDiscordId(channelConfigEntity.getOwnerDiscordId())
                 .readPermissions(channelConfigEntity.getReadPermissions())
                 .writePermissions(channelConfigEntity.getWritePermissions())
                 .persona(persona)

@@ -152,7 +152,7 @@ public class LorebookDeleteHandler {
         final boolean isPrivate = world.getVisibility()
                 .equals("private");
 
-        final boolean isOwner = world.getOwner()
+        final boolean isOwner = world.getOwnerDiscordId()
                 .equals(userId);
 
         final boolean canWrite = world.getWritePermissions()
