@@ -1,0 +1,48 @@
+chatrpg:
+  nano-id:
+    alphabet: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    characters-amount: 15
+  generation:
+    default-max-tokens: 100
+    default-temperature: 0.6
+    default-presence-penalty: 0.2
+    default-frequency-penalty: 0.2
+    default-threshold: 1.0
+  discord:
+    oauth:
+      client-id: ${DISCORD_BOT_CLIENT_ID}
+      client-secret: ${DISCORD_BOT_CLIENT_SECRET}
+      redirect-url: ${DISCORD_BOT_REDIRECT_URL}
+    api-base-url: https://discord.com/api
+    status-channel-id: '1085340376698716283'
+    api-token: ${DISCORD_BOT_API_TOKEN}
+    retry:
+      error-attempts: 3
+      error-delay: 3
+      moderation-attempts: 1
+      moderation-delay: 3
+  openai:
+    moderation-uri: /v1/moderations
+    completions-uri: /v1/completions
+    chat-completions-uri: /v1/chat/completions
+    api-base-url: https://api.openai.com
+    api-token: ${OPENAI_API_TOKEN}
+
+spring:
+  profiles.active: ${SPRING_APPLICATION_PROFILES:default}
+  main.banner-mode: 'off'
+  jpa.hibernate.ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+logging:
+  level:
+    es.thalesalv: ${CHATRPG_LOG_LEVEL:INFO}
+    root: ERROR
+    org.hibernate: ERROR
+    com.zaxxer.hikari: ERROR
+    net.dv8tion.jda: ERROR
+    org.springframework: ERROR
+    ch.qos.logback: ERROR

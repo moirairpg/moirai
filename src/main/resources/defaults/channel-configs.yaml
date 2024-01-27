@@ -1,0 +1,38 @@
+---
+- id: 'CHAT'
+  name: 'Basic Chatbot'
+  world:
+    id: 'CHAT'
+  persona:
+    id: 'CHAT'
+  model-settings:
+    id: 'CHATBOT'
+    model-name: 'chatgpt'
+    max-tokens: 100
+    chat-history-memory: 5
+    temperature: 0.8
+    frequency-penalty: 0.2
+    presence-penalty: 0.2
+    stop-sequence:
+      - "\\n"
+  moderation-settings:
+    id: 'STRICT'
+
+- id: 'ELDRIDA'
+  name: 'Eldrida'
+  world:
+    id: 'ELDRIDA'
+  persona:
+    id: 'RPG'
+  model-settings:
+    id: 'RPG'
+    model-name: 'chatgpt'
+    max-tokens: 350
+    chat-history-memory: 5
+    temperature: 0.8
+    frequency-penalty: 0.2
+    presence-penalty: 0.2
+    logit-bias:
+      "20185": -100
+  moderation-settings:
+    id: 'STRICT'
