@@ -1,0 +1,36 @@
+package es.thalesalv.chatrpg.core.domain.channelconfig;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+
+import es.thalesalv.chatrpg.common.exception.AIModelNotSupportedException;
+
+public class ArtificialIntelligenceModelTest {
+
+    @Test
+    public void retrieveModelFromName() {
+
+        // Given
+        String internalModelName = "gpt35-4k";
+
+        // When
+        ArtificialIntelligenceModel model = ArtificialIntelligenceModel.findByInternalModelName(internalModelName);
+
+        // Then
+        assertThat(model).isNotNull();
+        assertThat(model.toString()).isEqualTo(internalModelName);
+    }
+
+    @Test
+    public void errorWhenModelNotSupported() {
+
+        // Given
+        String modelName = "new_model_super_turbo";
+
+        // Then
+        assertThrows(AIModelNotSupportedException.class,
+                () -> ArtificialIntelligenceModel.findByInternalModelName(modelName));
+    }
+}
