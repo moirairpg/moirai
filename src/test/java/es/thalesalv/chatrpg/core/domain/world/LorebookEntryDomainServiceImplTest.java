@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import es.thalesalv.chatrpg.common.exception.BusinessException;
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.port.TokenizerPort;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,7 +61,7 @@ public class LorebookEntryDomainServiceImplTest {
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
 
         // Then
-        assertThrows(BusinessException.class, () -> service.createLorebookEntry(name, description, regex, null));
+        assertThrows(BusinessRuleViolationException.class, () -> service.createLorebookEntry(name, description, regex, null));
     }
 
     @Test
@@ -77,6 +77,6 @@ public class LorebookEntryDomainServiceImplTest {
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
 
         // Then
-        assertThrows(BusinessException.class, () -> service.createLorebookEntry(name, description, regex, null));
+        assertThrows(BusinessRuleViolationException.class, () -> service.createLorebookEntry(name, description, regex, null));
     }
 }

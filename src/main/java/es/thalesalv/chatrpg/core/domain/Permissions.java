@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import es.thalesalv.chatrpg.common.exception.BusinessException;
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -84,7 +84,7 @@ public final class Permissions {
     public void validateOwnership(String currentOwnerDiscordId) {
 
         if (!this.ownerDiscordId.equals(currentOwnerDiscordId)) {
-            throw new BusinessException("Operation not permitted: user does not own this asset");
+            throw new BusinessRuleViolationException("Operation not permitted: user does not own this asset");
         }
     }
 
@@ -101,6 +101,18 @@ public final class Permissions {
     public boolean isAllowedToRead(String discordUserId) {
 
         return this.usersAllowedToRead.contains(discordUserId) || isAllowedToWrite(discordUserId);
+    }
+
+    public boolean areAllowedToWrite(List<String> discordUserIds) {
+
+        boolean isOwnerFound = discordUserIds.stream().anyMatch(this::isOwner);
+
+        return !Collections.disjoint(this.usersAllowedToWrite, discordUserIds) || isOwnerFound;
+    }
+
+    public boolean areAllowedToRead(List<String> discordUserIds) {
+
+        return !Collections.disjoint(this.usersAllowedToRead, discordUserIds) || areAllowedToWrite(discordUserIds);
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)

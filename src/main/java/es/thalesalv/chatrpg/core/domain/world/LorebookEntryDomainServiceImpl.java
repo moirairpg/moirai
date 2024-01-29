@@ -3,7 +3,7 @@ package es.thalesalv.chatrpg.core.domain.world;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.common.exception.BusinessException;
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.port.TokenizerPort;
 import lombok.RequiredArgsConstructor;
 
@@ -38,12 +38,12 @@ public class LorebookEntryDomainServiceImpl implements LorebookEntryDomainServic
 
         int lorebookEntryNameTokenCount = tokenizerPort.getTokenCountFrom(lorebookEntry.getName());
         if (lorebookEntryNameTokenCount > lorebookEntryNameTokenLimit) {
-            throw new BusinessException("Amount of tokens in lorebook entry name surpasses allowed limit");
+            throw new BusinessRuleViolationException("Amount of tokens in lorebook entry name surpasses allowed limit");
         }
 
         int lorebookEntryDescriptionTokenCount = tokenizerPort.getTokenCountFrom(lorebookEntry.getDescription());
         if (lorebookEntryDescriptionTokenCount > lorebookEntryDescriptionTokenLimit) {
-            throw new BusinessException("Amount of tokens in lorebook entry description surpasses allowed limit");
+            throw new BusinessRuleViolationException("Amount of tokens in lorebook entry description surpasses allowed limit");
         }
     }
 }

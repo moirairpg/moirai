@@ -14,9 +14,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import es.thalesalv.chatrpg.common.exception.BusinessException;
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.port.TokenizerPort;
-import es.thalesalv.chatrpg.core.domain.PermissionFixture;
+import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 
@@ -39,7 +39,7 @@ public class PersonaDomainServiceImplTest {
         String name = "ChatRPG";
         String personality = "I am a chatbot";
         Visibility visibility = PRIVATE;
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
         Persona expectedPersona = PersonaFixture.privatePersona()
                 .name(name)
                 .permissions(permissions)
@@ -67,12 +67,12 @@ public class PersonaDomainServiceImplTest {
         String name = "ChatRPG";
         String personality = "I am a chatbot";
         Visibility visibility = PRIVATE;
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         ReflectionTestUtils.setField(service, "personalityTokenLimit", 2);
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
 
         // Then
-        assertThrows(BusinessException.class, () -> service.createPersona(name, personality, permissions, visibility));
+        assertThrows(BusinessRuleViolationException.class, () -> service.createPersona(name, personality, permissions, visibility));
     }
 }

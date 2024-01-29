@@ -4,9 +4,14 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
-import es.thalesalv.chatrpg.common.exception.BusinessException;
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
+import es.thalesalv.chatrpg.core.domain.Permissions;
+import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 
 public class WorldTest {
 
@@ -76,43 +81,43 @@ public class WorldTest {
     }
 
     @Test
-    public void errorWhenCreatingPersonaWithNullName() {
+    public void errorWhenCreatingWorldWithNullName() {
 
         // Given
         World.Builder worldBuilder = WorldFixture.publicWorld().name(null);
 
         // Then
-        assertThrows(BusinessException.class, worldBuilder::build);
+        assertThrows(BusinessRuleViolationException.class, worldBuilder::build);
     }
 
     @Test
-    public void errorWhenCreatingPersonaWithEmptyName() {
+    public void errorWhenCreatingWorldWithEmptyName() {
 
         // Given
         World.Builder worldBuilder = WorldFixture.publicWorld().name(EMPTY);
 
         // Then
-        assertThrows(BusinessException.class, worldBuilder::build);
+        assertThrows(BusinessRuleViolationException.class, worldBuilder::build);
     }
 
     @Test
-    public void errorWhenCreatingPersonaWithNullVisibility() {
+    public void errorWhenCreatingWorldWithNullVisibility() {
 
         // Given
         World.Builder worldBuilder = WorldFixture.publicWorld().permissions(null);
 
         // Then
-        assertThrows(BusinessException.class, worldBuilder::build);
+        assertThrows(BusinessRuleViolationException.class, worldBuilder::build);
     }
 
     @Test
-    public void errorWhenCreatingPersonaWithNullPermissions() {
+    public void errorWhenCreatingWorldWithNullPermissions() {
 
         // Given
         World.Builder worldBuilder = WorldFixture.publicWorld().visibility(null);
 
         // Then
-        assertThrows(BusinessException.class, worldBuilder::build);
+        assertThrows(BusinessRuleViolationException.class, worldBuilder::build);
     }
 
     @Test
@@ -159,5 +164,93 @@ public class WorldTest {
                 .isNotNull()
                 .isNotEmpty()
                 .doesNotContain(entry);
+    }
+
+    @Test
+    public void addWriterToList() {
+
+        // Given
+        String userId = "1234567890";
+        World.Builder worldBuilder = WorldFixture.publicWorld();
+        Permissions permissions = PermissionsFixture.samplePermissions()
+                .usersAllowedToWrite(new ArrayList<>()).build();
+
+        worldBuilder.permissions(permissions);
+
+        World world = worldBuilder.build();
+
+        // When
+        world.addWriterUser(userId);
+
+        // Then
+        assertThat(world.getWriterUsers()).contains(userId);
+    }
+
+    @Test
+    public void addReaderToList() {
+
+        // Given
+        String userId = "1234567890";
+        World.Builder worldBuilder = WorldFixture.publicWorld();
+        Permissions permissions = PermissionsFixture.samplePermissions()
+                .usersAllowedToRead(new ArrayList<>()).build();
+
+        worldBuilder.permissions(permissions);
+
+        World world = worldBuilder.build();
+
+        // When
+        world.addReaderUser(userId);
+
+        // Then
+        assertThat(world.getReaderUsers()).contains(userId);
+    }
+
+    @Test
+    public void removeReaderFromList() {
+
+        // Given
+        String userId = "1234567890";
+        World.Builder worldBuilder = WorldFixture.publicWorld();
+
+        List<String> usersAllowedToRead = new ArrayList<>();
+        usersAllowedToRead.add(userId);
+
+        Permissions permissions = PermissionsFixture.samplePermissions()
+                .usersAllowedToRead(usersAllowedToRead).build();
+
+        worldBuilder.permissions(permissions);
+
+        World world = worldBuilder.build();
+
+        // When
+        world.removeReaderUser(userId);
+
+        // Then
+        assertThat(world.getReaderUsers()).doesNotContain(userId);
+    }
+
+    @Test
+    public void removeWriterFromList() {
+
+        // Given
+        String userId = "1234567890";
+        World.Builder worldBuilder = WorldFixture.publicWorld();
+
+        List<String> usersAllowedToWrite = new ArrayList<>();
+        usersAllowedToWrite.add(userId);
+
+        Permissions permissions = PermissionsFixture.samplePermissions()
+                .usersAllowedToWrite(usersAllowedToWrite).build();
+
+        worldBuilder.permissions(permissions);
+
+        World world = worldBuilder.build();
+
+        // When
+        world.removeWriterUser(userId);
+
+        // Then
+        assertThat(world.getWriterUsers()).doesNotContain(userId);
     }
 }

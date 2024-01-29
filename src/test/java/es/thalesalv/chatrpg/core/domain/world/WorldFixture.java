@@ -6,7 +6,7 @@ import static es.thalesalv.chatrpg.core.domain.Visibility.PUBLIC;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.thalesalv.chatrpg.core.domain.PermissionFixture;
+import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 
 public class WorldFixture {
@@ -20,7 +20,7 @@ public class WorldFixture {
         builder.initialPrompt("As you enter the city, people around you start looking at you.");
         builder.visibility(PUBLIC);
 
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);
 
         List<LorebookEntry> lorebook = new ArrayList<>();
@@ -40,7 +40,7 @@ public class WorldFixture {
         builder.initialPrompt("As you enter the city, people around you start looking at you.");
         builder.visibility(PRIVATE);
 
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);
 
         List<LorebookEntry> lorebook = new ArrayList<>();

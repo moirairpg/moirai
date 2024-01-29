@@ -3,7 +3,7 @@ package es.thalesalv.chatrpg.core.domain.world;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.common.exception.BusinessException;
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.port.TokenizerPort;
 import es.thalesalv.chatrpg.core.domain.world.World.Builder;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
 
         int initialPromptTokenCount = tokenizerPort.getTokenCountFrom(world.getInitialPrompt());
         if (initialPromptTokenCount > initialPromptTokenLimit) {
-            throw new BusinessException("Amount of tokens in initial prompt surpasses allowed limit");
+            throw new BusinessRuleViolationException("Amount of tokens in initial prompt surpasses allowed limit");
         }
     }
 }

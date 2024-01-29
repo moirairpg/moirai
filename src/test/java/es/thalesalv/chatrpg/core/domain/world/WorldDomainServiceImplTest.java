@@ -14,9 +14,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import es.thalesalv.chatrpg.common.exception.BusinessException;
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.port.TokenizerPort;
-import es.thalesalv.chatrpg.core.domain.PermissionFixture;
+import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 
@@ -39,7 +39,7 @@ public class WorldDomainServiceImplTest {
         String name = "Eldrida";
         String description = "Eldrida is a fantasy world";
         String initialPrompt = "You have arrived at the world of Eldrida.";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
         Visibility visibility = PRIVATE;
 
         World.Builder expectedWorldBuilder = WorldFixture.publicWorld()
@@ -72,7 +72,7 @@ public class WorldDomainServiceImplTest {
         String name = "Eldrida";
         String description = "Eldrida is a fantasy world";
         String initialPrompt = "You have arrived at the world of Eldrida.";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
         Visibility visibility = PRIVATE;
 
         World.Builder expectedWorldBuilder = WorldFixture.publicWorld()
@@ -86,6 +86,6 @@ public class WorldDomainServiceImplTest {
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
 
         // Then
-        assertThrows(BusinessException.class, () -> service.createWorld(expectedWorldBuilder));
+        assertThrows(BusinessRuleViolationException.class, () -> service.createWorld(expectedWorldBuilder));
     }
 }

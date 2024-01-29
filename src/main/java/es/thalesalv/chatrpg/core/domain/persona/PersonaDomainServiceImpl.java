@@ -3,7 +3,7 @@ package es.thalesalv.chatrpg.core.domain.persona;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.common.exception.BusinessException;
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.port.TokenizerPort;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
@@ -37,7 +37,7 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
 
         int personalityTokenCount = tokenizerPort.getTokenCountFrom(personality);
         if (personalityTokenCount > personalityTokenLimit) {
-            throw new BusinessException("Amount of tokens in personality surpasses allowed limit");
+            throw new BusinessRuleViolationException("Amount of tokens in personality surpasses allowed limit");
         }
     }
 }

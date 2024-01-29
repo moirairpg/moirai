@@ -3,7 +3,7 @@ package es.thalesalv.chatrpg.core.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PermissionFixture {
+public class PermissionsFixture {
 
     private static final String OWNER_DISCORD_ID = "586678721356875";
 

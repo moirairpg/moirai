@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
-import es.thalesalv.chatrpg.common.exception.BusinessException;
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 
 public class PermissionsTest {
 
@@ -15,20 +18,22 @@ public class PermissionsTest {
     public void errorWhenModifyingWritingUsersListDirectly() {
 
         // Given
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // Then
-        assertThrows(UnsupportedOperationException.class, () -> permissions.getUsersAllowedToWrite().add("613226587696519"));
+        assertThrows(UnsupportedOperationException.class,
+                () -> permissions.getUsersAllowedToWrite().add("613226587696519"));
     }
 
     @Test
     public void errorWhenModifyingReadingUsersListDirectly() {
 
         // Given
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // Then
-        assertThrows(UnsupportedOperationException.class, () -> permissions.getUsersAllowedToRead().add("613226587696519"));
+        assertThrows(UnsupportedOperationException.class,
+                () -> permissions.getUsersAllowedToRead().add("613226587696519"));
     }
 
     @Test
@@ -37,7 +42,7 @@ public class PermissionsTest {
         // Given
         String currentOwnerId = "586678721356875";
         String newOwnerUserId = "403436669070781";
-        Permissions originalPermissions = PermissionFixture.samplePermissions().build();
+        Permissions originalPermissions = PermissionsFixture.samplePermissions().build();
 
         // When
         Permissions modifiedPermissions = originalPermissions.updateOwner(newOwnerUserId, currentOwnerId);
@@ -53,7 +58,7 @@ public class PermissionsTest {
         // Given
         String currentOwnerId = "586678721356875";
         String newUserAllowedToWrite = "403436669070781";
-        Permissions originalPermissions = PermissionFixture.samplePermissions().build();
+        Permissions originalPermissions = PermissionsFixture.samplePermissions().build();
 
         // When
         Permissions modifiedPermissions = originalPermissions.allowUserToWrite(newUserAllowedToWrite, currentOwnerId);
@@ -78,7 +83,7 @@ public class PermissionsTest {
         // Given
         String currentOwnerId = "586678721356875";
         String newUserAllowedToRead = "403436669070781";
-        Permissions originalPermissions = PermissionFixture.samplePermissions().build();
+        Permissions originalPermissions = PermissionsFixture.samplePermissions().build();
 
         // When
         Permissions modifiedPermissions = originalPermissions.allowUserToRead(newUserAllowedToRead, currentOwnerId);
@@ -103,7 +108,7 @@ public class PermissionsTest {
         // Given
         String currentOwnerId = "586678721356875";
         String userToBeDisallowed = "613226587696519";
-        Permissions originalPermissions = PermissionFixture.samplePermissions().build();
+        Permissions originalPermissions = PermissionsFixture.samplePermissions().build();
 
         // When
         Permissions modifiedPermissions = originalPermissions.disallowUserToWrite(userToBeDisallowed, currentOwnerId);
@@ -123,7 +128,7 @@ public class PermissionsTest {
         // Given
         String currentOwnerId = "586678721356875";
         String userToBeDisallowed = "613226587696519";
-        Permissions originalPermissions = PermissionFixture.samplePermissions().build();
+        Permissions originalPermissions = PermissionsFixture.samplePermissions().build();
 
         // When
         Permissions modifiedPermissions = originalPermissions.disallowUserToRead(userToBeDisallowed, currentOwnerId);
@@ -143,10 +148,11 @@ public class PermissionsTest {
         // Given
         String invalidOwnerId = "586678721356665";
         String userToBeAllowed = "613226587696519";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // Then
-        assertThrows(BusinessException.class, () -> permissions.allowUserToWrite(userToBeAllowed, invalidOwnerId));
+        assertThrows(BusinessRuleViolationException.class,
+                () -> permissions.allowUserToWrite(userToBeAllowed, invalidOwnerId));
     }
 
     @Test
@@ -155,10 +161,11 @@ public class PermissionsTest {
         // Given
         String invalidOwnerId = "586678721356665";
         String userToBeAllowed = "613226587696519";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // Then
-        assertThrows(BusinessException.class, () -> permissions.allowUserToRead(userToBeAllowed, invalidOwnerId));
+        assertThrows(BusinessRuleViolationException.class,
+                () -> permissions.allowUserToRead(userToBeAllowed, invalidOwnerId));
     }
 
     @Test
@@ -167,10 +174,11 @@ public class PermissionsTest {
         // Given
         String invalidOwnerId = "586678721356665";
         String userToBeAllowed = "613226587696519";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // Then
-        assertThrows(BusinessException.class, () -> permissions.disallowUserToWrite(userToBeAllowed, invalidOwnerId));
+        assertThrows(BusinessRuleViolationException.class,
+                () -> permissions.disallowUserToWrite(userToBeAllowed, invalidOwnerId));
     }
 
     @Test
@@ -179,10 +187,11 @@ public class PermissionsTest {
         // Given
         String invalidOwnerId = "586678721356665";
         String userToBeAllowed = "613226587696519";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // Then
-        assertThrows(BusinessException.class, () -> permissions.disallowUserToRead(userToBeAllowed, invalidOwnerId));
+        assertThrows(BusinessRuleViolationException.class,
+                () -> permissions.disallowUserToRead(userToBeAllowed, invalidOwnerId));
     }
 
     @Test
@@ -190,7 +199,7 @@ public class PermissionsTest {
 
         // Given
         String currentOwnerId = "586678721356875";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // When
         boolean isOwner = permissions.isOwner(currentOwnerId);
@@ -204,7 +213,7 @@ public class PermissionsTest {
 
         // Given
         String invalidOwnerId = "586678721356665";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // When
         boolean isOwner = permissions.isOwner(invalidOwnerId);
@@ -218,7 +227,7 @@ public class PermissionsTest {
 
         // Given
         String discordUserId = "613226587696519";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // When
         boolean isAllowedToWrite = permissions.isAllowedToWrite(discordUserId);
@@ -228,11 +237,131 @@ public class PermissionsTest {
     }
 
     @Test
+    public void validateValidMultipleWritingRightsWhenOwner() {
+
+        // Given
+        List<String> discordUserIds = new ArrayList<>();
+        discordUserIds.add("543545");
+        discordUserIds.add("586678721356875");
+
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+
+        // When
+        boolean isAllowedToWrite = permissions.areAllowedToWrite(discordUserIds);
+
+        // Then
+        assertThat(isAllowedToWrite).isTrue();
+    }
+
+    @Test
+    public void validateValidMultipleWritingRightsWhenWriter() {
+
+        // Given
+        List<String> discordUserIds = new ArrayList<>();
+        discordUserIds.add("613226587696519");
+        discordUserIds.add("55325325235");
+
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+
+        // When
+        boolean isAllowedToWrite = permissions.areAllowedToWrite(discordUserIds);
+
+        // Then
+        assertThat(isAllowedToWrite).isTrue();
+    }
+
+    @Test
+    public void validateValidMultipleWritingRightsWhenDisallowed() {
+
+        // Given
+        List<String> discordUserIds = new ArrayList<>();
+        discordUserIds.add("543545");
+        discordUserIds.add("4234234");
+
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+
+        // When
+        boolean isAllowedToWrite = permissions.areAllowedToWrite(discordUserIds);
+
+        // Then
+        assertThat(isAllowedToWrite).isFalse();
+    }
+
+    @Test
+    public void validateValidMultipleReadingRightsWhenReader() {
+
+        // Given
+        List<String> discordUserIds = new ArrayList<>();
+        discordUserIds.add("613226587696519");
+        discordUserIds.add("55325325235");
+
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+
+        // When
+        boolean isAllowedToWrite = permissions.areAllowedToRead(discordUserIds);
+
+        // Then
+        assertThat(isAllowedToWrite).isTrue();
+    }
+
+    @Test
+    public void validateValidMultipleReadingRightsWhenOwner() {
+
+        // Given
+        List<String> discordUserIds = new ArrayList<>();
+        discordUserIds.add("55325325235");
+        discordUserIds.add("586678721356875");
+
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+
+        // When
+        boolean isAllowedToWrite = permissions.areAllowedToRead(discordUserIds);
+
+        // Then
+        assertThat(isAllowedToWrite).isTrue();
+    }
+
+    @Test
+    public void validateValidMultipleReadingRightsWhenWriter() {
+
+        // Given
+        List<String> discordUserIds = new ArrayList<>();
+        discordUserIds.add("423423423");
+        discordUserIds.add("55325325235");
+
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+        permissions = permissions.allowUserToWrite("423423423", "586678721356875");
+
+        // When
+        boolean isAllowedToWrite = permissions.areAllowedToRead(discordUserIds);
+
+        // Then
+        assertThat(isAllowedToWrite).isTrue();
+    }
+
+    @Test
+    public void validateValidMultipleReadingRightsWhenDisallowed() {
+
+        // Given
+        List<String> discordUserIds = new ArrayList<>();
+        discordUserIds.add("423423423");
+        discordUserIds.add("4234234");
+
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+
+        // When
+        boolean isAllowedToWrite = permissions.areAllowedToRead(discordUserIds);
+
+        // Then
+        assertThat(isAllowedToWrite).isFalse();
+    }
+
+    @Test
     public void validateInvalidWritingRights() {
 
         // Given
         String discordUserId = "433226587696544";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // When
         boolean isAllowedToWrite = permissions.isAllowedToWrite(discordUserId);
@@ -246,7 +375,7 @@ public class PermissionsTest {
 
         // Given
         String discordUserId = "613226587696519";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // When
         boolean isAllowedToWrite = permissions.isAllowedToRead(discordUserId);
@@ -260,7 +389,7 @@ public class PermissionsTest {
 
         // Given
         String discordUserId = "433226587696544";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // When
         boolean isAllowedToWrite = permissions.isAllowedToRead(discordUserId);
@@ -274,7 +403,7 @@ public class PermissionsTest {
 
         // Given
         String ownerDiscordId = "586678721356875";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // When
         boolean isAllowedToWrite = permissions.isAllowedToWrite(ownerDiscordId);
@@ -288,7 +417,7 @@ public class PermissionsTest {
 
         // Given
         String ownerDiscordId = "586678721356875";
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
         // When
         boolean isAllowedToWrite = permissions.isAllowedToRead(ownerDiscordId);

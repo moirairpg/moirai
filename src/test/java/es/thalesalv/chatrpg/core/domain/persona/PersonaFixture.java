@@ -3,7 +3,7 @@ package es.thalesalv.chatrpg.core.domain.persona;
 import static es.thalesalv.chatrpg.core.domain.Visibility.PRIVATE;
 import static es.thalesalv.chatrpg.core.domain.Visibility.PUBLIC;
 
-import es.thalesalv.chatrpg.core.domain.PermissionFixture;
+import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 
 public class PersonaFixture {
@@ -16,7 +16,7 @@ public class PersonaFixture {
         builder.personality("I am a Discord chatbot");
         builder.visibility(PUBLIC);
 
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);
 
         return builder;
@@ -30,7 +30,7 @@ public class PersonaFixture {
         builder.personality("I am a Discord chatbot");
         builder.visibility(PRIVATE);
 
-        Permissions permissions = PermissionFixture.samplePermissions().build();
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);
 
         return builder;

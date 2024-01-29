@@ -3,7 +3,10 @@ package es.thalesalv.chatrpg.core.domain.persona;
 import static es.thalesalv.chatrpg.core.domain.Visibility.PRIVATE;
 import static es.thalesalv.chatrpg.core.domain.Visibility.PUBLIC;
 
-import es.thalesalv.chatrpg.common.exception.BusinessException;
+import java.util.Collections;
+import java.util.List;
+
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import io.micrometer.common.util.StringUtils;
@@ -60,6 +63,48 @@ public class Persona {
         this.personality = personality;
     }
 
+    public List<String> getWriterUsers() {
+
+        return Collections.unmodifiableList(this.permissions.getUsersAllowedToWrite());
+    }
+
+    public List<String> getReaderUsers() {
+
+        return Collections.unmodifiableList(this.permissions.getUsersAllowedToRead());
+    }
+
+    public void addWriterUser(String discordUserId) {
+
+        Permissions permissions = this.permissions
+                .allowUserToWrite(discordUserId, this.permissions.getOwnerDiscordId());
+
+        this.permissions = permissions;
+    }
+
+    public void addReaderUser(String discordUserId) {
+
+        Permissions permissions = this.permissions
+                .allowUserToRead(discordUserId, this.permissions.getOwnerDiscordId());
+
+        this.permissions = permissions;
+    }
+
+    public void removeWriterUser(String discordUserId) {
+
+        Permissions permissions = this.permissions
+                .disallowUserToWrite(discordUserId, this.permissions.getOwnerDiscordId());
+
+        this.permissions = permissions;
+    }
+
+    public void removeReaderUser(String discordUserId) {
+
+        Permissions permissions = this.permissions
+                .disallowUserToRead(discordUserId, this.permissions.getOwnerDiscordId());
+
+        this.permissions = permissions;
+    }
+
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
@@ -102,19 +147,19 @@ public class Persona {
         public Persona build() {
 
             if (StringUtils.isBlank(name)) {
-                throw new BusinessException("Persona name cannot be null or empty");
+                throw new BusinessRuleViolationException("Persona name cannot be null or empty");
             }
 
             if (StringUtils.isBlank(personality)) {
-                throw new BusinessException("Persona personality cannot be null or empty");
+                throw new BusinessRuleViolationException("Persona personality cannot be null or empty");
             }
 
             if (visibility == null) {
-                throw new BusinessException("Visibility cannot be null");
+                throw new BusinessRuleViolationException("Visibility cannot be null");
             }
 
             if (permissions == null) {
-                throw new BusinessException("Permissions cannot be null");
+                throw new BusinessRuleViolationException("Permissions cannot be null");
             }
 
             return new Persona(this);
