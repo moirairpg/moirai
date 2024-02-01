@@ -1,8 +1,10 @@
 package es.thalesalv.chatrpg.core.domain.channelconfig;
 
-import java.util.Map;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
+import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,5 +48,13 @@ public enum Moderation {
         thresholds.put(VIOLENCE_GRAPHIC, 0.4);
 
         return thresholds;
+    }
+
+    public static Moderation fromString(String value) {
+
+        return Arrays.stream(values())
+                .filter(moderation -> moderation.name().equals(value.toUpperCase()))
+                .findFirst()
+                .orElseThrow(() -> new BusinessRuleViolationException("Invalid moderation"));
     }
 }

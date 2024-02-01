@@ -20,6 +20,7 @@ import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 
+@SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
 public class WorldDomainServiceImplTest {
 

@@ -15,6 +15,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.port.TokenizerPort;
 
+@SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
 public class LorebookEntryDomainServiceImplTest {
 

@@ -30,11 +30,11 @@ public final class ModelConfiguration {
         this.frequencyPenalty = builder.frequencyPenalty;
         this.presencePenalty = builder.presencePenalty;
 
-        List<String> stopSequences = Collections.unmodifiableList(new ArrayList<>(builder.stopSequences));
-        this.stopSequences = stopSequences;
+        this.stopSequences = Collections.unmodifiableList(
+                builder.stopSequences == null ? Collections.emptyList() : builder.stopSequences);
 
-        Map<String, Double> logitBias = Collections.unmodifiableMap(new HashMap<>(builder.logitBias));
-        this.logitBias = logitBias;
+        this.logitBias = Collections.unmodifiableMap(
+                builder.logitBias == null ? Collections.emptyMap() : builder.logitBias);
     }
 
     public static Builder builder() {
