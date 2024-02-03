@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.infrastructure.adapter;
+package es.thalesalv.chatrpg.infrastructure.outbound.adapter;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -11,7 +11,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
-import es.thalesalv.chatrpg.core.application.port.TokenizerPort;
+import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 
 @Component
 public class TokenizerAdapter implements TokenizerPort {
@@ -35,14 +35,13 @@ public class TokenizerAdapter implements TokenizerPort {
     @Override
     public long[] getTokensIdsFrom(String text) {
 
-        return tokenizer.encode(new String[] { text }, false)
-                .getIds();
+        return tokenizer.encode(text).getIds();
     }
 
     @Override
     public long[] getTokensIdsFrom(String[] texts) {
 
-        return tokenizer.encode(texts, false).getIds();
+        return tokenizer.encode(texts).getIds();
     }
 
     @Override

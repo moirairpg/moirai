@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.core.application.port;
+package es.thalesalv.chatrpg.core.domain.port;
 
 import java.io.UnsupportedEncodingException;
 

@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
-import es.thalesalv.chatrpg.core.application.port.TokenizerPort;
+import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 
 @SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)

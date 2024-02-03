@@ -2,6 +2,15 @@ chatrpg:
   nano-id:
     alphabet: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
     characters-amount: 15
+  validation:
+    token-limits:
+      persona.personality: 250
+      world:
+        lorebook-entry:
+          name: 50
+          description: 250
+        initial-prompt: 500
+
   generation:
     default-max-tokens: 100
     default-temperature: 0.6

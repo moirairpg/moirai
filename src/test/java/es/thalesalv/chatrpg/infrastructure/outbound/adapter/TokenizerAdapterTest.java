@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.infrastructure.adapter;
+package es.thalesalv.chatrpg.infrastructure.outbound.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

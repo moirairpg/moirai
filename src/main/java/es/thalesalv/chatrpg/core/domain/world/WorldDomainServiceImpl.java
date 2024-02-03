@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
-import es.thalesalv.chatrpg.core.application.port.TokenizerPort;
+import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.core.domain.world.World.Builder;
 import lombok.RequiredArgsConstructor;
 
