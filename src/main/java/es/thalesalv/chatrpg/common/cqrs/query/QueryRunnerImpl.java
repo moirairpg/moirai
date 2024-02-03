@@ -15,7 +15,7 @@ public class QueryRunnerImpl implements QueryRunner {
     private static final String HANDLER_NOT_FOUND = "No query handler found for %s";
     private static final String HANDLER_CANNOT_BE_NULL = "Cannot register null handlers";
     private static final String HANDLER_ALREADY_REGISTERED = "Cannot register query handler for %s - there is a handler already registered";
-    private static final String HANDLER_REGISTERED = "Handler %s registered for query %s";
+    private static final String HANDLER_REGISTERED = "Handler {} registered for query {}";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryRunnerImpl.class);
 
@@ -50,7 +50,7 @@ public class QueryRunnerImpl implements QueryRunner {
 
         handlersByQuery.putIfAbsent(queryType, handler);
 
-        LOGGER.info(HANDLER_REGISTERED, handler.getClass().getSimpleName(), queryType.getClass().getSimpleName());
+        LOGGER.info(HANDLER_REGISTERED, handler.getClass().getSimpleName(), queryType.getSimpleName());
     }
 
     private <A extends Query<T>, T> Class<A> extractQueryType(QueryHandler<A, T> handler) {

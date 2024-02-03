@@ -15,7 +15,7 @@ public class CommandRunnerImpl implements CommandRunner {
     private static final String HANDLER_NOT_FOUND = "No command handler found for %s";
     private static final String HANDLER_CANNOT_BE_NULL = "Cannot register null handlers";
     private static final String HANDLER_ALREADY_REGISTERED = "Cannot register command handler for %s - there is a handler already registered";
-    private static final String HANDLER_REGISTERED = "Handler %s registered for command %s";
+    private static final String HANDLER_REGISTERED = "Handler {} registered for command {}";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandRunnerImpl.class);
 
@@ -50,7 +50,7 @@ public class CommandRunnerImpl implements CommandRunner {
 
         handlersByCommand.putIfAbsent(commandType, handler);
 
-        LOGGER.info(HANDLER_REGISTERED, handler.getClass().getSimpleName(), commandType.getClass().getSimpleName());
+        LOGGER.info(HANDLER_REGISTERED, handler.getClass().getSimpleName(), commandType.getSimpleName());
     }
 
     private <A extends Command<T>, T> Class<A> extractCommandType(CommandHandler<A, T> handler) {
