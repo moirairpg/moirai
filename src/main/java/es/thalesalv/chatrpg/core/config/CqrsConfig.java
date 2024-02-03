@@ -17,10 +17,7 @@ import es.thalesalv.chatrpg.common.cqrs.query.QueryRunnerImpl;
 @Configuration
 public class CqrsConfig {
 
-    private static final String REGISTERED_COMMAND_HANDLER = "{} has been registered";
     private static final String REGISTERED_COMMAND_HANDLERS = "{} command handlers have been registered";
-
-    private static final String REGISTERED_QUERY_HANDLER = "{} has been registered";
     private static final String REGISTERED_QUERY_HANDLERS = "{} query handlers have been registered";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CqrsConfig.class);
@@ -29,10 +26,7 @@ public class CqrsConfig {
     public CommandRunner commandRunner(List<CommandHandler<?, ?>> handlers) {
 
         CommandRunner runner = new CommandRunnerImpl();
-        handlers.forEach(handler -> {
-            runner.registerHandler(handler);
-            LOGGER.info(REGISTERED_COMMAND_HANDLER, handler.getClass().getSimpleName());
-        });
+        handlers.forEach(runner::registerHandler);
 
         LOGGER.info(REGISTERED_COMMAND_HANDLERS, handlers.size());
 
@@ -43,10 +37,7 @@ public class CqrsConfig {
     public QueryRunner queryRunner(List<QueryHandler<?, ?>> handlers) {
 
         QueryRunner runner = new QueryRunnerImpl();
-        handlers.forEach(handler -> {
-            runner.registerHandler(handler);
-            LOGGER.info(REGISTERED_QUERY_HANDLER, handler.getClass().getSimpleName());
-        });
+        handlers.forEach(runner::registerHandler);
 
         LOGGER.info(REGISTERED_QUERY_HANDLERS, handlers.size());
 
