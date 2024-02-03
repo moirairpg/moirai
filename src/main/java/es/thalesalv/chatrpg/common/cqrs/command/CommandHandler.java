@@ -2,15 +2,15 @@ package es.thalesalv.chatrpg.common.cqrs.command;
 
 import java.util.Objects;
 
-public interface CommandHandler<A extends Command<T>, T> {
+public abstract class CommandHandler<A extends Command<T>, T> {
 
-    T handle(A command);
+    public abstract T handle(A command);
 
-    default void validate(A command) {
+    void validate(A command) {
 
     }
 
-    default T execute(A command) {
+    T execute(A command) {
 
         if (Objects.isNull(command)) {
             throw new IllegalArgumentException("Command cannot be null");

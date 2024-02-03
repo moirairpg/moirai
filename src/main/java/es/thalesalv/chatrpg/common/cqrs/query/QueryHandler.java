@@ -2,15 +2,15 @@ package es.thalesalv.chatrpg.common.cqrs.query;
 
 import java.util.Objects;
 
-public interface QueryHandler<A extends Query<T>, T> {
+public abstract class QueryHandler<A extends Query<T>, T> {
 
-    T handle(A query);
+    public abstract T handle(A query);
 
-    default void validate(A query) {
+    void validate(A query) {
 
     }
 
-    default T execute(A query) {
+    T execute(A query) {
 
         if (Objects.isNull(query)) {
             throw new IllegalArgumentException("Query cannot be null");
