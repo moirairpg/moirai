@@ -6,11 +6,11 @@ public abstract class CommandHandler<A extends Command<T>, T> {
 
     public abstract T handle(A command);
 
-    void validate(A command) {
+    public void validate(A command) {
 
     }
 
-    T execute(A command) {
+    public T execute(A command) {
 
         if (Objects.isNull(command)) {
             throw new IllegalArgumentException("Command cannot be null");
