@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
+import es.thalesalv.chatrpg.core.application.command.persona.CreatePersona;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
@@ -20,17 +21,37 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
     private final TokenizerPort tokenizerPort;
 
     @Override
-    public Persona createPersona(String name, String personality, Permissions permissions, Visibility visibility) {
+    public Persona createFrom(CreatePersona command) {
 
-        validateTokenCount(personality);
+        validateTokenCount(command.getPersonality());
 
-        Persona.Builder builder = Persona.builder();
-        builder.name(name);
-        builder.personality(personality);
-        builder.permissions(permissions);
-        builder.visibility(visibility);
+        Bump bump = Bump.builder()
+                .content(command.getBumpContent())
+                .frequency(command.getBumpFrequency())
+                .role(command.getBumpRole())
+                .build();
 
-        return repository.save(builder.build());
+        Nudge nudge = Nudge.builder()
+                .content(command.getNudgeContent())
+                .role(command.getNudgeRole())
+                .build();
+
+        Permissions permissions = Permissions.builder()
+                .ownerDiscordId(command.getCreatorDiscordId())
+                .usersAllowedToRead(command.getReaderUsers())
+                .usersAllowedToWrite(command.getWriterUsers())
+                .build();
+
+        Persona persona = Persona.builder()
+                .name(command.getName())
+                .personality(command.getPersonality())
+                .visibility(Visibility.fromString(command.getVisibility()))
+                .permissions(permissions)
+                .nudge(nudge)
+                .bump(bump)
+                .build();
+
+        return repository.save(persona);
     }
 
     private void validateTokenCount(String personality) {

@@ -3,12 +3,13 @@ package es.thalesalv.chatrpg.core.application.command.channelconfig;
 import java.util.List;
 import java.util.Map;
 
+import es.thalesalv.chatrpg.common.cqrs.command.Command;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
-public final class CreateChannelConfig {
+@Builder(builderClassName = "Builder")
+public final class CreateChannelConfig extends Command<CreateChannelConfigResult> {
 
     private final String name;
     private final String worldId;

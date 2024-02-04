@@ -14,7 +14,7 @@ public class ChannelConfigFixture {
         channelConfigBuilder.worldId("WRLDID");
         channelConfigBuilder.personaId("PRSNID");
         channelConfigBuilder.moderation(Moderation.STRICT);
-        channelConfigBuilder.visibility(Visibility.PRIVATE);
+        channelConfigBuilder.visibility(Visibility.fromString("PRIVATE"));
         channelConfigBuilder.modelConfiguration(ModelConfigurationFixture.sample().build());
         channelConfigBuilder.permissions(PermissionsFixture.samplePermissions().build());
 

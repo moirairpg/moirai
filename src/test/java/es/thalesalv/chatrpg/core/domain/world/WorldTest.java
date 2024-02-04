@@ -74,10 +74,10 @@ public class WorldTest {
         World world = WorldFixture.publicWorld().build();
 
         // When
-        world.updateInitialPrompt("New Prompt");
+        world.updateAdventureStart("New Prompt");
 
         // Then
-        assertThat(world.getInitialPrompt()).isEqualTo("New Prompt");
+        assertThat(world.getAdventureStart()).isEqualTo("New Prompt");
     }
 
     @Test
@@ -101,7 +101,7 @@ public class WorldTest {
     }
 
     @Test
-    public void errorWhenCreatingWorldWithNullVisibility() {
+    public void errorWhenCreatingWorldWithNullPermissions() {
 
         // Given
         World.Builder worldBuilder = WorldFixture.publicWorld().permissions(null);
@@ -111,7 +111,7 @@ public class WorldTest {
     }
 
     @Test
-    public void errorWhenCreatingWorldWithNullPermissions() {
+    public void errorWhenCreatingWorldWithNullVisibility() {
 
         // Given
         World.Builder worldBuilder = WorldFixture.publicWorld().visibility(null);

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -51,6 +53,10 @@ public enum Moderation {
     }
 
     public static Moderation fromString(String value) {
+
+        if (StringUtils.isBlank(value)) {
+            throw new BusinessRuleViolationException("Moderation cannot be null");
+        }
 
         return Arrays.stream(values())
                 .filter(moderation -> moderation.name().equals(value.toUpperCase()))

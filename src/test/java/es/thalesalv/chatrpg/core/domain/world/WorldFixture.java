@@ -1,13 +1,11 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
-import static es.thalesalv.chatrpg.core.domain.Visibility.PRIVATE;
-import static es.thalesalv.chatrpg.core.domain.Visibility.PUBLIC;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Permissions;
+import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
+import es.thalesalv.chatrpg.core.domain.Visibility;
 
 public class WorldFixture {
 
@@ -17,8 +15,8 @@ public class WorldFixture {
         builder.id("857345HAA");
         builder.name("ChatRPG");
         builder.description("This is an RPG world");
-        builder.initialPrompt("As you enter the city, people around you start looking at you.");
-        builder.visibility(PUBLIC);
+        builder.adventureStart("As you enter the city, people around you start looking at you.");
+        builder.visibility(Visibility.fromString("PUBLIC"));
 
         Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);
@@ -37,8 +35,8 @@ public class WorldFixture {
         builder.id("857345HAA");
         builder.name("ChatRPG");
         builder.description("This is an RPG world");
-        builder.initialPrompt("As you enter the city, people around you start looking at you.");
-        builder.visibility(PRIVATE);
+        builder.adventureStart("As you enter the city, people around you start looking at you.");
+        builder.visibility(Visibility.fromString("PRIVATE"));
 
         Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);

@@ -22,7 +22,7 @@ public class World {
     private String id;
     private String name;
     private String description;
-    private String initialPrompt;
+    private String adventureStart;
     private List<LorebookEntry> lorebook;
     private Visibility visibility;
     private Permissions permissions;
@@ -32,7 +32,7 @@ public class World {
         this.id = builder.id;
         this.name = builder.name;
         this.description = builder.description;
-        this.initialPrompt = builder.initialPrompt;
+        this.adventureStart = builder.adventureStart;
         this.lorebook = builder.lorebook;
         this.visibility = builder.visibility;
         this.permissions = builder.permissions;
@@ -73,9 +73,9 @@ public class World {
         this.description = description;
     }
 
-    public void updateInitialPrompt(String initialPrompt) {
+    public void updateAdventureStart(String adventureStart) {
 
-        this.initialPrompt = initialPrompt;
+        this.adventureStart = adventureStart;
     }
 
     public void addToLorebook(LorebookEntry lorebookEntry) {
@@ -136,7 +136,7 @@ public class World {
         private String id;
         private String name;
         private String description;
-        private String initialPrompt;
+        private String adventureStart;
         private List<LorebookEntry> lorebook;
         private Visibility visibility;
         private Permissions permissions;
@@ -159,9 +159,9 @@ public class World {
             return this;
         }
 
-        public Builder initialPrompt(String initialPrompt) {
+        public Builder adventureStart(String adventureStart) {
 
-            this.initialPrompt = initialPrompt;
+            this.adventureStart = adventureStart;
             return this;
         }
 

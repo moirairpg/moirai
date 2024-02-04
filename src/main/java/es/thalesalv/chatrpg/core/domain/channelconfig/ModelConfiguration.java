@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 public final class ModelConfiguration {
@@ -117,6 +119,7 @@ public final class ModelConfiguration {
         return cloneFrom(this).logitBias(logitBias).build();
     }
 
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
         private ArtificialIntelligenceModel aiModel;
@@ -191,7 +194,7 @@ public final class ModelConfiguration {
                         String.format("Max token limit has to be between 100 and %s", aiModel.getHardTokenLimit()));
             }
 
-            if (!logitBias.isEmpty()) {
+            if (logitBias != null && !logitBias.isEmpty()) {
                 boolean isLogitBiasRuleViolated = logitBias.entrySet().stream()
                         .anyMatch(entry -> entry.getValue() < -100 || entry.getValue() > 100);
 

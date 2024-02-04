@@ -21,6 +21,8 @@ public class Persona {
     private String id;
     private String name;
     private String personality;
+    private Nudge nudge;
+    private Bump bump;
     private Visibility visibility;
     private Permissions permissions;
 
@@ -29,6 +31,8 @@ public class Persona {
         this.id = builder.id;
         this.name = builder.name;
         this.personality = builder.personality;
+        this.nudge = builder.nudge;
+        this.bump = builder.bump;
         this.visibility = builder.visibility;
         this.permissions = builder.permissions;
     }
@@ -111,6 +115,8 @@ public class Persona {
         private String id;
         private String name;
         private String personality;
+        private Nudge nudge;
+        private Bump bump;
         private Visibility visibility;
         private Permissions permissions;
 
@@ -129,6 +135,18 @@ public class Persona {
         public Builder personality(String personality) {
 
             this.personality = personality;
+            return this;
+        }
+
+        public Builder nudge(Nudge nudge) {
+
+            this.nudge = nudge;
+            return this;
+        }
+
+        public Builder bump(Bump bump) {
+
+            this.bump = bump;
             return this;
         }
 

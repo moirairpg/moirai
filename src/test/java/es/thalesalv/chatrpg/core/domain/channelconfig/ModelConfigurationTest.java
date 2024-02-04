@@ -310,4 +310,21 @@ public class ModelConfigurationTest {
         assertThat(modelConfiguration).isNotNull();
         assertThat(modelConfiguration.getLogitBias()).isNotNull().isEmpty();
     }
+
+    @Test
+    public void createModelConfigurationWithNullLogitBias() {
+
+        // Given
+        Map<String, Double> logitBias = null;
+
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+                .logitBias(logitBias);
+
+        // When
+        ModelConfiguration modelConfiguration = modelConfigurationBuilder.build();
+
+        // Then
+        assertThat(modelConfiguration).isNotNull();
+        assertThat(modelConfiguration.getLogitBias()).isNotNull().isEmpty();
+    }
 }

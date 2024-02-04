@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
+import es.thalesalv.chatrpg.core.domain.Visibility;
 
 public class ChannelConfigTest {
 
@@ -25,7 +26,7 @@ public class ChannelConfigTest {
         channelConfigBuilder.worldId("WRLDID");
         channelConfigBuilder.personaId("PRSNID");
         channelConfigBuilder.moderation(Moderation.STRICT);
-        channelConfigBuilder.visibility(PRIVATE);
+        channelConfigBuilder.visibility(Visibility.fromString("PRIVATE"));
         channelConfigBuilder.modelConfiguration(ModelConfigurationFixture.sample().build());
         channelConfigBuilder.permissions(PermissionsFixture.samplePermissions().build());
 

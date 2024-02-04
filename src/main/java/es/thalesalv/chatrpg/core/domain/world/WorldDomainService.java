@@ -1,6 +1,8 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
+import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
+
 public interface WorldDomainService {
 
-    World createWorld(World.Builder builder);
+    World createFrom(CreateWorld command);
 }

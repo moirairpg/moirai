@@ -53,6 +53,7 @@ public class LorebookEntry {
         this.playerDiscordId = null;
     }
 
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
         private String id;

@@ -1,6 +1,5 @@
 package es.thalesalv.chatrpg.core.domain.persona;
 
-import static es.thalesalv.chatrpg.core.domain.Visibility.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,8 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
-import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
+import es.thalesalv.chatrpg.core.application.command.persona.CreatePersona;
 import es.thalesalv.chatrpg.core.domain.Permissions;
+import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 
@@ -39,19 +39,50 @@ public class PersonaDomainServiceImplTest {
         // Given
         String name = "ChatRPG";
         String personality = "I am a chatbot";
-        Visibility visibility = PRIVATE;
+        String visibility = "PRIVATE";
+        String role = "SYSTEM";
+        String content = "This is content";
+        Integer bumpFrequency = 5;
         Permissions permissions = PermissionsFixture.samplePermissions().build();
+
+        Nudge nudge = Nudge.builder()
+                .content(content)
+                .role(role)
+                .build();
+
+        Bump bump = Bump.builder()
+                .content(content)
+                .role(role)
+                .frequency(bumpFrequency)
+                .build();
+
+        CreatePersona command = CreatePersona.builder()
+                .name(name)
+                .personality(personality)
+                .nudgeContent(content)
+                .nudgeRole(role)
+                .bumpContent(content)
+                .bumpRole(role)
+                .bumpFrequency(bumpFrequency)
+                .visibility(visibility)
+                .creatorDiscordId(permissions.getOwnerDiscordId())
+                .readerUsers(permissions.getUsersAllowedToRead())
+                .writerUsers(permissions.getUsersAllowedToWrite())
+                .build();
+
         Persona expectedPersona = PersonaFixture.privatePersona()
                 .name(name)
                 .permissions(permissions)
                 .personality(personality)
-                .visibility(visibility)
+                .visibility(Visibility.fromString(visibility))
+                .nudge(nudge)
+                .bump(bump)
                 .build();
 
         when(repository.save(any(Persona.class))).thenReturn(expectedPersona);
 
         // When
-        Persona createdPersona = service.createPersona(name, personality, permissions, visibility);
+        Persona createdPersona = service.createFrom(command);
 
         // Then
         assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
@@ -67,13 +98,63 @@ public class PersonaDomainServiceImplTest {
         // Given
         String name = "ChatRPG";
         String personality = "I am a chatbot";
-        Visibility visibility = PRIVATE;
+        String visibility = "PRIVATE";
+        String role = "SYSTEM";
+        String content = "This is content";
         Permissions permissions = PermissionsFixture.samplePermissions().build();
+
+        CreatePersona command = CreatePersona.builder()
+                .name(name)
+                .personality(personality)
+                .nudgeContent(content)
+                .nudgeRole(role)
+                .bumpContent(content)
+                .bumpRole(role)
+                .bumpFrequency(5)
+                .visibility(visibility)
+                .creatorDiscordId(permissions.getOwnerDiscordId())
+                .readerUsers(permissions.getUsersAllowedToRead())
+                .writerUsers(permissions.getUsersAllowedToWrite())
+                .build();
 
         ReflectionTestUtils.setField(service, "personalityTokenLimit", 2);
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
 
         // Then
-        assertThrows(BusinessRuleViolationException.class, () -> service.createPersona(name, personality, permissions, visibility));
+        assertThrows(BusinessRuleViolationException.class,
+                () -> service.createFrom(command));
+    }
+
+    @Test
+    public void errorWhenBumpFrequencyIsLowerThanOne() {
+
+        // Given
+        String name = "ChatRPG";
+        String personality = "I am a chatbot";
+        String visibility = "PRIVATE";
+        String role = "SYSTEM";
+        String content = "This is content";
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+
+        CreatePersona command = CreatePersona.builder()
+                .name(name)
+                .personality(personality)
+                .nudgeContent(content)
+                .nudgeRole(role)
+                .bumpContent(content)
+                .bumpRole(role)
+                .bumpFrequency(0)
+                .visibility(visibility)
+                .creatorDiscordId(permissions.getOwnerDiscordId())
+                .readerUsers(permissions.getUsersAllowedToRead())
+                .writerUsers(permissions.getUsersAllowedToWrite())
+                .build();
+
+        ReflectionTestUtils.setField(service, "personalityTokenLimit", 20);
+        when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> service.createFrom(command));
     }
 }

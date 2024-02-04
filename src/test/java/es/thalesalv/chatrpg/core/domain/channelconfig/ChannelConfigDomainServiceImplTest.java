@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfig;
+import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfigFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class ChannelConfigDomainServiceImplTest {
@@ -26,24 +27,7 @@ public class ChannelConfigDomainServiceImplTest {
 
         // Given
         ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
-
-        CreateChannelConfig createChannelConfig = CreateChannelConfig.builder()
-                .name(channelConfig.getName())
-                .personaId(channelConfig.getPersonaId())
-                .worldId(channelConfig.getWorldId())
-                .aiModel(channelConfig.getModelConfiguration().getAiModel().toString())
-                .logitBias(channelConfig.getModelConfiguration().getLogitBias())
-                .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
-                .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
-                .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
-                .moderation("strict")
-                .creatorDiscordId(channelConfig.getPermissions().getOwnerDiscordId())
-                .readerUsers(channelConfig.getPermissions().getUsersAllowedToRead())
-                .writerUsers(channelConfig.getPermissions().getUsersAllowedToWrite())
-                .temperature(1.7)
-                .visibility("private")
-                .build();
+        CreateChannelConfig createChannelConfig = CreateChannelConfigFixture.sample().build();
 
         when(repository.save(any(ChannelConfig.class))).thenReturn(channelConfig);
 

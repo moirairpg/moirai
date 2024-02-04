@@ -1,9 +1,8 @@
 package es.thalesalv.chatrpg.core.domain.persona;
 
-import es.thalesalv.chatrpg.core.domain.Permissions;
-import es.thalesalv.chatrpg.core.domain.Visibility;
+import es.thalesalv.chatrpg.core.application.command.persona.CreatePersona;
 
 public interface PersonaDomainService {
-    
-    Persona createPersona(String name, String personality, Permissions permissions, Visibility visibility);
+
+    Persona createFrom(CreatePersona command);
 }
