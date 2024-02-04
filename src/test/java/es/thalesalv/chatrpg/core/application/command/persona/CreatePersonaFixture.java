@@ -12,7 +12,7 @@ public class CreatePersonaFixture {
                 .name(persona.getName())
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility().toString())
-                .creatorDiscordId(persona.getPermissions().getOwnerDiscordId())
+                .creatorDiscordId(persona.getOwnerDiscordId())
                 .writerUsers(persona.getReaderUsers())
                 .readerUsers(persona.getWriterUsers())
                 .nudgeContent(persona.getNudge().getContent())

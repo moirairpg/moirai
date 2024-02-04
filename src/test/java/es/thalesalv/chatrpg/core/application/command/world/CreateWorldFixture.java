@@ -26,7 +26,7 @@ public class CreateWorldFixture {
                 .description(world.getDescription())
                 .adventureStart(world.getAdventureStart())
                 .visibility(world.getVisibility().toString())
-                .creatorDiscordId(world.getPermissions().getOwnerDiscordId())
+                .creatorDiscordId(world.getOwnerDiscordId())
                 .writerUsers(world.getWriterUsers())
                 .readerUsers(world.getReaderUsers())
                 .lorebookEntries(lorebookEntries);

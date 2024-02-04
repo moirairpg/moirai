@@ -1,60 +1,37 @@
 package es.thalesalv.chatrpg.core.domain.persona;
 
-import static es.thalesalv.chatrpg.core.domain.Visibility.PRIVATE;
-import static es.thalesalv.chatrpg.core.domain.Visibility.PUBLIC;
-
-import java.util.Collections;
-import java.util.List;
-
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.domain.Permissions;
+import es.thalesalv.chatrpg.core.domain.ShareableAsset;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+// TODO implement missing VO methods (manage bump and nudge)
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Persona {
+public class Persona extends ShareableAsset {
 
     private String id;
     private String name;
     private String personality;
     private Nudge nudge;
     private Bump bump;
-    private Visibility visibility;
-    private Permissions permissions;
 
     private Persona(Builder builder) {
 
+        super(builder.permissions, builder.visibility);
         this.id = builder.id;
         this.name = builder.name;
         this.personality = builder.personality;
         this.nudge = builder.nudge;
         this.bump = builder.bump;
-        this.visibility = builder.visibility;
-        this.permissions = builder.permissions;
     }
 
     public static Builder builder() {
 
         return new Builder();
-    }
-
-    public void makePublic() {
-
-        this.visibility = PUBLIC;
-    }
-
-    public void makePrivate() {
-
-        this.visibility = PRIVATE;
-    }
-
-    public boolean isPublic() {
-
-        return this.visibility.equals(PUBLIC);
     }
 
     public void updateName(String name) {
@@ -65,48 +42,6 @@ public class Persona {
     public void updatePersonality(String personality) {
 
         this.personality = personality;
-    }
-
-    public List<String> getWriterUsers() {
-
-        return Collections.unmodifiableList(this.permissions.getUsersAllowedToWrite());
-    }
-
-    public List<String> getReaderUsers() {
-
-        return Collections.unmodifiableList(this.permissions.getUsersAllowedToRead());
-    }
-
-    public void addWriterUser(String discordUserId) {
-
-        Permissions permissions = this.permissions
-                .allowUserToWrite(discordUserId, this.permissions.getOwnerDiscordId());
-
-        this.permissions = permissions;
-    }
-
-    public void addReaderUser(String discordUserId) {
-
-        Permissions permissions = this.permissions
-                .allowUserToRead(discordUserId, this.permissions.getOwnerDiscordId());
-
-        this.permissions = permissions;
-    }
-
-    public void removeWriterUser(String discordUserId) {
-
-        Permissions permissions = this.permissions
-                .disallowUserToWrite(discordUserId, this.permissions.getOwnerDiscordId());
-
-        this.permissions = permissions;
-    }
-
-    public void removeReaderUser(String discordUserId) {
-
-        Permissions permissions = this.permissions
-                .disallowUserToRead(discordUserId, this.permissions.getOwnerDiscordId());
-
-        this.permissions = permissions;
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)

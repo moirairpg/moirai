@@ -20,11 +20,15 @@ public final class Permissions {
 
         this.ownerDiscordId = builder.ownerDiscordId;
 
-        List<String> usersAllowedToRead = Collections.unmodifiableList(new ArrayList<>(builder.usersAllowedToRead));
-        this.usersAllowedToRead = usersAllowedToRead;
+        List<String> usersAllowedToRead = builder.usersAllowedToRead == null ? Collections.emptyList()
+                : builder.usersAllowedToRead;
 
-        List<String> usersAllowedToWrite = Collections.unmodifiableList(new ArrayList<>(builder.usersAllowedToWrite));
-        this.usersAllowedToWrite = usersAllowedToWrite;
+        this.usersAllowedToRead = Collections.unmodifiableList(usersAllowedToRead);
+
+        List<String> usersAllowedToWrite = builder.usersAllowedToRead == null ? Collections.emptyList()
+                : builder.usersAllowedToWrite;
+
+        this.usersAllowedToWrite = Collections.unmodifiableList(usersAllowedToWrite);
     }
 
     public static Builder builder() {

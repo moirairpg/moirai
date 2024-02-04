@@ -1,8 +1,5 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
-import static es.thalesalv.chatrpg.core.domain.Visibility.PRIVATE;
-import static es.thalesalv.chatrpg.core.domain.Visibility.PUBLIC;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -10,32 +7,30 @@ import org.apache.commons.lang3.StringUtils;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.domain.Permissions;
+import es.thalesalv.chatrpg.core.domain.ShareableAsset;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+// TODO implement missing VO methods (edit lorebook content)
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class World {
+public class World extends ShareableAsset {
 
     private String id;
     private String name;
     private String description;
     private String adventureStart;
     private List<LorebookEntry> lorebook;
-    private Visibility visibility;
-    private Permissions permissions;
 
     private World(Builder builder) {
 
+        super(builder.permissions, builder.visibility);
         this.id = builder.id;
         this.name = builder.name;
         this.description = builder.description;
         this.adventureStart = builder.adventureStart;
         this.lorebook = builder.lorebook;
-        this.visibility = builder.visibility;
-        this.permissions = builder.permissions;
     }
 
     public static Builder builder() {
@@ -46,21 +41,6 @@ public class World {
     public List<LorebookEntry> getLorebook() {
 
         return Collections.unmodifiableList(lorebook);
-    }
-
-    public void makePublic() {
-
-        this.visibility = PUBLIC;
-    }
-
-    public void makePrivate() {
-
-        this.visibility = PRIVATE;
-    }
-
-    public boolean isPublic() {
-
-        return this.visibility.equals(PUBLIC);
     }
 
     public void updateName(String name) {
@@ -86,48 +66,6 @@ public class World {
     public void removeFromLorebook(LorebookEntry lorebookEntry) {
 
         lorebook.remove(lorebookEntry);
-    }
-
-    public List<String> getWriterUsers() {
-
-        return Collections.unmodifiableList(this.permissions.getUsersAllowedToWrite());
-    }
-
-    public List<String> getReaderUsers() {
-
-        return Collections.unmodifiableList(this.permissions.getUsersAllowedToRead());
-    }
-
-    public void addWriterUser(String discordUserId) {
-
-        Permissions permissions = this.permissions
-                .allowUserToWrite(discordUserId, this.permissions.getOwnerDiscordId());
-
-        this.permissions = permissions;
-    }
-
-    public void addReaderUser(String discordUserId) {
-
-        Permissions permissions = this.permissions
-                .allowUserToRead(discordUserId, this.permissions.getOwnerDiscordId());
-
-        this.permissions = permissions;
-    }
-
-    public void removeWriterUser(String discordUserId) {
-
-        Permissions permissions = this.permissions
-                .disallowUserToWrite(discordUserId, this.permissions.getOwnerDiscordId());
-
-        this.permissions = permissions;
-    }
-
-    public void removeReaderUser(String discordUserId) {
-
-        Permissions permissions = this.permissions
-                .disallowUserToRead(discordUserId, this.permissions.getOwnerDiscordId());
-
-        this.permissions = permissions;
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)

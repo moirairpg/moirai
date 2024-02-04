@@ -40,43 +40,27 @@ public class PersonaDomainServiceImplTest {
         String name = "ChatRPG";
         String personality = "I am a chatbot";
         String visibility = "PRIVATE";
-        String role = "SYSTEM";
-        String content = "This is content";
-        Integer bumpFrequency = 5;
-        Permissions permissions = PermissionsFixture.samplePermissions().build();
 
-        Nudge nudge = Nudge.builder()
-                .content(content)
-                .role(role)
-                .build();
+        Nudge nudge = NudgeFixture.sample().build();
+        Bump bump = BumpFixture.sample().build();
 
-        Bump bump = Bump.builder()
-                .content(content)
-                .role(role)
-                .frequency(bumpFrequency)
+        Persona expectedPersona = PersonaFixture.privatePersona()
+                .name(name)
+                .personality(personality)
+                .visibility(Visibility.fromString(visibility))
+                .nudge(nudge)
+                .bump(bump)
                 .build();
 
         CreatePersona command = CreatePersona.builder()
                 .name(name)
                 .personality(personality)
-                .nudgeContent(content)
-                .nudgeRole(role)
-                .bumpContent(content)
-                .bumpRole(role)
-                .bumpFrequency(bumpFrequency)
+                .nudgeContent(nudge.getContent())
+                .nudgeRole(nudge.getRole().toString())
+                .bumpContent(bump.getContent())
+                .bumpRole(bump.getRole().toString())
+                .bumpFrequency(bump.getFrequency())
                 .visibility(visibility)
-                .creatorDiscordId(permissions.getOwnerDiscordId())
-                .readerUsers(permissions.getUsersAllowedToRead())
-                .writerUsers(permissions.getUsersAllowedToWrite())
-                .build();
-
-        Persona expectedPersona = PersonaFixture.privatePersona()
-                .name(name)
-                .permissions(permissions)
-                .personality(personality)
-                .visibility(Visibility.fromString(visibility))
-                .nudge(nudge)
-                .bump(bump)
                 .build();
 
         when(repository.save(any(Persona.class))).thenReturn(expectedPersona);
@@ -87,7 +71,9 @@ public class PersonaDomainServiceImplTest {
         // Then
         assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
         assertThat(createdPersona.getName()).isEqualTo(expectedPersona.getName());
-        assertThat(createdPersona.getPermissions()).isEqualTo(expectedPersona.getPermissions());
+        assertThat(createdPersona.getOwnerDiscordId()).isEqualTo(expectedPersona.getOwnerDiscordId());
+        assertThat(createdPersona.getWriterUsers()).isEqualTo(expectedPersona.getWriterUsers());
+        assertThat(createdPersona.getReaderUsers()).isEqualTo(expectedPersona.getReaderUsers());
         assertThat(createdPersona.getPersonality()).isEqualTo(expectedPersona.getPersonality());
         assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
     }

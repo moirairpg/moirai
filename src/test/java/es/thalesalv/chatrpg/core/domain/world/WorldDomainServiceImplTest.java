@@ -59,10 +59,10 @@ public class WorldDomainServiceImplTest {
                 .name(name)
                 .adventureStart(adventureStart)
                 .description(description)
-                    .visibility(visibility)
-                    .creatorDiscordId(permissions.getOwnerDiscordId())
-                    .readerUsers(permissions.getUsersAllowedToRead())
-                    .writerUsers(permissions.getUsersAllowedToWrite())
+                .visibility(visibility)
+                .creatorDiscordId(permissions.getOwnerDiscordId())
+                .readerUsers(permissions.getUsersAllowedToRead())
+                .writerUsers(permissions.getUsersAllowedToWrite())
                 .lorebookEntries(Collections.singletonList(CreateLorebookEntryFixture.sampleLorebookEntry().build()))
                 .build();
 
@@ -74,7 +74,9 @@ public class WorldDomainServiceImplTest {
         // Then
         assertThat(createdWorld).isNotNull().isEqualTo(expectedWorld);
         assertThat(createdWorld.getName()).isEqualTo(expectedWorld.getName());
-        assertThat(createdWorld.getPermissions()).isEqualTo(expectedWorld.getPermissions());
+        assertThat(createdWorld.getOwnerDiscordId()).isEqualTo(expectedWorld.getOwnerDiscordId());
+        assertThat(createdWorld.getWriterUsers()).isEqualTo(expectedWorld.getWriterUsers());
+        assertThat(createdWorld.getReaderUsers()).isEqualTo(expectedWorld.getReaderUsers());
         assertThat(createdWorld.getDescription()).isEqualTo(expectedWorld.getDescription());
         assertThat(createdWorld.getAdventureStart()).isEqualTo(expectedWorld.getAdventureStart());
         assertThat(createdWorld.getVisibility()).isEqualTo(expectedWorld.getVisibility());
@@ -116,7 +118,9 @@ public class WorldDomainServiceImplTest {
         // Then
         assertThat(createdWorld).isNotNull().isEqualTo(expectedWorld);
         assertThat(createdWorld.getName()).isEqualTo(expectedWorld.getName());
-        assertThat(createdWorld.getPermissions()).isEqualTo(expectedWorld.getPermissions());
+        assertThat(createdWorld.getOwnerDiscordId()).isEqualTo(expectedWorld.getOwnerDiscordId());
+        assertThat(createdWorld.getWriterUsers()).isEqualTo(expectedWorld.getWriterUsers());
+        assertThat(createdWorld.getReaderUsers()).isEqualTo(expectedWorld.getReaderUsers());
         assertThat(createdWorld.getDescription()).isEqualTo(expectedWorld.getDescription());
         assertThat(createdWorld.getAdventureStart()).isEqualTo(expectedWorld.getAdventureStart());
         assertThat(createdWorld.getVisibility()).isEqualTo(expectedWorld.getVisibility());

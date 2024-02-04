@@ -19,9 +19,9 @@ public class CreateChannelConfigFixture {
                 .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
                 .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
                 .moderation("strict")
-                .creatorDiscordId(channelConfig.getPermissions().getOwnerDiscordId())
-                .readerUsers(channelConfig.getPermissions().getUsersAllowedToRead())
-                .writerUsers(channelConfig.getPermissions().getUsersAllowedToWrite())
+                .creatorDiscordId(channelConfig.getOwnerDiscordId())
+                .readerUsers(channelConfig.getReaderUsers())
+                .writerUsers(channelConfig.getWriterUsers())
                 .temperature(1.7)
                 .visibility("private");
     }
