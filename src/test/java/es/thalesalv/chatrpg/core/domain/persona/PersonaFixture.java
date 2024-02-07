@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.core.domain.persona;
 
+import java.time.OffsetDateTime;
+
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
@@ -13,6 +15,9 @@ public class PersonaFixture {
         builder.name("ChatRPG");
         builder.personality("I am a Discord chatbot");
         builder.visibility(Visibility.fromString("PUBLIC"));
+        builder.creatorDiscordId("CRTID");
+        builder.creationDate(OffsetDateTime.now());
+        builder.lastUpdateDate(OffsetDateTime.now());
 
         Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);
@@ -33,6 +38,9 @@ public class PersonaFixture {
         builder.name("ChatRPG");
         builder.personality("I am a Discord chatbot");
         builder.visibility(Visibility.fromString("PRIVATE"));
+        builder.creatorDiscordId("CRTID");
+        builder.creationDate(OffsetDateTime.now());
+        builder.lastUpdateDate(OffsetDateTime.now());
 
         Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);

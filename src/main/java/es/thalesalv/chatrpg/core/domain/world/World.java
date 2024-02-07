@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,7 +26,9 @@ public class World extends ShareableAsset {
 
     private World(Builder builder) {
 
-        super(builder.permissions, builder.visibility);
+        super(builder.creatorDiscordId, builder.creationDate,
+                builder.lastUpdateDate, builder.permissions, builder.visibility);
+
         this.id = builder.id;
         this.name = builder.name;
         this.description = builder.description;
@@ -78,6 +81,9 @@ public class World extends ShareableAsset {
         private List<LorebookEntry> lorebook;
         private Visibility visibility;
         private Permissions permissions;
+        private String creatorDiscordId;
+        private OffsetDateTime creationDate;
+        private OffsetDateTime lastUpdateDate;
 
         public Builder id(String id) {
 
@@ -118,6 +124,24 @@ public class World extends ShareableAsset {
         public Builder permissions(Permissions permissions) {
 
             this.permissions = permissions;
+            return this;
+        }
+
+        public Builder creatorDiscordId(String creatorDiscordId) {
+
+            this.creatorDiscordId = creatorDiscordId;
+            return this;
+        }
+
+        public Builder creationDate(OffsetDateTime creationDate) {
+
+            this.creationDate = creationDate;
+            return this;
+        }
+
+        public Builder lastUpdateDate(OffsetDateTime lastUpdateDate) {
+
+            this.lastUpdateDate = lastUpdateDate;
             return this;
         }
 

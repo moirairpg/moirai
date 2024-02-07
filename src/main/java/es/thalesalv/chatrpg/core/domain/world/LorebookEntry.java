@@ -1,12 +1,14 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
+import java.time.OffsetDateTime;
+
+import es.thalesalv.chatrpg.core.domain.Asset;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class LorebookEntry {
+public class LorebookEntry extends Asset {
 
     private String id;
     private String name;
@@ -14,8 +16,9 @@ public class LorebookEntry {
     private String description;
     private String playerDiscordId;
 
-    public LorebookEntry(Builder builder) {
+    private LorebookEntry(Builder builder) {
 
+        super(builder.creatorDiscordId, builder.creationDate, builder.lastUpdateDate);
         this.id = builder.id;
         this.name = builder.name;
         this.regex = builder.regex;
@@ -61,6 +64,9 @@ public class LorebookEntry {
         private String regex;
         private String description;
         private String playerDiscordId;
+        private String creatorDiscordId;
+        private OffsetDateTime creationDate;
+        private OffsetDateTime lastUpdateDate;
 
         public Builder id(String id) {
 
@@ -89,6 +95,24 @@ public class LorebookEntry {
         public Builder playerDiscordId(String playerDiscordId) {
 
             this.playerDiscordId = playerDiscordId;
+            return this;
+        }
+
+        public Builder creatorDiscordId(String creatorDiscordId) {
+
+            this.creatorDiscordId = creatorDiscordId;
+            return this;
+        }
+
+        public Builder creationDate(OffsetDateTime creationDate) {
+
+            this.creationDate = creationDate;
+            return this;
+        }
+
+        public Builder lastUpdateDate(OffsetDateTime lastUpdateDate) {
+
+            this.lastUpdateDate = lastUpdateDate;
             return this;
         }
 

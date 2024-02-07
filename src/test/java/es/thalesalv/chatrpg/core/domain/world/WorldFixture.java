@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,9 @@ public class WorldFixture {
         builder.description("This is an RPG world");
         builder.adventureStart("As you enter the city, people around you start looking at you.");
         builder.visibility(Visibility.fromString("PUBLIC"));
+        builder.creatorDiscordId("CRTID");
+        builder.creationDate(OffsetDateTime.now());
+        builder.lastUpdateDate(OffsetDateTime.now());
 
         Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);
@@ -37,6 +41,9 @@ public class WorldFixture {
         builder.description("This is an RPG world");
         builder.adventureStart("As you enter the city, people around you start looking at you.");
         builder.visibility(Visibility.fromString("PRIVATE"));
+        builder.creatorDiscordId("CRTID");
+        builder.creationDate(OffsetDateTime.now());
+        builder.lastUpdateDate(OffsetDateTime.now());
 
         Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);

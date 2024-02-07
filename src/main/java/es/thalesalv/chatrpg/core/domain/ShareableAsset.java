@@ -1,16 +1,21 @@
 package es.thalesalv.chatrpg.core.domain;
 
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class ShareableAsset {
+public abstract class ShareableAsset extends Asset {
 
     private Permissions permissions;
     private Visibility visibility;
+
+    protected ShareableAsset(String creatorDiscordId, OffsetDateTime creationDate,
+            OffsetDateTime lastUpdateDate, Permissions permissions, Visibility visibility) {
+
+        super(creatorDiscordId, creationDate, lastUpdateDate);
+        this.permissions = permissions;
+        this.visibility = visibility;
+    }
 
     public boolean isPublic() {
 
