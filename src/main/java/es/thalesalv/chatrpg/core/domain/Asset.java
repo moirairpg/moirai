@@ -10,7 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Asset {
 
-    private String creatorDiscordId;
-    private OffsetDateTime creationDate;
-    private OffsetDateTime lastUpdateDate;
+    private final String creatorDiscordId;
+    private final OffsetDateTime creationDate;
+    private final OffsetDateTime lastUpdateDate;
 }
