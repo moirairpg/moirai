@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.infrastructure.outbound.repository.world;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Repository;
 
 import es.thalesalv.chatrpg.core.domain.world.World;
@@ -14,5 +16,11 @@ public class WorldRepositoryImpl implements WorldRepository {
     public World save(World world) {
 
         return world;
+    }
+
+    @Override
+    public Optional<World> findById(String id) {
+
+        return Optional.of(World.builder().build());
     }
 }
