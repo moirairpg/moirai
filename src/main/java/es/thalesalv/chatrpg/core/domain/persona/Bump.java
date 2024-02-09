@@ -25,6 +25,29 @@ public final class Bump {
         return new Builder();
     }
 
+    private Builder cloneFrom(Bump bump) {
+
+        return builder()
+                .content(bump.content)
+                .frequency(bump.frequency)
+                .role(bump.role);
+    }
+
+    public Bump updateContent(String content) {
+
+        return cloneFrom(this).content(content).build();
+    }
+
+    public Bump updateFrequency(int frequency) {
+
+        return cloneFrom(this).frequency(frequency).build();
+    }
+
+    public Bump updateRole(CompletionRole role) {
+
+        return cloneFrom(this).role(role).build();
+    }
+
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
@@ -44,9 +67,9 @@ public final class Bump {
             return this;
         }
 
-        public Builder role(String role) {
+        public Builder role(CompletionRole role) {
 
-            this.role = CompletionRole.fromString(role);
+            this.role = role;
             return this;
         }
 

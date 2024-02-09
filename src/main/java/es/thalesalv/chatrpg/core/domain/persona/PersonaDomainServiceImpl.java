@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.persona.CreatePersona;
+import es.thalesalv.chatrpg.core.domain.CompletionRole;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
@@ -28,12 +29,12 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
         Bump bump = Bump.builder()
                 .content(command.getBumpContent())
                 .frequency(command.getBumpFrequency())
-                .role(command.getBumpRole())
+                .role(CompletionRole.fromString(command.getBumpRole()))
                 .build();
 
         Nudge nudge = Nudge.builder()
                 .content(command.getNudgeContent())
-                .role(command.getNudgeRole())
+                .role(CompletionRole.fromString(command.getNudgeRole()))
                 .build();
 
         Permissions permissions = Permissions.builder()

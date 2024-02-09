@@ -37,6 +37,25 @@ public abstract class ShareableAsset extends Asset {
         return visibility;
     }
 
+    public boolean isOwner(String discordUserId) {
+
+        return permissions.getOwnerDiscordId().equals(discordUserId);
+    }
+
+    public boolean canUserWrite(String discordUserId) {
+
+        boolean isWriter = permissions.getUsersAllowedToWrite().contains(discordUserId);
+
+        return isOwner(discordUserId) || isWriter;
+    }
+
+    public boolean canUserRead(String discordUserId) {
+
+        boolean isReader = permissions.getUsersAllowedToRead().contains(discordUserId);
+
+        return canUserWrite(discordUserId) || isReader;
+    }
+
     public void addWriterUser(String discordUserId) {
 
         Permissions permissions = this.permissions

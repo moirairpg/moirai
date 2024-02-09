@@ -12,7 +12,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// TODO implement missing VO methods (manage moderation and model config)
 @Getter
 public class ChannelConfig extends ShareableAsset {
 
@@ -49,6 +48,71 @@ public class ChannelConfig extends ShareableAsset {
     public void updatePersona(String personaId) {
 
         this.personaId = personaId;
+    }
+
+    public void updateModeration(Moderation moderation) {
+
+        this.moderation = moderation;
+    }
+
+    public void updateAiModel(ArtificialIntelligenceModel aiModel) {
+
+        ModelConfiguration modelConfiguration = this.modelConfiguration.updateAiModel(aiModel);
+        this.modelConfiguration = modelConfiguration;
+    }
+
+    public void updateMaxTokenLimit(int maxTokenLimit) {
+
+        ModelConfiguration modelConfiguration = this.modelConfiguration.updateMaxTokenLimit(maxTokenLimit);
+        this.modelConfiguration = modelConfiguration;
+    }
+
+    public void updateMessageHistorySize(int messageHistorySize) {
+
+        ModelConfiguration modelConfiguration = this.modelConfiguration.updateMessageHistorySize(messageHistorySize);
+        this.modelConfiguration = modelConfiguration;
+    }
+
+    public void updateTemperature(double temperature) {
+
+        ModelConfiguration modelConfiguration = this.modelConfiguration.updateTemperature(temperature);
+        this.modelConfiguration = modelConfiguration;
+    }
+
+    public void updateFrequencyPenalty(double frequencyPenalty) {
+
+        ModelConfiguration modelConfiguration = this.modelConfiguration.updateFrequencyPenalty(frequencyPenalty);
+        this.modelConfiguration = modelConfiguration;
+    }
+
+    public void updatePresencePenalty(double presencePenalty) {
+
+        ModelConfiguration modelConfiguration = this.modelConfiguration.updatePresencePenalty(presencePenalty);
+        this.modelConfiguration = modelConfiguration;
+    }
+
+    public void addStopSequence(String stopSequence) {
+
+        ModelConfiguration modelConfiguration = this.modelConfiguration.addStopSequence(stopSequence);
+        this.modelConfiguration = modelConfiguration;
+    }
+
+    public void removeStopSequence(String stopSequence) {
+
+        ModelConfiguration modelConfiguration = this.modelConfiguration.removeStopSequence(stopSequence);
+        this.modelConfiguration = modelConfiguration;
+    }
+
+    public void addLogitBias(String token, double bias) {
+
+        ModelConfiguration modelConfiguration = this.modelConfiguration.addLogitBias(token, bias);
+        this.modelConfiguration = modelConfiguration;
+    }
+
+    public void removeLogitBias(String token) {
+
+        ModelConfiguration modelConfiguration = this.modelConfiguration.removeLogitBias(token);
+        this.modelConfiguration = modelConfiguration;
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)

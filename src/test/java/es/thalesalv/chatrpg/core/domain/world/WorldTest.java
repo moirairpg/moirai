@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -252,5 +253,143 @@ public class WorldTest {
 
         // Then
         assertThat(world.getWriterUsers()).doesNotContain(userId);
+    }
+
+    @Test
+    public void userIsOwner() {
+
+        // Given
+        String testedUserId = "1234567890";
+        Permissions permissions = PermissionsFixture.samplePermissions()
+                .ownerDiscordId(testedUserId)
+                .build();
+
+        World world = WorldFixture.privateWorld().permissions(permissions).build();
+
+        // When
+        boolean isUserOwner = world.isOwner(testedUserId);
+
+        // Then
+        assertThat(isUserOwner).isTrue();
+    }
+
+    @Test
+    public void userCanWriteisWriter() {
+
+        // Given
+        String testedUserId = "1234567890";
+        Permissions permissions = PermissionsFixture.samplePermissions()
+                .usersAllowedToWrite(Collections.singletonList(testedUserId))
+                .build();
+
+        World world = WorldFixture.privateWorld().permissions(permissions).build();
+
+        // When
+        boolean isUserWriter = world.canUserWrite(testedUserId);
+
+        // Then
+        assertThat(isUserWriter).isTrue();
+    }
+
+    @Test
+    public void userCanWriteIsOwner() {
+
+        // Given
+        String testedUserId = "1234567890";
+        Permissions permissions = PermissionsFixture.samplePermissions()
+                .ownerDiscordId(testedUserId)
+                .build();
+
+        World world = WorldFixture.privateWorld().permissions(permissions).build();
+
+        // When
+        boolean isUserWriter = world.canUserWrite(testedUserId);
+
+        // Then
+        assertThat(isUserWriter).isTrue();
+    }
+
+    @Test
+    public void userCanReadisWriter() {
+
+        // Given
+        String testedUserId = "1234567890";
+        Permissions permissions = PermissionsFixture.samplePermissions()
+                .usersAllowedToWrite(Collections.singletonList(testedUserId))
+                .build();
+
+        World world = WorldFixture.privateWorld().permissions(permissions).build();
+
+        // When
+        boolean isUserReader = world.canUserRead(testedUserId);
+
+        // Then
+        assertThat(isUserReader).isTrue();
+    }
+
+    @Test
+    public void userCanReadisReader() {
+
+        // Given
+        String testedUserId = "1234567890";
+        Permissions permissions = PermissionsFixture.samplePermissions()
+                .usersAllowedToRead(Collections.singletonList(testedUserId))
+                .build();
+
+        World world = WorldFixture.privateWorld().permissions(permissions).build();
+
+        // When
+        boolean isUserReader = world.canUserRead(testedUserId);
+
+        // Then
+        assertThat(isUserReader).isTrue();
+    }
+
+    @Test
+    public void userCanReadIsOwner() {
+
+        // Given
+        String testedUserId = "1234567890";
+        Permissions permissions = PermissionsFixture.samplePermissions()
+                .ownerDiscordId(testedUserId)
+                .build();
+
+        World world = WorldFixture.privateWorld().permissions(permissions).build();
+
+        // When
+        boolean isUserReader = world.canUserRead(testedUserId);
+
+        // Then
+        assertThat(isUserReader).isTrue();
+    }
+
+    @Test
+    public void userCannotWrite() {
+
+        // Given
+        String testedUserId = "1234567890";
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+        World world = WorldFixture.privateWorld().permissions(permissions).build();
+
+        // When
+        boolean isUserWriter = world.canUserWrite(testedUserId);
+
+        // Then
+        assertThat(isUserWriter).isFalse();
+    }
+
+    @Test
+    public void userCannotRead() {
+
+        // Given
+        String testedUserId = "1234567890";
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+        World world = WorldFixture.privateWorld().permissions(permissions).build();
+
+        // When
+        boolean isUserReader = world.canUserRead(testedUserId);
+
+        // Then
+        assertThat(isUserReader).isFalse();
     }
 }

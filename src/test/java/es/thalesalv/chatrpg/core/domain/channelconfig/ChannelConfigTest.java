@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -252,5 +254,343 @@ public class ChannelConfigTest {
 
         // Then
         assertThat(channelConfig.getPersonaId()).isEqualTo(personaId);
+    }
+
+    @Test
+    public void updateModeration() {
+
+        // Given
+        Moderation moderation = Moderation.DISABLED;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // When
+        channelConfig.updateModeration(moderation);
+
+        // Then
+        assertThat(channelConfig.getModeration()).isEqualTo(moderation);
+    }
+
+    @Test
+    public void updateAiModel() {
+
+        // Given
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT4_128K;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // When
+        channelConfig.updateAiModel(aiModel);
+
+        // Then
+        assertThat(channelConfig.getModelConfiguration().getAiModel()).isEqualTo(aiModel);
+    }
+
+    @Test
+    public void updateMaxTokenLimit() {
+
+        // Given
+        int maxTokenLimit = 100;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
+
+        // When
+        channelConfig.updateMaxTokenLimit(maxTokenLimit);
+
+        // Then
+        assertThat(channelConfig.getModelConfiguration().getMaxTokenLimit()).isEqualTo(maxTokenLimit);
+    }
+
+    @Test
+    public void errorWhenMaxTokenLimitGreaterThanHardLimit() {
+
+        // Given
+        int maxTokenLimit = 5000;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.updateMaxTokenLimit(maxTokenLimit));
+    }
+
+    @Test
+    public void errorWhenMaxTokenLimitLowerThanHardLimit() {
+
+        // Given
+        int maxTokenLimit = 10;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.updateMaxTokenLimit(maxTokenLimit));
+    }
+
+    @Test
+    public void updateMessageHistorySize() {
+
+        // Given
+        int messageHistorySize = 100;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
+
+        // When
+        channelConfig.updateMessageHistorySize(messageHistorySize);
+
+        // Then
+        assertThat(channelConfig.getModelConfiguration().getMessageHistorySize()).isEqualTo(messageHistorySize);
+    }
+
+    @Test
+    public void errorWhenMessageHistorySizeGreaterThanHardLimit() {
+
+        // Given
+        int messageHistorySize = 5000;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.updateMessageHistorySize(messageHistorySize));
+    }
+
+    @Test
+    public void errorWhenMessageHistorySizeLowerThanHardLimit() {
+
+        // Given
+        int messageHistorySize = 5;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.updateMessageHistorySize(messageHistorySize));
+    }
+
+    @Test
+    public void updateTemperature() {
+
+        // Given
+        double temperature = 1.3;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // When
+        channelConfig.updateTemperature(temperature);
+
+        // Then
+        assertThat(channelConfig.getModelConfiguration().getTemperature()).isEqualTo(temperature);
+    }
+
+    @Test
+    public void errorWhenTemperatureHigherThanLimit() {
+
+        // Given
+        double temperature = 3;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.updateTemperature(temperature));
+    }
+
+    @Test
+    public void errorWhenTemperatureLowerThanLimit() {
+
+        // Given
+        double temperature = 0;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.updateTemperature(temperature));
+    }
+
+    @Test
+    public void updatePresencePenalty() {
+
+        // Given
+        double presencePenalty = 1.3;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // When
+        channelConfig.updatePresencePenalty(presencePenalty);
+
+        // Then
+        assertThat(channelConfig.getModelConfiguration().getPresencePenalty()).isEqualTo(presencePenalty);
+    }
+
+    @Test
+    public void errorWhenPresencePenaltyHigherThanLimit() {
+
+        // Given
+        double presencePenalty = 3;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.updatePresencePenalty(presencePenalty));
+    }
+
+    @Test
+    public void errorWhenPresencePenaltyLowerThanLimit() {
+
+        // Given
+        double presencePenalty = -3;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.updatePresencePenalty(presencePenalty));
+    }
+
+    @Test
+    public void updateFrequencyPenalty() {
+
+        // Given
+        double frequencyPenalty = 1.3;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // When
+        channelConfig.updateFrequencyPenalty(frequencyPenalty);
+
+        // Then
+        assertThat(channelConfig.getModelConfiguration().getFrequencyPenalty()).isEqualTo(frequencyPenalty);
+    }
+
+    @Test
+    public void errorWhenFrequencyPenaltyHigherThanLimit() {
+
+        // Given
+        double frequencyPenalty = 3;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.updateFrequencyPenalty(frequencyPenalty));
+    }
+
+    @Test
+    public void errorWhenFrequencyPenaltyLowerThanLimit() {
+
+        // Given
+        double frequencyPenalty = -3;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.updateFrequencyPenalty(frequencyPenalty));
+    }
+
+    @Test
+    public void updateLogitBias() {
+
+        // Given
+        String token = "TOKEN";
+        double bias = 1.3;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample()
+                .logitBias(new HashMap<>())
+                .build();
+
+        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+                .modelConfiguration(modelConfiguration)
+                .build();
+
+        // When
+        channelConfig.addLogitBias(token, bias);
+
+        // Then
+        assertThat(channelConfig.getModelConfiguration().getLogitBias().get(token)).isEqualTo(bias);
+    }
+
+    @Test
+    public void errorWhenLogitBiasHigherThanLimit() {
+
+        // Given
+        String token = "TOKEN";
+        double bias = 200;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.addLogitBias(token, bias));
+    }
+
+    @Test
+    public void errorWhenLogitBiasLowerThanLimit() {
+
+        // Given
+        String token = "TOKEN";
+        double bias = -200;
+        ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> channelConfig.addLogitBias(token, bias));
+    }
+
+    @Test
+    public void addStopSequence() {
+
+        // Given
+        String token = "TOKEN";
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample()
+                .stopSequences(new ArrayList<>())
+                .build();
+
+        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+                .modelConfiguration(modelConfiguration)
+                .build();
+
+        // When
+        channelConfig.addStopSequence(token);
+
+        // Then
+        assertThat(channelConfig.getModelConfiguration().getStopSequences()).containsExactly(token);
+    }
+
+    @Test
+    public void removeStopSequence() {
+
+        // Given
+        String token = "TOKEN";
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample()
+                .stopSequences(Collections.singletonList(token))
+                .build();
+
+        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+                .modelConfiguration(modelConfiguration)
+                .build();
+
+        // When
+        channelConfig.removeStopSequence(token);
+
+        // Then
+        assertThat(channelConfig.getModelConfiguration().getStopSequences()).doesNotContain(token);
+    }
+
+    @Test
+    public void removeLogitBias() {
+
+        // Given
+        String token = "TOKEN";
+        double bias = 1.3;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample()
+                .logitBias(Collections.singletonMap(token, bias))
+                .build();
+
+        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+                .modelConfiguration(modelConfiguration)
+                .build();
+
+        // When
+        channelConfig.removeLogitBias(token);
+
+        // Then
+        assertThat(channelConfig.getModelConfiguration().getLogitBias()).doesNotContainKey(token);
     }
 }

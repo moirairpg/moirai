@@ -14,7 +14,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// TODO implement missing VO methods (edit lorebook content)
 @Getter
 public class World extends ShareableAsset {
 

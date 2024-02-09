@@ -3,6 +3,7 @@ package es.thalesalv.chatrpg.core.domain.persona;
 import java.time.OffsetDateTime;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
+import es.thalesalv.chatrpg.core.domain.CompletionRole;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.ShareableAsset;
 import es.thalesalv.chatrpg.core.domain.Visibility;
@@ -11,7 +12,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// TODO implement missing VO methods (manage bump and nudge)
 @Getter
 public class Persona extends ShareableAsset {
 
@@ -46,6 +46,36 @@ public class Persona extends ShareableAsset {
     public void updatePersonality(String personality) {
 
         this.personality = personality;
+    }
+
+    public void updateBumpContent(String content) {
+
+        Bump bump = this.bump.updateContent(content);
+        this.bump = bump;
+    }
+
+    public void updateBumpFrequency(int frequency) {
+
+        Bump bump = this.bump.updateFrequency(frequency);
+        this.bump = bump;
+    }
+
+    public void updateBumpRole(CompletionRole role) {
+
+        Bump bump = this.bump.updateRole(role);
+        this.bump = bump;
+    }
+
+    public void updateNudgeContent(String content) {
+
+        Nudge nudge = this.nudge.updateContent(content);
+        this.nudge = nudge;
+    }
+
+    public void updateNudgeRole(CompletionRole role) {
+
+        Nudge nudge = this.nudge.updateRole(role);
+        this.nudge = nudge;
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)

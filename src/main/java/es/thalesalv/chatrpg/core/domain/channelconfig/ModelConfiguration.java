@@ -64,25 +64,46 @@ public final class ModelConfiguration {
 
     public ModelConfiguration updateMaxTokenLimit(Integer maxTokenLimit) {
 
+        if (maxTokenLimit < 100 || maxTokenLimit > aiModel.getHardTokenLimit()) {
+            throw new BusinessRuleViolationException(
+                    String.format("Max token limit has to be between 100 and %s", aiModel.getHardTokenLimit()));
+        }
+
         return cloneFrom(this).maxTokenLimit(maxTokenLimit).build();
     }
 
     public ModelConfiguration updateMessageHistorySize(Integer messageHistorySize) {
+
+        if (messageHistorySize < 10 || messageHistorySize > 100) {
+            throw new BusinessRuleViolationException("History size has to be between 10 and 100 messages");
+        }
 
         return cloneFrom(this).messageHistorySize(messageHistorySize).build();
     }
 
     public ModelConfiguration updateTemperature(Double temperature) {
 
+        if (temperature < 0.1 || temperature > 2) {
+            throw new BusinessRuleViolationException("Temperature value has to be between 0 and 2");
+        }
+
         return cloneFrom(this).temperature(temperature).build();
     }
 
     public ModelConfiguration updateFrequencyPenalty(Double frequencyPenalty) {
 
+        if (frequencyPenalty < -2 || frequencyPenalty > 2) {
+            throw new BusinessRuleViolationException("Frequency penalty needs to be between -2 and 2");
+        }
+
         return cloneFrom(this).frequencyPenalty(frequencyPenalty).build();
     }
 
     public ModelConfiguration updatePresencePenalty(Double presencePenalty) {
+
+        if (presencePenalty < -2 || presencePenalty > 2) {
+            throw new BusinessRuleViolationException("Presence penalty needs to be between -2 and 2");
+        }
 
         return cloneFrom(this).presencePenalty(presencePenalty).build();
     }
@@ -105,6 +126,10 @@ public final class ModelConfiguration {
 
     public ModelConfiguration addLogitBias(String token, Double bias) {
 
+        if (bias < -100 || bias > 100) {
+            throw new BusinessRuleViolationException("Logit bias value needs to be between -100 and 100");
+        }
+
         Map<String, Double> logitBias = new HashMap<>(this.logitBias);
         logitBias.put(token, bias);
 
@@ -121,6 +146,9 @@ public final class ModelConfiguration {
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
+
+        private static final double DEFAULT_FREQUENCY_PENALTY = 0.0;
+        private static final double DEFAULT_PRESENCE_PENALTY = 0.0;
 
         private ArtificialIntelligenceModel aiModel;
         private Integer maxTokenLimit;
@@ -192,6 +220,22 @@ public final class ModelConfiguration {
             if (maxTokenLimit < 100 || maxTokenLimit > aiModel.getHardTokenLimit()) {
                 throw new BusinessRuleViolationException(
                         String.format("Max token limit has to be between 100 and %s", aiModel.getHardTokenLimit()));
+            }
+
+            if (frequencyPenalty == null) {
+                frequencyPenalty = DEFAULT_FREQUENCY_PENALTY;
+            }
+
+            if (frequencyPenalty < -2 || frequencyPenalty > 2) {
+                throw new BusinessRuleViolationException("Frequency penalty needs to be between -2 and 2");
+            }
+
+            if (presencePenalty == null) {
+                presencePenalty = DEFAULT_PRESENCE_PENALTY;
+            }
+
+            if (presencePenalty < -2 || presencePenalty > 2) {
+                throw new BusinessRuleViolationException("Presence penalty needs to be between -2 and 2");
             }
 
             if (logitBias != null && !logitBias.isEmpty()) {

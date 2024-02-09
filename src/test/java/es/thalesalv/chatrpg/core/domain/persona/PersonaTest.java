@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
+import es.thalesalv.chatrpg.core.domain.CompletionRole;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 
@@ -215,5 +216,152 @@ public class PersonaTest {
 
         // Then
         assertThat(persona.getWriterUsers()).doesNotContain(userId);
+    }
+
+    @Test
+    public void updateBumpContent() {
+
+        // Given
+        String newBumpContent = "This is the new bump content";
+
+        String oldBumpContent = "This is the old bump content";
+        CompletionRole role = CompletionRole.ASSISTANT;
+        int frequency = 20;
+
+        Bump bump = BumpFixture.sample()
+                .content(oldBumpContent)
+                .role(role)
+                .frequency(frequency)
+                .build();
+
+        Persona persona = PersonaFixture.privatePersona()
+                .bump(bump)
+                .build();
+
+        // When
+        persona.updateBumpContent(newBumpContent);
+
+        // When
+        assertThat(persona.getBump()).isNotNull();
+        assertThat(persona.getBump().getContent()).isEqualTo(newBumpContent);
+        assertThat(persona.getBump().getContent()).isNotEqualTo(oldBumpContent);
+        assertThat(persona.getBump().getFrequency()).isEqualTo(frequency);
+        assertThat(persona.getBump().getRole()).isEqualTo(role);
+    }
+
+    @Test
+    public void updateBumpFrequency() {
+
+        // Given
+        int newFrequency = 50;
+
+        String oldBumpContent = "This is the old bump content";
+        CompletionRole role = CompletionRole.ASSISTANT;
+        int oldFrequency = 20;
+
+        Bump bump = BumpFixture.sample()
+                .content(oldBumpContent)
+                .role(role)
+                .frequency(oldFrequency)
+                .build();
+
+        Persona persona = PersonaFixture.privatePersona()
+                .bump(bump)
+                .build();
+
+        // When
+        persona.updateBumpFrequency(newFrequency);
+
+        // When
+        assertThat(persona.getBump()).isNotNull();
+        assertThat(persona.getBump().getContent()).isEqualTo(oldBumpContent);
+        assertThat(persona.getBump().getFrequency()).isNotEqualTo(oldFrequency);
+        assertThat(persona.getBump().getFrequency()).isEqualTo(newFrequency);
+        assertThat(persona.getBump().getRole()).isEqualTo(role);
+    }
+
+    @Test
+    public void updateBumpRole() {
+
+        // Given
+        CompletionRole newRole = CompletionRole.USER;
+
+        String oldBumpContent = "This is the old bump content";
+        CompletionRole oldRole = CompletionRole.ASSISTANT;
+        int frequency = 20;
+
+        Bump bump = BumpFixture.sample()
+                .content(oldBumpContent)
+                .role(oldRole)
+                .frequency(frequency)
+                .build();
+
+        Persona persona = PersonaFixture.privatePersona()
+                .bump(bump)
+                .build();
+
+        // When
+        persona.updateBumpRole(newRole);
+
+        // When
+        assertThat(persona.getBump()).isNotNull();
+        assertThat(persona.getBump().getFrequency()).isEqualTo(frequency);
+        assertThat(persona.getBump().getRole()).isNotEqualTo(oldRole);
+        assertThat(persona.getBump().getRole()).isEqualTo(newRole);
+    }
+
+    @Test
+    public void updateNudgeContent() {
+
+        // Given
+        String newNudgeContent = "This is the new nudge content";
+
+        String oldNudgeContent = "This is the old nudge content";
+        CompletionRole role = CompletionRole.ASSISTANT;
+
+        Nudge nudge = NudgeFixture.sample()
+                .content(oldNudgeContent)
+                .role(role)
+                .build();
+
+        Persona persona = PersonaFixture.privatePersona()
+                .nudge(nudge)
+                .build();
+
+        // When
+        persona.updateNudgeContent(newNudgeContent);
+
+        // When
+        assertThat(persona.getNudge()).isNotNull();
+        assertThat(persona.getNudge().getContent()).isEqualTo(newNudgeContent);
+        assertThat(persona.getNudge().getContent()).isNotEqualTo(oldNudgeContent);
+        assertThat(persona.getNudge().getRole()).isEqualTo(role);
+    }
+
+    @Test
+    public void updateNudgeRole() {
+
+        // Given
+        CompletionRole newRole = CompletionRole.USER;
+
+        String oldNudgeContent = "This is the old nudge content";
+        CompletionRole oldRole = CompletionRole.ASSISTANT;
+
+        Nudge nudge = NudgeFixture.sample()
+                .content(oldNudgeContent)
+                .role(oldRole)
+                .build();
+
+        Persona persona = PersonaFixture.privatePersona()
+                .nudge(nudge)
+                .build();
+
+        // When
+        persona.updateNudgeRole(newRole);
+
+        // When
+        assertThat(persona.getNudge()).isNotNull();
+        assertThat(persona.getNudge().getRole()).isNotEqualTo(oldRole);
+        assertThat(persona.getNudge().getRole()).isEqualTo(newRole);
     }
 }

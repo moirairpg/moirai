@@ -327,4 +327,92 @@ public class ModelConfigurationTest {
         assertThat(modelConfiguration).isNotNull();
         assertThat(modelConfiguration.getLogitBias()).isNotNull().isEmpty();
     }
+
+    @Test
+    public void createModelConfigurationWithNullFrequencyPenalty() {
+
+        // Given
+        Double frequencyPenalty = null;
+        Double expectedFrequencyPenalty = 0.0;
+
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+                .frequencyPenalty(frequencyPenalty);
+
+        // When
+        ModelConfiguration modelConfiguration = modelConfigurationBuilder.build();
+
+        // Then
+        assertThat(modelConfiguration).isNotNull();
+        assertThat(modelConfiguration.getFrequencyPenalty()).isNotNull().isEqualTo(expectedFrequencyPenalty);
+    }
+
+    @Test
+    public void createModelConfigurationWithNullPresencePenalty() {
+
+        // Given
+        Double presencePenalty = null;
+        Double expectedPresencePenalty = 0.0;
+
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+                .presencePenalty(presencePenalty);
+
+        // When
+        ModelConfiguration modelConfiguration = modelConfigurationBuilder.build();
+
+        // Then
+        assertThat(modelConfiguration).isNotNull();
+        assertThat(modelConfiguration.getPresencePenalty()).isNotNull().isEqualTo(expectedPresencePenalty);
+    }
+
+    @Test
+    public void errorWhenFrequencyPenaltyIsHigherThanLimit() {
+
+        // Given
+        double frequencyPenalty = 3.0;
+
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+                .frequencyPenalty(frequencyPenalty);
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class, modelConfigurationBuilder::build);
+    }
+
+    @Test
+    public void errorWhenFrequencyPenaltyIsLowerThanLimit() {
+
+        // Given
+        double frequencyPenalty = -3.0;
+
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+                .frequencyPenalty(frequencyPenalty);
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class, modelConfigurationBuilder::build);
+    }
+
+    @Test
+    public void errorWhenPresencePenaltyIsHigherThanLimit() {
+
+        // Given
+        double presencePenalty = 3.0;
+
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+                .presencePenalty(presencePenalty);
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class, modelConfigurationBuilder::build);
+    }
+
+    @Test
+    public void errorWhenPresencePenaltyIsLowerThanLimit() {
+
+        // Given
+        double presencePenalty = -3.0;
+
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+                .presencePenalty(presencePenalty);
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class, modelConfigurationBuilder::build);
+    }
 }

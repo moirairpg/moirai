@@ -22,6 +22,23 @@ public final class Nudge {
         return new Builder();
     }
 
+    private Builder cloneFrom(Nudge nudge) {
+
+        return builder()
+                .content(nudge.content)
+                .role(nudge.role);
+    }
+
+    public Nudge updateContent(String content) {
+
+        return cloneFrom(this).content(content).build();
+    }
+
+    public Nudge updateRole(CompletionRole role) {
+
+        return cloneFrom(this).role(role).build();
+    }
+
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
@@ -34,9 +51,9 @@ public final class Nudge {
             return this;
         }
 
-        public Builder role(String role) {
+        public Builder role(CompletionRole role) {
 
-            this.role = CompletionRole.fromString(role);
+            this.role = role;
             return this;
         }
 
