@@ -2,7 +2,7 @@ package es.thalesalv.chatrpg.core.application.command.persona;
 
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.common.cqrs.command.CommandHandler;
+import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaDomainService;
 import lombok.AccessLevel;
@@ -10,12 +10,12 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class UpdatePersonaHandler extends CommandHandler<UpdatePersona, UpdatePersonaResult> {
+public class UpdatePersonaHandler extends UseCaseHandler<UpdatePersona, UpdatePersonaResult> {
 
     private final PersonaDomainService domainService;
 
     @Override
-    public UpdatePersonaResult handle(UpdatePersona command) {
+    public UpdatePersonaResult execute(UpdatePersona command) {
 
         return mapResult(domainService.update(command));
     }

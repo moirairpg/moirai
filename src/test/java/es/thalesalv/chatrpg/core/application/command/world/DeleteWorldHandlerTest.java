@@ -36,7 +36,7 @@ public class DeleteWorldHandlerTest {
         when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> handler.execute(command));
+        assertThrows(AssetNotFoundException.class, () -> handler.handle(command));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class DeleteWorldHandlerTest {
         DeleteWorld config = DeleteWorld.build(id);
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.execute(config));
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(config));
     }
 
     @Test
@@ -65,6 +65,6 @@ public class DeleteWorldHandlerTest {
                 .thenReturn(Optional.of(WorldFixture.privateWorld().build()));
 
         // When
-        handler.execute(command);
+        handler.handle(command);
     }
 }

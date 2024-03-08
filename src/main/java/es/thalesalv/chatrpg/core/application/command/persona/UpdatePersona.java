@@ -2,13 +2,13 @@ package es.thalesalv.chatrpg.core.application.command.persona;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.common.cqrs.command.Command;
+import es.thalesalv.chatrpg.common.usecases.UseCase;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder(builderClassName = "Builder")
-public final class UpdatePersona extends Command<UpdatePersonaResult> {
+public final class UpdatePersona extends UseCase<UpdatePersonaResult> {
 
     private String id;
     private final String name;

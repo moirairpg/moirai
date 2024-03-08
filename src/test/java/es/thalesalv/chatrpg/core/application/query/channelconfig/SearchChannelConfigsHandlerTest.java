@@ -41,7 +41,7 @@ public class SearchChannelConfigsHandlerTest {
                 .thenReturn(expectedResult);
 
         // When
-        SearchChannelConfigsResult result = handler.execute(query);
+        SearchChannelConfigsResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();

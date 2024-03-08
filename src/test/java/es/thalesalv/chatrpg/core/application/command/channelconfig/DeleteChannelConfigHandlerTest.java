@@ -36,7 +36,7 @@ public class DeleteChannelConfigHandlerTest {
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> handler.execute(command));
+        assertThrows(AssetNotFoundException.class, () -> handler.handle(command));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class DeleteChannelConfigHandlerTest {
         DeleteChannelConfig config = DeleteChannelConfig.build(id);
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.execute(config));
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(config));
     }
 
     @Test
@@ -66,6 +66,6 @@ public class DeleteChannelConfigHandlerTest {
         when(repository.findById(id)).thenReturn(Optional.of(channelConfig));
 
         // Then
-        handler.execute(command);
+        handler.handle(command);
     }
 }

@@ -45,7 +45,7 @@ public class UpdateChannelConfigHandlerTest {
                 .thenReturn(expectedUpdatedChannelConfig);
 
         // When
-        UpdateChannelConfigResult result = handler.execute(command);
+        UpdateChannelConfigResult result = handler.handle(command);
 
         // Then
         assertThat(result).isNotNull();

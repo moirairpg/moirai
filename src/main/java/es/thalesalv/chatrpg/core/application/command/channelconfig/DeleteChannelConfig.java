@@ -1,10 +1,10 @@
 package es.thalesalv.chatrpg.core.application.command.channelconfig;
 
-import es.thalesalv.chatrpg.common.cqrs.command.Command;
+import es.thalesalv.chatrpg.common.usecases.UseCase;
 import lombok.Getter;
 
 @Getter
-public final class DeleteChannelConfig extends Command<Void> {
+public final class DeleteChannelConfig extends UseCase<Void> {
 
     private final String id;
 

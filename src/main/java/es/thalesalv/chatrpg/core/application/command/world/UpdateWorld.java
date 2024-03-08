@@ -2,13 +2,13 @@ package es.thalesalv.chatrpg.core.application.command.world;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.common.cqrs.command.Command;
+import es.thalesalv.chatrpg.common.usecases.UseCase;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder(builderClassName = "Builder")
-public final class UpdateWorld extends Command<UpdateWorldResult> {
+public final class UpdateWorld extends UseCase<UpdateWorldResult> {
 
     private final String id;
     private final String name;

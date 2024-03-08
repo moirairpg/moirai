@@ -31,7 +31,7 @@ public class CreateWorldHandlerTest {
         CreateWorld command = null;
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.execute(command));
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
     }
 
     @Test
@@ -46,7 +46,7 @@ public class CreateWorldHandlerTest {
                 .thenReturn(world);
 
         // When
-        CreateWorldResult result = handler.execute(command);
+        CreateWorldResult result = handler.handle(command);
 
         // Then
         assertThat(result).isNotNull();

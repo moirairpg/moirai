@@ -1,6 +1,6 @@
 package es.thalesalv.chatrpg.core.application.query.persona;
 
-import es.thalesalv.chatrpg.common.cqrs.query.Query;
+import es.thalesalv.chatrpg.common.usecases.UseCase;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @Builder(builderClassName = "Builder")
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SearchPersonas extends Query<SearchPersonasResult> {
+public final class SearchPersonas extends UseCase<SearchPersonasResult> {
 
     private final Integer page;
     private final Integer results;

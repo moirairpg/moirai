@@ -1,6 +1,6 @@
 package es.thalesalv.chatrpg.core.application.query.channelconfig;
 
-import es.thalesalv.chatrpg.common.cqrs.query.Query;
+import es.thalesalv.chatrpg.common.usecases.UseCase;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @Builder(builderClassName = "Builder")
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SearchChannelConfigs extends Query<SearchChannelConfigsResult> {
+public final class SearchChannelConfigs extends UseCase<SearchChannelConfigsResult> {
 
     private final Integer page;
     private final Integer results;

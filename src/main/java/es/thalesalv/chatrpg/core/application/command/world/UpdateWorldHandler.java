@@ -2,7 +2,7 @@ package es.thalesalv.chatrpg.core.application.command.world;
 
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.common.cqrs.command.CommandHandler;
+import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
 import lombok.AccessLevel;
@@ -10,12 +10,12 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class UpdateWorldHandler extends CommandHandler<UpdateWorld, UpdateWorldResult> {
+public class UpdateWorldHandler extends UseCaseHandler<UpdateWorld, UpdateWorldResult> {
 
     private final WorldDomainService service;
 
     @Override
-    public UpdateWorldResult handle(UpdateWorld command) {
+    public UpdateWorldResult execute(UpdateWorld command) {
 
         return mapResult(service.update(command));
     }

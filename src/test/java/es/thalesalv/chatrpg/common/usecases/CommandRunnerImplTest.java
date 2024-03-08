@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.common.cqrs.command;
+package es.thalesalv.chatrpg.common.usecases;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,7 +21,7 @@ public class CommandRunnerImplTest {
     public void errorWhenHandlerNotFound() {
 
         // Given
-        CommandRunnerImpl runner = new CommandRunnerImpl();
+        UseCaseRunnerImpl runner = new UseCaseRunnerImpl();
         CreateWorld command = CreateWorld.builder().build();
 
         // Then
@@ -32,7 +32,7 @@ public class CommandRunnerImplTest {
     public void errorWhenHandlerAlreadyRegistered() {
 
         // Given
-        CommandRunnerImpl runner = new CommandRunnerImpl();
+        UseCaseRunnerImpl runner = new UseCaseRunnerImpl();
         CreateWorldHandler handler = mock(CreateWorldHandler.class);
 
         runner.registerHandler(handler);
@@ -46,7 +46,7 @@ public class CommandRunnerImplTest {
     public void errorWhenHandlerIsNull() {
 
         // Given
-        CommandRunnerImpl runner = new CommandRunnerImpl();
+        UseCaseRunnerImpl runner = new UseCaseRunnerImpl();
         CreateWorldHandler handler = null;
 
         // Then
@@ -59,12 +59,12 @@ public class CommandRunnerImplTest {
 
         // Given
         String id = "WLRDID";
-        CommandRunnerImpl runner = new CommandRunnerImpl();
+        UseCaseRunnerImpl runner = new UseCaseRunnerImpl();
         CreateWorldHandler handler = mock(CreateWorldHandler.class);
         CreateWorld command = CreateWorld.builder().build();
         CreateWorldResult expectedResult = CreateWorldResult.build(id);
 
-        when(handler.execute(any(CreateWorld.class))).thenReturn(expectedResult);
+        when(handler.handle(any(CreateWorld.class))).thenReturn(expectedResult);
 
         runner.registerHandler(handler);
 

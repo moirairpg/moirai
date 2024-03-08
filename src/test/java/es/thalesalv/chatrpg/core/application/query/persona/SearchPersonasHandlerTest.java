@@ -41,7 +41,7 @@ public class SearchPersonasHandlerTest {
                 .thenReturn(expectedResult);
 
         // When
-        SearchPersonasResult result = handler.execute(query);
+        SearchPersonasResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();

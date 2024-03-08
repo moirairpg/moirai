@@ -2,7 +2,7 @@ package es.thalesalv.chatrpg.core.application.query.world;
 
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.common.cqrs.query.QueryHandler;
+import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
@@ -11,12 +11,12 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class GetWorldByIdHandler extends QueryHandler<GetWorldById, GetWorldResult> {
+public class GetWorldByIdHandler extends UseCaseHandler<GetWorldById, GetWorldResult> {
 
     private final WorldRepository repository;
 
     @Override
-    public GetWorldResult handle(GetWorldById query) {
+    public GetWorldResult execute(GetWorldById query) {
 
         World world = repository.findById(query.getId())
                 .orElseThrow(() -> new AssetNotFoundException("World not found"));

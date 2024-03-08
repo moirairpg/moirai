@@ -44,7 +44,7 @@ public class UpdateWorldHandlerTest {
                 .thenReturn(expectedUpdatedWorld);
 
         // When
-        UpdateWorldResult result = handler.execute(command);
+        UpdateWorldResult result = handler.handle(command);
 
         // Then
         assertThat(result).isNotNull();

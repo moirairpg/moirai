@@ -1,10 +1,10 @@
 package es.thalesalv.chatrpg.core.application.command.persona;
 
-import es.thalesalv.chatrpg.common.cqrs.command.Command;
+import es.thalesalv.chatrpg.common.usecases.UseCase;
 import lombok.Getter;
 
 @Getter
-public final class DeletePersona extends Command<Void> {
+public final class DeletePersona extends UseCase<Void> {
 
     private final String id;
 

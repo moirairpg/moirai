@@ -34,7 +34,7 @@ public class GetPersonaByIdTest {
         GetPersonaById query = null;
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.execute(query));
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(query));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class GetPersonaByIdTest {
         when(repository.findById(anyString())).thenReturn(Optional.of(persona));
 
         // When
-        GetPersonaResult result = handler.execute(query);
+        GetPersonaResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -65,6 +65,6 @@ public class GetPersonaByIdTest {
         when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> handler.execute(query));
+        assertThrows(AssetNotFoundException.class, () -> handler.handle(query));
     }
 }

@@ -31,7 +31,7 @@ public class CreateChannelConfigHandlerTest {
         CreateChannelConfig command = null;
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.execute(command));
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
     }
 
     @Test
@@ -46,7 +46,7 @@ public class CreateChannelConfigHandlerTest {
                 .thenReturn(channelConfig);
 
         // When
-        CreateChannelConfigResult result = handler.execute(command);
+        CreateChannelConfigResult result = handler.handle(command);
 
         // Then
         assertThat(result).isNotNull();

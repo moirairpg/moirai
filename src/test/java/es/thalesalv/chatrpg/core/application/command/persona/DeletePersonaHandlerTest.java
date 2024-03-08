@@ -36,7 +36,7 @@ public class DeletePersonaHandlerTest {
         when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> handler.execute(command));
+        assertThrows(AssetNotFoundException.class, () -> handler.handle(command));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class DeletePersonaHandlerTest {
         DeletePersona config = DeletePersona.build(id);
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.execute(config));
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(config));
     }
 
     @Test
@@ -65,6 +65,6 @@ public class DeletePersonaHandlerTest {
                 .thenReturn(Optional.of(PersonaFixture.privatePersona().build()));
 
         // When
-        handler.execute(command);
+        handler.handle(command);
     }
 }

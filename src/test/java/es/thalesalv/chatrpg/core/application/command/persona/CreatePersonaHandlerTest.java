@@ -31,7 +31,7 @@ public class CreatePersonaHandlerTest {
         CreatePersona command = null;
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.execute(command));
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
     }
 
     @Test
@@ -46,7 +46,7 @@ public class CreatePersonaHandlerTest {
                 .thenReturn(persona);
 
         // When
-        CreatePersonaResult result = handler.execute(command);
+        CreatePersonaResult result = handler.handle(command);
 
         // Then
         assertThat(result).isNotNull();

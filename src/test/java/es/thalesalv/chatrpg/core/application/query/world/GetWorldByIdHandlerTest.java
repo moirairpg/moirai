@@ -34,7 +34,7 @@ public class GetWorldByIdHandlerTest {
         GetWorldById query = null;
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.execute(query));
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(query));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class GetWorldByIdHandlerTest {
         when(repository.findById(anyString())).thenReturn(Optional.of(world));
 
         // When
-        GetWorldResult result = handler.execute(query);
+        GetWorldResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -65,6 +65,6 @@ public class GetWorldByIdHandlerTest {
         when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> handler.execute(query));
+        assertThrows(AssetNotFoundException.class, () -> handler.handle(query));
     }
 }

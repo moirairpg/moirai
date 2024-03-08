@@ -43,7 +43,7 @@ public class UpdatePersonaHandlerTest {
                 .thenReturn(expectedUpdatedPersona);
 
         // When
-        UpdatePersonaResult result = handler.execute(command);
+        UpdatePersonaResult result = handler.handle(command);
 
         // Then
         assertThat(result).isNotNull();

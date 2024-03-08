@@ -41,7 +41,7 @@ public class SearchWorldsHandlerTest {
                 .thenReturn(expectedResult);
 
         // When
-        SearchWorldsResult result = handler.execute(query);
+        SearchWorldsResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();
