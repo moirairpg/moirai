@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 import es.thalesalv.chatrpg.common.cqrs.command.CommandHandler;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigDomainService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateChannelConfigHandler extends CommandHandler<CreateChannelConfig, CreateChannelConfigResult> {
 
     private final ChannelConfigDomainService domainService;
@@ -17,6 +18,6 @@ public class CreateChannelConfigHandler extends CommandHandler<CreateChannelConf
     public CreateChannelConfigResult handle(CreateChannelConfig command) {
 
         ChannelConfig channelconfig = domainService.createFrom(command);
-        return CreateChannelConfigResult.with(channelconfig.getId());
+        return CreateChannelConfigResult.build(channelconfig.getId());
     }
 }

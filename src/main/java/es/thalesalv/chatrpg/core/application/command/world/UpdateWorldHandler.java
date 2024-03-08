@@ -1,0 +1,27 @@
+package es.thalesalv.chatrpg.core.application.command.world;
+
+import org.springframework.stereotype.Service;
+
+import es.thalesalv.chatrpg.common.cqrs.command.CommandHandler;
+import es.thalesalv.chatrpg.core.domain.world.World;
+import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public class UpdateWorldHandler extends CommandHandler<UpdateWorld, UpdateWorldResult> {
+
+    private final WorldDomainService service;
+
+    @Override
+    public UpdateWorldResult handle(UpdateWorld command) {
+
+        return mapResult(service.update(command));
+    }
+
+    private UpdateWorldResult mapResult(World savedWorld) {
+
+        return UpdateWorldResult.build(savedWorld.getLastUpdateDate());
+    }
+}

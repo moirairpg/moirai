@@ -4,12 +4,15 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
+import es.thalesalv.chatrpg.core.application.query.world.SearchWorlds;
+import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @Repository
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class WorldRepositoryImpl implements WorldRepository {
 
     @Override
@@ -22,5 +25,15 @@ public class WorldRepositoryImpl implements WorldRepository {
     public Optional<World> findById(String id) {
 
         return Optional.of(World.builder().build());
+    }
+
+    @Override
+    public void deleteById(String id) {
+    }
+
+    @Override
+    public SearchWorldsResult searchWorlds(SearchWorlds query) {
+
+        return null;
     }
 }

@@ -6,22 +6,25 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
+import es.thalesalv.chatrpg.core.application.command.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class WorldDomainServiceImpl implements WorldDomainService {
 
     @Value("${chatrpg.validation.token-limits.world.initial-prompt}")
     private int adventureStartTokenLimit;
 
-    private final WorldRepository worldRepository;
+    private final WorldRepository repository;
     private final TokenizerPort tokenizerPort;
 
     @Override
@@ -45,7 +48,36 @@ public class WorldDomainServiceImpl implements WorldDomainService {
 
         validateTokenCount(world);
 
-        return worldRepository.save(world);
+        return repository.save(world);
+    }
+
+    @Override
+    public World update(UpdateWorld command) {
+
+        repository.findById(command.getId())
+                .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+
+        List<LorebookEntry> lorebookEntries = mapLorebookEntriesFromCommand(command.getLorebookEntries());
+
+        Permissions permissions = Permissions.builder()
+                .ownerDiscordId(command.getCreatorDiscordId())
+                .usersAllowedToRead(command.getReaderUsers())
+                .usersAllowedToWrite(command.getWriterUsers())
+                .build();
+
+        World world = World.builder()
+                .id(command.getId())
+                .name(command.getName())
+                .description(command.getDescription())
+                .adventureStart(command.getAdventureStart())
+                .visibility(Visibility.fromString(command.getVisibility()))
+                .permissions(permissions)
+                .lorebook(lorebookEntries)
+                .build();
+
+        validateTokenCount(world);
+
+        return repository.save(world);
     }
 
     private void validateTokenCount(World world) {
@@ -56,7 +88,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
         }
     }
 
-    private List<LorebookEntry> mapLorebookEntriesFromCommand(List<CreateWorldLorebookEntry> commandLorebookEntries) {
+    private List<LorebookEntry> mapLorebookEntriesFromCommand(List<WorldLorebookEntry> commandLorebookEntries) {
 
         if (commandLorebookEntries == null) {
             return Collections.emptyList();
@@ -67,7 +99,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
                 .toList();
     }
 
-    private LorebookEntry mapLorebookEntryFromCommand(CreateWorldLorebookEntry commandLorebookEntry) {
+    private LorebookEntry mapLorebookEntryFromCommand(WorldLorebookEntry commandLorebookEntry) {
 
         return LorebookEntry.builder()
                 .name(commandLorebookEntry.getName())

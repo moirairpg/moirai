@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 import es.thalesalv.chatrpg.common.cqrs.command.CommandHandler;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateWorldHandler extends CommandHandler<CreateWorld, CreateWorldResult> {
 
     private final WorldDomainService domainService;
@@ -17,6 +18,6 @@ public class CreateWorldHandler extends CommandHandler<CreateWorld, CreateWorldR
     public CreateWorldResult handle(CreateWorld command) {
 
         World world = domainService.createFrom(command);
-        return CreateWorldResult.with(world.getId());
+        return CreateWorldResult.build(world.getId());
     }
 }

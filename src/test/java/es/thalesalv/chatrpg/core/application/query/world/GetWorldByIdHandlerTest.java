@@ -43,12 +43,12 @@ public class GetWorldByIdHandlerTest {
         // Given
         String id = "HAUDHUAHD";
         World world = WorldFixture.privateWorld().id(id).build();
-        GetWorldById query = GetWorldById.with(id);
+        GetWorldById query = GetWorldById.build(id);
 
         when(repository.findById(anyString())).thenReturn(Optional.of(world));
 
         // When
-        GetWorldByIdResult result = handler.execute(query);
+        GetWorldResult result = handler.execute(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -60,7 +60,7 @@ public class GetWorldByIdHandlerTest {
 
         // Given
         String id = "HAUDHUAHD";
-        GetWorldById query = GetWorldById.with(id);
+        GetWorldById query = GetWorldById.build(id);
 
         when(repository.findById(anyString())).thenReturn(Optional.empty());
 

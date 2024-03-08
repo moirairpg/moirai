@@ -15,7 +15,7 @@ public final class CreateWorld extends Command<CreateWorldResult> {
     private final String adventureStart;
     private final String visibility;
     private final String creatorDiscordId;
-    private final List<CreateWorldLorebookEntry> lorebookEntries;
+    private final List<WorldLorebookEntry> lorebookEntries;
     private final List<String> writerUsers;
     private final List<String> readerUsers;
 }

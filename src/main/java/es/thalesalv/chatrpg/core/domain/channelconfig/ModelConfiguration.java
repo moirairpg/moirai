@@ -1,7 +1,11 @@
 package es.thalesalv.chatrpg.core.domain.channelconfig;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +36,11 @@ public final class ModelConfiguration {
         this.frequencyPenalty = builder.frequencyPenalty;
         this.presencePenalty = builder.presencePenalty;
 
-        this.stopSequences = Collections.unmodifiableList(
-                builder.stopSequences == null ? Collections.emptyList() : builder.stopSequences);
+        this.stopSequences = unmodifiableList(
+                builder.stopSequences == null ? emptyList() : new ArrayList<>(builder.stopSequences));
 
-        this.logitBias = Collections.unmodifiableMap(
-                builder.logitBias == null ? Collections.emptyMap() : builder.logitBias);
+        this.logitBias = unmodifiableMap(
+                builder.logitBias == null ? emptyMap() : new HashMap<>(builder.logitBias));
     }
 
     public static Builder builder() {

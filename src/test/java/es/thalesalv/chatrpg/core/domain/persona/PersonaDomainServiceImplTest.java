@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,8 +15,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.persona.CreatePersona;
+import es.thalesalv.chatrpg.core.application.command.persona.UpdatePersona;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
@@ -142,5 +146,58 @@ public class PersonaDomainServiceImplTest {
         // Then
         assertThrows(BusinessRuleViolationException.class,
                 () -> service.createFrom(command));
+    }
+
+    @Test
+    public void errorWhenUpdatePersonaNotFound() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdatePersona command = UpdatePersona.builder()
+                .id(id)
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.update(command));
+    }
+
+    @Test
+    public void updatePersona() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdatePersona command = UpdatePersona.builder()
+                .id(id)
+                .name("ChatRPG")
+                .personality("I am a Discord chatbot")
+                .visibility("PUBLIC")
+                .creatorDiscordId("CRTID")
+                .bumpContent("This is a bump")
+                .bumpRole("system")
+                .bumpFrequency(5)
+                .nudgeContent("This is a nudge")
+                .nudgeRole("system")
+                .build();
+
+        Persona unchangedPersona = PersonaFixture.privatePersona().build();
+
+        Persona expectedUpdatedPersona = PersonaFixture.privatePersona()
+                .id(id)
+                .name("New name")
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedPersona));
+        when(repository.save(any(Persona.class))).thenReturn(expectedUpdatedPersona);
+
+        // When
+        Persona result = service.update(command);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo(expectedUpdatedPersona.getName());
     }
 }

@@ -1,7 +1,10 @@
 package es.thalesalv.chatrpg.core.domain;
 
+import static java.util.Collections.disjoint;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
@@ -20,15 +23,11 @@ public final class Permissions {
 
         this.ownerDiscordId = builder.ownerDiscordId;
 
-        List<String> usersAllowedToRead = builder.usersAllowedToRead == null ? Collections.emptyList()
-                : builder.usersAllowedToRead;
+        this.usersAllowedToRead = unmodifiableList(builder.usersAllowedToRead == null ? emptyList()
+                : new ArrayList<>(builder.usersAllowedToRead));
 
-        this.usersAllowedToRead = Collections.unmodifiableList(usersAllowedToRead);
-
-        List<String> usersAllowedToWrite = builder.usersAllowedToRead == null ? Collections.emptyList()
-                : builder.usersAllowedToWrite;
-
-        this.usersAllowedToWrite = Collections.unmodifiableList(usersAllowedToWrite);
+        this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToRead == null ? emptyList()
+                : new ArrayList<>(builder.usersAllowedToWrite));
     }
 
     public static Builder builder() {
@@ -111,12 +110,12 @@ public final class Permissions {
 
         boolean isOwnerFound = discordUserIds.stream().anyMatch(this::isOwner);
 
-        return !Collections.disjoint(this.usersAllowedToWrite, discordUserIds) || isOwnerFound;
+        return !disjoint(this.usersAllowedToWrite, discordUserIds) || isOwnerFound;
     }
 
     public boolean areAllowedToRead(List<String> discordUserIds) {
 
-        return !Collections.disjoint(this.usersAllowedToRead, discordUserIds) || areAllowedToWrite(discordUserIds);
+        return !disjoint(this.usersAllowedToRead, discordUserIds) || areAllowedToWrite(discordUserIds);
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)

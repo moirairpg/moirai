@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldByIdHandler;
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldByIdResult;
+import es.thalesalv.chatrpg.core.application.query.world.GetWorldResult;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldFixture;
@@ -28,7 +28,7 @@ public class QueryRunnerImplTest {
 
         // Given
         QueryRunnerImpl runner = new QueryRunnerImpl();
-        GetWorldById query = GetWorldById.with("WLRDID");
+        GetWorldById query = GetWorldById.build("WLRDID");
 
         // Then
         assertThrows(IllegalArgumentException.class, () -> runner.run(query));
@@ -67,7 +67,7 @@ public class QueryRunnerImplTest {
         String id = "WLRDID";
         QueryRunnerImpl runner = new QueryRunnerImpl();
         GetWorldByIdHandler handler = mock(GetWorldByIdHandler.class);
-        GetWorldById query = GetWorldById.with(id);
+        GetWorldById query = GetWorldById.build(id);
 
         World world = WorldFixture.privateWorld().build();
 
@@ -81,7 +81,7 @@ public class QueryRunnerImplTest {
                         .build())
                 .toList();
 
-        GetWorldByIdResult expectedResult = GetWorldByIdResult.builder()
+        GetWorldResult expectedResult = GetWorldResult.builder()
                 .id(id)
                 .name(world.getName())
                 .description(world.getDescription())
@@ -102,7 +102,7 @@ public class QueryRunnerImplTest {
         runner.registerHandler(handler);
 
         // When
-        GetWorldByIdResult result = runner.run(query);
+        GetWorldResult result = runner.run(query);
 
         // Then
         assertThat(result).isNotNull();

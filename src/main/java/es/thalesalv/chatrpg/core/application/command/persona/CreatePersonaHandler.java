@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 import es.thalesalv.chatrpg.common.cqrs.command.CommandHandler;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaDomainService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreatePersonaHandler extends CommandHandler<CreatePersona, CreatePersonaResult> {
 
     private final PersonaDomainService domainService;
@@ -17,6 +18,6 @@ public class CreatePersonaHandler extends CommandHandler<CreatePersona, CreatePe
     public CreatePersonaResult handle(CreatePersona command) {
 
         Persona world = domainService.createFrom(command);
-        return CreatePersonaResult.with(world.getId());
+        return CreatePersonaResult.build(world.getId());
     }
 }

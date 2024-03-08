@@ -62,7 +62,7 @@ public class CommandRunnerImplTest {
         CommandRunnerImpl runner = new CommandRunnerImpl();
         CreateWorldHandler handler = mock(CreateWorldHandler.class);
         CreateWorld command = CreateWorld.builder().build();
-        CreateWorldResult expectedResult = CreateWorldResult.with(id);
+        CreateWorldResult expectedResult = CreateWorldResult.build(id);
 
         when(handler.execute(any(CreateWorld.class))).thenReturn(expectedResult);
 

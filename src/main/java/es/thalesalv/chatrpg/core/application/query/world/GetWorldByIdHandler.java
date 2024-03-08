@@ -6,16 +6,17 @@ import es.thalesalv.chatrpg.common.cqrs.query.QueryHandler;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
-public class GetWorldByIdHandler extends QueryHandler<GetWorldById, GetWorldByIdResult> {
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public class GetWorldByIdHandler extends QueryHandler<GetWorldById, GetWorldResult> {
 
     private final WorldRepository repository;
 
     @Override
-    public GetWorldByIdResult handle(GetWorldById query) {
+    public GetWorldResult handle(GetWorldById query) {
 
         World world = repository.findById(query.getId())
                 .orElseThrow(() -> new AssetNotFoundException("World not found"));
@@ -23,9 +24,9 @@ public class GetWorldByIdHandler extends QueryHandler<GetWorldById, GetWorldById
         return mapResult(world);
     }
 
-    private GetWorldByIdResult mapResult(World world) {
+    private GetWorldResult mapResult(World world) {
 
-        return GetWorldByIdResult.builder()
+        return GetWorldResult.builder()
                 .id(world.getId())
                 .build();
     }

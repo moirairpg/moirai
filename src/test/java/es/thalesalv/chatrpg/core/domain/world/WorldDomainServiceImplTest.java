@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,9 +16,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateLorebookEntryFixture;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
+import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
@@ -151,5 +154,54 @@ public class WorldDomainServiceImplTest {
 
         // Then
         assertThrows(BusinessRuleViolationException.class, () -> service.createFrom(command));
+    }
+
+    @Test
+    public void errorWhenUpdateWorldNotFound() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateWorld command = UpdateWorld.builder()
+                .id(id)
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.update(command));
+    }
+
+    @Test
+    public void updateWorld() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateWorld command = UpdateWorld.builder()
+                .id(id)
+                .name("ChatRPG")
+                .description("This is an RPG world")
+                .adventureStart("As you enter the city, people around you start looking at you.")
+                .visibility("PUBLIC")
+                .creatorDiscordId("CRTID")
+                .build();
+
+        World unchangedWorld = WorldFixture.privateWorld().build();
+
+        World expectedUpdatedWorld = WorldFixture.privateWorld()
+                .id(id)
+                .name("New name")
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
+        when(repository.save(any(World.class))).thenReturn(expectedUpdatedWorld);
+
+        // When
+        World result = service.update(command);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo(expectedUpdatedWorld.getName());
     }
 }

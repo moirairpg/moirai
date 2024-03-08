@@ -11,9 +11,9 @@ public class CreateWorldFixture {
 
         World world = WorldFixture.privateWorld().build();
 
-        List<CreateWorldLorebookEntry> lorebookEntries = world.getLorebook()
+        List<WorldLorebookEntry> lorebookEntries = world.getLorebook()
                 .stream()
-                .map(entry -> CreateWorldLorebookEntry.builder()
+                .map(entry -> WorldLorebookEntry.builder()
                         .name(entry.getName())
                         .description(entry.getDescription())
                         .regex(entry.getRegex())

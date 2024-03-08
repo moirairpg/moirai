@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class LorebookEntryDomainServiceImpl implements LorebookEntryDomainService {
 
     @Value("${chatrpg.validation.token-limits.world.lorebook-entry.description}")
