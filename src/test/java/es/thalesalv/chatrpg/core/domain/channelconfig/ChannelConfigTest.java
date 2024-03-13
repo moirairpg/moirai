@@ -29,7 +29,7 @@ public class ChannelConfigTest {
         channelConfigBuilder.personaId("PRSNID");
         channelConfigBuilder.moderation(Moderation.STRICT);
         channelConfigBuilder.visibility(Visibility.fromString("PRIVATE"));
-        channelConfigBuilder.modelConfiguration(ModelConfigurationFixture.sample().build());
+        channelConfigBuilder.modelConfiguration(ModelConfigurationFixture.gpt3516k().build());
         channelConfigBuilder.permissions(PermissionsFixture.samplePermissions().build());
 
         // When
@@ -290,7 +290,7 @@ public class ChannelConfigTest {
         // Given
         int maxTokenLimit = 100;
         ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
         // When
@@ -306,7 +306,7 @@ public class ChannelConfigTest {
         // Given
         int maxTokenLimit = 5000;
         ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
         // Then
@@ -320,7 +320,7 @@ public class ChannelConfigTest {
         // Given
         int maxTokenLimit = 10;
         ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
         // Then
@@ -334,7 +334,7 @@ public class ChannelConfigTest {
         // Given
         int messageHistorySize = 100;
         ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
         // When
@@ -350,7 +350,7 @@ public class ChannelConfigTest {
         // Given
         int messageHistorySize = 5000;
         ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
         // Then
@@ -364,7 +364,7 @@ public class ChannelConfigTest {
         // Given
         int messageHistorySize = 5;
         ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().aiModel(aiModel).build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
         // Then
@@ -492,7 +492,7 @@ public class ChannelConfigTest {
         // Given
         String token = "TOKEN";
         double bias = 1.3;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample()
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
                 .logitBias(new HashMap<>())
                 .build();
 
@@ -538,7 +538,7 @@ public class ChannelConfigTest {
 
         // Given
         String token = "TOKEN";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample()
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
                 .stopSequences(new ArrayList<>())
                 .build();
 
@@ -558,7 +558,7 @@ public class ChannelConfigTest {
 
         // Given
         String token = "TOKEN";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample()
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
                 .stopSequences(Collections.singletonList(token))
                 .build();
 
@@ -579,7 +579,7 @@ public class ChannelConfigTest {
         // Given
         String token = "TOKEN";
         double bias = 1.3;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample()
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
                 .logitBias(Collections.singletonMap(token, bias))
                 .build();
 

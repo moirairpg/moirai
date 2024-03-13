@@ -15,14 +15,16 @@ public final class GetPersonaResult {
 
     private final String id;
     private final String name;
-    private final String description;
-    private final String adventureStart;
-    private final List<GetPersonaLorebookEntry> lorebook;
+    private final String personality;
+    private final String nudgeContent;
+    private final String nudgeRole;
+    private final String bumpContent;
+    private final String bumpRole;
+    private final int bumpFrequency;
     private final String visibility;
     private final String ownerDiscordId;
     private final List<String> writerUsers;
     private final List<String> readerUsers;
-    private final String creatorDiscordId;
     private final OffsetDateTime creationDate;
     private final OffsetDateTime lastUpdateDate;
 }

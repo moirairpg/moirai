@@ -55,7 +55,7 @@ public class ModelConfigurationTest {
 
         // Given
         ArtificialIntelligenceModel newModel = ArtificialIntelligenceModel.GPT4_128K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updateAiModel(newModel);
@@ -69,7 +69,7 @@ public class ModelConfigurationTest {
 
         // Given
         Integer newTokenLimit = 700;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updateMaxTokenLimit(newTokenLimit);
@@ -83,7 +83,7 @@ public class ModelConfigurationTest {
 
         // Given
         Integer newHistorySize = 77;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updateMessageHistorySize(newHistorySize);
@@ -97,7 +97,7 @@ public class ModelConfigurationTest {
 
         // Given
         Double newTemperature = 1.7;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updateTemperature(newTemperature);
@@ -111,7 +111,7 @@ public class ModelConfigurationTest {
 
         // Given
         Double newFrequencyPenalty = 1.7;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updateFrequencyPenalty(newFrequencyPenalty);
@@ -125,7 +125,7 @@ public class ModelConfigurationTest {
 
         // Given
         Double newPresencePenalty = 1.7;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updatePresencePenalty(newPresencePenalty);
@@ -140,7 +140,7 @@ public class ModelConfigurationTest {
         // Given
         String newToken = "323";
         Double bias = 57.0;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.addLogitBias(newToken, bias);
@@ -155,7 +155,7 @@ public class ModelConfigurationTest {
         // Given
         String newToken = "323";
         Double bias = 57.0;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
         modelConfiguration = modelConfiguration.addLogitBias(newToken, bias);
 
         // When
@@ -170,7 +170,7 @@ public class ModelConfigurationTest {
 
         // Given
         String newToken = "323";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.addStopSequence(newToken);
@@ -184,7 +184,7 @@ public class ModelConfigurationTest {
 
         // Given
         String newToken = "323";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.sample().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
         modelConfiguration = modelConfiguration.addStopSequence(newToken);
 
         // When
@@ -198,7 +198,7 @@ public class ModelConfigurationTest {
     public void errorWhenTemperatureIsHigherThanLimit() {
 
         // Given
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .temperature(3.0);
 
         // Then
@@ -209,7 +209,7 @@ public class ModelConfigurationTest {
     public void errorWhenTemperatureIsLowerThanLimit() {
 
         // Given
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .temperature(-3.0);
 
         // Then
@@ -220,7 +220,7 @@ public class ModelConfigurationTest {
     public void errorWhenMessageHistorySizeIsHigherThanLimit() {
 
         // Given
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .messageHistorySize(200);
 
         // Then
@@ -231,7 +231,7 @@ public class ModelConfigurationTest {
     public void errorWhenMessageHistorySizeIsLowerThanLimit() {
 
         // Given
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .messageHistorySize(5);
 
         // Then
@@ -242,7 +242,7 @@ public class ModelConfigurationTest {
     public void errorWhenMaxTokenLimitIsLowerThanLimit() {
 
         // Given
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .maxTokenLimit(5);
 
         // Then
@@ -253,11 +253,11 @@ public class ModelConfigurationTest {
     public void errorWhenMaxTokenLimitIsHigherThanModelLimit() {
 
         // Given
-        ModelConfiguration.Builder gpt3516k = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder gpt3516k = ModelConfigurationFixture.gpt3516k()
                 .aiModel(ArtificialIntelligenceModel.GPT35_16K)
                 .maxTokenLimit(20000);
 
-        ModelConfiguration.Builder gpt354k = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder gpt354k = ModelConfigurationFixture.gpt3516k()
                 .aiModel(ArtificialIntelligenceModel.GPT35_4K)
                 .maxTokenLimit(5000);
 
@@ -273,7 +273,7 @@ public class ModelConfigurationTest {
         Map<String, Double> logitBias = new HashMap<>();
         logitBias.put("ABC", -200.0);
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .logitBias(logitBias);
 
         // Then
@@ -287,7 +287,7 @@ public class ModelConfigurationTest {
         Map<String, Double> logitBias = new HashMap<>();
         logitBias.put("ABC", 200.0);
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .logitBias(logitBias);
 
         // Then
@@ -300,7 +300,7 @@ public class ModelConfigurationTest {
         // Given
         Map<String, Double> logitBias = Collections.emptyMap();
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .logitBias(logitBias);
 
         // When
@@ -317,7 +317,7 @@ public class ModelConfigurationTest {
         // Given
         Map<String, Double> logitBias = null;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .logitBias(logitBias);
 
         // When
@@ -335,7 +335,7 @@ public class ModelConfigurationTest {
         Double frequencyPenalty = null;
         Double expectedFrequencyPenalty = 0.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .frequencyPenalty(frequencyPenalty);
 
         // When
@@ -353,7 +353,7 @@ public class ModelConfigurationTest {
         Double presencePenalty = null;
         Double expectedPresencePenalty = 0.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .presencePenalty(presencePenalty);
 
         // When
@@ -370,7 +370,7 @@ public class ModelConfigurationTest {
         // Given
         double frequencyPenalty = 3.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .frequencyPenalty(frequencyPenalty);
 
         // Then
@@ -383,7 +383,7 @@ public class ModelConfigurationTest {
         // Given
         double frequencyPenalty = -3.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .frequencyPenalty(frequencyPenalty);
 
         // Then
@@ -396,7 +396,7 @@ public class ModelConfigurationTest {
         // Given
         double presencePenalty = 3.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .presencePenalty(presencePenalty);
 
         // Then
@@ -409,7 +409,7 @@ public class ModelConfigurationTest {
         // Given
         double presencePenalty = -3.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.sample()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .presencePenalty(presencePenalty);
 
         // Then

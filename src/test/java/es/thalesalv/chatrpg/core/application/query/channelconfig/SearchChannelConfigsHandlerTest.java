@@ -26,15 +26,15 @@ public class SearchChannelConfigsHandlerTest {
 
         // Given
         SearchChannelConfigs query = SearchChannelConfigs.builder()
-                .order("ASCENDING")
+                .direction("ASC")
                 .page(1)
-                .results(2)
+                .items(2)
                 .sortByField("name")
                 .build();
 
         SearchChannelConfigsResult expectedResult = SearchChannelConfigsResult.builder()
                 .page(1)
-                .results(2)
+                .items(2)
                 .build();
 
         when(repository.searchChannelConfigs(any(SearchChannelConfigs.class)))
@@ -45,7 +45,7 @@ public class SearchChannelConfigsHandlerTest {
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isEqualTo(expectedResult.getResults());
+        assertThat(result.getItems()).isEqualTo(expectedResult.getItems());
         assertThat(result.getPage()).isEqualTo(expectedResult.getPage());
     }
 }

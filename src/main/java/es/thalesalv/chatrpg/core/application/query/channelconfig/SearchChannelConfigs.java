@@ -12,9 +12,10 @@ import lombok.RequiredArgsConstructor;
 public final class SearchChannelConfigs extends UseCase<SearchChannelConfigsResult> {
 
     private final Integer page;
-    private final Integer results;
-    private final String searchField;
-    private final String searchCriteria;
+    private final Integer items;
     private final String sortByField;
-    private final String order;
+    private final String direction;
+    private final String aiModel;
+    private final String moderation;
+    private final String name;
 }

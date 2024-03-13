@@ -15,7 +15,8 @@ public class PermissionsFixture {
         userList.add("643337806686791");
         userList.add("559802401039646");
 
-        return Permissions.builder().ownerDiscordId(OWNER_DISCORD_ID)
+        return Permissions.builder()
+                .ownerDiscordId(OWNER_DISCORD_ID)
                 .usersAllowedToRead(userList)
                 .usersAllowedToWrite(userList);
     }

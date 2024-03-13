@@ -26,15 +26,15 @@ public class SearchPersonasHandlerTest {
 
         // Given
         SearchPersonas query = SearchPersonas.builder()
-                .order("ASCENDING")
+                .direction("ASC")
                 .page(1)
-                .results(2)
+                .items(2)
                 .sortByField("name")
                 .build();
 
         SearchPersonasResult expectedResult = SearchPersonasResult.builder()
                 .page(1)
-                .results(2)
+                .items(2)
                 .build();
 
         when(repository.searchPersonas(any(SearchPersonas.class)))
@@ -45,7 +45,7 @@ public class SearchPersonasHandlerTest {
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isEqualTo(expectedResult.getResults());
+        assertThat(result.getItems()).isEqualTo(expectedResult.getItems());
         assertThat(result.getPage()).isEqualTo(expectedResult.getPage());
     }
 }

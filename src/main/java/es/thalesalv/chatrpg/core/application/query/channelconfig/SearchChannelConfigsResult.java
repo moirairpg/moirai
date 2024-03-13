@@ -12,25 +12,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SearchChannelConfigsResult {
 
-    private final Integer page;
-    private final Integer results;
-    private final List<GetChannelConfigResult> channelConfigs;
-
-    public SearchChannelConfigsResult(Builder builder) {
-        this.page = builder.page;
-        this.results = builder.results;
-        this.channelConfigs = builder.channelConfigs;
-    }
-
-    public static class Builder {
-
-        private Integer page;
-        private Integer results;
-        private List<GetChannelConfigResult> channelConfigs;
-
-        public SearchChannelConfigsResult build() {
-
-            return new SearchChannelConfigsResult(this);
-        }
-    }
+    private final int page;
+    private final int items;
+    private final long totalItems;
+    private final int totalPages;
+    private final List<GetChannelConfigResult> results;
 }

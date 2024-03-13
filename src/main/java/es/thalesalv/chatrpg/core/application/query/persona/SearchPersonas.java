@@ -12,9 +12,10 @@ import lombok.RequiredArgsConstructor;
 public final class SearchPersonas extends UseCase<SearchPersonasResult> {
 
     private final Integer page;
-    private final Integer results;
+    private final Integer items;
     private final String searchField;
     private final String searchCriteria;
     private final String sortByField;
-    private final String order;
+    private final String direction;
+    private final String name;
 }

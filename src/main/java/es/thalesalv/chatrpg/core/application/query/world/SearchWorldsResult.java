@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SearchWorldsResult {
 
-    private final Integer page;
-    private final Integer results;
-    private final List<GetWorldResult> worlds;
+    private final int page;
+    private final int items;
+    private final long totalItems;
+    private final int totalPages;
+    private final List<GetWorldResult> results;
 }

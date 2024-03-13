@@ -9,7 +9,6 @@ public class ChannelConfigFixture {
 
     public static ChannelConfig.Builder sample() {
 
-        // Given
         ChannelConfig.Builder builder = ChannelConfig.builder();
         builder.id("CHCONFID");
         builder.name("Name");
@@ -17,7 +16,7 @@ public class ChannelConfigFixture {
         builder.personaId("PRSNID");
         builder.moderation(Moderation.STRICT);
         builder.visibility(Visibility.fromString("PRIVATE"));
-        builder.modelConfiguration(ModelConfigurationFixture.sample().build());
+        builder.modelConfiguration(ModelConfigurationFixture.gpt3516k().build());
         builder.permissions(PermissionsFixture.samplePermissions().build());
         builder.creatorDiscordId("CRTID");
         builder.creationDate(OffsetDateTime.now());
