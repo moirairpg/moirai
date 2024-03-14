@@ -79,12 +79,13 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void retrieveChannelConfigById() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
         ChannelConfig channelConfig = repository.save(ChannelConfigFixture.sample()
                 .id(null)
                 .build());
 
         // When
-        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfig.getId());
+        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfig.getId(), ownerDiscordId);
 
         // Then
         assertThat(retrievedChannelConfigOptional).isNotNull().isNotEmpty();
@@ -97,6 +98,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void deleteChannelConfig() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
         ChannelConfig channelConfig = repository.save(ChannelConfigFixture.sample()
                 .id(null)
                 .build());
@@ -105,7 +107,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         repository.deleteById(channelConfig.getId());
 
         // Then
-        assertThat(repository.findById(channelConfig.getId())).isNotNull().isEmpty();
+        assertThat(repository.findById(channelConfig.getId(), ownerDiscordId)).isNotNull().isEmpty();
     }
 
     @Test

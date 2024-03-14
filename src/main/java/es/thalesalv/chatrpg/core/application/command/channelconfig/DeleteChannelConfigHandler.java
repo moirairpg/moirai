@@ -29,8 +29,8 @@ public class DeleteChannelConfigHandler extends UseCaseHandler<DeleteChannelConf
     @Override
     public Void execute(DeleteChannelConfig command) {
 
-        // TODO add ownership check
-        repository.findById(command.getId())
+        // TODO extract real ID from principal when API is ready
+        repository.findById(command.getId(), "owner")
                 .orElseThrow(() -> new AssetNotFoundException(CANNOT_DELETE_NOT_FOUND));
 
         repository.deleteById(command.getId());

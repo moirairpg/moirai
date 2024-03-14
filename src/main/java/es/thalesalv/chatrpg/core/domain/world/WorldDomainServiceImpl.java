@@ -54,7 +54,8 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     @Override
     public World update(UpdateWorld command) {
 
-        repository.findById(command.getId())
+        // TODO extract real ID from principal when API is ready
+        repository.findById(command.getId(), "owner")
                 .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
 
         List<LorebookEntry> lorebookEntries = mapLorebookEntriesFromCommand(command.getLorebookEntries());

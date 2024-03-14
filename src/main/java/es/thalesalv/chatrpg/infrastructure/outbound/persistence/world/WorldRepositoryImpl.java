@@ -43,9 +43,9 @@ public class WorldRepositoryImpl implements WorldRepository {
     }
 
     @Override
-    public Optional<World> findById(String id) {
+    public Optional<World> findById(String id, String requesterDiscordId) {
 
-        return jpaRepository.findById(id)
+        return jpaRepository.findById(id, requesterDiscordId)
                 .map(this::mapFromEntity);
     }
 
@@ -65,7 +65,7 @@ public class WorldRepositoryImpl implements WorldRepository {
                 : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<WorldEntity> filters = buildFilter(query, requesterDiscordId);
+        Specification<WorldEntity> filters = buildSearchFilter(query, requesterDiscordId);
         Page<WorldEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return SearchWorldsResult.builder()
@@ -129,7 +129,7 @@ public class WorldRepositoryImpl implements WorldRepository {
                 .build();
     }
 
-    private Specification<WorldEntity> buildFilter(SearchWorlds query, String requesterDiscordId) {
+    private Specification<WorldEntity> buildSearchFilter(SearchWorlds query, String requesterDiscordId) {
 
         return (root, cq, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -138,7 +138,10 @@ public class WorldRepositoryImpl implements WorldRepository {
             Predicate isAllowedToRead = cb.like(root.get(WorldEntity_.usersAllowedToReadString),
                     "%" + requesterDiscordId + "%");
 
-            predicates.add(cb.or(isOwner, isAllowedToRead));
+            Predicate isAllowedToWrite = cb.like(root.get(WorldEntity_.usersAllowedToWriteString),
+                    "%" + requesterDiscordId + "%");
+
+            predicates.add(cb.or(isOwner, isAllowedToRead, isAllowedToWrite));
 
             if (StringUtils.isNotBlank(query.getName())) {
                 predicates.add(cb.and(cb.like(cb.upper(root.get(WorldEntity_.name)),

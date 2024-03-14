@@ -7,7 +7,7 @@ import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelCo
 
 public interface ChannelConfigRepository {
 
-    Optional<ChannelConfig> findById(String id);
+    Optional<ChannelConfig> findById(String id, String requesterDiscordId);
 
     ChannelConfig save(ChannelConfig channelConfig);
 

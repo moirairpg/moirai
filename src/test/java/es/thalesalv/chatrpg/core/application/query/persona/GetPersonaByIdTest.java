@@ -45,7 +45,7 @@ public class GetPersonaByIdTest {
         Persona persona = PersonaFixture.privatePersona().id(id).build();
         GetPersonaById query = GetPersonaById.build(id);
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(persona));
 
         // When
         GetPersonaResult result = handler.handle(query);
@@ -62,7 +62,7 @@ public class GetPersonaByIdTest {
         String id = "HAUDHUAHD";
         GetPersonaById query = GetPersonaById.build(id);
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> handler.handle(query));

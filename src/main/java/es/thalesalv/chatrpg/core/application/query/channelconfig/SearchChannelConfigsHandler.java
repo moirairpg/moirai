@@ -16,6 +16,7 @@ public class SearchChannelConfigsHandler extends UseCaseHandler<SearchChannelCon
     @Override
     public SearchChannelConfigsResult execute(SearchChannelConfigs query) {
 
+        // TODO extract real ID from principal when API is ready
         return repository.searchChannelConfigs(query, "owner");
     }
 }

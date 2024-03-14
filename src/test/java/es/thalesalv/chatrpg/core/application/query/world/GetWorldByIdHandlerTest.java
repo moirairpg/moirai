@@ -45,7 +45,7 @@ public class GetWorldByIdHandlerTest {
         World world = WorldFixture.privateWorld().id(id).build();
         GetWorldById query = GetWorldById.build(id);
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(world));
 
         // When
         GetWorldResult result = handler.handle(query);
@@ -62,7 +62,7 @@ public class GetWorldByIdHandlerTest {
         String id = "HAUDHUAHD";
         GetWorldById query = GetWorldById.build(id);
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> handler.handle(query));

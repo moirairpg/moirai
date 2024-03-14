@@ -29,8 +29,8 @@ public class DeletePersonaHandler extends UseCaseHandler<DeletePersona, Void> {
     @Override
     public Void execute(DeletePersona command) {
 
-        // TODO add ownership check
-        repository.findById(command.getId())
+        // TODO extract real ID from principal when API is ready
+        repository.findById(command.getId(), "owner")
                 .orElseThrow(() -> new AssetNotFoundException(CANNOT_DELETE_NOT_FOUND));
 
         repository.deleteById(command.getId());

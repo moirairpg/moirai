@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.core.application.command.channelconfig;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class DeleteChannelConfigHandlerTest {
 
         DeleteChannelConfig command = DeleteChannelConfig.build(id);
 
-        when(repository.findById(id)).thenReturn(Optional.empty());
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> handler.handle(command));
@@ -54,8 +55,6 @@ public class DeleteChannelConfigHandlerTest {
     @Test
     public void deleteChannelConfig() {
 
-        // TODO make this an integration test that actually tests deletion
-
         // Given
         String id = "CHCONFID";
 
@@ -63,7 +62,7 @@ public class DeleteChannelConfigHandlerTest {
 
         DeleteChannelConfig command = DeleteChannelConfig.build(id);
 
-        when(repository.findById(id)).thenReturn(Optional.of(channelConfig));
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(channelConfig));
 
         // Then
         handler.handle(command);

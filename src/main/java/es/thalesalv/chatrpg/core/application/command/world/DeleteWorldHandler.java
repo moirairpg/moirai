@@ -29,8 +29,8 @@ public class DeleteWorldHandler extends UseCaseHandler<DeleteWorld, Void> {
     @Override
     public Void execute(DeleteWorld command) {
 
-        // TODO add ownership check
-        repository.findById(command.getId())
+        // TODO extract real ID from principal when API is ready
+        repository.findById(command.getId(), "owner")
                 .orElseThrow(() -> new AssetNotFoundException(CANNOT_DELETE_NOT_FOUND));
 
         repository.deleteById(command.getId());

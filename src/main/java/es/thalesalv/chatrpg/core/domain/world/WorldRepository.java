@@ -9,7 +9,7 @@ public interface WorldRepository {
 
     World save(World world);
 
-    Optional<World> findById(String id);
+    Optional<World> findById(String id, String requesterDiscordId);
 
     void deleteById(String id);
 

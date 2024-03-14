@@ -166,7 +166,7 @@ public class WorldDomainServiceImplTest {
                 .id(id)
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.update(command));
@@ -194,7 +194,7 @@ public class WorldDomainServiceImplTest {
                 .name("New name")
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(unchangedWorld));
         when(repository.save(any(World.class))).thenReturn(expectedUpdatedWorld);
 
         // When

@@ -59,12 +59,13 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     public void retrieveWorldById() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
         World world = repository.save(WorldFixture.privateWorld()
                 .id(null)
                 .build());
 
         // When
-        Optional<World> retrievedWorldOptional = repository.findById(world.getId());
+        Optional<World> retrievedWorldOptional = repository.findById(world.getId(), ownerDiscordId);
 
         // Then
         assertThat(retrievedWorldOptional).isNotNull().isNotEmpty();
@@ -77,6 +78,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     public void deleteWorld() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
         World world = repository.save(WorldFixture.privateWorld()
                 .id(null)
                 .build());
@@ -85,7 +87,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         repository.deleteById(world.getId());
 
         // Then
-        assertThat(repository.findById(world.getId())).isNotNull().isEmpty();
+        assertThat(repository.findById(world.getId(), ownerDiscordId)).isNotNull().isEmpty();
     }
 
     @Test

@@ -158,7 +158,7 @@ public class PersonaDomainServiceImplTest {
                 .id(id)
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.update(command));
@@ -190,7 +190,7 @@ public class PersonaDomainServiceImplTest {
                 .name("New name")
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedPersona));
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(unchangedPersona));
         when(repository.save(any(Persona.class))).thenReturn(expectedUpdatedPersona);
 
         // When

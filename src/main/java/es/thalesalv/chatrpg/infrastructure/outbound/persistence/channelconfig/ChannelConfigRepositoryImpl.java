@@ -46,9 +46,9 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
     }
 
     @Override
-    public Optional<ChannelConfig> findById(String id) {
+    public Optional<ChannelConfig> findById(String id, String requesterDiscordId) {
 
-        return jpaRepository.findById(id)
+        return jpaRepository.findById(id, requesterDiscordId)
                 .map(this::mapFromEntity);
     }
 

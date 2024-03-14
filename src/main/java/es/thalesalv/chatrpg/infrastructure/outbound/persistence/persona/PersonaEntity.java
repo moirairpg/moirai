@@ -10,12 +10,14 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "persona")
+@Entity(name = "Persona")
+@Table(name = "persona")
 public class PersonaEntity extends ShareableAssetEntity {
 
     @Id

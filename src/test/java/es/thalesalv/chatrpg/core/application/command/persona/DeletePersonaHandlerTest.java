@@ -33,7 +33,7 @@ public class DeletePersonaHandlerTest {
 
         DeletePersona command = DeletePersona.build(id);
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> handler.handle(command));
@@ -54,14 +54,12 @@ public class DeletePersonaHandlerTest {
     @Test
     public void deletePersona() {
 
-        // TODO make this an integration test that actually tests deletion
-
         // Given
         String id = "WRDID";
 
         DeletePersona command = DeletePersona.build(id);
 
-        when(repository.findById(anyString()))
+        when(repository.findById(anyString(), anyString()))
                 .thenReturn(Optional.of(PersonaFixture.privatePersona().build()));
 
         // When

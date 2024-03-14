@@ -7,7 +7,7 @@ import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasResult;
 
 public interface PersonaRepository {
 
-    Optional<Persona> findById(String id);
+    Optional<Persona> findById(String id, String requesterDiscordId);
 
     Persona save(Persona persona);
 

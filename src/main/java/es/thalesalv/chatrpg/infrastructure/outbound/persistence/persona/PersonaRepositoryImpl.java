@@ -46,9 +46,9 @@ public class PersonaRepositoryImpl implements PersonaRepository {
     }
 
     @Override
-    public Optional<Persona> findById(String id) {
+    public Optional<Persona> findById(String id, String requesterDiscordId) {
 
-        return jpaRepository.findById(id)
+        return jpaRepository.findById(id, requesterDiscordId)
                 .map(this::mapFromEntity);
     }
 

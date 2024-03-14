@@ -61,7 +61,8 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
     @Override
     public Persona update(UpdatePersona command) {
 
-        repository.findById(command.getId())
+        // TODO extract real ID from principal when API is ready
+        repository.findById(command.getId(), "owner")
                 .orElseThrow(() -> new AssetNotFoundException("Persona to be updated was not found"));
 
         validateTokenCount(command.getPersonality());

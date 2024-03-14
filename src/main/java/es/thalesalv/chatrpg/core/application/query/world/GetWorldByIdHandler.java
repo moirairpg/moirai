@@ -18,7 +18,8 @@ public class GetWorldByIdHandler extends UseCaseHandler<GetWorldById, GetWorldRe
     @Override
     public GetWorldResult execute(GetWorldById query) {
 
-        World world = repository.findById(query.getId())
+        // TODO extract real ID from principal when API is ready
+        World world = repository.findById(query.getId(), "owner")
                 .orElseThrow(() -> new AssetNotFoundException("World not found"));
 
         return mapResult(world);

@@ -53,7 +53,8 @@ public class ChannelConfigDomainServiceImpl implements ChannelConfigDomainServic
     @Override
     public ChannelConfig update(UpdateChannelConfig command) {
 
-        repository.findById(command.getId())
+        // TODO extract real ID from principal when API is ready
+        repository.findById(command.getId(), "owner")
                 .orElseThrow(() -> new AssetNotFoundException("Channel config to be updated was not found"));
 
         ModelConfiguration modelConfiguration = ModelConfiguration.builder()

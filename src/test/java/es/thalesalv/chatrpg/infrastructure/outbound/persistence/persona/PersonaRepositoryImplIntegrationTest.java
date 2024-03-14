@@ -67,12 +67,13 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     public void retrievePersonaById() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
         Persona persona = repository.save(PersonaFixture.privatePersona()
                 .id(null)
                 .build());
 
         // When
-        Optional<Persona> retrievedPersonaOptional = repository.findById(persona.getId());
+        Optional<Persona> retrievedPersonaOptional = repository.findById(persona.getId(), ownerDiscordId);
 
         // Then
         assertThat(retrievedPersonaOptional).isNotNull().isNotEmpty();
@@ -85,6 +86,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     public void deletePersona() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
         Persona persona = repository.save(PersonaFixture.privatePersona()
                 .id(null)
                 .build());
@@ -93,7 +95,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         repository.deleteById(persona.getId());
 
         // Then
-        assertThat(repository.findById(persona.getId())).isNotNull().isEmpty();
+        assertThat(repository.findById(persona.getId(), ownerDiscordId)).isNotNull().isEmpty();
     }
 
     @Test
