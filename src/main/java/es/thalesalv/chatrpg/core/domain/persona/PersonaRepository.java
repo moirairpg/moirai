@@ -13,5 +13,5 @@ public interface PersonaRepository {
 
     void deleteById(String id);
 
-    SearchPersonasResult searchPersonas(SearchPersonas query);
+    SearchPersonasResult searchPersonas(SearchPersonas query, String requesterDiscordId);
 }

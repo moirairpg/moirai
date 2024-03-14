@@ -13,5 +13,5 @@ public interface ChannelConfigRepository {
 
     void deleteById(String id);
 
-    SearchChannelConfigsResult searchChannelConfigs(SearchChannelConfigs query);
+    SearchChannelConfigsResult searchChannelConfigs(SearchChannelConfigs query, String requesterDiscordId);
 }

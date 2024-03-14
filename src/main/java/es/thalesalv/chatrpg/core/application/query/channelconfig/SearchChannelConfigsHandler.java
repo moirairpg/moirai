@@ -16,6 +16,6 @@ public class SearchChannelConfigsHandler extends UseCaseHandler<SearchChannelCon
     @Override
     public SearchChannelConfigsResult execute(SearchChannelConfigs query) {
 
-        return repository.searchChannelConfigs(query);
+        return repository.searchChannelConfigs(query, "owner");
     }
 }

@@ -59,7 +59,7 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
     }
 
     @Override
-    public SearchChannelConfigsResult searchChannelConfigs(SearchChannelConfigs query) {
+    public SearchChannelConfigsResult searchChannelConfigs(SearchChannelConfigs query, String requesterDiscordId) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
@@ -68,7 +68,7 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
                 : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<ChannelConfigEntity> filters = buildFilter(query);
+        Specification<ChannelConfigEntity> filters = buildFilter(query, requesterDiscordId);
         Page<ChannelConfigEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return SearchChannelConfigsResult.builder()
@@ -160,10 +160,16 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
                 .build();
     }
 
-    private Specification<ChannelConfigEntity> buildFilter(SearchChannelConfigs query) {
+    private Specification<ChannelConfigEntity> buildFilter(SearchChannelConfigs query, String requesterDiscordId) {
 
         return (root, cq, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
+
+            Predicate isOwner = cb.equal(root.get(ChannelConfigEntity_.ownerDiscordId), requesterDiscordId);
+            Predicate isAllowedToRead = cb.like(root.get(ChannelConfigEntity_.usersAllowedToReadString),
+                    "%" + requesterDiscordId + "%");
+
+            predicates.add(cb.or(isOwner, isAllowedToRead));
 
             if (StringUtils.isNotBlank(query.getAiModel())) {
                 predicates.add(cb.like(cb.upper(root.get("modelConfiguration")

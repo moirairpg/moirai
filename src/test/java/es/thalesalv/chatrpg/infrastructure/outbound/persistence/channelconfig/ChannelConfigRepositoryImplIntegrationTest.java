@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.infrastructure.outbound.persistence.channelconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,9 +109,51 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     }
 
     @Test
+    public void returnAllChannelConfigsWhenSearchingWithoutParameters() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .ownerDiscordId("580485734")
+                .usersAllowedToRead(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .ownerDiscordId("580485734")
+                .build();
+
+        jpaRepository.save(gpt4128k);
+        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt354k);
+
+        SearchChannelConfigs query = SearchChannelConfigs.builder().build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
     public void returnAllChannelConfigsWhenSearchingWithoutParametersAsc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
@@ -135,7 +178,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         SearchChannelConfigs query = SearchChannelConfigs.builder().build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -151,6 +194,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void returnAllChannelConfigsWhenSearchingWithoutParametersDesc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
@@ -177,7 +222,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -193,6 +238,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void searchChannelConfigOrderByNameAsc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 2")
@@ -220,7 +267,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -236,6 +283,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void searchChannelConfigOrderByNameDesc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 2")
@@ -264,7 +313,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -280,6 +329,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void searchChannelConfigOrderByAiModelAsc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 2")
@@ -308,7 +359,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -324,6 +375,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void searchChannelConfigOrderByAiModelDesc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 2")
@@ -352,7 +405,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -368,6 +421,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void searchChannelConfigOrderByModerationAsc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 1")
@@ -398,7 +453,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -414,6 +469,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void searchChannelConfigOrderByModerationDesc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 1")
@@ -444,7 +501,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -460,6 +517,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void searchChannelConfigFilterByAiModel() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 1")
@@ -487,7 +546,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -501,6 +560,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void searchChannelConfigFilterByName() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 1")
@@ -528,7 +589,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -542,6 +603,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void searchChannelConfigFilterByModeration() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 1")
@@ -569,7 +632,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query);
+        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();

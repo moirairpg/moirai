@@ -2,7 +2,11 @@ package es.thalesalv.chatrpg.infrastructure.outbound.persistence;
 
 import java.util.List;
 
+import org.hibernate.annotations.Formula;
+
+import es.thalesalv.chatrpg.common.dbutil.StringListConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,10 +35,18 @@ public abstract class ShareableAssetEntity extends AssetEntity {
     protected String ownerDiscordId;
 
     @Column(name = "reader_users_ids")
+    @Convert(converter = StringListConverter.class)
     protected List<String> usersAllowedToRead;
 
+    @Formula(value = "reader_users_ids")
+    private String usersAllowedToReadString;
+
     @Column(name = "writers_users_ids")
+    @Convert(converter = StringListConverter.class)
     protected List<String> usersAllowedToWrite;
+
+    @Formula(value = "writers_users_ids")
+    private String usersAllowedToWriteString;
 
     @Column(name = "visibility")
     protected String visibility;

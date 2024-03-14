@@ -59,7 +59,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
     }
 
     @Override
-    public SearchPersonasResult searchPersonas(SearchPersonas query) {
+    public SearchPersonasResult searchPersonas(SearchPersonas query, String requesterDiscordId) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
@@ -68,7 +68,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<PersonaEntity> filters = buildFilter(query);
+        Specification<PersonaEntity> filters = buildFilter(query, requesterDiscordId);
         Page<PersonaEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return SearchPersonasResult.builder()
@@ -157,13 +157,19 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 .build();
     }
 
-    private Specification<PersonaEntity> buildFilter(SearchPersonas query) {
+    private Specification<PersonaEntity> buildFilter(SearchPersonas query, String requesterDiscordId) {
 
         return (root, cq, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
 
+            Predicate isOwner = cb.equal(root.get(PersonaEntity_.ownerDiscordId), requesterDiscordId);
+            Predicate isAllowedToRead = cb.like(root.get(PersonaEntity_.usersAllowedToReadString),
+                    "%" + requesterDiscordId + "%");
+
+            predicates.add(cb.or(isOwner, isAllowedToRead));
+
             if (StringUtils.isNotBlank(query.getName())) {
-                predicates.add(cb.like(cb.upper(root.get("name")),
+                predicates.add(cb.like(cb.upper(root.get(PersonaEntity_.name)),
                         "%" + query.getName().toUpperCase() + "%"));
             }
 

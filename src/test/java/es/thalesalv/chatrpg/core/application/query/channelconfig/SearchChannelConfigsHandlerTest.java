@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.core.application.query.channelconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class SearchChannelConfigsHandlerTest {
                 .items(2)
                 .build();
 
-        when(repository.searchChannelConfigs(any(SearchChannelConfigs.class)))
+        when(repository.searchChannelConfigs(any(SearchChannelConfigs.class), anyString()))
                 .thenReturn(expectedResult);
 
         // When

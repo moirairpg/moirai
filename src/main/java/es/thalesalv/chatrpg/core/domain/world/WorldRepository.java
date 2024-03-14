@@ -13,5 +13,5 @@ public interface WorldRepository {
 
     void deleteById(String id);
 
-    SearchWorldsResult searchWorlds(SearchWorlds query);
+    SearchWorldsResult searchWorlds(SearchWorlds query, String requesterDiscordId);
 }

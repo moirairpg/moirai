@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.infrastructure.outbound.persistence.world;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,9 +89,51 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     }
 
     @Test
-    public void returnAllWorldsWhenSearchingWithoutParametersAsc() {
+    public void returnAllWorldsWhenSearchingWithoutParameters() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
+        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+                .id(null)
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+                .id(null)
+                .ownerDiscordId("580485734")
+                .usersAllowedToRead(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        WorldEntity gpt354k = WorldEntityFixture.privateWorld()
+                .id(null)
+                .ownerDiscordId("580485734")
+                .build();
+
+        jpaRepository.save(gpt4128k);
+        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt354k);
+
+        SearchWorlds query = SearchWorlds.builder().build();
+
+        // When
+        SearchWorldsResult result = repository.searchWorlds(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetWorldResult> worlds = result.getResults();
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void returnOnlyWorldsWithReadAccessWhenSearchingWithoutParametersAsc() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+
         WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
                 .id(null)
                 .build();
@@ -110,11 +153,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         SearchWorlds query = SearchWorlds.builder().build();
 
         // When
-        SearchWorldsResult result = repository.searchWorlds(query);
+        SearchWorldsResult result = repository.searchWorlds(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetWorldResult> worlds = result.getResults();
         assertThat(worlds.get(0).getName()).isEqualTo(gpt4128k.getName());
@@ -126,6 +169,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     public void returnAllWorldsWhenSearchingWithoutParametersDesc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
                 .id(null)
                 .build();
@@ -147,11 +192,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorlds(query);
+        SearchWorldsResult result = repository.searchWorlds(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetWorldResult> worlds = result.getResults();
         assertThat(worlds.get(0).getName()).isEqualTo(gpt354k.getName());
@@ -163,6 +208,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     public void searchWorldOrderByNameAsc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 2")
@@ -187,11 +234,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorlds(query);
+        SearchWorldsResult result = repository.searchWorlds(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetWorldResult> worlds = result.getResults();
         assertThat(worlds.get(0).getName()).isEqualTo(gpt3516k.getName());
@@ -203,6 +250,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     public void searchWorldOrderByNameDesc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 2")
@@ -226,11 +275,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorlds(query);
+        SearchWorldsResult result = repository.searchWorlds(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetWorldResult> worlds = result.getResults();
         assertThat(worlds.get(0).getName()).isEqualTo(gpt354k.getName());
@@ -242,6 +291,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     public void searchWorldFilterByName() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 1")
@@ -264,7 +315,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorlds(query);
+        SearchWorldsResult result = repository.searchWorlds(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();

@@ -16,6 +16,6 @@ public class SearchPersonasHandler extends UseCaseHandler<SearchPersonas, Search
     @Override
     public SearchPersonasResult execute(SearchPersonas query) {
 
-        return repository.searchPersonas(query);
+        return repository.searchPersonas(query, "owner");
     }
 }

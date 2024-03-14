@@ -16,6 +16,6 @@ public class SearchWorldsHandler extends UseCaseHandler<SearchWorlds, SearchWorl
     @Override
     public SearchWorldsResult execute(SearchWorlds query) {
 
-        return repository.searchWorlds(query);
+        return repository.searchWorlds(query, "owner");
     }
 }

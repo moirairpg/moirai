@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.infrastructure.outbound.persistence.persona;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -96,9 +97,51 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     }
 
     @Test
+    public void returnAllPersonasWhenSearchingWithoutParameters() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+
+        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .ownerDiscordId("580485734")
+                .usersAllowedToRead(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        PersonaEntity gpt354k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .ownerDiscordId("580485734")
+                .build();
+
+        jpaRepository.save(gpt4128k);
+        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt354k);
+
+        SearchPersonas query = SearchPersonas.builder().build();
+
+        // When
+        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetPersonaResult> personas = result.getResults();
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
     public void returnAllPersonasWhenSearchingWithoutParametersAsc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .build();
@@ -118,7 +161,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         SearchPersonas query = SearchPersonas.builder().build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query);
+        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -134,6 +177,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     public void returnAllPersonasWhenSearchingWithoutParametersDesc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .build();
@@ -157,7 +202,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query);
+        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -173,6 +218,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     public void searchPersonaOrderByNameAsc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 2")
@@ -195,7 +242,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query);
+        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -211,6 +258,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     public void searchPersonaOrderByNameDesc() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 2")
@@ -234,7 +283,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query);
+        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -250,6 +299,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     public void searchPersonaFilterByName() {
 
         // Given
+        String ownerDiscordId = "586678721356875";
+
         PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 1")
@@ -272,7 +323,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query);
+        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();

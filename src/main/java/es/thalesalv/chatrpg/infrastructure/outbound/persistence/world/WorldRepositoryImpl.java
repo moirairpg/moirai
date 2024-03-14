@@ -56,7 +56,7 @@ public class WorldRepositoryImpl implements WorldRepository {
     }
 
     @Override
-    public SearchWorldsResult searchWorlds(SearchWorlds query) {
+    public SearchWorldsResult searchWorlds(SearchWorlds query, String requesterDiscordId) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
@@ -65,7 +65,7 @@ public class WorldRepositoryImpl implements WorldRepository {
                 : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<WorldEntity> filters = buildFilter(query);
+        Specification<WorldEntity> filters = buildFilter(query, requesterDiscordId);
         Page<WorldEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return SearchWorldsResult.builder()
@@ -129,14 +129,20 @@ public class WorldRepositoryImpl implements WorldRepository {
                 .build();
     }
 
-    private Specification<WorldEntity> buildFilter(SearchWorlds query) {
+    private Specification<WorldEntity> buildFilter(SearchWorlds query, String requesterDiscordId) {
 
         return (root, cq, cb) -> {
-            final List<Predicate> predicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
+
+            Predicate isOwner = cb.equal(root.get(WorldEntity_.ownerDiscordId), requesterDiscordId);
+            Predicate isAllowedToRead = cb.like(root.get(WorldEntity_.usersAllowedToReadString),
+                    "%" + requesterDiscordId + "%");
+
+            predicates.add(cb.or(isOwner, isAllowedToRead));
 
             if (StringUtils.isNotBlank(query.getName())) {
-                predicates.add(cb.like(cb.upper(root.get("name")),
-                        "%" + query.getName().toUpperCase() + "%"));
+                predicates.add(cb.and(cb.like(cb.upper(root.get(WorldEntity_.name)),
+                        "%" + query.getName().toUpperCase() + "%")));
             }
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
