@@ -165,8 +165,8 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
         return (root, cq, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
 
-            Predicate isOwner = cb.equal(root.get(ChannelConfigEntity_.ownerDiscordId), requesterDiscordId);
-            Predicate isAllowedToRead = cb.like(root.get(ChannelConfigEntity_.usersAllowedToReadString),
+            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), requesterDiscordId);
+            Predicate isAllowedToRead = cb.like(root.get("usersAllowedToReadString"),
                     "%" + requesterDiscordId + "%");
 
             predicates.add(cb.or(isOwner, isAllowedToRead));

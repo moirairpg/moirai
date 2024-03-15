@@ -75,6 +75,36 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     }
 
     @Test
+    public void emptyResultWhenUserCantSeeAsset() {
+
+        // Given
+        String requesterDiscordId = "123456";
+        World world = repository.save(WorldFixture.privateWorld()
+                .id(null)
+                .build());
+
+        // When
+        Optional<World> retrievedWorldOptional = repository.findById(world.getId(), requesterDiscordId);
+
+        // Then
+        assertThat(retrievedWorldOptional).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void emptyResultWhenAssetDoesntExist() {
+
+        // Given
+        String worldId = "WRLDID";
+        String requesterDiscordId = "123456";
+
+        // When
+        Optional<World> retrievedWorldOptional = repository.findById(worldId, requesterDiscordId);
+
+        // Then
+        assertThat(retrievedWorldOptional).isNotNull().isEmpty();
+    }
+
+    @Test
     public void deleteWorld() {
 
         // Given

@@ -162,14 +162,14 @@ public class PersonaRepositoryImpl implements PersonaRepository {
         return (root, cq, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
 
-            Predicate isOwner = cb.equal(root.get(PersonaEntity_.ownerDiscordId), requesterDiscordId);
-            Predicate isAllowedToRead = cb.like(root.get(PersonaEntity_.usersAllowedToReadString),
+            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), requesterDiscordId);
+            Predicate isAllowedToRead = cb.like(root.get("usersAllowedToReadString"),
                     "%" + requesterDiscordId + "%");
 
             predicates.add(cb.or(isOwner, isAllowedToRead));
 
             if (StringUtils.isNotBlank(query.getName())) {
-                predicates.add(cb.like(cb.upper(root.get(PersonaEntity_.name)),
+                predicates.add(cb.like(cb.upper(root.get("name")),
                         "%" + query.getName().toUpperCase() + "%"));
             }
 

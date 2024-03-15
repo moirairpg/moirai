@@ -134,17 +134,17 @@ public class WorldRepositoryImpl implements WorldRepository {
         return (root, cq, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            Predicate isOwner = cb.equal(root.get(WorldEntity_.ownerDiscordId), requesterDiscordId);
-            Predicate isAllowedToRead = cb.like(root.get(WorldEntity_.usersAllowedToReadString),
+            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), requesterDiscordId);
+            Predicate isAllowedToRead = cb.like(root.get("usersAllowedToReadString"),
                     "%" + requesterDiscordId + "%");
 
-            Predicate isAllowedToWrite = cb.like(root.get(WorldEntity_.usersAllowedToWriteString),
+            Predicate isAllowedToWrite = cb.like(root.get("usersAllowedToWriteString"),
                     "%" + requesterDiscordId + "%");
 
             predicates.add(cb.or(isOwner, isAllowedToRead, isAllowedToWrite));
 
             if (StringUtils.isNotBlank(query.getName())) {
-                predicates.add(cb.and(cb.like(cb.upper(root.get(WorldEntity_.name)),
+                predicates.add(cb.and(cb.like(cb.upper(root.get("name")),
                         "%" + query.getName().toUpperCase() + "%")));
             }
 

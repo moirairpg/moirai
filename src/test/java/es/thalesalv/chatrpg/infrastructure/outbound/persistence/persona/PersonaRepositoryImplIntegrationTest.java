@@ -83,6 +83,36 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     }
 
     @Test
+    public void emptyResultWhenUserCantSeeAsset() {
+
+        // Given
+        String requesterDiscordId = "123456";
+        Persona persona = repository.save(PersonaFixture.privatePersona()
+                .id(null)
+                .build());
+
+        // When
+        Optional<Persona> retrievedPersonaOptional = repository.findById(persona.getId(), requesterDiscordId);
+
+        // Then
+        assertThat(retrievedPersonaOptional).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void emptyResultWhenAssetDoesntExist() {
+
+        // Given
+        String personaId = "PRSNDID";
+        String requesterDiscordId = "123456";
+
+        // When
+        Optional<Persona> retrievedPersonaOptional = repository.findById(personaId, requesterDiscordId);
+
+        // Then
+        assertThat(retrievedPersonaOptional).isNotNull().isEmpty();
+    }
+
+    @Test
     public void deletePersona() {
 
         // Given

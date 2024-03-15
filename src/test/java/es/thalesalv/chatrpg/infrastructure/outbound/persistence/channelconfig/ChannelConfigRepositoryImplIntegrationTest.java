@@ -85,13 +85,46 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build());
 
         // When
-        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfig.getId(), ownerDiscordId);
+        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfig.getId(),
+                ownerDiscordId);
 
         // Then
         assertThat(retrievedChannelConfigOptional).isNotNull().isNotEmpty();
 
         ChannelConfig retrievedChannelConfig = retrievedChannelConfigOptional.get();
         assertThat(retrievedChannelConfig.getId()).isEqualTo(channelConfig.getId());
+    }
+
+    @Test
+    public void emptyResultWhenUserCantSeeAsset() {
+
+        // Given
+        String requesterDiscordId = "123456";
+        ChannelConfig channelConfig = repository.save(ChannelConfigFixture.sample()
+                .id(null)
+                .build());
+
+        // When
+        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfig.getId(),
+                requesterDiscordId);
+
+        // Then
+        assertThat(retrievedChannelConfigOptional).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void emptyResultWhenAssetDoesntExist() {
+
+        // Given
+        String channelConfigId = "WRLDID";
+        String requesterDiscordId = "123456";
+
+        // When
+        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfigId,
+                requesterDiscordId);
+
+        // Then
+        assertThat(retrievedChannelConfigOptional).isNotNull().isEmpty();
     }
 
     @Test
