@@ -16,8 +16,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfigResult;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigs;
 import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsResult;
+import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsWithReadAccess;
+import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsWithWriteAccess;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
@@ -59,7 +60,8 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
     }
 
     @Override
-    public SearchChannelConfigsResult searchChannelConfigs(SearchChannelConfigs query, String requesterDiscordId) {
+    public SearchChannelConfigsResult searchChannelConfigsWithReadAccess(SearchChannelConfigsWithReadAccess query,
+            String requesterDiscordId) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
@@ -68,7 +70,33 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
                 : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<ChannelConfigEntity> filters = buildFilter(query, requesterDiscordId);
+        Specification<ChannelConfigEntity> filters = readAccessSpecificationFrom(query, requesterDiscordId);
+        Page<ChannelConfigEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
+
+        return SearchChannelConfigsResult.builder()
+                .results(pagedResult.getContent()
+                        .stream()
+                        .map(this::mapToResult)
+                        .toList())
+                .page(page)
+                .items(pagedResult.getNumberOfElements())
+                .totalItems(pagedResult.getTotalElements())
+                .totalPages(pagedResult.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public SearchChannelConfigsResult searchChannelConfigsWithWriteAccess(SearchChannelConfigsWithWriteAccess query,
+            String requesterDiscordId) {
+
+        int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
+        int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
+        String sortByField = isBlank(query.getSortByField()) ? DEFAULT_SORT_BY_FIELD : query.getSortByField();
+        Direction direction = isBlank(query.getDirection()) ? Direction.ASC
+                : Direction.fromString(query.getDirection());
+
+        PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
+        Specification<ChannelConfigEntity> filters = writeAccessSpecificationFrom(query, requesterDiscordId);
         Page<ChannelConfigEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return SearchChannelConfigsResult.builder()
@@ -160,7 +188,8 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
                 .build();
     }
 
-    private Specification<ChannelConfigEntity> buildFilter(SearchChannelConfigs query, String requesterDiscordId) {
+    private Specification<ChannelConfigEntity> readAccessSpecificationFrom(SearchChannelConfigsWithReadAccess query,
+            String requesterDiscordId) {
 
         return (root, cq, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
@@ -169,7 +198,41 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
             Predicate isAllowedToRead = cb.like(root.get("usersAllowedToReadString"),
                     "%" + requesterDiscordId + "%");
 
-            predicates.add(cb.or(isOwner, isAllowedToRead));
+            Predicate isAllowedToWrite = cb.like(root.get("usersAllowedToWriteString"),
+                    "%" + requesterDiscordId + "%");
+
+            predicates.add(cb.or(isOwner, isAllowedToRead, isAllowedToWrite));
+
+            if (StringUtils.isNotBlank(query.getAiModel())) {
+                predicates.add(cb.like(cb.upper(root.get("modelConfiguration")
+                        .get("aiModel")), cb.literal(query.getAiModel().toUpperCase())));
+            }
+
+            if (StringUtils.isNotBlank(query.getModeration())) {
+                predicates.add(cb.like(cb.upper(root.get("moderation")),
+                        cb.literal(query.getModeration().toUpperCase())));
+            }
+
+            if (StringUtils.isNotBlank(query.getName())) {
+                predicates.add(cb.like(cb.upper(root.<String>get("name")),
+                        "%" + query.getName().toUpperCase() + "%"));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        };
+    }
+
+    private Specification<ChannelConfigEntity> writeAccessSpecificationFrom(SearchChannelConfigsWithWriteAccess query,
+            String requesterDiscordId) {
+
+        return (root, cq, cb) -> {
+            final List<Predicate> predicates = new ArrayList<>();
+
+            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), requesterDiscordId);
+            Predicate isAllowedToWrite = cb.like(root.get("usersAllowedToWriteString"),
+                    "%" + requesterDiscordId + "%");
+
+            predicates.add(cb.or(isOwner, isAllowedToWrite));
 
             if (StringUtils.isNotBlank(query.getAiModel())) {
                 predicates.add(cb.like(cb.upper(root.get("modelConfiguration")

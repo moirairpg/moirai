@@ -9,14 +9,14 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class SearchChannelConfigsHandler extends UseCaseHandler<SearchChannelConfigs, SearchChannelConfigsResult> {
+public class SearchChannelConfigsWithReadAccessHandler extends UseCaseHandler<SearchChannelConfigsWithReadAccess, SearchChannelConfigsResult> {
 
     private final ChannelConfigRepository repository;
 
     @Override
-    public SearchChannelConfigsResult execute(SearchChannelConfigs query) {
+    public SearchChannelConfigsResult execute(SearchChannelConfigsWithReadAccess query) {
 
         // TODO extract real ID from principal when API is ready
-        return repository.searchChannelConfigs(query, "owner");
+        return repository.searchChannelConfigsWithReadAccess(query, "owner");
     }
 }

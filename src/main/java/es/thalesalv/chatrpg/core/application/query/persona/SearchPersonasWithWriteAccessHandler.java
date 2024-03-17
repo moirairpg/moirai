@@ -9,14 +9,14 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class SearchPersonasHandler extends UseCaseHandler<SearchPersonas, SearchPersonasResult> {
+public class SearchPersonasWithWriteAccessHandler extends UseCaseHandler<SearchPersonasWithWriteAccess, SearchPersonasResult> {
 
     private final PersonaRepository repository;
 
     @Override
-    public SearchPersonasResult execute(SearchPersonas query) {
+    public SearchPersonasResult execute(SearchPersonasWithWriteAccess query) {
 
         // TODO extract real ID from principal when API is ready
-        return repository.searchPersonas(query, "owner");
+        return repository.searchPersonasWithWriteAccess(query, "owner");
     }
 }

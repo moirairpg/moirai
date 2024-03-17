@@ -15,8 +15,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaResult;
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonas;
 import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasResult;
+import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithReadAccess;
+import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithWriteAccess;
 import es.thalesalv.chatrpg.core.domain.CompletionRole;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
@@ -59,7 +60,8 @@ public class PersonaRepositoryImpl implements PersonaRepository {
     }
 
     @Override
-    public SearchPersonasResult searchPersonas(SearchPersonas query, String requesterDiscordId) {
+    public SearchPersonasResult searchPersonasWithReadAccess(SearchPersonasWithReadAccess query,
+            String requesterDiscordId) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
@@ -68,7 +70,33 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<PersonaEntity> filters = buildFilter(query, requesterDiscordId);
+        Specification<PersonaEntity> filters = readAccessSpecificationFrom(query, requesterDiscordId);
+        Page<PersonaEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
+
+        return SearchPersonasResult.builder()
+                .results(pagedResult.getContent()
+                        .stream()
+                        .map(this::mapToResult)
+                        .toList())
+                .page(page)
+                .items(pagedResult.getNumberOfElements())
+                .totalItems(pagedResult.getTotalElements())
+                .totalPages(pagedResult.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public SearchPersonasResult searchPersonasWithWriteAccess(SearchPersonasWithWriteAccess query,
+            String requesterDiscordId) {
+
+        int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
+        int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
+        String sortByField = isBlank(query.getSortByField()) ? DEFAULT_SORT_BY_FIELD : query.getSortByField();
+        Direction direction = isBlank(query.getDirection()) ? Direction.ASC
+                : Direction.fromString(query.getDirection());
+
+        PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
+        Specification<PersonaEntity> filters = writeAccessSpecificationFrom(query, requesterDiscordId);
         Page<PersonaEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return SearchPersonasResult.builder()
@@ -157,7 +185,8 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 .build();
     }
 
-    private Specification<PersonaEntity> buildFilter(SearchPersonas query, String requesterDiscordId) {
+    private Specification<PersonaEntity> readAccessSpecificationFrom(SearchPersonasWithReadAccess query,
+            String requesterDiscordId) {
 
         return (root, cq, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
@@ -166,7 +195,31 @@ public class PersonaRepositoryImpl implements PersonaRepository {
             Predicate isAllowedToRead = cb.like(root.get("usersAllowedToReadString"),
                     "%" + requesterDiscordId + "%");
 
-            predicates.add(cb.or(isOwner, isAllowedToRead));
+            Predicate isAllowedToWrite = cb.like(root.get("usersAllowedToWriteString"),
+                    "%" + requesterDiscordId + "%");
+
+            predicates.add(cb.or(isOwner, isAllowedToRead, isAllowedToWrite));
+
+            if (StringUtils.isNotBlank(query.getName())) {
+                predicates.add(cb.like(cb.upper(root.get("name")),
+                        "%" + query.getName().toUpperCase() + "%"));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        };
+    }
+
+    private Specification<PersonaEntity> writeAccessSpecificationFrom(SearchPersonasWithWriteAccess query,
+            String requesterDiscordId) {
+
+        return (root, cq, cb) -> {
+            final List<Predicate> predicates = new ArrayList<>();
+
+            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), requesterDiscordId);
+            Predicate isAllowedToWrite = cb.like(root.get("usersAllowedToWriteString"),
+                    "%" + requesterDiscordId + "%");
+
+            predicates.add(cb.or(isOwner, isAllowedToWrite));
 
             if (StringUtils.isNotBlank(query.getName())) {
                 predicates.add(cb.like(cb.upper(root.get("name")),

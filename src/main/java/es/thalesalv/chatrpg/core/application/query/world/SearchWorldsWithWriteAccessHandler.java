@@ -9,14 +9,14 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class SearchWorldsHandler extends UseCaseHandler<SearchWorlds, SearchWorldsResult> {
+public class SearchWorldsWithWriteAccessHandler extends UseCaseHandler<SearchWorldsWithWriteAccess, SearchWorldsResult> {
 
     private final WorldRepository repository;
 
     @Override
-    public SearchWorldsResult execute(SearchWorlds query) {
+    public SearchWorldsResult execute(SearchWorldsWithWriteAccess query) {
 
         // TODO extract real ID from principal when API is ready
-        return repository.searchWorlds(query, "owner");
+        return repository.searchWorldsWithWriteAccess(query, "owner");
     }
 }

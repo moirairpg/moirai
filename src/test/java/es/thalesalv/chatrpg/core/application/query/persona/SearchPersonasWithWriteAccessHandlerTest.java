@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.core.application.query.world;
+package es.thalesalv.chatrpg.core.application.query.persona;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,38 +11,38 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
+import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class SearchWorldsHandlerTest {
+public class SearchPersonasWithWriteAccessHandlerTest {
 
     @Mock
-    private WorldRepository repository;
+    private PersonaRepository repository;
 
     @InjectMocks
-    private SearchWorldsHandler handler;
+    private SearchPersonasWithWriteAccessHandler handler;
 
     @Test
-    public void searchWorlds() {
+    public void searchPersonas() {
 
         // Given
-        SearchWorlds query = SearchWorlds.builder()
+        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .direction("ASC")
                 .page(1)
                 .items(2)
                 .sortByField("name")
                 .build();
 
-        SearchWorldsResult expectedResult = SearchWorldsResult.builder()
+        SearchPersonasResult expectedResult = SearchPersonasResult.builder()
                 .page(1)
                 .items(2)
                 .build();
 
-        when(repository.searchWorlds(any(SearchWorlds.class), anyString()))
+        when(repository.searchPersonasWithWriteAccess(any(SearchPersonasWithWriteAccess.class), anyString()))
                 .thenReturn(expectedResult);
 
         // When
-        SearchWorldsResult result = handler.handle(query);
+        SearchPersonasResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();

@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.core.application.query.channelconfig;
+package es.thalesalv.chatrpg.core.application.query.world;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,38 +11,38 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
+import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class SearchChannelConfigsHandlerTest {
+public class SearchWorldsWithWriteAccessHandlerTest {
 
     @Mock
-    private ChannelConfigRepository repository;
+    private WorldRepository repository;
 
     @InjectMocks
-    private SearchChannelConfigsHandler handler;
+    private SearchWorldsWithWriteAccessHandler handler;
 
     @Test
-    public void searchChannelConfigs() {
+    public void searchWorlds() {
 
         // Given
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .direction("ASC")
                 .page(1)
                 .items(2)
                 .sortByField("name")
                 .build();
 
-        SearchChannelConfigsResult expectedResult = SearchChannelConfigsResult.builder()
+        SearchWorldsResult expectedResult = SearchWorldsResult.builder()
                 .page(1)
                 .items(2)
                 .build();
 
-        when(repository.searchChannelConfigs(any(SearchChannelConfigs.class), anyString()))
+        when(repository.searchWorldsWithWriteAccess(any(SearchWorldsWithWriteAccess.class), anyString()))
                 .thenReturn(expectedResult);
 
         // When
-        SearchChannelConfigsResult result = handler.handle(query);
+        SearchWorldsResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();

@@ -2,8 +2,9 @@ package es.thalesalv.chatrpg.core.domain.persona;
 
 import java.util.Optional;
 
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonas;
 import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasResult;
+import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithReadAccess;
+import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithWriteAccess;
 
 public interface PersonaRepository {
 
@@ -13,5 +14,7 @@ public interface PersonaRepository {
 
     void deleteById(String id);
 
-    SearchPersonasResult searchPersonas(SearchPersonas query, String requesterDiscordId);
+    SearchPersonasResult searchPersonasWithReadAccess(SearchPersonasWithReadAccess query, String requesterDiscordId);
+
+    SearchPersonasResult searchPersonasWithWriteAccess(SearchPersonasWithWriteAccess query, String requesterDiscordId);
 }

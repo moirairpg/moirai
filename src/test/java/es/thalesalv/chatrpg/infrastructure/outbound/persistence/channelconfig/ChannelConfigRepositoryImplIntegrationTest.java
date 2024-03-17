@@ -13,8 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import es.thalesalv.chatrpg.AbstractIntegrationTest;
 import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfigResult;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigs;
 import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsResult;
+import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsWithReadAccess;
+import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsWithWriteAccess;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigFixture;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
@@ -169,10 +170,10 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder().build();
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder().build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -210,10 +211,10 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder().build();
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder().build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -252,12 +253,12 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .direction("DESC")
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -297,12 +298,12 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("name")
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -342,13 +343,13 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("name")
                 .direction("DESC")
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -388,13 +389,13 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
                 .direction("ASC")
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -434,13 +435,13 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
                 .direction("DESC")
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -480,7 +481,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("moderation")
                 .direction("ASC")
                 .page(1)
@@ -488,7 +489,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -528,7 +529,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
                 .direction("DESC")
                 .page(1)
@@ -536,7 +537,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -576,12 +577,12 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .aiModel("gpt35-4k")
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -619,12 +620,12 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .name("Number 2")
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -662,12 +663,559 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchChannelConfigs query = SearchChannelConfigs.builder()
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .moderation("PERMISSIVE")
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigs(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt354k.getName());
+    }
+
+    @Test
+    public void returnAllChannelConfigsWhenSearchingWithoutParametersShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .ownerDiscordId("580485734")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .ownerDiscordId("580485734")
+                .build();
+
+        jpaRepository.save(gpt4128k);
+        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt354k);
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder().build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void returnAllChannelConfigsWhenSearchingWithoutParametersAscShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .ownerDiscordId(ownerDiscordId)
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
+                        .aiModel("gpt35-4k")
+                        .build())
+                .build();
+
+        jpaRepository.save(gpt4128k);
+        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt354k);
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder().build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void returnAllChannelConfigsWhenSearchingWithoutParametersDescShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .ownerDiscordId(ownerDiscordId)
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
+                        .aiModel("gpt35-4k")
+                        .build())
+                .build();
+
+        jpaRepository.save(gpt4128k);
+        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt354k);
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .direction("DESC")
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt4128k.getName());
+    }
+
+    @Test
+    public void searchChannelConfigOrderByNameAscShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .ownerDiscordId(ownerDiscordId)
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
+                        .aiModel("gpt35-4k")
+                        .build())
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .sortByField("name")
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt4128k.getName());
+    }
+
+    @Test
+    public void searchChannelConfigOrderByNameDescShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .ownerDiscordId(ownerDiscordId)
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
+                        .aiModel("gpt35-4k")
+                        .build())
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .sortByField("name")
+                .direction("DESC")
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void searchChannelConfigOrderByAiModelAscShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .ownerDiscordId(ownerDiscordId)
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
+                        .aiModel("gpt35-4k")
+                        .build())
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .sortByField("modelConfiguration.aiModel")
+                .direction("ASC")
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt354k.getName());
+    }
+
+    @Test
+    public void searchChannelConfigOrderByAiModelDescShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .ownerDiscordId(ownerDiscordId)
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
+                        .aiModel("gpt35-4k")
+                        .build())
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .sortByField("modelConfiguration.aiModel")
+                .direction("DESC")
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt354k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void searchChannelConfigOrderByModerationAscShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .moderation("STRICT")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .moderation("PERMISSIVE")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .ownerDiscordId(ownerDiscordId)
+                .moderation("PERMISSIVE")
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .sortByField("moderation")
+                .direction("ASC")
+                .page(1)
+                .items(10)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt354k.getName());
+    }
+
+    @Test
+    public void searchChannelConfigOrderByModerationDescShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .ownerDiscordId(ownerDiscordId)
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
+                        .aiModel("gpt35-4k")
+                        .build())
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .sortByField("modelConfiguration.aiModel")
+                .direction("DESC")
+                .page(1)
+                .items(10)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt354k.getName());
+        assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void searchChannelConfigFilterByAiModelShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
+                        .aiModel("gpt35-4k")
+                        .build())
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .aiModel("gpt35-4k")
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt354k.getName());
+    }
+
+    @Test
+    public void searchChannelConfigFilterByNameShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
+                        .aiModel("gpt35-4k")
+                        .build())
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .name("Number 2")
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void searchChannelConfigFilterByModerationShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .moderation("STRICT")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .build();
+
+        ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .ownerDiscordId(ownerDiscordId)
+                .moderation("PERMISSIVE")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .moderation("PERMISSIVE")
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .moderation("PERMISSIVE")
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();

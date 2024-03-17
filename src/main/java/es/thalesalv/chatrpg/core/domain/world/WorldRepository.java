@@ -2,8 +2,9 @@ package es.thalesalv.chatrpg.core.domain.world;
 
 import java.util.Optional;
 
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorlds;
+import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithReadAccess;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
+import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithWriteAccess;
 
 public interface WorldRepository {
 
@@ -13,5 +14,7 @@ public interface WorldRepository {
 
     void deleteById(String id);
 
-    SearchWorldsResult searchWorlds(SearchWorlds query, String requesterDiscordId);
+    SearchWorldsResult searchWorldsWithReadAccess(SearchWorldsWithReadAccess query, String requesterDiscordId);
+
+    SearchWorldsResult searchWorldsWithWriteAccess(SearchWorldsWithWriteAccess query, String requesterDiscordId);
 }

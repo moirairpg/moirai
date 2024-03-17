@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.core.application.query.world;
+package es.thalesalv.chatrpg.core.application.query.persona;
 
 import es.thalesalv.chatrpg.common.usecases.UseCase;
 import lombok.AccessLevel;
@@ -9,10 +9,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @Builder(builderClassName = "Builder")
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SearchWorlds extends UseCase<SearchWorldsResult> {
+public final class SearchPersonasWithReadAccess extends UseCase<SearchPersonasResult> {
 
     private final Integer page;
     private final Integer items;
+    private final String searchField;
+    private final String searchCriteria;
     private final String sortByField;
     private final String direction;
     private final String name;

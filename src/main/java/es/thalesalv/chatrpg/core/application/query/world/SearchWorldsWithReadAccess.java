@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.core.application.query.channelconfig;
+package es.thalesalv.chatrpg.core.application.query.world;
 
 import es.thalesalv.chatrpg.common.usecases.UseCase;
 import lombok.AccessLevel;
@@ -9,13 +9,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @Builder(builderClassName = "Builder")
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SearchChannelConfigs extends UseCase<SearchChannelConfigsResult> {
+public final class SearchWorldsWithReadAccess extends UseCase<SearchWorldsResult> {
 
     private final Integer page;
     private final Integer items;
     private final String sortByField;
     private final String direction;
-    private final String aiModel;
-    private final String moderation;
     private final String name;
 }

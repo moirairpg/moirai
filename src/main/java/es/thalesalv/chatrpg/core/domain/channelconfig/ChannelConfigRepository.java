@@ -2,8 +2,9 @@ package es.thalesalv.chatrpg.core.domain.channelconfig;
 
 import java.util.Optional;
 
-import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigs;
 import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsResult;
+import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsWithReadAccess;
+import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsWithWriteAccess;
 
 public interface ChannelConfigRepository {
 
@@ -13,5 +14,9 @@ public interface ChannelConfigRepository {
 
     void deleteById(String id);
 
-    SearchChannelConfigsResult searchChannelConfigs(SearchChannelConfigs query, String requesterDiscordId);
+    SearchChannelConfigsResult searchChannelConfigsWithReadAccess(SearchChannelConfigsWithReadAccess query,
+            String requesterDiscordId);
+
+    SearchChannelConfigsResult searchChannelConfigsWithWriteAccess(SearchChannelConfigsWithWriteAccess query,
+            String requesterDiscordId);
 }

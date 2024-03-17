@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.core.application.query.persona;
+package es.thalesalv.chatrpg.core.application.query.channelconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,38 +11,38 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
+import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class SearchPersonasHandlerTest {
+public class SearchChannelConfigsWithWriteAccessHandlerTest {
 
     @Mock
-    private PersonaRepository repository;
+    private ChannelConfigRepository repository;
 
     @InjectMocks
-    private SearchPersonasHandler handler;
+    private SearchChannelConfigsWithWriteAccessHandler handler;
 
     @Test
-    public void searchPersonas() {
+    public void searchChannelConfigs() {
 
         // Given
-        SearchPersonas query = SearchPersonas.builder()
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .direction("ASC")
                 .page(1)
                 .items(2)
                 .sortByField("name")
                 .build();
 
-        SearchPersonasResult expectedResult = SearchPersonasResult.builder()
+        SearchChannelConfigsResult expectedResult = SearchChannelConfigsResult.builder()
                 .page(1)
                 .items(2)
                 .build();
 
-        when(repository.searchPersonas(any(SearchPersonas.class), anyString()))
+        when(repository.searchChannelConfigsWithWriteAccess(any(SearchChannelConfigsWithWriteAccess.class), anyString()))
                 .thenReturn(expectedResult);
 
         // When
-        SearchPersonasResult result = handler.handle(query);
+        SearchChannelConfigsResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();

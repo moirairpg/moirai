@@ -13,8 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import es.thalesalv.chatrpg.AbstractIntegrationTest;
 import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaResult;
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonas;
 import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasResult;
+import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithReadAccess;
+import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithWriteAccess;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
@@ -154,10 +155,10 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchPersonas query = SearchPersonas.builder().build();
+        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder().build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -190,14 +191,14 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchPersonas query = SearchPersonas.builder().build();
+        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder().build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetPersonaResult> personas = result.getResults();
         assertThat(personas.get(0).getName()).isEqualTo(gpt4128k.getName());
@@ -227,18 +228,18 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchPersonas query = SearchPersonas.builder()
+        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .direction("DESC")
                 .page(1)
                 .items(10)
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetPersonaResult> personas = result.getResults();
         assertThat(personas.get(0).getName()).isEqualTo(gpt354k.getName());
@@ -269,16 +270,16 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchPersonas query = SearchPersonas.builder()
+        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .sortByField("name")
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetPersonaResult> personas = result.getResults();
         assertThat(personas.get(0).getName()).isEqualTo(gpt3516k.getName());
@@ -309,17 +310,17 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchPersonas query = SearchPersonas.builder()
+        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .sortByField("name")
                 .direction("DESC")
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetPersonaResult> personas = result.getResults();
         assertThat(personas.get(0).getName()).isEqualTo(gpt354k.getName());
@@ -350,12 +351,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
 
-        SearchPersonas query = SearchPersonas.builder()
+        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .name("Number 2")
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonas(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
 
         // Then
         assertThat(result).isNotNull();
@@ -363,5 +364,282 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         List<GetPersonaResult> personas = result.getResults();
         assertThat(personas.get(0).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void returnAllPersonasWhenSearchingWithoutParametersShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .ownerDiscordId("580485734")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        PersonaEntity gpt354k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .ownerDiscordId("580485734")
+                .build();
+
+        jpaRepository.save(gpt4128k);
+        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt354k);
+
+        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder().build();
+
+        // When
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetPersonaResult> personas = result.getResults();
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void returnAllPersonasWhenSearchingWithoutParametersAscShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        PersonaEntity gpt354k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .build();
+
+        jpaRepository.save(gpt4128k);
+        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt354k);
+
+        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder().build();
+
+        // When
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetPersonaResult> personas = result.getResults();
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void returnAllPersonasWhenSearchingWithoutParametersDescShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        PersonaEntity gpt354k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .build();
+
+        jpaRepository.save(gpt4128k);
+        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt354k);
+
+        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+                .direction("DESC")
+                .page(1)
+                .items(10)
+                .build();
+
+        // When
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetPersonaResult> personas = result.getResults();
+        assertThat(personas.get(0).getName()).isEqualTo(gpt354k.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void searchPersonaOrderByNameAscShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 2")
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 1")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        PersonaEntity gpt354k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 3")
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+                .sortByField("name")
+                .build();
+
+        // When
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetPersonaResult> personas = result.getResults();
+        assertThat(personas.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4128k.getName());
+    }
+
+    @Test
+    public void searchPersonaOrderByNameDescShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 2")
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 1")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        PersonaEntity gpt354k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 3")
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+                .sortByField("name")
+                .direction("DESC")
+                .build();
+
+        // When
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetPersonaResult> personas = result.getResults();
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void searchPersonaFilterByNameShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 1")
+                .build();
+
+        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 2")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        PersonaEntity gpt354k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 3")
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+                .name("Number 2")
+                .build();
+
+        // When
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+
+        List<GetPersonaResult> personas = result.getResults();
+        assertThat(personas.get(0).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void emptyResultWhenSearchingForPersonaWithWriteAccessIfUserHasNoAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 1")
+                .build();
+
+        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 2")
+                .build();
+
+        PersonaEntity gpt354k = PersonaEntityFixture.privatePersona()
+                .id(null)
+                .name("Number 3")
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+                .name("Number 2")
+                .build();
+
+        // When
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isEmpty();
     }
 }
