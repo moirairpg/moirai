@@ -126,7 +126,7 @@ public class WorldTest {
 
         // Given
         World world = WorldFixture.publicWorld().build();
-        LorebookEntry entry = LorebookEntryFixture.sampleLorebookEntry().build();
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.sampleLorebookEntry().build();
 
         // Then
         assertThrows(UnsupportedOperationException.class,
@@ -138,7 +138,7 @@ public class WorldTest {
 
         // Given
         World world = WorldFixture.publicWorld().build();
-        LorebookEntry entry = LorebookEntryFixture.sampleLorebookEntry().build();
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.sampleLorebookEntry().build();
 
         // When
         world.addToLorebook(entry);
@@ -155,7 +155,7 @@ public class WorldTest {
 
         // Given
         World world = WorldFixture.publicWorld().build();
-        LorebookEntry entry = LorebookEntryFixture.sampleLorebookEntry().build();
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.sampleLorebookEntry().build();
 
         // When
         world.removeFromLorebook(entry);

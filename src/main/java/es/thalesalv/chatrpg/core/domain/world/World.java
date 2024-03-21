@@ -21,7 +21,7 @@ public class World extends ShareableAsset {
     private String name;
     private String description;
     private String adventureStart;
-    private List<LorebookEntry> lorebook;
+    private List<WorldLorebookEntry> lorebook;
 
     private World(Builder builder) {
 
@@ -40,7 +40,7 @@ public class World extends ShareableAsset {
         return new Builder();
     }
 
-    public List<LorebookEntry> getLorebook() {
+    public List<WorldLorebookEntry> getLorebook() {
 
         return Collections.unmodifiableList(lorebook);
     }
@@ -60,12 +60,12 @@ public class World extends ShareableAsset {
         this.adventureStart = adventureStart;
     }
 
-    public void addToLorebook(LorebookEntry lorebookEntry) {
+    public void addToLorebook(WorldLorebookEntry lorebookEntry) {
 
         lorebook.add(lorebookEntry);
     }
 
-    public void removeFromLorebook(LorebookEntry lorebookEntry) {
+    public void removeFromLorebook(WorldLorebookEntry lorebookEntry) {
 
         lorebook.remove(lorebookEntry);
     }
@@ -77,7 +77,7 @@ public class World extends ShareableAsset {
         private String name;
         private String description;
         private String adventureStart;
-        private List<LorebookEntry> lorebook;
+        private List<WorldLorebookEntry> lorebook;
         private Visibility visibility;
         private Permissions permissions;
         private String creatorDiscordId;
@@ -108,7 +108,7 @@ public class World extends ShareableAsset {
             return this;
         }
 
-        public Builder lorebook(List<LorebookEntry> lorebook) {
+        public Builder lorebook(List<WorldLorebookEntry> lorebook) {
 
             this.lorebook = lorebook;
             return this;

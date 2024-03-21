@@ -1,12 +1,12 @@
 package es.thalesalv.chatrpg.core.application.command.channelconfig;
 
-import es.thalesalv.chatrpg.core.application.command.world.WorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.command.world.WorldLorebookEntryResult;
 
 public class CreateLorebookEntryFixture {
 
-    public static WorldLorebookEntry.Builder sampleLorebookEntry() {
+    public static WorldLorebookEntryResult.Builder sampleLorebookEntry() {
 
-        WorldLorebookEntry.Builder builder = WorldLorebookEntry.builder();
+        WorldLorebookEntryResult.Builder builder = WorldLorebookEntryResult.builder();
         builder.name("White River");
         builder.description("The White River goes through Falkreath, Whiterun and ends in Eastmarch.");
         builder.regex("[Ww]hite [Rr]iver");
@@ -14,9 +14,9 @@ public class CreateLorebookEntryFixture {
         return builder;
     }
 
-    public static WorldLorebookEntry.Builder samplePlayerCharacterLorebookEntry() {
+    public static WorldLorebookEntryResult.Builder samplePlayerCharacterLorebookEntry() {
 
-        WorldLorebookEntry.Builder builder = WorldLorebookEntry.builder();
+        WorldLorebookEntryResult.Builder builder = WorldLorebookEntryResult.builder();
         builder.name("Volin Habar");
         builder.description("Volin Habar is a warrior that fights with a sword.");
         builder.regex("[Vv]olin [Hh]abar|[Vv]oha");

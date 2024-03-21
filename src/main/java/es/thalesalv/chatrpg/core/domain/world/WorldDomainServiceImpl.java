@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
+import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
-import es.thalesalv.chatrpg.core.application.command.world.WorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.command.world.WorldLorebookEntryResult;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
@@ -24,13 +26,20 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     @Value("${chatrpg.validation.token-limits.world.initial-prompt}")
     private int adventureStartTokenLimit;
 
+    @Value("${chatrpg.validation.token-limits.world.lorebook-entry.description}")
+    private int lorebookEntryDescriptionTokenLimit;
+
+    @Value("${chatrpg.validation.token-limits.world.lorebook-entry.name}")
+    private int lorebookEntryNameTokenLimit;
+
+    private final WorldLorebookEntryRepository lorebookEntryRepository;
     private final WorldRepository repository;
     private final TokenizerPort tokenizerPort;
 
     @Override
     public World createFrom(CreateWorld command) {
 
-        List<LorebookEntry> lorebookEntries = mapLorebookEntriesFromCommand(command.getLorebookEntries());
+        List<WorldLorebookEntry> lorebookEntries = mapLorebookEntriesFromCommand(command.getLorebookEntries());
         Permissions permissions = Permissions.builder()
                 .ownerDiscordId(command.getCreatorDiscordId())
                 .usersAllowedToRead(command.getReaderUsers())
@@ -58,7 +67,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
         repository.findById(command.getId(), "owner")
                 .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
 
-        List<LorebookEntry> lorebookEntries = mapLorebookEntriesFromCommand(command.getLorebookEntries());
+        List<WorldLorebookEntry> lorebookEntries = mapLorebookEntriesFromCommand(command.getLorebookEntries());
 
         Permissions permissions = Permissions.builder()
                 .ownerDiscordId(command.getCreatorDiscordId())
@@ -81,6 +90,62 @@ public class WorldDomainServiceImpl implements WorldDomainService {
         return repository.save(world);
     }
 
+    @Override
+    public WorldLorebookEntry createLorebookEntry(CreateWorldLorebookEntry command) {
+
+        // TODO extract real ID from principal when API is ready
+        repository.findById(command.getWorldId(), "owner")
+                .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+
+        WorldLorebookEntry lorebookEntry = WorldLorebookEntry.builder()
+                .name(command.getName())
+                .regex(command.getRegex())
+                .description(command.getDescription())
+                .playerDiscordId(command.getPlayerDiscordId())
+                .build();
+
+        validateTokenCount(lorebookEntry);
+
+        return lorebookEntryRepository.save(lorebookEntry);
+    }
+
+    @Override
+    public WorldLorebookEntry updateLorebookEntry(UpdateWorldLorebookEntry command) {
+
+        // TODO extract real ID from principal when API is ready
+        repository.findById(command.getWorldId(), "owner")
+                .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+
+        lorebookEntryRepository.findById(command.getWorldId())
+                .orElseThrow(() -> new AssetNotFoundException("Lorebook entry to be updated was not found"));
+
+        WorldLorebookEntry lorebookEntry = WorldLorebookEntry.builder()
+                .id(command.getId())
+                .name(command.getName())
+                .regex(command.getRegex())
+                .description(command.getDescription())
+                .playerDiscordId(command.getPlayerDiscordId())
+                .build();
+
+        validateTokenCount(lorebookEntry);
+
+        return lorebookEntryRepository.save(lorebookEntry);
+    }
+
+    private void validateTokenCount(WorldLorebookEntry lorebookEntry) {
+
+        int lorebookEntryNameTokenCount = tokenizerPort.getTokenCountFrom(lorebookEntry.getName());
+        if (lorebookEntryNameTokenCount > lorebookEntryNameTokenLimit) {
+            throw new BusinessRuleViolationException("Amount of tokens in lorebook entry name surpasses allowed limit");
+        }
+
+        int lorebookEntryDescriptionTokenCount = tokenizerPort.getTokenCountFrom(lorebookEntry.getDescription());
+        if (lorebookEntryDescriptionTokenCount > lorebookEntryDescriptionTokenLimit) {
+            throw new BusinessRuleViolationException(
+                    "Amount of tokens in lorebook entry description surpasses allowed limit");
+        }
+    }
+
     private void validateTokenCount(World world) {
 
         int adventureStartTokenCount = tokenizerPort.getTokenCountFrom(world.getAdventureStart());
@@ -89,7 +154,8 @@ public class WorldDomainServiceImpl implements WorldDomainService {
         }
     }
 
-    private List<LorebookEntry> mapLorebookEntriesFromCommand(List<WorldLorebookEntry> commandLorebookEntries) {
+    private List<WorldLorebookEntry> mapLorebookEntriesFromCommand(
+            List<WorldLorebookEntryResult> commandLorebookEntries) {
 
         if (commandLorebookEntries == null) {
             return Collections.emptyList();
@@ -100,9 +166,9 @@ public class WorldDomainServiceImpl implements WorldDomainService {
                 .toList();
     }
 
-    private LorebookEntry mapLorebookEntryFromCommand(WorldLorebookEntry commandLorebookEntry) {
+    private WorldLorebookEntry mapLorebookEntryFromCommand(WorldLorebookEntryResult commandLorebookEntry) {
 
-        return LorebookEntry.builder()
+        return WorldLorebookEntry.builder()
                 .name(commandLorebookEntry.getName())
                 .regex(commandLorebookEntry.getRegex())
                 .description(commandLorebookEntry.getDescription())

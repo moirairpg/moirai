@@ -25,9 +25,9 @@ public class WorldFixture {
         Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);
 
-        List<LorebookEntry> lorebook = new ArrayList<>();
-        lorebook.add(LorebookEntryFixture.sampleLorebookEntry().build());
-        lorebook.add(LorebookEntryFixture.samplePlayerCharacterLorebookEntry().build());
+        List<WorldLorebookEntry> lorebook = new ArrayList<>();
+        lorebook.add(WorldLorebookEntryFixture.sampleLorebookEntry().build());
+        lorebook.add(WorldLorebookEntryFixture.samplePlayerCharacterLorebookEntry().build());
         builder.lorebook(lorebook);
 
         return builder;
@@ -48,9 +48,9 @@ public class WorldFixture {
         Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);
 
-        List<LorebookEntry> lorebook = new ArrayList<>();
-        lorebook.add(LorebookEntryFixture.sampleLorebookEntry().build());
-        lorebook.add(LorebookEntryFixture.samplePlayerCharacterLorebookEntry().build());
+        List<WorldLorebookEntry> lorebook = new ArrayList<>();
+        lorebook.add(WorldLorebookEntryFixture.sampleLorebookEntry().build());
+        lorebook.add(WorldLorebookEntryFixture.samplePlayerCharacterLorebookEntry().build());
         builder.lorebook(lorebook);
 
         return builder;

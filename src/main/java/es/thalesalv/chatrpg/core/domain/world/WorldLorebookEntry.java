@@ -8,15 +8,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-public class LorebookEntry extends Asset {
+public class WorldLorebookEntry extends Asset {
 
     private String id;
     private String name;
     private String regex;
     private String description;
     private String playerDiscordId;
+    private boolean isPlayerCharacter;
+    private String worldId;
 
-    private LorebookEntry(Builder builder) {
+    private WorldLorebookEntry(Builder builder) {
 
         super(builder.creatorDiscordId, builder.creationDate, builder.lastUpdateDate);
         this.id = builder.id;
@@ -24,6 +26,8 @@ public class LorebookEntry extends Asset {
         this.regex = builder.regex;
         this.description = builder.description;
         this.playerDiscordId = builder.playerDiscordId;
+        this.isPlayerCharacter = builder.isPlayerCharacter;
+        this.worldId = builder.worldId;
     }
 
     public static Builder builder() {
@@ -65,6 +69,8 @@ public class LorebookEntry extends Asset {
         private String description;
         private String playerDiscordId;
         private String creatorDiscordId;
+        private boolean isPlayerCharacter;
+        private String worldId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
 
@@ -98,6 +104,18 @@ public class LorebookEntry extends Asset {
             return this;
         }
 
+        public Builder isPlayerCharacter(boolean isPlayerCharacter) {
+
+            this.isPlayerCharacter = isPlayerCharacter;
+            return this;
+        }
+
+        public Builder worldId(String worldId) {
+
+            this.worldId = worldId;
+            return this;
+        }
+
         public Builder creatorDiscordId(String creatorDiscordId) {
 
             this.creatorDiscordId = creatorDiscordId;
@@ -116,9 +134,9 @@ public class LorebookEntry extends Asset {
             return this;
         }
 
-        public LorebookEntry build() {
+        public WorldLorebookEntry build() {
 
-            return new LorebookEntry(this);
+            return new WorldLorebookEntry(this);
         }
     }
 }

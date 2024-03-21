@@ -20,15 +20,19 @@ import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateLorebookEntryFixture;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
+import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
+import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 
-@SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
 public class WorldDomainServiceImplTest {
+
+    @Mock
+    private WorldLorebookEntryRepository lorebookEntryRepository;
 
     @Mock
     private WorldRepository repository;
@@ -55,7 +59,7 @@ public class WorldDomainServiceImplTest {
                 .adventureStart(adventureStart)
                 .visibility(Visibility.fromString(visibility))
                 .permissions(permissions)
-                .lorebook(Collections.singletonList(LorebookEntryFixture.sampleLorebookEntry().build()))
+                .lorebook(Collections.singletonList(WorldLorebookEntryFixture.sampleLorebookEntry().build()))
                 .build();
 
         CreateWorld command = CreateWorld.builder()
@@ -203,5 +207,254 @@ public class WorldDomainServiceImplTest {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo(expectedUpdatedWorld.getName());
+    }
+
+    @Test
+    public void createLorebookEntrySuccesfully() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        WorldLorebookEntry.Builder lorebookEntryBuilder = WorldLorebookEntryFixture.sampleLorebookEntry()
+                .name(name)
+                .description(description)
+                .regex(regex);
+
+        WorldLorebookEntry expectedLorebookEntry = lorebookEntryBuilder.build();
+
+        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .build();
+
+        World world = WorldFixture.privateWorld().build();
+
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.save(any(WorldLorebookEntry.class))).thenReturn(expectedLorebookEntry);
+
+        // When
+        WorldLorebookEntry createdLorebookEntry = service.createLorebookEntry(command);
+
+        // Then
+        assertThat(createdLorebookEntry.getName()).isEqualTo(expectedLorebookEntry.getName());
+        assertThat(createdLorebookEntry.getDescription()).isEqualTo(expectedLorebookEntry.getDescription());
+        assertThat(createdLorebookEntry.getRegex()).isEqualTo(expectedLorebookEntry.getRegex());
+    }
+
+    @Test
+    public void errorWhenCreatingLorebookEntryIfWorldNotExists() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .build();
+
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.createLorebookEntry(command));
+    }
+
+    @Test
+    public void updateLorebookEntrySuccesfully() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        WorldLorebookEntry.Builder lorebookEntryBuilder = WorldLorebookEntryFixture.sampleLorebookEntry()
+                .name(name)
+                .description(description)
+                .regex(regex);
+
+        WorldLorebookEntry expectedLorebookEntry = lorebookEntryBuilder.build();
+
+        UpdateWorldLorebookEntry command = UpdateWorldLorebookEntry.builder()
+                .id("ENTRID")
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .build();
+
+        World world = WorldFixture.privateWorld().build();
+
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(expectedLorebookEntry));
+        when(lorebookEntryRepository.save(any(WorldLorebookEntry.class))).thenReturn(expectedLorebookEntry);
+
+        // When
+        WorldLorebookEntry createdLorebookEntry = service.updateLorebookEntry(command);
+
+        // Then
+        assertThat(createdLorebookEntry.getName()).isEqualTo(expectedLorebookEntry.getName());
+        assertThat(createdLorebookEntry.getDescription()).isEqualTo(expectedLorebookEntry.getDescription());
+        assertThat(createdLorebookEntry.getRegex()).isEqualTo(expectedLorebookEntry.getRegex());
+    }
+
+    @Test
+    public void errorWhenUpdatingLorebookEntryIfWorldNotExists() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        UpdateWorldLorebookEntry command = UpdateWorldLorebookEntry.builder()
+                .id("ENTRID")
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .build();
+
+        World world = WorldFixture.privateWorld().build();
+
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.updateLorebookEntry(command));
+    }
+
+    @Test
+    public void errorWhenUpdatingLorebookEntryIfEntryNotExists() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        UpdateWorldLorebookEntry command = UpdateWorldLorebookEntry.builder()
+                .id("ENTRID")
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .build();
+
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.updateLorebookEntry(command));
+    }
+
+    @Test
+    public void errorWhenEntryNameTokenLimitIsSurpassed() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .build();
+
+        World world = WorldFixture.privateWorld().build();
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(world));
+
+        ReflectionTestUtils.setField(service, "lorebookEntryNameTokenLimit", 2);
+        ReflectionTestUtils.setField(service, "lorebookEntryDescriptionTokenLimit", 20);
+        when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> service.createLorebookEntry(command));
+    }
+
+    @Test
+    public void errorWhenEntryDescriptionTokenLimitIsSurpassed() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .build();
+
+        World world = WorldFixture.privateWorld().build();
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(world));
+
+        ReflectionTestUtils.setField(service, "lorebookEntryNameTokenLimit", 20);
+        ReflectionTestUtils.setField(service, "lorebookEntryDescriptionTokenLimit", 2);
+        when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> service.createLorebookEntry(command));
+    }
+
+    @Test
+    public void errorWhenCreatingLorebookEntryInNonExistingWorld() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .build();
+
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class,
+                () -> service.createLorebookEntry(command));
+    }
+
+    @Test
+    public void errorWhenCreatingLorebookEntryInWorldWithoutWritePermission() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .build();
+
+        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class,
+                () -> service.createLorebookEntry(command));
     }
 }

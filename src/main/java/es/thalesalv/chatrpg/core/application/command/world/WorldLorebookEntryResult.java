@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder(builderClassName = "Builder")
-public final class WorldLorebookEntry {
+public final class WorldLorebookEntryResult {
 
     private String name;
     private String regex;

@@ -4,13 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class LorebookEntryTest {
+public class WorldLorebookEntryTest {
 
     @Test
     public void updateLorebookEntryName() {
 
         // Given
-        LorebookEntry entry = LorebookEntryFixture.sampleLorebookEntry().build();
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.sampleLorebookEntry().build();
 
         // When
         entry.updateName("New Name");
@@ -23,7 +23,7 @@ public class LorebookEntryTest {
     public void updateLorebookEntryDescription() {
 
         // Given
-        LorebookEntry entry = LorebookEntryFixture.sampleLorebookEntry().build();
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.sampleLorebookEntry().build();
 
         // When
         entry.updateDescription("New Description");
@@ -36,7 +36,7 @@ public class LorebookEntryTest {
     public void updateLorebookEntryRegex() {
 
         // Given
-        LorebookEntry entry = LorebookEntryFixture.sampleLorebookEntry().build();
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.sampleLorebookEntry().build();
 
         // When
         entry.updateRegex("[Rr]egex");
@@ -50,7 +50,7 @@ public class LorebookEntryTest {
 
         // Given
         String expectedPlayerDiscordId = "4234234234";
-        LorebookEntry entry = LorebookEntryFixture.sampleLorebookEntry().build();
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.sampleLorebookEntry().build();
 
         // When
         entry.assignPlayer(expectedPlayerDiscordId);
@@ -63,7 +63,7 @@ public class LorebookEntryTest {
     public void unassignUserToLorebookEntry() {
 
         // Given
-        LorebookEntry entry = LorebookEntryFixture.samplePlayerCharacterLorebookEntry().build();
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.samplePlayerCharacterLorebookEntry().build();
 
         // When
         entry.unassignPlayer();
