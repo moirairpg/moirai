@@ -15,7 +15,14 @@ CREATE TABLE channel_config (
     frequency_penalty NUMERIC DEFAULT 0 NOT NULL,
     presence_penalty NUMERIC DEFAULT 0 NOT NULL,
     stop_sequences VARCHAR(255),
-    logit_bias VARCHAR(255)
+    logit_bias VARCHAR(255),
+    owner_discord_id VARCHAR(100) NOT NULL,
+    reader_users_ids VARCHAR(255),
+    writers_users_ids VARCHAR(255),
+    visibility VARCHAR(20) NOT NULL,
+    creator_discord_id VARCHAR(100) NOT NULL,
+    creation_date TIMESTAMP WITH TIME ZONE,
+    last_update_date TIMESTAMP WITH TIME ZONE
 );
 
 --rollback DROP TABLE channel_config

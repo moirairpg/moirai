@@ -10,7 +10,14 @@ CREATE TABLE persona (
     nudge_role VARCHAR(255),
     bump_content VARCHAR(255),
     bump_role VARCHAR(255),
-    bump_frequency SMALLINT
+    bump_frequency SMALLINT,
+    owner_discord_id VARCHAR(100) NOT NULL,
+    reader_users_ids VARCHAR(255),
+    writers_users_ids VARCHAR(255),
+    visibility VARCHAR(20) NOT NULL,
+    creator_discord_id VARCHAR(100) NOT NULL,
+    creation_date TIMESTAMP WITH TIME ZONE,
+    last_update_date TIMESTAMP WITH TIME ZONE
 );
 
 --rollback DROP TABLE persona
