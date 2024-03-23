@@ -12,26 +12,26 @@ import org.springframework.aop.support.AopUtils;
 @SuppressWarnings("all")
 public class UseCaseRunnerImpl implements UseCaseRunner {
 
-    private static final String HANDLER_NOT_FOUND = "No command handler found for %s";
+    private static final String HANDLER_NOT_FOUND = "No use case handler found for %s";
     private static final String HANDLER_CANNOT_BE_NULL = "Cannot register null handlers";
-    private static final String HANDLER_ALREADY_REGISTERED = "Cannot register command handler for %s - there is a handler already registered";
-    private static final String HANDLER_REGISTERED = "Handler {} registered for command {}";
+    private static final String HANDLER_ALREADY_REGISTERED = "Cannot register use case handler for %s - there is a handler already registered";
+    private static final String HANDLER_REGISTERED = "Handler {} registered for use case {}";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UseCaseRunnerImpl.class);
 
-    private final Map<Class<? extends UseCase<?>>, UseCaseHandler<?, ?>> handlersByCommand = new HashMap<>();
+    private final Map<Class<? extends UseCase<?>>, UseCaseHandler<?, ?>> handlersByUseCase = new HashMap<>();
 
     @Override
-    public <T> T run(UseCase<T> command) {
+    public <T> T run(UseCase<T> useCase) {
 
-        UseCaseHandler<?, ?> handler = handlersByCommand.get(command.getClass());
+        UseCaseHandler<?, ?> handler = handlersByUseCase.get(useCase.getClass());
 
         if (handler == null) {
-            String errorMessage = String.format(HANDLER_NOT_FOUND, command.getClass().getSimpleName());
+            String errorMessage = String.format(HANDLER_NOT_FOUND, useCase.getClass().getSimpleName());
             throw new IllegalArgumentException(errorMessage);
         }
 
-        return ((UseCaseHandler<UseCase<T>, T>) handler).handle(command);
+        return ((UseCaseHandler<UseCase<T>, T>) handler).handle(useCase);
     }
 
     @Override
@@ -41,19 +41,19 @@ public class UseCaseRunnerImpl implements UseCaseRunner {
             throw new IllegalArgumentException(HANDLER_CANNOT_BE_NULL);
         }
 
-        Class<A> commandType = extractCommandType(handler);
+        Class<A> useCaseType = extractUseCaseType(handler);
 
-        boolean isHandlerAlreadyRegisteredForCommand = handlersByCommand.containsKey(commandType);
-        if (isHandlerAlreadyRegisteredForCommand) {
+        boolean isHandlerAlreadyRegisteredForUseCase = handlersByUseCase.containsKey(useCaseType);
+        if (isHandlerAlreadyRegisteredForUseCase) {
             throw new IllegalArgumentException(HANDLER_ALREADY_REGISTERED);
         }
 
-        handlersByCommand.putIfAbsent(commandType, handler);
+        handlersByUseCase.putIfAbsent(useCaseType, handler);
 
-        LOGGER.info(HANDLER_REGISTERED, handler.getClass().getSimpleName(), commandType.getSimpleName());
+        LOGGER.info(HANDLER_REGISTERED, handler.getClass().getSimpleName(), useCaseType.getSimpleName());
     }
 
-    private <A extends UseCase<T>, T> Class<A> extractCommandType(UseCaseHandler<A, T> handler) {
+    private <A extends UseCase<T>, T> Class<A> extractUseCaseType(UseCaseHandler<A, T> handler) {
 
         Class<? extends UseCaseHandler<A, T>> unproxiedHandler =
                 (Class<? extends UseCaseHandler<A, T>>) AopUtils.getTargetClass(handler);
