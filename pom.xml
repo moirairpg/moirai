@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
+        <version>3.2.4</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
@@ -46,6 +46,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
         <!-- <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-client</artifactId>
@@ -59,9 +63,53 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency> -->
+
+        <!-- Database & Testing -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.25.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest</artifactId>
+            <version>1.11.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Artificial Intelligence -->
+        <dependency>
+            <groupId>ai.djl.huggingface</groupId>
+            <artifactId>tokenizers</artifactId>
+            <version>0.26.0</version>
         </dependency>
 
         <!-- Libraries -->
@@ -71,30 +119,9 @@
             <version>2.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.25.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ai.djl.huggingface</groupId>
-            <artifactId>tokenizers</artifactId>
-            <version>0.26.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -130,29 +157,6 @@
             <groupId>ch.qos.logback.contrib</groupId>
             <artifactId>logback-json-classic</artifactId>
             <version>${logback.json.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.pitest</groupId>
-            <artifactId>pitest</artifactId>
-            <version>1.11.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
