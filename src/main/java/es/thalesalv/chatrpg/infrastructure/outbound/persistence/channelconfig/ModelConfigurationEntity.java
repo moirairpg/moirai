@@ -41,11 +41,11 @@ public class ModelConfigurationEntity {
     @Column(name = "presence_penalty", nullable = false)
     private Double presencePenalty;
 
-    @Column(name = "stop_sequences", nullable = false)
+    @Column(name = "stop_sequences")
     @Convert(converter = StringListConverter.class)
     private List<String> stopSequences;
 
-    @Column(name = "logit_bias", nullable = false)
+    @Column(name = "logit_bias")
     @Convert(converter = StringMapDoubleConverter.class)
     private Map<String, Double> logitBias;
 }

@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity(name = "WorldLorebookEntry")
-@Table(name = "WorldLorebookEntry")
+@Table(name = "world_lorebook")
 public class WorldLorebookEntryEntity extends AssetEntity {
 
     @Id
@@ -28,7 +28,7 @@ public class WorldLorebookEntryEntity extends AssetEntity {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "regex")
+    @Column(name = "regex", nullable = false)
     private String regex;
 
     @Column(name = "player_discord_id")

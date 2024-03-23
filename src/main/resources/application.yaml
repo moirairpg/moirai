@@ -1,7 +1,7 @@
 chatrpg:
   nano-id:
     alphabet: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
-    characters-amount: 15
+    characters-amount: 10
   validation:
     token-limits:
       persona.personality: 250
@@ -10,13 +10,6 @@ chatrpg:
           name: 50
           description: 250
         initial-prompt: 500
-
-  generation:
-    default-max-tokens: 100
-    default-temperature: 0.6
-    default-presence-penalty: 0.2
-    default-frequency-penalty: 0.2
-    default-threshold: 1.0
   discord:
     oauth:
       client-id: ${DISCORD_BOT_CLIENT_ID}
@@ -39,12 +32,15 @@ chatrpg:
 
 spring:
   profiles.active: ${SPRING_APPLICATION_PROFILES:default}
-  main.banner-mode: 'off'
-  jpa.hibernate.ddl-auto: update
+  main.banner-mode: off
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+  liquibase:
+    enabled: true
+    defaultSchema: public
+    change-log: classpath:db/changelog/changelog-master.xml
 
 logging:
   level:
