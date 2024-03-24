@@ -20,8 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.thalesalv.chatrpg.common.security.authentication.model.DiscordAuthRequest;
 import es.thalesalv.chatrpg.common.security.authentication.model.DiscordAuthResponse;
 import es.thalesalv.chatrpg.common.security.authentication.model.DiscordErrorResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import reactor.core.publisher.Mono;
 
+@Hidden
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {

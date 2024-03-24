@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 public class DiscordRequestFilter implements WebFilter {
 
     private final DiscordUserDetailsService userDetailsService;
+
     @Value("#{'${chatrpg.security.ignored-paths}'.split(',')}")
     private List<String> ignoredPaths;
 

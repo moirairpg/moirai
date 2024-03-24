@@ -1,6 +1,17 @@
 chatrpg:
   security:
-    ignored-paths: /auth/code
+    ignored-paths: >
+      /auth/code,
+      /webjars/swagger-ui/index.html,
+      /webjars/swagger-ui/index.css,
+      /webjars/swagger-ui/swagger-ui.css,
+      /webjars/swagger-ui/swagger-ui-bundle.js,
+      /webjars/swagger-ui/swagger-ui-standalone-preset.js,
+      /webjars/swagger-ui/swagger-initializer.js,
+      /webjars/swagger-ui/favicon-32x32.png,
+      /webjars/swagger-ui/favicon-16x16.png,
+      /v3/api-docs/swagger-config,
+      /v3/api-docs
   nano-id:
     alphabet: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
     characters-amount: 10
