@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @SuppressWarnings("all")
 public class UseCaseRunnerImpl implements UseCaseRunner {
 
@@ -16,8 +19,6 @@ public class UseCaseRunnerImpl implements UseCaseRunner {
     private static final String HANDLER_CANNOT_BE_NULL = "Cannot register null handlers";
     private static final String HANDLER_ALREADY_REGISTERED = "Cannot register use case handler for %s - there is a handler already registered";
     private static final String HANDLER_REGISTERED = "Handler {} registered for use case {}";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UseCaseRunnerImpl.class);
 
     private final Map<Class<? extends UseCase<?>>, UseCaseHandler<?, ?>> handlersByUseCase = new HashMap<>();
 
@@ -50,7 +51,7 @@ public class UseCaseRunnerImpl implements UseCaseRunner {
 
         handlersByUseCase.putIfAbsent(useCaseType, handler);
 
-        LOGGER.info(HANDLER_REGISTERED, handler.getClass().getSimpleName(), useCaseType.getSimpleName());
+        log.debug(HANDLER_REGISTERED, handler.getClass().getSimpleName(), useCaseType.getSimpleName());
     }
 
     private <A extends UseCase<T>, T> Class<A> extractUseCaseType(UseCaseHandler<A, T> handler) {

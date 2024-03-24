@@ -1,6 +1,9 @@
 package es.thalesalv.chatrpg.common.security.authentication;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +20,8 @@ import reactor.core.publisher.Mono;
 public class DiscordRequestFilter implements WebFilter {
 
     private final DiscordUserDetailsService userDetailsService;
+    @Value("#{'${chatrpg.security.ignored-paths}'.split(',')}")
+    private List<String> ignoredPaths;
 
     public DiscordRequestFilter(DiscordUserDetailsService userDetailsService) {
 
@@ -26,23 +31,34 @@ public class DiscordRequestFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
-        String bearerToken = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-        if (StringUtils.isBlank(bearerToken)) {
-            exchange.getResponse().setStatusCode(HttpStatusCode.valueOf(403));
-            return exchange.getResponse().setComplete();
-        }
+        String requestPath = exchange.getRequest().getPath().value();
+        if (!shouldPathBeIgnored(requestPath)) {
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            return userDetailsService.findByUsername(bearerToken).flatMap(userDetails -> {
-                DiscordPrincipal user = (DiscordPrincipal) userDetails;
-                UsernamePasswordAuthenticationToken authenticatedPrincipal =
-                    new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            List<String> authorizationHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
+            if (authorizationHeader == null || StringUtils.isBlank(authorizationHeader.get(0))) {
+                exchange.getResponse().setStatusCode(HttpStatusCode.valueOf(403));
+                return exchange.getResponse().setComplete();
+            }
 
-                return chain.filter(exchange)
-                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authenticatedPrincipal));
-            });
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                String bearerToken = authorizationHeader.get(0);
+                return userDetailsService.findByUsername(bearerToken).flatMap(userDetails -> {
+                    DiscordPrincipal user = (DiscordPrincipal) userDetails;
+                    UsernamePasswordAuthenticationToken authenticatedPrincipal = new UsernamePasswordAuthenticationToken(
+                            user, null, user.getAuthorities());
+
+                    return chain.filter(exchange)
+                            .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authenticatedPrincipal));
+                });
+            }
         }
 
         return chain.filter(exchange);
+    }
+
+    private boolean shouldPathBeIgnored(String path) {
+
+        return ignoredPaths.stream()
+                .anyMatch(ignoredPath -> ignoredPath.contains(path));
     }
 }
