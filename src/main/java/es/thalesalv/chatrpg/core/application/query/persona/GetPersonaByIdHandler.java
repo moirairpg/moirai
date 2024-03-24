@@ -19,7 +19,7 @@ public class GetPersonaByIdHandler extends UseCaseHandler<GetPersonaById, GetPer
     public GetPersonaResult execute(GetPersonaById query) {
 
         // TODO extract real ID from principal when API is ready
-        Persona persona = repository.findById(query.getId(), "owner")
+        Persona persona = repository.findById(query.getId())
                 .orElseThrow(() -> new AssetNotFoundException("Persona not found"));
 
         return mapResult(persona);

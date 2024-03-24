@@ -2,7 +2,6 @@ package es.thalesalv.chatrpg.core.application.query.persona;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,7 @@ public class SearchPersonasWithWriteAccessHandlerTest {
                 .items(2)
                 .build();
 
-        when(repository.searchPersonasWithWriteAccess(any(SearchPersonasWithWriteAccess.class), anyString()))
+        when(repository.searchPersonasWithWriteAccess(any(SearchPersonasWithWriteAccess.class)))
                 .thenReturn(expectedResult);
 
         // When

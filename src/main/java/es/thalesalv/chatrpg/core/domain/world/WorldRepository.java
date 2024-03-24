@@ -10,11 +10,11 @@ public interface WorldRepository {
 
     World save(World world);
 
-    Optional<World> findById(String id, String requesterDiscordId);
+    Optional<World> findById(String id);
 
     void deleteById(String id);
 
-    SearchWorldsResult searchWorldsWithReadAccess(SearchWorldsWithReadAccess query, String requesterDiscordId);
+    SearchWorldsResult searchWorldsWithReadAccess(SearchWorldsWithReadAccess query);
 
-    SearchWorldsResult searchWorldsWithWriteAccess(SearchWorldsWithWriteAccess query, String requesterDiscordId);
+    SearchWorldsResult searchWorldsWithWriteAccess(SearchWorldsWithWriteAccess query);
 }

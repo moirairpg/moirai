@@ -12,7 +12,6 @@ import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
-import es.thalesalv.chatrpg.core.application.command.world.WorldLorebookEntryResult;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
@@ -64,13 +63,12 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     public World update(UpdateWorld command) {
 
         // TODO extract real ID from principal when API is ready
-        repository.findById(command.getId(), "owner")
+        repository.findById(command.getId())
                 .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
 
         List<WorldLorebookEntry> lorebookEntries = mapLorebookEntriesFromCommand(command.getLorebookEntries());
 
         Permissions permissions = Permissions.builder()
-                .ownerDiscordId(command.getCreatorDiscordId())
                 .usersAllowedToRead(command.getReaderUsers())
                 .usersAllowedToWrite(command.getWriterUsers())
                 .build();
@@ -94,7 +92,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     public WorldLorebookEntry createLorebookEntry(CreateWorldLorebookEntry command) {
 
         // TODO extract real ID from principal when API is ready
-        repository.findById(command.getWorldId(), "owner")
+        repository.findById(command.getWorldId())
                 .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
 
         WorldLorebookEntry lorebookEntry = WorldLorebookEntry.builder()
@@ -113,7 +111,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     public WorldLorebookEntry updateLorebookEntry(UpdateWorldLorebookEntry command) {
 
         // TODO extract real ID from principal when API is ready
-        repository.findById(command.getWorldId(), "owner")
+        repository.findById(command.getWorldId())
                 .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
 
         lorebookEntryRepository.findById(command.getWorldId())
@@ -155,7 +153,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     }
 
     private List<WorldLorebookEntry> mapLorebookEntriesFromCommand(
-            List<WorldLorebookEntryResult> commandLorebookEntries) {
+            List<CreateWorldLorebookEntry> commandLorebookEntries) {
 
         if (commandLorebookEntries == null) {
             return Collections.emptyList();
@@ -166,7 +164,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
                 .toList();
     }
 
-    private WorldLorebookEntry mapLorebookEntryFromCommand(WorldLorebookEntryResult commandLorebookEntry) {
+    private WorldLorebookEntry mapLorebookEntryFromCommand(CreateWorldLorebookEntry commandLorebookEntry) {
 
         return WorldLorebookEntry.builder()
                 .name(commandLorebookEntry.getName())

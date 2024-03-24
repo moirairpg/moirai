@@ -35,7 +35,7 @@ public class UpdateWorldHandlerTest {
                 .description("This is an RPG world")
                 .adventureStart("As you enter the city, people around you start looking at you.")
                 .visibility("PUBLIC")
-                .creatorDiscordId("CRTID")
+                .requesterDiscordId("CRTID")
                 .build();
 
         World expectedUpdatedWorld = WorldFixture.privateWorld().build();

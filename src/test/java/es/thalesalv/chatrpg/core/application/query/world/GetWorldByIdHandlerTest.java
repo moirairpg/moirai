@@ -41,11 +41,12 @@ public class GetWorldByIdHandlerTest {
     public void getWorldById() {
 
         // Given
+        String requesterDiscordId = "84REAC";
         String id = "HAUDHUAHD";
         World world = WorldFixture.privateWorld().id(id).build();
-        GetWorldById query = GetWorldById.build(id);
+        GetWorldById query = GetWorldById.build(id, requesterDiscordId);
 
-        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(world));
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
 
         // When
         GetWorldResult result = handler.handle(query);
@@ -59,10 +60,11 @@ public class GetWorldByIdHandlerTest {
     public void errorWhenWorldNotFound() {
 
         // Given
+        String requesterDiscordId = "84REAC";
         String id = "HAUDHUAHD";
-        GetWorldById query = GetWorldById.build(id);
+        GetWorldById query = GetWorldById.build(id, requesterDiscordId);
 
-        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> handler.handle(query));

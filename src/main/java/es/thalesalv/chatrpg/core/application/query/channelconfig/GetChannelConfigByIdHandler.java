@@ -19,7 +19,7 @@ public class GetChannelConfigByIdHandler extends UseCaseHandler<GetChannelConfig
     public GetChannelConfigResult execute(GetChannelConfigById query) {
 
         // TODO extract real ID from principal when API is ready
-        ChannelConfig channelConfig = repository.findById(query.getId(), "owner")
+        ChannelConfig channelConfig = repository.findById(query.getId())
                 .orElseThrow(() -> new AssetNotFoundException("ChannelConfig not found"));
 
         return mapResult(channelConfig);

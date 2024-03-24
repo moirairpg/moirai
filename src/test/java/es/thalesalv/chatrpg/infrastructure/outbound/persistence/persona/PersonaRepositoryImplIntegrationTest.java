@@ -68,13 +68,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     public void retrievePersonaById() {
 
         // Given
-        String ownerDiscordId = "586678721356875";
         Persona persona = repository.save(PersonaFixture.privatePersona()
                 .id(null)
                 .build());
 
         // When
-        Optional<Persona> retrievedPersonaOptional = repository.findById(persona.getId(), ownerDiscordId);
+        Optional<Persona> retrievedPersonaOptional = repository.findById(persona.getId());
 
         // Then
         assertThat(retrievedPersonaOptional).isNotNull().isNotEmpty();
@@ -84,30 +83,13 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     }
 
     @Test
-    public void emptyResultWhenUserCantSeeAsset() {
-
-        // Given
-        String requesterDiscordId = "123456";
-        Persona persona = repository.save(PersonaFixture.privatePersona()
-                .id(null)
-                .build());
-
-        // When
-        Optional<Persona> retrievedPersonaOptional = repository.findById(persona.getId(), requesterDiscordId);
-
-        // Then
-        assertThat(retrievedPersonaOptional).isNotNull().isEmpty();
-    }
-
-    @Test
     public void emptyResultWhenAssetDoesntExist() {
 
         // Given
         String personaId = "PRSNDID";
-        String requesterDiscordId = "123456";
 
         // When
-        Optional<Persona> retrievedPersonaOptional = repository.findById(personaId, requesterDiscordId);
+        Optional<Persona> retrievedPersonaOptional = repository.findById(personaId);
 
         // Then
         assertThat(retrievedPersonaOptional).isNotNull().isEmpty();
@@ -117,7 +99,6 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     public void deletePersona() {
 
         // Given
-        String ownerDiscordId = "586678721356875";
         Persona persona = repository.save(PersonaFixture.privatePersona()
                 .id(null)
                 .build());
@@ -126,7 +107,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         repository.deleteById(persona.getId());
 
         // Then
-        assertThat(repository.findById(persona.getId(), ownerDiscordId)).isNotNull().isEmpty();
+        assertThat(repository.findById(persona.getId())).isNotNull().isEmpty();
     }
 
     @Test
@@ -155,10 +136,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder().build();
+        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -191,10 +174,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder().build();
+        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -232,10 +217,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .direction("DESC")
                 .page(1)
                 .items(10)
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -272,10 +258,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .sortByField("name")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -313,10 +300,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .sortByField("name")
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -353,10 +341,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .name("Number 2")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -392,10 +381,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder().build();
+        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -430,10 +421,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder().build();
+        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -472,10 +465,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .direction("DESC")
                 .page(1)
                 .items(10)
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -513,10 +507,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .sortByField("name")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -555,10 +550,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .sortByField("name")
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -595,10 +591,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .name("Number 2")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -633,10 +630,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .name("Number 2")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query, ownerDiscordId);
+        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();

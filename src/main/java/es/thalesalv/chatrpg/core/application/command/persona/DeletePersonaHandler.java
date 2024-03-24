@@ -30,7 +30,7 @@ public class DeletePersonaHandler extends UseCaseHandler<DeletePersona, Void> {
     public Void execute(DeletePersona command) {
 
         // TODO extract real ID from principal when API is ready
-        repository.findById(command.getId(), "owner")
+        repository.findById(command.getId())
                 .orElseThrow(() -> new AssetNotFoundException(CANNOT_DELETE_NOT_FOUND));
 
         repository.deleteById(command.getId());

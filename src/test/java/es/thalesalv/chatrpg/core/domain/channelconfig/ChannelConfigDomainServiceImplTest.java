@@ -69,7 +69,7 @@ public class ChannelConfigDomainServiceImplTest {
                 .id(id)
                 .build();
 
-        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.update(command));
@@ -104,7 +104,7 @@ public class ChannelConfigDomainServiceImplTest {
                 .name("New name")
                 .build();
 
-        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(unchangedChannelConfig));
+        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedChannelConfig));
         when(repository.save(any(ChannelConfig.class))).thenReturn(expectedUpdatedChannelConfig);
 
         // When

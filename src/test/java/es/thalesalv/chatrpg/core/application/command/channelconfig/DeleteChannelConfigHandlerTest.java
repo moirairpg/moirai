@@ -34,7 +34,7 @@ public class DeleteChannelConfigHandlerTest {
 
         DeleteChannelConfig command = DeleteChannelConfig.build(id);
 
-        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> handler.handle(command));
@@ -62,7 +62,7 @@ public class DeleteChannelConfigHandlerTest {
 
         DeleteChannelConfig command = DeleteChannelConfig.build(id);
 
-        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(channelConfig));
+        when(repository.findById(anyString())).thenReturn(Optional.of(channelConfig));
 
         // Then
         handler.handle(command);

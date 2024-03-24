@@ -8,13 +8,13 @@ import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithWri
 
 public interface PersonaRepository {
 
-    Optional<Persona> findById(String id, String requesterDiscordId);
+    Optional<Persona> findById(String id);
 
     Persona save(Persona persona);
 
     void deleteById(String id);
 
-    SearchPersonasResult searchPersonasWithReadAccess(SearchPersonasWithReadAccess query, String requesterDiscordId);
+    SearchPersonasResult searchPersonasWithReadAccess(SearchPersonasWithReadAccess query);
 
-    SearchPersonasResult searchPersonasWithWriteAccess(SearchPersonasWithWriteAccess query, String requesterDiscordId);
+    SearchPersonasResult searchPersonasWithWriteAccess(SearchPersonasWithWriteAccess query);
 }

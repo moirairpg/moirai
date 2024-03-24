@@ -10,9 +10,10 @@ import lombok.RequiredArgsConstructor;
 public final class GetWorldById extends UseCase<GetWorldResult> {
 
     private final String id;
+    private final String requesterDiscordId;
 
-    public static GetWorldById build(String id) {
+    public static GetWorldById build(String id, String requesterDiscordId) {
 
-        return new GetWorldById(id);
+        return new GetWorldById(id, requesterDiscordId);
     }
 }

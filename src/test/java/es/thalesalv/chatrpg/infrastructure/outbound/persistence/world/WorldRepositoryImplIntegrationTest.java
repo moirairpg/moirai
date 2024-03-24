@@ -60,13 +60,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     public void retrieveWorldById() {
 
         // Given
-        String ownerDiscordId = "586678721356875";
         World world = repository.save(WorldFixture.privateWorld()
                 .id(null)
                 .build());
 
         // When
-        Optional<World> retrievedWorldOptional = repository.findById(world.getId(), ownerDiscordId);
+        Optional<World> retrievedWorldOptional = repository.findById(world.getId());
 
         // Then
         assertThat(retrievedWorldOptional).isNotNull().isNotEmpty();
@@ -76,30 +75,13 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     }
 
     @Test
-    public void emptyResultWhenUserCantSeeAsset() {
-
-        // Given
-        String requesterDiscordId = "123456";
-        World world = repository.save(WorldFixture.privateWorld()
-                .id(null)
-                .build());
-
-        // When
-        Optional<World> retrievedWorldOptional = repository.findById(world.getId(), requesterDiscordId);
-
-        // Then
-        assertThat(retrievedWorldOptional).isNotNull().isEmpty();
-    }
-
-    @Test
     public void emptyResultWhenAssetDoesntExist() {
 
         // Given
         String worldId = "WRLDID";
-        String requesterDiscordId = "123456";
 
         // When
-        Optional<World> retrievedWorldOptional = repository.findById(worldId, requesterDiscordId);
+        Optional<World> retrievedWorldOptional = repository.findById(worldId);
 
         // Then
         assertThat(retrievedWorldOptional).isNotNull().isEmpty();
@@ -109,7 +91,6 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
     public void deleteWorld() {
 
         // Given
-        String ownerDiscordId = "586678721356875";
         World world = repository.save(WorldFixture.privateWorld()
                 .id(null)
                 .build());
@@ -118,7 +99,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         repository.deleteById(world.getId());
 
         // Then
-        assertThat(repository.findById(world.getId(), ownerDiscordId)).isNotNull().isEmpty();
+        assertThat(repository.findById(world.getId())).isNotNull().isEmpty();
     }
 
     @Test
@@ -147,10 +128,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder().build();
+        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -183,10 +166,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder().build();
+        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -222,10 +207,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -264,10 +250,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .sortByField("name")
                 .page(1)
                 .items(10)
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -305,10 +292,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
                 .sortByField("name")
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -345,10 +333,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
                 .name("Number 2")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -384,10 +373,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder().build();
+        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -422,10 +413,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder().build();
+        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -462,10 +455,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -505,10 +499,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .sortByField("name")
                 .page(1)
                 .items(10)
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -547,10 +542,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .sortByField("name")
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -587,10 +583,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .name("Number 2")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -626,10 +623,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .name("Number 2")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query, ownerDiscordId);
+        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();

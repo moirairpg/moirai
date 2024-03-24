@@ -18,4 +18,5 @@ public final class SearchChannelConfigsWithReadAccess extends UseCase<SearchChan
     private final String aiModel;
     private final String moderation;
     private final String name;
+    private final String requesterDiscordId;
 }

@@ -44,9 +44,9 @@ public class WorldRepositoryImpl implements WorldRepository {
     }
 
     @Override
-    public Optional<World> findById(String id, String requesterDiscordId) {
+    public Optional<World> findById(String id) {
 
-        return jpaRepository.findById(id, requesterDiscordId)
+        return jpaRepository.findById(id)
                 .map(this::mapFromEntity);
     }
 
@@ -57,7 +57,7 @@ public class WorldRepositoryImpl implements WorldRepository {
     }
 
     @Override
-    public SearchWorldsResult searchWorldsWithReadAccess(SearchWorldsWithReadAccess query, String requesterDiscordId) {
+    public SearchWorldsResult searchWorldsWithReadAccess(SearchWorldsWithReadAccess query) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
@@ -66,7 +66,7 @@ public class WorldRepositoryImpl implements WorldRepository {
                 : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<WorldEntity> filters = readAccessSpecificationFrom(query, requesterDiscordId);
+        Specification<WorldEntity> filters = readAccessSpecificationFrom(query);
         Page<WorldEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return SearchWorldsResult.builder()
@@ -82,8 +82,7 @@ public class WorldRepositoryImpl implements WorldRepository {
     }
 
     @Override
-    public SearchWorldsResult searchWorldsWithWriteAccess(SearchWorldsWithWriteAccess query,
-            String requesterDiscordId) {
+    public SearchWorldsResult searchWorldsWithWriteAccess(SearchWorldsWithWriteAccess query) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
@@ -92,7 +91,7 @@ public class WorldRepositoryImpl implements WorldRepository {
                 : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<WorldEntity> filters = writeAccessSpecificationFrom(query, requesterDiscordId);
+        Specification<WorldEntity> filters = writeAccessSpecificationFrom(query);
         Page<WorldEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return SearchWorldsResult.builder()
@@ -156,18 +155,17 @@ public class WorldRepositoryImpl implements WorldRepository {
                 .build();
     }
 
-    private Specification<WorldEntity> readAccessSpecificationFrom(SearchWorldsWithReadAccess query,
-            String requesterDiscordId) {
+    private Specification<WorldEntity> readAccessSpecificationFrom(SearchWorldsWithReadAccess query) {
 
         return (root, cq, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), requesterDiscordId);
+            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), query.getRequesterDiscordId());
             Predicate isAllowedToRead = cb.like(root.get("usersAllowedToReadString"),
-                    "%" + requesterDiscordId + "%");
+                    "%" + query.getRequesterDiscordId() + "%");
 
             Predicate isAllowedToWrite = cb.like(root.get("usersAllowedToWriteString"),
-                    "%" + requesterDiscordId + "%");
+                    "%" + query.getRequesterDiscordId() + "%");
 
             predicates.add(cb.or(isOwner, isAllowedToRead, isAllowedToWrite));
 
@@ -180,15 +178,14 @@ public class WorldRepositoryImpl implements WorldRepository {
         };
     }
 
-    private Specification<WorldEntity> writeAccessSpecificationFrom(SearchWorldsWithWriteAccess query,
-            String requesterDiscordId) {
+    private Specification<WorldEntity> writeAccessSpecificationFrom(SearchWorldsWithWriteAccess query) {
 
         return (root, cq, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), requesterDiscordId);
+            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), query.getRequesterDiscordId());
             Predicate isAllowedToWrite = cb.like(root.get("usersAllowedToWriteString"),
-                    "%" + requesterDiscordId + "%");
+                    "%" + query.getRequesterDiscordId() + "%");
 
             predicates.add(cb.or(isOwner, isAllowedToWrite));
 

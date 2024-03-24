@@ -16,4 +16,5 @@ public final class SearchWorldsWithWriteAccess extends UseCase<SearchWorldsResul
     private final String sortByField;
     private final String direction;
     private final String name;
+    private final String requesterDiscordId;
 }

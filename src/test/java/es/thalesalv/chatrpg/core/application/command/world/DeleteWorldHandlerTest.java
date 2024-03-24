@@ -33,7 +33,7 @@ public class DeleteWorldHandlerTest {
 
         DeleteWorld command = DeleteWorld.build(id);
 
-        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> handler.handle(command));
@@ -59,7 +59,7 @@ public class DeleteWorldHandlerTest {
 
         DeleteWorld command = DeleteWorld.build(id);
 
-        when(repository.findById(anyString(), anyString()))
+        when(repository.findById(anyString()))
                 .thenReturn(Optional.of(WorldFixture.privateWorld().build()));
 
         // When

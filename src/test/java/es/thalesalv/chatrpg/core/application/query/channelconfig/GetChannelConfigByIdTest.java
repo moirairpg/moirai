@@ -45,7 +45,7 @@ public class GetChannelConfigByIdTest {
         ChannelConfig channelConfig = ChannelConfigFixture.sample().id(id).build();
         GetChannelConfigById query = GetChannelConfigById.build(id);
 
-        when(repository.findById(anyString(), anyString())).thenReturn(Optional.of(channelConfig));
+        when(repository.findById(anyString())).thenReturn(Optional.of(channelConfig));
 
         // When
         GetChannelConfigResult result = handler.handle(query);
@@ -62,7 +62,7 @@ public class GetChannelConfigByIdTest {
         String id = "HAUDHUAHD";
         GetChannelConfigById query = GetChannelConfigById.build(id);
 
-        when(repository.findById(anyString(), anyString())).thenReturn(Optional.empty());
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> handler.handle(query));

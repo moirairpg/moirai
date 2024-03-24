@@ -80,14 +80,12 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void retrieveChannelConfigById() {
 
         // Given
-        String ownerDiscordId = "586678721356875";
         ChannelConfig channelConfig = repository.save(ChannelConfigFixture.sample()
                 .id(null)
                 .build());
 
         // When
-        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfig.getId(),
-                ownerDiscordId);
+        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfig.getId());
 
         // Then
         assertThat(retrievedChannelConfigOptional).isNotNull().isNotEmpty();
@@ -97,32 +95,13 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     }
 
     @Test
-    public void emptyResultWhenUserCantSeeAsset() {
-
-        // Given
-        String requesterDiscordId = "123456";
-        ChannelConfig channelConfig = repository.save(ChannelConfigFixture.sample()
-                .id(null)
-                .build());
-
-        // When
-        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfig.getId(),
-                requesterDiscordId);
-
-        // Then
-        assertThat(retrievedChannelConfigOptional).isNotNull().isEmpty();
-    }
-
-    @Test
     public void emptyResultWhenAssetDoesntExist() {
 
         // Given
         String channelConfigId = "WRLDID";
-        String requesterDiscordId = "123456";
 
         // When
-        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfigId,
-                requesterDiscordId);
+        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findById(channelConfigId);
 
         // Then
         assertThat(retrievedChannelConfigOptional).isNotNull().isEmpty();
@@ -132,7 +111,6 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     public void deleteChannelConfig() {
 
         // Given
-        String ownerDiscordId = "586678721356875";
         ChannelConfig channelConfig = repository.save(ChannelConfigFixture.sample()
                 .id(null)
                 .build());
@@ -141,7 +119,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         repository.deleteById(channelConfig.getId());
 
         // Then
-        assertThat(repository.findById(channelConfig.getId(), ownerDiscordId)).isNotNull().isEmpty();
+        assertThat(repository.findById(channelConfig.getId())).isNotNull().isEmpty();
     }
 
     @Test
@@ -170,10 +148,12 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder().build();
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -211,10 +191,12 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder().build();
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -255,10 +237,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -300,10 +283,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("name")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -346,10 +330,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("name")
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -392,10 +377,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
                 .direction("ASC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -438,10 +424,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -486,10 +473,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .direction("ASC")
                 .page(1)
                 .items(10)
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -534,10 +522,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .direction("DESC")
                 .page(1)
                 .items(10)
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -579,10 +568,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .aiModel("gpt35-4k")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -622,10 +612,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .name("Number 2")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -665,10 +656,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .moderation("PERMISSIVE")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -705,10 +697,12 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder().build();
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -748,10 +742,12 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         jpaRepository.save(gpt3516k);
         jpaRepository.save(gpt354k);
 
-        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder().build();
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -793,10 +789,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -839,10 +836,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .sortByField("name")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -886,10 +884,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .sortByField("name")
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -933,10 +932,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
                 .direction("ASC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -980,10 +980,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
                 .direction("DESC")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1029,10 +1030,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .direction("ASC")
                 .page(1)
                 .items(10)
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1078,10 +1080,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .direction("DESC")
                 .page(1)
                 .items(10)
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1123,10 +1126,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .aiModel("gpt35-4k")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1167,10 +1171,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .name("Number 2")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1212,10 +1217,11 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .moderation("PERMISSIVE")
+                .requesterDiscordId(ownerDiscordId)
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query, ownerDiscordId);
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
 
         // Then
         assertThat(result).isNotNull();

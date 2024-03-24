@@ -17,6 +17,6 @@ public class SearchPersonasWithReadAccessHandler extends UseCaseHandler<SearchPe
     public SearchPersonasResult execute(SearchPersonasWithReadAccess query) {
 
         // TODO extract real ID from principal when API is ready
-        return repository.searchPersonasWithReadAccess(query, "owner");
+        return repository.searchPersonasWithReadAccess(query);
     }
 }

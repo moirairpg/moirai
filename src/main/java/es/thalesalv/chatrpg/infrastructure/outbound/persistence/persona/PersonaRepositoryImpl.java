@@ -47,9 +47,9 @@ public class PersonaRepositoryImpl implements PersonaRepository {
     }
 
     @Override
-    public Optional<Persona> findById(String id, String requesterDiscordId) {
+    public Optional<Persona> findById(String id) {
 
-        return jpaRepository.findById(id, requesterDiscordId)
+        return jpaRepository.findById(id)
                 .map(this::mapFromEntity);
     }
 
@@ -60,8 +60,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
     }
 
     @Override
-    public SearchPersonasResult searchPersonasWithReadAccess(SearchPersonasWithReadAccess query,
-            String requesterDiscordId) {
+    public SearchPersonasResult searchPersonasWithReadAccess(SearchPersonasWithReadAccess query) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
@@ -70,7 +69,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<PersonaEntity> filters = readAccessSpecificationFrom(query, requesterDiscordId);
+        Specification<PersonaEntity> filters = readAccessSpecificationFrom(query);
         Page<PersonaEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return SearchPersonasResult.builder()
@@ -86,8 +85,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
     }
 
     @Override
-    public SearchPersonasResult searchPersonasWithWriteAccess(SearchPersonasWithWriteAccess query,
-            String requesterDiscordId) {
+    public SearchPersonasResult searchPersonasWithWriteAccess(SearchPersonasWithWriteAccess query) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
@@ -96,7 +94,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<PersonaEntity> filters = writeAccessSpecificationFrom(query, requesterDiscordId);
+        Specification<PersonaEntity> filters = writeAccessSpecificationFrom(query);
         Page<PersonaEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return SearchPersonasResult.builder()
@@ -185,18 +183,17 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 .build();
     }
 
-    private Specification<PersonaEntity> readAccessSpecificationFrom(SearchPersonasWithReadAccess query,
-            String requesterDiscordId) {
+    private Specification<PersonaEntity> readAccessSpecificationFrom(SearchPersonasWithReadAccess query) {
 
         return (root, cq, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
 
-            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), requesterDiscordId);
+            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), query.getRequesterDiscordId());
             Predicate isAllowedToRead = cb.like(root.get("usersAllowedToReadString"),
-                    "%" + requesterDiscordId + "%");
+                    "%" + query.getRequesterDiscordId() + "%");
 
             Predicate isAllowedToWrite = cb.like(root.get("usersAllowedToWriteString"),
-                    "%" + requesterDiscordId + "%");
+                    "%" + query.getRequesterDiscordId() + "%");
 
             predicates.add(cb.or(isOwner, isAllowedToRead, isAllowedToWrite));
 
@@ -209,15 +206,14 @@ public class PersonaRepositoryImpl implements PersonaRepository {
         };
     }
 
-    private Specification<PersonaEntity> writeAccessSpecificationFrom(SearchPersonasWithWriteAccess query,
-            String requesterDiscordId) {
+    private Specification<PersonaEntity> writeAccessSpecificationFrom(SearchPersonasWithWriteAccess query) {
 
         return (root, cq, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
 
-            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), requesterDiscordId);
+            Predicate isOwner = cb.equal(root.get("ownerDiscordId"), query.getRequesterDiscordId());
             Predicate isAllowedToWrite = cb.like(root.get("usersAllowedToWriteString"),
-                    "%" + requesterDiscordId + "%");
+                    "%" + query.getRequesterDiscordId() + "%");
 
             predicates.add(cb.or(isOwner, isAllowedToWrite));
 

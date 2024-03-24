@@ -18,4 +18,5 @@ public final class SearchChannelConfigsWithWriteAccess extends UseCase<SearchCha
     private final String aiModel;
     private final String moderation;
     private final String name;
+    private final String requesterDiscordId;
 }
