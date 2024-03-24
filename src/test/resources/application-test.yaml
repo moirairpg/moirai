@@ -1,3 +1,23 @@
+chatrpg:
+  nano-id:
+    alphabet: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    characters-amount: 10
+  validation:
+    token-limits:
+      persona.personality: 250
+      world:
+        lorebook-entry:
+          name: 50
+          description: 250
+        initial-prompt: 500
+  discord:
+    oauth:
+      client-id: dummy_value
+      client-secret: dummy_value
+      redirect-url: http://dummy_value
+    api-base-url: https://discord.com/api
+    api-token: dummy_value
+
 spring:
   main.banner-mode: 'off'
   jpa:
