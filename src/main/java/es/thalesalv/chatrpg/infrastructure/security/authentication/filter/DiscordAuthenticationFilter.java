@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.common.security.authentication;
+package es.thalesalv.chatrpg.infrastructure.security.authentication.filter;
 
 import java.util.List;
 
@@ -14,20 +14,21 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
+import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordPrincipal;
+import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordUserDetailsService;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Component
-public class DiscordRequestFilter implements WebFilter {
+@RequiredArgsConstructor
+public class DiscordAuthenticationFilter implements WebFilter {
 
-    private final DiscordUserDetailsService userDetailsService;
+    private static final int HTTP_FORBIDDEN = 403;
 
     @Value("#{'${chatrpg.security.ignored-paths}'.split(',')}")
     private List<String> ignoredPaths;
 
-    public DiscordRequestFilter(DiscordUserDetailsService userDetailsService) {
-
-        this.userDetailsService = userDetailsService;
-    }
+    private final DiscordUserDetailsService userDetailsService;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -37,7 +38,7 @@ public class DiscordRequestFilter implements WebFilter {
 
             List<String> authorizationHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
             if (authorizationHeader == null || StringUtils.isBlank(authorizationHeader.get(0))) {
-                exchange.getResponse().setStatusCode(HttpStatusCode.valueOf(403));
+                exchange.getResponse().setStatusCode(HttpStatusCode.valueOf(HTTP_FORBIDDEN));
                 return exchange.getResponse().setComplete();
             }
 
@@ -59,7 +60,6 @@ public class DiscordRequestFilter implements WebFilter {
 
     private boolean shouldPathBeIgnored(String path) {
 
-        return ignoredPaths.stream()
-                .anyMatch(ignoredPath -> ignoredPath.contains(path));
+        return ignoredPaths.stream().anyMatch(ignoredPath -> ignoredPath.contains(path));
     }
 }

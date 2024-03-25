@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.common.security.authentication;
+package es.thalesalv.chatrpg.infrastructure.security.authentication.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -10,6 +10,7 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
+import es.thalesalv.chatrpg.infrastructure.security.authentication.filter.DiscordAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -17,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthenticationSecurityConfig {
 
-    private final DiscordRequestFilter discordRequestFilter;
+    private final DiscordAuthenticationFilter discordRequestFilter;
 
     @Value("${chatrpg.security.ignored-paths}")
     private String[] ignoredPaths;

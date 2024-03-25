@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.common.security.authentication.model;
+package es.thalesalv.chatrpg.infrastructure.inbound.api.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

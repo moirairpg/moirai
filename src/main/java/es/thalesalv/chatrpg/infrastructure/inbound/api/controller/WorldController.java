@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.thalesalv.chatrpg.common.security.authentication.DiscordPrincipal;
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
@@ -29,6 +28,7 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.CreateWorldRespo
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchWorldsResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponse;
+import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordPrincipal;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

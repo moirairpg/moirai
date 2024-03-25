@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.common.security.authentication;
+package es.thalesalv.chatrpg.infrastructure.security.authentication;
 
 import java.util.Collection;
 

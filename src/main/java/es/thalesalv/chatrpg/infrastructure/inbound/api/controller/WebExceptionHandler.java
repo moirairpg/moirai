@@ -12,8 +12,8 @@ import org.springframework.web.bind.support.WebExchangeBindException;
 
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
+import es.thalesalv.chatrpg.common.exception.AuthenticationFailedException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
-import es.thalesalv.chatrpg.common.security.authentication.AuthenticationFailedException;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
