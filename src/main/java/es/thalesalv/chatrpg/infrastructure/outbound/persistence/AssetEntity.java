@@ -24,8 +24,10 @@ public abstract class AssetEntity {
     @Column(name = "last_update_date", nullable = false)
     protected OffsetDateTime lastUpdateDate;
 
-    protected AssetEntity(String creatorDiscordId) {
+    public AssetEntity(String creatorDiscordId, OffsetDateTime creationDate, OffsetDateTime lastUpdateDate) {
         this.creatorDiscordId = creatorDiscordId;
+        this.creationDate = creationDate;
+        this.lastUpdateDate = lastUpdateDate;
     }
 
     protected AssetEntity() {

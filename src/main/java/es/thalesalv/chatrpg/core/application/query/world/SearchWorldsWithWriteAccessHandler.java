@@ -16,7 +16,6 @@ public class SearchWorldsWithWriteAccessHandler extends UseCaseHandler<SearchWor
     @Override
     public SearchWorldsResult execute(SearchWorldsWithWriteAccess query) {
 
-        // TODO extract real ID from principal when API is ready
         return repository.searchWorldsWithWriteAccess(query);
     }
 }

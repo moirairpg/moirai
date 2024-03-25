@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.infrastructure.outbound.persistence.persona;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -39,7 +40,9 @@ public class PersonaEntity extends ShareableAssetEntity {
 
     private PersonaEntity(Builder builder) {
 
-        super(builder.ownerDiscordId, builder.usersAllowedToRead, builder.usersAllowedToWrite, builder.visibility);
+        super(builder.creatorDiscordId, builder.creationDate,
+                builder.lastUpdateDate, builder.ownerDiscordId, builder.usersAllowedToRead, builder.usersAllowedToWrite,
+                builder.visibility);
 
         this.id = builder.id;
         this.name = builder.name;
@@ -68,6 +71,9 @@ public class PersonaEntity extends ShareableAssetEntity {
         private List<String> usersAllowedToRead;
         private List<String> usersAllowedToWrite;
         private String visibility;
+        private String creatorDiscordId;
+        private OffsetDateTime creationDate;
+        private OffsetDateTime lastUpdateDate;
 
         public Builder id(String id) {
 
@@ -120,6 +126,24 @@ public class PersonaEntity extends ShareableAssetEntity {
         public Builder usersAllowedToWrite(List<String> usersAllowedToWrite) {
 
             this.usersAllowedToWrite = usersAllowedToWrite;
+            return this;
+        }
+
+        public Builder creatorDiscordId(String creatorDiscordId) {
+
+            this.creatorDiscordId = creatorDiscordId;
+            return this;
+        }
+
+        public Builder creationDate(OffsetDateTime creationDate) {
+
+            this.creationDate = creationDate;
+            return this;
+        }
+
+        public Builder lastUpdateDate(OffsetDateTime lastUpdateDate) {
+
+            this.lastUpdateDate = lastUpdateDate;
             return this;
         }
 

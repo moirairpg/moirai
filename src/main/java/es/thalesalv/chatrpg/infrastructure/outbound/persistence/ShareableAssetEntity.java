@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.infrastructure.outbound.persistence;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.Formula;
@@ -16,10 +17,11 @@ import lombok.Setter;
 @MappedSuperclass
 public abstract class ShareableAssetEntity extends AssetEntity {
 
-    protected ShareableAssetEntity(String ownerDiscordId, List<String> usersAllowedToRead,
+    protected ShareableAssetEntity(String creatorDiscordId, OffsetDateTime creationDate,
+            OffsetDateTime lastUpdateDate, String ownerDiscordId, List<String> usersAllowedToRead,
             List<String> usersAllowedToWrite, String visibility) {
 
-        super(ownerDiscordId);
+        super(creatorDiscordId, creationDate, lastUpdateDate);
 
         this.ownerDiscordId = ownerDiscordId;
         this.usersAllowedToRead = usersAllowedToRead;

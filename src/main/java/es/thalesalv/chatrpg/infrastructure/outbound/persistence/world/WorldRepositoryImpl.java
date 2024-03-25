@@ -117,6 +117,9 @@ public class WorldRepositoryImpl implements WorldRepository {
                 .ownerDiscordId(world.getOwnerDiscordId())
                 .usersAllowedToRead(world.getReaderUsers())
                 .usersAllowedToWrite(world.getWriterUsers())
+                .creationDate(world.getCreationDate())
+                .lastUpdateDate(world.getLastUpdateDate())
+                .creatorDiscordId(world.getCreatorDiscordId())
                 .build();
     }
 

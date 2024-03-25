@@ -14,4 +14,5 @@ public final class CreateWorldLorebookEntry extends UseCase<CreateWorldLorebookE
     private final String description;
     private final String playerDiscordId;
     private final boolean isPlayerCharacter;
+    private final String requesterDiscordId;
 }

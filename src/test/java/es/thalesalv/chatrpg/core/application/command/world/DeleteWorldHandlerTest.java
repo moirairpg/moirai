@@ -29,9 +29,10 @@ public class DeleteWorldHandlerTest {
     public void errorWhenWorldIsNotFound() {
 
         // Given
+        String requesterDiscordId = "84REAC";
         String id = "WRDID";
 
-        DeleteWorld command = DeleteWorld.build(id);
+        DeleteWorld command = DeleteWorld.build(id, requesterDiscordId);
 
         when(repository.findById(anyString())).thenReturn(Optional.empty());
 
@@ -43,9 +44,10 @@ public class DeleteWorldHandlerTest {
     public void errorWhenIdIsNull() {
 
         // Given
+        String requesterDiscordId = "84REAC";
         String id = null;
 
-        DeleteWorld config = DeleteWorld.build(id);
+        DeleteWorld config = DeleteWorld.build(id, requesterDiscordId);
 
         // Then
         assertThrows(IllegalArgumentException.class, () -> handler.handle(config));
@@ -55,9 +57,10 @@ public class DeleteWorldHandlerTest {
     public void deleteWorld() {
 
         // Given
+        String requesterDiscordId = "84REAC";
         String id = "WRDID";
 
-        DeleteWorld command = DeleteWorld.build(id);
+        DeleteWorld command = DeleteWorld.build(id, requesterDiscordId);
 
         when(repository.findById(anyString()))
                 .thenReturn(Optional.of(WorldFixture.privateWorld().build()));

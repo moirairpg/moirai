@@ -1,11 +1,9 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
@@ -15,6 +13,7 @@ import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEn
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
+import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +37,6 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     @Override
     public World createFrom(CreateWorld command) {
 
-        List<WorldLorebookEntry> lorebookEntries = mapLorebookEntriesFromCommand(command.getLorebookEntries());
         Permissions permissions = Permissions.builder()
                 .ownerDiscordId(command.getCreatorDiscordId())
                 .usersAllowedToRead(command.getReaderUsers())
@@ -51,7 +49,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
                 .adventureStart(command.getAdventureStart())
                 .visibility(Visibility.fromString(command.getVisibility()))
                 .permissions(permissions)
-                .lorebook(lorebookEntries)
+                .creatorDiscordId(command.getCreatorDiscordId())
                 .build();
 
         validateTokenCount(world);
@@ -62,26 +60,41 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     @Override
     public World update(UpdateWorld command) {
 
-        // TODO extract real ID from principal when API is ready
-        repository.findById(command.getId())
+        World world = repository.findById(command.getId())
                 .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
 
-        List<WorldLorebookEntry> lorebookEntries = mapLorebookEntriesFromCommand(command.getLorebookEntries());
+        if (!world.canUserWrite(command.getRequesterDiscordId())) {
+            throw new AssetAccessDeniedException("User does not have permission to modify this world");
+        }
 
-        Permissions permissions = Permissions.builder()
-                .usersAllowedToRead(command.getReaderUsers())
-                .usersAllowedToWrite(command.getWriterUsers())
-                .build();
+        if (StringUtils.isNotBlank(command.getName())) {
+            world.updateName(command.getName());
+        }
 
-        World world = World.builder()
-                .id(command.getId())
-                .name(command.getName())
-                .description(command.getDescription())
-                .adventureStart(command.getAdventureStart())
-                .visibility(Visibility.fromString(command.getVisibility()))
-                .permissions(permissions)
-                .lorebook(lorebookEntries)
-                .build();
+        if (StringUtils.isNotBlank(command.getDescription())) {
+            world.updateDescription(command.getDescription());
+        }
+
+        if (StringUtils.isNotBlank(command.getAdventureStart())) {
+            world.updateAdventureStart(command.getAdventureStart());
+        }
+
+        if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
+            world.makePublic();
+        } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
+            world.makePrivate();
+        }
+
+        command.getReaderUsersToAdd().stream()
+                .filter(discordUserId -> !world.canUserRead(discordUserId))
+                .forEach(world::addReaderUser);
+
+        command.getWriterUsersToAdd().stream()
+                .filter(discordUserId -> !world.canUserWrite(discordUserId))
+                .forEach(world::addWriterUser);
+
+        command.getReaderUsersToRemove().forEach(world::removeReaderUser);
+        command.getWriterUsersToRemove().forEach(world::removeWriterUser);
 
         validateTokenCount(world);
 
@@ -91,9 +104,12 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     @Override
     public WorldLorebookEntry createLorebookEntry(CreateWorldLorebookEntry command) {
 
-        // TODO extract real ID from principal when API is ready
-        repository.findById(command.getWorldId())
+        World world = repository.findById(command.getWorldId())
                 .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+
+        if (!world.canUserWrite(command.getRequesterDiscordId())) {
+            throw new AssetAccessDeniedException("User does not have permission to modify this world");
+        }
 
         WorldLorebookEntry lorebookEntry = WorldLorebookEntry.builder()
                 .name(command.getName())
@@ -110,9 +126,12 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     @Override
     public WorldLorebookEntry updateLorebookEntry(UpdateWorldLorebookEntry command) {
 
-        // TODO extract real ID from principal when API is ready
-        repository.findById(command.getWorldId())
+        World world = repository.findById(command.getWorldId())
                 .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+
+        if (!world.canUserWrite(command.getRequesterDiscordId())) {
+            throw new AssetAccessDeniedException("User does not have permission to modify this world");
+        }
 
         lorebookEntryRepository.findById(command.getWorldId())
                 .orElseThrow(() -> new AssetNotFoundException("Lorebook entry to be updated was not found"));
@@ -150,27 +169,5 @@ public class WorldDomainServiceImpl implements WorldDomainService {
         if (adventureStartTokenCount > adventureStartTokenLimit) {
             throw new BusinessRuleViolationException("Amount of tokens in initial prompt surpasses allowed limit");
         }
-    }
-
-    private List<WorldLorebookEntry> mapLorebookEntriesFromCommand(
-            List<CreateWorldLorebookEntry> commandLorebookEntries) {
-
-        if (commandLorebookEntries == null) {
-            return Collections.emptyList();
-        }
-
-        return commandLorebookEntries.stream()
-                .map(this::mapLorebookEntryFromCommand)
-                .toList();
-    }
-
-    private WorldLorebookEntry mapLorebookEntryFromCommand(CreateWorldLorebookEntry commandLorebookEntry) {
-
-        return WorldLorebookEntry.builder()
-                .name(commandLorebookEntry.getName())
-                .regex(commandLorebookEntry.getRegex())
-                .description(commandLorebookEntry.getDescription())
-                .playerDiscordId(commandLorebookEntry.getPlayerDiscordId())
-                .build();
     }
 }

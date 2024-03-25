@@ -15,4 +15,5 @@ public final class UpdateWorldLorebookEntry extends UseCase<UpdateWorldLorebookE
     private final String description;
     private final String playerDiscordId;
     private final boolean isPlayerCharacter;
+    private final String requesterDiscordId;
 }
