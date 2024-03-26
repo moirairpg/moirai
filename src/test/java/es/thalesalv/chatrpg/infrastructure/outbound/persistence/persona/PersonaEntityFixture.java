@@ -15,6 +15,7 @@ public class PersonaEntityFixture {
         builder.personality(persona.getPersonality());
         builder.visibility(persona.getVisibility().toString());
         builder.ownerDiscordId(persona.getOwnerDiscordId());
+        builder.creatorDiscordId(persona.getCreatorDiscordId());
         builder.usersAllowedToRead(persona.getReaderUsers());
         builder.usersAllowedToWrite(persona.getWriterUsers());
 
@@ -46,6 +47,7 @@ public class PersonaEntityFixture {
         builder.personality(persona.getPersonality());
         builder.visibility(persona.getVisibility().toString());
         builder.ownerDiscordId(persona.getOwnerDiscordId());
+        builder.creatorDiscordId(persona.getCreatorDiscordId());
         builder.usersAllowedToRead(persona.getReaderUsers());
         builder.usersAllowedToWrite(persona.getWriterUsers());
 

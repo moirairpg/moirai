@@ -111,6 +111,10 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
 
     private ChannelConfigEntity mapToEntity(ChannelConfig channelConfig) {
 
+        String creatorOrOwnerDiscordId = isBlank(channelConfig.getCreatorDiscordId())
+                ? channelConfig.getOwnerDiscordId()
+                : channelConfig.getCreatorDiscordId();
+
         ModelConfigurationEntity modelConfiguration = ModelConfigurationEntity.builder()
                 .aiModel(channelConfig.getModelConfiguration().getAiModel().getInternalModelName())
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
@@ -131,6 +135,7 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
                 .visibility(channelConfig.getVisibility().toString())
                 .moderation(channelConfig.getModeration().toString())
                 .ownerDiscordId(channelConfig.getOwnerDiscordId())
+                .creatorDiscordId(creatorOrOwnerDiscordId)
                 .usersAllowedToWrite(channelConfig.getWriterUsers())
                 .usersAllowedToRead(channelConfig.getReaderUsers())
                 .build();

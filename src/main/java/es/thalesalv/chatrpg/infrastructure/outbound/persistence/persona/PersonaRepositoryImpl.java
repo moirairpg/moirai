@@ -111,6 +111,10 @@ public class PersonaRepositoryImpl implements PersonaRepository {
 
     private PersonaEntity mapToEntity(Persona persona) {
 
+        String creatorOrOwnerDiscordId = isBlank(persona.getCreatorDiscordId())
+                ? persona.getOwnerDiscordId()
+                : persona.getCreatorDiscordId();
+
         BumpEntity bump = BumpEntity.builder()
                 .content(persona.getBump().getContent())
                 .role(persona.getBump().getRole().toString())
@@ -128,6 +132,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility().toString())
                 .ownerDiscordId(persona.getOwnerDiscordId())
+                .creatorDiscordId(creatorOrOwnerDiscordId)
                 .usersAllowedToRead(persona.getReaderUsers())
                 .usersAllowedToWrite(persona.getWriterUsers())
                 .nudge(nudge)

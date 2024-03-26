@@ -108,6 +108,10 @@ public class WorldRepositoryImpl implements WorldRepository {
 
     private WorldEntity mapToEntity(World world) {
 
+        String creatorOrOwnerDiscordId = isBlank(world.getCreatorDiscordId())
+                ? world.getOwnerDiscordId()
+                : world.getCreatorDiscordId();
+
         return WorldEntity.builder()
                 .id(world.getId())
                 .name(world.getName())
@@ -118,6 +122,7 @@ public class WorldRepositoryImpl implements WorldRepository {
                 .usersAllowedToRead(world.getReaderUsers())
                 .usersAllowedToWrite(world.getWriterUsers())
                 .creationDate(world.getCreationDate())
+                .creatorDiscordId(creatorOrOwnerDiscordId)
                 .lastUpdateDate(world.getLastUpdateDate())
                 .creatorDiscordId(world.getCreatorDiscordId())
                 .build();

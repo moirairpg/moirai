@@ -41,7 +41,7 @@ public class GetWorldByIdHandlerTest {
     public void getWorldById() {
 
         // Given
-        String requesterDiscordId = "84REAC";
+        String requesterDiscordId = "586678721356875";
         String id = "HAUDHUAHD";
         World world = WorldFixture.privateWorld().id(id).build();
         GetWorldById query = GetWorldById.build(id, requesterDiscordId);
@@ -60,7 +60,7 @@ public class GetWorldByIdHandlerTest {
     public void errorWhenWorldNotFound() {
 
         // Given
-        String requesterDiscordId = "84REAC";
+        String requesterDiscordId = "586678721356875";
         String id = "HAUDHUAHD";
         GetWorldById query = GetWorldById.build(id, requesterDiscordId);
 

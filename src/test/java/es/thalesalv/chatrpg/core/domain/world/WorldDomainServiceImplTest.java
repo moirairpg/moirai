@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateLorebookEntryFixture;
@@ -188,7 +189,7 @@ public class WorldDomainServiceImplTest {
                 .description("This is an RPG world")
                 .adventureStart("As you enter the city, people around you start looking at you.")
                 .visibility("PUBLIC")
-                .requesterDiscordId("CRTID")
+                .requesterDiscordId("586678721356875")
                 .build();
 
         World unchangedWorld = WorldFixture.privateWorld().build();
@@ -207,6 +208,29 @@ public class WorldDomainServiceImplTest {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo(expectedUpdatedWorld.getName());
+    }
+
+    @Test
+    public void errorWhenUnauthorizedUserUpdateWorld() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateWorld command = UpdateWorld.builder()
+                .id(id)
+                .name("ChatRPG")
+                .description("This is an RPG world")
+                .adventureStart("As you enter the city, people around you start looking at you.")
+                .visibility("PUBLIC")
+                .requesterDiscordId("INVLDUSR")
+                .build();
+
+        World unchangedWorld = WorldFixture.privateWorld().build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
     }
 
     @Test
@@ -230,6 +254,7 @@ public class WorldDomainServiceImplTest {
                 .description(description)
                 .regex(regex)
                 .worldId(worldId)
+                .requesterDiscordId("586678721356875")
                 .build();
 
         World world = WorldFixture.privateWorld().build();
@@ -290,6 +315,7 @@ public class WorldDomainServiceImplTest {
                 .description(description)
                 .regex(regex)
                 .worldId(worldId)
+                .requesterDiscordId("586678721356875")
                 .build();
 
         World world = WorldFixture.privateWorld().build();
@@ -322,6 +348,7 @@ public class WorldDomainServiceImplTest {
                 .description(description)
                 .regex(regex)
                 .worldId(worldId)
+                .requesterDiscordId("586678721356875")
                 .build();
 
         World world = WorldFixture.privateWorld().build();
@@ -370,6 +397,7 @@ public class WorldDomainServiceImplTest {
                 .description(description)
                 .regex(regex)
                 .worldId(worldId)
+                .requesterDiscordId("586678721356875")
                 .build();
 
         World world = WorldFixture.privateWorld().build();
@@ -398,6 +426,7 @@ public class WorldDomainServiceImplTest {
                 .description(description)
                 .regex(regex)
                 .worldId(worldId)
+                .requesterDiscordId("586678721356875")
                 .build();
 
         World world = WorldFixture.privateWorld().build();

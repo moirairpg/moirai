@@ -10,6 +10,8 @@ import es.thalesalv.chatrpg.core.domain.Visibility;
 
 public class WorldFixture {
 
+    private static final String OWNER_DISCORD_ID = "586678721356875";
+
     public static World.Builder publicWorld() {
 
         World.Builder builder = World.builder();
@@ -18,7 +20,7 @@ public class WorldFixture {
         builder.description("This is an RPG world");
         builder.adventureStart("As you enter the city, people around you start looking at you.");
         builder.visibility(Visibility.fromString("PUBLIC"));
-        builder.creatorDiscordId("CRTID");
+        builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());
         builder.lastUpdateDate(OffsetDateTime.now());
 
@@ -41,7 +43,7 @@ public class WorldFixture {
         builder.description("This is an RPG world");
         builder.adventureStart("As you enter the city, people around you start looking at you.");
         builder.visibility(Visibility.fromString("PRIVATE"));
-        builder.creatorDiscordId("CRTID");
+        builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());
         builder.lastUpdateDate(OffsetDateTime.now());
 

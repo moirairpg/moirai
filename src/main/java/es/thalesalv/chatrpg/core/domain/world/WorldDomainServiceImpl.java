@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -85,16 +86,21 @@ public class WorldDomainServiceImpl implements WorldDomainService {
             world.makePrivate();
         }
 
-        command.getReaderUsersToAdd().stream()
+        CollectionUtils.emptyIfNull(command.getReaderUsersToAdd())
+                .stream()
                 .filter(discordUserId -> !world.canUserRead(discordUserId))
                 .forEach(world::addReaderUser);
 
-        command.getWriterUsersToAdd().stream()
+        CollectionUtils.emptyIfNull(command.getWriterUsersToAdd())
+                .stream()
                 .filter(discordUserId -> !world.canUserWrite(discordUserId))
                 .forEach(world::addWriterUser);
 
-        command.getReaderUsersToRemove().forEach(world::removeReaderUser);
-        command.getWriterUsersToRemove().forEach(world::removeWriterUser);
+        CollectionUtils.emptyIfNull(command.getReaderUsersToRemove())
+                .forEach(world::removeReaderUser);
+
+        CollectionUtils.emptyIfNull(command.getWriterUsersToRemove())
+                .forEach(world::removeWriterUser);
 
         validateTokenCount(world);
 

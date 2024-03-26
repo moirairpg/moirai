@@ -7,6 +7,8 @@ import es.thalesalv.chatrpg.core.domain.Visibility;
 
 public class ChannelConfigFixture {
 
+    private static final String OWNER_DISCORD_ID = "586678721356875";
+
     public static ChannelConfig.Builder sample() {
 
         ChannelConfig.Builder builder = ChannelConfig.builder();
@@ -18,7 +20,7 @@ public class ChannelConfigFixture {
         builder.visibility(Visibility.fromString("PRIVATE"));
         builder.modelConfiguration(ModelConfigurationFixture.gpt3516k().build());
         builder.permissions(PermissionsFixture.samplePermissions().build());
-        builder.creatorDiscordId("CRTID");
+        builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());
         builder.lastUpdateDate(OffsetDateTime.now());
 

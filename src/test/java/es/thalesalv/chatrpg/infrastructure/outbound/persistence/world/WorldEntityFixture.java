@@ -16,6 +16,8 @@ public class WorldEntityFixture {
                 .adventureStart(world.getAdventureStart())
                 .visibility(world.getVisibility().toString())
                 .ownerDiscordId(world.getOwnerDiscordId())
+                .creatorDiscordId(world.getCreatorDiscordId())
+                .creationDate(world.getCreationDate())
                 .usersAllowedToRead(world.getReaderUsers())
                 .usersAllowedToWrite(world.getWriterUsers());
     }
@@ -31,6 +33,8 @@ public class WorldEntityFixture {
                 .adventureStart(world.getAdventureStart())
                 .visibility(world.getVisibility().toString())
                 .ownerDiscordId(world.getOwnerDiscordId())
+                .creatorDiscordId(world.getCreatorDiscordId())
+                .creationDate(world.getCreationDate())
                 .usersAllowedToRead(world.getReaderUsers())
                 .usersAllowedToWrite(world.getWriterUsers());
     }

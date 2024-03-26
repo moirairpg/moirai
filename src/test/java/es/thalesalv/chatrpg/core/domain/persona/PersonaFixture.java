@@ -8,6 +8,8 @@ import es.thalesalv.chatrpg.core.domain.Visibility;
 
 public class PersonaFixture {
 
+    private static final String OWNER_DISCORD_ID = "586678721356875";
+
     public static Persona.Builder publicPersona() {
 
         Persona.Builder builder = Persona.builder();
@@ -15,7 +17,7 @@ public class PersonaFixture {
         builder.name("ChatRPG");
         builder.personality("I am a Discord chatbot");
         builder.visibility(Visibility.fromString("PUBLIC"));
-        builder.creatorDiscordId("CRTID");
+        builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());
         builder.lastUpdateDate(OffsetDateTime.now());
 
@@ -38,7 +40,7 @@ public class PersonaFixture {
         builder.name("ChatRPG");
         builder.personality("I am a Discord chatbot");
         builder.visibility(Visibility.fromString("PRIVATE"));
-        builder.creatorDiscordId("CRTID");
+        builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());
         builder.lastUpdateDate(OffsetDateTime.now());
 
