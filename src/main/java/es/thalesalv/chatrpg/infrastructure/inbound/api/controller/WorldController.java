@@ -48,7 +48,7 @@ public class WorldController extends SecurityContextAware {
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<SearchWorldsResponse> seacrhWorldsWithReadAccess(SearchParameters searchParameters) {
 
-        return withAuthenticatedUser(authenticatedUser -> {
+        return mapWithAuthenticatedUser(authenticatedUser -> {
 
             SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
                     .page(searchParameters.getPage())
@@ -68,7 +68,7 @@ public class WorldController extends SecurityContextAware {
     public Mono<SearchWorldsResponse> seacrhWorldsWithWriteAccess(SearchParameters searchParameters,
             Authentication authentication) {
 
-        return withAuthenticatedUser(authenticatedUser -> {
+        return mapWithAuthenticatedUser(authenticatedUser -> {
 
             SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                     .page(searchParameters.getPage())
@@ -85,9 +85,9 @@ public class WorldController extends SecurityContextAware {
 
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<WorldResponse> getWorldById(@PathVariable("id") String id) {
+    public Mono<WorldResponse> getWorldById(@PathVariable(name = "id", required = true) String id) {
 
-        return withAuthenticatedUser(authenticatedUser -> {
+        return mapWithAuthenticatedUser(authenticatedUser -> {
 
             GetWorldById query = GetWorldById.build(id, authenticatedUser.getId());
             return responseMapper.toResponse(useCaseRunner.run(query));
@@ -98,7 +98,7 @@ public class WorldController extends SecurityContextAware {
     @ResponseStatus(code = HttpStatus.CREATED)
     public Mono<CreateWorldResponse> createWorld(@Valid @RequestBody CreateWorldRequest request) {
 
-        return withAuthenticatedUser(authenticatedUser -> {
+        return mapWithAuthenticatedUser(authenticatedUser -> {
 
             CreateWorld command = requestMapper.toCommand(request, authenticatedUser.getId());
             return responseMapper.toResponse(useCaseRunner.run(command));
@@ -107,10 +107,10 @@ public class WorldController extends SecurityContextAware {
 
     @PutMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<UpdateWorldResponse> updateWorld(@PathVariable("id") String id,
+    public Mono<UpdateWorldResponse> updateWorld(@PathVariable(name = "id", required = true) String id,
             @Valid @RequestBody UpdateWorldRequest request) {
 
-        return withAuthenticatedUser(authenticatedUser -> {
+        return mapWithAuthenticatedUser(authenticatedUser -> {
 
             UpdateWorld command = requestMapper.toCommand(request, id, authenticatedUser.getId());
             return responseMapper.toResponse(useCaseRunner.run(command));
@@ -119,14 +119,14 @@ public class WorldController extends SecurityContextAware {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<Void> deleteWorld(@PathVariable("id") String id) {
+    public Mono<Void> deleteWorld(@PathVariable(name = "id", required = true) String id) {
 
-        return withAuthenticatedUser(authenticatedUser -> {
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
             DeleteWorld command = requestMapper.toCommand(id, authenticatedUser.getId());
             useCaseRunner.run(command);
 
-            return null;
+            return Mono.empty();
         });
     }
 }

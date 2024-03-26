@@ -2,18 +2,38 @@ package es.thalesalv.chatrpg.infrastructure.inbound.api.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.OffsetDateTime;
+import java.util.List;
+
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 
 import es.thalesalv.chatrpg.AbstractRestControllerTest;
+import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
+import es.thalesalv.chatrpg.core.application.command.world.CreateWorldResult;
+import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
+import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
+import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldResult;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldResult;
+import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
+import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithReadAccess;
+import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithWriteAccess;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldRequestMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMapper;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequest;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequestFixture;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateWorldRequest;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateWorldRequestFixture;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.response.CreateWorldResponse;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchWorldsResponse;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponseFixture;
 
@@ -27,6 +47,74 @@ public class WorldControllerTest extends AbstractRestControllerTest {
 
     private static final String WORLD_BASE_URL = "/world";
     private static final String WORLD_ID_BASE_URL = "/world/%s";
+
+    @Test
+    public void http200WhenSearchWorlds() {
+
+        // Given
+        List<WorldResponse> results = Lists.list(WorldResponseFixture.publicWorld().build(),
+                WorldResponseFixture.privateWorld().build());
+
+        SearchWorldsResponse expectedResponse = SearchWorldsResponse.builder()
+                .page(1)
+                .totalPages(2)
+                .totalResults(20)
+                .resultsInPage(10)
+                .results(results)
+                .build();
+
+        when(useCaseRunner.run(any(SearchWorldsWithReadAccess.class))).thenReturn(mock(SearchWorldsResult.class));
+        when(responseMapper.toResponse(any(SearchWorldsResult.class))).thenReturn(expectedResponse);
+
+        // Then
+        webTestClient.get()
+                .uri(String.format(WORLD_ID_BASE_URL, "search"))
+                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(SearchWorldsResponse.class)
+                .value(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.getTotalPages()).isEqualTo(2);
+                    assertThat(response.getTotalResults()).isEqualTo(20);
+                    assertThat(response.getResultsInPage()).isEqualTo(10);
+                    assertThat(response.getResults()).hasSameSizeAs(results);
+                });
+    }
+
+    @Test
+    public void http200WhenSearchWorldsWithWritePermission() {
+
+        // Given
+        List<WorldResponse> results = Lists.list(WorldResponseFixture.publicWorld().build(),
+                WorldResponseFixture.privateWorld().build());
+
+        SearchWorldsResponse expectedResponse = SearchWorldsResponse.builder()
+                .page(1)
+                .totalPages(2)
+                .totalResults(20)
+                .resultsInPage(10)
+                .results(results)
+                .build();
+
+        when(useCaseRunner.run(any(SearchWorldsWithWriteAccess.class))).thenReturn(mock(SearchWorldsResult.class));
+        when(responseMapper.toResponse(any(SearchWorldsResult.class))).thenReturn(expectedResponse);
+
+        // Then
+        webTestClient.get()
+                .uri(String.format(WORLD_ID_BASE_URL, "search/own"))
+                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(SearchWorldsResponse.class)
+                .value(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.getTotalPages()).isEqualTo(2);
+                    assertThat(response.getTotalResults()).isEqualTo(20);
+                    assertThat(response.getResultsInPage()).isEqualTo(10);
+                    assertThat(response.getResults()).hasSameSizeAs(results);
+                });
+    }
 
     @Test
     public void http200WhenGetWorldById() {
@@ -63,5 +151,74 @@ public class WorldControllerTest extends AbstractRestControllerTest {
                     assertThat(response.getUsersAllowedToRead())
                             .hasSameElementsAs(expectedResponse.getUsersAllowedToRead());
                 });
+    }
+
+    @Test
+    public void http201WhenCreateWorld() {
+
+        // Given
+        CreateWorldRequest request = CreateWorldRequestFixture.createPrivateWorld().build();
+        CreateWorldResponse expectedResponse = CreateWorldResponse.build("WRLDID");
+
+        when(requestMapper.toCommand(any(CreateWorldRequest.class), anyString())).thenReturn(mock(CreateWorld.class));
+        when(useCaseRunner.run(any(CreateWorld.class))).thenReturn(mock(CreateWorldResult.class));
+        when(responseMapper.toResponse(any(CreateWorldResult.class))).thenReturn(expectedResponse);
+
+        // Then
+        webTestClient.post()
+                .uri(WORLD_BASE_URL)
+                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(CreateWorldResponse.class)
+                .value(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.getId()).isEqualTo(expectedResponse.getId());
+                });
+    }
+
+    @Test
+    public void http200WhenUpdateWorld() {
+
+        // Given
+        String worldId = "WRLDID";
+        UpdateWorldRequest request = UpdateWorldRequestFixture.createPrivateWorld().build();
+        UpdateWorldResponse expectedResponse = UpdateWorldResponse.build(OffsetDateTime.now());
+
+        when(requestMapper.toCommand(any(UpdateWorldRequest.class), anyString(), anyString()))
+                .thenReturn(mock(UpdateWorld.class));
+        when(useCaseRunner.run(any(UpdateWorld.class))).thenReturn(mock(UpdateWorldResult.class));
+        when(responseMapper.toResponse(any(UpdateWorldResult.class))).thenReturn(expectedResponse);
+
+        // Then
+        webTestClient.put()
+                .uri(String.format(WORLD_ID_BASE_URL, worldId))
+                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(UpdateWorldResponse.class)
+                .value(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.getLastUpdateDate()).isEqualTo(expectedResponse.getLastUpdateDate());
+                });
+    }
+
+    @Test
+    public void http200WhenDeleteWorld() {
+
+        // Given
+        String worldId = "WRLDID";
+
+        when(requestMapper.toCommand(anyString(), anyString())).thenReturn(mock(DeleteWorld.class));
+        when(useCaseRunner.run(any(DeleteWorld.class))).thenReturn(null);
+
+        // Then
+        webTestClient.delete()
+                .uri(String.format(WORLD_ID_BASE_URL, worldId))
+                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
+                .exchange()
+                .expectStatus().is2xxSuccessful();
     }
 }
