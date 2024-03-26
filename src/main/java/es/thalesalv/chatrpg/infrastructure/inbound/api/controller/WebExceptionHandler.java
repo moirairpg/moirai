@@ -53,7 +53,7 @@ public class WebExceptionHandler {
 
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     @ExceptionHandler(WebExchangeBindException.class)
-    public ResponseEntity<ErrorResponse> unknownError(WebExchangeBindException exception) {
+    public ResponseEntity<ErrorResponse> validationFailed(WebExchangeBindException exception) {
 
         List<String> errorMessages = exception.getBindingResult()
                 .getFieldErrors()

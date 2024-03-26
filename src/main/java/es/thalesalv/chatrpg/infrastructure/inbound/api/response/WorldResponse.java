@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.infrastructure.inbound.api.response;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,6 +28,8 @@ public class WorldResponse {
     private String adventureStart;
     private String visibility;
     private String ownerDiscordId;
+    private List<String> usersAllowedToRead;
+    private List<String> usersAllowedToWrite;
     private OffsetDateTime creationDate;
     private OffsetDateTime lastUpdateDate;
 }

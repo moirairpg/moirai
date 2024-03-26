@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -56,8 +55,6 @@ public class AbstractRestControllerTest {
 
     @BeforeEach
     public void before() throws Exception {
-
-        webTestClient.head().header(HttpHeaders.AUTHORIZATION, "TOKEN");
 
         UserDetails userDetails = DiscordPrincipal.builder()
                 .id("USRID")

@@ -272,6 +272,31 @@ public class WorldDomainServiceImplTest {
     }
 
     @Test
+    public void errorWhenUnauthorizedUserCreateLorebookEntry() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .requesterDiscordId("INVLDUSR")
+                .build();
+
+        World world = WorldFixture.privateWorld().build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.createLorebookEntry(command));
+    }
+
+    @Test
     public void errorWhenCreatingLorebookEntryIfWorldNotExists() {
 
         // Given
@@ -358,6 +383,32 @@ public class WorldDomainServiceImplTest {
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.updateLorebookEntry(command));
+    }
+
+    @Test
+    public void errorWhenUnauthorizedUserUpdatingLorebookEntry() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        UpdateWorldLorebookEntry command = UpdateWorldLorebookEntry.builder()
+                .id("ENTRID")
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .worldId(worldId)
+                .requesterDiscordId("INVLDUSR")
+                .build();
+
+        World world = WorldFixture.privateWorld().build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.updateLorebookEntry(command));
     }
 
     @Test
