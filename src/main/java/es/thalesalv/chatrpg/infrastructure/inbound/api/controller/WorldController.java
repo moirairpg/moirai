@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
+import es.thalesalv.chatrpg.common.web.SecurityContextAware;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
@@ -28,16 +29,16 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.CreateWorldRespo
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchWorldsResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponse;
-import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordPrincipal;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/world")
 @RequiredArgsConstructor
 @Tag(name = "Worlds", description = "Endpoints for managing ChatRPG Worlds")
-public class WorldController {
+public class WorldController extends SecurityContextAware {
 
     private final UseCaseRunner useCaseRunner;
     private final WorldResponseMapper responseMapper;
@@ -45,77 +46,87 @@ public class WorldController {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public SearchWorldsResponse seacrhWorldsWithReadAccess(SearchParameters searchParameters, Authentication authentication) {
+    public Mono<SearchWorldsResponse> seacrhWorldsWithReadAccess(SearchParameters searchParameters) {
 
-        DiscordPrincipal principal = (DiscordPrincipal) authentication.getPrincipal();
-        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
-                .page(searchParameters.getPage())
-                .items(searchParameters.getItems())
-                .sortByField(searchParameters.getSortByField())
-                .direction(searchParameters.getDirection())
-                .name(searchParameters.getName())
-                .requesterDiscordId(principal.getId())
-                .build();
+        return withAuthenticatedUser(authenticatedUser -> {
 
-        return responseMapper.toResponse(useCaseRunner.run(query));
+            SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
+                    .page(searchParameters.getPage())
+                    .items(searchParameters.getItems())
+                    .sortByField(searchParameters.getSortByField())
+                    .direction(searchParameters.getDirection())
+                    .name(searchParameters.getName())
+                    .requesterDiscordId(authenticatedUser.getId())
+                    .build();
+
+            return responseMapper.toResponse(useCaseRunner.run(query));
+        });
     }
 
     @GetMapping("/search/own")
     @ResponseStatus(code = HttpStatus.OK)
-    public SearchWorldsResponse seacrhWorldsWithWriteAccess(SearchParameters searchParameters, Authentication authentication) {
+    public Mono<SearchWorldsResponse> seacrhWorldsWithWriteAccess(SearchParameters searchParameters,
+            Authentication authentication) {
 
-        DiscordPrincipal principal = (DiscordPrincipal) authentication.getPrincipal();
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
-                .page(searchParameters.getPage())
-                .items(searchParameters.getItems())
-                .sortByField(searchParameters.getSortByField())
-                .direction(searchParameters.getDirection())
-                .name(searchParameters.getName())
-                .requesterDiscordId(principal.getId())
-                .build();
+        return withAuthenticatedUser(authenticatedUser -> {
 
-        return responseMapper.toResponse(useCaseRunner.run(query));
+            SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+                    .page(searchParameters.getPage())
+                    .items(searchParameters.getItems())
+                    .sortByField(searchParameters.getSortByField())
+                    .direction(searchParameters.getDirection())
+                    .name(searchParameters.getName())
+                    .requesterDiscordId(authenticatedUser.getId())
+                    .build();
+
+            return responseMapper.toResponse(useCaseRunner.run(query));
+        });
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public WorldResponse getWorldById(@PathVariable("id") String id, Authentication authentication) {
+    public Mono<WorldResponse> getWorldById(@PathVariable("id") String id) {
 
-        DiscordPrincipal principal = (DiscordPrincipal) authentication.getPrincipal();
-        GetWorldById query = GetWorldById.build(id, principal.getId());
+        return withAuthenticatedUser(authenticatedUser -> {
 
-        return responseMapper.toResponse(useCaseRunner.run(query));
+            GetWorldById query = GetWorldById.build(id, authenticatedUser.getId());
+            return responseMapper.toResponse(useCaseRunner.run(query));
+        });
     }
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public CreateWorldResponse createWorld(@Valid @RequestBody CreateWorldRequest request,
-            Authentication authentication) {
+    public Mono<CreateWorldResponse> createWorld(@Valid @RequestBody CreateWorldRequest request) {
 
-        DiscordPrincipal principal = (DiscordPrincipal) authentication.getPrincipal();
-        CreateWorld command = requestMapper.toCommand(request, principal.getId());
+        return withAuthenticatedUser(authenticatedUser -> {
 
-        return responseMapper.toResponse(useCaseRunner.run(command));
+            CreateWorld command = requestMapper.toCommand(request, authenticatedUser.getId());
+            return responseMapper.toResponse(useCaseRunner.run(command));
+        });
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public UpdateWorldResponse updateWorld(@PathVariable("id") String id,
-            @Valid @RequestBody UpdateWorldRequest request, Authentication authentication) {
+    public Mono<UpdateWorldResponse> updateWorld(@PathVariable("id") String id,
+            @Valid @RequestBody UpdateWorldRequest request) {
 
-        DiscordPrincipal principal = (DiscordPrincipal) authentication.getPrincipal();
-        UpdateWorld command = requestMapper.toCommand(request, id, principal.getId());
+        return withAuthenticatedUser(authenticatedUser -> {
 
-        return responseMapper.toResponse(useCaseRunner.run(command));
+            UpdateWorld command = requestMapper.toCommand(request, id, authenticatedUser.getId());
+            return responseMapper.toResponse(useCaseRunner.run(command));
+        });
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public void deleteWorld(@PathVariable("id") String id, Authentication authentication) {
+    public Mono<Void> deleteWorld(@PathVariable("id") String id) {
 
-        DiscordPrincipal principal = (DiscordPrincipal) authentication.getPrincipal();
-        DeleteWorld command = requestMapper.toCommand(id, principal.getId());
+        return withAuthenticatedUser(authenticatedUser -> {
 
-        useCaseRunner.run(command);
+            DeleteWorld command = requestMapper.toCommand(id, authenticatedUser.getId());
+            useCaseRunner.run(command);
+
+            return null;
+        });
     }
 }
