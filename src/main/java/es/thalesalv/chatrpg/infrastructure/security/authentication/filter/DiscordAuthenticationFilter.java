@@ -42,17 +42,15 @@ public class DiscordAuthenticationFilter implements WebFilter {
                 return exchange.getResponse().setComplete();
             }
 
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                String bearerToken = authorizationHeader.get(0);
-                return userDetailsService.findByUsername(bearerToken).flatMap(userDetails -> {
-                    DiscordPrincipal user = (DiscordPrincipal) userDetails;
-                    UsernamePasswordAuthenticationToken authenticatedPrincipal = new UsernamePasswordAuthenticationToken(
-                            user, null, user.getAuthorities());
+            String bearerToken = authorizationHeader.get(0);
+            return userDetailsService.findByUsername(bearerToken).flatMap(userDetails -> {
+                DiscordPrincipal user = (DiscordPrincipal) userDetails;
+                UsernamePasswordAuthenticationToken authenticatedPrincipal = new UsernamePasswordAuthenticationToken(
+                        user, null, user.getAuthorities());
 
-                    return chain.filter(exchange)
-                            .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authenticatedPrincipal));
-                });
-            }
+                return chain.filter(exchange)
+                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authenticatedPrincipal));
+            });
         }
 
         return chain.filter(exchange);
