@@ -21,7 +21,7 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMappe
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.ErrorResponse;
 
-public class ControllerExceptionHandlerTest extends AbstractRestControllerTest {
+public class WebExceptionHandlerTest extends AbstractRestControllerTest {
 
     @MockBean
     private WorldResponseMapper worldResponseMapper;
