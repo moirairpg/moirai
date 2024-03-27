@@ -11,6 +11,10 @@ public class AuthenticationFailedException extends RuntimeException {
         super();
     }
 
+    public AuthenticationFailedException(String msg) {
+        super(msg);
+    }
+
     public AuthenticationFailedException(String responseMessage, String msg) {
         super(msg + ": " + responseMessage);
 

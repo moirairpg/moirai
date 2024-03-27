@@ -6,4 +6,5 @@ import reactor.core.publisher.Mono;
 public interface DiscordUserDetailsPort {
 
     Mono<DiscordUserDataResponse> retrieveLoggedUser(String token);
+    Mono<DiscordUserDataResponse> retrieveUserById(String token, String discordUserId);
 }
