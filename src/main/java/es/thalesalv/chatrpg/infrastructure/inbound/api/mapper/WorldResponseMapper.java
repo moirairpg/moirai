@@ -27,6 +27,7 @@ public class WorldResponseMapper {
                 .page(result.getPage())
                 .resultsInPage(result.getItems())
                 .totalPages(result.getTotalPages())
+                .totalResults(result.getTotalItems())
                 .results(worlds)
                 .build();
     }

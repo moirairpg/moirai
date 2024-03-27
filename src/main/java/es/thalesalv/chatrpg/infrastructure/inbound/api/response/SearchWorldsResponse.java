@@ -24,6 +24,6 @@ public class SearchWorldsResponse {
     private int page;
     private int totalPages;
     private int resultsInPage;
-    private int totalResults;
+    private long totalResults;
     private List<WorldResponse> results;
 }

@@ -22,11 +22,9 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AuthenticationController extends SecurityContextAware {
 
+    private static final String TOKEN_TYPE_HINT = "access_token";
     private static final String DISCORD_SCOPE = "identify";
     private static final String DISCORD_GRANT_TYPE = "authorization_code";
-
-    @Value("${chatrpg.discord.api-token}")
-    private String discordApiToken;
 
     @Value("${chatrpg.discord.oauth.client-id}")
     private String clientId;
@@ -62,7 +60,7 @@ public class AuthenticationController extends SecurityContextAware {
                     .clientId(clientId)
                     .clientSecret(clientSecret)
                     .token(authenticatedUser.getAuthorizationToken())
-                    .tokenTypeHint("access_token")
+                    .tokenTypeHint(TOKEN_TYPE_HINT)
                     .build();
 
             return discordAuthenticationPort.logout(request);

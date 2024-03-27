@@ -5,29 +5,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
-import es.thalesalv.chatrpg.AbstractRestControllerTest;
+import es.thalesalv.chatrpg.AbstractRestWebTest;
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.AuthenticationFailedException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
-import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldRequestMapper;
-import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.ErrorResponse;
 
-public class WebExceptionHandlerTest extends AbstractRestControllerTest {
-
-    @MockBean
-    private WorldResponseMapper worldResponseMapper;
-
-    @MockBean
-    private WorldRequestMapper worldRequestMapper;
+public class WebExceptionHandlerTest extends AbstractRestWebTest {
 
     @Test
     public void http404WhenAssetNotFound() {

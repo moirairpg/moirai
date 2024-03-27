@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.core.application.query.world;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,6 +19,8 @@ public final class GetWorldResult {
     private final String adventureStart;
     private final String visibility;
     private final String ownerDiscordId;
+    private final List<String> readerUsers;
+    private final List<String> writerUsers;
     private final OffsetDateTime creationDate;
     private final OffsetDateTime lastUpdateDate;
 }

@@ -15,6 +15,8 @@ public class UpdateWorldRequestFixture {
                 .adventureStart(world.getAdventureStart())
                 .visibility(world.getVisibility().toString())
                 .writerUsersToAdd(world.getWriterUsers())
-                .readerUsersToAdd(world.getReaderUsers());
+                .readerUsersToAdd(world.getReaderUsers())
+                .writerUsersToRemove(world.getWriterUsers())
+                .readerUsersToRemove(world.getReaderUsers());
     }
 }

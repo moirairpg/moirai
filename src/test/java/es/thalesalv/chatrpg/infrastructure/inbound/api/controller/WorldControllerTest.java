@@ -11,10 +11,9 @@ import java.util.List;
 
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 
-import es.thalesalv.chatrpg.AbstractRestControllerTest;
+import es.thalesalv.chatrpg.AbstractRestWebTest;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorldResult;
 import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
@@ -25,8 +24,6 @@ import es.thalesalv.chatrpg.core.application.query.world.GetWorldResult;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithReadAccess;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithWriteAccess;
-import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldRequestMapper;
-import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequestFixture;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateWorldRequest;
@@ -37,13 +34,7 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldRespo
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponseFixture;
 
-public class WorldControllerTest extends AbstractRestControllerTest {
-
-    @MockBean
-    private WorldResponseMapper responseMapper;
-
-    @MockBean
-    private WorldRequestMapper requestMapper;
+public class WorldControllerTest extends AbstractRestWebTest {
 
     private static final String WORLD_BASE_URL = "/world";
     private static final String WORLD_ID_BASE_URL = "/world/%s";

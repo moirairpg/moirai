@@ -20,20 +20,32 @@ import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.controller.AuthenticationController;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.controller.WorldController;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldRequestMapper;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordPrincipal;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordUserDetailsService;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
-@WebFluxTest(controllers = {
+@WebFluxTest(properties = {
+        "chatrpg.discord.oauth.client-id=clientId",
+        "chatrpg.discord.oauth.client-secret=clientSecret",
+        "chatrpg.discord.oauth.redirect-url=redirectUrl"
+}, controllers = {
         AuthenticationController.class,
         WorldController.class
 }, excludeAutoConfiguration = {
         ReactiveSecurityAutoConfiguration.class,
         AuthenticationSecurityConfig.class
 })
-public class AbstractRestControllerTest {
+public class AbstractRestWebTest {
+
+    @MockBean
+    protected WorldResponseMapper responseMapper;
+
+    @MockBean
+    protected WorldRequestMapper requestMapper;
 
     @MockBean
     protected UseCaseRunner useCaseRunner;

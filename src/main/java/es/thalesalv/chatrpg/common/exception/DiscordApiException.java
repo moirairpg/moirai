@@ -29,7 +29,6 @@ public class DiscordApiException extends RuntimeException {
 
         this.httpStatusCode = httpStatusCode;
         this.errorMessage = errorMessage;
-        this.errorDescription = errorDescription;
     }
 
     public DiscordApiException(HttpStatus httpStatusCode, String message) {
