@@ -2,12 +2,15 @@ package es.thalesalv.chatrpg.infrastructure.inbound.api.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import es.thalesalv.chatrpg.common.web.SecurityContextAware;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordAuthRequest;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +20,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-public class AuthenticationController {
+public class AuthenticationController extends SecurityContextAware {
 
     private static final String DISCORD_SCOPE = "identify";
     private static final String DISCORD_GRANT_TYPE = "authorization_code";
@@ -39,7 +42,7 @@ public class AuthenticationController {
     @GetMapping("/code")
     public Mono<DiscordAuthResponse> codeExchange(@RequestParam("code") String code) {
 
-        final DiscordAuthRequest request = DiscordAuthRequest.builder()
+        DiscordAuthRequest request = DiscordAuthRequest.builder()
                 .code(code)
                 .clientId(clientId)
                 .clientSecret(clientSecret)
@@ -49,5 +52,20 @@ public class AuthenticationController {
                 .build();
 
         return discordAuthenticationPort.authenticate(request);
+    }
+
+    @PostMapping("/logout")
+    public Mono<Void> logout() {
+
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
+            DiscordTokenRevocationRequest request = DiscordTokenRevocationRequest.builder()
+                    .clientId(clientId)
+                    .clientSecret(clientSecret)
+                    .token(authenticatedUser.getAuthorizationToken())
+                    .tokenTypeHint("access_token")
+                    .build();
+
+            return discordAuthenticationPort.logout(request);
+        });
     }
 }

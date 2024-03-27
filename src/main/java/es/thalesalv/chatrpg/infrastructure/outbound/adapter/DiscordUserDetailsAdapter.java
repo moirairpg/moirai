@@ -5,12 +5,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MimeTypeUtils;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import es.thalesalv.chatrpg.common.exception.AuthenticationFailedException;
 import es.thalesalv.chatrpg.core.application.port.DiscordUserDetailsPort;
-import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordErrorResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordUserDataResponse;
 import reactor.core.publisher.Mono;
 
@@ -38,14 +36,8 @@ public class DiscordUserDetailsAdapter implements DiscordUserDetailsPort {
                     headers.add(HttpHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON_VALUE);
                 })
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, this::onClientError)
+                .onStatus(code -> code.isSameCodeAs(HttpStatusCode.valueOf(401)),
+                        __ -> Mono.error(new AuthenticationFailedException()))
                 .bodyToMono(DiscordUserDataResponse.class);
-    }
-
-    private Mono<? extends Throwable> onClientError(ClientResponse clientResponse) {
-
-        return clientResponse.bodyToMono(DiscordErrorResponse.class)
-                .map(resp -> new AuthenticationFailedException(resp.getErrorDescription(),
-                        String.format(AUTHENTICATION_ERROR, resp.getError(), resp.getErrorDescription())));
     }
 }

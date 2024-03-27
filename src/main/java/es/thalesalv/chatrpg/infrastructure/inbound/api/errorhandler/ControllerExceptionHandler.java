@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.infrastructure.inbound.api.controller;
+package es.thalesalv.chatrpg.infrastructure.inbound.api.errorhandler;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
-public class WebExceptionHandler {
+public class ControllerExceptionHandler {
 
     private static final String UNKNOWN_ERROR = "An error has occurred. Please contact support.";
     private static final String ASSET_NOT_FOUND_ERROR = "The asset requested could not be found.";

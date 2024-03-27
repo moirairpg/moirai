@@ -177,6 +177,11 @@
             <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
             <version>2.4.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.mattbertolini</groupId>
+            <artifactId>liquibase-slf4j</artifactId>
+            <version>5.0.0</version>
+        </dependency>
     </dependencies>
 
     <distributionManagement>

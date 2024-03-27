@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.infrastructure.security.authentication;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,8 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class DiscordUserDetailsService implements ReactiveUserDetailsService {
 
+    private static final String BEARER = "Bearer ";
+
     private final DiscordUserDetailsPort discordUserDetailsPort;
 
     @Override
@@ -22,6 +26,7 @@ public class DiscordUserDetailsService implements ReactiveUserDetailsService {
                         .id(userDetails.getId())
                         .username(userDetails.getUsername())
                         .email(userDetails.getEmail())
+                        .authorizationToken(token.replace(BEARER, EMPTY))
                         .build());
     }
 }

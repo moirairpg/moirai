@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.infrastructure.inbound.api.controller;
+package es.thalesalv.chatrpg.infrastructure.inbound.api.errorhandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,7 +21,7 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMappe
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.ErrorResponse;
 
-public class WebExceptionHandlerTest extends AbstractRestControllerTest {
+public class ControllerExceptionHandlerTest extends AbstractRestControllerTest {
 
     @MockBean
     private WorldResponseMapper worldResponseMapper;
@@ -134,6 +134,20 @@ public class WebExceptionHandlerTest extends AbstractRestControllerTest {
                     assertThat(response).isNotNull();
                     assertThat(response.getCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
                 });
+    }
+
+    @Test
+    public void http401WhenNoAuthorizationHeader() {
+
+        // Given
+        String worldId = "WRLDID";
+
+        // Then
+        webTestClient.get()
+                .uri("/world/" + worldId)
+                .exchange()
+                .expectStatus()
+                .is4xxClientError();
     }
 
     @Test

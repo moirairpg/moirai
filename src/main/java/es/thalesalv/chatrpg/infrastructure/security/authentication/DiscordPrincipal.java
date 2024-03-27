@@ -17,6 +17,7 @@ public class DiscordPrincipal implements UserDetails {
     private String id;
     private String username;
     private String email;
+    private String authorizationToken;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
