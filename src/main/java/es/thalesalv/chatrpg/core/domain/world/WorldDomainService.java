@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.core.domain.world;
 
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.command.world.DeleteWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
 
@@ -14,4 +15,6 @@ public interface WorldDomainService {
     WorldLorebookEntry createLorebookEntry(CreateWorldLorebookEntry command);
 
     WorldLorebookEntry updateLorebookEntry(UpdateWorldLorebookEntry command);
+
+    void deleteLorebookEntry(DeleteWorldLorebookEntry command);
 }

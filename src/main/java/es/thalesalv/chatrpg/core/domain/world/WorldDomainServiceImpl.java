@@ -9,6 +9,7 @@ import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.command.world.DeleteWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.Permissions;
@@ -153,6 +154,22 @@ public class WorldDomainServiceImpl implements WorldDomainService {
         validateTokenCount(lorebookEntry);
 
         return lorebookEntryRepository.save(lorebookEntry);
+    }
+
+    @Override
+    public void deleteLorebookEntry(DeleteWorldLorebookEntry command) {
+
+        World world = repository.findById(command.getWorldId())
+                .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+
+        if (!world.canUserWrite(command.getRequesterDiscordId())) {
+            throw new AssetAccessDeniedException("User does not have permission to modify this world");
+        }
+
+        lorebookEntryRepository.findById(command.getLorebookEntryId())
+                .orElseThrow(() -> new AssetNotFoundException("Lorebook entry to be updated was not found"));
+
+        lorebookEntryRepository.deleteById(command.getLorebookEntryId());
     }
 
     private void validateTokenCount(WorldLorebookEntry lorebookEntry) {
