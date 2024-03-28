@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -15,10 +16,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.persona.CreatePersona;
+import es.thalesalv.chatrpg.core.application.command.persona.DeletePersona;
 import es.thalesalv.chatrpg.core.application.command.persona.UpdatePersona;
+import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaById;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
@@ -102,7 +106,7 @@ public class PersonaDomainServiceImplTest {
                 .bumpRole(role)
                 .bumpFrequency(5)
                 .visibility(visibility)
-                .creatorDiscordId(permissions.getOwnerDiscordId())
+                .requesterDiscordId(permissions.getOwnerDiscordId())
                 .readerUsers(permissions.getUsersAllowedToRead())
                 .writerUsers(permissions.getUsersAllowedToWrite())
                 .build();
@@ -135,7 +139,7 @@ public class PersonaDomainServiceImplTest {
                 .bumpRole(role)
                 .bumpFrequency(0)
                 .visibility(visibility)
-                .creatorDiscordId(permissions.getOwnerDiscordId())
+                .requesterDiscordId(permissions.getOwnerDiscordId())
                 .readerUsers(permissions.getUsersAllowedToRead())
                 .writerUsers(permissions.getUsersAllowedToWrite())
                 .build();
@@ -165,25 +169,151 @@ public class PersonaDomainServiceImplTest {
     }
 
     @Test
+    public void findPersonaById() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        GetPersonaById query = GetPersonaById.build(id, requesterId);
+
+        Persona persona = PersonaFixture.privatePersona()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
+
+        // When
+        Persona result = service.getPersonaById(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo(persona.getName());
+    }
+
+    @Test
+    public void errorWhenFindPersonaNotFound() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        GetPersonaById query = GetPersonaById.build(id, requesterId);
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.getPersonaById(query));
+    }
+
+    @Test
+    public void errorWhenFindPersonaAccessDenied() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        GetPersonaById query = GetPersonaById.build(id, requesterId);
+
+        Persona persona = PersonaFixture.privatePersona()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .usersAllowedToRead(Collections.emptyList())
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.getPersonaById(query));
+    }
+
+    @Test
+    public void errorWhenDeletePersonaNotFound() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        DeletePersona command = DeletePersona.build(id, requesterId);
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.deletePersona(command));
+    }
+
+    @Test
+    public void errorWhenDeletePersonaAccessDenied() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        DeletePersona command = DeletePersona.build(id, requesterId);
+
+        Persona persona = PersonaFixture.privatePersona()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.deletePersona(command));
+    }
+
+    @Test
+    public void deletePersona() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        DeletePersona command = DeletePersona.build(id, requesterId);
+
+        Persona persona = PersonaFixture.privatePersona()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
+
+        // Then
+        service.deletePersona(command);
+    }
+
+    @Test
     public void updatePersona() {
 
         // Given
         String id = "CHCONFID";
-
+        String requesterId = "RQSTRID";
         UpdatePersona command = UpdatePersona.builder()
                 .id(id)
                 .name("ChatRPG")
                 .personality("I am a Discord chatbot")
                 .visibility("PUBLIC")
-                .creatorDiscordId("CRTID")
+                .requesterDiscordId("CRTID")
                 .bumpContent("This is a bump")
                 .bumpRole("system")
                 .bumpFrequency(5)
                 .nudgeContent("This is a nudge")
                 .nudgeRole("system")
+                .requesterDiscordId(requesterId)
                 .build();
 
-        Persona unchangedPersona = PersonaFixture.privatePersona().build();
+        Persona unchangedPersona = PersonaFixture.privatePersona()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
 
         Persona expectedUpdatedPersona = PersonaFixture.privatePersona()
                 .id(id)

@@ -1,14 +1,17 @@
-package es.thalesalv.chatrpg.core.application.command.persona;
+package es.thalesalv.chatrpg.infrastructure.inbound.api.request;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.common.usecases.UseCase;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder(builderClassName = "Builder")
-public final class CreatePersona extends UseCase<CreatePersonaResult> {
+@AllArgsConstructor
+public class CreatePersonaRequest {
 
     private final String name;
     private final String personality;
@@ -20,5 +23,4 @@ public final class CreatePersona extends UseCase<CreatePersonaResult> {
     private final Integer bumpFrequency;
     private final List<String> writerUsers;
     private final List<String> readerUsers;
-    private final String requesterDiscordId;
 }

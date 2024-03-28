@@ -10,9 +10,10 @@ import lombok.RequiredArgsConstructor;
 public final class GetPersonaById extends UseCase<GetPersonaResult> {
 
     private final String id;
+    private final String requesterDiscordId;
 
-    public static GetPersonaById build(String id) {
+    public static GetPersonaById build(String id, String requesterDiscordId) {
 
-        return new GetPersonaById(id);
+        return new GetPersonaById(id, requesterDiscordId);
     }
 }

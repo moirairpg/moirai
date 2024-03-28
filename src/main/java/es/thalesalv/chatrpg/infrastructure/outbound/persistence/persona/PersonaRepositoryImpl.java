@@ -132,11 +132,13 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility().toString())
                 .ownerDiscordId(persona.getOwnerDiscordId())
-                .creatorDiscordId(creatorOrOwnerDiscordId)
-                .usersAllowedToRead(persona.getReaderUsers())
-                .usersAllowedToWrite(persona.getWriterUsers())
                 .nudge(nudge)
                 .bump(bump)
+                .usersAllowedToRead(persona.getReaderUsers())
+                .usersAllowedToWrite(persona.getWriterUsers())
+                .creatorDiscordId(creatorOrOwnerDiscordId)
+                .creationDate(persona.getCreationDate())
+                .lastUpdateDate(persona.getLastUpdateDate())
                 .build();
     }
 

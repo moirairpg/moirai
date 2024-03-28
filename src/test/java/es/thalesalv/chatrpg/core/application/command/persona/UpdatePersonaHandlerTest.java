@@ -34,7 +34,7 @@ public class UpdatePersonaHandlerTest {
                 .name("ChatRPG")
                 .personality("I am a Discord chatbot")
                 .visibility("PUBLIC")
-                .creatorDiscordId("CRTID")
+                .requesterDiscordId("CRTID")
                 .build();
 
         Persona expectedUpdatedPersona = PersonaFixture.privatePersona().build();

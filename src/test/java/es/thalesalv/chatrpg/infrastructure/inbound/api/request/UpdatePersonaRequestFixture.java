@@ -1,20 +1,19 @@
-package es.thalesalv.chatrpg.core.application.command.persona;
+package es.thalesalv.chatrpg.infrastructure.inbound.api.request;
 
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
 
-public class CreatePersonaFixture {
+public class UpdatePersonaRequestFixture {
 
-    public static CreatePersona.Builder createPrivatePersona() {
+    public static UpdatePersonaRequest.Builder privatePersona() {
 
         Persona persona = PersonaFixture.privatePersona().build();
-        return CreatePersona.builder()
+        return UpdatePersonaRequest.builder()
                 .name(persona.getName())
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility().toString())
-                .requesterDiscordId(persona.getOwnerDiscordId())
-                .writerUsers(persona.getReaderUsers())
-                .readerUsers(persona.getWriterUsers())
+                .readerUsersToAdd(persona.getReaderUsers())
+                .writerUsersToAdd(persona.getWriterUsers())
                 .nudgeContent(persona.getNudge().getContent())
                 .nudgeRole(persona.getNudge().getRole().toString())
                 .bumpContent(persona.getBump().getContent())

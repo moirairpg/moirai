@@ -13,13 +13,15 @@ public final class UpdatePersona extends UseCase<UpdatePersonaResult> {
     private String id;
     private final String name;
     private final String personality;
-    private final String creatorDiscordId;
     private final String nudgeRole;
     private final String nudgeContent;
     private final String bumpRole;
     private final String bumpContent;
     private final String visibility;
     private final Integer bumpFrequency;
-    private final List<String> writerUsers;
-    private final List<String> readerUsers;
+    private List<String> writerUsersToAdd;
+    private List<String> writerUsersToRemove;
+    private List<String> readerUsersToAdd;
+    private List<String> readerUsersToRemove;
+    private final String requesterDiscordId;
 }
