@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.core.application.command.world;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 
@@ -19,6 +20,28 @@ public class DeleteWorldLorebookEntryHandlerTest {
 
     @InjectMocks
     private DeleteWorldLorebookEntryHandler handler;
+
+    @Test
+    public void errorWhenEntryIdIsNull() {
+
+        // Given
+        DeleteWorldLorebookEntry command = DeleteWorldLorebookEntry.builder().build();
+
+        // Then
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
+    }
+
+    @Test
+    public void errorWhenWorldIdIsNull() {
+
+        // Given
+        DeleteWorldLorebookEntry command = DeleteWorldLorebookEntry.builder()
+                .lorebookEntryId("DUMMY")
+                .build();
+
+        // Then
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
+    }
 
     @Test
     public void deleteWorld() {
