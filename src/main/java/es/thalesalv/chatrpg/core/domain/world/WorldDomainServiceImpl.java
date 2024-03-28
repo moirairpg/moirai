@@ -12,6 +12,7 @@ import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEn
 import es.thalesalv.chatrpg.core.application.command.world.DeleteWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryById;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
@@ -109,6 +110,20 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     }
 
     @Override
+    public WorldLorebookEntry findWorldLorebookEntryById(GetWorldLorebookEntryById query) {
+
+        World world = repository.findById(query.getWorldId())
+                .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+
+        if (!world.canUserRead(query.getRequesterDiscordId())) {
+            throw new AssetAccessDeniedException("User does not have permission to modify this world");
+        }
+
+        return lorebookEntryRepository.findById(query.getEntryId())
+                .orElseThrow(() -> new AssetNotFoundException("Lorebook entry to be updated was not found"));
+    }
+
+    @Override
     public WorldLorebookEntry createLorebookEntry(CreateWorldLorebookEntry command) {
 
         World world = repository.findById(command.getWorldId())
@@ -123,6 +138,9 @@ public class WorldDomainServiceImpl implements WorldDomainService {
                 .regex(command.getRegex())
                 .description(command.getDescription())
                 .playerDiscordId(command.getPlayerDiscordId())
+                .isPlayerCharacter(command.isPlayerCharacter())
+                .worldId(command.getWorldId())
+                .creatorDiscordId(command.getRequesterDiscordId())
                 .build();
 
         validateTokenCount(lorebookEntry);
@@ -140,16 +158,26 @@ public class WorldDomainServiceImpl implements WorldDomainService {
             throw new AssetAccessDeniedException("User does not have permission to modify this world");
         }
 
-        lorebookEntryRepository.findById(command.getWorldId())
+        WorldLorebookEntry lorebookEntry = lorebookEntryRepository.findById(command.getId())
                 .orElseThrow(() -> new AssetNotFoundException("Lorebook entry to be updated was not found"));
 
-        WorldLorebookEntry lorebookEntry = WorldLorebookEntry.builder()
-                .id(command.getId())
-                .name(command.getName())
-                .regex(command.getRegex())
-                .description(command.getDescription())
-                .playerDiscordId(command.getPlayerDiscordId())
-                .build();
+        if (StringUtils.isNotBlank(command.getName())) {
+            lorebookEntry.updateName(command.getName());
+        }
+
+        if (StringUtils.isNotBlank(command.getRegex())) {
+            lorebookEntry.updateRegex(command.getRegex());
+        }
+
+        if (StringUtils.isNotBlank(command.getDescription())) {
+            lorebookEntry.updateDescription(command.getDescription());
+        }
+
+        if (command.isPlayerCharacter()) {
+            lorebookEntry.assignPlayer(command.getRequesterDiscordId());
+        } else if (!command.isPlayerCharacter()) {
+            lorebookEntry.unassignPlayer();
+        }
 
         validateTokenCount(lorebookEntry);
 

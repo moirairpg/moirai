@@ -18,7 +18,6 @@ import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryFixture;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryRepository;
 
-// TODO add tests based on world permission
 public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired

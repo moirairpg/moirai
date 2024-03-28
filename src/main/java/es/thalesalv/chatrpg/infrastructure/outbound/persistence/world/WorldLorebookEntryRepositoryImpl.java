@@ -88,6 +88,9 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
                 .playerDiscordId(entry.getPlayerDiscordId())
                 .isPlayerCharacter(entry.isPlayerCharacter())
                 .worldId(entry.getWorldId())
+                .creatorDiscordId(entry.getCreatorDiscordId())
+                .creationDate(entry.getCreationDate())
+                .lastUpdateDate(entry.getLastUpdateDate())
                 .build();
     }
 
@@ -101,6 +104,7 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
                 .playerDiscordId(entry.getPlayerDiscordId())
                 .isPlayerCharacter(entry.isPlayerCharacter())
                 .worldId(entry.getWorldId())
+                .creatorDiscordId(entry.getCreatorDiscordId())
                 .creationDate(entry.getCreationDate())
                 .lastUpdateDate(entry.getLastUpdateDate())
                 .build();

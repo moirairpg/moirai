@@ -10,6 +10,7 @@ public class WorldLorebookEntryEntityFixture {
         builder.description("The White River goes through Falkreath, Whiterun and ends in Eastmarch.");
         builder.regex("[Ww]hite [Rr]iver");
         builder.worldId("WRLDID");
+        builder.creatorDiscordId("CRTRID");
 
         return builder;
     }
@@ -23,6 +24,7 @@ public class WorldLorebookEntryEntityFixture {
         builder.regex("[Vv]olin [Hh]abar|[Vv]oha");
         builder.playerDiscordId("2423423423423");
         builder.worldId("WRLDID");
+        builder.creatorDiscordId("CRTRID");
 
         return builder;
     }

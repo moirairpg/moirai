@@ -2,10 +2,8 @@ package es.thalesalv.chatrpg.core.application.query.world;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,15 +11,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
+import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryFixture;
-import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class GetWorldLorebookEntryByIdHandlerTest {
+
     @Mock
-    private WorldLorebookEntryRepository repository;
+    private WorldDomainService domainService;
 
     @InjectMocks
     private GetWorldLorebookEntryByIdHandler handler;
@@ -37,14 +35,42 @@ public class GetWorldLorebookEntryByIdHandlerTest {
     }
 
     @Test
+    public void errorWhenEntryIdIsNull() {
+
+        // Given
+        GetWorldLorebookEntryById query = GetWorldLorebookEntryById.builder().build();
+
+        // Then
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(query));
+    }
+
+    @Test
+    public void errorWhenWorldIdIsNull() {
+
+        // Given
+        GetWorldLorebookEntryById query = GetWorldLorebookEntryById.builder()
+                .entryId("ENTRID")
+                .build();
+
+        // Then
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(query));
+    }
+
+    @Test
     public void getWorldLorebookEntryById() {
 
         // Given
         String id = "HAUDHUAHD";
-        WorldLorebookEntry world = WorldLorebookEntryFixture.sampleLorebookEntry().id(id).build();
-        GetWorldLorebookEntryById query = GetWorldLorebookEntryById.build(id);
+        String worldId = "WRLDID";
+        String requesterId = "4314324";
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.sampleLorebookEntry().id(id).build();
+        GetWorldLorebookEntryById query = GetWorldLorebookEntryById.builder()
+                .entryId(id)
+                .worldId(worldId)
+                .requesterDiscordId(requesterId)
+                .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(domainService.findWorldLorebookEntryById(any(GetWorldLorebookEntryById.class))).thenReturn(entry);
 
         // When
         GetWorldLorebookEntryResult result = handler.handle(query);
@@ -52,18 +78,5 @@ public class GetWorldLorebookEntryByIdHandlerTest {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(id);
-    }
-
-    @Test
-    public void errorWhenWorldLorebookEntryNotFound() {
-
-        // Given
-        String id = "HAUDHUAHD";
-        GetWorldLorebookEntryById query = GetWorldLorebookEntryById.build(id);
-
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class, () -> handler.handle(query));
     }
 }

@@ -17,4 +17,5 @@ public final class SearchWorldLorebookEntries extends UseCase<SearchWorldLoreboo
     private final String direction;
     private final String name;
     private final String worldId;
+    private final String requesterDiscordId;
 }

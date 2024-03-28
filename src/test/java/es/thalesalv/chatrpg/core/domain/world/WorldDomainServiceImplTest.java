@@ -22,8 +22,10 @@ import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateLorebookEntryFixture;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.command.world.DeleteWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryById;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
@@ -536,5 +538,188 @@ public class WorldDomainServiceImplTest {
         // Then
         assertThrows(AssetNotFoundException.class,
                 () -> service.createLorebookEntry(command));
+    }
+
+    @Test
+    public void findLorebookEntryById() {
+
+        // Given
+        String requesterId = "RQSTRID";
+        GetWorldLorebookEntryById query = GetWorldLorebookEntryById.builder()
+                .requesterDiscordId(requesterId)
+                .worldId("WRLDID")
+                .entryId("ENTRID")
+                .build();
+
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.sampleLorebookEntry().build();
+
+        World world = WorldFixture.privateWorld()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(entry));
+
+        // When
+        WorldLorebookEntry retrievedEntry = service.findWorldLorebookEntryById(query);
+
+        // Then
+        assertThat(retrievedEntry).isNotNull();
+    }
+
+    @Test
+    public void errorWhenFindLorebookEntryByIdWorldNotFound() {
+
+        // Given
+        String requesterId = "RQSTRID";
+        GetWorldLorebookEntryById query = GetWorldLorebookEntryById.builder()
+                .requesterDiscordId(requesterId)
+                .worldId("WRLDID")
+                .entryId("ENTRID")
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.findWorldLorebookEntryById(query));
+    }
+
+    @Test
+    public void errorWhenFindLorebookEntryByIdWorldInvalidPermission() {
+
+        // Given
+        String requesterId = "RQSTRID";
+        GetWorldLorebookEntryById query = GetWorldLorebookEntryById.builder()
+                .requesterDiscordId(requesterId)
+                .worldId("WRLDID")
+                .entryId("ENTRID")
+                .build();
+
+        World world = WorldFixture.privateWorld()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("INVLDID")
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.findWorldLorebookEntryById(query));
+    }
+
+    @Test
+    public void errorWhenFindLorebookEntryByIdEntryNotFound() {
+
+        // Given
+        String requesterId = "RQSTRID";
+        GetWorldLorebookEntryById query = GetWorldLorebookEntryById.builder()
+                .requesterDiscordId(requesterId)
+                .worldId("WRLDID")
+                .entryId("ENTRID")
+                .build();
+
+        World world = WorldFixture.privateWorld()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.findWorldLorebookEntryById(query));
+    }
+
+    @Test
+    public void deleteLorebookEntryById() {
+
+        // Given
+        String requesterId = "RQSTRID";
+        DeleteWorldLorebookEntry query = DeleteWorldLorebookEntry.builder()
+                .requesterDiscordId(requesterId)
+                .worldId("WRLDID")
+                .lorebookEntryId("ENTRID")
+                .build();
+
+        WorldLorebookEntry entry = WorldLorebookEntryFixture.sampleLorebookEntry().build();
+
+        World world = WorldFixture.privateWorld()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(entry));
+
+        // Then
+        service.deleteLorebookEntry(query);
+    }
+
+    @Test
+    public void errorWhenDeleteLorebookEntryByIdWorldNotFound() {
+
+        // Given
+        String requesterId = "RQSTRID";
+        DeleteWorldLorebookEntry query = DeleteWorldLorebookEntry.builder()
+                .requesterDiscordId(requesterId)
+                .worldId("WRLDID")
+                .lorebookEntryId("ENTRID")
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.deleteLorebookEntry(query));
+    }
+
+    @Test
+    public void errorWhenDeleteLorebookEntryByIdWorldInvalidPermission() {
+
+        // Given
+        String requesterId = "RQSTRID";
+        DeleteWorldLorebookEntry query = DeleteWorldLorebookEntry.builder()
+                .requesterDiscordId(requesterId)
+                .worldId("WRLDID")
+                .lorebookEntryId("ENTRID")
+                .build();
+
+        World world = WorldFixture.privateWorld()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("INVLDID")
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.deleteLorebookEntry(query));
+    }
+
+    @Test
+    public void errorWhenDeleteLorebookEntryByIdEntryNotFound() {
+
+        // Given
+        String requesterId = "RQSTRID";
+        DeleteWorldLorebookEntry query = DeleteWorldLorebookEntry.builder()
+                .requesterDiscordId(requesterId)
+                .worldId("WRLDID")
+                .lorebookEntryId("ENTRID")
+                .build();
+
+        World world = WorldFixture.privateWorld()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.deleteLorebookEntry(query));
     }
 }

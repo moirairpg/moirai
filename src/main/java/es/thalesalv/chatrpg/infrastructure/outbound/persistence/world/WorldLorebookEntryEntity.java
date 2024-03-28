@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.infrastructure.outbound.persistence.world;
 
+import java.time.OffsetDateTime;
+
 import org.hibernate.annotations.GenericGenerator;
 
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.AssetEntity;
@@ -42,7 +44,7 @@ public class WorldLorebookEntryEntity extends AssetEntity {
 
     public WorldLorebookEntryEntity(Builder builder) {
 
-        super();
+        super(builder.creatorDiscordId, builder.creationDate, builder.lastUpdateDate);
 
         this.id = builder.id;
         this.name = builder.name;
@@ -71,6 +73,9 @@ public class WorldLorebookEntryEntity extends AssetEntity {
         private String playerDiscordId;
         private boolean isPlayerCharacter;
         private String worldId;
+        private String creatorDiscordId;
+        private OffsetDateTime creationDate;
+        private OffsetDateTime lastUpdateDate;
 
         public Builder id(String id) {
 
@@ -111,6 +116,24 @@ public class WorldLorebookEntryEntity extends AssetEntity {
         public Builder worldId(String worldId) {
 
             this.worldId = worldId;
+            return this;
+        }
+
+        public Builder creatorDiscordId(String creatorDiscordId) {
+
+            this.creatorDiscordId = creatorDiscordId;
+            return this;
+        }
+
+        public Builder creationDate(OffsetDateTime creationDate) {
+
+            this.creationDate = creationDate;
+            return this;
+        }
+
+        public Builder lastUpdateDate(OffsetDateTime lastUpdateDate) {
+
+            this.lastUpdateDate = lastUpdateDate;
             return this;
         }
 

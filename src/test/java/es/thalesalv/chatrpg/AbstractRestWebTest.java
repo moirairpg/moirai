@@ -20,6 +20,9 @@ import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.controller.AuthenticationController;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.controller.WorldController;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.controller.WorldLorebookController;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldLorebookEntryRequestMapper;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldLorebookEntryResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldRequestMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordPrincipal;
@@ -34,7 +37,8 @@ import reactor.core.publisher.Mono;
         "chatrpg.discord.oauth.redirect-url=redirectUrl"
 }, controllers = {
         AuthenticationController.class,
-        WorldController.class
+        WorldController.class,
+        WorldLorebookController.class
 }, excludeAutoConfiguration = {
         ReactiveSecurityAutoConfiguration.class,
         AuthenticationSecurityConfig.class
@@ -42,10 +46,16 @@ import reactor.core.publisher.Mono;
 public class AbstractRestWebTest {
 
     @MockBean
-    protected WorldResponseMapper responseMapper;
+    protected WorldResponseMapper worldResponseMapper;
 
     @MockBean
-    protected WorldRequestMapper requestMapper;
+    protected WorldRequestMapper worldRequestMapper;
+
+    @MockBean
+    protected WorldLorebookEntryResponseMapper worldLorebookEntryResponseMapper;
+
+    @MockBean
+    protected WorldLorebookEntryRequestMapper worldLorebookEntryRequestMapper;
 
     @MockBean
     protected UseCaseRunner useCaseRunner;

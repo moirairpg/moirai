@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.reactive.resource.NoResourceFoundException;
 
 import es.thalesalv.chatrpg.AbstractRestWebTest;
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
@@ -39,6 +40,27 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
                     assertThat(response).isNotNull();
                     assertThat(response.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
                     assertThat(response.getMessage()).isEqualTo("The asset requested could not be found.");
+                });
+    }
+    @Test
+    public void http404WhenEndpointNotFound() {
+
+        // Given
+        String worldId = "WRLDID";
+
+        when(useCaseRunner.run(any(GetWorldById.class))).thenThrow(NoResourceFoundException.class);
+
+        // Then
+        webTestClient.get()
+                .uri("/world/" + worldId)
+                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
+                .exchange()
+                .expectStatus().is4xxClientError()
+                .expectBody(ErrorResponse.class)
+                .value(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(response.getMessage()).isEqualTo("The endpoint requested could not be found.");
                 });
     }
 

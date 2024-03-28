@@ -55,7 +55,7 @@ public class WorldControllerTest extends AbstractRestWebTest {
                 .build();
 
         when(useCaseRunner.run(any(SearchWorldsWithReadAccess.class))).thenReturn(mock(SearchWorldsResult.class));
-        when(responseMapper.toResponse(any(SearchWorldsResult.class))).thenReturn(expectedResponse);
+        when(worldResponseMapper.toResponse(any(SearchWorldsResult.class))).thenReturn(expectedResponse);
 
         // Then
         webTestClient.get()
@@ -89,7 +89,7 @@ public class WorldControllerTest extends AbstractRestWebTest {
                 .build();
 
         when(useCaseRunner.run(any(SearchWorldsWithWriteAccess.class))).thenReturn(mock(SearchWorldsResult.class));
-        when(responseMapper.toResponse(any(SearchWorldsResult.class))).thenReturn(expectedResponse);
+        when(worldResponseMapper.toResponse(any(SearchWorldsResult.class))).thenReturn(expectedResponse);
 
         // Then
         webTestClient.get()
@@ -116,7 +116,7 @@ public class WorldControllerTest extends AbstractRestWebTest {
         WorldResponse expectedResponse = WorldResponseFixture.publicWorld().build();
 
         when(useCaseRunner.run(any(GetWorldById.class))).thenReturn(mock(GetWorldResult.class));
-        when(responseMapper.toResponse(any(GetWorldResult.class))).thenReturn(expectedResponse);
+        when(worldResponseMapper.toResponse(any(GetWorldResult.class))).thenReturn(expectedResponse);
 
         // Then
         webTestClient.get()
@@ -151,9 +151,9 @@ public class WorldControllerTest extends AbstractRestWebTest {
         CreateWorldRequest request = CreateWorldRequestFixture.createPrivateWorld().build();
         CreateWorldResponse expectedResponse = CreateWorldResponse.build("WRLDID");
 
-        when(requestMapper.toCommand(any(CreateWorldRequest.class), anyString())).thenReturn(mock(CreateWorld.class));
+        when(worldRequestMapper.toCommand(any(CreateWorldRequest.class), anyString())).thenReturn(mock(CreateWorld.class));
         when(useCaseRunner.run(any(CreateWorld.class))).thenReturn(mock(CreateWorldResult.class));
-        when(responseMapper.toResponse(any(CreateWorldResult.class))).thenReturn(expectedResponse);
+        when(worldResponseMapper.toResponse(any(CreateWorldResult.class))).thenReturn(expectedResponse);
 
         // Then
         webTestClient.post()
@@ -177,10 +177,10 @@ public class WorldControllerTest extends AbstractRestWebTest {
         UpdateWorldRequest request = UpdateWorldRequestFixture.createPrivateWorld().build();
         UpdateWorldResponse expectedResponse = UpdateWorldResponse.build(OffsetDateTime.now());
 
-        when(requestMapper.toCommand(any(UpdateWorldRequest.class), anyString(), anyString()))
+        when(worldRequestMapper.toCommand(any(UpdateWorldRequest.class), anyString(), anyString()))
                 .thenReturn(mock(UpdateWorld.class));
         when(useCaseRunner.run(any(UpdateWorld.class))).thenReturn(mock(UpdateWorldResult.class));
-        when(responseMapper.toResponse(any(UpdateWorldResult.class))).thenReturn(expectedResponse);
+        when(worldResponseMapper.toResponse(any(UpdateWorldResult.class))).thenReturn(expectedResponse);
 
         // Then
         webTestClient.put()
@@ -202,7 +202,7 @@ public class WorldControllerTest extends AbstractRestWebTest {
         // Given
         String worldId = "WRLDID";
 
-        when(requestMapper.toCommand(anyString(), anyString())).thenReturn(mock(DeleteWorld.class));
+        when(worldRequestMapper.toCommand(anyString(), anyString())).thenReturn(mock(DeleteWorld.class));
         when(useCaseRunner.run(any(DeleteWorld.class))).thenReturn(null);
 
         // Then

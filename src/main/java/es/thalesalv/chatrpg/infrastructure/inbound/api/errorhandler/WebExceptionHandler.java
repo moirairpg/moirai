@@ -19,6 +19,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.resource.NoResourceFoundException;
 
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
@@ -36,6 +37,7 @@ public class WebExceptionHandler extends AbstractErrorWebExceptionHandler {
 
     private static final String UNKNOWN_ERROR = "An error has occurred. Please contact support.";
     private static final String ASSET_NOT_FOUND_ERROR = "The asset requested could not be found.";
+    private static final String RESOURCE_NOT_FOUND_ERROR = "The endpoint requested could not be found.";
 
     public WebExceptionHandler(ErrorAttributes errorAttributes, WebProperties webProperties,
             ApplicationContext applicationContext, ServerCodecConfigurer configurer) {
@@ -77,6 +79,19 @@ public class WebExceptionHandler extends AbstractErrorWebExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(HttpStatus.NOT_FOUND)
                 .message(ASSET_NOT_FOUND_ERROR)
+                .details(Collections.singletonList(exception.getMessage()))
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> resourceNotFound(NoResourceFoundException exception) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(HttpStatus.NOT_FOUND)
+                .message(RESOURCE_NOT_FOUND_ERROR)
                 .details(Collections.singletonList(exception.getMessage()))
                 .build();
 

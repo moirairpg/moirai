@@ -5,6 +5,7 @@ import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEn
 import es.thalesalv.chatrpg.core.application.command.world.DeleteWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryById;
 
 public interface WorldDomainService {
 
@@ -15,6 +16,8 @@ public interface WorldDomainService {
     WorldLorebookEntry createLorebookEntry(CreateWorldLorebookEntry command);
 
     WorldLorebookEntry updateLorebookEntry(UpdateWorldLorebookEntry command);
+
+    WorldLorebookEntry findWorldLorebookEntryById(GetWorldLorebookEntryById query);
 
     void deleteLorebookEntry(DeleteWorldLorebookEntry command);
 }

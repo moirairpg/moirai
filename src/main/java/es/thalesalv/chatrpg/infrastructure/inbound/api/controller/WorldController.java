@@ -46,7 +46,7 @@ public class WorldController extends SecurityContextAware {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchWorldsResponse> seacrhWorldsWithReadAccess(SearchParameters searchParameters) {
+    public Mono<SearchWorldsResponse> searchWorldsWithReadAccess(SearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -65,7 +65,7 @@ public class WorldController extends SecurityContextAware {
 
     @GetMapping("/search/own")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchWorldsResponse> seacrhWorldsWithWriteAccess(SearchParameters searchParameters,
+    public Mono<SearchWorldsResponse> searchWorldsWithWriteAccess(SearchParameters searchParameters,
             Authentication authentication) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {

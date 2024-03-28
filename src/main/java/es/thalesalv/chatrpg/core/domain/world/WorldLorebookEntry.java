@@ -52,11 +52,13 @@ public class WorldLorebookEntry extends Asset {
 
     public void assignPlayer(String playerDiscordId) {
 
+        this.isPlayerCharacter = true;
         this.playerDiscordId = playerDiscordId;
     }
 
     public void unassignPlayer() {
 
+        this.isPlayerCharacter = false;
         this.playerDiscordId = null;
     }
 
