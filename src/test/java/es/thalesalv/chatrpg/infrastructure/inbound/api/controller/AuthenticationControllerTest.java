@@ -5,15 +5,33 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 
 import es.thalesalv.chatrpg.AbstractRestWebTest;
+import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordAuthRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
+import es.thalesalv.chatrpg.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
 import reactor.core.publisher.Mono;
 
+@WebFluxTest(properties = {
+        "chatrpg.discord.oauth.client-id=clientId",
+        "chatrpg.discord.oauth.client-secret=clientSecret",
+        "chatrpg.discord.oauth.redirect-url=redirectUrl"
+}, controllers = {
+        AuthenticationController.class
+}, excludeAutoConfiguration = {
+        ReactiveSecurityAutoConfiguration.class,
+        AuthenticationSecurityConfig.class
+})
 public class AuthenticationControllerTest extends AbstractRestWebTest {
+
+    @MockBean
+    protected DiscordAuthenticationPort discordAuthenticationPort;
 
     @Test
     public void exchangeCodeForToken() {

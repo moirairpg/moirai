@@ -11,6 +11,9 @@ import java.util.List;
 
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 
 import es.thalesalv.chatrpg.AbstractRestWebTest;
@@ -23,6 +26,8 @@ import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryBy
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryResult;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntries;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntriesResult;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldLorebookEntryRequestMapper;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldLorebookEntryResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldLorebookEntryRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateWorldLorebookEntryRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.CreateLorebookEntryResponse;
@@ -32,8 +37,21 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchLorebookEn
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchWorldsResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldLorebookEntryResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldResponse;
+import es.thalesalv.chatrpg.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
 
+@WebFluxTest(controllers = {
+        WorldLorebookController.class
+}, excludeAutoConfiguration = {
+        ReactiveSecurityAutoConfiguration.class,
+        AuthenticationSecurityConfig.class
+})
 public class WorldLorebookControllerTest extends AbstractRestWebTest {
+
+    @MockBean
+    protected WorldLorebookEntryResponseMapper worldLorebookEntryResponseMapper;
+
+    @MockBean
+    protected WorldLorebookEntryRequestMapper worldLorebookEntryRequestMapper;
 
     @Test
     public void http200WhenSearchLorebookEntries() {

@@ -22,7 +22,7 @@ public class WorldRequestMapper {
                 .visibility(request.getVisibility())
                 .writerUsers(request.getWriterUsers())
                 .readerUsers(request.getReaderUsers())
-                .creatorDiscordId(requesterDiscordId)
+                .requesterDiscordId(requesterDiscordId)
                 .build();
     }
 

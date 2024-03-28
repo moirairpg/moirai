@@ -9,9 +9,11 @@ import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
 import es.thalesalv.chatrpg.core.application.command.world.DeleteWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryById;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
@@ -38,10 +40,36 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     private final TokenizerPort tokenizerPort;
 
     @Override
+    public World getWorldById(GetWorldById query) {
+
+        World world = repository.findById(query.getId())
+                .orElseThrow(() -> new AssetNotFoundException("World to be viewed was not found"));
+
+        if (!world.canUserRead(query.getRequesterDiscordId())) {
+            throw new AssetAccessDeniedException("User does not have permission to view this world");
+        }
+
+        return world;
+    }
+
+    @Override
+    public void deleteWorld(DeleteWorld command) {
+
+        World world = repository.findById(command.getId())
+                .orElseThrow(() -> new AssetNotFoundException("World to be deleted was not found"));
+
+        if (!world.canUserWrite(command.getRequesterDiscordId())) {
+            throw new AssetAccessDeniedException("User does not have permission to modify this world");
+        }
+
+        repository.deleteById(command.getId());
+    }
+
+    @Override
     public World createFrom(CreateWorld command) {
 
         Permissions permissions = Permissions.builder()
-                .ownerDiscordId(command.getCreatorDiscordId())
+                .ownerDiscordId(command.getRequesterDiscordId())
                 .usersAllowedToRead(command.getReaderUsers())
                 .usersAllowedToWrite(command.getWriterUsers())
                 .build();
@@ -52,7 +80,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
                 .adventureStart(command.getAdventureStart())
                 .visibility(Visibility.fromString(command.getVisibility()))
                 .permissions(permissions)
-                .creatorDiscordId(command.getCreatorDiscordId())
+                .creatorDiscordId(command.getRequesterDiscordId())
                 .build();
 
         validateTokenCount(world);

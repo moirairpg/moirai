@@ -37,7 +37,7 @@ public class WorldRequestMapperTest {
         assertThat(command.getDescription()).isEqualTo(request.getDescription());
         assertThat(command.getAdventureStart()).isEqualTo(request.getAdventureStart());
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
-        assertThat(command.getCreatorDiscordId()).isEqualTo(requesterId);
+        assertThat(command.getRequesterDiscordId()).isEqualTo(requesterId);
         assertThat(command.getWriterUsers()).hasSameElementsAs(request.getWriterUsers());
         assertThat(command.getReaderUsers()).hasSameElementsAs(request.getReaderUsers());
     }

@@ -3,9 +3,8 @@ package es.thalesalv.chatrpg.core.application.command.world;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
-import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
+import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -14,9 +13,8 @@ import lombok.RequiredArgsConstructor;
 public class DeleteWorldHandler extends UseCaseHandler<DeleteWorld, Void> {
 
     private static final String ID_CANNOT_BE_NULL_OR_EMPTY = "World ID cannot be null or empty";
-    private static final String CANNOT_DELETE_NOT_FOUND = "Cannot delete non-existing world";
 
-    private final WorldRepository repository;
+    private final WorldDomainService domainService;
 
     @Override
     public void validate(DeleteWorld command) {
@@ -29,11 +27,7 @@ public class DeleteWorldHandler extends UseCaseHandler<DeleteWorld, Void> {
     @Override
     public Void execute(DeleteWorld command) {
 
-        // TODO extract real ID from principal when API is ready
-        repository.findById(command.getId())
-                .orElseThrow(() -> new AssetNotFoundException(CANNOT_DELETE_NOT_FOUND));
-
-        repository.deleteById(command.getId());
+        domainService.deleteWorld(command);
 
         return null;
     }

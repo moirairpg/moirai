@@ -5,6 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.support.WebExchangeBindException;
@@ -16,10 +19,26 @@ import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.AuthenticationFailedException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.controller.WorldController;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldRequestMapper;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.ErrorResponse;
+import es.thalesalv.chatrpg.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
 
+@WebFluxTest(controllers = {
+    WorldController.class
+}, excludeAutoConfiguration = {
+    ReactiveSecurityAutoConfiguration.class,
+    AuthenticationSecurityConfig.class
+})
 public class WebExceptionHandlerTest extends AbstractRestWebTest {
+
+    @MockBean
+    protected WorldResponseMapper worldResponseMapper;
+
+    @MockBean
+    protected WorldRequestMapper worldRequestMapper;
 
     @Test
     public void http404WhenAssetNotFound() {

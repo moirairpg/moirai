@@ -1,10 +1,8 @@
 package es.thalesalv.chatrpg.core.application.command.world;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,33 +10,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
-import es.thalesalv.chatrpg.core.domain.world.WorldFixture;
-import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
+import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
 
 @ExtendWith(MockitoExtension.class)
 public class DeleteWorldHandlerTest {
 
     @Mock
-    private WorldRepository repository;
+    private WorldDomainService domainService;
 
     @InjectMocks
     private DeleteWorldHandler handler;
-
-    @Test
-    public void errorWhenWorldIsNotFound() {
-
-        // Given
-        String requesterDiscordId = "84REAC";
-        String id = "WRDID";
-
-        DeleteWorld command = DeleteWorld.build(id, requesterDiscordId);
-
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class, () -> handler.handle(command));
-    }
 
     @Test
     public void errorWhenIdIsNull() {
@@ -62,8 +43,7 @@ public class DeleteWorldHandlerTest {
 
         DeleteWorld command = DeleteWorld.build(id, requesterDiscordId);
 
-        when(repository.findById(anyString()))
-                .thenReturn(Optional.of(WorldFixture.privateWorld().build()));
+        doNothing().when(domainService).deleteWorld(any(DeleteWorld.class));
 
         // When
         handler.handle(command);

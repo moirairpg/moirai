@@ -11,6 +11,9 @@ import java.util.List;
 
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 
 import es.thalesalv.chatrpg.AbstractRestWebTest;
@@ -24,6 +27,8 @@ import es.thalesalv.chatrpg.core.application.query.world.GetWorldResult;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithReadAccess;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithWriteAccess;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldRequestMapper;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequestFixture;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateWorldRequest;
@@ -33,11 +38,24 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchWorldsResp
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponseFixture;
+import es.thalesalv.chatrpg.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
 
+@WebFluxTest(controllers = {
+        WorldController.class
+}, excludeAutoConfiguration = {
+        ReactiveSecurityAutoConfiguration.class,
+        AuthenticationSecurityConfig.class
+})
 public class WorldControllerTest extends AbstractRestWebTest {
 
     private static final String WORLD_BASE_URL = "/world";
     private static final String WORLD_ID_BASE_URL = "/world/%s";
+
+    @MockBean
+    protected WorldResponseMapper worldResponseMapper;
+
+    @MockBean
+    protected WorldRequestMapper worldRequestMapper;
 
     @Test
     public void http200WhenSearchWorlds() {
@@ -151,7 +169,8 @@ public class WorldControllerTest extends AbstractRestWebTest {
         CreateWorldRequest request = CreateWorldRequestFixture.createPrivateWorld().build();
         CreateWorldResponse expectedResponse = CreateWorldResponse.build("WRLDID");
 
-        when(worldRequestMapper.toCommand(any(CreateWorldRequest.class), anyString())).thenReturn(mock(CreateWorld.class));
+        when(worldRequestMapper.toCommand(any(CreateWorldRequest.class), anyString()))
+                .thenReturn(mock(CreateWorld.class));
         when(useCaseRunner.run(any(CreateWorld.class))).thenReturn(mock(CreateWorldResult.class));
         when(worldResponseMapper.toResponse(any(CreateWorldResult.class))).thenReturn(expectedResponse);
 

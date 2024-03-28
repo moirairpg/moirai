@@ -22,9 +22,11 @@ import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateLorebookEntryFixture;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
 import es.thalesalv.chatrpg.core.application.command.world.DeleteWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryById;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
@@ -70,7 +72,7 @@ public class WorldDomainServiceImplTest {
                 .adventureStart(adventureStart)
                 .description(description)
                 .visibility(visibility)
-                .creatorDiscordId(permissions.getOwnerDiscordId())
+                .requesterDiscordId(permissions.getOwnerDiscordId())
                 .readerUsers(permissions.getUsersAllowedToRead())
                 .writerUsers(permissions.getUsersAllowedToWrite())
                 .lorebookEntries(Collections.singletonList(CreateLorebookEntryFixture.sampleLorebookEntry().build()))
@@ -115,7 +117,7 @@ public class WorldDomainServiceImplTest {
                 .adventureStart(adventureStart)
                 .description(description)
                 .visibility(visibility)
-                .creatorDiscordId(permissions.getOwnerDiscordId())
+                .requesterDiscordId(permissions.getOwnerDiscordId())
                 .readerUsers(permissions.getUsersAllowedToRead())
                 .writerUsers(permissions.getUsersAllowedToWrite())
                 .build();
@@ -151,7 +153,7 @@ public class WorldDomainServiceImplTest {
                 .adventureStart(adventureStart)
                 .description(description)
                 .visibility(visibility)
-                .creatorDiscordId(permissions.getOwnerDiscordId())
+                .requesterDiscordId(permissions.getOwnerDiscordId())
                 .readerUsers(permissions.getUsersAllowedToRead())
                 .writerUsers(permissions.getUsersAllowedToWrite())
                 .build();
@@ -161,6 +163,105 @@ public class WorldDomainServiceImplTest {
 
         // Then
         assertThrows(BusinessRuleViolationException.class, () -> service.createFrom(command));
+    }
+
+    @Test
+    public void findWorldById() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        GetWorldById query = GetWorldById.build(id, requesterId);
+
+        World world = WorldFixture.privateWorld()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // When
+        World result = service.getWorldById(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo(world.getName());
+    }
+
+    @Test
+    public void errorWhenFindWorldNotFound() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        GetWorldById query = GetWorldById.build(id, requesterId);
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.getWorldById(query));
+    }
+
+    @Test
+    public void errorWhenFindWorldAccessDenied() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        GetWorldById query = GetWorldById.build(id, requesterId);
+
+        World world = WorldFixture.privateWorld()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .usersAllowedToRead(Collections.emptyList())
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.getWorldById(query));
+    }
+
+    @Test
+    public void errorWhenDeleteWorldNotFound() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        DeleteWorld command = DeleteWorld.build(id, requesterId);
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.deleteWorld(command));
+    }
+
+    @Test
+    public void errorWhenDeleteWorldAccessDenied() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        DeleteWorld command = DeleteWorld.build(id, requesterId);
+
+        World world = WorldFixture.privateWorld()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.deleteWorld(command));
     }
 
     @Test
@@ -177,6 +278,31 @@ public class WorldDomainServiceImplTest {
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.update(command));
+    }
+
+    @Test
+    public void errorWhenUpdateWorldAccessDenied() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateWorld command = UpdateWorld.builder()
+                .id(id)
+                .requesterDiscordId("USRID")
+                .build();
+
+        World world = WorldFixture.privateWorld()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
     }
 
     @Test
@@ -198,7 +324,10 @@ public class WorldDomainServiceImplTest {
 
         World expectedUpdatedWorld = WorldFixture.privateWorld()
                 .id(id)
-                .name("New name")
+                .name("ChatRPG")
+                .description("This is an RPG world")
+                .adventureStart("As you enter the city, people around you start looking at you.")
+                .visibility(Visibility.PUBLIC)
                 .build();
 
         when(repository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
