@@ -265,6 +265,28 @@ public class WorldDomainServiceImplTest {
     }
 
     @Test
+    public void deleteWorld() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        DeleteWorld command = DeleteWorld.build(id, requesterId);
+
+        World world = WorldFixture.privateWorld()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // Then
+        service.deleteWorld(command);
+    }
+
+    @Test
     public void errorWhenUpdateWorldNotFound() {
 
         // Given
