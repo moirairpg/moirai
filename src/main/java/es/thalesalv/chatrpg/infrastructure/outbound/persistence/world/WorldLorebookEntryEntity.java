@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import es.thalesalv.chatrpg.common.dbutil.NanoIdIdentifierGenerator;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.AssetEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +22,7 @@ public class WorldLorebookEntryEntity extends AssetEntity {
 
     @Id
     @GeneratedValue(generator = "nanoid-generator")
-    @GenericGenerator(name = "nanoid-generator", strategy = "es.thalesalv.chatrpg.common.dbutil.NanoIdIdentifierGenerator")
+    @GenericGenerator(name = "nanoid-generator", type = NanoIdIdentifierGenerator.class)
     private String id;
 
     @Column(name = "name", nullable = false)

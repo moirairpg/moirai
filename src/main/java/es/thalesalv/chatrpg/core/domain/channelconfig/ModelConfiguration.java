@@ -130,7 +130,7 @@ public final class ModelConfiguration {
 
     public ModelConfiguration addLogitBias(String token, Double bias) {
 
-        validateLogitBias(token, bias);
+        validateLogitBias(bias);
 
         Map<String, Double> newLogitBias = new HashMap<>(this.logitBias);
         newLogitBias.put(token, bias);
@@ -182,7 +182,7 @@ public final class ModelConfiguration {
         }
     }
 
-    private static void validateLogitBias(String token, double bias) {
+    private static void validateLogitBias(double bias) {
 
         if (bias < -100 || bias > 100) {
             throw new BusinessRuleViolationException("Logit bias value needs to be between -100 and 100");
@@ -268,7 +268,7 @@ public final class ModelConfiguration {
             if (logitBias != null && !logitBias.isEmpty()) {
                 logitBias.entrySet()
                         .stream()
-                        .forEach(entry -> validateLogitBias(entry.getKey(), entry.getValue()));
+                        .forEach(entry -> validateLogitBias(entry.getValue()));
             }
 
             return new ModelConfiguration(this);

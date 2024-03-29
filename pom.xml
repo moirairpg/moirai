@@ -26,6 +26,8 @@
         <pitest.withHistory>false</pitest.withHistory>
         <testcontainers.version>1.19.7</testcontainers.version>
         <springdoc.version>2.4.0</springdoc.version>
+        <sonar.organization>chatrpg</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <dependencies>

@@ -2,6 +2,7 @@ package es.thalesalv.chatrpg.infrastructure.outbound.adapter;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,6 @@ public class TokenizerAdapter implements TokenizerPort {
     private static final String TOKEN_DELIMITER = "|";
     private static final String SPECIAL_SPACE_TOKEN = "Ġ";
     private static final String TOKENIZER_FILE_PATH = "tokenizer.json";
-    private static final String ISO_8859_1_ENCODING = "ISO-8859-1";
 
     public TokenizerAdapter() throws IOException {
 
@@ -63,6 +63,6 @@ public class TokenizerAdapter implements TokenizerPort {
         tokenList.replaceAll(a -> a.replaceAll(SPECIAL_SPACE_TOKEN, StringUtils.SPACE));
         String tokenized = String.join(TOKEN_DELIMITER, tokenList);
 
-        return new String(tokenized.getBytes(ISO_8859_1_ENCODING));
+        return new String(tokenized.getBytes(StandardCharsets.ISO_8859_1));
     }
 }

@@ -504,7 +504,7 @@ public class ChannelConfigTest {
         channelConfig.addLogitBias(token, bias);
 
         // Then
-        assertThat(channelConfig.getModelConfiguration().getLogitBias().get(token)).isEqualTo(bias);
+        assertThat(channelConfig.getModelConfiguration().getLogitBias()).containsEntry(token, bias);
     }
 
     @Test

@@ -19,8 +19,8 @@ public class ArtificialIntelligenceModelTest {
         ArtificialIntelligenceModel model = ArtificialIntelligenceModel.findByInternalModelName(internalModelName);
 
         // Then
-        assertThat(model).isNotNull();
-        assertThat(model.toString()).isEqualTo(internalModelName);
+        assertThat(model).isNotNull()
+                .hasToString(internalModelName);
     }
 
     @Test

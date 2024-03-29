@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity.CorsSpec;
+import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpec;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import es.thalesalv.chatrpg.infrastructure.security.authentication.filter.DiscordAuthenticationFilter;
@@ -26,12 +28,13 @@ public class AuthenticationSecurityConfig {
     @Bean
     SecurityWebFilterChain configure(ServerHttpSecurity http) {
 
+        // TODO verify csrf and cors, they shouldn't be disabled
         return http.addFilterBefore(discordRequestFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .authorizeExchange(exchanges -> exchanges.pathMatchers(ignoredPaths).permitAll())
                 .authorizeExchange(exchanges -> exchanges.anyExchange().authenticated())
                 .oauth2Login(withDefaults())
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.disable())
+                .csrf(CsrfSpec::disable)
+                .cors(CorsSpec::disable)
                 .build();
     }
 }

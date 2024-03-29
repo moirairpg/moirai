@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class WorldDomainServiceImpl implements WorldDomainService {
 
+    private static final String WORLD_TO_BE_UPDATED_WAS_NOT_FOUND = "World to be updated was not found";
     private static final String LOREBOOK_ENTRY_TO_BE_UPDATED_WAS_NOT_FOUND = "Lorebook entry to be updated was not found";
     private static final String WORLD_TO_BE_VIEWED_WAS_NOT_FOUND = "World to be viewed was not found";
     private static final String USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD = "User does not have permission to modify this world";
@@ -96,7 +97,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     public World update(UpdateWorld command) {
 
         World world = repository.findById(command.getId())
-                .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_UPDATED_WAS_NOT_FOUND));
 
         if (!world.canUserWrite(command.getRequesterDiscordId())) {
             throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD);
@@ -145,7 +146,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     public WorldLorebookEntry findWorldLorebookEntryById(GetWorldLorebookEntryById query) {
 
         World world = repository.findById(query.getWorldId())
-                .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_UPDATED_WAS_NOT_FOUND));
 
         if (!world.canUserRead(query.getRequesterDiscordId())) {
             throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD);
@@ -159,7 +160,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     public WorldLorebookEntry createLorebookEntry(CreateWorldLorebookEntry command) {
 
         World world = repository.findById(command.getWorldId())
-                .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_UPDATED_WAS_NOT_FOUND));
 
         if (!world.canUserWrite(command.getRequesterDiscordId())) {
             throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD);
@@ -184,7 +185,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     public WorldLorebookEntry updateLorebookEntry(UpdateWorldLorebookEntry command) {
 
         World world = repository.findById(command.getWorldId())
-                .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_UPDATED_WAS_NOT_FOUND));
 
         if (!world.canUserWrite(command.getRequesterDiscordId())) {
             throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD);
@@ -220,7 +221,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     public void deleteLorebookEntry(DeleteWorldLorebookEntry command) {
 
         World world = repository.findById(command.getWorldId())
-                .orElseThrow(() -> new AssetNotFoundException("World to be updated was not found"));
+                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_UPDATED_WAS_NOT_FOUND));
 
         if (!world.canUserWrite(command.getRequesterDiscordId())) {
             throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD);

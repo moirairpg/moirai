@@ -191,7 +191,10 @@ public class ModelConfigurationTest {
         ModelConfiguration newModelConfiguration = modelConfiguration.removeStopSequence(newToken);
 
         // Then
-        assertThat(newModelConfiguration.getStopSequences()).doesNotContain(newToken);
+        assertThat(newModelConfiguration.getStopSequences())
+                .isNotNull()
+                .isNotEmpty()
+                .doesNotContain(newToken);
     }
 
     @Test
