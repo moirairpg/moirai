@@ -57,62 +57,62 @@ public class ChannelConfig extends ShareableAsset {
 
     public void updateAiModel(ArtificialIntelligenceModel aiModel) {
 
-        ModelConfiguration modelConfiguration = this.modelConfiguration.updateAiModel(aiModel);
-        this.modelConfiguration = modelConfiguration;
+        ModelConfiguration newModelConfiguration = this.modelConfiguration.updateAiModel(aiModel);
+        this.modelConfiguration = newModelConfiguration;
     }
 
     public void updateMaxTokenLimit(int maxTokenLimit) {
 
-        ModelConfiguration modelConfiguration = this.modelConfiguration.updateMaxTokenLimit(maxTokenLimit);
-        this.modelConfiguration = modelConfiguration;
+        ModelConfiguration newModelConfiguration = this.modelConfiguration.updateMaxTokenLimit(maxTokenLimit);
+        this.modelConfiguration = newModelConfiguration;
     }
 
     public void updateMessageHistorySize(int messageHistorySize) {
 
-        ModelConfiguration modelConfiguration = this.modelConfiguration.updateMessageHistorySize(messageHistorySize);
-        this.modelConfiguration = modelConfiguration;
+        ModelConfiguration newModelConfiguration = this.modelConfiguration.updateMessageHistorySize(messageHistorySize);
+        this.modelConfiguration = newModelConfiguration;
     }
 
     public void updateTemperature(double temperature) {
 
-        ModelConfiguration modelConfiguration = this.modelConfiguration.updateTemperature(temperature);
-        this.modelConfiguration = modelConfiguration;
+        ModelConfiguration newModelConfiguration = this.modelConfiguration.updateTemperature(temperature);
+        this.modelConfiguration = newModelConfiguration;
     }
 
     public void updateFrequencyPenalty(double frequencyPenalty) {
 
-        ModelConfiguration modelConfiguration = this.modelConfiguration.updateFrequencyPenalty(frequencyPenalty);
-        this.modelConfiguration = modelConfiguration;
+        ModelConfiguration newModelConfiguration = this.modelConfiguration.updateFrequencyPenalty(frequencyPenalty);
+        this.modelConfiguration = newModelConfiguration;
     }
 
     public void updatePresencePenalty(double presencePenalty) {
 
-        ModelConfiguration modelConfiguration = this.modelConfiguration.updatePresencePenalty(presencePenalty);
-        this.modelConfiguration = modelConfiguration;
+        ModelConfiguration newModelConfiguration = this.modelConfiguration.updatePresencePenalty(presencePenalty);
+        this.modelConfiguration = newModelConfiguration;
     }
 
     public void addStopSequence(String stopSequence) {
 
-        ModelConfiguration modelConfiguration = this.modelConfiguration.addStopSequence(stopSequence);
-        this.modelConfiguration = modelConfiguration;
+        ModelConfiguration newModelConfiguration = this.modelConfiguration.addStopSequence(stopSequence);
+        this.modelConfiguration = newModelConfiguration;
     }
 
     public void removeStopSequence(String stopSequence) {
 
-        ModelConfiguration modelConfiguration = this.modelConfiguration.removeStopSequence(stopSequence);
-        this.modelConfiguration = modelConfiguration;
+        ModelConfiguration newModelConfiguration = this.modelConfiguration.removeStopSequence(stopSequence);
+        this.modelConfiguration = newModelConfiguration;
     }
 
     public void addLogitBias(String token, double bias) {
 
-        ModelConfiguration modelConfiguration = this.modelConfiguration.addLogitBias(token, bias);
-        this.modelConfiguration = modelConfiguration;
+        ModelConfiguration newModelConfiguration = this.modelConfiguration.addLogitBias(token, bias);
+        this.modelConfiguration = newModelConfiguration;
     }
 
     public void removeLogitBias(String token) {
 
-        ModelConfiguration modelConfiguration = this.modelConfiguration.removeLogitBias(token);
-        this.modelConfiguration = modelConfiguration;
+        ModelConfiguration newModelConfiguration = this.modelConfiguration.removeLogitBias(token);
+        this.modelConfiguration = newModelConfiguration;
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)

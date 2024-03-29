@@ -18,6 +18,9 @@ import lombok.NoArgsConstructor;
 @Getter
 public final class ModelConfiguration {
 
+    private static final double DEFAULT_FREQUENCY_PENALTY = 0.0;
+    private static final double DEFAULT_PRESENCE_PENALTY = 0.0;
+
     private final ArtificialIntelligenceModel aiModel;
     private final Integer maxTokenLimit;
     private final Integer messageHistorySize;
@@ -68,91 +71,126 @@ public final class ModelConfiguration {
 
     public ModelConfiguration updateMaxTokenLimit(Integer maxTokenLimit) {
 
-        if (maxTokenLimit < 100 || maxTokenLimit > aiModel.getHardTokenLimit()) {
-            throw new BusinessRuleViolationException(
-                    String.format("Max token limit has to be between 100 and %s", aiModel.getHardTokenLimit()));
-        }
+        validateMaxTokenLimit(maxTokenLimit, aiModel);
 
         return cloneFrom(this).maxTokenLimit(maxTokenLimit).build();
     }
 
     public ModelConfiguration updateMessageHistorySize(Integer messageHistorySize) {
 
-        if (messageHistorySize < 10 || messageHistorySize > 100) {
-            throw new BusinessRuleViolationException("History size has to be between 10 and 100 messages");
-        }
+        validateHistorySizeLimit(messageHistorySize);
 
         return cloneFrom(this).messageHistorySize(messageHistorySize).build();
     }
 
     public ModelConfiguration updateTemperature(Double temperature) {
 
-        if (temperature < 0.1 || temperature > 2) {
-            throw new BusinessRuleViolationException("Temperature value has to be between 0 and 2");
-        }
+        validateTemperature(temperature);
 
         return cloneFrom(this).temperature(temperature).build();
     }
 
     public ModelConfiguration updateFrequencyPenalty(Double frequencyPenalty) {
 
-        if (frequencyPenalty < -2 || frequencyPenalty > 2) {
-            throw new BusinessRuleViolationException("Frequency penalty needs to be between -2 and 2");
+        if (frequencyPenalty == null) {
+            frequencyPenalty = DEFAULT_FREQUENCY_PENALTY;
         }
+
+        validateFrequencyPenalty(frequencyPenalty);
 
         return cloneFrom(this).frequencyPenalty(frequencyPenalty).build();
     }
 
     public ModelConfiguration updatePresencePenalty(Double presencePenalty) {
 
-        if (presencePenalty < -2 || presencePenalty > 2) {
-            throw new BusinessRuleViolationException("Presence penalty needs to be between -2 and 2");
+        if (presencePenalty == null) {
+            presencePenalty = DEFAULT_PRESENCE_PENALTY;
         }
+
+        validatePresencePenalty(presencePenalty);
 
         return cloneFrom(this).presencePenalty(presencePenalty).build();
     }
 
     public ModelConfiguration addStopSequence(String stopSequence) {
 
-        List<String> stopSequences = new ArrayList<>(this.stopSequences);
-        stopSequences.add(stopSequence);
+        List<String> newStopSequences = new ArrayList<>(this.stopSequences);
+        newStopSequences.add(stopSequence);
 
-        return cloneFrom(this).stopSequences(stopSequences).build();
+        return cloneFrom(this).stopSequences(newStopSequences).build();
     }
 
     public ModelConfiguration removeStopSequence(String stopSequence) {
 
-        List<String> stopSequences = new ArrayList<>(this.stopSequences);
-        stopSequences.remove(stopSequence);
+        List<String> newStopSequences = new ArrayList<>(this.stopSequences);
+        newStopSequences.remove(stopSequence);
 
-        return cloneFrom(this).stopSequences(stopSequences).build();
+        return cloneFrom(this).stopSequences(newStopSequences).build();
     }
 
     public ModelConfiguration addLogitBias(String token, Double bias) {
 
-        if (bias < -100 || bias > 100) {
-            throw new BusinessRuleViolationException("Logit bias value needs to be between -100 and 100");
-        }
+        validateLogitBias(token, bias);
 
-        Map<String, Double> logitBias = new HashMap<>(this.logitBias);
-        logitBias.put(token, bias);
+        Map<String, Double> newLogitBias = new HashMap<>(this.logitBias);
+        newLogitBias.put(token, bias);
 
-        return cloneFrom(this).logitBias(logitBias).build();
+        return cloneFrom(this).logitBias(newLogitBias).build();
     }
 
     public ModelConfiguration removeLogitBias(String token) {
 
-        Map<String, Double> logitBias = new HashMap<>(this.logitBias);
-        logitBias.remove(token);
+        Map<String, Double> newLogitBias = new HashMap<>(this.logitBias);
+        newLogitBias.remove(token);
 
-        return cloneFrom(this).logitBias(logitBias).build();
+        return cloneFrom(this).logitBias(newLogitBias).build();
+    }
+
+    private static void validateTemperature(double temperature) {
+
+        if (temperature < 0.1 || temperature > 2) {
+            throw new BusinessRuleViolationException("Temperature value has to be between 0 and 2");
+        }
+    }
+
+    private static void validateHistorySizeLimit(int messageHistorySize) {
+
+        if (messageHistorySize < 10 || messageHistorySize > 100) {
+            throw new BusinessRuleViolationException("History size has to be between 10 and 100 messages");
+        }
+    }
+
+    private static void validateFrequencyPenalty(Double frequencyPenalty) {
+
+        if (frequencyPenalty < -2 || frequencyPenalty > 2) {
+            throw new BusinessRuleViolationException("Frequency penalty needs to be between -2 and 2");
+        }
+    }
+
+    private static void validatePresencePenalty(Double presencePenalty) {
+
+        if (presencePenalty < -2 || presencePenalty > 2) {
+            throw new BusinessRuleViolationException("Presence penalty needs to be between -2 and 2");
+        }
+    }
+
+    private static void validateMaxTokenLimit(int maxTokenLimit, ArtificialIntelligenceModel aiModel) {
+
+        if (maxTokenLimit < 100 || maxTokenLimit > aiModel.getHardTokenLimit()) {
+            throw new BusinessRuleViolationException(
+                    String.format("Max token limit has to be between 100 and %s", aiModel.getHardTokenLimit()));
+        }
+    }
+
+    private static void validateLogitBias(String token, double bias) {
+
+        if (bias < -100 || bias > 100) {
+            throw new BusinessRuleViolationException("Logit bias value needs to be between -100 and 100");
+        }
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
-
-        private static final double DEFAULT_FREQUENCY_PENALTY = 0.0;
-        private static final double DEFAULT_PRESENCE_PENALTY = 0.0;
 
         private ArtificialIntelligenceModel aiModel;
         private Integer maxTokenLimit;
@@ -213,42 +251,24 @@ public final class ModelConfiguration {
 
         public ModelConfiguration build() {
 
-            if (temperature < 0 || temperature > 2) {
-                throw new BusinessRuleViolationException("Temperature value has to be between 0 and 2");
-            }
-
-            if (messageHistorySize < 10 || messageHistorySize > 100) {
-                throw new BusinessRuleViolationException("History size has to be between 10 and 100 messages");
-            }
-
-            if (maxTokenLimit < 100 || maxTokenLimit > aiModel.getHardTokenLimit()) {
-                throw new BusinessRuleViolationException(
-                        String.format("Max token limit has to be between 100 and %s", aiModel.getHardTokenLimit()));
-            }
-
             if (frequencyPenalty == null) {
                 frequencyPenalty = DEFAULT_FREQUENCY_PENALTY;
-            }
-
-            if (frequencyPenalty < -2 || frequencyPenalty > 2) {
-                throw new BusinessRuleViolationException("Frequency penalty needs to be between -2 and 2");
             }
 
             if (presencePenalty == null) {
                 presencePenalty = DEFAULT_PRESENCE_PENALTY;
             }
 
-            if (presencePenalty < -2 || presencePenalty > 2) {
-                throw new BusinessRuleViolationException("Presence penalty needs to be between -2 and 2");
-            }
+            validateTemperature(temperature);
+            validateHistorySizeLimit(messageHistorySize);
+            validateFrequencyPenalty(frequencyPenalty);
+            validatePresencePenalty(presencePenalty);
+            validateMaxTokenLimit(maxTokenLimit, aiModel);
 
             if (logitBias != null && !logitBias.isEmpty()) {
-                boolean isLogitBiasRuleViolated = logitBias.entrySet().stream()
-                        .anyMatch(entry -> entry.getValue() < -100 || entry.getValue() > 100);
-
-                if (isLogitBiasRuleViolated) {
-                    throw new BusinessRuleViolationException("Logit bias value needs to be between -100 and 100");
-                }
+                logitBias.entrySet()
+                        .stream()
+                        .forEach(entry -> validateLogitBias(entry.getKey(), entry.getValue()));
             }
 
             return new ModelConfiguration(this);

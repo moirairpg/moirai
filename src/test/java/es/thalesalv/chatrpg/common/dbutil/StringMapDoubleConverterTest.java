@@ -21,9 +21,12 @@ public class StringMapDoubleConverterTest {
         Map<String, Double> result = converter.convertToEntityAttribute(commaSeparatedValues);
 
         // Then
-        assertThat(result).isNotNull().isNotEmpty().hasSize(2);
-        assertThat(result.get("k1")).isEqualTo(1.0);
-        assertThat(result.get("k2")).isEqualTo(2.0);
+        assertThat(result)
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(2)
+                .containsEntry("k1", 1.0)
+                .containsEntry("k2", 2.0);
     }
 
     @Test

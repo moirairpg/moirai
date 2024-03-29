@@ -30,6 +30,6 @@ public class StringMapDoubleConverter implements AttributeConverter<Map<String, 
 
         return Arrays.stream(inputString.split(SPLIT_CHAR))
                 .map(s -> s.split(ASSIGN_CHAR))
-                .collect(Collectors.toMap(s -> (String) s[0], s -> Double.valueOf(s[1])));
+                .collect(Collectors.toMap(s -> s[0], s -> Double.valueOf(s[1])));
     }
 }

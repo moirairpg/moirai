@@ -58,34 +58,34 @@ public abstract class ShareableAsset extends Asset {
 
     public void addWriterUser(String discordUserId) {
 
-        Permissions permissions = this.permissions
+        Permissions newPermissions = this.permissions
                 .allowUserToWrite(discordUserId, this.permissions.getOwnerDiscordId());
 
-        this.permissions = permissions;
+        this.permissions = newPermissions;
     }
 
     public void addReaderUser(String discordUserId) {
 
-        Permissions permissions = this.permissions
+        Permissions newPermissions = this.permissions
                 .allowUserToRead(discordUserId, this.permissions.getOwnerDiscordId());
 
-        this.permissions = permissions;
+        this.permissions = newPermissions;
     }
 
     public void removeWriterUser(String discordUserId) {
 
-        Permissions permissions = this.permissions
+        Permissions newPermissions = this.permissions
                 .disallowUserToWrite(discordUserId, this.permissions.getOwnerDiscordId());
 
-        this.permissions = permissions;
+        this.permissions = newPermissions;
     }
 
     public void removeReaderUser(String discordUserId) {
 
-        Permissions permissions = this.permissions
+        Permissions newPermissions = this.permissions
                 .disallowUserToRead(discordUserId, this.permissions.getOwnerDiscordId());
 
-        this.permissions = permissions;
+        this.permissions = newPermissions;
     }
 
     public List<String> getWriterUsers() {

@@ -50,32 +50,32 @@ public class Persona extends ShareableAsset {
 
     public void updateBumpContent(String content) {
 
-        Bump bump = this.bump.updateContent(content);
-        this.bump = bump;
+        Bump newBump = this.bump.updateContent(content);
+        this.bump = newBump;
     }
 
     public void updateBumpFrequency(int frequency) {
 
-        Bump bump = this.bump.updateFrequency(frequency);
-        this.bump = bump;
+        Bump newBump = this.bump.updateFrequency(frequency);
+        this.bump = newBump;
     }
 
     public void updateBumpRole(CompletionRole role) {
 
-        Bump bump = this.bump.updateRole(role);
-        this.bump = bump;
+        Bump newBump = this.bump.updateRole(role);
+        this.bump = newBump;
     }
 
     public void updateNudgeContent(String content) {
 
-        Nudge nudge = this.nudge.updateContent(content);
-        this.nudge = nudge;
+        Nudge newNudge = this.nudge.updateContent(content);
+        this.nudge = newNudge;
     }
 
     public void updateNudgeRole(CompletionRole role) {
 
-        Nudge nudge = this.nudge.updateRole(role);
-        this.nudge = nudge;
+        Nudge newNudge = this.nudge.updateRole(role);
+        this.nudge = newNudge;
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
