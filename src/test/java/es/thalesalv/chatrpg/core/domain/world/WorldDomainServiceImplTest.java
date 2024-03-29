@@ -40,7 +40,7 @@ public class WorldDomainServiceImplTest {
     private WorldLorebookEntryRepository lorebookEntryRepository;
 
     @Mock
-    private WorldRepository repository;
+    private WorldRepository worldRepository;
 
     @Mock
     private TokenizerPort tokenizerPort;
@@ -78,7 +78,7 @@ public class WorldDomainServiceImplTest {
                 .lorebookEntries(Collections.singletonList(CreateLorebookEntryFixture.sampleLorebookEntry().build()))
                 .build();
 
-        when(repository.save(any(World.class))).thenReturn(expectedWorld);
+        when(worldRepository.save(any(World.class))).thenReturn(expectedWorld);
 
         // When
         World createdWorld = service.createFrom(command);
@@ -122,7 +122,7 @@ public class WorldDomainServiceImplTest {
                 .writerUsers(permissions.getUsersAllowedToWrite())
                 .build();
 
-        when(repository.save(any(World.class))).thenReturn(expectedWorld);
+        when(worldRepository.save(any(World.class))).thenReturn(expectedWorld);
 
         // When
         World createdWorld = service.createFrom(command);
@@ -181,7 +181,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // When
         World result = service.getWorldById(query);
@@ -199,7 +199,7 @@ public class WorldDomainServiceImplTest {
         String requesterId = "RQSTRID";
         GetWorldById query = GetWorldById.build(id, requesterId);
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.getWorldById(query));
@@ -222,7 +222,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // Then
         assertThrows(AssetAccessDeniedException.class, () -> service.getWorldById(query));
@@ -236,7 +236,7 @@ public class WorldDomainServiceImplTest {
         String requesterId = "RQSTRID";
         DeleteWorld command = DeleteWorld.build(id, requesterId);
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.deleteWorld(command));
@@ -258,7 +258,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // Then
         assertThrows(AssetAccessDeniedException.class, () -> service.deleteWorld(command));
@@ -280,7 +280,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // Then
         service.deleteWorld(command);
@@ -296,7 +296,7 @@ public class WorldDomainServiceImplTest {
                 .id(id)
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.update(command));
@@ -321,7 +321,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // Then
         assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
@@ -352,8 +352,8 @@ public class WorldDomainServiceImplTest {
                 .visibility(Visibility.PUBLIC)
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
-        when(repository.save(any(World.class))).thenReturn(expectedUpdatedWorld);
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
+        when(worldRepository.save(any(World.class))).thenReturn(expectedUpdatedWorld);
 
         // When
         World result = service.update(command);
@@ -380,7 +380,7 @@ public class WorldDomainServiceImplTest {
 
         World unchangedWorld = WorldFixture.privateWorld().build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
 
         // Then
         assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
@@ -412,7 +412,7 @@ public class WorldDomainServiceImplTest {
 
         World world = WorldFixture.privateWorld().build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
         when(lorebookEntryRepository.save(any(WorldLorebookEntry.class))).thenReturn(expectedLorebookEntry);
 
         // When
@@ -443,32 +443,10 @@ public class WorldDomainServiceImplTest {
 
         World world = WorldFixture.privateWorld().build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // Then
         assertThrows(AssetAccessDeniedException.class, () -> service.createLorebookEntry(command));
-    }
-
-    @Test
-    public void errorWhenCreatingLorebookEntryIfWorldNotExists() {
-
-        // Given
-        String name = "Eldrida";
-        String description = "Eldrida is a kingdom in an empire";
-        String regex = "[Ee]ldrida";
-        String worldId = "WRLDID";
-
-        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
-                .name(name)
-                .description(description)
-                .regex(regex)
-                .worldId(worldId)
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class, () -> service.createLorebookEntry(command));
     }
 
     @Test
@@ -498,7 +476,7 @@ public class WorldDomainServiceImplTest {
 
         World world = WorldFixture.privateWorld().build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
         when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(expectedLorebookEntry));
         when(lorebookEntryRepository.save(any(WorldLorebookEntry.class))).thenReturn(expectedLorebookEntry);
 
@@ -531,7 +509,7 @@ public class WorldDomainServiceImplTest {
 
         World world = WorldFixture.privateWorld().build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
         when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
@@ -558,7 +536,7 @@ public class WorldDomainServiceImplTest {
 
         World world = WorldFixture.privateWorld().build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // Then
         assertThrows(AssetAccessDeniedException.class, () -> service.updateLorebookEntry(command));
@@ -581,7 +559,7 @@ public class WorldDomainServiceImplTest {
                 .worldId(worldId)
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.updateLorebookEntry(command));
@@ -605,7 +583,7 @@ public class WorldDomainServiceImplTest {
                 .build();
 
         World world = WorldFixture.privateWorld().build();
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         ReflectionTestUtils.setField(service, "lorebookEntryNameTokenLimit", 2);
         ReflectionTestUtils.setField(service, "lorebookEntryDescriptionTokenLimit", 20);
@@ -634,7 +612,7 @@ public class WorldDomainServiceImplTest {
                 .build();
 
         World world = WorldFixture.privateWorld().build();
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         ReflectionTestUtils.setField(service, "lorebookEntryNameTokenLimit", 20);
         ReflectionTestUtils.setField(service, "lorebookEntryDescriptionTokenLimit", 2);
@@ -661,30 +639,7 @@ public class WorldDomainServiceImplTest {
                 .worldId(worldId)
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class,
-                () -> service.createLorebookEntry(command));
-    }
-
-    @Test
-    public void errorWhenCreatingLorebookEntryInWorldWithoutWritePermission() {
-
-        // Given
-        String name = "Eldrida";
-        String description = "Eldrida is a kingdom in an empire";
-        String regex = "[Ee]ldrida";
-        String worldId = "WRLDID";
-
-        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
-                .name(name)
-                .description(description)
-                .regex(regex)
-                .worldId(worldId)
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class,
@@ -710,7 +665,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
         when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(entry));
 
         // When
@@ -731,7 +686,7 @@ public class WorldDomainServiceImplTest {
                 .entryId("ENTRID")
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.findWorldLorebookEntryById(query));
@@ -754,7 +709,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // Then
         assertThrows(AssetAccessDeniedException.class, () -> service.findWorldLorebookEntryById(query));
@@ -777,7 +732,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
         when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
@@ -803,7 +758,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
         when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(entry));
 
         // Then
@@ -821,7 +776,7 @@ public class WorldDomainServiceImplTest {
                 .lorebookEntryId("ENTRID")
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.deleteLorebookEntry(query));
@@ -844,7 +799,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // Then
         assertThrows(AssetAccessDeniedException.class, () -> service.deleteLorebookEntry(query));
@@ -867,7 +822,7 @@ public class WorldDomainServiceImplTest {
                         .build())
                 .build();
 
-        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
         when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then

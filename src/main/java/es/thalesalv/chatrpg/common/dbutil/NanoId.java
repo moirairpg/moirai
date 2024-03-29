@@ -10,23 +10,23 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 @Component
 public class NanoId {
 
-    private static String ALPHABET;
-    private static int ID_LENGTH;
+    private static String alphabet;
+    private static int idLength;
 
     @Value("${chatrpg.nano-id.alphabet}")
     public void setAlphabet(final String alphabet) {
 
-        NanoId.ALPHABET = alphabet;
+        NanoId.alphabet = alphabet;
     }
 
     @Value("${chatrpg.nano-id.characters-amount}")
     public void setAlphabet(final int idLength) {
 
-        NanoId.ID_LENGTH = idLength;
+        NanoId.idLength = idLength;
     }
 
     public static String randomNanoId() {
 
-        return NanoIdUtils.randomNanoId(new SecureRandom(), ALPHABET.toCharArray(), ID_LENGTH);
+        return NanoIdUtils.randomNanoId(new SecureRandom(), alphabet.toCharArray(), idLength);
     }
 }

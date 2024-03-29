@@ -7,35 +7,17 @@ import lombok.Getter;
 @Getter
 public class DiscordApiException extends RuntimeException {
 
-    private HttpStatus httpStatusCode;
-    private String errorMessage;
-    private String errorDescription;
-
-    public DiscordApiException() {
-        super();
-    }
-
-    public DiscordApiException(String msg) {
-        super(msg);
-    }
-
-    public DiscordApiException(String msg, Throwable t) {
-        super(msg, t);
-    }
-
-    public DiscordApiException(HttpStatus httpStatusCode, String errorMessage, String message) {
-
-        super(message);
-
-        this.httpStatusCode = httpStatusCode;
-        this.errorMessage = errorMessage;
-    }
+    private final HttpStatus httpStatusCode;
+    private final String errorMessage;
+    private final String errorDescription;
 
     public DiscordApiException(HttpStatus httpStatusCode, String message) {
 
         super(message);
 
         this.httpStatusCode = httpStatusCode;
+        this.errorMessage = null;
+        this.errorDescription = null;
     }
 
     public DiscordApiException(HttpStatus httpStatusCode, String errorMessage,
@@ -56,12 +38,5 @@ public class DiscordApiException extends RuntimeException {
         this.httpStatusCode = httpStatusCode;
         this.errorMessage = errorMessage;
         this.errorDescription = errorDescription;
-    }
-
-    public DiscordApiException(HttpStatus httpStatusCode, String message, Throwable t) {
-
-        super(message, t);
-
-        this.httpStatusCode = httpStatusCode;
     }
 }

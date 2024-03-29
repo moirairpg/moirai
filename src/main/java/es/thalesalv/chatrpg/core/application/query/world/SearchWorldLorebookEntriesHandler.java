@@ -16,7 +16,6 @@ public class SearchWorldLorebookEntriesHandler extends UseCaseHandler<SearchWorl
     @Override
     public SearchWorldLorebookEntriesResult execute(SearchWorldLorebookEntries query) {
 
-        // TODO add check based on world permission
         return repository.searchWorldLorebookEntriesByWorldId(query);
     }
 }
