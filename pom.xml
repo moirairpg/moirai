@@ -293,6 +293,8 @@
                         <exclude>**/exception/*</exclude>
                         <exclude>**/config/**</exclude>
                         <exclude>**/logging/**</exclude>
+                        <exclude>**/DiscordPrincipal.class</exclude>
+                        <exclude>ChatRpgApplication.class</exclude>
                     </excludes>
                 </configuration>
             </plugin>
