@@ -83,13 +83,13 @@ public class WorldController extends SecurityContextAware {
         });
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{worldId}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<WorldResponse> getWorldById(@PathVariable(name = "id", required = true) String id) {
+    public Mono<WorldResponse> getWorldById(@PathVariable(name = "worldId", required = true) String worldId) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
-            GetWorldById query = GetWorldById.build(id, authenticatedUser.getId());
+            GetWorldById query = GetWorldById.build(worldId, authenticatedUser.getId());
             return responseMapper.toResponse(useCaseRunner.run(query));
         });
     }
@@ -105,25 +105,25 @@ public class WorldController extends SecurityContextAware {
         });
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{worldId}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<UpdateWorldResponse> updateWorld(@PathVariable(name = "id", required = true) String id,
+    public Mono<UpdateWorldResponse> updateWorld(@PathVariable(name = "worldId", required = true) String worldId,
             @Valid @RequestBody UpdateWorldRequest request) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
-            UpdateWorld command = requestMapper.toCommand(request, id, authenticatedUser.getId());
+            UpdateWorld command = requestMapper.toCommand(request, worldId, authenticatedUser.getId());
             return responseMapper.toResponse(useCaseRunner.run(command));
         });
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{worldId}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<Void> deleteWorld(@PathVariable(name = "id", required = true) String id) {
+    public Mono<Void> deleteWorld(@PathVariable(name = "worldId", required = true) String worldId) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
-            DeleteWorld command = requestMapper.toCommand(id, authenticatedUser.getId());
+            DeleteWorld command = requestMapper.toCommand(worldId, authenticatedUser.getId());
             useCaseRunner.run(command);
 
             return Mono.empty();
