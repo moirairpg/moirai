@@ -84,6 +84,7 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
                 .permissions(permissions)
                 .nudge(nudge)
                 .bump(bump)
+                .gameMode(GameMode.fromString(command.getGameMode()))
                 .build();
 
         return repository.save(persona);
@@ -121,6 +122,10 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
 
         if (StringUtils.isNotBlank(command.getBumpContent())) {
             persona.updateBumpContent(command.getBumpContent());
+        }
+
+        if (StringUtils.isNotBlank(command.getGameMode())) {
+            persona.updateGameMode(GameMode.fromString(command.getGameMode()));
         }
 
         if (command.getBumpFrequency() != null) {

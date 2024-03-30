@@ -22,6 +22,7 @@ import es.thalesalv.chatrpg.core.domain.CompletionRole;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.persona.Bump;
+import es.thalesalv.chatrpg.core.domain.persona.GameMode;
 import es.thalesalv.chatrpg.core.domain.persona.Nudge;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
@@ -134,6 +135,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 .ownerDiscordId(persona.getOwnerDiscordId())
                 .nudge(nudge)
                 .bump(bump)
+                .gameMode(persona.getGameMode().name())
                 .usersAllowedToRead(persona.getReaderUsers())
                 .usersAllowedToWrite(persona.getWriterUsers())
                 .creatorDiscordId(creatorOrOwnerDiscordId)
@@ -169,6 +171,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 .permissions(permissions)
                 .nudge(nudge)
                 .bump(bump)
+                .gameMode(GameMode.fromString(persona.getGameMode()))
                 .creationDate(persona.getCreationDate())
                 .lastUpdateDate(persona.getLastUpdateDate())
                 .creatorDiscordId(persona.getCreatorDiscordId())
@@ -182,6 +185,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 .name(persona.getName())
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility())
+                .gameMode(persona.getGameMode())
                 .readerUsers(persona.getUsersAllowedToRead())
                 .writerUsers(persona.getUsersAllowedToWrite())
                 .creationDate(persona.getCreationDate())
@@ -209,6 +213,11 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                         "%" + query.getName().toUpperCase() + "%"));
             }
 
+            if (StringUtils.isNotBlank(query.getName())) {
+                predicates.add(cb.like(cb.upper(root.get("gameMode")),
+                        "%" + query.getGameMode().toUpperCase() + "%"));
+            }
+
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
     }
@@ -227,6 +236,11 @@ public class PersonaRepositoryImpl implements PersonaRepository {
             if (StringUtils.isNotBlank(query.getName())) {
                 predicates.add(cb.like(cb.upper(root.get("name")),
                         "%" + query.getName().toUpperCase() + "%"));
+            }
+
+            if (StringUtils.isNotBlank(query.getName())) {
+                predicates.add(cb.like(cb.upper(root.get("gameMode")),
+                        "%" + query.getGameMode().toUpperCase() + "%"));
             }
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));

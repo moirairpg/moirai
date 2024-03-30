@@ -31,6 +31,7 @@ public class PersonaResponse {
     private String bumpRole;
     private Integer bumpFrequency;
     private String visibility;
+    private String gameMode;
     private String ownerDiscordId;
     private List<String> writerUsers;
     private List<String> readerUsers;

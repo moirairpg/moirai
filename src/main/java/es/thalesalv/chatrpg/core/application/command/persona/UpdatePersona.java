@@ -18,6 +18,7 @@ public final class UpdatePersona extends UseCase<UpdatePersonaResult> {
     private final String bumpRole;
     private final String bumpContent;
     private final String visibility;
+    private final String gameMode;
     private final Integer bumpFrequency;
     private List<String> writerUsersToAdd;
     private List<String> writerUsersToRemove;

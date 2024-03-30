@@ -20,6 +20,7 @@ public class UpdatePersonaRequest {
     private final String bumpRole;
     private final String bumpContent;
     private final String visibility;
+    private final String gameMode;
     private final Integer bumpFrequency;
     private final List<String> writerUsersToAdd;
     private final List<String> writerUsersToRemove;

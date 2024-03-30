@@ -22,6 +22,7 @@ public final class GetPersonaResult {
     private final String bumpRole;
     private final int bumpFrequency;
     private final String visibility;
+    private final String gameMode;
     private final String ownerDiscordId;
     private final List<String> writerUsers;
     private final List<String> readerUsers;

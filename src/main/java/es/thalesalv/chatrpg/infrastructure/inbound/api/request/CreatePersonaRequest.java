@@ -20,6 +20,7 @@ public class CreatePersonaRequest {
     private final String bumpRole;
     private final String bumpContent;
     private final String visibility;
+    private final String gameMode;
     private final Integer bumpFrequency;
     private final List<String> writerUsers;
     private final List<String> readerUsers;

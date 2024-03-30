@@ -20,6 +20,7 @@ public class Persona extends ShareableAsset {
     private String personality;
     private Nudge nudge;
     private Bump bump;
+    private GameMode gameMode;
 
     private Persona(Builder builder) {
 
@@ -31,6 +32,7 @@ public class Persona extends ShareableAsset {
         this.personality = builder.personality;
         this.nudge = builder.nudge;
         this.bump = builder.bump;
+        this.gameMode = builder.gameMode;
     }
 
     public static Builder builder() {
@@ -78,6 +80,11 @@ public class Persona extends ShareableAsset {
         this.nudge = newNudge;
     }
 
+    public void updateGameMode(GameMode gameMode) {
+
+        this.gameMode = gameMode;
+    }
+
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
@@ -91,6 +98,7 @@ public class Persona extends ShareableAsset {
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+        private GameMode gameMode;
 
         public Builder id(String id) {
 
@@ -131,6 +139,12 @@ public class Persona extends ShareableAsset {
         public Builder permissions(Permissions permissions) {
 
             this.permissions = permissions;
+            return this;
+        }
+
+        public Builder gameMode(GameMode gameMode) {
+
+            this.gameMode = gameMode;
             return this;
         }
 

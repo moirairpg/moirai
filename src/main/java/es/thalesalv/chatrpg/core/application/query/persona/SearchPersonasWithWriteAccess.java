@@ -18,5 +18,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
     private final String sortByField;
     private final String direction;
     private final String name;
+    private final String gameMode;
     private final String requesterDiscordId;
 }
