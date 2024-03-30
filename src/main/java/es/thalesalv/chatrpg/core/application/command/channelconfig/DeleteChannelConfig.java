@@ -1,20 +1,19 @@
 package es.thalesalv.chatrpg.core.application.command.channelconfig;
 
 import es.thalesalv.chatrpg.common.usecases.UseCase;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DeleteChannelConfig extends UseCase<Void> {
 
     private final String id;
+    private final String requesterDiscordId;
 
-    private DeleteChannelConfig(String id) {
+    public static DeleteChannelConfig build(String id, String requesterDiscordId) {
 
-        this.id = id;
-    }
-
-    public static DeleteChannelConfig build(String id) {
-
-        return new DeleteChannelConfig(id);
+        return new DeleteChannelConfig(id, requesterDiscordId);
     }
 }

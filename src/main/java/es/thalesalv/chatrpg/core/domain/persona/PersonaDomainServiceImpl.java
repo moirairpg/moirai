@@ -134,13 +134,9 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
         }
 
         CollectionUtils.emptyIfNull(command.getReaderUsersToAdd())
-                .stream()
-                .filter(discordUserId -> !persona.canUserRead(discordUserId))
                 .forEach(persona::addReaderUser);
 
         CollectionUtils.emptyIfNull(command.getWriterUsersToAdd())
-                .stream()
-                .filter(discordUserId -> !persona.canUserWrite(discordUserId))
                 .forEach(persona::addWriterUser);
 
         CollectionUtils.emptyIfNull(command.getReaderUsersToRemove())

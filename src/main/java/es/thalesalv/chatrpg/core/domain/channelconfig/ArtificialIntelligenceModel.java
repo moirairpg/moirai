@@ -41,7 +41,7 @@ public enum ArtificialIntelligenceModel {
     public static ArtificialIntelligenceModel findByInternalModelName(String internalModelName) {
 
         return Arrays.stream(values())
-                .filter(aiModel -> aiModel.getInternalModelName().equals(internalModelName))
+                .filter(aiModel -> aiModel.getInternalModelName().equals(internalModelName.toLowerCase()))
                 .findFirst()
                 .orElseThrow(() -> new AIModelNotSupportedException("Unsupported model: " + internalModelName));
     }

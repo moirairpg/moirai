@@ -1,17 +1,19 @@
-package es.thalesalv.chatrpg.core.application.command.channelconfig;
+package es.thalesalv.chatrpg.infrastructure.inbound.api.request;
 
 import java.util.List;
 import java.util.Map;
 
-import es.thalesalv.chatrpg.common.usecases.UseCase;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder(builderClassName = "Builder")
-public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult> {
+@AllArgsConstructor
+public class UpdateChannelConfigRequest {
 
-    private final String id;
     private final String name;
     private final String worldId;
     private final String personaId;
@@ -31,5 +33,4 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
     private final List<String> writerUsersToRemove;
     private final List<String> readerUsersToAdd;
     private final List<String> readerUsersToRemove;
-    private final String requesterDiscordId;
 }

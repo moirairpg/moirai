@@ -36,7 +36,6 @@ public class UpdateChannelConfigHandlerTest {
                 .personaId("PRSNID")
                 .moderation("STRICT")
                 .visibility("PRIVATE")
-                .creatorDiscordId("CRTID")
                 .build();
 
         ChannelConfig expectedUpdatedChannelConfig = ChannelConfigFixture.sample().build();

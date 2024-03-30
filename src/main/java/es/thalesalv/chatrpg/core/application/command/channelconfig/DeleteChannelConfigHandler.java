@@ -3,9 +3,8 @@ package es.thalesalv.chatrpg.core.application.command.channelconfig;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
-import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
+import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigDomainService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -14,9 +13,8 @@ import lombok.RequiredArgsConstructor;
 public class DeleteChannelConfigHandler extends UseCaseHandler<DeleteChannelConfig, Void> {
 
     private static final String ID_CANNOT_BE_NULL_OR_EMPTY = "Channel config ID cannot be null or empty";
-    private static final String CANNOT_DELETE_NOT_FOUND = "Cannot delete non-existing channel config";
 
-    private final ChannelConfigRepository repository;
+    private final ChannelConfigDomainService domainService;
 
     @Override
     public void validate(DeleteChannelConfig command) {
@@ -29,11 +27,7 @@ public class DeleteChannelConfigHandler extends UseCaseHandler<DeleteChannelConf
     @Override
     public Void execute(DeleteChannelConfig command) {
 
-        // TODO extract real ID from principal when API is ready
-        repository.findById(command.getId())
-                .orElseThrow(() -> new AssetNotFoundException(CANNOT_DELETE_NOT_FOUND));
-
-        repository.deleteById(command.getId());
+        domainService.deleteChannelConfig(command);
 
         return null;
     }

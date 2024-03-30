@@ -13,7 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UpdatePersonaRequest {
 
-    private String id;
     private final String name;
     private final String personality;
     private final String nudgeRole;
@@ -22,8 +21,8 @@ public class UpdatePersonaRequest {
     private final String bumpContent;
     private final String visibility;
     private final Integer bumpFrequency;
-    private List<String> writerUsersToAdd;
-    private List<String> writerUsersToRemove;
-    private List<String> readerUsersToAdd;
-    private List<String> readerUsersToRemove;
+    private final List<String> writerUsersToAdd;
+    private final List<String> writerUsersToRemove;
+    private final List<String> readerUsersToAdd;
+    private final List<String> readerUsersToRemove;
 }

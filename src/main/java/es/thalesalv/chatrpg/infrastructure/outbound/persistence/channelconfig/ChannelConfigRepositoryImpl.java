@@ -138,6 +138,8 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
                 .creatorDiscordId(creatorOrOwnerDiscordId)
                 .usersAllowedToWrite(channelConfig.getWriterUsers())
                 .usersAllowedToRead(channelConfig.getReaderUsers())
+                .creationDate(channelConfig.getCreationDate())
+                .lastUpdateDate(channelConfig.getLastUpdateDate())
                 .build();
     }
 
@@ -180,14 +182,23 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
         return GetChannelConfigResult.builder()
                 .id(channelConfig.getId())
                 .name(channelConfig.getName())
-                .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
+                .personaId(channelConfig.getPersonaId())
                 .visibility(channelConfig.getVisibility())
-                .readerUsers(channelConfig.getUsersAllowedToRead())
-                .writerUsers(channelConfig.getUsersAllowedToWrite())
+                .aiModel(channelConfig.getModelConfiguration().getAiModel())
+                .moderation(channelConfig.getModeration())
+                .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
+                .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
+                .temperature(channelConfig.getModelConfiguration().getTemperature())
+                .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
+                .presencePenalty(channelConfig.getModelConfiguration().getPresencePenalty())
+                .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
+                .logitBias(channelConfig.getModelConfiguration().getLogitBias())
+                .usersAllowedToWrite(channelConfig.getUsersAllowedToWrite())
+                .usersAllowedToRead(channelConfig.getUsersAllowedToRead())
+                .ownerDiscordId(channelConfig.getOwnerDiscordId())
                 .creationDate(channelConfig.getCreationDate())
                 .lastUpdateDate(channelConfig.getLastUpdateDate())
-                .ownerDiscordId(channelConfig.getOwnerDiscordId())
                 .build();
     }
 

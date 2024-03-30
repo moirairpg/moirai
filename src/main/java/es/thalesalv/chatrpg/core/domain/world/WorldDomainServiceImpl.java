@@ -122,13 +122,9 @@ public class WorldDomainServiceImpl implements WorldDomainService {
         }
 
         CollectionUtils.emptyIfNull(command.getReaderUsersToAdd())
-                .stream()
-                .filter(discordUserId -> !world.canUserRead(discordUserId))
                 .forEach(world::addReaderUser);
 
         CollectionUtils.emptyIfNull(command.getWriterUsersToAdd())
-                .stream()
-                .filter(discordUserId -> !world.canUserWrite(discordUserId))
                 .forEach(world::addWriterUser);
 
         CollectionUtils.emptyIfNull(command.getReaderUsersToRemove())

@@ -169,6 +169,31 @@ public class PersonaDomainServiceImplTest {
     }
 
     @Test
+    public void errorWhenUpdatePersonaAccessDenied() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdatePersona command = UpdatePersona.builder()
+                .id(id)
+                .requesterDiscordId("USRID")
+                .build();
+
+        Persona persona = PersonaFixture.privatePersona()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
+    }
+
+    @Test
     public void findPersonaById() {
 
         // Given

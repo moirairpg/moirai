@@ -11,9 +11,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UpdateWorldLorebookEntryRequest {
 
-    private String name;
-    private String regex;
-    private String description;
-    private String playerDiscordId;
-    private boolean isPlayerCharacter;
+    private final String name;
+    private final String regex;
+    private final String description;
+    private final String playerDiscordId;
+    private final boolean isPlayerCharacter;
 }

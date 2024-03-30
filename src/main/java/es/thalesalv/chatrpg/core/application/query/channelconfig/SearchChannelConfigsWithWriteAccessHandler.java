@@ -16,7 +16,6 @@ public class SearchChannelConfigsWithWriteAccessHandler extends UseCaseHandler<S
     @Override
     public SearchChannelConfigsResult execute(SearchChannelConfigsWithWriteAccess query) {
 
-        // TODO extract real ID from principal when API is ready
         return repository.searchChannelConfigsWithWriteAccess(query);
     }
 }

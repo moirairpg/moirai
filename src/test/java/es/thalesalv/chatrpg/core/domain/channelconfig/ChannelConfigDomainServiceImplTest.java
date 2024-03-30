@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -14,10 +15,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfig;
 import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfigFixture;
+import es.thalesalv.chatrpg.core.application.command.channelconfig.DeleteChannelConfig;
 import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfig;
+import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfigFixture;
+import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfigById;
+import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class ChannelConfigDomainServiceImplTest {
@@ -80,24 +86,16 @@ public class ChannelConfigDomainServiceImplTest {
 
         // Given
         String id = "CHCONFID";
-
-        UpdateChannelConfig command = UpdateChannelConfig.builder()
-                .id(id)
-                .name("Name")
-                .worldId("WRLDID")
-                .personaId("PRSNID")
-                .moderation("STRICT")
-                .visibility("PRIVATE")
-                .creatorDiscordId("CRTID")
-                .aiModel("gpt35-16k")
-                .frequencyPenalty(0.2)
-                .presencePenalty(0.2)
-                .maxTokenLimit(100)
-                .messageHistorySize(25)
-                .temperature(1.0)
+        String requesterId = "RQSTRID";
+        UpdateChannelConfig command = UpdateChannelConfigFixture.sample()
+                .requesterDiscordId(requesterId)
                 .build();
 
-        ChannelConfig unchangedChannelConfig = ChannelConfigFixture.sample().build();
+        ChannelConfig unchangedChannelConfig = ChannelConfigFixture.sample()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
 
         ChannelConfig expectedUpdatedChannelConfig = ChannelConfigFixture.sample()
                 .id(id)
@@ -113,5 +111,151 @@ public class ChannelConfigDomainServiceImplTest {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo(expectedUpdatedChannelConfig.getName());
+    }
+
+    @Test
+    public void errorWhenUpdateChannelConfigAccessDenied() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateChannelConfig command = UpdateChannelConfig.builder()
+                .id(id)
+                .requesterDiscordId("USRID")
+                .build();
+
+        ChannelConfig world = ChannelConfigFixture.sample()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
+    }
+
+    @Test
+    public void errorWhenDeleteChannelConfigNotFound() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        DeleteChannelConfig command = DeleteChannelConfig.build(id, requesterId);
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.deleteChannelConfig(command));
+    }
+
+    @Test
+    public void errorWhenDeleteChannelConfigAccessDenied() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        DeleteChannelConfig command = DeleteChannelConfig.build(id, requesterId);
+
+        ChannelConfig persona = ChannelConfigFixture.sample()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.deleteChannelConfig(command));
+    }
+
+    @Test
+    public void deleteChannelConfig() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        DeleteChannelConfig command = DeleteChannelConfig.build(id, requesterId);
+
+        ChannelConfig persona = ChannelConfigFixture.sample()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
+
+        // Then
+        service.deleteChannelConfig(command);
+    }
+
+    @Test
+    public void findChannelConfigById() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        GetChannelConfigById query = GetChannelConfigById.build(id, requesterId);
+
+        ChannelConfig persona = ChannelConfigFixture.sample()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
+
+        // When
+        ChannelConfig result = service.getChannelConfigById(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo(persona.getName());
+    }
+
+    @Test
+    public void errorWhenFindChannelConfigNotFound() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        GetChannelConfigById query = GetChannelConfigById.build(id, requesterId);
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.getChannelConfigById(query));
+    }
+
+    @Test
+    public void errorWhenFindChannelConfigAccessDenied() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        GetChannelConfigById query = GetChannelConfigById.build(id, requesterId);
+
+        ChannelConfig persona = ChannelConfigFixture.sample()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .usersAllowedToRead(Collections.emptyList())
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.getChannelConfigById(query));
     }
 }

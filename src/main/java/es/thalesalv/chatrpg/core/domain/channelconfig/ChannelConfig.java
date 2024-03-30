@@ -50,6 +50,11 @@ public class ChannelConfig extends ShareableAsset {
         this.personaId = personaId;
     }
 
+    public void updateWorld(String worldId) {
+
+        this.worldId = worldId;
+    }
+
     public void updateModeration(Moderation moderation) {
 
         this.moderation = moderation;

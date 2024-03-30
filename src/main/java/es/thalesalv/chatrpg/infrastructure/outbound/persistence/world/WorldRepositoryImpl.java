@@ -156,7 +156,7 @@ public class WorldRepositoryImpl implements WorldRepository {
                 .name(world.getName())
                 .description(world.getDescription())
                 .adventureStart(world.getAdventureStart())
-                .visibility(world.getVisibility().toString())
+                .visibility(world.getVisibility())
                 .ownerDiscordId(world.getOwnerDiscordId())
                 .creationDate(world.getCreationDate())
                 .lastUpdateDate(world.getLastUpdateDate())

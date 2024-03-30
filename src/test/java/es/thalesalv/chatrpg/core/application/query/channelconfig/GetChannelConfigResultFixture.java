@@ -1,14 +1,15 @@
-package es.thalesalv.chatrpg.core.application.command.channelconfig;
+package es.thalesalv.chatrpg.core.application.query.channelconfig;
 
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigFixture;
 
-public class CreateChannelConfigFixture {
+public class GetChannelConfigResultFixture {
 
-    public static CreateChannelConfig.Builder sample() {
+    public static GetChannelConfigResult.Builder sample() {
 
         ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
-        return CreateChannelConfig.builder()
+        return GetChannelConfigResult.builder()
+                .id(channelConfig.getId())
                 .name(channelConfig.getName())
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
@@ -18,10 +19,10 @@ public class CreateChannelConfigFixture {
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
                 .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
                 .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
-                .moderation("strict")
-                .readerUsers(channelConfig.getReaderUsers())
-                .writerUsers(channelConfig.getWriterUsers())
-                .temperature(1.7)
-                .visibility("private");
+                .moderation(channelConfig.getModeration().name())
+                .usersAllowedToRead(channelConfig.getReaderUsers())
+                .usersAllowedToWrite(channelConfig.getWriterUsers())
+                .temperature(channelConfig.getModelConfiguration().getTemperature())
+                .visibility(channelConfig.getVisibility().name());
     }
 }

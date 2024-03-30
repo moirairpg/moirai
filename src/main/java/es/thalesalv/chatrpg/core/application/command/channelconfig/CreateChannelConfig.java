@@ -24,7 +24,7 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
     private final Double presencePenalty;
     private final List<String> stopSequences;
     private final Map<String, Double> logitBias;
-    private final String creatorDiscordId;
     private final List<String> writerUsers;
     private final List<String> readerUsers;
+    private final String requesterDiscordId;
 }

@@ -10,9 +10,10 @@ import lombok.RequiredArgsConstructor;
 public final class GetChannelConfigById extends UseCase<GetChannelConfigResult> {
 
     private final String id;
+    private final String requesterDiscordId;
 
-    public static GetChannelConfigById build(String id) {
+    public static GetChannelConfigById build(String id, String requesterDiscordId) {
 
-        return new GetChannelConfigById(id);
+        return new GetChannelConfigById(id, requesterDiscordId);
     }
 }
