@@ -19,6 +19,7 @@ public class ChannelConfig extends ShareableAsset {
     private String name;
     private String worldId;
     private String personaId;
+    private String discordChannelId;
     private ModelConfiguration modelConfiguration;
     private Moderation moderation;
 
@@ -31,6 +32,7 @@ public class ChannelConfig extends ShareableAsset {
         this.name = builder.name;
         this.worldId = builder.worldId;
         this.personaId = builder.personaId;
+        this.discordChannelId = builder.discordChannelId;
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
     }
@@ -53,6 +55,11 @@ public class ChannelConfig extends ShareableAsset {
     public void updateWorld(String worldId) {
 
         this.worldId = worldId;
+    }
+
+    public void updateDiscordChannel(String discordChannelId) {
+
+        this.discordChannelId = discordChannelId;
     }
 
     public void updateModeration(Moderation moderation) {
@@ -127,6 +134,7 @@ public class ChannelConfig extends ShareableAsset {
         private String name;
         private String worldId;
         private String personaId;
+        private String discordChannelId;
         private ModelConfiguration modelConfiguration;
         private Moderation moderation;
         private Visibility visibility;
@@ -156,6 +164,12 @@ public class ChannelConfig extends ShareableAsset {
         public Builder personaId(String personaId) {
 
             this.personaId = personaId;
+            return this;
+        }
+
+        public Builder discordChannelId(String discordChannelId) {
+
+            this.discordChannelId = discordChannelId;
             return this;
         }
 
@@ -205,6 +219,10 @@ public class ChannelConfig extends ShareableAsset {
 
             if (StringUtils.isBlank(name)) {
                 throw new BusinessRuleViolationException("Channel config name cannot be null or empty");
+            }
+
+            if (StringUtils.isBlank(discordChannelId)) {
+                throw new BusinessRuleViolationException("Discord channel ID cannot be null or empty");
             }
 
             if (modelConfiguration == null) {

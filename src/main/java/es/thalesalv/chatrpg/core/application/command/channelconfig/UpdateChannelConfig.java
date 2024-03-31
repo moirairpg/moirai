@@ -15,6 +15,7 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
     private final String name;
     private final String worldId;
     private final String personaId;
+    private final String discordChannelId;
     private final String visibility;
     private final String aiModel;
     private final String moderation;
@@ -27,9 +28,9 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
     private final List<String> stopSequencesToRemove;
     private final Map<String, Double> logitBiasToAdd;
     private final List<String> logitBiasToRemove;
-    private final List<String> writerUsersToAdd;
-    private final List<String> writerUsersToRemove;
-    private final List<String> readerUsersToAdd;
-    private final List<String> readerUsersToRemove;
+    private final List<String> usersAllowedToWriteToAdd;
+    private final List<String> usersAllowedToWriteToRemove;
+    private final List<String> usersAllowedToReadToAdd;
+    private final List<String> usersAllowedToReadToRemove;
     private final String requesterDiscordId;
 }

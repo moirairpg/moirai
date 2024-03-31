@@ -37,8 +37,8 @@ public class GetPersonaByIdHandler extends UseCaseHandler<GetPersonaById, GetPer
                 .creationDate(persona.getCreationDate())
                 .lastUpdateDate(persona.getLastUpdateDate())
                 .ownerDiscordId(persona.getOwnerDiscordId())
-                .readerUsers(persona.getReaderUsers())
-                .writerUsers(persona.getWriterUsers())
+                .usersAllowedToRead(persona.getUsersAllowedToRead())
+                .usersAllowedToWrite(persona.getUsersAllowedToWrite())
                 .build();
     }
 }

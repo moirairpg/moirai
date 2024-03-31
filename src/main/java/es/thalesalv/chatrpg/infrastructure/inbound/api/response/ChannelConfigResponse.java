@@ -27,6 +27,7 @@ public class ChannelConfigResponse {
     private String name;
     private String worldId;
     private String personaId;
+    private String discordChannelId;
     private String visibility;
     private String aiModel;
     private String moderation;

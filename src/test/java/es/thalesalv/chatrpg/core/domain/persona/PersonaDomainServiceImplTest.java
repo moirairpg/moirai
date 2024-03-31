@@ -81,8 +81,8 @@ public class PersonaDomainServiceImplTest {
         assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
         assertThat(createdPersona.getName()).isEqualTo(expectedPersona.getName());
         assertThat(createdPersona.getOwnerDiscordId()).isEqualTo(expectedPersona.getOwnerDiscordId());
-        assertThat(createdPersona.getWriterUsers()).isEqualTo(expectedPersona.getWriterUsers());
-        assertThat(createdPersona.getReaderUsers()).isEqualTo(expectedPersona.getReaderUsers());
+        assertThat(createdPersona.getUsersAllowedToWrite()).isEqualTo(expectedPersona.getUsersAllowedToWrite());
+        assertThat(createdPersona.getUsersAllowedToRead()).isEqualTo(expectedPersona.getUsersAllowedToRead());
         assertThat(createdPersona.getPersonality()).isEqualTo(expectedPersona.getPersonality());
         assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
     }
@@ -108,8 +108,8 @@ public class PersonaDomainServiceImplTest {
                 .bumpFrequency(5)
                 .visibility(visibility)
                 .requesterDiscordId(permissions.getOwnerDiscordId())
-                .readerUsers(permissions.getUsersAllowedToRead())
-                .writerUsers(permissions.getUsersAllowedToWrite())
+                .usersAllowedToRead(permissions.getUsersAllowedToRead())
+                .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
                 .build();
 
         ReflectionTestUtils.setField(service, "personalityTokenLimit", 2);
@@ -141,8 +141,8 @@ public class PersonaDomainServiceImplTest {
                 .bumpFrequency(0)
                 .visibility(visibility)
                 .requesterDiscordId(permissions.getOwnerDiscordId())
-                .readerUsers(permissions.getUsersAllowedToRead())
-                .writerUsers(permissions.getUsersAllowedToWrite())
+                .usersAllowedToRead(permissions.getUsersAllowedToRead())
+                .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
                 .build();
 
         ReflectionTestUtils.setField(service, "personalityTokenLimit", 20);

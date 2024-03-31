@@ -18,6 +18,7 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordAuthReques
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordErrorResponse;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordUserDataResponse;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import reactor.test.StepVerifier;
@@ -257,6 +258,88 @@ public class DiscordAuthenticationAdapterTest {
 
         // Then
         StepVerifier.create(adapter.logout(request))
+                .verifyError(DiscordApiException.class);
+    }
+
+    @Test
+    public void getLoggedUser() throws JsonProcessingException {
+
+        // Given
+        String token = "TOKEN";
+
+        DiscordUserDataResponse response = DiscordUserDataResponse.builder()
+                .displayName("displayName")
+                .username("username")
+                .email("email@email.com")
+                .build();
+
+        mockBackEnd.enqueue(new MockResponse()
+                .setBody(objectMapper.writeValueAsString(response))
+                .addHeader("Content-Type", "application/json"));
+
+        // Then
+        StepVerifier.create(adapter.retrieveLoggedUser(token))
+                .assertNext(resp -> {
+                    assertThat(resp).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void unauthorizedWhenGetLoggedUser() {
+
+        // Given
+        String token = "TOKEN";
+
+        mockBackEnd.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .addHeader("Content-Type", "application/json"));
+
+        // Then
+        StepVerifier.create(adapter.retrieveLoggedUser(token))
+                .expectError(DiscordApiException.class)
+                .verify();
+    }
+
+    @Test
+    public void badRequestWhenGetLoggedUser() throws JsonProcessingException {
+
+        // Given
+        String token = "TOKEN";
+
+        DiscordErrorResponse errorResponse = DiscordErrorResponse.builder()
+                .errorDescription(DUMMY_VALUE)
+                .error(DUMMY_VALUE)
+                .build();
+
+        mockBackEnd.enqueue(new MockResponse()
+                .setResponseCode(400)
+                .setBody(objectMapper.writeValueAsString(errorResponse))
+                .addHeader("Content-Type", "application/json"));
+
+        // Then
+        StepVerifier.create(adapter.retrieveLoggedUser(token))
+                .verifyError(DiscordApiException.class);
+    }
+
+    @Test
+    public void internalErrorWhenGetLoggedUser() throws JsonProcessingException {
+
+        // Given
+        String token = "TOKEN";
+
+        DiscordErrorResponse errorResponse = DiscordErrorResponse.builder()
+                .errorDescription(DUMMY_VALUE)
+                .error(DUMMY_VALUE)
+                .build();
+
+        mockBackEnd.enqueue(new MockResponse()
+                .setResponseCode(500)
+                .setBody(objectMapper.writeValueAsString(errorResponse))
+                .addHeader("Content-Type", "application/json"));
+
+        // Then
+        StepVerifier.create(adapter.retrieveLoggedUser(token))
                 .verifyError(DiscordApiException.class);
     }
 }

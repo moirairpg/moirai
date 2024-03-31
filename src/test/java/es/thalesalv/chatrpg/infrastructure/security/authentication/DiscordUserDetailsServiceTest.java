@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.application.port.DiscordUserDetailsPort;
+import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordUserDataResponse;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -19,7 +19,7 @@ import reactor.test.StepVerifier;
 public class DiscordUserDetailsServiceTest {
 
     @Mock
-    private DiscordUserDetailsPort discordUserDetailsPort;
+    private DiscordAuthenticationPort discordAuthenticationPort;
 
     @InjectMocks
     private DiscordUserDetailsService service;
@@ -36,7 +36,7 @@ public class DiscordUserDetailsServiceTest {
                 .email("email@email.com")
                 .build();
 
-        when(discordUserDetailsPort.retrieveLoggedUser(anyString())).thenReturn(Mono.just(response));
+        when(discordAuthenticationPort.retrieveLoggedUser(anyString())).thenReturn(Mono.just(response));
 
         // Then
         StepVerifier.create(service.findByUsername(token))

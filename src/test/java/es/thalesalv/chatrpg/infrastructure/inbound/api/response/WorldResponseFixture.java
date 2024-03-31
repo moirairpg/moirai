@@ -17,8 +17,8 @@ public class WorldResponseFixture {
                 .visibility(world.getVisibility().toString())
                 .ownerDiscordId(world.getOwnerDiscordId())
                 .creationDate(world.getCreationDate())
-                .usersAllowedToRead(world.getReaderUsers())
-                .usersAllowedToWrite(world.getWriterUsers());
+                .usersAllowedToRead(world.getUsersAllowedToRead())
+                .usersAllowedToWrite(world.getUsersAllowedToWrite());
     }
 
     public static WorldResponse.Builder privateWorld() {
@@ -33,7 +33,7 @@ public class WorldResponseFixture {
                 .visibility(world.getVisibility().toString())
                 .ownerDiscordId(world.getOwnerDiscordId())
                 .creationDate(world.getCreationDate())
-                .usersAllowedToRead(world.getReaderUsers())
-                .usersAllowedToWrite(world.getWriterUsers());
+                .usersAllowedToRead(world.getUsersAllowedToRead())
+                .usersAllowedToWrite(world.getUsersAllowedToWrite());
     }
 }

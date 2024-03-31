@@ -14,6 +14,7 @@ public class UpdateChannelConfigRequestFixture {
                 .name(channelConfig.getName())
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
+                .discordChannelId(channelConfig.getDiscordChannelId())
                 .aiModel(channelConfig.getModelConfiguration().getAiModel().toString())
                 .stopSequencesToAdd(channelConfig.getModelConfiguration().getStopSequences())
                 .stopSequencesToRemove(channelConfig.getModelConfiguration().getStopSequences())
@@ -23,10 +24,10 @@ public class UpdateChannelConfigRequestFixture {
                 .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
                 .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
                 .moderation(channelConfig.getModeration().name())
-                .writerUsersToAdd(Collections.singletonList("USRID"))
-                .writerUsersToRemove(Collections.singletonList("USRID"))
-                .readerUsersToAdd(Collections.singletonList("USRID"))
-                .readerUsersToRemove(Collections.singletonList("USRID"))
+                .usersAllowedToWriteToAdd(Collections.singletonList("USRID"))
+                .usersAllowedToWriteToRemove(Collections.singletonList("USRID"))
+                .usersAllowedToReadToAdd(Collections.singletonList("USRID"))
+                .usersAllowedToReadToRemove(Collections.singletonList("USRID"))
                 .temperature(1.7)
                 .visibility(channelConfig.getVisibility().name());
     }

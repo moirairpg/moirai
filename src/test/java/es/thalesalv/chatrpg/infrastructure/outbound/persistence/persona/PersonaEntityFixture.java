@@ -17,8 +17,8 @@ public class PersonaEntityFixture {
         builder.gameMode(persona.getGameMode().name());
         builder.ownerDiscordId(persona.getOwnerDiscordId());
         builder.creatorDiscordId(persona.getCreatorDiscordId());
-        builder.usersAllowedToRead(persona.getReaderUsers());
-        builder.usersAllowedToWrite(persona.getWriterUsers());
+        builder.usersAllowedToRead(persona.getUsersAllowedToRead());
+        builder.usersAllowedToWrite(persona.getUsersAllowedToWrite());
 
         NudgeEntity nudge = NudgeEntity.builder()
                 .content(persona.getNudge().getContent())
@@ -50,8 +50,8 @@ public class PersonaEntityFixture {
         builder.gameMode(persona.getGameMode().name());
         builder.ownerDiscordId(persona.getOwnerDiscordId());
         builder.creatorDiscordId(persona.getCreatorDiscordId());
-        builder.usersAllowedToRead(persona.getReaderUsers());
-        builder.usersAllowedToWrite(persona.getWriterUsers());
+        builder.usersAllowedToRead(persona.getUsersAllowedToRead());
+        builder.usersAllowedToWrite(persona.getUsersAllowedToWrite());
 
         NudgeEntity nudge = NudgeEntity.builder()
                 .content(persona.getNudge().getContent())

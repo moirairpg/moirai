@@ -14,6 +14,7 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
     private final String name;
     private final String worldId;
     private final String personaId;
+    private final String discordChannelId;
     private final String visibility;
     private final String aiModel;
     private final String moderation;
@@ -24,7 +25,7 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
     private final Double presencePenalty;
     private final List<String> stopSequences;
     private final Map<String, Double> logitBias;
-    private final List<String> writerUsers;
-    private final List<String> readerUsers;
+    private final List<String> usersAllowedToWrite;
+    private final List<String> usersAllowedToRead;
     private final String requesterDiscordId;
 }

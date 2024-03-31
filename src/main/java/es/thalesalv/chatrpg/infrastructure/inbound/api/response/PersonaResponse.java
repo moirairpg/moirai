@@ -33,8 +33,8 @@ public class PersonaResponse {
     private String visibility;
     private String gameMode;
     private String ownerDiscordId;
-    private List<String> writerUsers;
-    private List<String> readerUsers;
+    private List<String> usersAllowedToWrite;
+    private List<String> usersAllowedToRead;
     private OffsetDateTime creationDate;
     private OffsetDateTime lastUpdateDate;
 }

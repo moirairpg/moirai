@@ -16,11 +16,15 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordPrincipal;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordUserDetailsService;
+import net.dv8tion.jda.api.JDA;
 import reactor.core.publisher.Mono;
 
 @WebFluxTest
 @ExtendWith(MockitoExtension.class)
 public class AbstractRestWebTest {
+
+    @MockBean
+    private JDA jda;
 
     @MockBean
     protected UseCaseRunner useCaseRunner;

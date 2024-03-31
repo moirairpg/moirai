@@ -27,8 +27,8 @@ public class CreateWorldFixture {
                 .adventureStart(world.getAdventureStart())
                 .visibility(world.getVisibility().toString())
                 .requesterDiscordId(world.getOwnerDiscordId())
-                .writerUsers(world.getWriterUsers())
-                .readerUsers(world.getReaderUsers())
+                .usersAllowedToWrite(world.getUsersAllowedToWrite())
+                .usersAllowedToRead(world.getUsersAllowedToRead())
                 .lorebookEntries(lorebookEntries);
     }
 }

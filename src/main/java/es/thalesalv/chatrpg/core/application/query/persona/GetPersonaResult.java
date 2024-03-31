@@ -24,8 +24,8 @@ public final class GetPersonaResult {
     private final String visibility;
     private final String gameMode;
     private final String ownerDiscordId;
-    private final List<String> writerUsers;
-    private final List<String> readerUsers;
+    private final List<String> usersAllowedToWrite;
+    private final List<String> usersAllowedToRead;
     private final OffsetDateTime creationDate;
     private final OffsetDateTime lastUpdateDate;
 }

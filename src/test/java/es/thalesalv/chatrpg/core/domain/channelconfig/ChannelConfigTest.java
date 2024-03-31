@@ -27,6 +27,7 @@ public class ChannelConfigTest {
         channelConfigBuilder.name("Name");
         channelConfigBuilder.worldId("WRLDID");
         channelConfigBuilder.personaId("PRSNID");
+        channelConfigBuilder.discordChannelId("CHNLID");
         channelConfigBuilder.moderation(Moderation.STRICT);
         channelConfigBuilder.visibility(Visibility.fromString("PRIVATE"));
         channelConfigBuilder.modelConfiguration(ModelConfigurationFixture.gpt3516k().build());
@@ -131,7 +132,7 @@ public class ChannelConfigTest {
         channelConfig.addWriterUser(userId);
 
         // Then
-        assertThat(channelConfig.getWriterUsers()).contains(userId);
+        assertThat(channelConfig.getUsersAllowedToWrite()).contains(userId);
     }
 
     @Test
@@ -151,7 +152,7 @@ public class ChannelConfigTest {
         channelConfig.addReaderUser(userId);
 
         // Then
-        assertThat(channelConfig.getReaderUsers()).contains(userId);
+        assertThat(channelConfig.getUsersAllowedToRead()).contains(userId);
     }
 
     @Test
@@ -175,7 +176,7 @@ public class ChannelConfigTest {
         channelConfig.removeReaderUser(userId);
 
         // Then
-        assertThat(channelConfig.getReaderUsers()).doesNotContain(userId);
+        assertThat(channelConfig.getUsersAllowedToRead()).doesNotContain(userId);
     }
 
     @Test
@@ -199,7 +200,7 @@ public class ChannelConfigTest {
         channelConfig.removeWriterUser(userId);
 
         // Then
-        assertThat(channelConfig.getWriterUsers()).doesNotContain(userId);
+        assertThat(channelConfig.getUsersAllowedToWrite()).doesNotContain(userId);
     }
 
     @Test

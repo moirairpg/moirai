@@ -73,8 +73,8 @@ public class WorldDomainServiceImplTest {
                 .description(description)
                 .visibility(visibility)
                 .requesterDiscordId(permissions.getOwnerDiscordId())
-                .readerUsers(permissions.getUsersAllowedToRead())
-                .writerUsers(permissions.getUsersAllowedToWrite())
+                .usersAllowedToRead(permissions.getUsersAllowedToRead())
+                .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
                 .lorebookEntries(Collections.singletonList(CreateLorebookEntryFixture.sampleLorebookEntry().build()))
                 .build();
 
@@ -87,8 +87,8 @@ public class WorldDomainServiceImplTest {
         assertThat(createdWorld).isNotNull().isEqualTo(expectedWorld);
         assertThat(createdWorld.getName()).isEqualTo(expectedWorld.getName());
         assertThat(createdWorld.getOwnerDiscordId()).isEqualTo(expectedWorld.getOwnerDiscordId());
-        assertThat(createdWorld.getWriterUsers()).isEqualTo(expectedWorld.getWriterUsers());
-        assertThat(createdWorld.getReaderUsers()).isEqualTo(expectedWorld.getReaderUsers());
+        assertThat(createdWorld.getUsersAllowedToWrite()).isEqualTo(expectedWorld.getUsersAllowedToWrite());
+        assertThat(createdWorld.getUsersAllowedToRead()).isEqualTo(expectedWorld.getUsersAllowedToRead());
         assertThat(createdWorld.getDescription()).isEqualTo(expectedWorld.getDescription());
         assertThat(createdWorld.getAdventureStart()).isEqualTo(expectedWorld.getAdventureStart());
         assertThat(createdWorld.getVisibility()).isEqualTo(expectedWorld.getVisibility());
@@ -118,8 +118,8 @@ public class WorldDomainServiceImplTest {
                 .description(description)
                 .visibility(visibility)
                 .requesterDiscordId(permissions.getOwnerDiscordId())
-                .readerUsers(permissions.getUsersAllowedToRead())
-                .writerUsers(permissions.getUsersAllowedToWrite())
+                .usersAllowedToRead(permissions.getUsersAllowedToRead())
+                .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
                 .build();
 
         when(worldRepository.save(any(World.class))).thenReturn(expectedWorld);
@@ -131,8 +131,8 @@ public class WorldDomainServiceImplTest {
         assertThat(createdWorld).isNotNull().isEqualTo(expectedWorld);
         assertThat(createdWorld.getName()).isEqualTo(expectedWorld.getName());
         assertThat(createdWorld.getOwnerDiscordId()).isEqualTo(expectedWorld.getOwnerDiscordId());
-        assertThat(createdWorld.getWriterUsers()).isEqualTo(expectedWorld.getWriterUsers());
-        assertThat(createdWorld.getReaderUsers()).isEqualTo(expectedWorld.getReaderUsers());
+        assertThat(createdWorld.getUsersAllowedToWrite()).isEqualTo(expectedWorld.getUsersAllowedToWrite());
+        assertThat(createdWorld.getUsersAllowedToRead()).isEqualTo(expectedWorld.getUsersAllowedToRead());
         assertThat(createdWorld.getDescription()).isEqualTo(expectedWorld.getDescription());
         assertThat(createdWorld.getAdventureStart()).isEqualTo(expectedWorld.getAdventureStart());
         assertThat(createdWorld.getVisibility()).isEqualTo(expectedWorld.getVisibility());
@@ -154,8 +154,8 @@ public class WorldDomainServiceImplTest {
                 .description(description)
                 .visibility(visibility)
                 .requesterDiscordId(permissions.getOwnerDiscordId())
-                .readerUsers(permissions.getUsersAllowedToRead())
-                .writerUsers(permissions.getUsersAllowedToWrite())
+                .usersAllowedToRead(permissions.getUsersAllowedToRead())
+                .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
                 .build();
 
         ReflectionTestUtils.setField(service, "adventureStartTokenLimit", 2);

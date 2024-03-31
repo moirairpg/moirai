@@ -15,6 +15,7 @@ public class UpdateChannelConfigFixture {
                 .name(channelConfig.getName())
                 .worldId(channelConfig.getWorldId())
                 .personaId(channelConfig.getPersonaId())
+                .discordChannelId(channelConfig.getDiscordChannelId())
                 .visibility(channelConfig.getVisibility().name())
                 .aiModel(channelConfig.getModelConfiguration().getAiModel().getInternalModelName())
                 .moderation(channelConfig.getModeration().name())
@@ -27,10 +28,10 @@ public class UpdateChannelConfigFixture {
                 .stopSequencesToRemove(channelConfig.getModelConfiguration().getStopSequences())
                 .logitBiasToAdd(channelConfig.getModelConfiguration().getLogitBias())
                 .logitBiasToRemove(Collections.singletonList("TKN"))
-                .writerUsersToAdd(Collections.singletonList("USRID"))
-                .writerUsersToRemove(Collections.singletonList("USRID"))
-                .readerUsersToAdd(Collections.singletonList("USRID"))
-                .readerUsersToRemove(Collections.singletonList("USRID"))
+                .usersAllowedToWriteToAdd(Collections.singletonList("USRID"))
+                .usersAllowedToWriteToRemove(Collections.singletonList("USRID"))
+                .usersAllowedToReadToAdd(Collections.singletonList("USRID"))
+                .usersAllowedToReadToRemove(Collections.singletonList("USRID"))
                 .requesterDiscordId(channelConfig.getOwnerDiscordId());
     }
 }

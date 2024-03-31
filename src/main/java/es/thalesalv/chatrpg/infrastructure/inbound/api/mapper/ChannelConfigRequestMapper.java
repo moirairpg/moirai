@@ -29,8 +29,8 @@ public class ChannelConfigRequestMapper {
                 .presencePenalty(request.getPresencePenalty())
                 .stopSequences(request.getStopSequences())
                 .logitBias(request.getLogitBias())
-                .writerUsers(request.getWriterUsers())
-                .readerUsers(request.getReaderUsers())
+                .usersAllowedToWrite(request.getUsersAllowedToWrite())
+                .usersAllowedToRead(request.getUsersAllowedToRead())
                 .requesterDiscordId(requesterDiscordId)
                 .build();
     }
@@ -54,10 +54,10 @@ public class ChannelConfigRequestMapper {
                 .stopSequencesToRemove(request.getStopSequencesToRemove())
                 .logitBiasToAdd(request.getLogitBiasToAdd())
                 .logitBiasToRemove(request.getLogitBiasToRemove())
-                .writerUsersToAdd(request.getWriterUsersToAdd())
-                .writerUsersToRemove(request.getWriterUsersToRemove())
-                .readerUsersToAdd(request.getReaderUsersToAdd())
-                .readerUsersToRemove(request.getReaderUsersToRemove())
+                .usersAllowedToWriteToAdd(request.getUsersAllowedToWriteToAdd())
+                .usersAllowedToWriteToRemove(request.getUsersAllowedToWriteToRemove())
+                .usersAllowedToReadToAdd(request.getUsersAllowedToReadToAdd())
+                .usersAllowedToReadToRemove(request.getUsersAllowedToReadToRemove())
                 .requesterDiscordId(requesterDiscordId)
                 .build();
     }

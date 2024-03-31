@@ -15,9 +15,9 @@ public final class UpdateWorld extends UseCase<UpdateWorldResult> {
     private final String description;
     private final String adventureStart;
     private final String visibility;
-    private final List<String> writerUsersToAdd;
-    private final List<String> writerUsersToRemove;
-    private final List<String> readerUsersToAdd;
-    private final List<String> readerUsersToRemove;
+    private final List<String> usersAllowedToWriteToAdd;
+    private final List<String> usersAllowedToWriteToRemove;
+    private final List<String> usersAllowedToReadToAdd;
+    private final List<String> usersAllowedToReadToRemove;
     private final String requesterDiscordId;
 }

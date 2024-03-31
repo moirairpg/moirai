@@ -147,7 +147,7 @@ public class PersonaTest {
         persona.addWriterUser(userId);
 
         // Then
-        assertThat(persona.getWriterUsers()).contains(userId);
+        assertThat(persona.getUsersAllowedToWrite()).contains(userId);
     }
 
     @Test
@@ -167,7 +167,7 @@ public class PersonaTest {
         persona.addReaderUser(userId);
 
         // Then
-        assertThat(persona.getReaderUsers()).contains(userId);
+        assertThat(persona.getUsersAllowedToRead()).contains(userId);
     }
 
     @Test
@@ -191,7 +191,7 @@ public class PersonaTest {
         persona.removeReaderUser(userId);
 
         // Then
-        assertThat(persona.getReaderUsers()).doesNotContain(userId);
+        assertThat(persona.getUsersAllowedToRead()).doesNotContain(userId);
     }
 
     @Test
@@ -215,7 +215,7 @@ public class PersonaTest {
         persona.removeWriterUser(userId);
 
         // Then
-        assertThat(persona.getWriterUsers()).doesNotContain(userId);
+        assertThat(persona.getUsersAllowedToWrite()).doesNotContain(userId);
     }
 
     @Test

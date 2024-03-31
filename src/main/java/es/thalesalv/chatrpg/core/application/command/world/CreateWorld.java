@@ -15,7 +15,7 @@ public final class CreateWorld extends UseCase<CreateWorldResult> {
     private final String adventureStart;
     private final String visibility;
     private final List<CreateWorldLorebookEntry> lorebookEntries;
-    private final List<String> writerUsers;
-    private final List<String> readerUsers;
+    private final List<String> usersAllowedToWrite;
+    private final List<String> usersAllowedToRead;
     private final String requesterDiscordId;
 }

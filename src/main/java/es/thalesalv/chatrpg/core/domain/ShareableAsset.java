@@ -88,12 +88,12 @@ public abstract class ShareableAsset extends Asset {
         this.permissions = newPermissions;
     }
 
-    public List<String> getWriterUsers() {
+    public List<String> getUsersAllowedToWrite() {
 
         return Collections.unmodifiableList(this.permissions.getUsersAllowedToWrite());
     }
 
-    public List<String> getReaderUsers() {
+    public List<String> getUsersAllowedToRead() {
 
         return Collections.unmodifiableList(this.permissions.getUsersAllowedToRead());
     }

@@ -30,6 +30,6 @@ public class CreateWorldRequest {
     @NotEmpty(message = "cannot be empty")
     @NotNull(message = "cannot be null")
     private String visibility;
-    private List<String> writerUsers;
-    private List<String> readerUsers;
+    private List<String> usersAllowedToWrite;
+    private List<String> usersAllowedToRead;
 }

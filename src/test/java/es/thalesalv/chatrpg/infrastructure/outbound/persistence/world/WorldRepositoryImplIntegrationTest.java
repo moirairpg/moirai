@@ -52,8 +52,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
 
         assertThat(createdWorld.getName()).isEqualTo(world.getName());
         assertThat(createdWorld.getVisibility()).isEqualTo(world.getVisibility());
-        assertThat(createdWorld.getWriterUsers()).hasSameElementsAs(world.getWriterUsers());
-        assertThat(createdWorld.getReaderUsers()).hasSameElementsAs(world.getReaderUsers());
+        assertThat(createdWorld.getUsersAllowedToWrite()).hasSameElementsAs(world.getUsersAllowedToWrite());
+        assertThat(createdWorld.getUsersAllowedToRead()).hasSameElementsAs(world.getUsersAllowedToRead());
     }
 
     @Test

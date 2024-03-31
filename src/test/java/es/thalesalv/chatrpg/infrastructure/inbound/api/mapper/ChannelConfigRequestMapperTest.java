@@ -44,8 +44,8 @@ public class ChannelConfigRequestMapperTest {
         assertThat(command.getPresencePenalty()).isEqualTo(request.getPresencePenalty());
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
         assertThat(command.getStopSequences()).hasSameElementsAs(request.getStopSequences());
-        assertThat(command.getReaderUsers()).hasSameElementsAs(request.getReaderUsers());
-        assertThat(command.getWriterUsers()).hasSameElementsAs(request.getWriterUsers());
+        assertThat(command.getUsersAllowedToRead()).hasSameElementsAs(request.getUsersAllowedToRead());
+        assertThat(command.getUsersAllowedToWrite()).hasSameElementsAs(request.getUsersAllowedToWrite());
         assertThat(command.getLogitBias()).containsAllEntriesOf(request.getLogitBias());
     }
 
@@ -75,10 +75,10 @@ public class ChannelConfigRequestMapperTest {
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
         assertThat(command.getStopSequencesToAdd()).hasSameElementsAs(request.getStopSequencesToAdd());
         assertThat(command.getStopSequencesToRemove()).hasSameElementsAs(request.getStopSequencesToRemove());
-        assertThat(command.getReaderUsersToAdd()).hasSameElementsAs(request.getReaderUsersToAdd());
-        assertThat(command.getWriterUsersToAdd()).hasSameElementsAs(request.getWriterUsersToAdd());
-        assertThat(command.getReaderUsersToRemove()).hasSameElementsAs(request.getReaderUsersToRemove());
-        assertThat(command.getWriterUsersToRemove()).hasSameElementsAs(request.getWriterUsersToRemove());
+        assertThat(command.getUsersAllowedToReadToAdd()).hasSameElementsAs(request.getUsersAllowedToReadToAdd());
+        assertThat(command.getUsersAllowedToWriteToAdd()).hasSameElementsAs(request.getUsersAllowedToWriteToAdd());
+        assertThat(command.getUsersAllowedToReadToRemove()).hasSameElementsAs(request.getUsersAllowedToReadToRemove());
+        assertThat(command.getUsersAllowedToWriteToRemove()).hasSameElementsAs(request.getUsersAllowedToWriteToRemove());
         assertThat(command.getLogitBiasToAdd()).containsAllEntriesOf(request.getLogitBiasToAdd());
         assertThat(command.getLogitBiasToRemove()).hasSameElementsAs(request.getLogitBiasToRemove());
     }

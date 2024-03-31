@@ -17,8 +17,8 @@ public class UpdateWorldRequest {
     private String description;
     private String adventureStart;
     private String visibility;
-    private List<String> writerUsersToAdd;
-    private List<String> writerUsersToRemove;
-    private List<String> readerUsersToAdd;
-    private List<String> readerUsersToRemove;
+    private List<String> usersAllowedToWriteToAdd;
+    private List<String> usersAllowedToWriteToRemove;
+    private List<String> usersAllowedToReadToAdd;
+    private List<String> usersAllowedToReadToRemove;
 }

@@ -16,6 +16,7 @@ public class ChannelConfigFixture {
         builder.name("Name");
         builder.worldId("WRLDID");
         builder.personaId("PRSNID");
+        builder.discordChannelId("CHNLID");
         builder.moderation(Moderation.STRICT);
         builder.visibility(Visibility.fromString("PRIVATE"));
         builder.modelConfiguration(ModelConfigurationFixture.gpt3516k().build());

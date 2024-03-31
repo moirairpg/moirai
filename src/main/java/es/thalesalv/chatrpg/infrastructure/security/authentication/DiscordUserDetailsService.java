@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.core.application.port.DiscordUserDetailsPort;
+import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -16,12 +16,12 @@ public class DiscordUserDetailsService implements ReactiveUserDetailsService {
 
     private static final String BEARER = "Bearer ";
 
-    private final DiscordUserDetailsPort discordUserDetailsPort;
+    private final DiscordAuthenticationPort discordAuthenticationPort;
 
     @Override
     public Mono<UserDetails> findByUsername(String token) {
 
-        return discordUserDetailsPort.retrieveLoggedUser(token)
+        return discordAuthenticationPort.retrieveLoggedUser(token)
                 .map(userDetails -> DiscordPrincipal.builder()
                         .id(userDetails.getId())
                         .username(userDetails.getUsername())

@@ -152,11 +152,11 @@ public class PersonaControllerTest extends AbstractRestWebTest {
                     assertThat(response.getCreationDate()).isEqualTo(expectedResponse.getCreationDate());
                     assertThat(response.getLastUpdateDate()).isEqualTo(expectedResponse.getLastUpdateDate());
 
-                    assertThat(response.getReaderUsers())
-                            .hasSameElementsAs(expectedResponse.getReaderUsers());
+                    assertThat(response.getUsersAllowedToRead())
+                            .hasSameElementsAs(expectedResponse.getUsersAllowedToRead());
 
-                    assertThat(response.getWriterUsers())
-                            .hasSameElementsAs(expectedResponse.getWriterUsers());
+                    assertThat(response.getUsersAllowedToWrite())
+                            .hasSameElementsAs(expectedResponse.getUsersAllowedToWrite());
                 });
     }
 

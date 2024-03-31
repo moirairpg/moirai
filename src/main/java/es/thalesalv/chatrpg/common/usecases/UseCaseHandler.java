@@ -4,19 +4,19 @@ import java.util.Objects;
 
 public abstract class UseCaseHandler<A extends UseCase<T>, T> {
 
-    public abstract T execute(A command);
+    public abstract T execute(A useCase);
 
-    public void validate(A command) {
+    public void validate(A useCase) {
 
     }
 
-    public T handle(A command) {
+    public T handle(A useCase) {
 
-        if (Objects.isNull(command)) {
+        if (Objects.isNull(useCase)) {
             throw new IllegalArgumentException("Use case cannot be null");
         }
 
-        validate(command);
-        return execute(command);
+        validate(useCase);
+        return execute(useCase);
     }
 }

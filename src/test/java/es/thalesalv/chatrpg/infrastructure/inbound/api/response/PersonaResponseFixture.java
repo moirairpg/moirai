@@ -16,8 +16,8 @@ public class PersonaResponseFixture {
         builder.visibility(persona.getVisibility().toString());
         builder.gameMode(persona.getGameMode().name());
         builder.ownerDiscordId(persona.getOwnerDiscordId());
-        builder.readerUsers(persona.getReaderUsers());
-        builder.writerUsers(persona.getWriterUsers());
+        builder.usersAllowedToRead(persona.getUsersAllowedToRead());
+        builder.usersAllowedToWrite(persona.getUsersAllowedToWrite());
 
         builder.nudgeContent(persona.getNudge().getContent());
         builder.nudgeRole(persona.getNudge().getRole().toString());
@@ -40,8 +40,8 @@ public class PersonaResponseFixture {
         builder.visibility(persona.getVisibility().toString());
         builder.gameMode(persona.getGameMode().name());
         builder.ownerDiscordId(persona.getOwnerDiscordId());
-        builder.readerUsers(persona.getReaderUsers());
-        builder.writerUsers(persona.getWriterUsers());
+        builder.usersAllowedToRead(persona.getUsersAllowedToRead());
+        builder.usersAllowedToWrite(persona.getUsersAllowedToWrite());
 
         builder.nudgeContent(persona.getNudge().getContent());
         builder.nudgeRole(persona.getNudge().getRole().toString());

@@ -34,6 +34,10 @@ public class CreateChannelConfigRequest {
 
     @NotEmpty(message = "cannot be empty")
     @NotNull(message = "cannot be null")
+    private final String discordChannelId;
+
+    @NotEmpty(message = "cannot be empty")
+    @NotNull(message = "cannot be null")
     private String visibility;
 
     @NotEmpty(message = "cannot be empty")
@@ -67,6 +71,6 @@ public class CreateChannelConfigRequest {
     private final Double presencePenalty;
     private final List<String> stopSequences;
     private final Map<String, Double> logitBias;
-    private List<String> writerUsers;
-    private List<String> readerUsers;
+    private List<String> usersAllowedToWrite;
+    private List<String> usersAllowedToRead;
 }

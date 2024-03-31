@@ -38,6 +38,9 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
     @Column(name = "persona_id", nullable = false)
     private String personaId;
 
+    @Column(name = "discord_channel_id", nullable = false)
+    private String discordChannelId;
+
     @Embedded
     private ModelConfigurationEntity modelConfiguration;
 
@@ -56,6 +59,7 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         this.personaId = builder.personaId;
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
+        this.discordChannelId = builder.discordChannelId;
     }
 
     protected ChannelConfigEntity() {
@@ -74,6 +78,7 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         private String name;
         private String worldId;
         private String personaId;
+        private String discordChannelId;
         private ModelConfigurationEntity modelConfiguration;
         private String moderation;
         protected String ownerDiscordId;
@@ -105,6 +110,12 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         public Builder personaId(String personaId) {
 
             this.personaId = personaId;
+            return this;
+        }
+
+        public Builder discordChannelId(String discordChannelId) {
+
+            this.discordChannelId = discordChannelId;
             return this;
         }
 

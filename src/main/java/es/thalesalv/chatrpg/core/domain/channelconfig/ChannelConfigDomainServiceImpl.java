@@ -66,8 +66,8 @@ public class ChannelConfigDomainServiceImpl implements ChannelConfigDomainServic
 
         Permissions permissions = Permissions.builder()
                 .ownerDiscordId(command.getRequesterDiscordId())
-                .usersAllowedToRead(command.getReaderUsers())
-                .usersAllowedToWrite(command.getWriterUsers())
+                .usersAllowedToRead(command.getUsersAllowedToRead())
+                .usersAllowedToWrite(command.getUsersAllowedToWrite())
                 .build();
 
         ChannelConfig channelConfig = ChannelConfig.builder()
@@ -76,6 +76,7 @@ public class ChannelConfigDomainServiceImpl implements ChannelConfigDomainServic
                 .name(command.getName())
                 .personaId(command.getPersonaId())
                 .worldId(command.getWorldId())
+                .discordChannelId(command.getDiscordChannelId())
                 .visibility(Visibility.fromString(command.getVisibility()))
                 .moderation(Moderation.fromString(command.getModeration()))
                 .build();
@@ -111,6 +112,10 @@ public class ChannelConfigDomainServiceImpl implements ChannelConfigDomainServic
 
         if (StringUtils.isNotBlank(command.getModeration())) {
             channelConfig.updateModeration(Moderation.fromString(command.getModeration()));
+        }
+
+        if (StringUtils.isNotBlank(command.getDiscordChannelId())) {
+            channelConfig.updateDiscordChannel(command.getDiscordChannelId());
         }
 
         if (command.getTemperature() != null) {
@@ -149,20 +154,20 @@ public class ChannelConfigDomainServiceImpl implements ChannelConfigDomainServic
         CollectionUtils.emptyIfNull(command.getLogitBiasToRemove())
                 .forEach(channelConfig::removeLogitBias);
 
-        CollectionUtils.emptyIfNull(command.getReaderUsersToAdd())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToAdd())
                 .stream()
                 .filter(userId -> !channelConfig.canUserRead(userId))
                 .forEach(channelConfig::addReaderUser);
 
-        CollectionUtils.emptyIfNull(command.getWriterUsersToAdd())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToAdd())
                 .stream()
                 .filter(userId -> !channelConfig.canUserWrite(userId))
                 .forEach(channelConfig::addWriterUser);
 
-        CollectionUtils.emptyIfNull(command.getReaderUsersToRemove())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToRemove())
                 .forEach(channelConfig::removeReaderUser);
 
-        CollectionUtils.emptyIfNull(command.getWriterUsersToRemove())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToRemove())
                 .forEach(channelConfig::removeWriterUser);
 
         return repository.save(channelConfig);

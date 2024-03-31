@@ -14,10 +14,11 @@ public class ChannelConfigEntityFixture {
                 .name(channelConfig.getName())
                 .worldId(channelConfig.getWorldId())
                 .personaId(channelConfig.getPersonaId())
+                .discordChannelId(channelConfig.getDiscordChannelId())
                 .moderation(channelConfig.getModeration().toString())
                 .visibility(channelConfig.getVisibility().toString())
-                .usersAllowedToRead(channelConfig.getReaderUsers())
-                .usersAllowedToWrite(channelConfig.getWriterUsers())
+                .usersAllowedToRead(channelConfig.getUsersAllowedToRead())
+                .usersAllowedToWrite(channelConfig.getUsersAllowedToWrite())
                 .ownerDiscordId(channelConfig.getOwnerDiscordId())
                 .creatorDiscordId(channelConfig.getCreatorDiscordId())
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build());

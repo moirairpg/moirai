@@ -12,6 +12,7 @@ public class CreateChannelConfigRequestFixture {
                 .name(channelConfig.getName())
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
+                .discordChannelId(channelConfig.getDiscordChannelId())
                 .aiModel(channelConfig.getModelConfiguration().getAiModel().toString())
                 .logitBias(channelConfig.getModelConfiguration().getLogitBias())
                 .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
@@ -19,8 +20,8 @@ public class CreateChannelConfigRequestFixture {
                 .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
                 .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
                 .moderation(channelConfig.getModeration().name())
-                .readerUsers(channelConfig.getReaderUsers())
-                .writerUsers(channelConfig.getWriterUsers())
+                .usersAllowedToRead(channelConfig.getUsersAllowedToRead())
+                .usersAllowedToWrite(channelConfig.getUsersAllowedToWrite())
                 .temperature(channelConfig.getModelConfiguration().getTemperature())
                 .visibility(channelConfig.getVisibility().name());
     }

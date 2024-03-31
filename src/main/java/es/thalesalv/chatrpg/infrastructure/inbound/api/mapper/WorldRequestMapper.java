@@ -20,8 +20,8 @@ public class WorldRequestMapper {
                 .description(request.getDescription())
                 .adventureStart(request.getAdventureStart())
                 .visibility(request.getVisibility())
-                .writerUsers(request.getWriterUsers())
-                .readerUsers(request.getReaderUsers())
+                .usersAllowedToWrite(request.getUsersAllowedToWrite())
+                .usersAllowedToRead(request.getUsersAllowedToRead())
                 .requesterDiscordId(requesterDiscordId)
                 .build();
     }
@@ -34,10 +34,10 @@ public class WorldRequestMapper {
                 .description(request.getDescription())
                 .adventureStart(request.getAdventureStart())
                 .visibility(request.getVisibility())
-                .writerUsersToAdd(request.getWriterUsersToAdd())
-                .writerUsersToRemove(request.getWriterUsersToRemove())
-                .readerUsersToAdd(request.getReaderUsersToAdd())
-                .readerUsersToRemove(request.getReaderUsersToRemove())
+                .usersAllowedToWriteToAdd(request.getUsersAllowedToWriteToAdd())
+                .usersAllowedToWriteToRemove(request.getUsersAllowedToWriteToRemove())
+                .usersAllowedToReadToAdd(request.getUsersAllowedToReadToAdd())
+                .usersAllowedToReadToRemove(request.getUsersAllowedToReadToRemove())
                 .requesterDiscordId(requesterDiscordId)
                 .build();
     }

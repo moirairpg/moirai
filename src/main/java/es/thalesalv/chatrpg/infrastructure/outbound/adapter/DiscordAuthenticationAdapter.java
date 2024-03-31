@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -24,6 +25,7 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordAuthReques
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordErrorResponse;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordUserDataResponse;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -31,6 +33,8 @@ public class DiscordAuthenticationAdapter implements DiscordAuthenticationPort {
 
     private static final String TOKEN_URI = "/oauth2/token";
     private static final String TOKEN_REVOKE_URI = "/oauth2/token/revoke";
+    private static final String USERS_BASE_URI = "/users/%s";
+
     private static final String CONTENT_TYPE_VALUE = "application/x-www-form-urlencoded";
     private static final String AUTHENTICATION_ERROR = "Error authenticating user on Discord";
     private static final String UNKNOWN_ERROR = "Error on Discord API";
@@ -56,6 +60,22 @@ public class DiscordAuthenticationAdapter implements DiscordAuthenticationPort {
 
         return discordWebClient(TOKEN_URI, request)
                 .bodyToMono(DiscordAuthResponse.class);
+    }
+
+    @Override
+    public Mono<DiscordUserDataResponse> retrieveLoggedUser(String token) {
+
+        return webClient.get()
+                .uri(String.format(USERS_BASE_URI, "@me"))
+                .headers(headers -> {
+                    headers.add(HttpHeaders.AUTHORIZATION, token);
+                    headers.add(HttpHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON_VALUE);
+                })
+                .retrieve()
+                .onStatus(UNAUTHORIZED, this::handleUnauthorized)
+                .onStatus(BAD_REQUEST, this::handleBadRequest)
+                .onStatus(HttpStatusCode::isError, this::handleUnknownError)
+                .bodyToMono(DiscordUserDataResponse.class);
     }
 
     @Override

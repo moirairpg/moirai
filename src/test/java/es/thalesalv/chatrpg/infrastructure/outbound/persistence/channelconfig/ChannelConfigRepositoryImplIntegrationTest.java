@@ -131,17 +131,20 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .ownerDiscordId("580485734")
                 .usersAllowedToRead(Collections.singletonList(ownerDiscordId))
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .ownerDiscordId("580485734")
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.save(gpt4128k);
@@ -173,11 +176,13 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -185,6 +190,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.save(gpt4128k);
@@ -217,11 +223,13 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -229,6 +237,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.save(gpt4128k);
@@ -263,12 +272,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 2")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 1")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -277,6 +288,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -309,12 +321,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 2")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 1")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -323,6 +337,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -356,12 +371,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 2")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 1")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -370,6 +387,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -403,12 +421,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 2")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 1")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -417,6 +437,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -451,6 +472,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 1")
                 .moderation("STRICT")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
@@ -458,12 +480,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 2")
                 .moderation("PERMISSIVE")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 3")
                 .moderation("PERMISSIVE")
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -499,12 +523,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 1")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 2")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -513,6 +539,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -548,12 +575,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 1")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 2")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -562,6 +591,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -592,12 +622,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 1")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 2")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -606,6 +638,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -637,6 +670,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 1")
                 .moderation("STRICT")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
@@ -644,12 +678,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 2")
                 .moderation("PERMISSIVE")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 3")
                 .moderation("PERMISSIVE")
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -680,17 +716,20 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         ChannelConfigEntity gpt4128k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .ownerDiscordId("580485734")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .ownerDiscordId("580485734")
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.save(gpt4128k);
@@ -723,12 +762,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -736,6 +777,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.save(gpt4128k);
@@ -768,12 +810,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -781,6 +825,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.save(gpt4128k);
@@ -815,6 +860,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 2")
                 .ownerDiscordId(ownerDiscordId)
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
@@ -822,6 +868,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 1")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -830,6 +877,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -862,6 +910,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 2")
                 .ownerDiscordId(ownerDiscordId)
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
@@ -869,6 +918,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 1")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -877,6 +927,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -909,6 +960,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 2")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
@@ -916,6 +968,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 1")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -925,6 +978,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -957,6 +1011,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 2")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
@@ -964,6 +1019,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 1")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -973,6 +1029,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -1006,6 +1063,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 1")
                 .moderation("STRICT")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
@@ -1014,6 +1072,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .moderation("PERMISSIVE")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -1021,6 +1080,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 3")
                 .ownerDiscordId(ownerDiscordId)
                 .moderation("PERMISSIVE")
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -1055,6 +1115,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 1")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
@@ -1062,6 +1123,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 2")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -1071,6 +1133,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -1105,12 +1168,14 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 1")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
                 .id(null)
                 .name("Number 2")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -1120,6 +1185,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -1150,6 +1216,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .id(null)
                 .name("Number 1")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
@@ -1157,6 +1224,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 2")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -1165,6 +1233,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k()
                         .aiModel("gpt35-4k")
                         .build())
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
@@ -1196,6 +1265,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 1")
                 .moderation("STRICT")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt4128k().build())
+                .discordChannelId("CHNLID1")
                 .build();
 
         ChannelConfigEntity gpt3516k = ChannelConfigEntityFixture.sample()
@@ -1204,6 +1274,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .ownerDiscordId(ownerDiscordId)
                 .moderation("PERMISSIVE")
                 .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build())
+                .discordChannelId("CHNLID2")
                 .build();
 
         ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
@@ -1211,6 +1282,7 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
                 .name("Number 3")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .moderation("PERMISSIVE")
+                .discordChannelId("CHNLID3")
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));

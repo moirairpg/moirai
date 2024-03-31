@@ -1,14 +1,20 @@
 package es.thalesalv.chatrpg;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import net.dv8tion.jda.api.JDA;
+
 @ActiveProfiles("test")
 @SpringBootTest(classes = ChatRpgApplication.class)
 public abstract class AbstractIntegrationTest {
+
+    @MockBean
+    private JDA jda;
 
     private static final String POSTGRES_IMAGE_NAME = "postgres:15-alpine";
 

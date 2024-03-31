@@ -18,6 +18,7 @@ public final class GetChannelConfigResult {
     private final String name;
     private final String worldId;
     private final String personaId;
+    private final String discordChannelId;
     private final String visibility;
     private final String aiModel;
     private final String moderation;

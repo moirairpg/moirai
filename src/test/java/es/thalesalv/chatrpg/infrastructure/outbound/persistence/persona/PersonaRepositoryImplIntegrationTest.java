@@ -53,8 +53,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(createdPersona.getName()).isEqualTo(persona.getName());
         assertThat(createdPersona.getPersonality()).isEqualTo(persona.getPersonality());
         assertThat(createdPersona.getVisibility()).isEqualTo(persona.getVisibility());
-        assertThat(createdPersona.getWriterUsers()).hasSameElementsAs(persona.getWriterUsers());
-        assertThat(createdPersona.getReaderUsers()).hasSameElementsAs(persona.getReaderUsers());
+        assertThat(createdPersona.getUsersAllowedToWrite()).hasSameElementsAs(persona.getUsersAllowedToWrite());
+        assertThat(createdPersona.getUsersAllowedToRead()).hasSameElementsAs(persona.getUsersAllowedToRead());
 
         assertThat(createdPersona.getBump().getContent()).isEqualTo(persona.getBump().getContent());
         assertThat(createdPersona.getBump().getRole()).isEqualTo(persona.getBump().getRole());

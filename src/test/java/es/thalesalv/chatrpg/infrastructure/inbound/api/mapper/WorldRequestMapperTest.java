@@ -38,8 +38,8 @@ public class WorldRequestMapperTest {
         assertThat(command.getAdventureStart()).isEqualTo(request.getAdventureStart());
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
         assertThat(command.getRequesterDiscordId()).isEqualTo(requesterId);
-        assertThat(command.getWriterUsers()).hasSameElementsAs(request.getWriterUsers());
-        assertThat(command.getReaderUsers()).hasSameElementsAs(request.getReaderUsers());
+        assertThat(command.getUsersAllowedToWrite()).hasSameElementsAs(request.getUsersAllowedToWrite());
+        assertThat(command.getUsersAllowedToRead()).hasSameElementsAs(request.getUsersAllowedToRead());
     }
 
     @Test
@@ -60,10 +60,10 @@ public class WorldRequestMapperTest {
         assertThat(command.getAdventureStart()).isEqualTo(request.getAdventureStart());
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
         assertThat(command.getRequesterDiscordId()).isEqualTo(requesterId);
-        assertThat(command.getWriterUsersToAdd()).hasSameElementsAs(request.getWriterUsersToAdd());
-        assertThat(command.getWriterUsersToRemove()).hasSameElementsAs(request.getWriterUsersToRemove());
-        assertThat(command.getReaderUsersToAdd()).hasSameElementsAs(request.getReaderUsersToAdd());
-        assertThat(command.getReaderUsersToRemove()).hasSameElementsAs(request.getReaderUsersToRemove());
+        assertThat(command.getUsersAllowedToWriteToAdd()).hasSameElementsAs(request.getUsersAllowedToWriteToAdd());
+        assertThat(command.getUsersAllowedToWriteToRemove()).hasSameElementsAs(request.getUsersAllowedToWriteToRemove());
+        assertThat(command.getUsersAllowedToReadToAdd()).hasSameElementsAs(request.getUsersAllowedToReadToAdd());
+        assertThat(command.getUsersAllowedToReadToRemove()).hasSameElementsAs(request.getUsersAllowedToReadToRemove());
     }
 
     @Test

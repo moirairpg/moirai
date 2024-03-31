@@ -18,8 +18,8 @@ public class WorldEntityFixture {
                 .ownerDiscordId(world.getOwnerDiscordId())
                 .creatorDiscordId(world.getCreatorDiscordId())
                 .creationDate(world.getCreationDate())
-                .usersAllowedToRead(world.getReaderUsers())
-                .usersAllowedToWrite(world.getWriterUsers());
+                .usersAllowedToRead(world.getUsersAllowedToRead())
+                .usersAllowedToWrite(world.getUsersAllowedToWrite());
     }
 
     public static WorldEntity.Builder privateWorld() {
@@ -35,7 +35,7 @@ public class WorldEntityFixture {
                 .ownerDiscordId(world.getOwnerDiscordId())
                 .creatorDiscordId(world.getCreatorDiscordId())
                 .creationDate(world.getCreationDate())
-                .usersAllowedToRead(world.getReaderUsers())
-                .usersAllowedToWrite(world.getWriterUsers());
+                .usersAllowedToRead(world.getUsersAllowedToRead())
+                .usersAllowedToWrite(world.getUsersAllowedToWrite());
     }
 }

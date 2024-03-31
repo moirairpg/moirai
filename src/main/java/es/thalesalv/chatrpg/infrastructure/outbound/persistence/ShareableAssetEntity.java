@@ -36,18 +36,18 @@ public abstract class ShareableAssetEntity extends AssetEntity {
     @Column(name = "owner_discordId")
     protected String ownerDiscordId;
 
-    @Column(name = "reader_users_ids")
+    @Column(name = "discord_users_allowed_to_read")
     @Convert(converter = StringListConverter.class)
     protected List<String> usersAllowedToRead;
 
-    @Formula(value = "reader_users_ids")
+    @Formula(value = "discord_users_allowed_to_read")
     private String usersAllowedToReadString;
 
-    @Column(name = "writers_users_ids")
+    @Column(name = "discord_users_allowed_to_write")
     @Convert(converter = StringListConverter.class)
     protected List<String> usersAllowedToWrite;
 
-    @Formula(value = "writers_users_ids")
+    @Formula(value = "discord_users_allowed_to_write")
     private String usersAllowedToWriteString;
 
     @Column(name = "visibility")

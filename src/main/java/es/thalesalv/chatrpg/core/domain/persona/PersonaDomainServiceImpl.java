@@ -73,8 +73,8 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
 
         Permissions permissions = Permissions.builder()
                 .ownerDiscordId(command.getRequesterDiscordId())
-                .usersAllowedToRead(command.getReaderUsers())
-                .usersAllowedToWrite(command.getWriterUsers())
+                .usersAllowedToRead(command.getUsersAllowedToRead())
+                .usersAllowedToWrite(command.getUsersAllowedToWrite())
                 .build();
 
         Persona persona = Persona.builder()
@@ -138,20 +138,20 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
             persona.makePrivate();
         }
 
-        CollectionUtils.emptyIfNull(command.getReaderUsersToAdd())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToAdd())
                 .stream()
                 .filter(userId -> !persona.canUserRead(userId))
                 .forEach(persona::addReaderUser);
 
-        CollectionUtils.emptyIfNull(command.getWriterUsersToAdd())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToAdd())
                 .stream()
                 .filter(userId -> !persona.canUserWrite(userId))
                 .forEach(persona::addWriterUser);
 
-        CollectionUtils.emptyIfNull(command.getReaderUsersToRemove())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToRemove())
                 .forEach(persona::removeReaderUser);
 
-        CollectionUtils.emptyIfNull(command.getWriterUsersToRemove())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToRemove())
                 .forEach(persona::removeWriterUser);
 
         validateTokenCount(command.getPersonality());

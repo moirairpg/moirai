@@ -19,7 +19,7 @@ public final class CreatePersona extends UseCase<CreatePersonaResult> {
     private final String visibility;
     private final String gameMode;
     private final Integer bumpFrequency;
-    private final List<String> writerUsers;
-    private final List<String> readerUsers;
+    private final List<String> usersAllowedToWrite;
+    private final List<String> usersAllowedToRead;
     private final String requesterDiscordId;
 }

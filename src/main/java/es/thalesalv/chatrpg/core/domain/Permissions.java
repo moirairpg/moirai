@@ -51,37 +51,37 @@ public final class Permissions {
     public Permissions allowUserToWrite(String userDiscordId, String currentOwnerDiscordId) {
 
         validateOwnership(currentOwnerDiscordId);
-        List<String> writerUsers = new ArrayList<>(this.usersAllowedToWrite);
-        writerUsers.add(userDiscordId);
+        List<String> usersAllowedToWrite = new ArrayList<>(this.usersAllowedToWrite);
+        usersAllowedToWrite.add(userDiscordId);
 
-        return cloneFrom(this).usersAllowedToWrite(writerUsers).build();
+        return cloneFrom(this).usersAllowedToWrite(usersAllowedToWrite).build();
     }
 
     public Permissions disallowUserToWrite(String userDiscordId, String currentOwnerDiscordId) {
 
         validateOwnership(currentOwnerDiscordId);
-        List<String> writerUsers = new ArrayList<>(this.usersAllowedToWrite);
-        writerUsers.remove(userDiscordId);
+        List<String> usersAllowedToWrite = new ArrayList<>(this.usersAllowedToWrite);
+        usersAllowedToWrite.remove(userDiscordId);
 
-        return cloneFrom(this).usersAllowedToWrite(writerUsers).build();
+        return cloneFrom(this).usersAllowedToWrite(usersAllowedToWrite).build();
     }
 
     public Permissions allowUserToRead(String userDiscordId, String currentOwnerDiscordId) {
 
         validateOwnership(currentOwnerDiscordId);
-        List<String> readerUsers = new ArrayList<>(this.usersAllowedToRead);
-        readerUsers.add(userDiscordId);
+        List<String> usersAllowedToRead = new ArrayList<>(this.usersAllowedToRead);
+        usersAllowedToRead.add(userDiscordId);
 
-        return cloneFrom(this).usersAllowedToRead(readerUsers).build();
+        return cloneFrom(this).usersAllowedToRead(usersAllowedToRead).build();
     }
 
     public Permissions disallowUserToRead(String userDiscordId, String currentOwnerDiscordId) {
 
         validateOwnership(currentOwnerDiscordId);
-        List<String> readerUsers = new ArrayList<>(this.usersAllowedToRead);
-        readerUsers.remove(userDiscordId);
+        List<String> usersAllowedToRead = new ArrayList<>(this.usersAllowedToRead);
+        usersAllowedToRead.remove(userDiscordId);
 
-        return cloneFrom(this).usersAllowedToRead(readerUsers).build();
+        return cloneFrom(this).usersAllowedToRead(usersAllowedToRead).build();
     }
 
     public void validateOwnership(String currentOwnerDiscordId) {

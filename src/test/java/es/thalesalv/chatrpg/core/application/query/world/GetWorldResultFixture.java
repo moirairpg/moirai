@@ -17,8 +17,8 @@ public class GetWorldResultFixture {
                 .visibility(world.getVisibility().toString())
                 .ownerDiscordId(world.getOwnerDiscordId())
                 .creationDate(world.getCreationDate())
-                .readerUsers(world.getReaderUsers())
-                .writerUsers(world.getWriterUsers());
+                .usersAllowedToRead(world.getUsersAllowedToRead())
+                .usersAllowedToWrite(world.getUsersAllowedToWrite());
     }
 
     public static GetWorldResult.Builder privateWorld() {
@@ -33,7 +33,7 @@ public class GetWorldResultFixture {
                 .visibility(world.getVisibility().toString())
                 .ownerDiscordId(world.getOwnerDiscordId())
                 .creationDate(world.getCreationDate())
-                .readerUsers(world.getReaderUsers())
-                .writerUsers(world.getWriterUsers());
+                .usersAllowedToRead(world.getUsersAllowedToRead())
+                .usersAllowedToWrite(world.getUsersAllowedToWrite());
     }
 }

@@ -42,8 +42,8 @@ public class PersonaRequestMapperTest {
         assertThat(command.getNudgeRole()).isEqualTo(request.getNudgeRole());
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
         assertThat(command.getRequesterDiscordId()).isEqualTo(requesterId);
-        assertThat(command.getWriterUsers()).hasSameElementsAs(request.getWriterUsers());
-        assertThat(command.getReaderUsers()).hasSameElementsAs(request.getReaderUsers());
+        assertThat(command.getUsersAllowedToWrite()).hasSameElementsAs(request.getUsersAllowedToWrite());
+        assertThat(command.getUsersAllowedToRead()).hasSameElementsAs(request.getUsersAllowedToRead());
     }
 
     @Test
@@ -68,10 +68,10 @@ public class PersonaRequestMapperTest {
         assertThat(command.getNudgeRole()).isEqualTo(request.getNudgeRole());
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
         assertThat(command.getRequesterDiscordId()).isEqualTo(requesterId);
-        assertThat(command.getWriterUsersToAdd()).hasSameElementsAs(request.getWriterUsersToAdd());
-        assertThat(command.getWriterUsersToRemove()).isEmpty();
-        assertThat(command.getReaderUsersToAdd()).hasSameElementsAs(request.getReaderUsersToAdd());
-        assertThat(command.getReaderUsersToRemove()).isEmpty();
+        assertThat(command.getUsersAllowedToWriteToAdd()).hasSameElementsAs(request.getUsersAllowedToWriteToAdd());
+        assertThat(command.getUsersAllowedToWriteToRemove()).isEmpty();
+        assertThat(command.getUsersAllowedToReadToAdd()).hasSameElementsAs(request.getUsersAllowedToReadToAdd());
+        assertThat(command.getUsersAllowedToReadToRemove()).isEmpty();
     }
 
     @Test

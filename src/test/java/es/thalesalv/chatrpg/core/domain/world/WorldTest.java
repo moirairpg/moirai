@@ -184,7 +184,7 @@ public class WorldTest {
         world.addWriterUser(userId);
 
         // Then
-        assertThat(world.getWriterUsers()).contains(userId);
+        assertThat(world.getUsersAllowedToWrite()).contains(userId);
     }
 
     @Test
@@ -204,7 +204,7 @@ public class WorldTest {
         world.addReaderUser(userId);
 
         // Then
-        assertThat(world.getReaderUsers()).contains(userId);
+        assertThat(world.getUsersAllowedToRead()).contains(userId);
     }
 
     @Test
@@ -228,7 +228,7 @@ public class WorldTest {
         world.removeReaderUser(userId);
 
         // Then
-        assertThat(world.getReaderUsers()).doesNotContain(userId);
+        assertThat(world.getUsersAllowedToRead()).doesNotContain(userId);
     }
 
     @Test
@@ -252,7 +252,7 @@ public class WorldTest {
         world.removeWriterUser(userId);
 
         // Then
-        assertThat(world.getWriterUsers()).doesNotContain(userId);
+        assertThat(world.getUsersAllowedToWrite()).doesNotContain(userId);
     }
 
     @Test

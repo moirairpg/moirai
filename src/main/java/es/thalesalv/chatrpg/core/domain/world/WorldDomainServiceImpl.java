@@ -75,8 +75,8 @@ public class WorldDomainServiceImpl implements WorldDomainService {
 
         Permissions permissions = Permissions.builder()
                 .ownerDiscordId(command.getRequesterDiscordId())
-                .usersAllowedToRead(command.getReaderUsers())
-                .usersAllowedToWrite(command.getWriterUsers())
+                .usersAllowedToRead(command.getUsersAllowedToRead())
+                .usersAllowedToWrite(command.getUsersAllowedToWrite())
                 .build();
 
         World world = World.builder()
@@ -121,20 +121,20 @@ public class WorldDomainServiceImpl implements WorldDomainService {
             world.makePrivate();
         }
 
-        CollectionUtils.emptyIfNull(command.getReaderUsersToAdd())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToAdd())
                 .stream()
                 .filter(userId -> !world.canUserRead(userId))
                 .forEach(world::addReaderUser);
 
-        CollectionUtils.emptyIfNull(command.getWriterUsersToAdd())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToAdd())
                 .stream()
                 .filter(userId -> !world.canUserWrite(userId))
                 .forEach(world::addWriterUser);
 
-        CollectionUtils.emptyIfNull(command.getReaderUsersToRemove())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToRemove())
                 .forEach(world::removeReaderUser);
 
-        CollectionUtils.emptyIfNull(command.getWriterUsersToRemove())
+        CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToRemove())
                 .forEach(world::removeWriterUser);
 
         validateTokenCount(world);
