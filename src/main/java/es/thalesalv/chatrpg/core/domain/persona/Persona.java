@@ -176,6 +176,10 @@ public class Persona extends ShareableAsset {
                 throw new BusinessRuleViolationException("Persona personality cannot be null or empty");
             }
 
+            if (gameMode == null) {
+                throw new BusinessRuleViolationException("Game Mode cannot be null");
+            }
+
             if (visibility == null) {
                 throw new BusinessRuleViolationException("Visibility cannot be null");
             }

@@ -12,6 +12,7 @@ public class UpdatePersonaRequestFixture {
                 .name(persona.getName())
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility().toString())
+                .gameMode(persona.getGameMode().name())
                 .readerUsersToAdd(persona.getReaderUsers())
                 .writerUsersToAdd(persona.getWriterUsers())
                 .nudgeContent(persona.getNudge().getContent())

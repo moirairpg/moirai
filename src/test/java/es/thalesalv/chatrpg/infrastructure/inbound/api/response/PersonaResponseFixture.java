@@ -14,6 +14,7 @@ public class PersonaResponseFixture {
         builder.name(persona.getName());
         builder.personality(persona.getPersonality());
         builder.visibility(persona.getVisibility().toString());
+        builder.gameMode(persona.getGameMode().name());
         builder.ownerDiscordId(persona.getOwnerDiscordId());
         builder.readerUsers(persona.getReaderUsers());
         builder.writerUsers(persona.getWriterUsers());
@@ -37,6 +38,7 @@ public class PersonaResponseFixture {
         builder.name(persona.getName());
         builder.personality(persona.getPersonality());
         builder.visibility(persona.getVisibility().toString());
+        builder.gameMode(persona.getGameMode().name());
         builder.ownerDiscordId(persona.getOwnerDiscordId());
         builder.readerUsers(persona.getReaderUsers());
         builder.writerUsers(persona.getWriterUsers());

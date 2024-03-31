@@ -17,6 +17,7 @@ public class PersonaFixture {
         builder.name("ChatRPG");
         builder.personality("I am a Discord chatbot");
         builder.visibility(Visibility.fromString("PUBLIC"));
+        builder.gameMode(GameMode.fromString("RPG"));
         builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());
         builder.lastUpdateDate(OffsetDateTime.now());
@@ -40,6 +41,7 @@ public class PersonaFixture {
         builder.name("ChatRPG");
         builder.personality("I am a Discord chatbot");
         builder.visibility(Visibility.fromString("PRIVATE"));
+        builder.gameMode(GameMode.fromString("RPG"));
         builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());
         builder.lastUpdateDate(OffsetDateTime.now());

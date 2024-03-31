@@ -22,7 +22,7 @@ import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithWri
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.PersonaRequestMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.PersonaResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreatePersonaRequest;
-import es.thalesalv.chatrpg.infrastructure.inbound.api.request.SearchParameters;
+import es.thalesalv.chatrpg.infrastructure.inbound.api.request.PersonaSearchParameters;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdatePersonaRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.CreatePersonaResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.PersonaResponse;
@@ -45,7 +45,7 @@ public class PersonaController extends SecurityContextAware {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchPersonasResponse> searchPersonaWithReadAccess(SearchParameters searchParameters) {
+    public Mono<SearchPersonasResponse> searchPersonaWithReadAccess(PersonaSearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -64,7 +64,7 @@ public class PersonaController extends SecurityContextAware {
 
     @GetMapping("/search/own")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchPersonasResponse> searchPersonaWithWriteAccess(SearchParameters searchParameters) {
+    public Mono<SearchPersonasResponse> searchPersonaWithWriteAccess(PersonaSearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 

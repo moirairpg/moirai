@@ -68,6 +68,7 @@ public class PersonaDomainServiceImplTest {
                 .bumpContent(bump.getContent())
                 .bumpRole(bump.getRole().toString())
                 .bumpFrequency(bump.getFrequency())
+                .gameMode("rpg")
                 .visibility(visibility)
                 .build();
 

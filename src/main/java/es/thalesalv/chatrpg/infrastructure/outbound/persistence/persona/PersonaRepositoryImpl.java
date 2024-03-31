@@ -213,7 +213,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                         "%" + query.getName().toUpperCase() + "%"));
             }
 
-            if (StringUtils.isNotBlank(query.getName())) {
+            if (StringUtils.isNotBlank(query.getGameMode())) {
                 predicates.add(cb.like(cb.upper(root.get("gameMode")),
                         "%" + query.getGameMode().toUpperCase() + "%"));
             }
@@ -238,7 +238,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                         "%" + query.getName().toUpperCase() + "%"));
             }
 
-            if (StringUtils.isNotBlank(query.getName())) {
+            if (StringUtils.isNotBlank(query.getGameMode())) {
                 predicates.add(cb.like(cb.upper(root.get("gameMode")),
                         "%" + query.getGameMode().toUpperCase() + "%"));
             }
