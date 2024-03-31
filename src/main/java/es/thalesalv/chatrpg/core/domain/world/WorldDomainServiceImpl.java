@@ -122,9 +122,13 @@ public class WorldDomainServiceImpl implements WorldDomainService {
         }
 
         CollectionUtils.emptyIfNull(command.getReaderUsersToAdd())
+                .stream()
+                .filter(userId -> !world.canUserRead(userId))
                 .forEach(world::addReaderUser);
 
         CollectionUtils.emptyIfNull(command.getWriterUsersToAdd())
+                .stream()
+                .filter(userId -> !world.canUserWrite(userId))
                 .forEach(world::addWriterUser);
 
         CollectionUtils.emptyIfNull(command.getReaderUsersToRemove())

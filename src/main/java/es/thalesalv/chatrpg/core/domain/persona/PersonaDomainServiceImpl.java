@@ -139,9 +139,13 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
         }
 
         CollectionUtils.emptyIfNull(command.getReaderUsersToAdd())
+                .stream()
+                .filter(userId -> !persona.canUserRead(userId))
                 .forEach(persona::addReaderUser);
 
         CollectionUtils.emptyIfNull(command.getWriterUsersToAdd())
+                .stream()
+                .filter(userId -> !persona.canUserWrite(userId))
                 .forEach(persona::addWriterUser);
 
         CollectionUtils.emptyIfNull(command.getReaderUsersToRemove())

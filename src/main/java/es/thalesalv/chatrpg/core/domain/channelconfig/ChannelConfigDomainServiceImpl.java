@@ -132,6 +132,9 @@ public class ChannelConfigDomainServiceImpl implements ChannelConfigDomainServic
         }
 
         CollectionUtils.emptyIfNull(command.getStopSequencesToAdd())
+                .stream()
+                .filter(stopSequence -> !channelConfig.getModelConfiguration()
+                        .getStopSequences().contains(stopSequence))
                 .forEach(channelConfig::addStopSequence);
 
         CollectionUtils.emptyIfNull(command.getStopSequencesToRemove())
@@ -139,15 +142,21 @@ public class ChannelConfigDomainServiceImpl implements ChannelConfigDomainServic
 
         MapUtils.emptyIfNull(command.getLogitBiasToAdd())
                 .entrySet()
+                .stream()
+                .filter(entry -> !channelConfig.getModelConfiguration().getLogitBias().containsKey(entry.getKey()))
                 .forEach(entry -> channelConfig.addLogitBias(entry.getKey(), entry.getValue()));
 
         CollectionUtils.emptyIfNull(command.getLogitBiasToRemove())
                 .forEach(channelConfig::removeLogitBias);
 
         CollectionUtils.emptyIfNull(command.getReaderUsersToAdd())
+                .stream()
+                .filter(userId -> !channelConfig.canUserRead(userId))
                 .forEach(channelConfig::addReaderUser);
 
         CollectionUtils.emptyIfNull(command.getWriterUsersToAdd())
+                .stream()
+                .filter(userId -> !channelConfig.canUserWrite(userId))
                 .forEach(channelConfig::addWriterUser);
 
         CollectionUtils.emptyIfNull(command.getReaderUsersToRemove())
