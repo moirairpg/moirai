@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
+import java.util.List;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,8 +32,9 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     private static final String LOREBOOK_ENTRY_TO_BE_UPDATED_WAS_NOT_FOUND = "Lorebook entry to be updated was not found";
     private static final String WORLD_TO_BE_VIEWED_WAS_NOT_FOUND = "World to be viewed was not found";
     private static final String USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD = "User does not have permission to modify this world";
+    private static final String USER_DOES_NOT_HAVE_PERMISSION_TO_VIEW_THIS_WORLD = "User does not have permission to view this world";
 
-    @Value("${chatrpg.validation.token-limits.world.initial-prompt}")
+    @Value("${chatrpg.validation.token-limits.world.adventure-start}")
     private int adventureStartTokenLimit;
 
     @Value("${chatrpg.validation.token-limits.world.lorebook-entry.description}")
@@ -51,7 +54,7 @@ public class WorldDomainServiceImpl implements WorldDomainService {
                 .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
 
         if (!world.canUserRead(query.getRequesterDiscordId())) {
-            throw new AssetAccessDeniedException("User does not have permission to view this world");
+            throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_VIEW_THIS_WORLD);
         }
 
         return world;
@@ -143,13 +146,35 @@ public class WorldDomainServiceImpl implements WorldDomainService {
     }
 
     @Override
+    public List<WorldLorebookEntry> findAllEntriesByRegex(String requesterDiscordId, String worldId, String valueToSearch) {
+
+        World world = repository.findById(worldId)
+                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
+
+        if (!world.canUserRead(requesterDiscordId)) {
+            throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_VIEW_THIS_WORLD);
+        }
+
+        return lorebookEntryRepository.findAllEntriesByRegex(valueToSearch);
+    }
+
+    @Override
+    public List<WorldLorebookEntry> findAllEntriesByRegex(String worldId, String valueToSearch) {
+
+        repository.findById(worldId)
+                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
+
+        return lorebookEntryRepository.findAllEntriesByRegex(valueToSearch);
+    }
+
+    @Override
     public WorldLorebookEntry findWorldLorebookEntryById(GetWorldLorebookEntryById query) {
 
         World world = repository.findById(query.getWorldId())
-                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_UPDATED_WAS_NOT_FOUND));
+                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
 
         if (!world.canUserRead(query.getRequesterDiscordId())) {
-            throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD);
+            throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_VIEW_THIS_WORLD);
         }
 
         return lorebookEntryRepository.findById(query.getEntryId())

@@ -54,6 +54,13 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
     }
 
     @Override
+    public Optional<ChannelConfig> findByDiscordChannelId(String channelId) {
+
+        return jpaRepository.findByDiscordChannelId(channelId)
+                .map(this::mapFromEntity);
+    }
+
+    @Override
     public void deleteById(String id) {
 
         jpaRepository.deleteById(id);

@@ -48,6 +48,15 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
     }
 
     @Override
+    public List<WorldLorebookEntry> findAllEntriesByRegex(String valueToSearch) {
+
+        return jpaRepository.findAllByNameRegex(valueToSearch)
+                .stream()
+                .map(this::mapFromEntity)
+                .toList();
+    }
+
+    @Override
     public void deleteById(String id) {
 
         jpaRepository.deleteById(id);

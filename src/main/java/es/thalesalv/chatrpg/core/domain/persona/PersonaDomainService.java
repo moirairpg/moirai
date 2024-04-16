@@ -9,6 +9,8 @@ public interface PersonaDomainService {
 
     Persona getPersonaById(GetPersonaById query);
 
+    Persona getPersonaById(String id);
+
     Persona createFrom(CreatePersona command);
 
     Persona update(UpdatePersona command);

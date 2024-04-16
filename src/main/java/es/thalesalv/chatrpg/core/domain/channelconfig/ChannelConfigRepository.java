@@ -17,4 +17,6 @@ public interface ChannelConfigRepository {
     SearchChannelConfigsResult searchChannelConfigsWithReadAccess(SearchChannelConfigsWithReadAccess query);
 
     SearchChannelConfigsResult searchChannelConfigsWithWriteAccess(SearchChannelConfigsWithWriteAccess query);
+
+    Optional<ChannelConfig> findByDiscordChannelId(String channelId);
 }

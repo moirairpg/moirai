@@ -23,7 +23,6 @@
         <logback.version>1.4.14</logback.version>
         <logback.json.version>0.1.5</logback.json.version>
         <pitest.skip>true</pitest.skip>
-        <pitest.withHistory>false</pitest.withHistory>
         <testcontainers.version>1.19.7</testcontainers.version>
         <springdoc.version>2.4.0</springdoc.version>
         <sonar.organization>chatrpg</sonar.organization>
@@ -116,13 +115,13 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
+            <!-- <version>4.12.0</version> -->
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
-            <version>4.12.0</version>
+            <!-- <version>4.12.0</version> -->
             <scope>test</scope>
         </dependency>
 
@@ -133,10 +132,11 @@
             <version>0.26.0</version>
         </dependency>
         <dependency>
-            <groupId>net.dv8tion</groupId>
-            <artifactId>JDA</artifactId>
-            <version>5.0.0-beta.21</version>
+            <groupId>com.discord4j</groupId>
+            <artifactId>discord4j-core</artifactId>
+            <version>3.2.6</version>
         </dependency>
+
 
         <!-- Libraries -->
         <dependency>
@@ -326,9 +326,10 @@
                     <execution>
                         <phase>verify</phase>
                         <configuration>
-                            <threads>4</threads>
                             <skip>${pitest.skip}</skip>
-                            <withHistory>${pitest.withHistory}</withHistory>
+                            <threads>4</threads>
+                            <timestampedReports>false</timestampedReports>
+                            <withHistory>false</withHistory>
                             <excludedClasses>
                                 <param>es.thalesalv.chatrpg.common.logging.*</param>
                                 <param>es.thalesalv.chatrpg.core.config.*</param>

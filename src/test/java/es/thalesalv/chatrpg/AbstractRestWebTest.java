@@ -13,10 +13,10 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import discord4j.core.GatewayDiscordClient;
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordPrincipal;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordUserDetailsService;
-import net.dv8tion.jda.api.JDA;
 import reactor.core.publisher.Mono;
 
 @WebFluxTest
@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 public class AbstractRestWebTest {
 
     @MockBean
-    private JDA jda;
+    private GatewayDiscordClient gatewayDiscordClient;
 
     @MockBean
     protected UseCaseRunner useCaseRunner;

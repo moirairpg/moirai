@@ -2,6 +2,8 @@ package es.thalesalv.chatrpg.core.application.command.channelconfig;
 
 import java.util.Collections;
 
+import org.assertj.core.util.Maps;
+
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigFixture;
 
@@ -26,7 +28,7 @@ public class UpdateChannelConfigFixture {
                 .presencePenalty(channelConfig.getModelConfiguration().getPresencePenalty())
                 .stopSequencesToAdd(channelConfig.getModelConfiguration().getStopSequences())
                 .stopSequencesToRemove(channelConfig.getModelConfiguration().getStopSequences())
-                .logitBiasToAdd(channelConfig.getModelConfiguration().getLogitBias())
+                .logitBiasToAdd(Maps.newHashMap("TKNID", 99D))
                 .logitBiasToRemove(Collections.singletonList("TKN"))
                 .usersAllowedToWriteToAdd(Collections.singletonList("USRID"))
                 .usersAllowedToWriteToRemove(Collections.singletonList("USRID"))

@@ -108,6 +108,39 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
     }
 
     @Test
+    public void retrieveChannelConfigByChannelId() {
+
+        // Given
+        String discordChannelId = "234234";
+        ChannelConfig channelConfig = repository.save(ChannelConfigFixture.sample()
+                .id(null)
+                .discordChannelId(discordChannelId)
+                .build());
+
+        // When
+        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findByDiscordChannelId(discordChannelId);
+
+        // Then
+        assertThat(retrievedChannelConfigOptional).isNotNull().isNotEmpty();
+
+        ChannelConfig retrievedChannelConfig = retrievedChannelConfigOptional.get();
+        assertThat(retrievedChannelConfig.getId()).isEqualTo(channelConfig.getId());
+    }
+
+    @Test
+    public void emptyResultWhenAssetDoesntExistGettingByChannelId() {
+
+        // Given
+        String channelConfigId = "WRLDID";
+
+        // When
+        Optional<ChannelConfig> retrievedChannelConfigOptional = repository.findByDiscordChannelId(channelConfigId);
+
+        // Then
+        assertThat(retrievedChannelConfigOptional).isNotNull().isEmpty();
+    }
+
+    @Test
     public void deleteChannelConfig() {
 
         // Given

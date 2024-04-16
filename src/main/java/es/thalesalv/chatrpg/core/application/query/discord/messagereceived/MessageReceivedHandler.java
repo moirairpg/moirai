@@ -1,0 +1,145 @@
+package es.thalesalv.chatrpg.core.application.query.discord.messagereceived;
+
+import static es.thalesalv.chatrpg.core.application.model.request.ChatMessage.Role.ASSISTANT;
+import static es.thalesalv.chatrpg.core.application.model.request.ChatMessage.Role.USER;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
+import es.thalesalv.chatrpg.core.application.model.request.ChatMessage;
+import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
+import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
+import es.thalesalv.chatrpg.core.application.port.DiscordChannelOperationsPort;
+import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
+import es.thalesalv.chatrpg.core.application.service.ContextSummarizationApplicationService;
+import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
+import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentApplicationService;
+import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
+import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
+import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono<Void>> {
+
+    private static final String BUMP = "bump";
+    private static final String LOREBOOK_ENTRIES = "lorebook";
+    private static final String STORY_SUMMARY = "summary";
+    private static final String NUDGE = "nudge";
+    private static final String PERSONA = "persona";
+    private static final String MESSAGE_HISTORY = "messageHistory";
+    private static final String SAYS = " says: ";
+    private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-Za-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
+    private static final String PERIOD = ".";
+    private static final int DISCORD_MAX_LENGTH = 2000;
+
+    private final ContextSummarizationApplicationService summarizationService;
+    private final LorebookEnrichmentService lorebookEnrichmentService;
+    private final PersonaEnrichmentApplicationService personaEnrichmentService;
+    private final ChannelConfigRepository channelConfigRepository;
+    private final DiscordChannelOperationsPort discordChannelOperationsPort;
+    private final OpenAiPort openAiPort;
+
+    @Override
+    public Mono<Void> execute(MessageReceived query) {
+
+        return channelConfigRepository.findByDiscordChannelId(query.getMessageChannelId())
+                .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getMessageChannelId()))
+                .map(channelConfig -> summarizationService
+                        .summarizeWith(query.getMessageChannelId(), query.getMessageId(),
+                                query.getBotName(), channelConfig.getModelConfiguration())
+                        .flatMap(context -> lorebookEnrichmentService.enrich(channelConfig.getWorldId(),
+                                query.getBotName(), context, channelConfig.getModelConfiguration()))
+                        .flatMap(context -> personaEnrichmentService.enrich(channelConfig.getPersonaId(),
+                                query.getBotName(), context, channelConfig.getModelConfiguration()))
+                        .map(unsortedContext -> buildContextAsChatMessages(unsortedContext, query.getBotName()))
+                        .map(processedContext -> buildTextGenerationRequest(channelConfig, processedContext))
+                        .flatMap(openAiPort::generateTextFrom)
+                        .flatMap(generationResult -> sendOutputToChannel(query, generationResult)))
+                .orElseGet(() -> Mono.empty());
+    }
+
+    private List<ChatMessage> buildContextAsChatMessages(Map<String, Object> unsortedContext, String botName) {
+
+        String persona = (String) unsortedContext.get(PERSONA);
+        String nudge = (String) unsortedContext.get(NUDGE);
+        String storySummary = (String) unsortedContext.get(STORY_SUMMARY);
+        String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
+
+        List<ChatMessage> processedContext = new ArrayList<>();
+        processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, storySummary));
+        processedContext.addAll(extractMessageHistoryFrom(unsortedContext, botName));
+        processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
+        processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, persona));
+
+        if (StringUtils.isNotBlank(nudge)) {
+            processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, nudge));
+        }
+
+        return extractBumpFrom(unsortedContext, processedContext);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ChatMessage> extractMessageHistoryFrom(Map<String, Object> unsortedContext, String botName) {
+
+        List<String> messageHistory = (List<String>) unsortedContext.get(MESSAGE_HISTORY);
+        return messageHistory.stream()
+                .map(message -> {
+                    String senderName = message.substring(0, message.indexOf(SAYS));
+                    ChatMessage.Role senderRole = senderName.equals(botName) ? ASSISTANT : USER;
+
+                    return ChatMessage.build(senderRole, message);
+                })
+                .toList();
+    }
+
+    private List<ChatMessage> extractBumpFrom(Map<String, Object> unsortedContext, List<ChatMessage> processedContext) {
+
+        String bump = (String) unsortedContext.get(BUMP);
+        if (StringUtils.isNotBlank(bump)) {
+            int bumpFrequency = 5;
+            for (int index = processedContext.size() - 1 - bumpFrequency; index > 0; index = index - bumpFrequency) {
+                processedContext.add(index, ChatMessage.build(ChatMessage.Role.SYSTEM, bump));
+            }
+        }
+
+        return processedContext;
+    }
+
+    private TextGenerationRequest buildTextGenerationRequest(ChannelConfig channelConfig,
+            List<ChatMessage> processedContext) {
+
+        return TextGenerationRequest.builder()
+                .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
+                .presencePenalty(channelConfig.getModelConfiguration().getPresencePenalty())
+                .temperature(channelConfig.getModelConfiguration().getTemperature())
+                .model(channelConfig.getModelConfiguration().getAiModel().getOfficialModelName())
+                .logitBias(channelConfig.getModelConfiguration().getLogitBias())
+                .maxTokens(channelConfig.getModelConfiguration().getMaxTokenLimit())
+                .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
+                .messages(processedContext)
+                .build();
+    }
+
+    private Mono<Void> sendOutputToChannel(MessageReceived query, TextGenerationResult generationResult) {
+
+        String output = generationResult.getOutputText();
+        int outputSize = output.length();
+        while (outputSize > DISCORD_MAX_LENGTH) {
+            output = output.replaceAll(SENTENCE_EXPRESSION, PERIOD).trim();
+            output = output.equals(PERIOD) ? EMPTY : output;
+            outputSize = output.length();
+        }
+
+        return discordChannelOperationsPort.sendMessage(query.getMessageChannelId(), output);
+    }
+}

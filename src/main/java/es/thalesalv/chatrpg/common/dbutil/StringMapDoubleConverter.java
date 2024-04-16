@@ -1,10 +1,12 @@
 package es.thalesalv.chatrpg.common.dbutil;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -27,6 +29,10 @@ public class StringMapDoubleConverter implements AttributeConverter<Map<String, 
 
     @Override
     public Map<String, Double> convertToEntityAttribute(String inputString) {
+
+        if (StringUtils.isBlank(inputString)) {
+            return Collections.emptyMap();
+        }
 
         return Arrays.stream(inputString.split(SPLIT_CHAR))
                 .map(s -> s.split(ASSIGN_CHAR))

@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
+import java.util.List;
 import java.util.Optional;
 
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntries;
@@ -14,4 +15,6 @@ public interface WorldLorebookEntryRepository {
     SearchWorldLorebookEntriesResult searchWorldLorebookEntriesByWorldId(SearchWorldLorebookEntries query);
 
     void deleteById(String id);
+
+    List<WorldLorebookEntry> findAllEntriesByRegex(String valueToSearch);
 }

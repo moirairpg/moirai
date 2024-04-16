@@ -15,8 +15,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldResult;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithReadAccess;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
+import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithReadAccess;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithWriteAccess;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;

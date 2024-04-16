@@ -26,6 +26,7 @@ import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.AuthenticationFailedException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.common.exception.DiscordApiException;
+import es.thalesalv.chatrpg.common.exception.OpenAiApiException;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.ErrorResponse;
 import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +63,10 @@ public class WebExceptionHandler extends AbstractErrorWebExceptionHandler {
 
         if (originalException instanceof DiscordApiException) {
             return handleDiscordApiError(originalException);
+        }
+
+        if (originalException instanceof OpenAiApiException) {
+            return handleOpenAiApiError(originalException);
         }
 
         log.error("Unknown exception caught", originalException);
@@ -191,6 +196,24 @@ public class WebExceptionHandler extends AbstractErrorWebExceptionHandler {
     private Mono<ServerResponse> handleDiscordApiError(Throwable originalException) {
 
         DiscordApiException exception = (DiscordApiException) originalException;
+        ErrorResponse.Builder errorResponseBuilder = ErrorResponse.builder();
+        errorResponseBuilder.code(exception.getHttpStatusCode());
+
+        if (StringUtils.isNotBlank(exception.getMessage())) {
+            errorResponseBuilder.message(exception.getMessage());
+        }
+
+        if (StringUtils.isNotBlank(exception.getErrorDescription())) {
+            errorResponseBuilder.details(Collections.singletonList(exception.getErrorDescription()));
+        }
+
+        return ServerResponse.status(exception.getHttpStatusCode())
+                .bodyValue(errorResponseBuilder.build());
+    }
+
+    private Mono<ServerResponse> handleOpenAiApiError(Throwable originalException) {
+
+        OpenAiApiException exception = (OpenAiApiException) originalException;
         ErrorResponse.Builder errorResponseBuilder = ErrorResponse.builder();
         errorResponseBuilder.code(exception.getHttpStatusCode());
 

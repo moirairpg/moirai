@@ -298,7 +298,6 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
     public void searchWorldLorebookEntryFilterByName() {
 
         // Given
-
         WorldLorebookEntryEntity gpt4128k = WorldLorebookEntryEntityFixture.sampleLorebookEntry()
                 .id(null)
                 .name("Number 1")
@@ -330,5 +329,50 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
 
         List<GetWorldLorebookEntryResult> entries = result.getResults();
         assertThat(entries.get(0).getName()).isEqualTo(gpt3516k.getName());
+    }
+
+    @Test
+    public void findAllEntriesByRegex_whenValidRegex_thenReturnMatchingEntries() {
+
+        // Then
+        WorldLorebookEntryEntity gpt4128k = WorldLorebookEntryEntityFixture.sampleLorebookEntry()
+                .id(null)
+                .name("John")
+                .regex("[Jj]ohn")
+                .build();
+
+        WorldLorebookEntryEntity gpt3516k = WorldLorebookEntryEntityFixture.sampleLorebookEntry()
+                .id(null)
+                .name("Immune")
+                .regex("[Ii]mmun(e|ity)")
+                .build();
+
+        WorldLorebookEntryEntity gpt354k = WorldLorebookEntryEntityFixture.sampleLorebookEntry()
+                .id(null)
+                .name("Archmage")
+                .regex("[Aa]rch(|-|\s)[Mm]age")
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+
+        String archmageLowerCase = "archmage";
+        String archmageDash = "Arch-mage";
+        String archmageSpace = "Arch Mage";
+        String immunityLowerCase = "immunity";
+        String triggerAll = "John, the Arch-Mage, is immune to disease";
+
+        // When
+        List<WorldLorebookEntry> archmageLowerCaseResult = repository.findAllEntriesByRegex(archmageLowerCase);
+        List<WorldLorebookEntry> archmageDashResult = repository.findAllEntriesByRegex(archmageDash);
+        List<WorldLorebookEntry> archmageSpaceResult = repository.findAllEntriesByRegex(archmageSpace);
+        List<WorldLorebookEntry> immunityLowerCaseResult = repository.findAllEntriesByRegex(immunityLowerCase);
+        List<WorldLorebookEntry> allEntries = repository.findAllEntriesByRegex(triggerAll);
+
+        // Then
+        assertThat(archmageLowerCaseResult).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(archmageDashResult).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(archmageSpaceResult).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(immunityLowerCaseResult).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(allEntries).isNotNull().isNotEmpty().hasSize(3);
     }
 }

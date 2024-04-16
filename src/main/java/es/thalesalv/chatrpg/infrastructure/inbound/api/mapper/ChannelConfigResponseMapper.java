@@ -51,6 +51,7 @@ public class ChannelConfigResponseMapper {
                 .logitBias(result.getLogitBias())
                 .usersAllowedToWrite(result.getUsersAllowedToWrite())
                 .usersAllowedToRead(result.getUsersAllowedToRead())
+                .discordChannelId(result.getDiscordChannelId())
                 .build();
     }
 

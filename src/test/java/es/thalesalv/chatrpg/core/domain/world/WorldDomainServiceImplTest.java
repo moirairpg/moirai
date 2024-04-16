@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -827,5 +828,69 @@ public class WorldDomainServiceImplTest {
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.deleteLorebookEntry(query));
+    }
+
+    @Test
+    public void findAllEntriesByRegex_WhenWorldNotFound_ShouldThrowAssetNotFoundException() {
+
+        // Given
+        String worldId = "worldId";
+        String requesterId = "RQSTRID";
+        String valueToSearch = "Armando";
+
+        when(worldRepository.findById(worldId)).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class,
+                () -> service.findAllEntriesByRegex(requesterId, worldId, valueToSearch));
+    }
+
+    @Test
+    public void findAllEntriesByRegex_WhenUserCannotRead_ShouldThrowAssetAccessDeniedException() {
+
+        // Given
+        String worldId = "worldId";
+        String requesterId = "RQSTRID";
+        String valueToSearch = "Armando";
+        World world = WorldFixture.privateWorld()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTRUSR")
+                        .build())
+                .build();
+
+        when(worldRepository.findById(worldId)).thenReturn(Optional.of(world));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class,
+                () -> service.findAllEntriesByRegex(requesterId, worldId, valueToSearch));
+    }
+
+    @Test
+    public void findAllEntriesByRegex_WhenUserCanRead_ShouldReturnEntries() {
+
+        // Given
+        String worldId = "worldId";
+        String requesterId = "RQSTRID";
+        String valueToSearch = "Armando";
+        World world = WorldFixture.privateWorld()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        List<WorldLorebookEntry> expectedEntries = Collections
+                .singletonList(WorldLorebookEntryFixture.sampleLorebookEntry()
+                        .regex("[Aa]rmando")
+                        .build());
+
+        when(worldRepository.findById(worldId)).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.findAllEntriesByRegex(valueToSearch)).thenReturn(expectedEntries);
+
+        // When
+        List<WorldLorebookEntry> result = service.findAllEntriesByRegex(requesterId, worldId, valueToSearch);
+
+        // Then
+        assertThat(result).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result).isEqualTo(expectedEntries);
     }
 }

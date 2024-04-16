@@ -9,7 +9,7 @@ chatrpg:
         lorebook-entry:
           name: 50
           description: 250
-        initial-prompt: 500
+        adventure-start: 500
   discord:
     oauth:
       client-id: dummy_value

@@ -31,13 +31,10 @@ import reactor.core.publisher.Mono;
 @Component
 public class DiscordAuthenticationAdapter implements DiscordAuthenticationPort {
 
-    private static final String TOKEN_URI = "/oauth2/token";
-    private static final String TOKEN_REVOKE_URI = "/oauth2/token/revoke";
-    private static final String USERS_BASE_URI = "/users/%s";
-
     private static final String CONTENT_TYPE_VALUE = "application/x-www-form-urlencoded";
     private static final String AUTHENTICATION_ERROR = "Error authenticating user on Discord";
     private static final String UNKNOWN_ERROR = "Error on Discord API";
+    private static final String BAD_REQUEST_ERROR = "Bad request calling Discord API";
 
     private static final Predicate<HttpStatusCode> BAD_REQUEST = statusCode -> statusCode
             .isSameCodeAs(HttpStatusCode.valueOf(400));
@@ -45,20 +42,29 @@ public class DiscordAuthenticationAdapter implements DiscordAuthenticationPort {
     private static final Predicate<HttpStatusCode> UNAUTHORIZED = statusCode -> statusCode
             .isSameCodeAs(HttpStatusCode.valueOf(401));
 
+    private final String usersUri;
+    private final String tokenUri;
+    private final String tokenRevokeUri;
     private final ObjectMapper objectMapper;
     private final WebClient webClient;
 
-    public DiscordAuthenticationAdapter(@Value("${chatrpg.discord.api-base-url}") String discordBaseUrl,
+    public DiscordAuthenticationAdapter(@Value("${chatrpg.discord.api.base-url}") String discordBaseUrl,
+            @Value("${chatrpg.discord.api.users-uri}") String usersUri,
+            @Value("${chatrpg.discord.api.token-uri}") String tokenUri,
+            @Value("${chatrpg.discord.api.token-revoke-uri}") String tokenRevokeUri,
             WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
 
         this.objectMapper = objectMapper;
+        this.usersUri = usersUri;
+        this.tokenUri = tokenUri;
+        this.tokenRevokeUri = tokenRevokeUri;
         this.webClient = webClientBuilder.baseUrl(discordBaseUrl).build();
     }
 
     @Override
     public Mono<DiscordAuthResponse> authenticate(DiscordAuthRequest request) {
 
-        return discordWebClient(TOKEN_URI, request)
+        return discordWebClient(tokenUri, request)
                 .bodyToMono(DiscordAuthResponse.class);
     }
 
@@ -66,7 +72,7 @@ public class DiscordAuthenticationAdapter implements DiscordAuthenticationPort {
     public Mono<DiscordUserDataResponse> retrieveLoggedUser(String token) {
 
         return webClient.get()
-                .uri(String.format(USERS_BASE_URI, "@me"))
+                .uri(String.format(usersUri, "@me"))
                 .headers(headers -> {
                     headers.add(HttpHeaders.AUTHORIZATION, token);
                     headers.add(HttpHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON_VALUE);
@@ -81,7 +87,7 @@ public class DiscordAuthenticationAdapter implements DiscordAuthenticationPort {
     @Override
     public Mono<Void> logout(DiscordTokenRevocationRequest request) {
 
-        return discordWebClient(TOKEN_REVOKE_URI, request)
+        return discordWebClient(tokenRevokeUri, request)
                 .bodyToMono(Void.class);
     }
 
@@ -115,7 +121,7 @@ public class DiscordAuthenticationAdapter implements DiscordAuthenticationPort {
         return clientResponse.bodyToMono(DiscordErrorResponse.class)
                 .map(resp -> new DiscordApiException(HttpStatus.BAD_REQUEST, resp.getError(),
                         resp.getErrorDescription(),
-                        String.format(AUTHENTICATION_ERROR, resp.getError(), resp.getErrorDescription())));
+                        String.format(BAD_REQUEST_ERROR, resp.getError(), resp.getErrorDescription())));
     }
 
     private Mono<? extends Throwable> handleUnknownError(ClientResponse clientResponse) {

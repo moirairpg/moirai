@@ -1,5 +1,7 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
+import java.util.List;
+
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
@@ -22,6 +24,10 @@ public interface WorldDomainService {
     WorldLorebookEntry createLorebookEntry(CreateWorldLorebookEntry command);
 
     WorldLorebookEntry updateLorebookEntry(UpdateWorldLorebookEntry command);
+
+    List<WorldLorebookEntry> findAllEntriesByRegex(String requesterDiscordId, String worldId, String valueToSearch);
+
+    List<WorldLorebookEntry> findAllEntriesByRegex(String worldId, String valueToSearch);
 
     WorldLorebookEntry findWorldLorebookEntryById(GetWorldLorebookEntryById query);
 

@@ -31,6 +31,7 @@ public class ChannelConfigRequestMapper {
                 .logitBias(request.getLogitBias())
                 .usersAllowedToWrite(request.getUsersAllowedToWrite())
                 .usersAllowedToRead(request.getUsersAllowedToRead())
+                .discordChannelId(request.getDiscordChannelId())
                 .requesterDiscordId(requesterDiscordId)
                 .build();
     }
@@ -58,6 +59,7 @@ public class ChannelConfigRequestMapper {
                 .usersAllowedToWriteToRemove(request.getUsersAllowedToWriteToRemove())
                 .usersAllowedToReadToAdd(request.getUsersAllowedToReadToAdd())
                 .usersAllowedToReadToRemove(request.getUsersAllowedToReadToRemove())
+                .discordChannelId(request.getDiscordChannelId())
                 .requesterDiscordId(requesterDiscordId)
                 .build();
     }

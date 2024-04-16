@@ -43,6 +43,15 @@ public class PersonaDomainServiceImpl implements PersonaDomainService {
     }
 
     @Override
+    public Persona getPersonaById(String id) {
+
+        Persona persona = repository.findById(id)
+                .orElseThrow(() -> new AssetNotFoundException("Persona to be viewed was not found"));
+
+        return persona;
+    }
+
+    @Override
     public void deletePersona(DeletePersona command) {
 
         Persona persona = repository.findById(command.getId())

@@ -48,6 +48,7 @@ public class DiscordAuthenticationAdapterTest {
 
         objectMapper = new ObjectMapper();
         adapter = new DiscordAuthenticationAdapter("http://localhost:" + mockBackEnd.getPort(),
+                "/users", "/token", "/token/revoke",
                 WebClient.builder(), objectMapper);
     }
 
