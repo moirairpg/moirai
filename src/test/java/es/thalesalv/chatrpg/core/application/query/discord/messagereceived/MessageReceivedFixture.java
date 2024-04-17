@@ -12,7 +12,6 @@ public class MessageReceivedFixture {
                 .isBotMentioned(false)
                 .mentionedUsersIds(Collections.emptyList())
                 .messageChannelId("CHNLID")
-                .messageContent("Hello, world!")
                 .messageGuildId("GLDID")
                 .messageId("MSGID");
     }

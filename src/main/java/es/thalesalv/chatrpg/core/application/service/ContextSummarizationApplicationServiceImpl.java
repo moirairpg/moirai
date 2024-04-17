@@ -14,43 +14,41 @@ import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
 
-import discord4j.discordjson.json.MessageData;
 import es.thalesalv.chatrpg.core.application.model.request.ChatMessage;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
-import es.thalesalv.chatrpg.core.application.port.DiscordChannelOperationsPort;
+import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 @Service
 @RequiredArgsConstructor
 @SuppressWarnings("unchecked")
 public class ContextSummarizationApplicationServiceImpl implements ContextSummarizationApplicationService {
 
-    private static final String SAYS = "%s says: %s";
     private static final String PERIOD = ".";
     private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-Za-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
     private static final String SUMMARY = "summary";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
     private static final String MESSAGE_HISTORY = "messageHistory";
 
-    private final DiscordChannelOperationsPort discordChannelOperationsPort;
+    private final DiscordChannelPort discordChannelOperationsPort;
     private final OpenAiPort openAiPort;
     private final TokenizerPort tokenizerPort;
 
     @Override
-    public Mono<Map<String, Object>> summarizeWith(String channelId, String messageId, String botName,
-            ModelConfiguration modelConfiguration) {
+    public Mono<Map<String, Object>> summarizeWith(String guildId, String authorId, String channelId, String messageId,
+            String botName,
+            ModelConfiguration modelConfiguration, List<String> mentionedUserIds) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
         int reservedTokensForStory = (int) Math.floor(totalTokens * 0.30);
 
-        return discordChannelOperationsPort.retrieveLastMessagesInclusiveFrom(channelId, messageId, 100)
-                .zipWith(discordChannelOperationsPort.getMessageById(channelId, messageId))
-                .flatMap(zipped -> generateSummary(zipped, modelConfiguration))
+        return discordChannelOperationsPort.retrieveEntireHistoryFrom(guildId, channelId, messageId, mentionedUserIds)
+                .flatMap(messagesExtracted -> generateSummary(messagesExtracted, modelConfiguration))
                 .map(processedContext -> {
                     processedContext.putAll(addInitialMessagesToContext(processedContext, reservedTokensForStory));
                     processedContext.putAll(addSummaryToContext(processedContext, reservedTokensForStory));
@@ -61,16 +59,16 @@ public class ContextSummarizationApplicationServiceImpl implements ContextSummar
                 });
     }
 
-    private Mono<? extends Map<String, Object>> generateSummary(Tuple2<List<MessageData>, MessageData> zipped,
+    private Mono<? extends Map<String, Object>> generateSummary(List<ChatMessageData> messagesExtracted,
             ModelConfiguration modelConfiguration) {
 
-        TextGenerationRequest request = createSummarizationRequest(zipped.getT2(), zipped.getT1(), modelConfiguration);
+        TextGenerationRequest request = createSummarizationRequest(messagesExtracted, modelConfiguration);
         return openAiPort.generateTextFrom(request)
                 .map(summarizationResponse -> {
                     String summary = summarizationResponse.getOutputText();
                     Map<String, Object> processedContext = new HashMap<>();
 
-                    processedContext.put(RETRIEVED_MESSAGES, zipped.getT1());
+                    processedContext.put(RETRIEVED_MESSAGES, messagesExtracted);
                     processedContext.put(SUMMARY, summary.trim());
 
                     return processedContext;
@@ -80,26 +78,24 @@ public class ContextSummarizationApplicationServiceImpl implements ContextSummar
     private Map<String, Object> addInitialMessagesToContext(Map<String, Object> processedContext,
             int reservedTokensForStory) {
 
-        List<MessageData> retrievedMessages = (List<MessageData>) processedContext.get(RETRIEVED_MESSAGES);
+        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext.get(RETRIEVED_MESSAGES);
         List<String> messageHistory = new ArrayList<>();
 
         IntStream.range(0, retrievedMessages.size())
                 .takeWhile(index -> index < 5)
                 .mapToObj(retrievedMessages::get)
                 .takeWhile(messageData -> {
-                    String message = formatMessage(messageData);
-
-                    int tokensInMessage = tokenizerPort.getTokenCountFrom(message);
+                    int tokensInMessage = tokenizerPort.getTokenCountFrom(messageData.getContent());
                     int tokensInContext = tokenizerPort.getTokenCountFrom(stringifyList(messageHistory));
 
                     int tokensLeftInContext = reservedTokensForStory - tokensInContext;
 
                     return tokensInMessage <= tokensLeftInContext;
                 })
-                .map(messageData -> formatMessage(messageData))
+                .map(ChatMessageData::getContent)
                 .forEach(messageHistory::addFirst);
 
-        retrievedMessages.removeIf(message -> messageHistory.contains(formatMessage(message)));
+        retrievedMessages.removeIf(messageData -> messageHistory.contains(messageData.getContent()));
 
         processedContext.put(RETRIEVED_MESSAGES, retrievedMessages);
         processedContext.put(MESSAGE_HISTORY, messageHistory);
@@ -133,15 +129,13 @@ public class ContextSummarizationApplicationServiceImpl implements ContextSummar
 
         String summary = (String) processedContext.get(SUMMARY);
         List<String> messageHistory = (List<String>) processedContext.get(MESSAGE_HISTORY);
-        List<MessageData> retrievedMessages = (List<MessageData>) processedContext.get(RETRIEVED_MESSAGES);
+        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext.get(RETRIEVED_MESSAGES);
 
         int tokensInSummary = tokenizerPort.getTokenCountFrom(summary);
 
         retrievedMessages.stream()
                 .takeWhile(messageData -> {
-                    String message = formatMessage(messageData);
-
-                    int tokensInMessage = tokenizerPort.getTokenCountFrom(message);
+                    int tokensInMessage = tokenizerPort.getTokenCountFrom(messageData.getContent());
                     int tokensInContext = tokenizerPort.getTokenCountFrom(
                             stringifyList(messageHistory)) + tokensInSummary;
 
@@ -149,10 +143,10 @@ public class ContextSummarizationApplicationServiceImpl implements ContextSummar
 
                     return tokensInMessage <= tokensLeftInContext;
                 })
-                .map(messageData -> formatMessage(messageData))
+                .map(ChatMessageData::getContent)
                 .forEach(messageHistory::addFirst);
 
-        retrievedMessages.removeIf(message -> messageHistory.contains(formatMessage(message)));
+        retrievedMessages.removeIf(messageData -> messageHistory.contains(messageData.getContent()));
 
         processedContext.put(MESSAGE_HISTORY, messageHistory);
         processedContext.put(RETRIEVED_MESSAGES, retrievedMessages);
@@ -165,21 +159,18 @@ public class ContextSummarizationApplicationServiceImpl implements ContextSummar
         return list.stream().collect(Collectors.joining(LF));
     }
 
-    private String formatMessage(MessageData message) {
-        return String.format(SAYS, message.author().username(), message.content());
-    }
-
-    private TextGenerationRequest createSummarizationRequest(MessageData lastMessage, List<MessageData> messages,
+    private TextGenerationRequest createSummarizationRequest(List<ChatMessageData> messagesExtracted,
             ModelConfiguration modelConfiguration) {
 
         List<ChatMessage> chatMessages = new ArrayList<>();
-        chatMessages.addAll(messages.stream()
+        chatMessages.addAll(messagesExtracted.stream()
                 .map(this::mapToMessage)
                 .collect(Collectors.toCollection(ArrayList::new)));
 
-        chatMessages.addFirst(ChatMessage.build(SYSTEM, "Summarize the contents of the story in a single paragraph"));
-
-        chatMessages.addFirst(mapToMessage(lastMessage));
+        chatMessages.addFirst(ChatMessage.build(SYSTEM, "Summarize the contents of the conversation in an "
+                + "understandable and complete way, preferrably in a single paragraph. The summary can be long "
+                + "and detailed, a slong as it fits a single paragraph. Don't acknowledge the instruction, "
+                + "just generate the summary and nothing else"));
 
         return TextGenerationRequest.builder()
                 .presencePenalty(modelConfiguration.getPresencePenalty())
@@ -193,8 +184,8 @@ public class ContextSummarizationApplicationServiceImpl implements ContextSummar
                 .build();
     }
 
-    private ChatMessage mapToMessage(MessageData messageData) {
+    private ChatMessage mapToMessage(ChatMessageData messageData) {
 
-        return ChatMessage.build(USER, messageData.content());
+        return ChatMessage.build(USER, messageData.getContent());
     }
 }

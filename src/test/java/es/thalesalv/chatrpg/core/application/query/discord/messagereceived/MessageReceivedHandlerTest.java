@@ -3,6 +3,7 @@ package es.thalesalv.chatrpg.core.application.query.discord.messagereceived;
 import static es.thalesalv.chatrpg.core.application.model.request.ChatMessage.Role.SYSTEM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,7 +29,7 @@ import es.thalesalv.chatrpg.core.application.model.request.ChatMessage;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResultFixture;
-import es.thalesalv.chatrpg.core.application.port.DiscordChannelOperationsPort;
+import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
 import es.thalesalv.chatrpg.core.application.service.ContextSummarizationApplicationService;
 import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
@@ -55,7 +56,7 @@ public class MessageReceivedHandlerTest {
     private ChannelConfigRepository channelConfigRepository;
 
     @Mock
-    private DiscordChannelOperationsPort discordChannelOperationsPort;
+    private DiscordChannelPort discordChannelOperationsPort;
 
     @Mock
     private OpenAiPort openAiPort;
@@ -86,11 +87,11 @@ public class MessageReceivedHandlerTest {
                 .build();
 
         Map<String, Object> context = new HashMap<>();
-        context.put("messageHistory", List.of("TestUser says: history",
-                "AnotherUser says: another message",
-                "TheOtherUser says: another message",
-                "Cherokee says: another message",
-                "YetAnotherUser says: yet another message"));
+        context.put("messageHistory", List.of("TestUser said: history",
+                "AnotherUser said: another message",
+                "TheOtherUser said: another message",
+                "Cherokee said: another message",
+                "YetAnotherUser said: yet another message"));
 
         context.put("lorebook", lorebook);
         context.put("persona", personaDescription);
@@ -100,7 +101,8 @@ public class MessageReceivedHandlerTest {
 
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
 
-        when(summarizationService.summarizeWith(anyString(), anyString(), anyString(), any()))
+        when(summarizationService.summarizeWith(anyString(), anyString(), anyString(),
+                anyString(), anyString(), any(), anyList()))
                 .thenReturn(Mono.just(context));
 
         when(channelConfigRepository.findByDiscordChannelId(channelId))
@@ -166,7 +168,6 @@ public class MessageReceivedHandlerTest {
                 .isBotMentioned(false)
                 .mentionedUsersIds(Collections.emptyList())
                 .messageChannelId(channelId)
-                .messageContent("Hello, world!")
                 .messageGuildId("GLDID")
                 .messageId("MSGID")
                 .build();

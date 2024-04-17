@@ -21,12 +21,13 @@ import discord4j.discordjson.json.MessageEditRequest;
 import discord4j.discordjson.json.UserData;
 import discord4j.rest.entity.RestChannel;
 import discord4j.rest.entity.RestMessage;
+import es.thalesalv.chatrpg.common.fixture.MessageDataFixture;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class DiscordChannelOperationsAdapterTest {
+public class DiscordChannelAdapterTest {
 
     @Mock
     private GatewayDiscordClient discordClient;
@@ -44,7 +45,7 @@ public class DiscordChannelOperationsAdapterTest {
     private RestChannel restChannel;
 
     @InjectMocks
-    private DiscordChannelOperationsAdapter adapter;
+    private DiscordChannelAdapter adapter;
 
     @Test
     void sendMessage_whenCalled_thenMessageShouldBeSent() {
@@ -131,6 +132,7 @@ public class DiscordChannelOperationsAdapterTest {
         String channelId = "123";
         String messageId = "456";
         int amountOfMessagesToRetrieve = 5;
+        int expectedMessagesInEnd = 6;
 
         Flux<MessageData> messageHistory = getMessageHistory();
 
@@ -143,6 +145,14 @@ public class DiscordChannelOperationsAdapterTest {
         when(restChannel.getMessagesBefore(any()))
                 .thenReturn(messageHistory);
 
+        when(restChannel.getRestMessage(any()))
+                .thenReturn(restMessage);
+
+        when(restMessage.getData())
+                .thenReturn(Mono.just(MessageDataFixture.messageData()
+                        .content("Last message")
+                        .build()));
+
         // When
         Mono<List<MessageData>> result = adapter.retrieveLastMessagesFrom(channelId, messageId,
                 amountOfMessagesToRetrieve);
@@ -150,12 +160,13 @@ public class DiscordChannelOperationsAdapterTest {
         // Then
         StepVerifier.create(result)
                 .consumeNextWith(messages -> {
-                    assertThat(messages).hasSize(amountOfMessagesToRetrieve);
-                    assertThat(messages.get(0).content()).isEqualTo("Message 1");
-                    assertThat(messages.get(1).content()).isEqualTo("Message 2");
-                    assertThat(messages.get(2).content()).isEqualTo("Message 3");
-                    assertThat(messages.get(3).content()).isEqualTo("Message 4");
-                    assertThat(messages.get(4).content()).isEqualTo("Message 5");
+                    assertThat(messages).hasSize(expectedMessagesInEnd);
+                    assertThat(messages.get(0).content()).isEqualTo("Last message");
+                    assertThat(messages.get(1).content()).isEqualTo("Message 1");
+                    assertThat(messages.get(2).content()).isEqualTo("Message 2");
+                    assertThat(messages.get(3).content()).isEqualTo("Message 3");
+                    assertThat(messages.get(4).content()).isEqualTo("Message 4");
+                    assertThat(messages.get(5).content()).isEqualTo("Message 5");
                 })
                 .verifyComplete();
     }

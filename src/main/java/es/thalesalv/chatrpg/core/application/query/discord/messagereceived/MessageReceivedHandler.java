@@ -13,10 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
+import es.thalesalv.chatrpg.common.util.DefaultStringProcessors;
+import es.thalesalv.chatrpg.common.util.StringProcessor;
 import es.thalesalv.chatrpg.core.application.model.request.ChatMessage;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
-import es.thalesalv.chatrpg.core.application.port.DiscordChannelOperationsPort;
+import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
 import es.thalesalv.chatrpg.core.application.service.ContextSummarizationApplicationService;
 import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
@@ -36,8 +38,9 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
     private static final String STORY_SUMMARY = "summary";
     private static final String NUDGE = "nudge";
     private static final String PERSONA = "persona";
+    private static final String PERSONA_NAME = "personaName";
     private static final String MESSAGE_HISTORY = "messageHistory";
-    private static final String SAYS = " says: ";
+    private static final String SAID = " said: ";
     private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-Za-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
     private static final String PERIOD = ".";
     private static final int DISCORD_MAX_LENGTH = 2000;
@@ -46,7 +49,7 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
     private final LorebookEnrichmentService lorebookEnrichmentService;
     private final PersonaEnrichmentApplicationService personaEnrichmentService;
     private final ChannelConfigRepository channelConfigRepository;
-    private final DiscordChannelOperationsPort discordChannelOperationsPort;
+    private final DiscordChannelPort discordChannelOperationsPort;
     private final OpenAiPort openAiPort;
 
     @Override
@@ -55,8 +58,9 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
         return channelConfigRepository.findByDiscordChannelId(query.getMessageChannelId())
                 .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getMessageChannelId()))
                 .map(channelConfig -> summarizationService
-                        .summarizeWith(query.getMessageChannelId(), query.getMessageId(),
-                                query.getBotName(), channelConfig.getModelConfiguration())
+                        .summarizeWith(query.getMessageGuildId(), query.getAuthordDiscordId(),
+                                query.getMessageChannelId(), query.getMessageId(),
+                                query.getBotName(), channelConfig.getModelConfiguration(), query.getMentionedUsersIds())
                         .flatMap(context -> lorebookEnrichmentService.enrich(channelConfig.getWorldId(),
                                 query.getBotName(), context, channelConfig.getModelConfiguration()))
                         .flatMap(context -> personaEnrichmentService.enrich(channelConfig.getPersonaId(),
@@ -71,13 +75,14 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
     private List<ChatMessage> buildContextAsChatMessages(Map<String, Object> unsortedContext, String botName) {
 
         String persona = (String) unsortedContext.get(PERSONA);
+        String personaName = (String) unsortedContext.get(PERSONA_NAME);
         String nudge = (String) unsortedContext.get(NUDGE);
         String storySummary = (String) unsortedContext.get(STORY_SUMMARY);
         String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
 
         List<ChatMessage> processedContext = new ArrayList<>();
         processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, storySummary));
-        processedContext.addAll(extractMessageHistoryFrom(unsortedContext, botName));
+        processedContext.addAll(extractMessageHistoryFrom(unsortedContext, botName, personaName));
         processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
         processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, persona));
 
@@ -89,15 +94,20 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
     }
 
     @SuppressWarnings("unchecked")
-    private List<ChatMessage> extractMessageHistoryFrom(Map<String, Object> unsortedContext, String botName) {
+    private List<ChatMessage> extractMessageHistoryFrom(Map<String, Object> unsortedContext,
+            String botName, String personaName) {
 
         List<String> messageHistory = (List<String>) unsortedContext.get(MESSAGE_HISTORY);
         return messageHistory.stream()
                 .map(message -> {
-                    String senderName = message.substring(0, message.indexOf(SAYS));
+                    StringProcessor processor = new StringProcessor();
+                    processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botName));
+
+                    String modifiedContent = processor.process(message);
+                    String senderName = message.substring(0, message.indexOf(SAID));
                     ChatMessage.Role senderRole = senderName.equals(botName) ? ASSISTANT : USER;
 
-                    return ChatMessage.build(senderRole, message);
+                    return ChatMessage.build(senderRole, modifiedContent);
                 })
                 .toList();
     }
@@ -132,8 +142,15 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
 
     private Mono<Void> sendOutputToChannel(MessageReceived query, TextGenerationResult generationResult) {
 
-        String output = generationResult.getOutputText();
+        StringProcessor processor = new StringProcessor();
+        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForLowercase(query.getBotName()));
+        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForUppercase(query.getBotName()));
+        processor.addRule(DefaultStringProcessors.stripChatPrefix());
+        processor.addRule(DefaultStringProcessors.stripTrailingFragment());
+
+        String output = processor.process(generationResult.getOutputText());
         int outputSize = output.length();
+
         while (outputSize > DISCORD_MAX_LENGTH) {
             output = output.replaceAll(SENTENCE_EXPRESSION, PERIOD).trim();
             output = output.equals(PERIOD) ? EMPTY : output;

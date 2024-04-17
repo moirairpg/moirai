@@ -163,7 +163,7 @@ public class LorebookEnrichmentServiceImplTest {
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
         String[] messagesAdded = ((List<String>) contextWithSummary.get("messageHistory"))
                 .stream()
-                .map(msg -> msg.replace("User said before test says", "test_user says"))
+                .map(msg -> msg.replace("User said before test said", "test_user said"))
                 .toList()
                 .toArray(new String[0]);
 
@@ -224,7 +224,7 @@ public class LorebookEnrichmentServiceImplTest {
 
         List<String> textMessages = new ArrayList<>(messageDataList.stream()
                 .map(MessageData::content)
-                .map(content -> String.format("User said before test says: %s", content))
+                .map(content -> String.format("User said before test said: %s", content))
                 .toList());
 
         messageDataList.removeIf(message -> textMessages.contains(message.content()));

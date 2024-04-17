@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import discord4j.discordjson.json.MessageData;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -22,7 +22,6 @@ import reactor.core.publisher.Mono;
 @SuppressWarnings("unchecked")
 public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService {
 
-    private static final String SAYS = "%s says: %s";
     private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";
     private static final String MESSAGE_HISTORY = "messageHistory";
     private static final String LOREBOOK = "lorebook";
@@ -77,16 +76,13 @@ public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService 
 
         String lorebook = (String) contextWithLorebook.get(LOREBOOK);
         List<String> messageHistory = (List<String>) contextWithLorebook.get(MESSAGE_HISTORY);
-        List<MessageData> retrievedMessages = (List<MessageData>) contextWithLorebook.get(RETRIEVED_MESSAGES);
+        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) contextWithLorebook.get(RETRIEVED_MESSAGES);
 
         int tokensInLorebook = tokenizerPort.getTokenCountFrom(lorebook);
 
         retrievedMessages.stream()
                 .takeWhile(messageData -> {
-                    String message = String.format(SAYS, messageData.author().username(),
-                            messageData.content());
-
-                    int tokensInMessage = tokenizerPort.getTokenCountFrom(message);
+                    int tokensInMessage = tokenizerPort.getTokenCountFrom(messageData.getContent());
                     int tokensInContext = tokenizerPort.getTokenCountFrom(stringifyList(messageHistory))
                             + tokensInLorebook;
 
@@ -94,10 +90,10 @@ public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService 
 
                     return tokensInMessage <= tokensLeftInContext;
                 })
-                .map(messageData -> String.format(SAYS, messageData.author().username(), messageData.content()))
+                .map(ChatMessageData::getContent)
                 .forEach(messageHistory::addFirst);
 
-        retrievedMessages.removeIf(message -> messageHistory.contains(formatMessage(message)));
+        retrievedMessages.removeIf(messageData -> messageHistory.contains(messageData.getContent()));
 
         contextWithLorebook.put(MESSAGE_HISTORY, messageHistory);
         contextWithLorebook.put(RETRIEVED_MESSAGES, retrievedMessages);
@@ -108,9 +104,5 @@ public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService 
     private String stringifyList(List<String> list) {
 
         return list.stream().collect(Collectors.joining(LF));
-    }
-
-    private String formatMessage(MessageData message) {
-        return String.format(SAYS, message.author().username(), message.content());
     }
 }

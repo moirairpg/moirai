@@ -15,7 +15,6 @@ import reactor.core.publisher.Mono;
 public final class MessageReceived extends UseCase<Mono<Void>> {
 
     private final String authordDiscordId;
-    private final String messageContent;
     private final String messageId;
     private final String messageChannelId;
     private final String messageGuildId;

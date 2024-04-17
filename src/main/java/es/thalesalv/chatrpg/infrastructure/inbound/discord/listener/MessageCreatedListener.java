@@ -5,14 +5,13 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.PartialMember;
 import discord4j.core.object.entity.User;
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
+import es.thalesalv.chatrpg.common.util.DefaultStringProcessors;
 import es.thalesalv.chatrpg.core.application.query.discord.messagereceived.MessageReceived;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -35,26 +34,21 @@ public class MessageCreatedListener implements DiscordEventListener<MessageCreat
         Message message = event.getMessage();
         String messageContent = message.getContent();
         String channelId = message.getChannelId().asString();
+        List<String> mentions = DefaultStringProcessors.extractDiscordIds().apply(messageContent);
 
         if (StringUtils.isNotBlank(messageContent)) {
-            return Mono.zip(event.getGuild(), message.getAuthorAsMember(), event.getClient().getSelf())
+            return Mono
+                    .zip(event.getGuild(), message.getAuthorAsMember(), event.getClient().getSelf())
                     .filter(zipped -> !zipped.getT2().isBot())
                     .map(zipped -> {
-                        Guild guild = (Guild) zipped.getT1();
-                        Member author = (Member) zipped.getT2();
-                        User bot = (User) zipped.getT3();
-
-                        List<String> mentions = message.getMemberMentions()
-                                .stream()
-                                .map(PartialMember::getId)
-                                .map(Snowflake::asString)
-                                .toList();
+                        Guild guild = zipped.getT1();
+                        Member author = zipped.getT2();
+                        User bot = zipped.getT3();
 
                         return MessageReceived.builder()
                                 .authordDiscordId(author.getId().asString())
                                 .messageChannelId(channelId)
                                 .messageId(message.getId().asString())
-                                .messageContent(messageContent)
                                 .messageGuildId(guild.getId().asString())
                                 .isBotMentioned(mentions.contains(bot.getId().asString()))
                                 .mentionedUsersIds(mentions)

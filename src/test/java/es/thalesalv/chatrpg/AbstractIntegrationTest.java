@@ -10,7 +10,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import discord4j.core.GatewayDiscordClient;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
-import es.thalesalv.chatrpg.core.application.port.DiscordChannelOperationsPort;
+import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
 import es.thalesalv.chatrpg.core.application.service.ContextSummarizationApplicationService;
 import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentApplicationService;
@@ -27,7 +27,7 @@ public abstract class AbstractIntegrationTest {
     private OpenAiPort openAiPort;
 
     @MockBean
-    private DiscordChannelOperationsPort discordChannelOperationsPort;
+    private DiscordChannelPort discordChannelOperationsPort;
 
     @MockBean
     private PersonaEnrichmentApplicationService inputEnrichmentApplicationService;
