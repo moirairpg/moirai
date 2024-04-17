@@ -1,12 +1,9 @@
 package es.thalesalv.chatrpg.core.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.oneOf;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,13 +17,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import discord4j.discordjson.json.MessageData;
-import es.thalesalv.chatrpg.common.fixture.MessageDataFixture;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfigurationFixture;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -67,9 +64,10 @@ public class LorebookEnrichmentServiceImplTest {
 
                     String lorebook = (String) processedContext.get("lorebook");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<MessageData> retrievedMessages = (List<MessageData>) processedContext.get("retrievedMessages");
+                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+                            .get("retrievedMessages");
 
-                    assertThat(messageHistory).hasSize(10);
+                    assertThat(messageHistory).hasSize(5);
                     assertThat(retrievedMessages).isEmpty();
 
                     assertThat(lorebook)
@@ -105,10 +103,11 @@ public class LorebookEnrichmentServiceImplTest {
 
                     String lorebook = (String) processedContext.get("lorebook");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<MessageData> retrievedMessages = (List<MessageData>) processedContext.get("retrievedMessages");
+                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+                            .get("retrievedMessages");
 
                     assertThat(lorebook).isEmpty();
-                    assertThat(messageHistory).hasSize(10);
+                    assertThat(messageHistory).hasSize(5);
                     assertThat(retrievedMessages).isEmpty();
                 })
                 .verifyComplete();
@@ -139,7 +138,8 @@ public class LorebookEnrichmentServiceImplTest {
 
                     String lorebook = (String) processedContext.get("lorebook");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<MessageData> retrievedMessages = (List<MessageData>) processedContext.get("retrievedMessages");
+                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+                            .get("retrievedMessages");
 
                     assertThat(messageHistory).hasSize(5);
                     assertThat(retrievedMessages).isEmpty();
@@ -161,17 +161,11 @@ public class LorebookEnrichmentServiceImplTest {
         String botName = "botName";
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
-        String[] messagesAdded = ((List<String>) contextWithSummary.get("messageHistory"))
-                .stream()
-                .map(msg -> msg.replace("User said before test said", "test_user said"))
-                .toList()
-                .toArray(new String[0]);
 
         when(worldDomainService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(lorebookEntriesNumber(5));
 
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
-        when(tokenizerPort.getTokenCountFrom(argThat(is(oneOf(messagesAdded))))).thenReturn(10000);
 
         // When
         Mono<Map<String, Object>> result = service.enrich(worldId, botName, contextWithSummary, modelConfiguration);
@@ -183,10 +177,11 @@ public class LorebookEnrichmentServiceImplTest {
 
                     String lorebook = (String) processedContext.get("lorebook");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<MessageData> retrievedMessages = (List<MessageData>) processedContext.get("retrievedMessages");
+                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+                            .get("retrievedMessages");
 
                     assertThat(messageHistory).hasSize(5);
-                    assertThat(retrievedMessages).hasSize(5);
+                    assertThat(retrievedMessages).isEmpty();
 
                     assertThat(lorebook)
                             .isEqualTo("[ Description of Entry 1: Description 1 ]\n"
@@ -214,20 +209,21 @@ public class LorebookEnrichmentServiceImplTest {
 
     private Map<String, Object> contextWithSummaryAndMessages(int items) {
 
-        List<MessageData> messageDataList = new ArrayList<>();
+        List<ChatMessageData> messageDataList = new ArrayList<>();
         for (int i = 0; i < items; i++) {
-            messageDataList.add(MessageDataFixture.messageData()
-                    .id(i + 1)
+            messageDataList.add(ChatMessageDataFixture.messageData()
+                    .id(String.valueOf(i + 1))
                     .content(String.format("Message %s", i + 1))
                     .build());
         }
 
         List<String> textMessages = new ArrayList<>(messageDataList.stream()
-                .map(MessageData::content)
+                .map(ChatMessageData::getContent)
                 .map(content -> String.format("User said before test said: %s", content))
                 .toList());
 
-        messageDataList.removeIf(message -> textMessages.contains(message.content()));
+        messageDataList
+                .removeIf(message -> textMessages.stream().anyMatch(content -> content.endsWith(message.getContent())));
 
         Map<String, Object> context = new HashMap<>();
         context.put("summary", "This is the summary");

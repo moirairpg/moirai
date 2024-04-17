@@ -15,7 +15,6 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.User;
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -42,7 +41,7 @@ class MessageCreatedListenerTest {
     private Member author;
 
     @Mock
-    private User bot;
+    private Member bot;
 
     @InjectMocks
     private MessageCreatedListener listener;
@@ -59,7 +58,6 @@ class MessageCreatedListenerTest {
         when(message.getAuthorAsMember()).thenReturn(Mono.just(author));
 
         when(guild.getId()).thenReturn(Snowflake.of("789"));
-
         when(author.getId()).thenReturn(Snowflake.of("789"));
         when(author.isBot()).thenReturn(false);
 
@@ -70,7 +68,8 @@ class MessageCreatedListenerTest {
         when(event.getMessage()).thenReturn(message);
         when(event.getGuild()).thenReturn(Mono.just(guild));
 
-        when(gatewayDiscordClient.getSelf()).thenReturn(Mono.just(bot));
+        when(gatewayDiscordClient.getSelfId()).thenReturn(Snowflake.of("12345"));
+        when(gatewayDiscordClient.getSelfMember(any())).thenReturn(Mono.just(bot));
 
         when(useCaseRunner.run(any())).thenReturn(Mono.empty());
 
@@ -87,8 +86,10 @@ class MessageCreatedListenerTest {
         // Given
         String messageContent = "";
         when(event.getMessage()).thenReturn(message);
+        when(event.getClient()).thenReturn(gatewayDiscordClient);
         when(message.getContent()).thenReturn(messageContent);
         when(message.getChannelId()).thenReturn(Snowflake.of("1234567890"));
+        when(gatewayDiscordClient.getSelfId()).thenReturn(Snowflake.of("12345"));
 
         // When
         Mono<Void> result = listener.onEvent(event);
@@ -108,7 +109,8 @@ class MessageCreatedListenerTest {
         when(event.getMessage()).thenReturn(message);
         when(event.getGuild()).thenReturn(Mono.just(guild));
 
-        when(gatewayDiscordClient.getSelf()).thenReturn(Mono.just(bot));
+        when(gatewayDiscordClient.getSelfId()).thenReturn(Snowflake.of("12345"));
+        when(gatewayDiscordClient.getSelfMember(any())).thenReturn(Mono.just(bot));
 
         when(message.getContent()).thenReturn(messageContent);
         when(message.getChannelId()).thenReturn(Snowflake.of("1234567890"));

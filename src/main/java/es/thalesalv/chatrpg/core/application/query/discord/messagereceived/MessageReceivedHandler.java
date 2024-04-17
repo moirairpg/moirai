@@ -58,8 +58,7 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
         return channelConfigRepository.findByDiscordChannelId(query.getMessageChannelId())
                 .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getMessageChannelId()))
                 .map(channelConfig -> summarizationService
-                        .summarizeWith(query.getMessageGuildId(), query.getAuthordDiscordId(),
-                                query.getMessageChannelId(), query.getMessageId(),
+                        .summarizeWith(query.getMessageGuildId(), query.getMessageChannelId(), query.getMessageId(),
                                 query.getBotName(), channelConfig.getModelConfiguration(), query.getMentionedUsersIds())
                         .flatMap(context -> lorebookEnrichmentService.enrich(channelConfig.getWorldId(),
                                 query.getBotName(), context, channelConfig.getModelConfiguration()))

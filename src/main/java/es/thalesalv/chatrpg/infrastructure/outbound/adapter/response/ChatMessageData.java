@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@Builder
+@Builder(builderClassName = "Builder")
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ChatMessageData {
 

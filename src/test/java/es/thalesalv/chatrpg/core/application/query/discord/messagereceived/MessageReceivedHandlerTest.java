@@ -101,7 +101,7 @@ public class MessageReceivedHandlerTest {
 
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
 
-        when(summarizationService.summarizeWith(anyString(), anyString(), anyString(),
+        when(summarizationService.summarizeWith(anyString(), anyString(),
                 anyString(), anyString(), any(), anyList()))
                 .thenReturn(Mono.just(context));
 

@@ -8,6 +8,6 @@ import reactor.core.publisher.Mono;
 
 public interface ContextSummarizationApplicationService {
 
-    Mono<Map<String, Object>> summarizeWith(String guildId, String authorId, String channelId, String messageId, String botName,
+    Mono<Map<String, Object>> summarizeWith(String guildId, String channelId, String messageId, String botName,
             ModelConfiguration modelConfiguration, List<String> mentionedUserIds);
 }

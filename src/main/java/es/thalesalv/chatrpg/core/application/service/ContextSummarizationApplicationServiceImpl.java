@@ -40,9 +40,8 @@ public class ContextSummarizationApplicationServiceImpl implements ContextSummar
     private final TokenizerPort tokenizerPort;
 
     @Override
-    public Mono<Map<String, Object>> summarizeWith(String guildId, String authorId, String channelId, String messageId,
-            String botName,
-            ModelConfiguration modelConfiguration, List<String> mentionedUserIds) {
+    public Mono<Map<String, Object>> summarizeWith(String guildId, String channelId, String messageId,
+            String botName, ModelConfiguration modelConfiguration, List<String> mentionedUserIds) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
         int reservedTokensForStory = (int) Math.floor(totalTokens * 0.30);

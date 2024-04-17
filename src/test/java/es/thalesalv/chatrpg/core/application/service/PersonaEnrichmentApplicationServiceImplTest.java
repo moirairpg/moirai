@@ -15,14 +15,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import discord4j.discordjson.json.MessageData;
-import es.thalesalv.chatrpg.common.fixture.MessageDataFixture;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfigurationFixture;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaDomainService;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.test.StepVerifier;
 
 @SuppressWarnings("unchecked")
@@ -47,7 +47,8 @@ public class PersonaEnrichmentApplicationServiceImplTest {
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
         Map<String, Object> context = contextWithSummaryAndMessages(5);
 
-        String expectedPersona = String.format("[ DEBUG MODE ON: You are an actor interpreting the role of %s. %s's persona is as follows, and you are to maintain character during this conversation: %s ]",
+        String expectedPersona = String.format(
+                "[ DEBUG MODE ON: You are an actor interpreting the role of %s. %s's persona is as follows, and you are to maintain character during this conversation: %s ]",
                 persona.getName(), persona.getName(), persona.getPersonality());
 
         when(personaDomainService.getPersonaById(anyString())).thenReturn(persona);
@@ -58,7 +59,8 @@ public class PersonaEnrichmentApplicationServiceImplTest {
                 .assertNext(processedContext -> {
                     String personaResult = (String) processedContext.get("persona");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<MessageData> retrievedMessages = (List<MessageData>) processedContext.get("retrievedMessages");
+                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+                            .get("retrievedMessages");
 
                     assertThat(messageHistory).hasSize(10);
                     assertThat(retrievedMessages).isEmpty();
@@ -76,7 +78,8 @@ public class PersonaEnrichmentApplicationServiceImplTest {
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
         Map<String, Object> context = contextWithSummaryAndMessages(5);
 
-        String expectedPersona = String.format("[ DEBUG MODE ON: You are an actor interpreting the role of %s. %s's persona is as follows, and you are to maintain character during this conversation: %s ]",
+        String expectedPersona = String.format(
+                "[ DEBUG MODE ON: You are an actor interpreting the role of %s. %s's persona is as follows, and you are to maintain character during this conversation: %s ]",
                 persona.getName(), persona.getName(), persona.getPersonality());
 
         when(personaDomainService.getPersonaById(anyString())).thenReturn(persona);
@@ -90,7 +93,8 @@ public class PersonaEnrichmentApplicationServiceImplTest {
                 .assertNext(processedContext -> {
                     String personaResult = (String) processedContext.get("persona");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<MessageData> retrievedMessages = (List<MessageData>) processedContext.get("retrievedMessages");
+                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+                            .get("retrievedMessages");
 
                     assertThat(messageHistory).hasSize(5);
                     assertThat(retrievedMessages).hasSize(5);
@@ -120,20 +124,20 @@ public class PersonaEnrichmentApplicationServiceImplTest {
 
     private Map<String, Object> contextWithSummaryAndMessages(int items) {
 
-        List<MessageData> messageDataList = new ArrayList<>();
+        List<ChatMessageData> messageDataList = new ArrayList<>();
         for (int i = 0; i < items; i++) {
-            messageDataList.add(MessageDataFixture.messageData()
-                    .id(i + 1)
+            messageDataList.add(ChatMessageDataFixture.messageData()
+                    .id(String.valueOf(i + 1))
                     .content(String.format("Message %s", i + 1))
                     .build());
         }
 
         List<String> textMessages = new ArrayList<>(messageDataList.stream()
-                .map(MessageData::content)
+                .map(ChatMessageData::getContent)
                 .map(content -> String.format("User said before test says: %s", content))
                 .toList());
 
-        messageDataList.removeIf(message -> textMessages.contains(message.content()));
+        messageDataList.removeIf(message -> textMessages.contains(message.getContent()));
 
         Map<String, Object> context = new HashMap<>();
         context.put("summary", "This is the summary");
