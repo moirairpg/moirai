@@ -260,13 +260,13 @@ public class ModelConfigurationTest {
                 .aiModel(ArtificialIntelligenceModel.GPT35_16K)
                 .maxTokenLimit(20000);
 
-        ModelConfiguration.Builder gpt354k = ModelConfigurationFixture.gpt3516k()
-                .aiModel(ArtificialIntelligenceModel.GPT35_4K)
-                .maxTokenLimit(5000);
+        ModelConfiguration.Builder gpt4128k = ModelConfigurationFixture.gpt3516k()
+                .aiModel(ArtificialIntelligenceModel.GPT4_128K)
+                .maxTokenLimit(500000);
 
         // Then
         assertThrows(BusinessRuleViolationException.class, gpt3516k::build);
-        assertThrows(BusinessRuleViolationException.class, gpt354k::build);
+        assertThrows(BusinessRuleViolationException.class, gpt4128k::build);
     }
 
     @Test

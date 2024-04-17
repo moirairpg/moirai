@@ -1,6 +1,6 @@
 package es.thalesalv.chatrpg.core.application.service;
 
-import static es.thalesalv.chatrpg.core.domain.channelconfig.ArtificialIntelligenceModel.GPT35_4K;
+import static es.thalesalv.chatrpg.core.domain.channelconfig.ArtificialIntelligenceModel.GPT35_16K;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,8 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import discord4j.discordjson.json.MessageData;
-import es.thalesalv.chatrpg.common.fixture.MessageDataFixture;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResultFixture;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
@@ -126,11 +124,10 @@ public class ContextSummarizationApplicationServiceImplTest {
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
         String trimmedSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor.";
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
-                .aiModel(GPT35_4K)
+                .aiModel(GPT35_16K)
                 .build();
 
         List<ChatMessageData> messages = buildMessageDataListWithItems(3);
-        MessageData lastMessage = MessageDataFixture.messageData().content("Last test message").build();
 
         List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
 
@@ -155,7 +152,7 @@ public class ContextSummarizationApplicationServiceImplTest {
                 .thenReturn(1000);
 
         when(tokenizerPort.getTokenCountFrom(eq(longSummary)))
-                .thenReturn(2000);
+                .thenReturn(20000);
 
         // When
         Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId,
@@ -188,11 +185,10 @@ public class ContextSummarizationApplicationServiceImplTest {
         String botName = "testBot";
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
-                .aiModel(GPT35_4K)
+                .aiModel(GPT35_16K)
                 .build();
 
         List<ChatMessageData> messages = buildMessageDataListWithItems(3);
-        MessageData lastMessage = MessageDataFixture.messageData().content("Last test message").build();
 
         List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
 
@@ -218,7 +214,7 @@ public class ContextSummarizationApplicationServiceImplTest {
                 .thenReturn(1000);
 
         when(tokenizerPort.getTokenCountFrom(eq(longSummary)))
-                .thenReturn(2000);
+                .thenReturn(20000);
 
         // When
         Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId,
@@ -251,11 +247,10 @@ public class ContextSummarizationApplicationServiceImplTest {
         String botName = "testBot";
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
-                .aiModel(GPT35_4K)
+                .aiModel(GPT35_16K)
                 .build();
 
         List<ChatMessageData> messages = buildMessageDataListWithItems(3);
-        MessageData lastMessage = MessageDataFixture.messageData().content("Last test message").build();
 
         List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
 
@@ -315,11 +310,10 @@ public class ContextSummarizationApplicationServiceImplTest {
         String botName = "testBot";
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
-                .aiModel(GPT35_4K)
+                .aiModel(GPT35_16K)
                 .build();
 
         List<ChatMessageData> messages = buildMessageDataListWithItems(10);
-        MessageData lastMessage = MessageDataFixture.messageData().content("Last test message").build();
 
         List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
 
@@ -353,7 +347,7 @@ public class ContextSummarizationApplicationServiceImplTest {
                 .thenReturn(200)
                 .thenReturn(20)
                 .thenReturn(200)
-                .thenReturn(2000);
+                .thenReturn(20000);
 
         // When
         Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId,

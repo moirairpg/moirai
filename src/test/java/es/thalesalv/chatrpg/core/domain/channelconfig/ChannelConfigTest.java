@@ -290,7 +290,7 @@ public class ChannelConfigTest {
 
         // Given
         int maxTokenLimit = 100;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
@@ -305,8 +305,8 @@ public class ChannelConfigTest {
     public void errorWhenMaxTokenLimitGreaterThanHardLimit() {
 
         // Given
-        int maxTokenLimit = 5000;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        int maxTokenLimit = 50000;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
@@ -320,7 +320,7 @@ public class ChannelConfigTest {
 
         // Given
         int maxTokenLimit = 10;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
@@ -334,7 +334,7 @@ public class ChannelConfigTest {
 
         // Given
         int messageHistorySize = 100;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
@@ -350,7 +350,7 @@ public class ChannelConfigTest {
 
         // Given
         int messageHistorySize = 5000;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
@@ -364,7 +364,7 @@ public class ChannelConfigTest {
 
         // Given
         int messageHistorySize = 5;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_4K;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
