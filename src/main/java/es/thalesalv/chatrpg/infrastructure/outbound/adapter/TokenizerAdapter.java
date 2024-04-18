@@ -47,11 +47,18 @@ public class TokenizerAdapter implements TokenizerPort {
     @Override
     public int getTokenCountFrom(String text) {
 
+        if (StringUtils.isBlank(text)) {
+            return 0;
+        }
+
         return getTokensIdsFrom(text).length;
     }
 
     @Override
     public int getTokenCountFrom(String[] texts) {
+        if (texts == null || texts.length == 0) {
+            return 0;
+        }
 
         return getTokensIdsFrom(texts).length;
     }

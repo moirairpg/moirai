@@ -75,6 +75,62 @@ public class TokenizerAdapterTest {
     }
 
     @Test
+    public void countTokens_whenNullText_returnsZero() {
+
+        // Given
+        String textToTokenize = null;
+        int expectedTokenCount = 0;
+
+        // When
+        int tokenCount = tokenizer.getTokenCountFrom(textToTokenize);
+
+        // Then
+        assertThat(expectedTokenCount).isEqualTo(tokenCount);
+    }
+
+    @Test
+    public void countTokens_whenEmptyText_returnsZero() {
+
+        // Given
+        String textToTokenize = "";
+        int expectedTokenCount = 0;
+
+        // When
+        int tokenCount = tokenizer.getTokenCountFrom(textToTokenize);
+
+        // Then
+        assertThat(expectedTokenCount).isEqualTo(tokenCount);
+    }
+
+    @Test
+    public void countTokens_whenNullTextArray_returnsZero() {
+
+        // Given
+        String[] textsToTokenize = null;
+        int expectedTokenCount = 0;
+
+        // When
+        int tokenCount = tokenizer.getTokenCountFrom(textsToTokenize);
+
+        // Then
+        assertThat(expectedTokenCount).isEqualTo(tokenCount);
+    }
+
+    @Test
+    public void countTokens_whenEmptyTextArray_returnsZero() {
+
+        // Given
+        String[] textsToTokenize = {};
+        int expectedTokenCount = 0;
+
+        // When
+        int tokenCount = tokenizer.getTokenCountFrom(textsToTokenize);
+
+        // Then
+        assertThat(expectedTokenCount).isEqualTo(tokenCount);
+    }
+
+    @Test
     public void tokenizeEnglishText() throws UnsupportedEncodingException {
 
         // Given
