@@ -80,7 +80,7 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
         String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
 
         List<ChatMessage> processedContext = new ArrayList<>();
-        processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, storySummary));
+        processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, processSummarization(storySummary, botName, personaName)));
         processedContext.addAll(extractMessageHistoryFrom(unsortedContext, botName, personaName));
         processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
         processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, persona));
@@ -137,6 +137,16 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
                 .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
                 .messages(processedContext)
                 .build();
+    }
+
+    private String processSummarization(String summary, String botName, String personaName) {
+
+        StringProcessor processor = new StringProcessor();
+        processor.addRule(DefaultStringProcessors.stripChatPrefix());
+        processor.addRule(DefaultStringProcessors.stripTrailingFragment());
+        processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botName));
+
+        return processor.process(summary);
     }
 
     private Mono<Void> sendOutputToChannel(MessageReceived query, TextGenerationResult generationResult) {
