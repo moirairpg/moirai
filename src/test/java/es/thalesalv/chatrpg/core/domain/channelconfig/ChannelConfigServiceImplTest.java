@@ -26,13 +26,13 @@ import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfi
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 
 @ExtendWith(MockitoExtension.class)
-public class ChannelConfigDomainServiceImplTest {
+public class ChannelConfigServiceImplTest {
 
     @Mock
     private ChannelConfigRepository repository;
 
     @InjectMocks
-    private ChannelConfigDomainServiceImpl service;
+    private ChannelConfigServiceImpl service;
 
     @Test
     public void createChannelConfig() {

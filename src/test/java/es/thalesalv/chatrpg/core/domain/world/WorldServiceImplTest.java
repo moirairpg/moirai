@@ -35,7 +35,7 @@ import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 
 @ExtendWith(MockitoExtension.class)
-public class WorldDomainServiceImplTest {
+public class WorldServiceImplTest {
 
     @Mock
     private WorldLorebookEntryRepository lorebookEntryRepository;
@@ -47,7 +47,7 @@ public class WorldDomainServiceImplTest {
     private TokenizerPort tokenizerPort;
 
     @InjectMocks
-    private WorldDomainServiceImpl service;
+    private WorldServiceImpl service;
 
     @Test
     public void createWorldSuccessfully() {

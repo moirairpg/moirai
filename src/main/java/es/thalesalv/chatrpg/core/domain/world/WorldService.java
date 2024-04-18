@@ -11,7 +11,7 @@ import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEn
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryById;
 
-public interface WorldDomainService {
+public interface WorldService {
 
     World getWorldById(GetWorldById query);
 

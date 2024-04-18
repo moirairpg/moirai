@@ -20,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfigurationFixture;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
-import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
+import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
@@ -35,7 +35,7 @@ public class LorebookEnrichmentServiceImplTest {
     private TokenizerPort tokenizerPort;
 
     @Mock
-    private WorldDomainService worldDomainService;
+    private WorldService worldService;
 
     @InjectMocks
     private LorebookEnrichmentServiceImpl service;
@@ -49,7 +49,7 @@ public class LorebookEnrichmentServiceImplTest {
 
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
-        when(worldDomainService.findAllEntriesByRegex(eq(worldId), anyString()))
+        when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(lorebookEntriesNumber(5));
 
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
@@ -88,7 +88,7 @@ public class LorebookEnrichmentServiceImplTest {
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
-        when(worldDomainService.findAllEntriesByRegex(eq(worldId), anyString()))
+        when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(Collections.emptyList());
 
         // When
@@ -118,7 +118,7 @@ public class LorebookEnrichmentServiceImplTest {
 
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
-        when(worldDomainService.findAllEntriesByRegex(eq(worldId), anyString()))
+        when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(lorebookEntriesNumber(5));
 
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
@@ -157,7 +157,7 @@ public class LorebookEnrichmentServiceImplTest {
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
-        when(worldDomainService.findAllEntriesByRegex(eq(worldId), anyString()))
+        when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(lorebookEntriesNumber(5));
 
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);

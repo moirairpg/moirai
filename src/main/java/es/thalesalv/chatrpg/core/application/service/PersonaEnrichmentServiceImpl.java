@@ -12,7 +12,7 @@ import es.thalesalv.chatrpg.common.util.DefaultStringProcessors;
 import es.thalesalv.chatrpg.common.util.StringProcessor;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
-import es.thalesalv.chatrpg.core.domain.persona.PersonaDomainService;
+import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 @SuppressWarnings("unchecked")
-public class PersonaEnrichmentApplicationServiceImpl implements PersonaEnrichmentApplicationService {
+public class PersonaEnrichmentServiceImpl implements PersonaEnrichmentService {
 
     private static final String PERSONA_DESCRIPTION = "[ DEBUG MODE ON: You are an actor interpreting the role of {name}. {name}'s persona is as follows, and you are to maintain character during this conversation: %s ]";
     private static final String MESSAGE_HISTORY = "messageHistory";
@@ -30,7 +30,7 @@ public class PersonaEnrichmentApplicationServiceImpl implements PersonaEnrichmen
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
 
     private final TokenizerPort tokenizerPort;
-    private final PersonaDomainService personaDomainService;
+    private final PersonaService personaService;
 
     @Override
     public Mono<Map<String, Object>> enrich(String personaId, String botName, Map<String, Object> processedContext,
@@ -39,7 +39,7 @@ public class PersonaEnrichmentApplicationServiceImpl implements PersonaEnrichmen
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
         int reservedTokensForPersona = (int) Math.floor(totalTokens * 0.20);
 
-        return Mono.just(personaDomainService.getPersonaById(personaId))
+        return Mono.just(personaService.getPersonaById(personaId))
                 .map(persona -> addPersonaToContext(persona, processedContext, reservedTokensForPersona))
                 .map(context -> addExtraMessagesToContext(context, reservedTokensForPersona));
     }

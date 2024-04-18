@@ -9,13 +9,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigDomainService;
+import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigService;
 
 @ExtendWith(MockitoExtension.class)
 public class DeleteChannelConfigHandlerTest {
 
     @Mock
-    private ChannelConfigDomainService domainService;
+    private ChannelConfigService domainService;
 
     @InjectMocks
     private DeleteChannelConfigHandler handler;

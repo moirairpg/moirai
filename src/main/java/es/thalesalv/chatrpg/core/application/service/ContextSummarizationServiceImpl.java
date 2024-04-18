@@ -27,7 +27,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 @SuppressWarnings("unchecked")
-public class ContextSummarizationApplicationServiceImpl implements ContextSummarizationApplicationService {
+public class ContextSummarizationServiceImpl implements ContextSummarizationService {
 
     private static final String PERIOD = ".";
     private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-Za-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";

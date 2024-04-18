@@ -12,8 +12,8 @@ import discord4j.core.GatewayDiscordClient;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
-import es.thalesalv.chatrpg.core.application.service.ContextSummarizationApplicationService;
-import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentApplicationService;
+import es.thalesalv.chatrpg.core.application.service.ContextSummarizationService;
+import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
 import es.thalesalv.chatrpg.infrastructure.config.Discord4JConfig;
 
 @ActiveProfiles("test")
@@ -30,10 +30,10 @@ public abstract class AbstractIntegrationTest {
     private DiscordChannelPort discordChannelOperationsPort;
 
     @MockBean
-    private PersonaEnrichmentApplicationService inputEnrichmentApplicationService;
+    private PersonaEnrichmentService inputEnrichmentService;
 
     @MockBean
-    private ContextSummarizationApplicationService contextSummarizationApplicationService;
+    private ContextSummarizationService contextSummarizationService;
 
     @MockBean
     private GatewayDiscordClient gatewayDiscordClient;

@@ -20,9 +20,9 @@ import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
-import es.thalesalv.chatrpg.core.application.service.ContextSummarizationApplicationService;
+import es.thalesalv.chatrpg.core.application.service.ContextSummarizationService;
 import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
-import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentApplicationService;
+import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,9 +45,9 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
     private static final String PERIOD = ".";
     private static final int DISCORD_MAX_LENGTH = 2000;
 
-    private final ContextSummarizationApplicationService summarizationService;
+    private final ContextSummarizationService summarizationService;
     private final LorebookEnrichmentService lorebookEnrichmentService;
-    private final PersonaEnrichmentApplicationService personaEnrichmentService;
+    private final PersonaEnrichmentService personaEnrichmentService;
     private final ChannelConfigRepository channelConfigRepository;
     private final DiscordChannelPort discordChannelOperationsPort;
     private final OpenAiPort openAiPort;
@@ -137,13 +137,15 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
         String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
 
         List<ChatMessage> processedContext = new ArrayList<>();
-        processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, processSummarization(storySummary, botName, personaName)));
+        processedContext.add(
+                ChatMessage.build(ChatMessage.Role.SYSTEM, processSummarization(storySummary, botName, personaName)));
+
         processedContext.addAll(extractMessageHistoryFrom(unsortedContext, botName, personaName));
 
         if (StringUtils.isNotBlank(lorebookEntries)) {
             processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
         }
-        
+
         processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, persona));
 
         if (StringUtils.isNotBlank(nudge)) {

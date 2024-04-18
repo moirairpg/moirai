@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.world.World;
-import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
+import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class GetWorldByIdHandler extends UseCaseHandler<GetWorldById, GetWorldResult> {
 
-    private final WorldDomainService domainService;
+    private final WorldService domainService;
 
     @Override
     public GetWorldResult execute(GetWorldById query) {

@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class ChannelConfigDomainServiceImpl implements ChannelConfigDomainService {
+public class ChannelConfigServiceImpl implements ChannelConfigService {
 
     private final ChannelConfigRepository repository;
 

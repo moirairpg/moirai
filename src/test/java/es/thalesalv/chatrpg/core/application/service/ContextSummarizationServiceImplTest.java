@@ -36,7 +36,7 @@ import reactor.test.StepVerifier;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
-public class ContextSummarizationApplicationServiceImplTest {
+public class ContextSummarizationServiceImplTest {
 
     @Mock
     private DiscordChannelPort discordChannelOperationsPort;
@@ -48,7 +48,7 @@ public class ContextSummarizationApplicationServiceImplTest {
     private TokenizerPort tokenizerPort;
 
     @InjectMocks
-    private ContextSummarizationApplicationServiceImpl service;
+    private ContextSummarizationServiceImpl service;
 
     @Test
     public void summarizeWith_validInput_thenSummaryGenerated() {

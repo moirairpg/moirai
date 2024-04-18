@@ -5,7 +5,7 @@ import es.thalesalv.chatrpg.core.application.command.channelconfig.DeleteChannel
 import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfig;
 import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfigById;
 
-public interface ChannelConfigDomainService {
+public interface ChannelConfigService {
 
     ChannelConfig createFrom(CreateChannelConfig command);
 

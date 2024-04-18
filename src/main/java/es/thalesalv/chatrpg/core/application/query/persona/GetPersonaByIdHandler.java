@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
-import es.thalesalv.chatrpg.core.domain.persona.PersonaDomainService;
+import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class GetPersonaByIdHandler extends UseCaseHandler<GetPersonaById, GetPersonaResult> {
 
-    private final PersonaDomainService domainService;
+    private final PersonaService domainService;
 
     @Override
     public GetPersonaResult execute(GetPersonaById query) {

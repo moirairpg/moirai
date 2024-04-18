@@ -12,14 +12,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.core.domain.world.World;
-import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
+import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import es.thalesalv.chatrpg.core.domain.world.WorldFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class CreateWorldHandlerTest {
 
     @Mock
-    private WorldDomainService domainService;
+    private WorldService domainService;
 
     @InjectMocks
     private CreateWorldHandler handler;

@@ -11,14 +11,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
-import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigDomainServiceImpl;
+import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigServiceImpl;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class UpdateChannelConfigHandlerTest {
 
     @Mock
-    private ChannelConfigDomainServiceImpl service;
+    private ChannelConfigServiceImpl service;
 
     @InjectMocks
     private UpdateChannelConfigHandler handler;

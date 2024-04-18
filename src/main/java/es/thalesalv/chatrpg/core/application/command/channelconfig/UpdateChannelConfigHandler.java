@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
-import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigDomainService;
+import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class UpdateChannelConfigHandler extends UseCaseHandler<UpdateChannelConfig, UpdateChannelConfigResult> {
 
-    private final ChannelConfigDomainService service;
+    private final ChannelConfigService service;
 
     @Override
     public UpdateChannelConfigResult execute(UpdateChannelConfig command) {

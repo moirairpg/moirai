@@ -3,7 +3,7 @@ package es.thalesalv.chatrpg.core.application.command.world;
 import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
-import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
+import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 public class UpdateWorldLorebookEntryHandler
         extends UseCaseHandler<UpdateWorldLorebookEntry, UpdateWorldLorebookEntryResult> {
 
-    private final WorldDomainService service;
+    private final WorldService service;
 
     @Override
     public UpdateWorldLorebookEntryResult execute(UpdateWorldLorebookEntry command) {

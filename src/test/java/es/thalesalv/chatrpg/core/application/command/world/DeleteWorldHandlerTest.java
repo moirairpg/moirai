@@ -10,13 +10,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
+import es.thalesalv.chatrpg.core.domain.world.WorldService;
 
 @ExtendWith(MockitoExtension.class)
 public class DeleteWorldHandlerTest {
 
     @Mock
-    private WorldDomainService domainService;
+    private WorldService domainService;
 
     @InjectMocks
     private DeleteWorldHandler handler;

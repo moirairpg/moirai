@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfigurationFixture;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
-import es.thalesalv.chatrpg.core.domain.persona.PersonaDomainService;
+import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
@@ -27,16 +27,16 @@ import reactor.test.StepVerifier;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
-public class PersonaEnrichmentApplicationServiceImplTest {
+public class PersonaEnrichmentServiceImplTest {
 
     @Mock
     private TokenizerPort tokenizerPort;
 
     @Mock
-    private PersonaDomainService personaDomainService;
+    private PersonaService personaService;
 
     @InjectMocks
-    private PersonaEnrichmentApplicationServiceImpl service;
+    private PersonaEnrichmentServiceImpl service;
 
     @Test
     public void enrichWithPersona_whenSufficientTokens_addPersonaAndMessages() {
@@ -51,7 +51,7 @@ public class PersonaEnrichmentApplicationServiceImplTest {
                 "[ DEBUG MODE ON: You are an actor interpreting the role of %s. %s's persona is as follows, and you are to maintain character during this conversation: %s ]",
                 persona.getName(), persona.getName(), persona.getPersonality());
 
-        when(personaDomainService.getPersonaById(anyString())).thenReturn(persona);
+        when(personaService.getPersonaById(anyString())).thenReturn(persona);
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(100);
 
         // Then
@@ -82,7 +82,7 @@ public class PersonaEnrichmentApplicationServiceImplTest {
                 "[ DEBUG MODE ON: You are an actor interpreting the role of %s. %s's persona is as follows, and you are to maintain character during this conversation: %s ]",
                 persona.getName(), persona.getName(), persona.getPersonality());
 
-        when(personaDomainService.getPersonaById(anyString())).thenReturn(persona);
+        when(personaService.getPersonaById(anyString())).thenReturn(persona);
         when(tokenizerPort.getTokenCountFrom(anyString()))
                 .thenReturn(100)
                 .thenReturn(100)
@@ -112,7 +112,7 @@ public class PersonaEnrichmentApplicationServiceImplTest {
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
         Map<String, Object> context = contextWithSummaryAndMessages(5);
 
-        when(personaDomainService.getPersonaById(anyString())).thenReturn(persona);
+        when(personaService.getPersonaById(anyString())).thenReturn(persona);
         when(tokenizerPort.getTokenCountFrom(anyString()))
                 .thenReturn(100000)
                 .thenReturn(100);

@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class PersonaDomainServiceImpl implements PersonaDomainService {
+public class PersonaServiceImpl implements PersonaService {
 
     @Value("${chatrpg.validation.token-limits.persona.personality}")
     private int personalityTokenLimit;

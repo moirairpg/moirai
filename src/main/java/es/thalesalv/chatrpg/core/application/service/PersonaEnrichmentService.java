@@ -5,7 +5,7 @@ import java.util.Map;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import reactor.core.publisher.Mono;
 
-public interface PersonaEnrichmentApplicationService {
+public interface PersonaEnrichmentService {
 
     Mono<Map<String, Object>> enrich(String personaId, String botName, Map<String, Object> processedContext,
             ModelConfiguration modelConfiguration);

@@ -30,7 +30,7 @@ import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 
 @SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
-public class PersonaDomainServiceImplTest {
+public class PersonaServiceImplTest {
 
     @Mock
     private PersonaRepository repository;
@@ -39,7 +39,7 @@ public class PersonaDomainServiceImplTest {
     private TokenizerPort tokenizerPort;
 
     @InjectMocks
-    private PersonaDomainServiceImpl service;
+    private PersonaServiceImpl service;
 
     @Test
     public void createPersonaSuccessfully() {

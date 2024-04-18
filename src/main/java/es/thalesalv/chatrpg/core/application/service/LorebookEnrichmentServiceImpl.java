@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
-import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
+import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
 import io.micrometer.common.util.StringUtils;
@@ -29,7 +29,7 @@ public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService 
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
 
     private final TokenizerPort tokenizerPort;
-    private final WorldDomainService worldDomainService;
+    private final WorldService worldService;
 
     @Override
     public Mono<Map<String, Object>> enrich(String worldId, String botName, Map<String, Object> contextWithSummary,
@@ -42,7 +42,7 @@ public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService 
         List<String> messageHistory = (List<String>) contextWithSummary.get("messageHistory");
         String context = summary + LF + stringifyList(messageHistory);
 
-        return Mono.just(worldDomainService.findAllEntriesByRegex(worldId, context))
+        return Mono.just(worldService.findAllEntriesByRegex(worldId, context))
                 .map(entries -> addEntriesFoundToContext(entries, contextWithSummary, reservedTokensForLorebook))
                 .map(processedContext -> addExtraMessagesToContext(processedContext, reservedTokensForLorebook));
     }

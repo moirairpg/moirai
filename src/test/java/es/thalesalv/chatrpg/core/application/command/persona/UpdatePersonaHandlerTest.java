@@ -11,14 +11,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
-import es.thalesalv.chatrpg.core.domain.persona.PersonaDomainServiceImpl;
+import es.thalesalv.chatrpg.core.domain.persona.PersonaServiceImpl;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class UpdatePersonaHandlerTest {
 
     @Mock
-    private PersonaDomainServiceImpl service;
+    private PersonaServiceImpl service;
 
     @InjectMocks
     private UpdatePersonaHandler handler;

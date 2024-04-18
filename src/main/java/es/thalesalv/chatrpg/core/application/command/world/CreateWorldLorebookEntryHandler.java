@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
-import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
+import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class CreateWorldLorebookEntryHandler
         extends UseCaseHandler<CreateWorldLorebookEntry, CreateWorldLorebookEntryResult> {
 
-    private final WorldDomainService domainService;
+    private final WorldService domainService;
 
     @Override
     public void validate(CreateWorldLorebookEntry command) {

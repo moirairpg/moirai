@@ -5,7 +5,7 @@ import es.thalesalv.chatrpg.core.application.command.persona.DeletePersona;
 import es.thalesalv.chatrpg.core.application.command.persona.UpdatePersona;
 import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaById;
 
-public interface PersonaDomainService {
+public interface PersonaService {
 
     Persona getPersonaById(GetPersonaById query);
 

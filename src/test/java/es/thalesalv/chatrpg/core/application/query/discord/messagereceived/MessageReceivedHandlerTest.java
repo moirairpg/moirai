@@ -31,9 +31,9 @@ import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResultFixture;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
-import es.thalesalv.chatrpg.core.application.service.ContextSummarizationApplicationService;
+import es.thalesalv.chatrpg.core.application.service.ContextSummarizationService;
 import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
-import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentApplicationService;
+import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigFixture;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
@@ -47,10 +47,10 @@ public class MessageReceivedHandlerTest {
     private LorebookEnrichmentService lorebookEnrichmentService;
 
     @Mock
-    private ContextSummarizationApplicationService summarizationService;
+    private ContextSummarizationService summarizationService;
 
     @Mock
-    private PersonaEnrichmentApplicationService enrichmentApplicationService;
+    private PersonaEnrichmentService enrichmentService;
 
     @Mock
     private ChannelConfigRepository channelConfigRepository;
@@ -111,7 +111,7 @@ public class MessageReceivedHandlerTest {
         when(lorebookEnrichmentService.enrich(anyString(), anyString(), anyMap(), any()))
                 .thenReturn(Mono.just(context));
 
-        when(enrichmentApplicationService.enrich(anyString(), anyString(), anyMap(), any()))
+        when(enrichmentService.enrich(anyString(), anyString(), anyMap(), any()))
                 .thenReturn(Mono.just(context));
 
         when(openAiPort.generateTextFrom(any()))

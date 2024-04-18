@@ -6,7 +6,7 @@ import java.util.Map;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import reactor.core.publisher.Mono;
 
-public interface ContextSummarizationApplicationService {
+public interface ContextSummarizationService {
 
     Mono<Map<String, Object>> summarizeWith(String guildId, String channelId, String messageId, String botName,
             ModelConfiguration modelConfiguration, List<String> mentionedUserIds);

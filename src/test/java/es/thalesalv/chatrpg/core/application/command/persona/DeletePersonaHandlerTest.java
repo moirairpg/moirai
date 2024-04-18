@@ -10,13 +10,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.domain.persona.PersonaDomainService;
+import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
 
 @ExtendWith(MockitoExtension.class)
 public class DeletePersonaHandlerTest {
 
     @Mock
-    private PersonaDomainService domainService;
+    private PersonaService domainService;
 
     @InjectMocks
     private DeletePersonaHandler handler;
