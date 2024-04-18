@@ -14,6 +14,7 @@ import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.core.domain.world.WorldDomainService;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -66,7 +67,10 @@ public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService 
                 .map(entryData -> String.format(ENTRY_DESCRIPTION, entryData.getName(), entryData.getDescription()))
                 .forEach(lorebook::add);
 
-        processedContext.put(LOREBOOK, stringifyList(lorebook));
+        String stringifiedLorebook = stringifyList(lorebook);
+        if (StringUtils.isNotBlank(stringifiedLorebook)) {
+            processedContext.put(LOREBOOK, stringifiedLorebook);
+        }
 
         return processedContext;
     }

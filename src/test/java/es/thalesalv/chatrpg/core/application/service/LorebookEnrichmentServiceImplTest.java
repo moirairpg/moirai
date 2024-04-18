@@ -91,22 +91,17 @@ public class LorebookEnrichmentServiceImplTest {
         when(worldDomainService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(Collections.emptyList());
 
-        when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
-
         // When
         Mono<Map<String, Object>> result = service.enrich(worldId, botName, contextWithSummary, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
                 .assertNext(processedContext -> {
-                    assertThat(processedContext).containsKey("lorebook");
+                    assertThat(processedContext).doesNotContainKey("lorebook");
 
-                    String lorebook = (String) processedContext.get("lorebook");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
                     List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
                             .get("retrievedMessages");
-
-                    assertThat(lorebook).isEmpty();
                     assertThat(messageHistory).hasSize(5);
                     assertThat(retrievedMessages).isEmpty();
                 })

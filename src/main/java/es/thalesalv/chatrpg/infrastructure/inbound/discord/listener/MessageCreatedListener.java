@@ -35,7 +35,7 @@ public class MessageCreatedListener implements DiscordEventListener<MessageCreat
         String messageContent = message.getContent();
         String channelId = message.getChannelId().asString();
         List<String> mentions = DefaultStringProcessors.extractDiscordIds().apply(messageContent);
-        Snowflake guildId = message.getGuildId()
+        Snowflake guildId = event.getGuildId()
                 .orElseThrow(() -> new IllegalStateException("Guild ID not found"));
 
         if (StringUtils.isNotBlank(messageContent)) {

@@ -3,6 +3,8 @@ package es.thalesalv.chatrpg.infrastructure.inbound.discord.listener;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -58,6 +60,7 @@ class MessageCreatedListenerTest {
         when(message.getAuthorAsMember()).thenReturn(Mono.just(author));
 
         when(guild.getId()).thenReturn(Snowflake.of("789"));
+
         when(author.getId()).thenReturn(Snowflake.of("789"));
         when(author.isBot()).thenReturn(false);
 
@@ -67,8 +70,8 @@ class MessageCreatedListenerTest {
         when(event.getClient()).thenReturn(gatewayDiscordClient);
         when(event.getMessage()).thenReturn(message);
         when(event.getGuild()).thenReturn(Mono.just(guild));
+        when(event.getGuildId()).thenReturn(Optional.of(Snowflake.of("12345")));
 
-        when(gatewayDiscordClient.getSelfId()).thenReturn(Snowflake.of("12345"));
         when(gatewayDiscordClient.getSelfMember(any())).thenReturn(Mono.just(bot));
 
         when(useCaseRunner.run(any())).thenReturn(Mono.empty());
@@ -86,10 +89,10 @@ class MessageCreatedListenerTest {
         // Given
         String messageContent = "";
         when(event.getMessage()).thenReturn(message);
-        when(event.getClient()).thenReturn(gatewayDiscordClient);
+        when(event.getGuildId()).thenReturn(Optional.of(Snowflake.of("12345")));
+
         when(message.getContent()).thenReturn(messageContent);
         when(message.getChannelId()).thenReturn(Snowflake.of("1234567890"));
-        when(gatewayDiscordClient.getSelfId()).thenReturn(Snowflake.of("12345"));
 
         // When
         Mono<Void> result = listener.onEvent(event);
@@ -108,8 +111,8 @@ class MessageCreatedListenerTest {
         when(event.getClient()).thenReturn(gatewayDiscordClient);
         when(event.getMessage()).thenReturn(message);
         when(event.getGuild()).thenReturn(Mono.just(guild));
+        when(event.getGuildId()).thenReturn(Optional.of(Snowflake.of("12345")));
 
-        when(gatewayDiscordClient.getSelfId()).thenReturn(Snowflake.of("12345"));
         when(gatewayDiscordClient.getSelfMember(any())).thenReturn(Mono.just(bot));
 
         when(message.getContent()).thenReturn(messageContent);
