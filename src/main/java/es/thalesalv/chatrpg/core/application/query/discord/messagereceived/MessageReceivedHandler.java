@@ -71,27 +71,6 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
                 .orElseGet(() -> Mono.empty());
     }
 
-    private List<ChatMessage> buildContextAsChatMessages(Map<String, Object> unsortedContext, String botName) {
-
-        String persona = (String) unsortedContext.get(PERSONA);
-        String personaName = (String) unsortedContext.get(PERSONA_NAME);
-        String nudge = (String) unsortedContext.get(NUDGE);
-        String storySummary = (String) unsortedContext.get(STORY_SUMMARY);
-        String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
-
-        List<ChatMessage> processedContext = new ArrayList<>();
-        processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, processSummarization(storySummary, botName, personaName)));
-        processedContext.addAll(extractMessageHistoryFrom(unsortedContext, botName, personaName));
-        processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
-        processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, persona));
-
-        if (StringUtils.isNotBlank(nudge)) {
-            processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, nudge));
-        }
-
-        return extractBumpFrom(unsortedContext, processedContext);
-    }
-
     @SuppressWarnings("unchecked")
     private List<ChatMessage> extractMessageHistoryFrom(Map<String, Object> unsortedContext,
             String botName, String personaName) {
@@ -147,6 +126,31 @@ public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono
         processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botName));
 
         return processor.process(summary);
+    }
+
+    private List<ChatMessage> buildContextAsChatMessages(Map<String, Object> unsortedContext, String botName) {
+
+        String persona = (String) unsortedContext.get(PERSONA);
+        String personaName = (String) unsortedContext.get(PERSONA_NAME);
+        String nudge = (String) unsortedContext.get(NUDGE);
+        String storySummary = (String) unsortedContext.get(STORY_SUMMARY);
+        String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
+
+        List<ChatMessage> processedContext = new ArrayList<>();
+        processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, processSummarization(storySummary, botName, personaName)));
+        processedContext.addAll(extractMessageHistoryFrom(unsortedContext, botName, personaName));
+
+        if (StringUtils.isNotBlank(lorebookEntries)) {
+            processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
+        }
+        
+        processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, persona));
+
+        if (StringUtils.isNotBlank(nudge)) {
+            processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, nudge));
+        }
+
+        return extractBumpFrom(unsortedContext, processedContext);
     }
 
     private Mono<Void> sendOutputToChannel(MessageReceived query, TextGenerationResult generationResult) {
