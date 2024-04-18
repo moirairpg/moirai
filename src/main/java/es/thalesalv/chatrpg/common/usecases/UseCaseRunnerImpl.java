@@ -20,23 +20,23 @@ public class UseCaseRunnerImpl implements UseCaseRunner {
     private static final String HANDLER_ALREADY_REGISTERED = "Cannot register use case handler for %s - there is a handler already registered";
     private static final String HANDLER_REGISTERED = "Handler {} registered for use case {}";
 
-    private final Map<Class<? extends UseCase<?>>, UseCaseHandler<?, ?>> handlersByUseCase = new HashMap<>();
+    private final Map<Class<? extends UseCase<?>>, AbstractUseCaseHandler<?, ?>> handlersByUseCase = new HashMap<>();
 
     @Override
     public <T> T run(UseCase<T> useCase) {
 
-        UseCaseHandler<?, ?> handler = handlersByUseCase.get(useCase.getClass());
+        AbstractUseCaseHandler<?, ?> handler = handlersByUseCase.get(useCase.getClass());
 
         if (handler == null) {
             String errorMessage = String.format(HANDLER_NOT_FOUND, useCase.getClass().getSimpleName());
             throw new IllegalArgumentException(errorMessage);
         }
 
-        return ((UseCaseHandler<UseCase<T>, T>) handler).handle(useCase);
+        return ((AbstractUseCaseHandler<UseCase<T>, T>) handler).handle(useCase);
     }
 
     @Override
-    public <A extends UseCase<T>, T> void registerHandler(UseCaseHandler<A, T> handler) {
+    public <A extends UseCase<T>, T> void registerHandler(AbstractUseCaseHandler<A, T> handler) {
 
         if (Objects.isNull(handler)) {
             throw new IllegalArgumentException(HANDLER_CANNOT_BE_NULL);
@@ -54,10 +54,10 @@ public class UseCaseRunnerImpl implements UseCaseRunner {
         log.debug(HANDLER_REGISTERED, handler.getClass().getSimpleName(), useCaseType.getSimpleName());
     }
 
-    private <A extends UseCase<T>, T> Class<A> extractUseCaseType(UseCaseHandler<A, T> handler) {
+    private <A extends UseCase<T>, T> Class<A> extractUseCaseType(AbstractUseCaseHandler<A, T> handler) {
 
-        Class<? extends UseCaseHandler<A, T>> unproxiedHandler =
-                (Class<? extends UseCaseHandler<A, T>>) AopUtils.getTargetClass(handler);
+        Class<? extends AbstractUseCaseHandler<A, T>> unproxiedHandler =
+                (Class<? extends AbstractUseCaseHandler<A, T>>) AopUtils.getTargetClass(handler);
 
         ParameterizedType parameterizedType = (ParameterizedType) unproxiedHandler.getGenericSuperclass();
 

@@ -1,16 +1,14 @@
 package es.thalesalv.chatrpg.core.application.command.persona;
 
-import org.springframework.stereotype.Service;
-
-import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
+import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
+import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@Service
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class UpdatePersonaHandler extends UseCaseHandler<UpdatePersona, UpdatePersonaResult> {
+@UseCaseHandler
+@RequiredArgsConstructor
+public class UpdatePersonaHandler extends AbstractUseCaseHandler<UpdatePersona, UpdatePersonaResult> {
 
     private final PersonaService domainService;
 

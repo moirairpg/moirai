@@ -12,8 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.springframework.stereotype.Service;
-
+import es.thalesalv.chatrpg.common.annotation.ApplicationService;
 import es.thalesalv.chatrpg.core.application.model.request.ChatMessage;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
@@ -24,7 +23,7 @@ import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessage
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Service
+@ApplicationService
 @RequiredArgsConstructor
 @SuppressWarnings("unchecked")
 public class ContextSummarizationServiceImpl implements ContextSummarizationService {

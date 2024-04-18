@@ -1,16 +1,15 @@
 package es.thalesalv.chatrpg.core.application.query.channelconfig;
 
-import org.springframework.stereotype.Service;
-
-import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
+import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
+import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@Service
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class GetChannelConfigByIdHandler extends UseCaseHandler<GetChannelConfigById, GetChannelConfigResult> {
+@UseCaseHandler
+@RequiredArgsConstructor
+public class GetChannelConfigByIdHandler extends AbstractUseCaseHandler<GetChannelConfigById, GetChannelConfigResult> {
 
     private final ChannelConfigService domainService;
 

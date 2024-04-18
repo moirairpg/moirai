@@ -7,18 +7,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
-
+import es.thalesalv.chatrpg.common.annotation.ApplicationService;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
-import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
+import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Service
+@ApplicationService
 @RequiredArgsConstructor
 @SuppressWarnings("unchecked")
 public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService {

@@ -1,16 +1,15 @@
 package es.thalesalv.chatrpg.core.application.command.world;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 
-import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
+import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
+import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@Service
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class DeleteWorldLorebookEntryHandler extends UseCaseHandler<DeleteWorldLorebookEntry, Void> {
+@UseCaseHandler
+@RequiredArgsConstructor
+public class DeleteWorldLorebookEntryHandler extends AbstractUseCaseHandler<DeleteWorldLorebookEntry, Void> {
 
     private static final String ENTRY_ID_CANNOT_BE_NULL_OR_EMPTY = "Lorebook entry ID cannot be null or empty";
     private static final String WORLD_ID_CANNOT_BE_NULL_OR_EMPTY = "World ID cannot be null or empty";

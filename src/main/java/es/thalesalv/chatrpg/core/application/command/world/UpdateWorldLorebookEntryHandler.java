@@ -1,17 +1,15 @@
 package es.thalesalv.chatrpg.core.application.command.world;
 
-import org.springframework.stereotype.Service;
-
-import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
-import es.thalesalv.chatrpg.core.domain.world.WorldService;
+import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
+import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
-import lombok.AccessLevel;
+import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import lombok.RequiredArgsConstructor;
 
-@Service
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@UseCaseHandler
+@RequiredArgsConstructor
 public class UpdateWorldLorebookEntryHandler
-        extends UseCaseHandler<UpdateWorldLorebookEntry, UpdateWorldLorebookEntryResult> {
+        extends AbstractUseCaseHandler<UpdateWorldLorebookEntry, UpdateWorldLorebookEntryResult> {
 
     private final WorldService service;
 

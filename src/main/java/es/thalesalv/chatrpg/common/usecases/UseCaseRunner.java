@@ -4,5 +4,5 @@ public interface UseCaseRunner {
 
     public <T> T run(UseCase<T> useCase);
 
-    <A extends UseCase<T>, T> void registerHandler(UseCaseHandler<A, T> handler);
+    <A extends UseCase<T>, T> void registerHandler(AbstractUseCaseHandler<A, T> handler);
 }

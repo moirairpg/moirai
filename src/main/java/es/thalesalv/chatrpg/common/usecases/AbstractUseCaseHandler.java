@@ -2,7 +2,10 @@ package es.thalesalv.chatrpg.common.usecases;
 
 import java.util.Objects;
 
-public abstract class UseCaseHandler<A extends UseCase<T>, T> {
+import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
+
+@UseCaseHandler
+public abstract class AbstractUseCaseHandler<A extends UseCase<T>, T> {
 
     public abstract T execute(A useCase);
 

@@ -1,15 +1,14 @@
 package es.thalesalv.chatrpg.core.application.query.persona;
 
-import org.springframework.stereotype.Service;
-
-import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
+import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
+import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@Service
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class SearchPersonasWithWriteAccessHandler extends UseCaseHandler<SearchPersonasWithWriteAccess, SearchPersonasResult> {
+@UseCaseHandler
+@RequiredArgsConstructor
+public class SearchPersonasWithWriteAccessHandler extends AbstractUseCaseHandler<SearchPersonasWithWriteAccess, SearchPersonasResult> {
 
     private final PersonaRepository repository;
 

@@ -3,8 +3,8 @@ package es.thalesalv.chatrpg.core.domain.persona;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
+import es.thalesalv.chatrpg.common.annotation.DomainService;
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
@@ -19,7 +19,7 @@ import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@Service
+@DomainService
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PersonaServiceImpl implements PersonaService {
 

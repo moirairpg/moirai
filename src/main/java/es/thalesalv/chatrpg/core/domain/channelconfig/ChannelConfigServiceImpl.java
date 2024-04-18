@@ -5,8 +5,8 @@ import static es.thalesalv.chatrpg.core.domain.channelconfig.ArtificialIntellige
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 
+import es.thalesalv.chatrpg.common.annotation.DomainService;
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfig;
@@ -18,7 +18,7 @@ import es.thalesalv.chatrpg.core.domain.Visibility;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@Service
+@DomainService
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChannelConfigServiceImpl implements ChannelConfigService {
 

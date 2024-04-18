@@ -9,10 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
+import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
+import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.common.util.DefaultStringProcessors;
 import es.thalesalv.chatrpg.common.util.StringProcessor;
 import es.thalesalv.chatrpg.core.application.model.request.ChatMessage;
@@ -25,13 +24,13 @@ import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
 import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Service
-@Transactional
+@UseCaseHandler
 @RequiredArgsConstructor
-public class MessageReceivedHandler extends UseCaseHandler<MessageReceived, Mono<Void>> {
+public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceived, Mono<Void>> {
 
     private static final String BUMP = "bump";
     private static final String LOREBOOK_ENTRIES = "lorebook";

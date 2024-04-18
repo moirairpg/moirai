@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
-
+import es.thalesalv.chatrpg.common.annotation.ApplicationService;
 import es.thalesalv.chatrpg.common.util.DefaultStringProcessors;
 import es.thalesalv.chatrpg.common.util.StringProcessor;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
@@ -18,7 +17,7 @@ import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessage
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Service
+@ApplicationService
 @RequiredArgsConstructor
 @SuppressWarnings("unchecked")
 public class PersonaEnrichmentServiceImpl implements PersonaEnrichmentService {

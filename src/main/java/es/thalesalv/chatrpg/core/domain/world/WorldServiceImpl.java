@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
+import es.thalesalv.chatrpg.common.annotation.DomainService;
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
@@ -24,7 +24,7 @@ import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@Service
+@DomainService
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class WorldServiceImpl implements WorldService {
 

@@ -1,15 +1,14 @@
 package es.thalesalv.chatrpg.core.application.query.world;
 
-import org.springframework.stereotype.Service;
-
-import es.thalesalv.chatrpg.common.usecases.UseCaseHandler;
+import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
+import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@Service
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class SearchWorldLorebookEntriesHandler extends UseCaseHandler<SearchWorldLorebookEntries, SearchWorldLorebookEntriesResult> {
+@UseCaseHandler
+@RequiredArgsConstructor
+public class SearchWorldLorebookEntriesHandler extends AbstractUseCaseHandler<SearchWorldLorebookEntries, SearchWorldLorebookEntriesResult> {
 
     private final WorldLorebookEntryRepository repository;
 
