@@ -64,7 +64,7 @@ public class ContextSummarizationApplicationServiceImpl implements ContextSummar
         TextGenerationRequest request = createSummarizationRequest(messagesExtracted, modelConfiguration);
         return openAiPort.generateTextFrom(request)
                 .map(summarizationResponse -> {
-                    String summary = summarizationResponse.getOutputText();
+                    String summary = summarizationResponse.getOutputText().trim();
                     Map<String, Object> processedContext = new HashMap<>();
 
                     processedContext.put(RETRIEVED_MESSAGES, messagesExtracted);
@@ -164,12 +164,13 @@ public class ContextSummarizationApplicationServiceImpl implements ContextSummar
         List<ChatMessage> chatMessages = new ArrayList<>();
         chatMessages.addAll(messagesExtracted.stream()
                 .map(this::mapToMessage)
-                .collect(Collectors.toCollection(ArrayList::new)));
+                .collect(Collectors.toCollection(ArrayList::new))
+                .reversed());
 
         chatMessages.addFirst(ChatMessage.build(SYSTEM, "Summarize the contents of the conversation in an "
-                + "understandable and complete way, preferrably in a single paragraph. The summary can be long "
-                + "and detailed, a slong as it fits a single paragraph. Don't acknowledge the instruction, "
-                + "just generate the summary and nothing else"));
+                + "understandable and complete way, preferrably in a single paragraph. The summary need to be long "
+                + "and detailed, but in a single paragraph. Don't acknowledge the instruction, "
+                + "just generate the summary and nothing else. Be detailed and summarize the entire conversation."));
 
         return TextGenerationRequest.builder()
                 .presencePenalty(modelConfiguration.getPresencePenalty())

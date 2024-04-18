@@ -34,12 +34,13 @@ public class MessageCreatedListener implements DiscordEventListener<MessageCreat
         Message message = event.getMessage();
         String messageContent = message.getContent();
         String channelId = message.getChannelId().asString();
-        Snowflake botId = event.getClient().getSelfId();
         List<String> mentions = DefaultStringProcessors.extractDiscordIds().apply(messageContent);
+        Snowflake guildId = message.getGuildId()
+                .orElseThrow(() -> new IllegalStateException("Guild ID not found"));
 
         if (StringUtils.isNotBlank(messageContent)) {
             return Mono
-                    .zip(event.getGuild(), message.getAuthorAsMember(), event.getClient().getSelfMember(botId))
+                    .zip(event.getGuild(), message.getAuthorAsMember(), event.getClient().getSelfMember(guildId))
                     .filter(zipped -> !zipped.getT2().isBot())
                     .map(zipped -> {
                         Guild guild = zipped.getT1();
