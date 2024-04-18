@@ -1,5 +1,5 @@
 name: Java CI
-on: [push]
+on: [push, workflow_dispatch]
 jobs:
   ChatRPG:
     runs-on: ubuntu-latest
