@@ -4,12 +4,12 @@ chatrpg:
     characters-amount: 10
   validation:
     token-limits:
-      persona.personality: 250
+      persona.personality: 500
       world:
         lorebook-entry:
           name: 50
-          description: 250
-        adventure-start: 500
+          description: 300
+        adventure-start: 1000
   discord:
     oauth:
       client-id: dummy_value

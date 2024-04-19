@@ -69,16 +69,25 @@ public class PersonaServiceImpl implements PersonaService {
 
         validateTokenCount(command.getPersonality());
 
-        Bump bump = Bump.builder()
-                .content(command.getBumpContent())
-                .frequency(command.getBumpFrequency())
-                .role(CompletionRole.fromString(command.getBumpRole()))
-                .build();
+        Persona.Builder personaBuilder = Persona.builder();
+        if (StringUtils.isNotBlank(command.getBumpContent())) {
+            Bump bump = Bump.builder()
+                    .content(command.getBumpContent())
+                    .frequency(command.getBumpFrequency())
+                    .role(CompletionRole.fromString(command.getBumpRole()))
+                    .build();
 
-        Nudge nudge = Nudge.builder()
-                .content(command.getNudgeContent())
-                .role(CompletionRole.fromString(command.getNudgeRole()))
-                .build();
+            personaBuilder.bump(bump);
+        }
+
+        if (StringUtils.isNotBlank(command.getNudgeContent())) {
+            Nudge nudge = Nudge.builder()
+                    .content(command.getNudgeContent())
+                    .role(CompletionRole.fromString(command.getNudgeRole()))
+                    .build();
+
+            personaBuilder.nudge(nudge);
+        }
 
         Permissions permissions = Permissions.builder()
                 .ownerDiscordId(command.getRequesterDiscordId())
@@ -86,13 +95,10 @@ public class PersonaServiceImpl implements PersonaService {
                 .usersAllowedToWrite(command.getUsersAllowedToWrite())
                 .build();
 
-        Persona persona = Persona.builder()
-                .name(command.getName())
+        Persona persona = personaBuilder.name(command.getName())
                 .personality(command.getPersonality())
                 .visibility(Visibility.fromString(command.getVisibility()))
                 .permissions(permissions)
-                .nudge(nudge)
-                .bump(bump)
                 .gameMode(GameMode.fromString(command.getGameMode()))
                 .build();
 

@@ -116,25 +116,31 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 ? persona.getOwnerDiscordId()
                 : persona.getCreatorDiscordId();
 
-        BumpEntity bump = BumpEntity.builder()
-                .content(persona.getBump().getContent())
-                .role(persona.getBump().getRole().toString())
-                .frequency(persona.getBump().getFrequency())
-                .build();
+        PersonaEntity.Builder personaBuilder = PersonaEntity.builder();
+        if (persona.getBump() != null) {
+            BumpEntity bump = BumpEntity.builder()
+                    .content(persona.getBump().getContent())
+                    .role(persona.getBump().getRole().toString())
+                    .frequency(persona.getBump().getFrequency())
+                    .build();
 
-        NudgeEntity nudge = NudgeEntity.builder()
-                .content(persona.getNudge().getContent())
-                .role(persona.getNudge().getRole().toString())
-                .build();
+            personaBuilder.bump(bump);
+        }
 
-        return PersonaEntity.builder()
-                .id(persona.getId())
+        if (persona.getNudge() != null) {
+            NudgeEntity nudge = NudgeEntity.builder()
+                    .content(persona.getNudge().getContent())
+                    .role(persona.getNudge().getRole().toString())
+                    .build();
+
+            personaBuilder.nudge(nudge);
+        }
+
+        return personaBuilder.id(persona.getId())
                 .name(persona.getName())
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility().toString())
                 .ownerDiscordId(persona.getOwnerDiscordId())
-                .nudge(nudge)
-                .bump(bump)
                 .gameMode(persona.getGameMode().name())
                 .usersAllowedToRead(persona.getUsersAllowedToRead())
                 .usersAllowedToWrite(persona.getUsersAllowedToWrite())
@@ -146,16 +152,25 @@ public class PersonaRepositoryImpl implements PersonaRepository {
 
     private Persona mapFromEntity(PersonaEntity persona) {
 
-        Bump bump = Bump.builder()
-                .content(persona.getBump().getContent())
-                .role(CompletionRole.fromString(persona.getBump().getRole()))
-                .frequency(persona.getBump().getFrequency())
-                .build();
+        Persona.Builder personaBuilder = Persona.builder();
+        if (persona.getBump() != null) {
+            Bump bump = Bump.builder()
+                    .content(persona.getBump().getContent())
+                    .role(CompletionRole.fromString(persona.getBump().getRole()))
+                    .frequency(persona.getBump().getFrequency())
+                    .build();
 
-        Nudge nudge = Nudge.builder()
-                .content(persona.getNudge().getContent())
-                .role(CompletionRole.fromString(persona.getNudge().getRole()))
-                .build();
+            personaBuilder.bump(bump);
+        }
+
+        if (persona.getNudge() != null) {
+            Nudge nudge = Nudge.builder()
+                    .content(persona.getNudge().getContent())
+                    .role(CompletionRole.fromString(persona.getNudge().getRole()))
+                    .build();
+
+            personaBuilder.nudge(nudge);
+        }
 
         Permissions permissions = Permissions.builder()
                 .ownerDiscordId(persona.getOwnerDiscordId())
@@ -163,14 +178,11 @@ public class PersonaRepositoryImpl implements PersonaRepository {
                 .usersAllowedToWrite(persona.getUsersAllowedToWrite())
                 .build();
 
-        return Persona.builder()
-                .id(persona.getId())
+        return personaBuilder.id(persona.getId())
                 .name(persona.getName())
                 .personality(persona.getPersonality())
                 .visibility(Visibility.fromString(persona.getVisibility()))
                 .permissions(permissions)
-                .nudge(nudge)
-                .bump(bump)
                 .gameMode(GameMode.fromString(persona.getGameMode()))
                 .creationDate(persona.getCreationDate())
                 .lastUpdateDate(persona.getLastUpdateDate())
