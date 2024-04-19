@@ -12,7 +12,7 @@ import discord4j.core.GatewayDiscordClient;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
-import es.thalesalv.chatrpg.core.application.service.ContextSummarizationService;
+import es.thalesalv.chatrpg.core.application.service.StorySummarizationService;
 import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
 import es.thalesalv.chatrpg.infrastructure.config.Discord4JConfig;
 
@@ -33,7 +33,7 @@ public abstract class AbstractIntegrationTest {
     private PersonaEnrichmentService inputEnrichmentService;
 
     @MockBean
-    private ContextSummarizationService contextSummarizationService;
+    private StorySummarizationService contextSummarizationService;
 
     @MockBean
     private GatewayDiscordClient gatewayDiscordClient;

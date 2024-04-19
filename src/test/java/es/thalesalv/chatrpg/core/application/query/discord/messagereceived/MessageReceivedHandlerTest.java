@@ -31,7 +31,7 @@ import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResultFixture;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
-import es.thalesalv.chatrpg.core.application.service.ContextSummarizationService;
+import es.thalesalv.chatrpg.core.application.service.StorySummarizationService;
 import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
 import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
@@ -47,7 +47,7 @@ public class MessageReceivedHandlerTest {
     private LorebookEnrichmentService lorebookEnrichmentService;
 
     @Mock
-    private ContextSummarizationService summarizationService;
+    private StorySummarizationService summarizationService;
 
     @Mock
     private PersonaEnrichmentService enrichmentService;

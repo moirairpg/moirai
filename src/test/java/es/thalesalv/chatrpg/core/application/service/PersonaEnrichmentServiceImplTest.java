@@ -1,6 +1,8 @@
 package es.thalesalv.chatrpg.core.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -18,11 +20,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfigurationFixture;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
-import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
+import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
-import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
-import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.test.StepVerifier;
 
 @SuppressWarnings("unchecked")
@@ -38,6 +38,9 @@ public class PersonaEnrichmentServiceImplTest {
     @InjectMocks
     private PersonaEnrichmentServiceImpl service;
 
+    @Mock
+    private ChatMessageService chatMessageService;
+
     @Test
     public void enrichWithPersona_whenSufficientTokens_addPersonaAndMessages() {
 
@@ -45,7 +48,7 @@ public class PersonaEnrichmentServiceImplTest {
         String botName = "BotUser";
         Persona persona = PersonaFixture.privatePersona().build();
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
-        Map<String, Object> context = contextWithSummaryAndMessages(5);
+        Map<String, Object> context = contextWithSummaryAndMessages(10);
 
         String expectedPersona = String.format(
                 "[ DEBUG MODE ON: You are an actor interpreting the role of %s. %s's persona is as follows, and you are to maintain character during this conversation: %s ]",
@@ -54,16 +57,16 @@ public class PersonaEnrichmentServiceImplTest {
         when(personaService.getPersonaById(anyString())).thenReturn(persona);
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(100);
 
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
+                .thenReturn(context);
+
         // Then
         StepVerifier.create(service.enrich(persona.getId(), botName, context, modelConfiguration))
                 .assertNext(processedContext -> {
                     String personaResult = (String) processedContext.get("persona");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
-                            .get("retrievedMessages");
 
                     assertThat(messageHistory).hasSize(10);
-                    assertThat(retrievedMessages).isEmpty();
                     assertThat(personaResult).isEqualTo(expectedPersona);
                 })
                 .verifyComplete();
@@ -88,16 +91,16 @@ public class PersonaEnrichmentServiceImplTest {
                 .thenReturn(100)
                 .thenReturn(100000);
 
+                when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
+                        .thenReturn(context);
+
         // Then
         StepVerifier.create(service.enrich(persona.getId(), botName, context, modelConfiguration))
                 .assertNext(processedContext -> {
                     String personaResult = (String) processedContext.get("persona");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
-                            .get("retrievedMessages");
 
                     assertThat(messageHistory).hasSize(5);
-                    assertThat(retrievedMessages).hasSize(5);
                     assertThat(personaResult).isEqualTo(expectedPersona);
                 })
                 .verifyComplete();
@@ -124,24 +127,13 @@ public class PersonaEnrichmentServiceImplTest {
 
     private Map<String, Object> contextWithSummaryAndMessages(int items) {
 
-        List<ChatMessageData> messageDataList = new ArrayList<>();
+        List<String> textMessages = new ArrayList<>();
         for (int i = 0; i < items; i++) {
-            messageDataList.add(ChatMessageDataFixture.messageData()
-                    .id(String.valueOf(i + 1))
-                    .content(String.format("Message %s", i + 1))
-                    .build());
+            textMessages.add(String.format("User said before test says: Message %s", i + 1));
         }
-
-        List<String> textMessages = new ArrayList<>(messageDataList.stream()
-                .map(ChatMessageData::getContent)
-                .map(content -> String.format("User said before test says: %s", content))
-                .toList());
-
-        messageDataList.removeIf(message -> textMessages.contains(message.getContent()));
 
         Map<String, Object> context = new HashMap<>();
         context.put("summary", "This is the summary");
-        context.put("retrievedMessages", messageDataList);
         context.put("messageHistory", textMessages);
         context.put("lorebook", "This is the lorebook");
 

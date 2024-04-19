@@ -4,7 +4,9 @@ import static es.thalesalv.chatrpg.core.domain.channelconfig.ArtificialIntellige
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -13,8 +15,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,8 +51,11 @@ public class ContextSummarizationServiceImplTest {
     @Mock
     private TokenizerPort tokenizerPort;
 
+    @Mock
+    private ChatMessageService chatMessageService;
+
     @InjectMocks
-    private ContextSummarizationServiceImpl service;
+    private StorySummarizationServiceImpl service;
 
     @Test
     public void summarizeWith_validInput_thenSummaryGenerated() {
@@ -60,14 +67,20 @@ public class ContextSummarizationServiceImplTest {
         String generatedSummary = "Generated summary";
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
+        Map<String, Object> context = createContextWithMessageNumber(3);
+        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
+
         when(discordChannelOperationsPort.retrieveEntireHistoryFrom(eq(guildId), eq(channelId),
                 eq(messageId), anyList()))
-                .thenReturn(Mono.just(buildMessageDataListWithItems(3)));
+                .thenReturn(Mono.just(messages));
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
                         .outputText(generatedSummary)
                         .build()));
+
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
+                .thenReturn(context);
 
         List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
 
@@ -90,6 +103,7 @@ public class ContextSummarizationServiceImplTest {
         String channelId = "channelIdWithEmptyHistory";
         String messageId = "messageId";
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        Map<String, Object> context = createContextWithMessageNumber(3);
 
         when(discordChannelOperationsPort.retrieveEntireHistoryFrom(eq(guildId), eq(channelId),
                 eq(messageId), anyList()))
@@ -99,6 +113,9 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
                         .outputText("")
                         .build()));
+
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
+                .thenReturn(context);
 
         List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
 
@@ -127,7 +144,8 @@ public class ContextSummarizationServiceImplTest {
                 .aiModel(GPT35_16K)
                 .build();
 
-        List<ChatMessageData> messages = buildMessageDataListWithItems(3);
+        Map<String, Object> context = createContextWithMessageNumber(3);
+        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
 
         List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
 
@@ -153,6 +171,9 @@ public class ContextSummarizationServiceImplTest {
 
         when(tokenizerPort.getTokenCountFrom(eq(longSummary)))
                 .thenReturn(20000);
+
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
+                .thenReturn(context);
 
         // When
         Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId,
@@ -188,7 +209,8 @@ public class ContextSummarizationServiceImplTest {
                 .aiModel(GPT35_16K)
                 .build();
 
-        List<ChatMessageData> messages = buildMessageDataListWithItems(3);
+        Map<String, Object> context = createContextWithMessageNumber(3);
+        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
 
         List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
 
@@ -215,6 +237,9 @@ public class ContextSummarizationServiceImplTest {
 
         when(tokenizerPort.getTokenCountFrom(eq(longSummary)))
                 .thenReturn(20000);
+
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
+                .thenReturn(context);
 
         // When
         Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId,
@@ -250,7 +275,8 @@ public class ContextSummarizationServiceImplTest {
                 .aiModel(GPT35_16K)
                 .build();
 
-        List<ChatMessageData> messages = buildMessageDataListWithItems(3);
+        Map<String, Object> context = createContextWithMessageNumber(3);
+        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
 
         List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
 
@@ -277,6 +303,9 @@ public class ContextSummarizationServiceImplTest {
         when(tokenizerPort.getTokenCountFrom(eq(longSummary)))
                 .thenReturn(200);
 
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
+                .thenReturn(context);
+
         // When
         Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId,
                 botName, modelConfiguration, mentionedUserIds);
@@ -292,97 +321,33 @@ public class ContextSummarizationServiceImplTest {
 
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
                     assertThat(messageHistory).isNotNull().isNotEmpty().hasSize(3);
-                    assertThat(messageHistory).first().isEqualTo("Message 3");
-                    assertThat(messageHistory).last().isEqualTo("Message 1");
+                    assertThat(messageHistory).first().isEqualTo("Message 1");
+                    assertThat(messageHistory).last().isEqualTo("Message 3");
                 })
                 .verifyComplete();
 
         verify(openAiPort, times(1)).generateTextFrom(any(TextGenerationRequest.class));
     }
 
-    @Test
-    public void summarizeWith_relevantMessagesIncludedUpToTokenLimit_thenCorrectMessagesSelected() {
-
-        // Given
-        String guildId = "testGuildId";
-        String channelId = "testChannelId";
-        String messageId = "testMessageId";
-        String botName = "testBot";
-        String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
-                .aiModel(GPT35_16K)
-                .build();
-
-        List<ChatMessageData> messages = buildMessageDataListWithItems(10);
-
-        List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
-
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(eq(guildId), eq(channelId),
-                eq(messageId), anyList()))
-                .thenReturn(Mono.just(messages));
-
-        when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
-                .thenReturn(Mono.just(TextGenerationResultFixture.create()
-                        .outputText(longSummary)
-                        .build()));
-
-        when(tokenizerPort.getTokenCountFrom(not(contains("Message"))))
-                .thenReturn(200)
-                .thenReturn(10)
-                .thenReturn(10)
-                .thenReturn(200);
-
-        when(tokenizerPort.getTokenCountFrom(contains("Message")))
-                .thenReturn(20)
-                .thenReturn(200)
-                .thenReturn(20)
-                .thenReturn(200)
-                .thenReturn(20)
-                .thenReturn(200)
-                .thenReturn(20)
-                .thenReturn(200)
-                .thenReturn(20)
-                .thenReturn(200)
-                .thenReturn(20)
-                .thenReturn(200)
-                .thenReturn(20)
-                .thenReturn(200)
-                .thenReturn(20000);
-
-        // When
-        Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId,
-                botName, modelConfiguration, mentionedUserIds);
-
-        // Then
-        StepVerifier.create(result)
-                .assertNext(processedContext -> {
-                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
-                            .get("retrievedMessages");
-                    List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-
-                    assertThat(processedContext).containsKey("messageHistory");
-                    assertThat(messageHistory).isNotNull().isNotEmpty().hasSize(7);
-                    assertThat(messageHistory).first().isEqualTo("Message 7");
-                    assertThat(messageHistory).last().isEqualTo("Message 1");
-
-                    assertThat(processedContext).containsKey("retrievedMessages");
-                    assertThat(retrievedMessages).isNotNull().isNotEmpty().hasSize(3);
-                })
-                .verifyComplete();
-
-        verify(openAiPort, times(1)).generateTextFrom(any(TextGenerationRequest.class));
-    }
-
-    private List<ChatMessageData> buildMessageDataListWithItems(int items) {
+    private Map<String, Object> createContextWithMessageNumber(int items) {
 
         List<ChatMessageData> messageDataList = new ArrayList<>();
         for (int i = 0; i < items; i++) {
+            int messageNumber = i + 1;
             messageDataList.add(ChatMessageDataFixture.messageData()
-                    .id(String.valueOf(i + 1))
-                    .content(String.format("Message %s", i + 1))
+                    .id(String.valueOf(messageNumber))
+                    .content(String.format("Message %s", messageNumber))
                     .build());
         }
 
-        return messageDataList;
+        List<String> messageStringList = messageDataList.stream()
+                .map(ChatMessageData::getContent)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("retrievedMessages", messageDataList);
+        context.put("messageHistory", messageStringList);
+
+        return context;
     }
 }

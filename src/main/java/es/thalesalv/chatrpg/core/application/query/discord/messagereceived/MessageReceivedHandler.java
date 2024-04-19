@@ -19,12 +19,11 @@ import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
-import es.thalesalv.chatrpg.core.application.service.ContextSummarizationService;
 import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
 import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
+import es.thalesalv.chatrpg.core.application.service.StorySummarizationService;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -44,7 +43,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
     private static final String PERIOD = ".";
     private static final int DISCORD_MAX_LENGTH = 2000;
 
-    private final ContextSummarizationService summarizationService;
+    private final StorySummarizationService summarizationService;
     private final LorebookEnrichmentService lorebookEnrichmentService;
     private final PersonaEnrichmentService personaEnrichmentService;
     private final ChannelConfigRepository channelConfigRepository;

@@ -12,7 +12,6 @@ import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
-import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -25,29 +24,30 @@ public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService 
     private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";
     private static final String MESSAGE_HISTORY = "messageHistory";
     private static final String LOREBOOK = "lorebook";
-    private static final String RETRIEVED_MESSAGES = "retrievedMessages";
+    private static final String SUMMARY = "summary";
 
     private final TokenizerPort tokenizerPort;
     private final WorldService worldService;
+    private final ChatMessageService chatMessageService;
 
     @Override
-    public Mono<Map<String, Object>> enrich(String worldId, String botName, Map<String, Object> contextWithSummary,
+    public Mono<Map<String, Object>> enrich(String worldId, String botName, Map<String, Object> context,
             ModelConfiguration modelConfiguration) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
         int reservedTokensForLorebook = (int) Math.floor(totalTokens * 0.30);
 
-        String summary = (String) contextWithSummary.get("summary");
-        List<String> messageHistory = (List<String>) contextWithSummary.get("messageHistory");
-        String context = summary + LF + stringifyList(messageHistory);
+        String summary = (String) context.get(SUMMARY);
+        List<String> messageHistory = (List<String>) context.get(MESSAGE_HISTORY);
+        String stringifiedStory = summary + LF + stringifyList(messageHistory);
 
-        return Mono.just(worldService.findAllEntriesByRegex(worldId, context))
-                .map(entries -> addEntriesFoundToContext(entries, contextWithSummary, reservedTokensForLorebook))
-                .map(processedContext -> addExtraMessagesToContext(processedContext, reservedTokensForLorebook));
+        return Mono.just(worldService.findAllEntriesByRegex(worldId, stringifiedStory))
+                .map(entries -> addEntriesFoundToContext(entries, context, reservedTokensForLorebook))
+                .map(ctx -> chatMessageService.addMessagesToContext(ctx, reservedTokensForLorebook));
     }
 
     private Map<String, Object> addEntriesFoundToContext(List<WorldLorebookEntry> entries,
-            Map<String, Object> processedContext, int reservedTokensForLorebook) {
+            Map<String, Object> context, int reservedTokensForLorebook) {
 
         List<String> lorebook = new ArrayList<>();
 
@@ -68,40 +68,10 @@ public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService 
 
         String stringifiedLorebook = stringifyList(lorebook);
         if (StringUtils.isNotBlank(stringifiedLorebook)) {
-            processedContext.put(LOREBOOK, stringifiedLorebook);
+            context.put(LOREBOOK, stringifiedLorebook);
         }
 
-        return processedContext;
-    }
-
-    private Map<String, Object> addExtraMessagesToContext(Map<String, Object> contextWithLorebook,
-            int reservedTokensForStory) {
-
-        String lorebook = (String) contextWithLorebook.get(LOREBOOK);
-        List<String> messageHistory = (List<String>) contextWithLorebook.get(MESSAGE_HISTORY);
-        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) contextWithLorebook.get(RETRIEVED_MESSAGES);
-
-        int tokensInLorebook = tokenizerPort.getTokenCountFrom(lorebook);
-
-        retrievedMessages.stream()
-                .takeWhile(messageData -> {
-                    int tokensInMessage = tokenizerPort.getTokenCountFrom(messageData.getContent());
-                    int tokensInContext = tokenizerPort.getTokenCountFrom(stringifyList(messageHistory))
-                            + tokensInLorebook;
-
-                    int tokensLeftInContext = reservedTokensForStory - tokensInContext;
-
-                    return tokensInMessage <= tokensLeftInContext;
-                })
-                .map(ChatMessageData::getContent)
-                .forEach(messageHistory::addFirst);
-
-        retrievedMessages.removeIf(messageData -> messageHistory.contains(messageData.getContent()));
-
-        contextWithLorebook.put(MESSAGE_HISTORY, messageHistory);
-        contextWithLorebook.put(RETRIEVED_MESSAGES, retrievedMessages);
-
-        return contextWithLorebook;
+        return context;
     }
 
     private String stringifyList(List<String> list) {

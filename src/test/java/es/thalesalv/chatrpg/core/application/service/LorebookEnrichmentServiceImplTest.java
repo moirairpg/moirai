@@ -1,6 +1,8 @@
 package es.thalesalv.chatrpg.core.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -20,8 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfigurationFixture;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
-import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
+import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
@@ -40,6 +42,9 @@ public class LorebookEnrichmentServiceImplTest {
     @InjectMocks
     private LorebookEnrichmentServiceImpl service;
 
+    @Mock
+    private ChatMessageService chatMessageService;
+
     @Test
     public void enrich_withValidInput_thenLorebookAndMessagesAdded() {
         // Given
@@ -53,6 +58,9 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(lorebookEntriesNumber(5));
 
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
+
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
+                .thenReturn(contextWithSummary);
 
         // When
         Mono<Map<String, Object>> result = service.enrich(worldId, botName, contextWithSummary, modelConfiguration);
@@ -91,6 +99,9 @@ public class LorebookEnrichmentServiceImplTest {
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(Collections.emptyList());
 
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
+                .thenReturn(contextWithSummary);
+
         // When
         Mono<Map<String, Object>> result = service.enrich(worldId, botName, contextWithSummary, modelConfiguration);
 
@@ -122,6 +133,9 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(lorebookEntriesNumber(5));
 
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
+
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
+                .thenReturn(contextWithSummary);
 
         // When
         Mono<Map<String, Object>> result = service.enrich(worldId, botName, contextWithSummary, modelConfiguration);
@@ -161,6 +175,9 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(lorebookEntriesNumber(5));
 
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
+
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
+                .thenReturn(contextWithSummary);
 
         // When
         Mono<Map<String, Object>> result = service.enrich(worldId, botName, contextWithSummary, modelConfiguration);
