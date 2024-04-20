@@ -4,7 +4,6 @@ import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
 import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigService;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler

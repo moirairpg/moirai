@@ -3,7 +3,6 @@ package es.thalesalv.chatrpg.core.application.query.persona;
 import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
 import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler
