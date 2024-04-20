@@ -24,6 +24,7 @@ public class ChannelConfigFixture {
         builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());
         builder.lastUpdateDate(OffsetDateTime.now());
+        builder.discordChannelId("12345");
 
         return builder;
     }

@@ -23,7 +23,6 @@ public final class ModelConfiguration {
 
     private final ArtificialIntelligenceModel aiModel;
     private final Integer maxTokenLimit;
-    private final Integer messageHistorySize;
     private final Double temperature;
     private final Double frequencyPenalty;
     private final Double presencePenalty;
@@ -34,7 +33,6 @@ public final class ModelConfiguration {
 
         this.aiModel = builder.aiModel;
         this.maxTokenLimit = builder.maxTokenLimit;
-        this.messageHistorySize = builder.messageHistorySize;
         this.temperature = builder.temperature;
         this.frequencyPenalty = builder.frequencyPenalty;
         this.presencePenalty = builder.presencePenalty;
@@ -56,7 +54,6 @@ public final class ModelConfiguration {
         return builder()
                 .aiModel(modelConfiguration.getAiModel())
                 .maxTokenLimit(modelConfiguration.getMaxTokenLimit())
-                .messageHistorySize(modelConfiguration.getMessageHistorySize())
                 .temperature(modelConfiguration.getTemperature())
                 .frequencyPenalty(modelConfiguration.getFrequencyPenalty())
                 .presencePenalty(modelConfiguration.getPresencePenalty())
@@ -74,13 +71,6 @@ public final class ModelConfiguration {
         validateMaxTokenLimit(maxTokenLimit, aiModel);
 
         return cloneFrom(this).maxTokenLimit(maxTokenLimit).build();
-    }
-
-    public ModelConfiguration updateMessageHistorySize(Integer messageHistorySize) {
-
-        validateHistorySizeLimit(messageHistorySize);
-
-        return cloneFrom(this).messageHistorySize(messageHistorySize).build();
     }
 
     public ModelConfiguration updateTemperature(Double temperature) {
@@ -153,13 +143,6 @@ public final class ModelConfiguration {
         }
     }
 
-    private static void validateHistorySizeLimit(int messageHistorySize) {
-
-        if (messageHistorySize < 10 || messageHistorySize > 100) {
-            throw new BusinessRuleViolationException("History size has to be between 10 and 100 messages");
-        }
-    }
-
     private static void validateFrequencyPenalty(Double frequencyPenalty) {
 
         if (frequencyPenalty < -2 || frequencyPenalty > 2) {
@@ -194,7 +177,6 @@ public final class ModelConfiguration {
 
         private ArtificialIntelligenceModel aiModel;
         private Integer maxTokenLimit;
-        private Integer messageHistorySize;
         private Double temperature;
         private Double frequencyPenalty;
         private Double presencePenalty;
@@ -210,12 +192,6 @@ public final class ModelConfiguration {
         public Builder maxTokenLimit(Integer maxTokenLimit) {
 
             this.maxTokenLimit = maxTokenLimit;
-            return this;
-        }
-
-        public Builder messageHistorySize(Integer messageHistorySize) {
-
-            this.messageHistorySize = messageHistorySize;
             return this;
         }
 
@@ -260,7 +236,6 @@ public final class ModelConfiguration {
             }
 
             validateTemperature(temperature);
-            validateHistorySizeLimit(messageHistorySize);
             validateFrequencyPenalty(frequencyPenalty);
             validatePresencePenalty(presencePenalty);
             validateMaxTokenLimit(maxTokenLimit, aiModel);

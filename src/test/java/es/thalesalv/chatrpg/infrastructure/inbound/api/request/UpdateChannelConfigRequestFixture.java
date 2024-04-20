@@ -22,7 +22,6 @@ public class UpdateChannelConfigRequestFixture {
                 .logitBiasToRemove(Collections.singletonList("TKN"))
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
                 .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
                 .moderation(channelConfig.getModeration().name())
                 .usersAllowedToWriteToAdd(Collections.singletonList("USRID"))
                 .usersAllowedToWriteToRemove(Collections.singletonList("USRID"))

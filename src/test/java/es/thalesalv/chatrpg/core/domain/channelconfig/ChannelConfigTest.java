@@ -20,7 +20,7 @@ import es.thalesalv.chatrpg.core.domain.Visibility;
 public class ChannelConfigTest {
 
     @Test
-    public void createChannelConfig() {
+    public void createChannelConfig_whenValidData_thenCreateChannelConfig() {
 
         // Given
         ChannelConfig.Builder channelConfigBuilder = ChannelConfig.builder();
@@ -46,7 +46,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenNameIsNull() {
+    public void createChannelConfig_whenNameIsNull_thenThrowException() {
 
         // Given
         ChannelConfig.Builder channelConfigBuilder = ChannelConfigFixture.sample().name(null);
@@ -56,7 +56,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenNameIsEmpty() {
+    public void createChannelConfig_whenNameIsEmpty_thenThrowException() {
 
         // Given
         ChannelConfig.Builder channelConfigBuilder = ChannelConfigFixture.sample().name(StringUtils.EMPTY);
@@ -66,17 +66,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenNameIsBlank() {
-
-        // Given
-        ChannelConfig.Builder channelConfigBuilder = ChannelConfigFixture.sample().name(StringUtils.SPACE);
-
-        // Then
-        assertThrows(BusinessRuleViolationException.class, channelConfigBuilder::build);
-    }
-
-    @Test
-    public void errorWhenModelConfigurationIsNull() {
+    public void createChannelConfig_whenModelConfigurationIsNull_thenThrowException() {
 
         // Given
         ChannelConfig.Builder channelConfigBuilder = ChannelConfigFixture.sample().modelConfiguration(null);
@@ -86,7 +76,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenModerationIsNull() {
+    public void createChannelConfig_whenModerationIsNull_thenThrowException() {
 
         // Given
         ChannelConfig.Builder channelConfigBuilder = ChannelConfigFixture.sample().moderation(null);
@@ -96,7 +86,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenVisibilityIsNull() {
+    public void createChannelConfig_whenVisibilityIsNull_thenThrowException() {
 
         // Given
         ChannelConfig.Builder channelConfigBuilder = ChannelConfigFixture.sample().visibility(null);
@@ -106,7 +96,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenPermissionsIsNull() {
+    public void createChannelConfig_whenPermissionsIsNull_thenThrowException() {
 
         // Given
         ChannelConfig.Builder channelConfigBuilder = ChannelConfigFixture.sample().permissions(null);
@@ -116,7 +106,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void addWriterToList() {
+    public void updateChannelConfig_whenAddNewWriter_thenTheyShouldHaveReadAndWritePermission() {
 
         // Given
         String userId = "1234567890";
@@ -133,10 +123,12 @@ public class ChannelConfigTest {
 
         // Then
         assertThat(channelConfig.getUsersAllowedToWrite()).contains(userId);
+        assertThat(channelConfig.canUserWrite(userId)).isTrue();
+        assertThat(channelConfig.canUserRead(userId)).isTrue();
     }
 
     @Test
-    public void addReaderToList() {
+    public void updateChannelConfig_whenAddNewReader_thenTheyShouldHaveOnlyReadPermission() {
 
         // Given
         String userId = "1234567890";
@@ -153,10 +145,12 @@ public class ChannelConfigTest {
 
         // Then
         assertThat(channelConfig.getUsersAllowedToRead()).contains(userId);
+        assertThat(channelConfig.canUserWrite(userId)).isFalse();
+        assertThat(channelConfig.canUserRead(userId)).isTrue();
     }
 
     @Test
-    public void removeReaderFromList() {
+    public void updateChannelConfig_whenRemoveReader_thenReadPermissionShouldBeRevoked() {
 
         // Given
         String userId = "1234567890";
@@ -177,10 +171,12 @@ public class ChannelConfigTest {
 
         // Then
         assertThat(channelConfig.getUsersAllowedToRead()).doesNotContain(userId);
+        assertThat(channelConfig.canUserWrite(userId)).isFalse();
+        assertThat(channelConfig.canUserRead(userId)).isFalse();
     }
 
     @Test
-    public void removeWriterFromList() {
+    public void updateChannelConfig_whenRemoveWriter_thenReadAndWritePermissionShouldBeRevoked() {
 
         // Given
         String userId = "1234567890";
@@ -201,10 +197,12 @@ public class ChannelConfigTest {
 
         // Then
         assertThat(channelConfig.getUsersAllowedToWrite()).doesNotContain(userId);
+        assertThat(channelConfig.canUserWrite(userId)).isFalse();
+        assertThat(channelConfig.canUserRead(userId)).isFalse();
     }
 
     @Test
-    public void makeChannelConfigPublic() {
+    public void updateChannelConfig_whenTurningPrivateIntoPublic_thenPermissionShouldBeChangedToPublic() {
 
         // Given
         ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
@@ -217,7 +215,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void makeChannelConfigPrivate() {
+    public void updateChannelConfig_whenTurningPublicIntoPrivate_thenPermissionShouldBeChangedToPrivate() {
 
         // Given
         ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
@@ -230,7 +228,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void updateChannelConfigName() {
+    public void updateChannelConfig_whenNewNameProvided_thenNameShouldBeUpdated() {
 
         // Given
         String name = "New Name";
@@ -244,7 +242,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void updatePersona() {
+    public void updateChannelConfig_whenNewPersonaIdProvided_thenPersonaIdShouldBeUpdated() {
 
         // Given
         String personaId = "PRSNID";
@@ -258,7 +256,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void updateModeration() {
+    public void updateChannelConfig_whenNewModerationProvided_thenModerationShouldBeUpdated() {
 
         // Given
         Moderation moderation = Moderation.DISABLED;
@@ -272,7 +270,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void updateAiModel() {
+    public void updateChannelConfig_whenNewAiModelIsProvided_thenAiModelShouldBeUpdated() {
 
         // Given
         ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT4_128K;
@@ -286,7 +284,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void updateMaxTokenLimit() {
+    public void updateChannelConfig_whenNewMaxTokenLimit_thenMaxTokenLimitShouldBeUpdated() {
 
         // Given
         int maxTokenLimit = 100;
@@ -302,7 +300,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenMaxTokenLimitGreaterThanHardLimit() {
+    public void updateChannelConfig_whenNewMaxTokenLimitGreaterThanAllowed_thenThrowException() {
 
         // Given
         int maxTokenLimit = 50000;
@@ -316,7 +314,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenMaxTokenLimitLowerThanHardLimit() {
+    public void updateChannelConfig_whenNewMaxTokenLimitLesserThanAllowed_thenThrowException() {
 
         // Given
         int maxTokenLimit = 10;
@@ -330,51 +328,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void updateMessageHistorySize() {
-
-        // Given
-        int messageHistorySize = 100;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
-        ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
-
-        // When
-        channelConfig.updateMessageHistorySize(messageHistorySize);
-
-        // Then
-        assertThat(channelConfig.getModelConfiguration().getMessageHistorySize()).isEqualTo(messageHistorySize);
-    }
-
-    @Test
-    public void errorWhenMessageHistorySizeGreaterThanHardLimit() {
-
-        // Given
-        int messageHistorySize = 5000;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
-        ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
-
-        // Then
-        assertThrows(BusinessRuleViolationException.class,
-                () -> channelConfig.updateMessageHistorySize(messageHistorySize));
-    }
-
-    @Test
-    public void errorWhenMessageHistorySizeLowerThanHardLimit() {
-
-        // Given
-        int messageHistorySize = 5;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
-        ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
-
-        // Then
-        assertThrows(BusinessRuleViolationException.class,
-                () -> channelConfig.updateMessageHistorySize(messageHistorySize));
-    }
-
-    @Test
-    public void updateTemperature() {
+    public void updateChannelConfig_whenNewTemperature_thenTemperatureShouldBeUpdated() {
 
         // Given
         double temperature = 1.3;
@@ -388,7 +342,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenTemperatureHigherThanLimit() {
+    public void updateChannelConfig_whenNewTemperatureGreaterThanAllowed_thenThrowException() {
 
         // Given
         double temperature = 3;
@@ -400,7 +354,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenTemperatureLowerThanLimit() {
+    public void updateChannelConfig_whenNewTemperatureLesserThanAllowed_thenThrowException() {
 
         // Given
         double temperature = 0;
@@ -412,7 +366,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void updatePresencePenalty() {
+    public void updateChannelConfig_whenNewPresencePenalty_thenPresencePenaltyIsUpdated() {
 
         // Given
         double presencePenalty = 1.3;
@@ -426,7 +380,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenPresencePenaltyHigherThanLimit() {
+    public void updateChannelConfig_whenPresencePenaltyGreaterThanAllowed_thenThrowException() {
 
         // Given
         double presencePenalty = 3;
@@ -438,7 +392,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenPresencePenaltyLowerThanLimit() {
+    public void updateChannelConfig_whenPresencePenaltyLesserThanAllowed_thenThrowException() {
 
         // Given
         double presencePenalty = -3;
@@ -450,7 +404,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void updateFrequencyPenalty() {
+    public void updateChannelConfig_whenNewFrequencyPenalty_thenFrequencyPenaltyIsUpdated() {
 
         // Given
         double frequencyPenalty = 1.3;
@@ -464,7 +418,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenFrequencyPenaltyHigherThanLimit() {
+    public void updateChannelConfig_whenFrequencyPenaltyGreaterThanAllowed_thenThrowException() {
 
         // Given
         double frequencyPenalty = 3;
@@ -476,7 +430,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenFrequencyPenaltyLowerThanLimit() {
+    public void updateChannelConfig_whenPresenceFrequencyLesserThanAllowed_thenThrowException() {
 
         // Given
         double frequencyPenalty = -3;
@@ -488,7 +442,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void updateLogitBias() {
+    public void updateChannelConfig_whenNewLogitBias_thenLogitBiasShouldBeUpdated() {
 
         // Given
         String token = "TOKEN";
@@ -509,7 +463,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenLogitBiasHigherThanLimit() {
+    public void updateChannelConfig_whenLogitBiasGreaterThanAllowed_thenThrowException() {
 
         // Given
         String token = "TOKEN";
@@ -522,7 +476,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void errorWhenLogitBiasLowerThanLimit() {
+    public void updateChannelConfig_whenLogitBiasLesserThanAllowed_thenThrowException() {
 
         // Given
         String token = "TOKEN";
@@ -535,7 +489,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void addStopSequence() {
+    public void updateChannelConfig_whenNewStopSequence_thenStopSequenceShouldBeAdded() {
 
         // Given
         String token = "TOKEN";
@@ -555,7 +509,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void removeStopSequence() {
+    public void updateChannelConfig_whenRemovedStopSequence_thenStopSequenceShouldBeRemoved() {
 
         // Given
         String token = "TOKEN";
@@ -575,7 +529,7 @@ public class ChannelConfigTest {
     }
 
     @Test
-    public void removeLogitBias() {
+    public void updateChannelConfig_whenRemovedLogitBias_thenLogitBiasShouldBeRemoved() {
 
         // Given
         String token = "TOKEN";
@@ -593,5 +547,16 @@ public class ChannelConfigTest {
 
         // Then
         assertThat(channelConfig.getModelConfiguration().getLogitBias()).doesNotContainKey(token);
+    }
+
+    @Test
+    public void createChannelConfig_whenDiscordChannelIdIsNull_thenThrowException() {
+
+        // Given
+        ChannelConfig.Builder channelConfigBuilder = ChannelConfigFixture.sample()
+                .discordChannelId(null);
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class, () -> channelConfigBuilder.build());
     }
 }

@@ -14,14 +14,12 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldResult;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithReadAccess;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithWriteAccess;
-import es.thalesalv.chatrpg.core.domain.Permissions;
-import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
+import es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper.WorldPersistenceMapper;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 
@@ -34,20 +32,21 @@ public class WorldRepositoryImpl implements WorldRepository {
     private static final String DEFAULT_SORT_BY_FIELD = "name";
 
     private final WorldJpaRepository jpaRepository;
+    private final WorldPersistenceMapper mapper;
 
     @Override
     public World save(World world) {
 
-        WorldEntity entity = mapToEntity(world);
+        WorldEntity entity = mapper.mapToEntity(world);
 
-        return mapFromEntity(jpaRepository.save(entity));
+        return mapper.mapFromEntity(jpaRepository.save(entity));
     }
 
     @Override
     public Optional<World> findById(String id) {
 
         return jpaRepository.findById(id)
-                .map(this::mapFromEntity);
+                .map(mapper::mapFromEntity);
     }
 
     @Override
@@ -69,16 +68,7 @@ public class WorldRepositoryImpl implements WorldRepository {
         Specification<WorldEntity> filters = readAccessSpecificationFrom(query);
         Page<WorldEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
-        return SearchWorldsResult.builder()
-                .results(pagedResult.getContent()
-                        .stream()
-                        .map(this::mapToResult)
-                        .toList())
-                .page(page)
-                .items(pagedResult.getNumberOfElements())
-                .totalItems(pagedResult.getTotalElements())
-                .totalPages(pagedResult.getTotalPages())
-                .build();
+        return mapper.mapToResult(pagedResult);
     }
 
     @Override
@@ -94,73 +84,7 @@ public class WorldRepositoryImpl implements WorldRepository {
         Specification<WorldEntity> filters = writeAccessSpecificationFrom(query);
         Page<WorldEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
-        return SearchWorldsResult.builder()
-                .results(pagedResult.getContent()
-                        .stream()
-                        .map(this::mapToResult)
-                        .toList())
-                .page(page)
-                .items(pagedResult.getNumberOfElements())
-                .totalItems(pagedResult.getTotalElements())
-                .totalPages(pagedResult.getTotalPages())
-                .build();
-    }
-
-    private WorldEntity mapToEntity(World world) {
-
-        String creatorOrOwnerDiscordId = isBlank(world.getCreatorDiscordId())
-                ? world.getOwnerDiscordId()
-                : world.getCreatorDiscordId();
-
-        return WorldEntity.builder()
-                .id(world.getId())
-                .name(world.getName())
-                .description(world.getDescription())
-                .adventureStart(world.getAdventureStart())
-                .visibility(world.getVisibility().toString())
-                .ownerDiscordId(world.getOwnerDiscordId())
-                .usersAllowedToRead(world.getUsersAllowedToRead())
-                .usersAllowedToWrite(world.getUsersAllowedToWrite())
-                .creationDate(world.getCreationDate())
-                .creatorDiscordId(creatorOrOwnerDiscordId)
-                .lastUpdateDate(world.getLastUpdateDate())
-                .creatorDiscordId(world.getCreatorDiscordId())
-                .build();
-    }
-
-    private World mapFromEntity(WorldEntity world) {
-
-        Permissions permissions = Permissions.builder()
-                .ownerDiscordId(world.getOwnerDiscordId())
-                .usersAllowedToRead(world.getUsersAllowedToRead())
-                .usersAllowedToWrite(world.getUsersAllowedToWrite())
-                .build();
-
-        return World.builder()
-                .id(world.getId())
-                .name(world.getName())
-                .description(world.getDescription())
-                .adventureStart(world.getAdventureStart())
-                .visibility(Visibility.fromString(world.getVisibility()))
-                .permissions(permissions)
-                .creationDate(world.getCreationDate())
-                .lastUpdateDate(world.getLastUpdateDate())
-                .creatorDiscordId(world.getCreatorDiscordId())
-                .build();
-    }
-
-    private GetWorldResult mapToResult(WorldEntity world) {
-
-        return GetWorldResult.builder()
-                .id(world.getId())
-                .name(world.getName())
-                .description(world.getDescription())
-                .adventureStart(world.getAdventureStart())
-                .visibility(world.getVisibility())
-                .ownerDiscordId(world.getOwnerDiscordId())
-                .creationDate(world.getCreationDate())
-                .lastUpdateDate(world.getLastUpdateDate())
-                .build();
+        return mapper.mapToResult(pagedResult);
     }
 
     private Specification<WorldEntity> readAccessSpecificationFrom(SearchWorldsWithReadAccess query) {

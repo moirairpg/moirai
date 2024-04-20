@@ -24,7 +24,6 @@ public class ModelConfigurationTest {
         modelConfigurationBuilder.frequencyPenalty(0.2);
         modelConfigurationBuilder.presencePenalty(0.2);
         modelConfigurationBuilder.maxTokenLimit(100);
-        modelConfigurationBuilder.messageHistorySize(25);
         modelConfigurationBuilder.temperature(1.0);
 
         Map<String, Double> logitBias = new HashMap<>();
@@ -46,8 +45,35 @@ public class ModelConfigurationTest {
         assertThat(modelConfiguration.getFrequencyPenalty()).isEqualTo(0.2);
         assertThat(modelConfiguration.getPresencePenalty()).isEqualTo(0.2);
         assertThat(modelConfiguration.getMaxTokenLimit()).isEqualTo(100);
-        assertThat(modelConfiguration.getMessageHistorySize()).isEqualTo(25);
         assertThat(modelConfiguration.getTemperature()).isEqualTo(1.0);
+    }
+    @Test
+    public void createModelConfiguration_whenStopSequencesNull_thenCreateModelConfigurations() {
+
+        // Given
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfiguration.builder();
+        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT35_16K);
+        modelConfigurationBuilder.frequencyPenalty(0.2);
+        modelConfigurationBuilder.presencePenalty(0.2);
+        modelConfigurationBuilder.maxTokenLimit(100);
+        modelConfigurationBuilder.temperature(1.0);
+
+        Map<String, Double> logitBias = new HashMap<>();
+        logitBias.put("ABC", 50.0);
+        logitBias.put("DEF", 5.0);
+
+        List<String> stopSequences = new ArrayList<>();
+        stopSequences.add("ABC");
+
+        modelConfigurationBuilder.logitBias(logitBias);
+        modelConfigurationBuilder.stopSequences(null);
+
+        // When
+        ModelConfiguration modelConfiguration = modelConfigurationBuilder.build();
+
+        // Then
+        assertThat(modelConfiguration).isNotNull();
+        assertThat(modelConfiguration.getStopSequences()).isEmpty();
     }
 
     @Test
@@ -79,20 +105,6 @@ public class ModelConfigurationTest {
     }
 
     @Test
-    public void updateMessageHistorySize() {
-
-        // Given
-        Integer newHistorySize = 77;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
-
-        // When
-        ModelConfiguration newModelConfiguration = modelConfiguration.updateMessageHistorySize(newHistorySize);
-
-        // Then
-        assertThat(newModelConfiguration.getMessageHistorySize()).isEqualTo(newHistorySize);
-    }
-
-    @Test
     public void updateTemperature() {
 
         // Given
@@ -121,6 +133,20 @@ public class ModelConfigurationTest {
     }
 
     @Test
+    public void updateFrequencyPenalty_whenFrequencyPenaltyNull_thenUpdateWithDefault() {
+
+        // Given
+        Double defaultFrequencyPenalty = 0.0;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+
+        // When
+        ModelConfiguration newModelConfiguration = modelConfiguration.updateFrequencyPenalty(null);
+
+        // Then
+        assertThat(newModelConfiguration.getFrequencyPenalty()).isEqualTo(defaultFrequencyPenalty);
+    }
+
+    @Test
     public void updatePresencePenalty() {
 
         // Given
@@ -132,6 +158,20 @@ public class ModelConfigurationTest {
 
         // Then
         assertThat(newModelConfiguration.getPresencePenalty()).isEqualTo(newPresencePenalty);
+    }
+
+    @Test
+    public void updatePresencePenalty_whenPresencePenaltyNull_thenUpdateWithDefault() {
+
+        // Given
+        Double defaultPresencePenalty = 0.0;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+
+        // When
+        ModelConfiguration newModelConfiguration = modelConfiguration.updatePresencePenalty(null);
+
+        // Then
+        assertThat(newModelConfiguration.getPresencePenalty()).isEqualTo(defaultPresencePenalty);
     }
 
     @Test
@@ -214,28 +254,6 @@ public class ModelConfigurationTest {
         // Given
         ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
                 .temperature(-3.0);
-
-        // Then
-        assertThrows(BusinessRuleViolationException.class, modelConfigurationBuilder::build);
-    }
-
-    @Test
-    public void errorWhenMessageHistorySizeIsHigherThanLimit() {
-
-        // Given
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
-                .messageHistorySize(200);
-
-        // Then
-        assertThrows(BusinessRuleViolationException.class, modelConfigurationBuilder::build);
-    }
-
-    @Test
-    public void errorWhenMessageHistorySizeIsLowerThanLimit() {
-
-        // Given
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
-                .messageHistorySize(5);
 
         // Then
         assertThrows(BusinessRuleViolationException.class, modelConfigurationBuilder::build);

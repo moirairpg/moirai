@@ -39,7 +39,6 @@ public class ChannelConfigRequestMapperTest {
         assertThat(command.getMaxTokenLimit()).isEqualTo(request.getMaxTokenLimit());
         assertThat(command.getTemperature()).isEqualTo(request.getTemperature());
         assertThat(command.getFrequencyPenalty()).isEqualTo(request.getFrequencyPenalty());
-        assertThat(command.getMessageHistorySize()).isEqualTo(request.getMessageHistorySize());
         assertThat(command.getModeration()).isEqualTo(request.getModeration());
         assertThat(command.getPresencePenalty()).isEqualTo(request.getPresencePenalty());
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
@@ -69,7 +68,6 @@ public class ChannelConfigRequestMapperTest {
         assertThat(command.getMaxTokenLimit()).isEqualTo(request.getMaxTokenLimit());
         assertThat(command.getTemperature()).isEqualTo(request.getTemperature());
         assertThat(command.getFrequencyPenalty()).isEqualTo(request.getFrequencyPenalty());
-        assertThat(command.getMessageHistorySize()).isEqualTo(request.getMessageHistorySize());
         assertThat(command.getModeration()).isEqualTo(request.getModeration());
         assertThat(command.getPresencePenalty()).isEqualTo(request.getPresencePenalty());
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());

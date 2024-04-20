@@ -14,11 +14,11 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryResult;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntries;
 import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntriesResult;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryRepository;
+import es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper.WorldLorebookPersistenceMapper;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 
@@ -31,20 +31,21 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
     private static final String DEFAULT_SORT_BY_FIELD = "name";
 
     private final WorldLorebookEntryJpaRepository jpaRepository;
+    private final WorldLorebookPersistenceMapper mapper;
 
     @Override
     public WorldLorebookEntry save(WorldLorebookEntry world) {
 
-        WorldLorebookEntryEntity entity = mapToEntity(world);
+        WorldLorebookEntryEntity entity = mapper.mapToEntity(world);
 
-        return mapFromEntity(jpaRepository.save(entity));
+        return mapper.mapFromEntity(jpaRepository.save(entity));
     }
 
     @Override
     public Optional<WorldLorebookEntry> findById(String lorebookEntryId) {
 
         return jpaRepository.findById(lorebookEntryId)
-                .map(this::mapFromEntity);
+                .map(mapper::mapFromEntity);
     }
 
     @Override
@@ -52,7 +53,7 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
 
         return jpaRepository.findAllByNameRegex(valueToSearch)
                 .stream()
-                .map(this::mapFromEntity)
+                .map(mapper::mapFromEntity)
                 .toList();
     }
 
@@ -75,62 +76,7 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
         Specification<WorldLorebookEntryEntity> filters = searchLorebookSpecificationFrom(query);
         Page<WorldLorebookEntryEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
-        return SearchWorldLorebookEntriesResult.builder()
-                .results(pagedResult.getContent()
-                        .stream()
-                        .map(this::mapToResult)
-                        .toList())
-                .page(page)
-                .items(pagedResult.getNumberOfElements())
-                .totalItems(pagedResult.getTotalElements())
-                .totalPages(pagedResult.getTotalPages())
-                .build();
-    }
-
-    private WorldLorebookEntryEntity mapToEntity(WorldLorebookEntry entry) {
-
-        return WorldLorebookEntryEntity.builder()
-                .id(entry.getId())
-                .name(entry.getName())
-                .description(entry.getDescription())
-                .regex(entry.getRegex())
-                .playerDiscordId(entry.getPlayerDiscordId())
-                .isPlayerCharacter(entry.isPlayerCharacter())
-                .worldId(entry.getWorldId())
-                .creatorDiscordId(entry.getCreatorDiscordId())
-                .creationDate(entry.getCreationDate())
-                .lastUpdateDate(entry.getLastUpdateDate())
-                .build();
-    }
-
-    private WorldLorebookEntry mapFromEntity(WorldLorebookEntryEntity entry) {
-
-        return WorldLorebookEntry.builder()
-                .id(entry.getId())
-                .name(entry.getName())
-                .description(entry.getDescription())
-                .regex(entry.getRegex())
-                .playerDiscordId(entry.getPlayerDiscordId())
-                .isPlayerCharacter(entry.isPlayerCharacter())
-                .worldId(entry.getWorldId())
-                .creatorDiscordId(entry.getCreatorDiscordId())
-                .creationDate(entry.getCreationDate())
-                .lastUpdateDate(entry.getLastUpdateDate())
-                .build();
-    }
-
-    private GetWorldLorebookEntryResult mapToResult(WorldLorebookEntryEntity entry) {
-
-        return GetWorldLorebookEntryResult.builder()
-                .id(entry.getId())
-                .name(entry.getName())
-                .description(entry.getDescription())
-                .regex(entry.getRegex())
-                .playerDiscordId(entry.getPlayerDiscordId())
-                .isPlayerCharacter(entry.isPlayerCharacter())
-                .creationDate(entry.getCreationDate())
-                .lastUpdateDate(entry.getLastUpdateDate())
-                .build();
+        return mapper.mapToResult(pagedResult);
     }
 
     private Specification<WorldLorebookEntryEntity> searchLorebookSpecificationFrom(SearchWorldLorebookEntries query) {

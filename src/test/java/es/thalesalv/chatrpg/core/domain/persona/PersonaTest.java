@@ -17,7 +17,7 @@ import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 public class PersonaTest {
 
     @Test
-    public void makePersonaPublic() {
+    public void updateVisibility_whenPrivate_thenMakePublic() {
 
         // Given
         Persona persona = PersonaFixture.privatePersona().build();
@@ -30,7 +30,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void makePersonaPrivate() {
+    public void updateVisibility_whenPublic_thenMakePrivate() {
 
         // Given
         Persona persona = PersonaFixture.publicPersona().build();
@@ -43,7 +43,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void updatePersonaName() {
+    public void updatePersona_whenNewNameProvided_thenUpdatePersona() {
 
         // Given
         String name = "New Name";
@@ -57,7 +57,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void updatePersonaPersonality() {
+    public void updatePersona_whenNewPersonality_thenUpdatePersona() {
 
         // Given
         String personality = "New Personality";
@@ -71,7 +71,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void errorWhenCreatingPersonaWithNullName() {
+    public void createPersona_whenNullName_thenThrowException() {
 
         // Given
         Persona.Builder personaBuilder = PersonaFixture.publicPersona().name(null);
@@ -81,7 +81,17 @@ public class PersonaTest {
     }
 
     @Test
-    public void errorWhenCreatingPersonaWithEmptyName() {
+    public void createPersona_whenNullGameMode_thenThrowException() {
+
+        // Given
+        Persona.Builder personaBuilder = PersonaFixture.publicPersona().gameMode(null);
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class, personaBuilder::build);
+    }
+
+    @Test
+    public void createPersona_whenEmptyName_thenThrowException() {
 
         // Given
         Persona.Builder personaBuilder = PersonaFixture.publicPersona().name(EMPTY);
@@ -91,7 +101,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void errorWhenCreatingPersonaWithNullPersonality() {
+    public void createPersona_whenNullPersonality_thenThrowException() {
 
         // Given
         Persona.Builder personaBuilder = PersonaFixture.publicPersona().personality(null);
@@ -101,7 +111,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void errorWhenCreatingPersonaWithEmptyPersonality() {
+    public void createPersona_whenEmptyPersonality_thenThrowException() {
 
         // Given
         Persona.Builder personaBuilder = PersonaFixture.publicPersona().personality(EMPTY);
@@ -111,7 +121,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void errorWhenCreatingPersonaWithNullVisibility() {
+    public void createPersona_whenNullPermissions_thenThrowException() {
 
         // Given
         Persona.Builder personaBuilder = PersonaFixture.publicPersona().permissions(null);
@@ -121,7 +131,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void errorWhenCreatingPersonaWithNullPermissions() {
+    public void createPersona_whenEmptyVisibility_thenThrowException() {
 
         // Given
         Persona.Builder personaBuilder = PersonaFixture.publicPersona().visibility(null);
@@ -131,7 +141,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void addWriterToList() {
+    public void updatePersona_whenNewWriterUserAdded_thenTheyShouldHaveReadAndWritePermission() {
 
         // Given
         String userId = "1234567890";
@@ -148,10 +158,12 @@ public class PersonaTest {
 
         // Then
         assertThat(persona.getUsersAllowedToWrite()).contains(userId);
+        assertThat(persona.canUserWrite(userId)).isTrue();
+        assertThat(persona.canUserRead(userId)).isTrue();
     }
 
     @Test
-    public void addReaderToList() {
+    public void updatePersona_whenNewReaderUserAdded_thenTheyShouldHaveOnlyReadPermission() {
 
         // Given
         String userId = "1234567890";
@@ -168,10 +180,12 @@ public class PersonaTest {
 
         // Then
         assertThat(persona.getUsersAllowedToRead()).contains(userId);
+        assertThat(persona.canUserWrite(userId)).isFalse();
+        assertThat(persona.canUserRead(userId)).isTrue();
     }
 
     @Test
-    public void removeReaderFromList() {
+    public void updatePersona_whenReaderUserRemoved_thenReadPermissionShouldBeRevoked() {
 
         // Given
         String userId = "1234567890";
@@ -192,10 +206,12 @@ public class PersonaTest {
 
         // Then
         assertThat(persona.getUsersAllowedToRead()).doesNotContain(userId);
+        assertThat(persona.canUserWrite(userId)).isFalse();
+        assertThat(persona.canUserRead(userId)).isFalse();
     }
 
     @Test
-    public void removeWriterFromList() {
+    public void updatePersona_whenWriterUserRemoved_thenReadAndWritePermissionShouldBeRevoked() {
 
         // Given
         String userId = "1234567890";
@@ -216,10 +232,12 @@ public class PersonaTest {
 
         // Then
         assertThat(persona.getUsersAllowedToWrite()).doesNotContain(userId);
+        assertThat(persona.canUserWrite(userId)).isFalse();
+        assertThat(persona.canUserRead(userId)).isFalse();
     }
 
     @Test
-    public void updateBumpContent() {
+    public void updatePersona_whenNewBumpContent_thenUpdatePersona() {
 
         // Given
         String newBumpContent = "This is the new bump content";
@@ -250,7 +268,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void updateBumpFrequency() {
+    public void updatePersona_whenNewBumpFrequency_thenUpdatePersona() {
 
         // Given
         int newFrequency = 50;
@@ -281,7 +299,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void updateBumpRole() {
+    public void updatePersona_whenNewBumpRole_thenUpdatePersona() {
 
         // Given
         CompletionRole newRole = CompletionRole.USER;
@@ -311,7 +329,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void updateNudgeContent() {
+    public void updatePersona_whenNewNudgeContent_thenUpdatePersona() {
 
         // Given
         String newNudgeContent = "This is the new nudge content";
@@ -339,7 +357,7 @@ public class PersonaTest {
     }
 
     @Test
-    public void updateNudgeRole() {
+    public void updatePersona_whenNewNudgeRole_thenUpdatePersona() {
 
         // Given
         CompletionRole newRole = CompletionRole.USER;

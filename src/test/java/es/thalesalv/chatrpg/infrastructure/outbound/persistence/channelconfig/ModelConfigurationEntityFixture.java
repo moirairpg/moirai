@@ -14,7 +14,6 @@ public class ModelConfigurationEntityFixture {
                 .presencePenalty(modelConfiguration.getPresencePenalty())
                 .logitBias(modelConfiguration.getLogitBias())
                 .maxTokenLimit(modelConfiguration.getMaxTokenLimit())
-                .messageHistorySize(modelConfiguration.getMessageHistorySize())
                 .stopSequences(modelConfiguration.getStopSequences())
                 .temperature(modelConfiguration.getTemperature());
     }
@@ -28,7 +27,6 @@ public class ModelConfigurationEntityFixture {
                 .presencePenalty(modelConfiguration.getPresencePenalty())
                 .logitBias(modelConfiguration.getLogitBias())
                 .maxTokenLimit(modelConfiguration.getMaxTokenLimit())
-                .messageHistorySize(modelConfiguration.getMessageHistorySize())
                 .stopSequences(modelConfiguration.getStopSequences())
                 .temperature(modelConfiguration.getTemperature());
     }

@@ -18,7 +18,6 @@ public class CreateChannelConfigFixture {
                 .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
                 .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
                 .moderation("strict")
                 .usersAllowedToRead(channelConfig.getUsersAllowedToRead())
                 .usersAllowedToWrite(channelConfig.getUsersAllowedToWrite())

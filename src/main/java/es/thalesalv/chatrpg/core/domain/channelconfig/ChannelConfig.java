@@ -79,12 +79,6 @@ public class ChannelConfig extends ShareableAsset {
         this.modelConfiguration = newModelConfiguration;
     }
 
-    public void updateMessageHistorySize(int messageHistorySize) {
-
-        ModelConfiguration newModelConfiguration = this.modelConfiguration.updateMessageHistorySize(messageHistorySize);
-        this.modelConfiguration = newModelConfiguration;
-    }
-
     public void updateTemperature(double temperature) {
 
         ModelConfiguration newModelConfiguration = this.modelConfiguration.updateTemperature(temperature);

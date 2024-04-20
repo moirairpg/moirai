@@ -20,7 +20,6 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
     private final String aiModel;
     private final String moderation;
     private final Integer maxTokenLimit;
-    private final Integer messageHistorySize;
     private final Double temperature;
     private final Double frequencyPenalty;
     private final Double presencePenalty;

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -51,11 +50,6 @@ public class CreateChannelConfigRequest {
     @NotNull(message = "cannot be null")
     @Min(value = 100, message = "cannot be less than 100")
     private final Integer maxTokenLimit;
-
-    @NotNull(message = "cannot be null")
-    @Min(value = 10, message = "cannot be less than 10")
-    @Max(value = 100, message = "cannot be greater than 100")
-    private final Integer messageHistorySize;
 
     @NotNull(message = "cannot be null")
     @DecimalMin(value = "0.1", message = "cannot be less than 0.1")

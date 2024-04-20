@@ -68,9 +68,6 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         assertThat(createdChannelConfig.getModelConfiguration().getMaxTokenLimit())
                 .isEqualTo((channelConfig.getModelConfiguration().getMaxTokenLimit()));
 
-        assertThat(createdChannelConfig.getModelConfiguration().getMessageHistorySize())
-                .isEqualTo((channelConfig.getModelConfiguration().getMessageHistorySize()));
-
         assertThat(createdChannelConfig.getModelConfiguration().getStopSequences())
                 .isEqualTo((channelConfig.getModelConfiguration().getStopSequences()));
 

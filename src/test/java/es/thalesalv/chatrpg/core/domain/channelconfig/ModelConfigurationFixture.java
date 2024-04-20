@@ -14,7 +14,6 @@ public class ModelConfigurationFixture {
         modelConfigurationBuilder.frequencyPenalty(0.2);
         modelConfigurationBuilder.presencePenalty(0.2);
         modelConfigurationBuilder.maxTokenLimit(100);
-        modelConfigurationBuilder.messageHistorySize(25);
         modelConfigurationBuilder.temperature(1.0);
 
         Map<String, Double> logitBias = new HashMap<>();
@@ -37,7 +36,6 @@ public class ModelConfigurationFixture {
         modelConfigurationBuilder.frequencyPenalty(0.2);
         modelConfigurationBuilder.presencePenalty(0.2);
         modelConfigurationBuilder.maxTokenLimit(100);
-        modelConfigurationBuilder.messageHistorySize(25);
         modelConfigurationBuilder.temperature(1.0);
 
         Map<String, Double> logitBias = new HashMap<>();

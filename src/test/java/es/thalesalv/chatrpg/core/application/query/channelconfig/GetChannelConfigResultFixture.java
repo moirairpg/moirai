@@ -19,7 +19,6 @@ public class GetChannelConfigResultFixture {
                 .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
                 .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
                 .moderation(channelConfig.getModeration().name())
                 .usersAllowedToRead(channelConfig.getUsersAllowedToRead())
                 .usersAllowedToWrite(channelConfig.getUsersAllowedToWrite())

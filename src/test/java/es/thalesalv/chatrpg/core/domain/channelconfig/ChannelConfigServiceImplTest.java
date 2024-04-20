@@ -24,6 +24,7 @@ import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannel
 import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfigFixture;
 import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfigById;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
+import es.thalesalv.chatrpg.core.domain.Visibility;
 
 @ExtendWith(MockitoExtension.class)
 public class ChannelConfigServiceImplTest {
@@ -35,7 +36,7 @@ public class ChannelConfigServiceImplTest {
     private ChannelConfigServiceImpl service;
 
     @Test
-    public void createChannelConfig() {
+    public void createChannelConfig_whenValidData_thenChannelConfigIsCreated() {
 
         // Given
         ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
@@ -58,7 +59,6 @@ public class ChannelConfigServiceImplTest {
         assertThat(modelConfiguration.getAiModel()).isEqualTo(modelConfiguration.getAiModel());
         assertThat(modelConfiguration.getFrequencyPenalty()).isEqualTo(modelConfiguration.getFrequencyPenalty());
         assertThat(modelConfiguration.getMaxTokenLimit()).isEqualTo(modelConfiguration.getMaxTokenLimit());
-        assertThat(modelConfiguration.getMessageHistorySize()).isEqualTo(modelConfiguration.getMessageHistorySize());
         assertThat(modelConfiguration.getPresencePenalty()).isEqualTo(modelConfiguration.getPresencePenalty());
         assertThat(modelConfiguration.getTemperature()).isEqualTo(modelConfiguration.getTemperature());
         assertThat(modelConfiguration.getLogitBias()).isEqualTo(modelConfiguration.getLogitBias());
@@ -66,23 +66,7 @@ public class ChannelConfigServiceImplTest {
     }
 
     @Test
-    public void errorWhenUpdateChannelConfigNotFound() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdateChannelConfig command = UpdateChannelConfig.builder()
-                .id(id)
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class, () -> service.update(command));
-    }
-
-    @Test
-    public void updateChannelConfig() {
+    public void updateChannelConfig_whenValidData_thenThrowException() {
 
         // Given
         String id = "CHCONFID";
@@ -114,7 +98,138 @@ public class ChannelConfigServiceImplTest {
     }
 
     @Test
-    public void errorWhenUpdateChannelConfigAccessDenied() {
+    public void updateChannelConfig_whenPrivateToBeMadePublic_thenChannelConfigIsMadePublic() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        UpdateChannelConfig command = UpdateChannelConfigFixture.sample()
+                .requesterDiscordId(requesterId)
+                .visibility("public")
+                .build();
+
+        ChannelConfig unchangedChannelConfig = ChannelConfigFixture.sample()
+                .visibility(Visibility.PRIVATE)
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        ChannelConfig expectedUpdatedChannelConfig = ChannelConfigFixture.sample()
+                .id(id)
+                .visibility(Visibility.PUBLIC)
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedChannelConfig));
+        when(repository.save(any(ChannelConfig.class))).thenReturn(expectedUpdatedChannelConfig);
+
+        // When
+        ChannelConfig result = service.update(command);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getVisibility()).isEqualTo(expectedUpdatedChannelConfig.getVisibility());
+    }
+
+    @Test
+    public void updateChannelConfig_whenInvalidVisibility_thenNothingIsChanged() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        UpdateChannelConfig command = UpdateChannelConfigFixture.sample()
+                .requesterDiscordId(requesterId)
+                .visibility("invalid")
+                .build();
+
+        ChannelConfig unchangedChannelConfig = ChannelConfigFixture.sample()
+                .visibility(Visibility.PRIVATE)
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        ChannelConfig expectedUpdatedChannelConfig = ChannelConfigFixture.sample()
+                .id(id)
+                .visibility(Visibility.PRIVATE)
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedChannelConfig));
+        when(repository.save(any(ChannelConfig.class))).thenReturn(expectedUpdatedChannelConfig);
+
+        // When
+        ChannelConfig result = service.update(command);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getVisibility()).isEqualTo(expectedUpdatedChannelConfig.getVisibility());
+    }
+
+    @Test
+    public void updateChannelConfig_whenEmptyUpdateFields_thenNothingIsChanged() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        UpdateChannelConfig command = UpdateChannelConfigFixture.sample()
+                .requesterDiscordId(requesterId)
+                .id(id)
+                .aiModel(null)
+                .discordChannelId(null)
+                .frequencyPenalty(null)
+                .logitBiasToAdd(null)
+                .logitBiasToRemove(null)
+                .maxTokenLimit(null)
+                .moderation(null)
+                .name(null)
+                .personaId(null)
+                .presencePenalty(null)
+                .stopSequencesToAdd(null)
+                .stopSequencesToRemove(null)
+                .usersAllowedToReadToAdd(null)
+                .usersAllowedToReadToRemove(null)
+                .usersAllowedToWriteToAdd(null)
+                .usersAllowedToWriteToRemove(null)
+                .temperature(null)
+                .visibility(null)
+                .worldId(null)
+                .build();
+
+        ChannelConfig unchangedChannelConfig = ChannelConfigFixture.sample()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedChannelConfig));
+        when(repository.save(any(ChannelConfig.class))).thenReturn(unchangedChannelConfig);
+
+        // When
+        ChannelConfig result = service.update(command);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo(unchangedChannelConfig.getName());
+    }
+
+    @Test
+    public void updateChannelConfig_whenChannelConfigNotFound_thenThrowException() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateChannelConfig command = UpdateChannelConfig.builder()
+                .id(id)
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.update(command));
+    }
+
+    @Test
+    public void updateConfig_whenInvalidPermission_thenThrowException() {
 
         // Given
         String id = "CHCONFID";
@@ -139,7 +254,7 @@ public class ChannelConfigServiceImplTest {
     }
 
     @Test
-    public void errorWhenDeleteChannelConfigNotFound() {
+    public void deleteChannelConfig_whenChannelConfigNotFound_thenThrowException() {
 
         // Given
         String id = "CHCONFID";
@@ -153,7 +268,7 @@ public class ChannelConfigServiceImplTest {
     }
 
     @Test
-    public void errorWhenDeleteChannelConfigAccessDenied() {
+    public void deleteChannelConfig_whenInvalidPermission_thenThrowException() {
 
         // Given
         String id = "CHCONFID";
@@ -175,7 +290,7 @@ public class ChannelConfigServiceImplTest {
     }
 
     @Test
-    public void deleteChannelConfig() {
+    public void deleteChannelConfig_whenProperPermission_thenChannelConfigIsDeleted() {
 
         // Given
         String id = "CHCONFID";
@@ -197,7 +312,7 @@ public class ChannelConfigServiceImplTest {
     }
 
     @Test
-    public void findChannelConfigById() {
+    public void findChannelConfig_whenValidId_thenChannelConfigIsReturned() {
 
         // Given
         String id = "CHCONFID";
@@ -223,7 +338,7 @@ public class ChannelConfigServiceImplTest {
     }
 
     @Test
-    public void errorWhenFindChannelConfigNotFound() {
+    public void findChannelConfig_whenChannelConfigNotFound_thenThrowException() {
 
         // Given
         String id = "CHCONFID";
@@ -237,7 +352,7 @@ public class ChannelConfigServiceImplTest {
     }
 
     @Test
-    public void errorWhenFindChannelConfigAccessDenied() {
+    public void findChannelConfig_whenInvalidPermission_thenThrowException() {
 
         // Given
         String id = "CHCONFID";

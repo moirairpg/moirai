@@ -30,7 +30,6 @@ public class GetChannelConfigByIdHandler extends AbstractUseCaseHandler<GetChann
                 .aiModel(channelConfig.getModelConfiguration().getAiModel().name())
                 .moderation(channelConfig.getModeration().name())
                 .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
                 .temperature(channelConfig.getModelConfiguration().getTemperature())
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
                 .presencePenalty(channelConfig.getModelConfiguration().getPresencePenalty())

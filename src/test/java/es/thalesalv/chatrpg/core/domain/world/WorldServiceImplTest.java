@@ -44,7 +44,7 @@ public class WorldServiceImplTest {
     private WorldServiceImpl service;
 
     @Test
-    public void createWorldSuccessfully() {
+    public void createWorld_whenValidData_thenWorldIsCreatedSuccessfully() {
 
         // Given
         String name = "Eldrida";
@@ -90,7 +90,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void createWorldWithNullLorebookSuccessfully() {
+    public void createWorld_whenLorebookIsNull_thenWorldIsCreatedSuccessfully() {
 
         // Given
         String name = "Eldrida";
@@ -134,7 +134,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void findWorldById() {
+    public void findWorld_whenValidId_thenWorldIsReturned() {
 
         // Given
         String id = "CHCONFID";
@@ -160,7 +160,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenFindWorldNotFound() {
+    public void findWorld_whenWorldNotFound_thenThrowException() {
 
         // Given
         String id = "CHCONFID";
@@ -174,7 +174,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenFindWorldAccessDenied() {
+    public void findWorld_whenNotEnoughPermission_thenThrowException() {
 
         // Given
         String id = "CHCONFID";
@@ -197,7 +197,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenDeleteWorldNotFound() {
+    public void deleteWorld_whenWorldNotFound_thenThrowException() {
 
         // Given
         String id = "CHCONFID";
@@ -211,7 +211,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenDeleteWorldAccessDenied() {
+    public void deleteWorld_whenNotEnoughPermission_thenThrowException() {
 
         // Given
         String id = "CHCONFID";
@@ -233,7 +233,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void deleteWorld() {
+    public void deleteWorld_whenProperIdAndPermission_thenWorldIsDeleted() {
 
         // Given
         String id = "CHCONFID";
@@ -255,48 +255,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenUpdateWorldNotFound() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdateWorld command = UpdateWorld.builder()
-                .id(id)
-                .build();
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class, () -> service.update(command));
-    }
-
-    @Test
-    public void errorWhenUpdateWorldAccessDenied() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdateWorld command = UpdateWorld.builder()
-                .id(id)
-                .requesterDiscordId("USRID")
-                .build();
-
-        World world = WorldFixture.privateWorld()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId("ANTHRUSR")
-                        .build())
-                .build();
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
-
-        // Then
-        assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
-    }
-
-    @Test
-    public void updateWorld() {
+    public void updateWorld_whenValidData_thenWorldIsUpdated() {
 
         // Given
         String id = "CHCONFID";
@@ -332,7 +291,127 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenUnauthorizedUserUpdateWorld() {
+    public void updateWorld_whenEmptyUpdateFields_thenWorldIsNotChanged() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateWorld command = UpdateWorld.builder()
+                .id(id)
+                .name(null)
+                .description(null)
+                .adventureStart(null)
+                .visibility(null)
+                .requesterDiscordId("586678721356875")
+                .build();
+
+        World unchangedWorld = WorldFixture.privateWorld().build();
+
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
+        when(worldRepository.save(any(World.class))).thenReturn(unchangedWorld);
+
+        // When
+        World result = service.update(command);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo(unchangedWorld.getName());
+    }
+
+    @Test
+    public void updateWorld_whenPublicToBeMadePrivate_thenWorldIsMadePrivate() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateWorld command = UpdateWorld.builder()
+                .id(id)
+                .visibility("private")
+                .requesterDiscordId("586678721356875")
+                .build();
+
+        World unchangedWorld = WorldFixture.publicWorld().build();
+        World expectedWorld = WorldFixture.privateWorld().build();
+
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
+        when(worldRepository.save(any(World.class))).thenReturn(expectedWorld);
+
+        // When
+        World result = service.update(command);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getVisibility()).isEqualTo(expectedWorld.getVisibility());
+    }
+
+    @Test
+    public void updateWorld_whenInvalidVisibility_thenNothingIsChanged() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateWorld command = UpdateWorld.builder()
+                .id(id)
+                .visibility("invalid")
+                .requesterDiscordId("586678721356875")
+                .build();
+
+        World unchangedWorld = WorldFixture.privateWorld().build();
+
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
+        when(worldRepository.save(any(World.class))).thenReturn(unchangedWorld);
+
+        // When
+        World result = service.update(command);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getVisibility()).isEqualTo(unchangedWorld.getVisibility());
+    }
+
+    @Test
+    public void updateWorld_whenWorldNotFound_thenThrowException() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateWorld command = UpdateWorld.builder()
+                .id(id)
+                .build();
+
+        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class, () -> service.update(command));
+    }
+
+    @Test
+    public void updateWorld_whenNotEnoughPermission_thenThrowException() {
+
+        // Given
+        String id = "CHCONFID";
+
+        UpdateWorld command = UpdateWorld.builder()
+                .id(id)
+                .requesterDiscordId("USRID")
+                .build();
+
+        World world = WorldFixture.privateWorld()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .build())
+                .build();
+
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
+
+        // Then
+        assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
+    }
+
+    @Test
+    public void updateWorld_whenInvalidPermission_thenThrowException() {
 
         // Given
         String id = "CHCONFID";
@@ -355,7 +434,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void createLorebookEntrySuccesfully() {
+    public void createLorebookEntry_whenValidData_thenEntryIsCreatedSuccessfully() {
 
         // Given
         String name = "Eldrida";
@@ -393,7 +472,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenUnauthorizedUserCreateLorebookEntry() {
+    public void createLorebookEntry_whenNotEnoughPermissionOnWorld_thenThrowException() {
 
         // Given
         String name = "Eldrida";
@@ -418,7 +497,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void updateLorebookEntrySuccesfully() {
+    public void updateLorebookEntry_whenValidData_thenEntryIsUpdatedSuccessfully() {
 
         // Given
         String name = "Eldrida";
@@ -458,7 +537,88 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenUpdatingLorebookEntryIfWorldNotExists() {
+    public void updateLorebookEntry_whenEmptyUpdateFields_thenNothingIsChanged() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+
+        WorldLorebookEntry expectedLorebookEntry = WorldLorebookEntryFixture.sampleLorebookEntry()
+                .name(name)
+                .description(description)
+                .regex(regex)
+                .build();
+
+        UpdateWorldLorebookEntry command = UpdateWorldLorebookEntry.builder()
+                .id("ENTRID")
+                .name(null)
+                .description(null)
+                .regex(null)
+                .worldId(worldId)
+                .requesterDiscordId("586678721356875")
+                .build();
+
+        World world = WorldFixture.privateWorld().build();
+
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(expectedLorebookEntry));
+        when(lorebookEntryRepository.save(any(WorldLorebookEntry.class))).thenReturn(expectedLorebookEntry);
+
+        // When
+        WorldLorebookEntry createdLorebookEntry = service.updateLorebookEntry(command);
+
+        // Then
+        assertThat(createdLorebookEntry.getName()).isEqualTo(expectedLorebookEntry.getName());
+        assertThat(createdLorebookEntry.getDescription()).isEqualTo(expectedLorebookEntry.getDescription());
+        assertThat(createdLorebookEntry.getRegex()).isEqualTo(expectedLorebookEntry.getRegex());
+    }
+
+    @Test
+    public void updateLorebookEntry_whenPlayerIdProvided_thenMakeEntryPlayableCharacter() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a kingdom in an empire";
+        String regex = "[Ee]ldrida";
+        String worldId = "WRLDID";
+        String playerDiscordId = "123123123";
+
+        WorldLorebookEntry.Builder lorebookEntryBuilder = WorldLorebookEntryFixture.sampleLorebookEntry()
+                .name(name)
+                .description(description)
+                .regex(regex);
+
+        WorldLorebookEntry expectedLorebookEntry = lorebookEntryBuilder
+                .playerDiscordId(playerDiscordId)
+                .isPlayerCharacter(true)
+                .build();
+
+        UpdateWorldLorebookEntry command = UpdateWorldLorebookEntry.builder()
+                .id("ENTRID")
+                .playerDiscordId(playerDiscordId)
+                .isPlayerCharacter(true)
+                .worldId(worldId)
+                .requesterDiscordId("586678721356875")
+                .build();
+
+        World world = WorldFixture.privateWorld().build();
+
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(expectedLorebookEntry));
+        when(lorebookEntryRepository.save(any(WorldLorebookEntry.class))).thenReturn(expectedLorebookEntry);
+
+        // When
+        WorldLorebookEntry createdLorebookEntry = service.updateLorebookEntry(command);
+
+        // Then
+        assertThat(createdLorebookEntry.getPlayerDiscordId()).isNotNull();
+        assertThat(createdLorebookEntry.getPlayerDiscordId()).isEqualTo(expectedLorebookEntry.getPlayerDiscordId());
+    }
+
+    @Test
+    public void updateLorebookEntry_whenWorldNotFound_thenThrowException() {
 
         // Given
         String name = "Eldrida";
@@ -485,7 +645,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenUnauthorizedUserUpdatingLorebookEntry() {
+    public void updateLorebookEntry_whenInvalidPermission_thenThrowException() {
 
         // Given
         String name = "Eldrida";
@@ -511,7 +671,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenUpdatingLorebookEntryIfEntryNotExists() {
+    public void updateLorebookEntry_whenEntryNotFound_thenThrowException() {
 
         // Given
         String name = "Eldrida";
@@ -534,7 +694,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenCreatingLorebookEntryInNonExistingWorld() {
+    public void createLorebookEntry_whenWorldNotExists_thenThrowException() {
 
         // Given
         String name = "Eldrida";
@@ -557,7 +717,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void findLorebookEntryById() {
+    public void findLorebookEntry_whenValidId_thenEntryIsRerturned() {
 
         // Given
         String requesterId = "RQSTRID";
@@ -586,7 +746,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenFindLorebookEntryByIdWorldNotFound() {
+    public void findLorebookEntry_whenWorldNotFound_thenThrowException() {
 
         // Given
         String requesterId = "RQSTRID";
@@ -603,7 +763,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenFindLorebookEntryByIdWorldInvalidPermission() {
+    public void findLorebookEntry_whenInvalidPermissionOnWorld_thenThrowException() {
 
         // Given
         String requesterId = "RQSTRID";
@@ -626,7 +786,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenFindLorebookEntryByIdEntryNotFound() {
+    public void findLorebookEntry_whenEntryNotFound_thenThrowException() {
 
         // Given
         String requesterId = "RQSTRID";
@@ -650,7 +810,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void deleteLorebookEntryById() {
+    public void deleteLorebookEntry_whenProperPermissionAndId_thenEntryIsDeleted() {
 
         // Given
         String requesterId = "RQSTRID";
@@ -676,7 +836,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenDeleteLorebookEntryByIdWorldNotFound() {
+    public void deleteLorebookEntry_whenWorldNotExists_thenThrowException() {
 
         // Given
         String requesterId = "RQSTRID";
@@ -693,7 +853,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenDeleteLorebookEntryByIdWorldInvalidPermission() {
+    public void deleteLorebookEntry_whenInvalidPermissionOnWorld_thenThrowException() {
 
         // Given
         String requesterId = "RQSTRID";
@@ -716,7 +876,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void errorWhenDeleteLorebookEntryByIdEntryNotFound() {
+    public void deleteLorebookEntry_whenEntryNotFound_thenThrowException() {
 
         // Given
         String requesterId = "RQSTRID";
@@ -740,7 +900,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void findAllEntriesByRegex_WhenWorldNotFound_ShouldThrowAssetNotFoundException() {
+    public void findAllEntriesByRegexWithRequesterId_whenWorldNotFound_thenThrowAssetNotFoundException() {
 
         // Given
         String worldId = "worldId";
@@ -755,7 +915,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void findAllEntriesByRegex_WhenUserCannotRead_ShouldThrowAssetAccessDeniedException() {
+    public void findAllEntriesByRegexWithRequesterId_whenUserCannotRead_thenThrowAssetAccessDeniedException() {
 
         // Given
         String worldId = "worldId";
@@ -775,7 +935,7 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void findAllEntriesByRegex_WhenUserCanRead_ShouldReturnEntries() {
+    public void findAllEntriesByRegexWithRequesterId_whenUserCanRead_thenReturnEntries() {
 
         // Given
         String worldId = "worldId";
@@ -801,5 +961,43 @@ public class WorldServiceImplTest {
         // Then
         assertThat(result).isNotNull().isNotEmpty().hasSize(1);
         assertThat(result).isEqualTo(expectedEntries);
+    }
+
+    @Test
+    public void findAllEntriesByRegex_whenUserCanRead_thenReturnEntries() {
+
+        // Given
+        String worldId = "worldId";
+        String valueToSearch = "Armando";
+        World world = WorldFixture.privateWorld().build();
+
+        List<WorldLorebookEntry> expectedEntries = Collections
+                .singletonList(WorldLorebookEntryFixture.sampleLorebookEntry()
+                        .regex("[Aa]rmando")
+                        .build());
+
+        when(worldRepository.findById(worldId)).thenReturn(Optional.of(world));
+        when(lorebookEntryRepository.findAllEntriesByRegex(valueToSearch)).thenReturn(expectedEntries);
+
+        // When
+        List<WorldLorebookEntry> result = service.findAllEntriesByRegex(worldId, valueToSearch);
+
+        // Then
+        assertThat(result).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result).isEqualTo(expectedEntries);
+    }
+
+    @Test
+    public void findAllEntriesByRegex_whenWorldNotFound_thenThrowAssetNotFoundException() {
+
+        // Given
+        String worldId = "worldId";
+        String valueToSearch = "Armando";
+
+        when(worldRepository.findById(worldId)).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(AssetNotFoundException.class,
+                () -> service.findAllEntriesByRegex(worldId, valueToSearch));
     }
 }

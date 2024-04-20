@@ -14,18 +14,12 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaResult;
 import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasResult;
 import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithReadAccess;
 import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithWriteAccess;
-import es.thalesalv.chatrpg.core.domain.CompletionRole;
-import es.thalesalv.chatrpg.core.domain.Permissions;
-import es.thalesalv.chatrpg.core.domain.Visibility;
-import es.thalesalv.chatrpg.core.domain.persona.Bump;
-import es.thalesalv.chatrpg.core.domain.persona.GameMode;
-import es.thalesalv.chatrpg.core.domain.persona.Nudge;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
+import es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper.PersonaPersistenceMapper;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 
@@ -38,20 +32,21 @@ public class PersonaRepositoryImpl implements PersonaRepository {
     private static final String DEFAULT_SORT_BY_FIELD = "name";
 
     private final PersonaJpaRepository jpaRepository;
+    private final PersonaPersistenceMapper mapper;
 
     @Override
     public Persona save(Persona persona) {
 
-        PersonaEntity entity = mapToEntity(persona);
+        PersonaEntity entity = mapper.mapToEntity(persona);
 
-        return mapFromEntity(jpaRepository.save(entity));
+        return mapper.mapFromEntity(jpaRepository.save(entity));
     }
 
     @Override
     public Optional<Persona> findById(String id) {
 
         return jpaRepository.findById(id)
-                .map(this::mapFromEntity);
+                .map(mapper::mapFromEntity);
     }
 
     @Override
@@ -73,16 +68,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
         Specification<PersonaEntity> filters = readAccessSpecificationFrom(query);
         Page<PersonaEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
-        return SearchPersonasResult.builder()
-                .results(pagedResult.getContent()
-                        .stream()
-                        .map(this::mapToResult)
-                        .toList())
-                .page(page)
-                .items(pagedResult.getNumberOfElements())
-                .totalItems(pagedResult.getTotalElements())
-                .totalPages(pagedResult.getTotalPages())
-                .build();
+        return mapper.mapToResult(pagedResult);
     }
 
     @Override
@@ -98,112 +84,7 @@ public class PersonaRepositoryImpl implements PersonaRepository {
         Specification<PersonaEntity> filters = writeAccessSpecificationFrom(query);
         Page<PersonaEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
-        return SearchPersonasResult.builder()
-                .results(pagedResult.getContent()
-                        .stream()
-                        .map(this::mapToResult)
-                        .toList())
-                .page(page)
-                .items(pagedResult.getNumberOfElements())
-                .totalItems(pagedResult.getTotalElements())
-                .totalPages(pagedResult.getTotalPages())
-                .build();
-    }
-
-    private PersonaEntity mapToEntity(Persona persona) {
-
-        String creatorOrOwnerDiscordId = isBlank(persona.getCreatorDiscordId())
-                ? persona.getOwnerDiscordId()
-                : persona.getCreatorDiscordId();
-
-        PersonaEntity.Builder personaBuilder = PersonaEntity.builder();
-        if (persona.getBump() != null) {
-            BumpEntity bump = BumpEntity.builder()
-                    .content(persona.getBump().getContent())
-                    .role(persona.getBump().getRole().toString())
-                    .frequency(persona.getBump().getFrequency())
-                    .build();
-
-            personaBuilder.bump(bump);
-        }
-
-        if (persona.getNudge() != null) {
-            NudgeEntity nudge = NudgeEntity.builder()
-                    .content(persona.getNudge().getContent())
-                    .role(persona.getNudge().getRole().toString())
-                    .build();
-
-            personaBuilder.nudge(nudge);
-        }
-
-        return personaBuilder.id(persona.getId())
-                .name(persona.getName())
-                .personality(persona.getPersonality())
-                .visibility(persona.getVisibility().toString())
-                .ownerDiscordId(persona.getOwnerDiscordId())
-                .gameMode(persona.getGameMode().name())
-                .usersAllowedToRead(persona.getUsersAllowedToRead())
-                .usersAllowedToWrite(persona.getUsersAllowedToWrite())
-                .creatorDiscordId(creatorOrOwnerDiscordId)
-                .creationDate(persona.getCreationDate())
-                .lastUpdateDate(persona.getLastUpdateDate())
-                .build();
-    }
-
-    private Persona mapFromEntity(PersonaEntity persona) {
-
-        Persona.Builder personaBuilder = Persona.builder();
-        if (persona.getBump() != null) {
-            Bump bump = Bump.builder()
-                    .content(persona.getBump().getContent())
-                    .role(CompletionRole.fromString(persona.getBump().getRole()))
-                    .frequency(persona.getBump().getFrequency())
-                    .build();
-
-            personaBuilder.bump(bump);
-        }
-
-        if (persona.getNudge() != null) {
-            Nudge nudge = Nudge.builder()
-                    .content(persona.getNudge().getContent())
-                    .role(CompletionRole.fromString(persona.getNudge().getRole()))
-                    .build();
-
-            personaBuilder.nudge(nudge);
-        }
-
-        Permissions permissions = Permissions.builder()
-                .ownerDiscordId(persona.getOwnerDiscordId())
-                .usersAllowedToRead(persona.getUsersAllowedToRead())
-                .usersAllowedToWrite(persona.getUsersAllowedToWrite())
-                .build();
-
-        return personaBuilder.id(persona.getId())
-                .name(persona.getName())
-                .personality(persona.getPersonality())
-                .visibility(Visibility.fromString(persona.getVisibility()))
-                .permissions(permissions)
-                .gameMode(GameMode.fromString(persona.getGameMode()))
-                .creationDate(persona.getCreationDate())
-                .lastUpdateDate(persona.getLastUpdateDate())
-                .creatorDiscordId(persona.getCreatorDiscordId())
-                .build();
-    }
-
-    private GetPersonaResult mapToResult(PersonaEntity persona) {
-
-        return GetPersonaResult.builder()
-                .id(persona.getId())
-                .name(persona.getName())
-                .personality(persona.getPersonality())
-                .visibility(persona.getVisibility())
-                .gameMode(persona.getGameMode())
-                .usersAllowedToRead(persona.getUsersAllowedToRead())
-                .usersAllowedToWrite(persona.getUsersAllowedToWrite())
-                .creationDate(persona.getCreationDate())
-                .lastUpdateDate(persona.getLastUpdateDate())
-                .ownerDiscordId(persona.getOwnerDiscordId())
-                .build();
+        return mapper.mapToResult(pagedResult);
     }
 
     private Specification<PersonaEntity> readAccessSpecificationFrom(SearchPersonasWithReadAccess query) {

@@ -21,6 +21,7 @@ public class PersonaFixture {
         builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());
         builder.lastUpdateDate(OffsetDateTime.now());
+        builder.gameMode(GameMode.RPG);
 
         Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);
@@ -45,6 +46,7 @@ public class PersonaFixture {
         builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());
         builder.lastUpdateDate(OffsetDateTime.now());
+        builder.gameMode(GameMode.RPG);
 
         Permissions permissions = PermissionsFixture.samplePermissions().build();
         builder.permissions(permissions);

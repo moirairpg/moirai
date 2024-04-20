@@ -103,10 +103,12 @@ public class WorldServiceImpl implements WorldService {
             world.updateAdventureStart(command.getAdventureStart());
         }
 
-        if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
-            world.makePublic();
-        } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
-            world.makePrivate();
+        if (StringUtils.isNotBlank(command.getVisibility())) {
+            if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
+                world.makePublic();
+            } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
+                world.makePrivate();
+            }
         }
 
         CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToAdd())
@@ -129,7 +131,8 @@ public class WorldServiceImpl implements WorldService {
     }
 
     @Override
-    public List<WorldLorebookEntry> findAllEntriesByRegex(String requesterDiscordId, String worldId, String valueToSearch) {
+    public List<WorldLorebookEntry> findAllEntriesByRegex(String requesterDiscordId, String worldId,
+            String valueToSearch) {
 
         World world = repository.findById(worldId)
                 .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
@@ -213,8 +216,8 @@ public class WorldServiceImpl implements WorldService {
         }
 
         if (command.isPlayerCharacter()) {
-            lorebookEntry.assignPlayer(command.getRequesterDiscordId());
-        } else if (!command.isPlayerCharacter()) {
+            lorebookEntry.assignPlayer(command.getPlayerDiscordId());
+        } else {
             lorebookEntry.unassignPlayer();
         }
 

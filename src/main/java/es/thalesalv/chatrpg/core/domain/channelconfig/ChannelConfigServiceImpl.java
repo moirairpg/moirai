@@ -60,7 +60,6 @@ public class ChannelConfigServiceImpl implements ChannelConfigService {
                 .temperature(command.getTemperature())
                 .logitBias(command.getLogitBias())
                 .maxTokenLimit(command.getMaxTokenLimit())
-                .messageHistorySize(command.getMessageHistorySize())
                 .stopSequences(command.getStopSequences())
                 .build();
 
@@ -130,10 +129,12 @@ public class ChannelConfigServiceImpl implements ChannelConfigService {
             channelConfig.updatePresencePenalty(command.getPresencePenalty());
         }
 
-        if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
-            channelConfig.makePublic();
-        } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
-            channelConfig.makePrivate();
+        if (StringUtils.isNotBlank(command.getVisibility())) {
+            if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
+                channelConfig.makePublic();
+            } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
+                channelConfig.makePrivate();
+            }
         }
 
         CollectionUtils.emptyIfNull(command.getStopSequencesToAdd())

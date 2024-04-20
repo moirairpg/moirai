@@ -22,7 +22,6 @@ public class UpdateChannelConfigFixture {
                 .aiModel(channelConfig.getModelConfiguration().getAiModel().getInternalModelName())
                 .moderation(channelConfig.getModeration().name())
                 .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .messageHistorySize(channelConfig.getModelConfiguration().getMessageHistorySize())
                 .temperature(channelConfig.getModelConfiguration().getTemperature())
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
                 .presencePenalty(channelConfig.getModelConfiguration().getPresencePenalty())

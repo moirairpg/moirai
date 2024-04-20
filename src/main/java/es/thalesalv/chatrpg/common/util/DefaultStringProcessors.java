@@ -9,8 +9,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-import discord4j.discordjson.json.MessageData;
-
 public class DefaultStringProcessors {
 
     public static UnaryOperator<String> stripAsNamePrefixForUppercase(String name) {
@@ -57,44 +55,10 @@ public class DefaultStringProcessors {
                 .replaceAll(r -> personaName);
     }
 
-    public static UnaryOperator<String> replace(String searchRegex, String replace) {
-
-        return input -> Pattern.compile("\\b" + searchRegex + "\\b")
-                .matcher(input)
-                .replaceAll(r -> replace);
-    }
-
-    public static Function<MessageData, String> formatChatMessage() {
-
-        return message -> String.format("%s said: %s",
-                message.author().username(), message.content().trim());
-    }
-
     public static Function<String, String> formatChatMessage(String nickname) {
 
         return message -> String.format("%s said: %s",
                 nickname, message.trim());
-    }
-
-    public static Function<MessageData, String> chatDirectiveFormatter() {
-
-        return message -> String.format("%s said: [ %s ]",
-                message.author().username(), message.content().trim());
-    }
-
-    public static Function<MessageData, String> formatQuote() {
-
-        return originalMessage -> String.format("%s said earlier: %s",
-                originalMessage.referencedMessage().get().get().author().username(),
-                originalMessage.referencedMessage().get().get().content());
-    }
-
-    public static Function<MessageData, String> formatResponseToQuote() {
-
-        return originalMessage -> String.format("%s quoted the message from %s and replied with: %s",
-                originalMessage.author().username(),
-                originalMessage.referencedMessage().get().get().author().username(),
-                originalMessage.content());
     }
 
     public static Function<String, List<String>> extractDiscordIds() {

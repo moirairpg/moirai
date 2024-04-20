@@ -19,7 +19,6 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
     private final String aiModel;
     private final String moderation;
     private final Integer maxTokenLimit;
-    private final Integer messageHistorySize;
     private final Double temperature;
     private final Double frequencyPenalty;
     private final Double presencePenalty;

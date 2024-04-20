@@ -138,10 +138,12 @@ public class PersonaServiceImpl implements PersonaService {
             persona.updateBumpFrequency(command.getBumpFrequency());
         }
 
-        if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
-            persona.makePublic();
-        } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
-            persona.makePrivate();
+        if (StringUtils.isNotBlank(command.getVisibility())) {
+            if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
+                persona.makePublic();
+            } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
+                persona.makePrivate();
+            }
         }
 
         CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToAdd())
