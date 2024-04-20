@@ -2,12 +2,10 @@ package es.thalesalv.chatrpg.core.domain.persona;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import es.thalesalv.chatrpg.common.annotation.DomainService;
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
-import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.persona.CreatePersona;
 import es.thalesalv.chatrpg.core.application.command.persona.DeletePersona;
 import es.thalesalv.chatrpg.core.application.command.persona.UpdatePersona;
@@ -15,7 +13,6 @@ import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaById;
 import es.thalesalv.chatrpg.core.domain.CompletionRole;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
-import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -23,11 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PersonaServiceImpl implements PersonaService {
 
-    @Value("${chatrpg.validation.token-limits.persona.personality}")
-    private int personalityTokenLimit;
-
     private final PersonaRepository repository;
-    private final TokenizerPort tokenizerPort;
 
     @Override
     public Persona getPersonaById(GetPersonaById query) {
@@ -66,8 +59,6 @@ public class PersonaServiceImpl implements PersonaService {
 
     @Override
     public Persona createFrom(CreatePersona command) {
-
-        validateTokenCount(command.getPersonality());
 
         Persona.Builder personaBuilder = Persona.builder();
         if (StringUtils.isNotBlank(command.getBumpContent())) {
@@ -169,16 +160,6 @@ public class PersonaServiceImpl implements PersonaService {
         CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToRemove())
                 .forEach(persona::removeWriterUser);
 
-        validateTokenCount(command.getPersonality());
-
         return repository.save(persona);
-    }
-
-    private void validateTokenCount(String personality) {
-
-        int personalityTokenCount = tokenizerPort.getTokenCountFrom(personality);
-        if (personalityTokenCount > personalityTokenLimit) {
-            throw new BusinessRuleViolationException("Amount of tokens in personality surpasses allowed limit");
-        }
     }
 }

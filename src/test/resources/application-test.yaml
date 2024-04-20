@@ -2,14 +2,6 @@ chatrpg:
   nano-id:
     alphabet: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
     characters-amount: 10
-  validation:
-    token-limits:
-      persona.personality: 500
-      world:
-        lorebook-entry:
-          name: 50
-          description: 300
-        adventure-start: 1000
   discord:
     oauth:
       client-id: dummy_value

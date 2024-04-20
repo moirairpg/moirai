@@ -3,12 +3,10 @@ package es.thalesalv.chatrpg.core.domain.world;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import es.thalesalv.chatrpg.common.annotation.DomainService;
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
-import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
@@ -19,7 +17,6 @@ import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryById;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
-import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -34,18 +31,8 @@ public class WorldServiceImpl implements WorldService {
     private static final String USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD = "User does not have permission to modify this world";
     private static final String USER_DOES_NOT_HAVE_PERMISSION_TO_VIEW_THIS_WORLD = "User does not have permission to view this world";
 
-    @Value("${chatrpg.validation.token-limits.world.adventure-start}")
-    private int adventureStartTokenLimit;
-
-    @Value("${chatrpg.validation.token-limits.world.lorebook-entry.description}")
-    private int lorebookEntryDescriptionTokenLimit;
-
-    @Value("${chatrpg.validation.token-limits.world.lorebook-entry.name}")
-    private int lorebookEntryNameTokenLimit;
-
     private final WorldLorebookEntryRepository lorebookEntryRepository;
     private final WorldRepository repository;
-    private final TokenizerPort tokenizerPort;
 
     @Override
     public World getWorldById(GetWorldById query) {
@@ -90,8 +77,6 @@ public class WorldServiceImpl implements WorldService {
                 .permissions(permissions)
                 .creatorDiscordId(command.getRequesterDiscordId())
                 .build();
-
-        validateTokenCount(world);
 
         return repository.save(world);
     }
@@ -139,8 +124,6 @@ public class WorldServiceImpl implements WorldService {
 
         CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToRemove())
                 .forEach(world::removeWriterUser);
-
-        validateTokenCount(world);
 
         return repository.save(world);
     }
@@ -201,8 +184,6 @@ public class WorldServiceImpl implements WorldService {
                 .creatorDiscordId(command.getRequesterDiscordId())
                 .build();
 
-        validateTokenCount(lorebookEntry);
-
         return lorebookEntryRepository.save(lorebookEntry);
     }
 
@@ -237,8 +218,6 @@ public class WorldServiceImpl implements WorldService {
             lorebookEntry.unassignPlayer();
         }
 
-        validateTokenCount(lorebookEntry);
-
         return lorebookEntryRepository.save(lorebookEntry);
     }
 
@@ -256,27 +235,5 @@ public class WorldServiceImpl implements WorldService {
                 .orElseThrow(() -> new AssetNotFoundException(LOREBOOK_ENTRY_TO_BE_UPDATED_WAS_NOT_FOUND));
 
         lorebookEntryRepository.deleteById(command.getLorebookEntryId());
-    }
-
-    private void validateTokenCount(WorldLorebookEntry lorebookEntry) {
-
-        int lorebookEntryNameTokenCount = tokenizerPort.getTokenCountFrom(lorebookEntry.getName());
-        if (lorebookEntryNameTokenCount > lorebookEntryNameTokenLimit) {
-            throw new BusinessRuleViolationException("Amount of tokens in lorebook entry name surpasses allowed limit");
-        }
-
-        int lorebookEntryDescriptionTokenCount = tokenizerPort.getTokenCountFrom(lorebookEntry.getDescription());
-        if (lorebookEntryDescriptionTokenCount > lorebookEntryDescriptionTokenLimit) {
-            throw new BusinessRuleViolationException(
-                    "Amount of tokens in lorebook entry description surpasses allowed limit");
-        }
-    }
-
-    private void validateTokenCount(World world) {
-
-        int adventureStartTokenCount = tokenizerPort.getTokenCountFrom(world.getAdventureStart());
-        if (adventureStartTokenCount > adventureStartTokenLimit) {
-            throw new BusinessRuleViolationException("Amount of tokens in initial prompt surpasses allowed limit");
-        }
     }
 }

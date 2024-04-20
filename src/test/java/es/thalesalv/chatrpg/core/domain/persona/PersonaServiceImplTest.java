@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
@@ -26,7 +25,6 @@ import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaById;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
-import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 
 @SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
@@ -34,9 +32,6 @@ public class PersonaServiceImplTest {
 
     @Mock
     private PersonaRepository repository;
-
-    @Mock
-    private TokenizerPort tokenizerPort;
 
     @InjectMocks
     private PersonaServiceImpl service;
@@ -88,39 +83,6 @@ public class PersonaServiceImplTest {
     }
 
     @Test
-    public void errorWhenPersonalityTokenLimitIsSurpassed() {
-
-        // Given
-        String name = "ChatRPG";
-        String personality = "I am a chatbot";
-        String visibility = "PRIVATE";
-        String role = "SYSTEM";
-        String content = "This is content";
-        Permissions permissions = PermissionsFixture.samplePermissions().build();
-
-        CreatePersona command = CreatePersona.builder()
-                .name(name)
-                .personality(personality)
-                .nudgeContent(content)
-                .nudgeRole(role)
-                .bumpContent(content)
-                .bumpRole(role)
-                .bumpFrequency(5)
-                .visibility(visibility)
-                .requesterDiscordId(permissions.getOwnerDiscordId())
-                .usersAllowedToRead(permissions.getUsersAllowedToRead())
-                .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
-                .build();
-
-        ReflectionTestUtils.setField(service, "personalityTokenLimit", 2);
-        when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
-
-        // Then
-        assertThrows(BusinessRuleViolationException.class,
-                () -> service.createFrom(command));
-    }
-
-    @Test
     public void errorWhenBumpFrequencyIsLowerThanOne() {
 
         // Given
@@ -144,9 +106,6 @@ public class PersonaServiceImplTest {
                 .usersAllowedToRead(permissions.getUsersAllowedToRead())
                 .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
                 .build();
-
-        ReflectionTestUtils.setField(service, "personalityTokenLimit", 20);
-        when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
 
         // Then
         assertThrows(BusinessRuleViolationException.class,

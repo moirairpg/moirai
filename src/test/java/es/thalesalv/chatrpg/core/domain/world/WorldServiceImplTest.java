@@ -15,11 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
-import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateLorebookEntryFixture;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
 import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
@@ -32,7 +30,6 @@ import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryBy
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
-import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 
 @ExtendWith(MockitoExtension.class)
 public class WorldServiceImplTest {
@@ -42,9 +39,6 @@ public class WorldServiceImplTest {
 
     @Mock
     private WorldRepository worldRepository;
-
-    @Mock
-    private TokenizerPort tokenizerPort;
 
     @InjectMocks
     private WorldServiceImpl service;
@@ -137,33 +131,6 @@ public class WorldServiceImplTest {
         assertThat(createdWorld.getDescription()).isEqualTo(expectedWorld.getDescription());
         assertThat(createdWorld.getAdventureStart()).isEqualTo(expectedWorld.getAdventureStart());
         assertThat(createdWorld.getVisibility()).isEqualTo(expectedWorld.getVisibility());
-    }
-
-    @Test
-    public void errorWhenInitialPromptTokenLimitIsSurpassed() {
-
-        // Given
-        String name = "Eldrida";
-        String description = "Eldrida is a fantasy world";
-        String adventureStart = "You have arrived at the world of Eldrida.";
-        Permissions permissions = PermissionsFixture.samplePermissions().build();
-        String visibility = "PRIVATE";
-
-        CreateWorld command = CreateWorld.builder()
-                .name(name)
-                .adventureStart(adventureStart)
-                .description(description)
-                .visibility(visibility)
-                .requesterDiscordId(permissions.getOwnerDiscordId())
-                .usersAllowedToRead(permissions.getUsersAllowedToRead())
-                .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
-                .build();
-
-        ReflectionTestUtils.setField(service, "adventureStartTokenLimit", 2);
-        when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
-
-        // Then
-        assertThrows(BusinessRuleViolationException.class, () -> service.createFrom(command));
     }
 
     @Test
@@ -564,64 +531,6 @@ public class WorldServiceImplTest {
 
         // Then
         assertThrows(AssetNotFoundException.class, () -> service.updateLorebookEntry(command));
-    }
-
-    @Test
-    public void errorWhenEntryNameTokenLimitIsSurpassed() {
-
-        // Given
-        String name = "Eldrida";
-        String description = "Eldrida is a kingdom in an empire";
-        String regex = "[Ee]ldrida";
-        String worldId = "WRLDID";
-
-        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
-                .name(name)
-                .description(description)
-                .regex(regex)
-                .worldId(worldId)
-                .requesterDiscordId("586678721356875")
-                .build();
-
-        World world = WorldFixture.privateWorld().build();
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
-
-        ReflectionTestUtils.setField(service, "lorebookEntryNameTokenLimit", 2);
-        ReflectionTestUtils.setField(service, "lorebookEntryDescriptionTokenLimit", 20);
-        when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
-
-        // Then
-        assertThrows(BusinessRuleViolationException.class,
-                () -> service.createLorebookEntry(command));
-    }
-
-    @Test
-    public void errorWhenEntryDescriptionTokenLimitIsSurpassed() {
-
-        // Given
-        String name = "Eldrida";
-        String description = "Eldrida is a kingdom in an empire";
-        String regex = "[Ee]ldrida";
-        String worldId = "WRLDID";
-
-        CreateWorldLorebookEntry command = CreateWorldLorebookEntry.builder()
-                .name(name)
-                .description(description)
-                .regex(regex)
-                .worldId(worldId)
-                .requesterDiscordId("586678721356875")
-                .build();
-
-        World world = WorldFixture.privateWorld().build();
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
-
-        ReflectionTestUtils.setField(service, "lorebookEntryNameTokenLimit", 20);
-        ReflectionTestUtils.setField(service, "lorebookEntryDescriptionTokenLimit", 2);
-        when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
-
-        // Then
-        assertThrows(BusinessRuleViolationException.class,
-                () -> service.createLorebookEntry(command));
     }
 
     @Test

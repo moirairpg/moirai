@@ -1,4 +1,24 @@
 chatrpg:
+  nano-id:
+    alphabet: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    characters-amount: 10
+  discord:
+    oauth:
+      client-id: ${DISCORD_BOT_CLIENT_ID}
+      client-secret: ${DISCORD_BOT_CLIENT_SECRET}
+      redirect-url: ${DISCORD_BOT_REDIRECT_URL}
+    api:
+      token: ${DISCORD_BOT_API_TOKEN}
+      base-url: https://discord.com/api
+      token-uri: /oauth2/token
+      token-revoke-uri: /oauth2/token/revoke
+      users-uri: /users/%s
+  openai:
+    api:
+      token: ${OPENAI_API_TOKEN}
+      base-url: https://api.openai.com
+      moderation-uri: /v1/moderations
+      completions-uri: /v1/chat/completions
   security:
     ignored-paths: >
       /auth/code,
@@ -12,39 +32,6 @@ chatrpg:
       /webjars/swagger-ui/favicon-16x16.png,
       /v3/api-docs/swagger-config,
       /v3/api-docs
-  nano-id:
-    alphabet: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
-    characters-amount: 10
-  validation:
-    token-limits:
-      persona.personality: 250
-      world:
-        lorebook-entry:
-          name: 50
-          description: 250
-        adventure-start: 500
-  discord:
-    oauth:
-      client-id: ${DISCORD_BOT_CLIENT_ID}
-      client-secret: ${DISCORD_BOT_CLIENT_SECRET}
-      redirect-url: ${DISCORD_BOT_REDIRECT_URL}
-    api:
-      token: ${DISCORD_BOT_API_TOKEN}
-      base-url: https://discord.com/api
-      token-uri: /oauth2/token
-      token-revoke-uri: /oauth2/token/revoke
-      users-uri: /users/%s
-    retry:
-      error-attempts: 3
-      error-delay: 3
-      moderation-attempts: 1
-      moderation-delay: 3
-  openai:
-    api:
-      token: ${OPENAI_API_TOKEN}
-      base-url: https://api.openai.com
-      moderation-uri: /v1/moderations
-      completions-uri: /v1/chat/completions
 
 spring:
   profiles.active: ${SPRING_APPLICATION_PROFILES:default}
@@ -82,6 +69,6 @@ logging:
     root: ERROR
     org.hibernate: ERROR
     com.zaxxer.hikari: ERROR
-    net.dv8tion.jda: ERROR
+    discord4j: ERROR
     org.springframework: ERROR
     ch.qos.logback: ERROR
