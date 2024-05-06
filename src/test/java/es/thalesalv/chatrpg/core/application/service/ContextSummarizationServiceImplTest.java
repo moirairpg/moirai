@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
@@ -61,18 +60,11 @@ public class ContextSummarizationServiceImplTest {
     public void summarizeWith_validInput_thenSummaryGenerated() {
 
         // Given
-        String guildId = "validGuildId";
-        String channelId = "validChannelId";
-        String messageId = "validMessageId";
         String generatedSummary = "Generated summary";
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
         List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
-
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(eq(guildId), eq(channelId),
-                eq(messageId), anyList()))
-                .thenReturn(Mono.just(messages));
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
@@ -82,11 +74,8 @@ public class ContextSummarizationServiceImplTest {
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
                 .thenReturn(context);
 
-        List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
-
         // When
-        Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId, "botName",
-                modelConfiguration, mentionedUserIds);
+        Mono<Map<String, Object>> result = service.summarizeWith(messages, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -99,15 +88,9 @@ public class ContextSummarizationServiceImplTest {
     public void summarizeWith_emptyMessageHistory_thenEmptySummaryReturned() {
 
         // Given
-        String guildId = "validGuildId";
-        String channelId = "channelIdWithEmptyHistory";
-        String messageId = "messageId";
+        List<ChatMessageData> messages = Collections.emptyList();
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
         Map<String, Object> context = createContextWithMessageNumber(3);
-
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(eq(guildId), eq(channelId),
-                eq(messageId), anyList()))
-                .thenReturn(Mono.just(Collections.emptyList()));
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
@@ -117,11 +100,8 @@ public class ContextSummarizationServiceImplTest {
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
                 .thenReturn(context);
 
-        List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
-
         // When
-        Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId, "botName",
-                modelConfiguration, mentionedUserIds);
+        Mono<Map<String, Object>> result = service.summarizeWith(messages, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -134,10 +114,6 @@ public class ContextSummarizationServiceImplTest {
     public void summarizeWith_whenSummaryExceedsTokenLimit_thenSummaryShouldBeTrimmed() {
 
         // Given
-        String guildId = "validGuildId";
-        String channelId = "testChannelId";
-        String messageId = "testMessageId";
-        String botName = "testBot";
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
         String trimmedSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor.";
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
@@ -146,12 +122,6 @@ public class ContextSummarizationServiceImplTest {
 
         Map<String, Object> context = createContextWithMessageNumber(3);
         List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
-
-        List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
-
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(eq(guildId), eq(channelId),
-                eq(messageId), anyList()))
-                .thenReturn(Mono.just(messages));
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
@@ -176,8 +146,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId,
-                botName, modelConfiguration, mentionedUserIds);
+        Mono<Map<String, Object>> result = service.summarizeWith(messages, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -200,10 +169,6 @@ public class ContextSummarizationServiceImplTest {
     public void summarizeWith_whenSingleSentenceSummaryExceedsTokenLimit_thenSummaryShouldBeTrimmedToNothing() {
 
         // Given
-        String guildId = "testGuildId";
-        String channelId = "testChannelId";
-        String messageId = "testMessageId";
-        String botName = "testBot";
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
                 .aiModel(GPT35_16K)
@@ -211,13 +176,6 @@ public class ContextSummarizationServiceImplTest {
 
         Map<String, Object> context = createContextWithMessageNumber(3);
         List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
-
-        List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
-
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(eq(guildId), eq(channelId),
-                eq(messageId),
-                anyList()))
-                .thenReturn(Mono.just(messages));
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
@@ -242,8 +200,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId,
-                botName, modelConfiguration, mentionedUserIds);
+        Mono<Map<String, Object>> result = service.summarizeWith(messages, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -266,10 +223,6 @@ public class ContextSummarizationServiceImplTest {
     public void summarizeWith_whenSummaryNotExceedsTokenLimit_thenSummaryShouldNotBeTrimmed() {
 
         // Given
-        String guildId = "testGuildId";
-        String channelId = "testChannelId";
-        String messageId = "testMessageId";
-        String botName = "testBot";
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
                 .aiModel(GPT35_16K)
@@ -277,12 +230,6 @@ public class ContextSummarizationServiceImplTest {
 
         Map<String, Object> context = createContextWithMessageNumber(3);
         List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
-
-        List<String> mentionedUserIds = org.assertj.core.util.Lists.list("4234234", "42344234256");
-
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(eq(guildId), eq(channelId),
-                eq(messageId), anyList()))
-                .thenReturn(Mono.just(messages));
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
@@ -307,8 +254,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeWith(guildId, channelId, messageId,
-                botName, modelConfiguration, mentionedUserIds);
+        Mono<Map<String, Object>> result = service.summarizeWith(messages, modelConfiguration);
 
         // Then
         StepVerifier.create(result)

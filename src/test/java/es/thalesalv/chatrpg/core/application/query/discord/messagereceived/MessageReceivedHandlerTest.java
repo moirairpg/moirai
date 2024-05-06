@@ -31,12 +31,13 @@ import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResultFixture;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
-import es.thalesalv.chatrpg.core.application.service.StorySummarizationService;
 import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
 import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
+import es.thalesalv.chatrpg.core.application.service.StorySummarizationService;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigFixture;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -101,8 +102,10 @@ public class MessageReceivedHandlerTest {
 
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
 
-        when(summarizationService.summarizeWith(anyString(), anyString(),
-                anyString(), anyString(), any(), anyList()))
+        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
+                .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
+
+        when(summarizationService.summarizeWith(anyList(), any()))
                 .thenReturn(Mono.just(context));
 
         when(channelConfigRepository.findByDiscordChannelId(channelId))

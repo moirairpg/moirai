@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import es.thalesalv.chatrpg.common.annotation.ApplicationService;
 import es.thalesalv.chatrpg.core.application.model.request.ChatMessage;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
-import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
@@ -34,20 +33,18 @@ public class StorySummarizationServiceImpl implements StorySummarizationService 
     private static final String MESSAGE_HISTORY = "messageHistory";
     private static final String SUMMARIZATION_INSTRUCTION = "Write a detailed summary of this converation. The summary needs to be detailed and explain the conversation so far, as best as possible, so more context on what has happened is available.";
 
-    private final DiscordChannelPort discordChannelOperationsPort;
     private final OpenAiPort openAiPort;
     private final TokenizerPort tokenizerPort;
     private final ChatMessageService chatMessageService;
 
     @Override
-    public Mono<Map<String, Object>> summarizeWith(String guildId, String channelId, String messageId,
-            String botName, ModelConfiguration modelConfiguration, List<String> mentionedUserIds) {
+    public Mono<Map<String, Object>> summarizeWith(List<ChatMessageData> messagesExtracted,
+            ModelConfiguration modelConfiguration) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
         int reservedTokensForStory = (int) Math.floor(totalTokens * 0.30);
 
-        return discordChannelOperationsPort.retrieveEntireHistoryFrom(guildId, channelId, messageId, mentionedUserIds)
-                .flatMap(messagesExtracted -> generateSummary(messagesExtracted, modelConfiguration))
+        return generateSummary(messagesExtracted, modelConfiguration)
                 .map(context -> {
                     context.putAll(chatMessageService.addMessagesToContext(context, reservedTokensForStory, 5));
                     context.putAll(addSummaryToContext(context, reservedTokensForStory));
