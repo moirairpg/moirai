@@ -75,7 +75,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeWith(messages, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(messages, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -101,7 +101,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeWith(messages, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(messages, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -146,7 +146,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeWith(messages, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(messages, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -200,7 +200,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeWith(messages, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(messages, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -254,7 +254,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeWith(messages, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(messages, modelConfiguration);
 
         // Then
         StepVerifier.create(result)

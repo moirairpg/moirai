@@ -105,16 +105,16 @@ public class MessageReceivedHandlerTest {
         when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
                 .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
 
-        when(summarizationService.summarizeWith(anyList(), any()))
+        when(summarizationService.summarizeContextWith(anyList(), any()))
                 .thenReturn(Mono.just(context));
 
         when(channelConfigRepository.findByDiscordChannelId(channelId))
                 .thenReturn(Optional.of(channelConfig));
 
-        when(lorebookEnrichmentService.enrich(anyString(), anyMap(), any()))
+        when(lorebookEnrichmentService.enrichContextWith(anyMap(), anyString(), any()))
                 .thenReturn(Mono.just(context));
 
-        when(enrichmentService.enrich(anyString(), anyMap(), any()))
+        when(enrichmentService.enrichContextWith(anyMap(), anyString(), any()))
                 .thenReturn(Mono.just(context));
 
         when(openAiPort.generateTextFrom(any()))

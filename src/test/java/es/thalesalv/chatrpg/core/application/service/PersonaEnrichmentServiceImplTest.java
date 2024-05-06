@@ -60,7 +60,7 @@ public class PersonaEnrichmentServiceImplTest {
                 .thenReturn(context);
 
         // Then
-        StepVerifier.create(service.enrich(persona.getId(), context, modelConfiguration))
+        StepVerifier.create(service.enrichContextWith(context, persona.getId(), modelConfiguration))
                 .assertNext(processedContext -> {
                     String personaResult = (String) processedContext.get("persona");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
@@ -93,7 +93,7 @@ public class PersonaEnrichmentServiceImplTest {
                 .thenReturn(context);
 
         // Then
-        StepVerifier.create(service.enrich(persona.getId(), context, modelConfiguration))
+        StepVerifier.create(service.enrichContextWith(context, persona.getId(), modelConfiguration))
                 .assertNext(processedContext -> {
                     String personaResult = (String) processedContext.get("persona");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
@@ -118,7 +118,7 @@ public class PersonaEnrichmentServiceImplTest {
                 .thenReturn(100);
 
         // Then
-        StepVerifier.create(service.enrich(persona.getId(), context, modelConfiguration))
+        StepVerifier.create(service.enrichContextWith(context, persona.getId(), modelConfiguration))
                 .verifyError(IllegalStateException.class);
     }
 

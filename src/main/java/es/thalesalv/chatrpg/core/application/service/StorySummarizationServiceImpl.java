@@ -38,7 +38,7 @@ public class StorySummarizationServiceImpl implements StorySummarizationService 
     private final ChatMessageService chatMessageService;
 
     @Override
-    public Mono<Map<String, Object>> summarizeWith(List<ChatMessageData> messagesExtracted,
+    public Mono<Map<String, Object>> summarizeContextWith(List<ChatMessageData> messagesExtracted,
             ModelConfiguration modelConfiguration) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
@@ -59,8 +59,8 @@ public class StorySummarizationServiceImpl implements StorySummarizationService 
 
         TextGenerationRequest request = createSummarizationRequest(messagesExtracted, modelConfiguration);
         return openAiPort.generateTextFrom(request)
-                .map(summarizationResponse -> {
-                    String summary = summarizationResponse.getOutputText().trim();
+                .map(summaryGenerated -> {
+                    String summary = summaryGenerated.getOutputText().trim();
                     Map<String, Object> processedContext = new HashMap<>();
 
                     processedContext.put(RETRIEVED_MESSAGES, messagesExtracted);
@@ -91,11 +91,6 @@ public class StorySummarizationServiceImpl implements StorySummarizationService 
         return processedContext;
     }
 
-    private String stringifyList(List<String> list) {
-
-        return list.stream().collect(Collectors.joining(LF));
-    }
-
     private TextGenerationRequest createSummarizationRequest(List<ChatMessageData> messagesExtracted,
             ModelConfiguration modelConfiguration) {
 
@@ -117,5 +112,10 @@ public class StorySummarizationServiceImpl implements StorySummarizationService 
                 .temperature(modelConfiguration.getTemperature())
                 .messages(chatMessages)
                 .build();
+    }
+
+    private String stringifyList(List<String> list) {
+
+        return list.stream().collect(Collectors.joining(LF));
     }
 }

@@ -7,6 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface PersonaEnrichmentService {
 
-    Mono<Map<String, Object>> enrich(String personaId, Map<String, Object> processedContext,
+    Mono<Map<String, Object>> enrichContextWith(Map<String, Object> processedContext, String personaId,
             ModelConfiguration modelConfiguration);
 }

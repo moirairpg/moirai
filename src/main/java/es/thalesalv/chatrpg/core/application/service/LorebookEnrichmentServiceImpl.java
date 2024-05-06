@@ -31,7 +31,7 @@ public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService 
     private final ChatMessageService chatMessageService;
 
     @Override
-    public Mono<Map<String, Object>> enrich(String worldId, Map<String, Object> context,
+    public Mono<Map<String, Object>> enrichContextWith(Map<String, Object> context, String worldId,
             ModelConfiguration modelConfiguration) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();

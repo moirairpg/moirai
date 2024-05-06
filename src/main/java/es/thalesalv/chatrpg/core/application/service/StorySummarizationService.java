@@ -9,6 +9,6 @@ import reactor.core.publisher.Mono;
 
 public interface StorySummarizationService {
 
-    Mono<Map<String, Object>> summarizeWith(List<ChatMessageData> messagesExtracted,
+    Mono<Map<String, Object>> summarizeContextWith(List<ChatMessageData> messagesExtracted,
             ModelConfiguration modelConfiguration);
 }

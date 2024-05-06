@@ -43,11 +43,11 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
     private static final String PERIOD = ".";
     private static final int DISCORD_MAX_LENGTH = 2000;
 
+    private final ChannelConfigRepository channelConfigRepository;
+    private final DiscordChannelPort discordChannelOperationsPort;
     private final StorySummarizationService summarizationService;
     private final LorebookEnrichmentService lorebookEnrichmentService;
     private final PersonaEnrichmentService personaEnrichmentService;
-    private final ChannelConfigRepository channelConfigRepository;
-    private final DiscordChannelPort discordChannelOperationsPort;
     private final OpenAiPort openAiPort;
 
     @Override
@@ -56,19 +56,80 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
         return channelConfigRepository.findByDiscordChannelId(query.getMessageChannelId())
                 .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getMessageChannelId()))
                 .map(channelConfig -> discordChannelOperationsPort
-                        .retrieveEntireHistoryFrom(query.getMessageGuildId(), query.getMessageChannelId(), query.getMessageId(), query.getMentionedUsersIds())
-                        .flatMap(retrievedMessages -> summarizationService.summarizeWith(retrievedMessages, channelConfig.getModelConfiguration()))
-                        .flatMap(context -> lorebookEnrichmentService.enrich(channelConfig.getWorldId(), context, channelConfig.getModelConfiguration()))
-                        .flatMap(context -> personaEnrichmentService.enrich(channelConfig.getPersonaId(), context, channelConfig.getModelConfiguration()))
-                        .map(unsortedContext -> buildContextAsChatMessages(unsortedContext, query.getBotName()))
-                        .map(processedContext -> buildTextGenerationRequest(channelConfig, processedContext))
-                        .flatMap(openAiPort::generateTextFrom)
-                        .flatMap(generationResult -> sendOutputToChannel(query, generationResult)))
+                        .retrieveEntireHistoryFrom(query.getMessageGuildId(), query.getMessageChannelId(),
+                                query.getMessageId(), query.getMentionedUsersIds())
+                        .flatMap(messageHistory -> summarizationService.summarizeContextWith(messageHistory,
+                                channelConfig.getModelConfiguration()))
+                        .flatMap(contextWithSummary -> lorebookEnrichmentService.enrichContextWith(contextWithSummary,
+                                channelConfig.getWorldId(), channelConfig.getModelConfiguration()))
+                        .flatMap(contextWithLorebook -> personaEnrichmentService.enrichContextWith(contextWithLorebook,
+                                channelConfig.getPersonaId(), channelConfig.getModelConfiguration()))
+                        .map(contextWithPersona -> processEnrichedContext(contextWithPersona, query.getBotName()))
+                        .flatMap(processedContext -> {
+                            TextGenerationRequest textGenerationRequest = buildTextGenerationRequest(channelConfig,
+                                    processedContext);
+
+                            return openAiPort.generateTextFrom(textGenerationRequest);
+                        })
+                        .flatMap(generatedOutput -> sendOutputTo(query.getMessageChannelId(),
+                                query.getBotName(), generatedOutput)))
                 .orElseGet(() -> Mono.empty());
     }
 
+    private TextGenerationRequest buildTextGenerationRequest(ChannelConfig channelConfig,
+            List<ChatMessage> processedContext) {
+
+        return TextGenerationRequest.builder()
+                .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
+                .presencePenalty(channelConfig.getModelConfiguration().getPresencePenalty())
+                .temperature(channelConfig.getModelConfiguration().getTemperature())
+                .model(channelConfig.getModelConfiguration().getAiModel().getOfficialModelName())
+                .logitBias(channelConfig.getModelConfiguration().getLogitBias())
+                .maxTokens(channelConfig.getModelConfiguration().getMaxTokenLimit())
+                .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
+                .messages(processedContext)
+                .build();
+    }
+
+    private List<ChatMessage> processEnrichedContext(Map<String, Object> unsortedContext, String botName) {
+
+        String persona = (String) unsortedContext.get(PERSONA);
+        String personaName = (String) unsortedContext.get(PERSONA_NAME);
+        String nudge = (String) unsortedContext.get(NUDGE);
+        String storySummary = (String) unsortedContext.get(STORY_SUMMARY);
+        String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
+
+        List<ChatMessage> processedContext = new ArrayList<>();
+        processedContext.add(
+                ChatMessage.build(ChatMessage.Role.SYSTEM, replacePlaceholders(storySummary, botName, personaName)));
+
+        processedContext.addAll(buildContextForGeneration(unsortedContext, botName, personaName));
+
+        if (StringUtils.isNotBlank(lorebookEntries)) {
+            processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
+        }
+
+        processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, persona));
+
+        if (StringUtils.isNotBlank(nudge)) {
+            processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, nudge));
+        }
+
+        return extractBumpFrom(unsortedContext, processedContext);
+    }
+
+    private String replacePlaceholders(String summary, String botName, String personaName) {
+
+        StringProcessor processor = new StringProcessor();
+        processor.addRule(DefaultStringProcessors.stripChatPrefix());
+        processor.addRule(DefaultStringProcessors.stripTrailingFragment());
+        processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botName));
+
+        return processor.process(summary);
+    }
+
     @SuppressWarnings("unchecked")
-    private List<ChatMessage> extractMessageHistoryFrom(Map<String, Object> unsortedContext,
+    private List<ChatMessage> buildContextForGeneration(Map<String, Object> unsortedContext,
             String botName, String personaName) {
 
         List<String> messageHistory = (List<String>) unsortedContext.get(MESSAGE_HISTORY);
@@ -99,63 +160,12 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
         return processedContext;
     }
 
-    private TextGenerationRequest buildTextGenerationRequest(ChannelConfig channelConfig,
-            List<ChatMessage> processedContext) {
-
-        return TextGenerationRequest.builder()
-                .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
-                .presencePenalty(channelConfig.getModelConfiguration().getPresencePenalty())
-                .temperature(channelConfig.getModelConfiguration().getTemperature())
-                .model(channelConfig.getModelConfiguration().getAiModel().getOfficialModelName())
-                .logitBias(channelConfig.getModelConfiguration().getLogitBias())
-                .maxTokens(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
-                .messages(processedContext)
-                .build();
-    }
-
-    private String processSummarization(String summary, String botName, String personaName) {
+    private Mono<Void> sendOutputTo(String messageChannelId, String botName,
+            TextGenerationResult generationResult) {
 
         StringProcessor processor = new StringProcessor();
-        processor.addRule(DefaultStringProcessors.stripChatPrefix());
-        processor.addRule(DefaultStringProcessors.stripTrailingFragment());
-        processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botName));
-
-        return processor.process(summary);
-    }
-
-    private List<ChatMessage> buildContextAsChatMessages(Map<String, Object> unsortedContext, String botName) {
-
-        String persona = (String) unsortedContext.get(PERSONA);
-        String personaName = (String) unsortedContext.get(PERSONA_NAME);
-        String nudge = (String) unsortedContext.get(NUDGE);
-        String storySummary = (String) unsortedContext.get(STORY_SUMMARY);
-        String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
-
-        List<ChatMessage> processedContext = new ArrayList<>();
-        processedContext.add(
-                ChatMessage.build(ChatMessage.Role.SYSTEM, processSummarization(storySummary, botName, personaName)));
-
-        processedContext.addAll(extractMessageHistoryFrom(unsortedContext, botName, personaName));
-
-        if (StringUtils.isNotBlank(lorebookEntries)) {
-            processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
-        }
-
-        processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, persona));
-
-        if (StringUtils.isNotBlank(nudge)) {
-            processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, nudge));
-        }
-
-        return extractBumpFrom(unsortedContext, processedContext);
-    }
-
-    private Mono<Void> sendOutputToChannel(MessageReceived query, TextGenerationResult generationResult) {
-
-        StringProcessor processor = new StringProcessor();
-        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForLowercase(query.getBotName()));
-        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForUppercase(query.getBotName()));
+        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForLowercase(botName));
+        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForUppercase(botName));
         processor.addRule(DefaultStringProcessors.stripChatPrefix());
         processor.addRule(DefaultStringProcessors.stripTrailingFragment());
 
@@ -168,6 +178,6 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
             outputSize = output.length();
         }
 
-        return discordChannelOperationsPort.sendMessage(query.getMessageChannelId(), output);
+        return discordChannelOperationsPort.sendMessage(messageChannelId, output);
     }
 }

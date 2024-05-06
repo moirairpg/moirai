@@ -62,7 +62,7 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(contextWithSummary);
 
         // When
-        Mono<Map<String, Object>> result = service.enrich(worldId, contextWithSummary, modelConfiguration);
+        Mono<Map<String, Object>> result = service.enrichContextWith(contextWithSummary, worldId, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -101,7 +101,7 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(contextWithSummary);
 
         // When
-        Mono<Map<String, Object>> result = service.enrich(worldId, contextWithSummary, modelConfiguration);
+        Mono<Map<String, Object>> result = service.enrichContextWith(contextWithSummary, worldId, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -135,7 +135,7 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(contextWithSummary);
 
         // When
-        Mono<Map<String, Object>> result = service.enrich(worldId, contextWithSummary, modelConfiguration);
+        Mono<Map<String, Object>> result = service.enrichContextWith(contextWithSummary, worldId, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -176,7 +176,7 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(contextWithSummary);
 
         // When
-        Mono<Map<String, Object>> result = service.enrich(worldId, contextWithSummary, modelConfiguration);
+        Mono<Map<String, Object>> result = service.enrichContextWith(contextWithSummary, worldId, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
