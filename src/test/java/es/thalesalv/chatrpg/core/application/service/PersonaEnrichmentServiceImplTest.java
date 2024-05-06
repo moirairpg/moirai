@@ -45,7 +45,6 @@ public class PersonaEnrichmentServiceImplTest {
     public void enrichWithPersona_whenSufficientTokens_addPersonaAndMessages() {
 
         // Given
-        String botName = "BotUser";
         Persona persona = PersonaFixture.privatePersona().build();
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
         Map<String, Object> context = contextWithSummaryAndMessages(10);
@@ -61,7 +60,7 @@ public class PersonaEnrichmentServiceImplTest {
                 .thenReturn(context);
 
         // Then
-        StepVerifier.create(service.enrich(persona.getId(), botName, context, modelConfiguration))
+        StepVerifier.create(service.enrich(persona.getId(), context, modelConfiguration))
                 .assertNext(processedContext -> {
                     String personaResult = (String) processedContext.get("persona");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
@@ -76,7 +75,6 @@ public class PersonaEnrichmentServiceImplTest {
     public void enrichWithPersona_whenInsufficientTokensForMessages_thenOnlyPersonaAdded() {
 
         // Given
-        String botName = "BotUser";
         Persona persona = PersonaFixture.privatePersona().build();
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
         Map<String, Object> context = contextWithSummaryAndMessages(5);
@@ -91,11 +89,11 @@ public class PersonaEnrichmentServiceImplTest {
                 .thenReturn(100)
                 .thenReturn(100000);
 
-                when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
-                        .thenReturn(context);
+        when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
+                .thenReturn(context);
 
         // Then
-        StepVerifier.create(service.enrich(persona.getId(), botName, context, modelConfiguration))
+        StepVerifier.create(service.enrich(persona.getId(), context, modelConfiguration))
                 .assertNext(processedContext -> {
                     String personaResult = (String) processedContext.get("persona");
                     List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
@@ -110,7 +108,6 @@ public class PersonaEnrichmentServiceImplTest {
     public void enrichWithPersona_whenInsufficientTokensForPersona_thenExceptionIsThrown() {
 
         // Given
-        String botName = "BotUser";
         Persona persona = PersonaFixture.privatePersona().build();
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
         Map<String, Object> context = contextWithSummaryAndMessages(5);
@@ -121,7 +118,7 @@ public class PersonaEnrichmentServiceImplTest {
                 .thenReturn(100);
 
         // Then
-        StepVerifier.create(service.enrich(persona.getId(), botName, context, modelConfiguration))
+        StepVerifier.create(service.enrich(persona.getId(), context, modelConfiguration))
                 .verifyError(IllegalStateException.class);
     }
 

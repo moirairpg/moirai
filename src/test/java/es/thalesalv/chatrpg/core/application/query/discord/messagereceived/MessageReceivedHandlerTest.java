@@ -114,7 +114,7 @@ public class MessageReceivedHandlerTest {
         when(lorebookEnrichmentService.enrich(anyString(), anyMap(), any()))
                 .thenReturn(Mono.just(context));
 
-        when(enrichmentService.enrich(anyString(), anyString(), anyMap(), any()))
+        when(enrichmentService.enrich(anyString(), anyMap(), any()))
                 .thenReturn(Mono.just(context));
 
         when(openAiPort.generateTextFrom(any()))

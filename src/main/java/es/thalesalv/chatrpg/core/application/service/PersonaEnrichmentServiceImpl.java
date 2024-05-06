@@ -25,7 +25,7 @@ public class PersonaEnrichmentServiceImpl implements PersonaEnrichmentService {
     private final ChatMessageService chatMessageService;
 
     @Override
-    public Mono<Map<String, Object>> enrich(String personaId, String botName, Map<String, Object> context,
+    public Mono<Map<String, Object>> enrich(String personaId, Map<String, Object> context,
             ModelConfiguration modelConfiguration) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();

@@ -59,7 +59,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                         .retrieveEntireHistoryFrom(query.getMessageGuildId(), query.getMessageChannelId(), query.getMessageId(), query.getMentionedUsersIds())
                         .flatMap(retrievedMessages -> summarizationService.summarizeWith(retrievedMessages, channelConfig.getModelConfiguration()))
                         .flatMap(context -> lorebookEnrichmentService.enrich(channelConfig.getWorldId(), context, channelConfig.getModelConfiguration()))
-                        .flatMap(context -> personaEnrichmentService.enrich(channelConfig.getPersonaId(), query.getBotName(), context, channelConfig.getModelConfiguration()))
+                        .flatMap(context -> personaEnrichmentService.enrich(channelConfig.getPersonaId(), context, channelConfig.getModelConfiguration()))
                         .map(unsortedContext -> buildContextAsChatMessages(unsortedContext, query.getBotName()))
                         .map(processedContext -> buildTextGenerationRequest(channelConfig, processedContext))
                         .flatMap(openAiPort::generateTextFrom)
