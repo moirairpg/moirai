@@ -108,7 +108,7 @@ public class MessageReceivedHandlerTest {
         when(channelConfigRepository.findByDiscordChannelId(channelId))
                 .thenReturn(Optional.of(channelConfig));
 
-        when(lorebookEnrichmentService.enrich(anyString(), anyString(), anyMap(), any()))
+        when(lorebookEnrichmentService.enrich(anyString(), anyMap(), any()))
                 .thenReturn(Mono.just(context));
 
         when(enrichmentService.enrich(anyString(), anyString(), anyMap(), any()))

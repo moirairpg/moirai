@@ -49,7 +49,6 @@ public class LorebookEnrichmentServiceImplTest {
     public void enrich_withValidInput_thenLorebookAndMessagesAdded() {
         // Given
         String worldId = "worldId";
-        String botName = "botName";
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
 
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
@@ -63,7 +62,7 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(contextWithSummary);
 
         // When
-        Mono<Map<String, Object>> result = service.enrich(worldId, botName, contextWithSummary, modelConfiguration);
+        Mono<Map<String, Object>> result = service.enrich(worldId, contextWithSummary, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -92,7 +91,6 @@ public class LorebookEnrichmentServiceImplTest {
     public void enrich_withNoEntriesFound_thenOnlyMessagesAdded() {
         // Given
         String worldId = "worldId";
-        String botName = "botName";
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
@@ -103,7 +101,7 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(contextWithSummary);
 
         // When
-        Mono<Map<String, Object>> result = service.enrich(worldId, botName, contextWithSummary, modelConfiguration);
+        Mono<Map<String, Object>> result = service.enrich(worldId, contextWithSummary, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -123,7 +121,6 @@ public class LorebookEnrichmentServiceImplTest {
     public void enrich_withNoExtraMessages_thenOnlyLorebookAdded() {
         // Given
         String worldId = "worldId";
-        String botName = "botName";
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
         contextWithSummary.put("retrievedMessages", Collections.emptyList());
 
@@ -138,7 +135,7 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(contextWithSummary);
 
         // When
-        Mono<Map<String, Object>> result = service.enrich(worldId, botName, contextWithSummary, modelConfiguration);
+        Mono<Map<String, Object>> result = service.enrich(worldId, contextWithSummary, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -167,7 +164,6 @@ public class LorebookEnrichmentServiceImplTest {
     public void enrich_whenReservedTokensAreReached_thenNoExtraMessagesAreAdded() {
         // Given
         String worldId = "worldId";
-        String botName = "botName";
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
 
@@ -180,7 +176,7 @@ public class LorebookEnrichmentServiceImplTest {
                 .thenReturn(contextWithSummary);
 
         // When
-        Mono<Map<String, Object>> result = service.enrich(worldId, botName, contextWithSummary, modelConfiguration);
+        Mono<Map<String, Object>> result = service.enrich(worldId, contextWithSummary, modelConfiguration);
 
         // Then
         StepVerifier.create(result)

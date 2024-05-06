@@ -7,6 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface LorebookEnrichmentService {
 
-    Mono<Map<String, Object>> enrich(String worldId, String botName, Map<String, Object> contextWithSummary,
+    Mono<Map<String, Object>> enrich(String worldId, Map<String, Object> contextWithSummary,
             ModelConfiguration modelConfiguration);
 }

@@ -59,7 +59,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                         .summarizeWith(query.getMessageGuildId(), query.getMessageChannelId(), query.getMessageId(),
                                 query.getBotName(), channelConfig.getModelConfiguration(), query.getMentionedUsersIds())
                         .flatMap(context -> lorebookEnrichmentService.enrich(channelConfig.getWorldId(),
-                                query.getBotName(), context, channelConfig.getModelConfiguration()))
+                                context, channelConfig.getModelConfiguration()))
                         .flatMap(context -> personaEnrichmentService.enrich(channelConfig.getPersonaId(),
                                 query.getBotName(), context, channelConfig.getModelConfiguration()))
                         .map(unsortedContext -> buildContextAsChatMessages(unsortedContext, query.getBotName()))
