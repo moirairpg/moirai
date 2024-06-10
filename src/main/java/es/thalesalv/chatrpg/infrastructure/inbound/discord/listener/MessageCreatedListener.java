@@ -23,7 +23,7 @@ public class MessageCreatedListener implements DiscordEventListener<MessageCreat
     private final UseCaseRunner useCaseRunner;
 
     @Override
-    public Class<MessageCreateEvent> getEventType() {
+    public Class<MessageCreateEvent> eventType() {
 
         return MessageCreateEvent.class;
     }

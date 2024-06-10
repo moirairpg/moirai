@@ -71,6 +71,30 @@ public class DiscordChannelAdapterTest {
     }
 
     @Test
+    void sendTemporaryMessage_whenCalled_thenMessageShouldBeSent() {
+
+        // Given
+        int deleteMessageAfterSeconds = 5;
+        String channelId = "123";
+        String messageContent = "Hello, World!";
+
+        when(discordClient.getChannelById(Snowflake.of(channelId)))
+                .thenReturn(Mono.just(channel));
+
+        when(channel.getRestChannel())
+                .thenReturn(restChannel);
+
+        when(restChannel.createMessage(messageContent))
+                .thenReturn(Mono.empty());
+
+        // When
+        Mono<Void> result = adapter.sendTemporaryMessage(channelId, messageContent, deleteMessageAfterSeconds);
+
+        // Then
+        StepVerifier.create(result).verifyComplete();
+    }
+
+    @Test
     void deleteMessageById_whenCalled_thenMessageShouldBeDeleted() {
 
         // Given

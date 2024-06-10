@@ -10,6 +10,8 @@ public interface DiscordChannelPort {
 
     Mono<Void> sendMessage(String channelId, String messageContent);
 
+    Mono<Void> sendTemporaryMessage(String channelId, String messageContent, int deleteAfterSeconds);
+
     Mono<MessageData> getMessageById(String channelId, String messageId);
 
     Mono<Void> deleteMessageById(String channelId, String messageId);

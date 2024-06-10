@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
+import es.thalesalv.chatrpg.infrastructure.inbound.discord.listener.DiscordEventErrorHandler;
 import es.thalesalv.chatrpg.infrastructure.inbound.discord.listener.DiscordEventListener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,8 @@ public class Discord4JConfig {
     @Value("${chatrpg.discord.api.token}")
     private String discordApiToken;
 
+    private final DiscordEventErrorHandler errorHandler;
+
     @Bean
     public <T extends Event> GatewayDiscordClient gatewayDiscordClient(List<DiscordEventListener<T>> eventListeners) {
 
@@ -32,9 +35,9 @@ public class Discord4JConfig {
                 .block();
 
         for (DiscordEventListener<T> listener : eventListeners) {
-            client.on(listener.getEventType())
+            client.on(listener.eventType())
                     .flatMap(listener::onEvent)
-                    .onErrorResume(listener::handleError)
+                    .doOnError(errorHandler::handle)
                     .subscribe();
         }
 

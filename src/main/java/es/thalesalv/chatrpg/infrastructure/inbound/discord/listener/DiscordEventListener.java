@@ -10,13 +10,7 @@ public interface DiscordEventListener<T extends Event> {
 
     Logger LOGGER = LoggerFactory.getLogger(DiscordEventListener.class);
 
-    Class<T> getEventType();
+    Class<T> eventType();
 
     Mono<Void> onEvent(T event);
-
-    default Mono<Void> handleError(Throwable error) {
-
-        LOGGER.error("Unable to process {}", getEventType().getSimpleName(), error);
-        return Mono.empty();
-    }
 }

@@ -71,9 +71,11 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                         .flatMap(contextWithLorebook -> personaEnrichmentService.enrichContextWith(contextWithLorebook,
                                 channelConfig.getPersonaId(), channelConfig.getModelConfiguration()))
                         .map(contextWithPersona -> processEnrichedContext(contextWithPersona, query.getBotName()))
-                        .flatMap(processedContext -> moderateInput(processedContext, channelConfig.getModeration()))
+                        .flatMap(processedContext -> moderateInput(processedContext, query.getMessageChannelId(),
+                                channelConfig.getModeration()))
                         .flatMap(processedContext -> generateAiOutput(channelConfig, processedContext))
-                        .flatMap(aiOutput -> moderateOutput(aiOutput, channelConfig.getModeration()))
+                        .flatMap(aiOutput -> moderateOutput(aiOutput, query.getMessageChannelId(),
+                                channelConfig.getModeration()))
                         .flatMap(generatedOutput -> sendOutputTo(query.getMessageChannelId(),
                                 query.getBotName(), generatedOutput)))
                 .orElseGet(() -> Mono.empty());
@@ -191,7 +193,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
         return discordChannelOperationsPort.sendMessage(messageChannelId, output);
     }
 
-    private Mono<List<ChatMessage>> moderateInput(List<ChatMessage> messages, Moderation moderation) {
+    private Mono<List<ChatMessage>> moderateInput(List<ChatMessage> messages, String channelId, Moderation moderation) {
 
         String messageHistory = messages.stream()
                 .map(ChatMessage::getContent)
@@ -200,19 +202,20 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
         return getTopicsFlaggedByModeration(messageHistory, moderation)
                 .map(result -> {
                     if (!result.isEmpty()) {
-                        throw new ModerationException("Inappropriate content found on user's input", result);
+                        throw new ModerationException("Inappropriate content found on user's input", channelId, result);
                     }
 
                     return messages;
                 });
     }
 
-    private Mono<String> moderateOutput(TextGenerationResult generationResult, Moderation moderation) {
+    private Mono<String> moderateOutput(TextGenerationResult generationResult,
+            String channelId, Moderation moderation) {
 
         return getTopicsFlaggedByModeration(generationResult.getOutputText(), moderation)
                 .map(result -> {
                     if (!result.isEmpty()) {
-                        throw new ModerationException("Inappropriate content found on AI's output", result);
+                        throw new ModerationException("Inappropriate content found on AI's output", channelId, result);
                     }
 
                     return generationResult.getOutputText();

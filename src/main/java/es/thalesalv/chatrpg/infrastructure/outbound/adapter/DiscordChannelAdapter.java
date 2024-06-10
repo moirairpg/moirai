@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.infrastructure.outbound.adapter;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +38,19 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
 
         return discordClient.getChannelById(Snowflake.of(channelId))
                 .flatMap(channel -> channel.getRestChannel().createMessage(messageContent))
+                .then();
+    }
+
+    @Override
+    public Mono<Void> sendTemporaryMessage(String channelId, String messageContent, int deleteAfterSeconds) {
+
+        return discordClient.getChannelById(Snowflake.of(channelId))
+                .flatMap(channel -> channel.getRestChannel()
+                        .createMessage(messageContent)
+                        .flatMap(messageSent -> discordClient.getMessageById(
+                                Snowflake.of(channelId), Snowflake.of(messageSent.id()))
+                                .delayElement(Duration.ofSeconds(deleteAfterSeconds))
+                                .map(message -> message.delete())))
                 .then();
     }
 
