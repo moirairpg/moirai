@@ -28,7 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResultFixture;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
-import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
+import es.thalesalv.chatrpg.core.application.port.TextCompletionPort;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfigurationFixture;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
@@ -45,7 +45,7 @@ public class ContextSummarizationServiceImplTest {
     private DiscordChannelPort discordChannelOperationsPort;
 
     @Mock
-    private OpenAiPort openAiPort;
+    private TextCompletionPort openAiPort;
 
     @Mock
     private TokenizerPort tokenizerPort;

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import es.thalesalv.chatrpg.common.annotation.ApplicationService;
 import es.thalesalv.chatrpg.core.application.model.request.ChatMessage;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
-import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
+import es.thalesalv.chatrpg.core.application.port.TextCompletionPort;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
@@ -33,7 +33,7 @@ public class StorySummarizationServiceImpl implements StorySummarizationService 
     private static final String MESSAGE_HISTORY = "messageHistory";
     private static final String SUMMARIZATION_INSTRUCTION = "Write a detailed summary of this converation. The summary needs to be detailed and explain the conversation so far, as best as possible, so more context on what has happened is available.";
 
-    private final OpenAiPort openAiPort;
+    private final TextCompletionPort openAiPort;
     private final TokenizerPort tokenizerPort;
     private final ChatMessageService chatMessageService;
 

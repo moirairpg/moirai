@@ -1,8 +1,6 @@
 package es.thalesalv.chatrpg.infrastructure.outbound.adapter;
 
-import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -16,21 +14,18 @@ import org.springframework.web.reactive.function.client.WebClient;
 import es.thalesalv.chatrpg.common.exception.DiscordApiException;
 import es.thalesalv.chatrpg.common.exception.OpenAiApiException;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
-import es.thalesalv.chatrpg.core.application.model.request.TextModerationRequest;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
-import es.thalesalv.chatrpg.core.application.model.result.TextModerationResult;
-import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
+import es.thalesalv.chatrpg.core.application.port.TextCompletionPort;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.ChatMessage;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.CompletionRequest;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.CompletionResponse;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.CompletionResponseError;
-import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ModerationResponse;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
-public class OpenAiAdapter implements OpenAiPort {
+public class TextCompletionAdapter implements TextCompletionPort {
 
     private static final String AUTHENTICATION_ERROR = "Error authenticating user on OpenAI";
     private static final String UNKNOWN_ERROR = "Error on OpenAI API";
@@ -42,17 +37,14 @@ public class OpenAiAdapter implements OpenAiPort {
     private static final Predicate<HttpStatusCode> UNAUTHORIZED = statusCode -> statusCode
             .isSameCodeAs(HttpStatusCode.valueOf(401));
 
-    private final String moderationUrl;
     private final String completionsUri;
     private final WebClient webClient;
 
-    public OpenAiAdapter(@Value("${chatrpg.openai.api.base-url}") String baseUrl,
-            @Value("${chatrpg.openai.api.moderation-uri}") String moderationUrl,
+    public TextCompletionAdapter(@Value("${chatrpg.openai.api.base-url}") String baseUrl,
             @Value("${chatrpg.openai.api.completions-uri}") String completionsUri,
             @Value("${chatrpg.openai.api.token}") String token,
             WebClient.Builder webClientBuilder) {
 
-        this.moderationUrl = moderationUrl;
         this.completionsUri = completionsUri;
         this.webClient = webClientBuilder.baseUrl(baseUrl)
                 .defaultHeaders(headers -> {
@@ -73,17 +65,6 @@ public class OpenAiAdapter implements OpenAiPort {
                 .onStatus(BAD_REQUEST, this::handleBadRequest)
                 .onStatus(HttpStatusCode::isError, this::handleUnknownError)
                 .bodyToMono(CompletionResponse.class)
-                .map(this::toResult);
-    }
-
-    @Override
-    public Mono<TextModerationResult> moderateTextFrom(TextModerationRequest request) {
-
-        return webClient.post()
-                .uri(moderationUrl)
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(ModerationResponse.class)
                 .map(this::toResult);
     }
 
@@ -111,19 +92,6 @@ public class OpenAiAdapter implements OpenAiPort {
                 .promptTokens(response.getUsage().getPromptTokens())
                 .totalTokens(response.getUsage().getTotalTokens())
                 .outputText(response.getChoices().get(0).getMessage().getContent())
-                .build();
-    }
-
-    private TextModerationResult toResult(ModerationResponse response) {
-
-        return TextModerationResult.builder()
-                .hasFlaggedContent(response.getResults().get(0).getFlagged())
-                .moderationScores(response.getResults()
-                        .get(0)
-                        .getCategoryScores()
-                        .entrySet()
-                        .stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, entry -> Double.valueOf(entry.getValue()))))
                 .build();
     }
 

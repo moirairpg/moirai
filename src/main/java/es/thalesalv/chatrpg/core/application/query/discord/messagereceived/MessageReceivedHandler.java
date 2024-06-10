@@ -7,10 +7,13 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
 import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
+import es.thalesalv.chatrpg.common.exception.ModerationException;
 import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.common.util.DefaultStringProcessors;
 import es.thalesalv.chatrpg.common.util.StringProcessor;
@@ -18,12 +21,14 @@ import es.thalesalv.chatrpg.core.application.model.request.ChatMessage;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
-import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
+import es.thalesalv.chatrpg.core.application.port.TextCompletionPort;
+import es.thalesalv.chatrpg.core.application.port.TextModerationPort;
 import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
 import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
 import es.thalesalv.chatrpg.core.application.service.StorySummarizationService;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
+import es.thalesalv.chatrpg.core.domain.channelconfig.Moderation;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -48,7 +53,8 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
     private final StorySummarizationService summarizationService;
     private final LorebookEnrichmentService lorebookEnrichmentService;
     private final PersonaEnrichmentService personaEnrichmentService;
-    private final OpenAiPort openAiPort;
+    private final TextCompletionPort textCompletionPort;
+    private final TextModerationPort textModerationPort;
 
     @Override
     public Mono<Void> execute(MessageReceived query) {
@@ -65,15 +71,20 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                         .flatMap(contextWithLorebook -> personaEnrichmentService.enrichContextWith(contextWithLorebook,
                                 channelConfig.getPersonaId(), channelConfig.getModelConfiguration()))
                         .map(contextWithPersona -> processEnrichedContext(contextWithPersona, query.getBotName()))
-                        .flatMap(processedContext -> {
-                            TextGenerationRequest textGenerationRequest = buildTextGenerationRequest(channelConfig,
-                                    processedContext);
-
-                            return openAiPort.generateTextFrom(textGenerationRequest);
-                        })
+                        .flatMap(processedContext -> moderateInput(processedContext, channelConfig.getModeration()))
+                        .flatMap(processedContext -> generateAiOutput(channelConfig, processedContext))
+                        .flatMap(aiOutput -> moderateOutput(aiOutput, channelConfig.getModeration()))
                         .flatMap(generatedOutput -> sendOutputTo(query.getMessageChannelId(),
                                 query.getBotName(), generatedOutput)))
                 .orElseGet(() -> Mono.empty());
+    }
+
+    private Mono<? extends TextGenerationResult> generateAiOutput(ChannelConfig channelConfig,
+            List<ChatMessage> processedContext) {
+        TextGenerationRequest textGenerationRequest = buildTextGenerationRequest(channelConfig,
+                processedContext);
+
+        return textCompletionPort.generateTextFrom(textGenerationRequest);
     }
 
     private TextGenerationRequest buildTextGenerationRequest(ChannelConfig channelConfig,
@@ -160,8 +171,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
         return processedContext;
     }
 
-    private Mono<Void> sendOutputTo(String messageChannelId, String botName,
-            TextGenerationResult generationResult) {
+    private Mono<Void> sendOutputTo(String messageChannelId, String botName, String content) {
 
         StringProcessor processor = new StringProcessor();
         processor.addRule(DefaultStringProcessors.stripAsNamePrefixForLowercase(botName));
@@ -169,7 +179,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
         processor.addRule(DefaultStringProcessors.stripChatPrefix());
         processor.addRule(DefaultStringProcessors.stripTrailingFragment());
 
-        String output = processor.process(generationResult.getOutputText());
+        String output = processor.process(content);
         int outputSize = output.length();
 
         while (outputSize > DISCORD_MAX_LENGTH) {
@@ -179,5 +189,54 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
         }
 
         return discordChannelOperationsPort.sendMessage(messageChannelId, output);
+    }
+
+    private Mono<List<ChatMessage>> moderateInput(List<ChatMessage> messages, Moderation moderation) {
+
+        String messageHistory = messages.stream()
+                .map(ChatMessage::getContent)
+                .collect(Collectors.joining("\n"));
+
+        return getTopicsFlaggedByModeration(messageHistory, moderation)
+                .map(result -> {
+                    if (!result.isEmpty()) {
+                        throw new ModerationException("Inappropriate content found on user's input", result);
+                    }
+
+                    return messages;
+                });
+    }
+
+    private Mono<String> moderateOutput(TextGenerationResult generationResult, Moderation moderation) {
+
+        return getTopicsFlaggedByModeration(generationResult.getOutputText(), moderation)
+                .map(result -> {
+                    if (!result.isEmpty()) {
+                        throw new ModerationException("Inappropriate content found on AI's output", result);
+                    }
+
+                    return generationResult.getOutputText();
+                });
+    }
+
+    private Mono<List<String>> getTopicsFlaggedByModeration(String input, Moderation moderation) {
+
+        return textModerationPort.moderate(input)
+                .map(result -> {
+                    if (moderation.isAbsolute() && result.isContentFlagged()) {
+                        return result.getFlaggedTopics();
+                    }
+
+                    return result.getModerationScores()
+                            .entrySet()
+                            .stream()
+                            .filter(entry -> isTopicFlagged(entry, moderation))
+                            .map(Map.Entry::getKey)
+                            .collect(Collectors.toList());
+                });
+    }
+
+    private boolean isTopicFlagged(Entry<String, Double> entry, Moderation moderation) {
+        return entry.getValue() > moderation.getThresholds().get(entry.getKey());
     }
 }

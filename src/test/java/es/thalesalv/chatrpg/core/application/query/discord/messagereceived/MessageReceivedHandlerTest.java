@@ -25,18 +25,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import es.thalesalv.chatrpg.common.exception.ModerationException;
 import es.thalesalv.chatrpg.core.application.model.request.ChatMessage;
 import es.thalesalv.chatrpg.core.application.model.request.TextGenerationRequest;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResult;
 import es.thalesalv.chatrpg.core.application.model.result.TextGenerationResultFixture;
+import es.thalesalv.chatrpg.core.application.model.result.TextModerationResult;
+import es.thalesalv.chatrpg.core.application.model.result.TextModerationResultFixture;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
-import es.thalesalv.chatrpg.core.application.port.OpenAiPort;
+import es.thalesalv.chatrpg.core.application.port.TextCompletionPort;
+import es.thalesalv.chatrpg.core.application.port.TextModerationPort;
 import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
 import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
 import es.thalesalv.chatrpg.core.application.service.StorySummarizationService;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigFixture;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
+import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -60,7 +65,10 @@ public class MessageReceivedHandlerTest {
     private DiscordChannelPort discordChannelOperationsPort;
 
     @Mock
-    private OpenAiPort openAiPort;
+    private TextCompletionPort textCompletionPort;
+
+    @Mock
+    private TextModerationPort textModerationPort;
 
     @Captor
     private ArgumentCaptor<TextGenerationRequest> textGenerationRequestCaptor;
@@ -101,24 +109,28 @@ public class MessageReceivedHandlerTest {
         context.put("bump", bump);
 
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
+        TextModerationResult moderationResult = TextModerationResultFixture.withoutFlags().build();
 
         when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
                 .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
 
-        when(summarizationService.summarizeContextWith(anyList(), any()))
+        when(summarizationService.summarizeContextWith(anyList(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
 
         when(channelConfigRepository.findByDiscordChannelId(channelId))
                 .thenReturn(Optional.of(channelConfig));
 
-        when(lorebookEnrichmentService.enrichContextWith(anyMap(), anyString(), any()))
+        when(lorebookEnrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
 
-        when(enrichmentService.enrichContextWith(anyMap(), anyString(), any()))
+        when(enrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
 
-        when(openAiPort.generateTextFrom(any()))
+        when(textCompletionPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(generationResult));
+
+        when(textModerationPort.moderate(anyString()))
+                .thenReturn(Mono.just(moderationResult));
 
         when(discordChannelOperationsPort.sendMessage(eq(channelId), anyString()))
                 .thenReturn(Mono.empty());
@@ -128,7 +140,7 @@ public class MessageReceivedHandlerTest {
 
         // Then
         StepVerifier.create(result).verifyComplete();
-        verify(openAiPort).generateTextFrom(textGenerationRequestCaptor.capture());
+        verify(textCompletionPort).generateTextFrom(textGenerationRequestCaptor.capture());
         verify(discordChannelOperationsPort).sendMessage(eq(channelId), anyString());
 
         List<ChatMessage> messagesSentToAi = textGenerationRequestCaptor.getValue().getMessages();
@@ -158,6 +170,138 @@ public class MessageReceivedHandlerTest {
                 .element(9)
                 .matches(element -> element.getRole().equals(SYSTEM))
                 .matches(element -> element.getContent().equals(nudge));
+    }
+
+    @Test
+    void givenInappropriateInput_whenExecute_thenShouldThrowModerationException() {
+
+        // Given
+        String personaDescription = "This is a persona";
+        String lorebook = "This is a lorebook";
+        String summary = "This is a story summary";
+        String bump = "This is a bump";
+        String nudge = "This is a nudge";
+
+        String channelId = "CHNLID";
+        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+                .discordChannelId(channelId)
+                .build();
+
+        MessageReceived query = MessageReceivedFixture.create()
+                .messageChannelId(channelId)
+                .build();
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("messageHistory", List.of("TestUser said: history",
+                "AnotherUser said: another message",
+                "TheOtherUser said: another message",
+                "Cherokee said: another message",
+                "YetAnotherUser said: yet another message"));
+
+        context.put("lorebook", lorebook);
+        context.put("persona", personaDescription);
+        context.put("summary", summary);
+        context.put("nudge", nudge);
+        context.put("bump", bump);
+
+        TextModerationResult moderationResult = TextModerationResultFixture.withFlags().build();
+
+        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
+                .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
+
+        when(summarizationService.summarizeContextWith(anyList(), any(ModelConfiguration.class)))
+                .thenReturn(Mono.just(context));
+
+        when(channelConfigRepository.findByDiscordChannelId(channelId))
+                .thenReturn(Optional.of(channelConfig));
+
+        when(lorebookEnrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
+                .thenReturn(Mono.just(context));
+
+        when(enrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
+                .thenReturn(Mono.just(context));
+
+        when(textModerationPort.moderate(anyString()))
+                .thenReturn(Mono.just(moderationResult));
+
+        // When
+        Mono<Void> result = messageReceivedHandler.execute(query);
+
+        // Then
+        StepVerifier.create(result)
+                .verifyErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(ModerationException.class);
+                    assertThat(((ModerationException) error).getFlaggedTopics()).hasSize(1);
+                });
+    }
+
+    @Test
+    void givenInappropriateAiOutput_whenExecute_thenShouldThrowModerationException() {
+
+        // Given
+        String personaDescription = "This is a persona";
+        String lorebook = "This is a lorebook";
+        String summary = "This is a story summary";
+        String bump = "This is a bump";
+        String nudge = "This is a nudge";
+
+        String channelId = "CHNLID";
+        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+                .discordChannelId(channelId)
+                .build();
+
+        MessageReceived query = MessageReceivedFixture.create()
+                .messageChannelId(channelId)
+                .build();
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("messageHistory", List.of("TestUser said: history",
+                "AnotherUser said: another message",
+                "TheOtherUser said: another message",
+                "Cherokee said: another message",
+                "YetAnotherUser said: yet another message"));
+
+        context.put("lorebook", lorebook);
+        context.put("persona", personaDescription);
+        context.put("summary", summary);
+        context.put("nudge", nudge);
+        context.put("bump", bump);
+
+        TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
+        TextModerationResult goodModerationResult = TextModerationResultFixture.withoutFlags().build();
+        TextModerationResult badModerationResult = TextModerationResultFixture.withFlags().build();
+
+        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
+                .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
+
+        when(summarizationService.summarizeContextWith(anyList(), any(ModelConfiguration.class)))
+                .thenReturn(Mono.just(context));
+
+        when(channelConfigRepository.findByDiscordChannelId(channelId))
+                .thenReturn(Optional.of(channelConfig));
+
+        when(lorebookEnrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
+                .thenReturn(Mono.just(context));
+
+        when(enrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
+                .thenReturn(Mono.just(context));
+
+        when(textModerationPort.moderate(anyString()))
+                .thenReturn(Mono.just(goodModerationResult))
+                .thenReturn(Mono.just(badModerationResult));
+
+        when(textCompletionPort.generateTextFrom(any(TextGenerationRequest.class)))
+                .thenReturn(Mono.just(generationResult));
+
+        // When
+        Mono<Void> result = messageReceivedHandler.execute(query);
+
+        // Then
+        StepVerifier.create(result)
+                .verifyErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(ModerationException.class);
+                    assertThat(((ModerationException) error).getFlaggedTopics()).hasSize(1);
+                });
     }
 
     @Test
