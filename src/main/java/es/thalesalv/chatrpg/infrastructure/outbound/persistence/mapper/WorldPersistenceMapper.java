@@ -5,8 +5,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldResult;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldsResult;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.world.World;

@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
-import es.thalesalv.chatrpg.core.application.command.world.DeleteWorldLorebookEntry;
-import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.DeleteWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorldLorebookEntry;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldLorebookEntryRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateWorldLorebookEntryRequest;
 

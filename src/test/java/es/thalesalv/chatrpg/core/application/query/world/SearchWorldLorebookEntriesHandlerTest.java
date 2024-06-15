@@ -10,6 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import es.thalesalv.chatrpg.core.application.usecase.world.SearchWorldLorebookEntriesHandler;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldLorebookEntries;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryRepository;
 
 @ExtendWith(MockitoExtension.class)

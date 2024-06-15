@@ -2,14 +2,14 @@ package es.thalesalv.chatrpg.core.domain.world;
 
 import java.util.List;
 
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
-import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
-import es.thalesalv.chatrpg.core.application.command.world.DeleteWorldLorebookEntry;
-import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
-import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryById;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorld;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.DeleteWorld;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.DeleteWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldById;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldLorebookEntryById;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorld;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorldLorebookEntry;
 
 public interface WorldService {
 

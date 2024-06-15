@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import es.thalesalv.chatrpg.AbstractIntegrationTest;
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryResult;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntries;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntriesResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldLorebookEntries;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldLorebookEntryResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryFixture;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryRepository;

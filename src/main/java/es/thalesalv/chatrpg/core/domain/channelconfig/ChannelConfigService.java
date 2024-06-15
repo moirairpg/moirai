@@ -1,9 +1,9 @@
 package es.thalesalv.chatrpg.core.domain.channelconfig;
 
-import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.DeleteChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfig;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfigById;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.CreateChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.DeleteChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.GetChannelConfigById;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 
 public interface ChannelConfigService {
 

@@ -18,7 +18,7 @@ import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.AuthenticationFailedException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldById;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.controller.WorldController;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldRequestMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMapper;

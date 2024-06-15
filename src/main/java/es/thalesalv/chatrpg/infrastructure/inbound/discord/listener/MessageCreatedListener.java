@@ -12,7 +12,7 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import es.thalesalv.chatrpg.common.util.DefaultStringProcessors;
-import es.thalesalv.chatrpg.core.application.query.discord.messagereceived.MessageReceived;
+import es.thalesalv.chatrpg.core.application.usecase.discord.messagereceived.MessageReceived;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 

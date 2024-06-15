@@ -10,6 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import es.thalesalv.chatrpg.core.application.usecase.persona.SearchPersonasWithReadAccessHandler;
+import es.thalesalv.chatrpg.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.SearchPersonasResult;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
 
 @ExtendWith(MockitoExtension.class)

@@ -11,6 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import es.thalesalv.chatrpg.core.application.usecase.persona.GetPersonaByIdHandler;
+import es.thalesalv.chatrpg.core.application.usecase.persona.request.GetPersonaById;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.GetPersonaResult;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;

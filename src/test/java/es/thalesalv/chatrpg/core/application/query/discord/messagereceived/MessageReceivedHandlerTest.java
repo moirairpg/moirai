@@ -38,6 +38,8 @@ import es.thalesalv.chatrpg.core.application.port.TextModerationPort;
 import es.thalesalv.chatrpg.core.application.service.LorebookEnrichmentService;
 import es.thalesalv.chatrpg.core.application.service.PersonaEnrichmentService;
 import es.thalesalv.chatrpg.core.application.service.StorySummarizationService;
+import es.thalesalv.chatrpg.core.application.usecase.discord.messagereceived.MessageReceived;
+import es.thalesalv.chatrpg.core.application.usecase.discord.messagereceived.MessageReceivedHandler;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigFixture;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;

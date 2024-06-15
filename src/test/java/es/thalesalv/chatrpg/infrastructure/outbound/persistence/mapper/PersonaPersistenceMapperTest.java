@@ -14,8 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaResult;
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasResult;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.GetPersonaResult;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.SearchPersonasResult;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.persona.PersonaEntity;

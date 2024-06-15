@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import es.thalesalv.chatrpg.common.web.SecurityContextAware;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.DeleteChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfig;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfigById;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsWithReadAccess;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.CreateChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.DeleteChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.GetChannelConfigById;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.SearchChannelConfigsWithReadAccess;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.SearchChannelConfigsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.ChannelConfigRequestMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.ChannelConfigResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateChannelConfigRequest;

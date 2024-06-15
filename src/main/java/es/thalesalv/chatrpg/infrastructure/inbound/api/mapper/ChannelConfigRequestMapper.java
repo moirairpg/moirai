@@ -2,9 +2,9 @@ package es.thalesalv.chatrpg.infrastructure.inbound.api.mapper;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.DeleteChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.CreateChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.DeleteChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateChannelConfigRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateChannelConfigRequest;
 import lombok.RequiredArgsConstructor;

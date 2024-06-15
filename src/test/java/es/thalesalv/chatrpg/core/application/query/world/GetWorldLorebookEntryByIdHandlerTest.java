@@ -12,6 +12,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
+import es.thalesalv.chatrpg.core.application.usecase.world.GetWorldLorebookEntryByIdHandler;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldLorebookEntryById;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldLorebookEntryResult;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryFixture;
 

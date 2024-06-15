@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.DeleteChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.CreateChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.DeleteChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateChannelConfigRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateChannelConfigRequestFixture;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateChannelConfigRequest;

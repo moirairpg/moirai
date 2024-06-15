@@ -2,7 +2,6 @@ package es.thalesalv.chatrpg.infrastructure.security.authentication.filter;
 
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -37,7 +36,7 @@ public class DiscordAuthenticationFilter implements WebFilter {
         if (!shouldPathBeIgnored(requestPath)) {
 
             List<String> authorizationHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
-            if (CollectionUtils.isEmpty(authorizationHeader)) {
+            if (authorizationHeader == null || authorizationHeader.isEmpty()) {
                 exchange.getResponse().setStatusCode(HttpStatusCode.valueOf(HTTP_FORBIDDEN));
                 return exchange.getResponse().setComplete();
             }

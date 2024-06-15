@@ -14,8 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryResult;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntriesResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldLorebookEntryResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryFixture;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.world.WorldLorebookEntryEntity;

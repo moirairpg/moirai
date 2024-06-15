@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import es.thalesalv.chatrpg.common.web.SecurityContextAware;
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
-import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
-import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldById;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithReadAccess;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorld;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.DeleteWorld;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldById;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldsWithReadAccess;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorld;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldRequestMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequest;

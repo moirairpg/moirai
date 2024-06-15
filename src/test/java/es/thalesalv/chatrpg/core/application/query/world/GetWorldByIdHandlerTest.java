@@ -11,6 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import es.thalesalv.chatrpg.core.application.usecase.world.GetWorldByIdHandler;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldById;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldResult;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import es.thalesalv.chatrpg.core.domain.world.WorldFixture;

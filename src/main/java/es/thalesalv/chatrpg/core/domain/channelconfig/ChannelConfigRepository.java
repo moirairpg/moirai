@@ -2,9 +2,9 @@ package es.thalesalv.chatrpg.core.domain.channelconfig;
 
 import java.util.Optional;
 
-import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsResult;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsWithReadAccess;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.SearchChannelConfigsWithReadAccess;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.SearchChannelConfigsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.SearchChannelConfigsResult;
 
 public interface ChannelConfigRepository {
 

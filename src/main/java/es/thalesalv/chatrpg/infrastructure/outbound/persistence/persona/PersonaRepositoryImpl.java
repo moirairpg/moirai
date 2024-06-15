@@ -14,9 +14,9 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasResult;
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithReadAccess;
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
+import es.thalesalv.chatrpg.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.SearchPersonasResult;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper.PersonaPersistenceMapper;

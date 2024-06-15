@@ -5,8 +5,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaResult;
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasResult;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.GetPersonaResult;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.SearchPersonasResult;
 import es.thalesalv.chatrpg.core.domain.CompletionRole;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;

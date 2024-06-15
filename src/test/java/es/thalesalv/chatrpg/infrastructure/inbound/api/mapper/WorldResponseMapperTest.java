@@ -11,11 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorldResult;
-import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldResult;
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldResult;
 import es.thalesalv.chatrpg.core.application.query.world.GetWorldResultFixture;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.CreateWorldResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldsResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.UpdateWorldResult;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.CreateWorldResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchWorldsResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldResponse;

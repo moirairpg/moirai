@@ -10,7 +10,7 @@ import org.mockito.MockitoAnnotations;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.User;
-import es.thalesalv.chatrpg.core.application.query.discord.DiscordUserDetails;
+import es.thalesalv.chatrpg.core.application.usecase.discord.DiscordUserDetails;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 

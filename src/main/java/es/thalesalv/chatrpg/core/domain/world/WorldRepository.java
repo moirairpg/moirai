@@ -2,9 +2,9 @@ package es.thalesalv.chatrpg.core.domain.world;
 
 import java.util.Optional;
 
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithReadAccess;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldsWithReadAccess;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldsResult;
 
 public interface WorldRepository {
 

@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.application.command.persona.CreatePersona;
-import es.thalesalv.chatrpg.core.application.command.persona.DeletePersona;
-import es.thalesalv.chatrpg.core.application.command.persona.UpdatePersona;
+import es.thalesalv.chatrpg.core.application.usecase.persona.request.CreatePersona;
+import es.thalesalv.chatrpg.core.application.usecase.persona.request.DeletePersona;
+import es.thalesalv.chatrpg.core.application.usecase.persona.request.UpdatePersona;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreatePersonaRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreatePersonaRequestFixture;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdatePersonaRequest;

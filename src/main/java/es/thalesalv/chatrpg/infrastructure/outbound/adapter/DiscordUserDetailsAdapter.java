@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import es.thalesalv.chatrpg.core.application.port.DiscordUserDetailsPort;
-import es.thalesalv.chatrpg.core.application.query.discord.DiscordUserDetails;
+import es.thalesalv.chatrpg.core.application.usecase.discord.DiscordUserDetails;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 

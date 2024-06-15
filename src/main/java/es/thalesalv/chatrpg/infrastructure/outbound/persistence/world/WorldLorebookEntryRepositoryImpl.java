@@ -14,8 +14,8 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntries;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntriesResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldLorebookEntries;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryRepository;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper.WorldLorebookPersistenceMapper;

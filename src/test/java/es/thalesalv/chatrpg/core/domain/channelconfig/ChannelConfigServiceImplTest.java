@@ -17,12 +17,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfigFixture;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.DeleteChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfig;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfigFixture;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfigById;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.CreateChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.CreateChannelConfigFixture;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.DeleteChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.GetChannelConfigById;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.UpdateChannelConfig;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.UpdateChannelConfigFixture;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 

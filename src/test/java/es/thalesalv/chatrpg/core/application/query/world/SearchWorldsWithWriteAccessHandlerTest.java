@@ -10,6 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import es.thalesalv.chatrpg.core.application.usecase.world.SearchWorldsWithWriteAccessHandler;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldsResult;
 import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
 
 @ExtendWith(MockitoExtension.class)

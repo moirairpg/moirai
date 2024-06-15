@@ -14,8 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldResult;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldsResult;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldFixture;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.world.WorldEntity;

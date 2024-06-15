@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.core.application.command.channelconfig.CreateChannelConfigResult;
-import es.thalesalv.chatrpg.core.application.command.channelconfig.UpdateChannelConfigResult;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfigResult;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsResult;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.CreateChannelConfigResult;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.GetChannelConfigResult;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.SearchChannelConfigsResult;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.UpdateChannelConfigResult;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.ChannelConfigResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.CreateChannelConfigResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchChannelConfigsResponse;

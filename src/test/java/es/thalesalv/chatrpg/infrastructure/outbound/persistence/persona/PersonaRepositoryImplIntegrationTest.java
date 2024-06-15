@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import es.thalesalv.chatrpg.AbstractIntegrationTest;
-import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaResult;
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasResult;
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithReadAccess;
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
+import es.thalesalv.chatrpg.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.GetPersonaResult;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.SearchPersonasResult;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;

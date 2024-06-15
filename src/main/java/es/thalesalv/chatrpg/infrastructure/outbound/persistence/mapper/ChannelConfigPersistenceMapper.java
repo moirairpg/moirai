@@ -5,8 +5,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.core.application.query.channelconfig.GetChannelConfigResult;
-import es.thalesalv.chatrpg.core.application.query.channelconfig.SearchChannelConfigsResult;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.GetChannelConfigResult;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.SearchChannelConfigsResult;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ArtificialIntelligenceModel;

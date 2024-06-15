@@ -2,9 +2,9 @@ package es.thalesalv.chatrpg.infrastructure.inbound.api.mapper;
 
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
-import es.thalesalv.chatrpg.core.application.command.world.DeleteWorld;
-import es.thalesalv.chatrpg.core.application.command.world.UpdateWorld;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorld;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.DeleteWorld;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorld;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateWorldRequest;
 import lombok.RequiredArgsConstructor;

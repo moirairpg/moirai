@@ -10,6 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.SearchChannelConfigsWithWriteAccessHandler;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.SearchChannelConfigsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.SearchChannelConfigsResult;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
 
 @ExtendWith(MockitoExtension.class)

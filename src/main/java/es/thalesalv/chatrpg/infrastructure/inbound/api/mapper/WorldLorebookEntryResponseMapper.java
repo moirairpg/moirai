@@ -5,10 +5,10 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntryResult;
-import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntryResult;
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryResult;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntriesResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.CreateWorldLorebookEntryResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldLorebookEntryResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.UpdateWorldLorebookEntryResult;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.CreateLorebookEntryResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.LorebookEntryResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchLorebookEntriesResponse;

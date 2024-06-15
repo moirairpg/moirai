@@ -11,11 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.application.command.persona.CreatePersonaResult;
-import es.thalesalv.chatrpg.core.application.command.persona.UpdatePersonaResult;
-import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaResult;
 import es.thalesalv.chatrpg.core.application.query.persona.GetPersonaResultFixture;
-import es.thalesalv.chatrpg.core.application.query.persona.SearchPersonasResult;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.CreatePersonaResult;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.GetPersonaResult;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.SearchPersonasResult;
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.UpdatePersonaResult;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.CreatePersonaResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.PersonaResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchPersonasResponse;

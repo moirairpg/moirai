@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorld;
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorldHandler;
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorldResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.CreateWorldHandler;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorld;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.CreateWorldResult;
 
 @ExtendWith(MockitoExtension.class)
 public class CommandRunnerImplTest {

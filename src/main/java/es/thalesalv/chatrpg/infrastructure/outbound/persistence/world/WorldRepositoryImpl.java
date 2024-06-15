@@ -14,9 +14,9 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsResult;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithReadAccess;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldsWithReadAccess;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldsResult;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper.WorldPersistenceMapper;

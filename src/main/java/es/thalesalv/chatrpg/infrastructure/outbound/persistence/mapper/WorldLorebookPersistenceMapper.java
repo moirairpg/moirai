@@ -3,8 +3,8 @@ package es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryResult;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntriesResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldLorebookEntryResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.world.WorldLorebookEntryEntity;
 

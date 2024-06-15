@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.core.application.query.persona;
 
+import es.thalesalv.chatrpg.core.application.usecase.persona.result.GetPersonaResult;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
 

@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.core.application.query.channelconfig;
 
+import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.GetChannelConfigResult;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigFixture;
 

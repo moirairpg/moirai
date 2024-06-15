@@ -47,6 +47,7 @@ public abstract class AbstractIntegrationTest {
 
     private static final String POSTGRES_IMAGE_NAME = "postgres:15-alpine";
 
+    @SuppressWarnings("resource")
     static PostgreSQLContainer<?> container = new PostgreSQLContainer<>(POSTGRES_IMAGE_NAME)
             .withDatabaseName("chatrpg")
             .withUsername("chatrpg")

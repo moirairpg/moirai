@@ -3,8 +3,8 @@ package es.thalesalv.chatrpg.core.domain.world;
 import java.util.List;
 import java.util.Optional;
 
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntries;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntriesResult;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldLorebookEntries;
+import es.thalesalv.chatrpg.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
 
 public interface WorldLorebookEntryRepository {
 

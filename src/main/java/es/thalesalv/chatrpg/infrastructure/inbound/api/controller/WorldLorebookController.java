@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import es.thalesalv.chatrpg.common.web.SecurityContextAware;
-import es.thalesalv.chatrpg.core.application.command.world.CreateWorldLorebookEntry;
-import es.thalesalv.chatrpg.core.application.command.world.DeleteWorldLorebookEntry;
-import es.thalesalv.chatrpg.core.application.command.world.UpdateWorldLorebookEntry;
-import es.thalesalv.chatrpg.core.application.query.world.GetWorldLorebookEntryById;
-import es.thalesalv.chatrpg.core.application.query.world.SearchWorldLorebookEntries;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.DeleteWorldLorebookEntry;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldLorebookEntryById;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.SearchWorldLorebookEntries;
+import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorldLorebookEntry;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldLorebookEntryRequestMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.mapper.WorldLorebookEntryResponseMapper;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldLorebookEntryRequest;

@@ -1,5 +1,6 @@
 package es.thalesalv.chatrpg.core.application.query.world;
 
+import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldResult;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldFixture;
 
