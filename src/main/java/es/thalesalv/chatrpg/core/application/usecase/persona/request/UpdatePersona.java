@@ -6,10 +6,11 @@ import es.thalesalv.chatrpg.common.usecases.UseCase;
 import es.thalesalv.chatrpg.core.application.usecase.persona.result.UpdatePersonaResult;
 import lombok.Builder;
 import lombok.Getter;
+import reactor.core.publisher.Mono;
 
 @Getter
 @Builder(builderClassName = "Builder")
-public final class UpdatePersona extends UseCase<UpdatePersonaResult> {
+public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
 
     private String id;
     private final String name;

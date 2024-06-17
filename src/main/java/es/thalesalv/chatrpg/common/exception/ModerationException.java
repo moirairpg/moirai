@@ -19,4 +19,12 @@ public class ModerationException extends RuntimeException {
         this.flaggedTopics = Collections.unmodifiableList(new ArrayList<>(flaggedTopics));
         this.channelId = channelId;
     }
+
+    public ModerationException(String message, List<String> flaggedTopics) {
+
+        super(message);
+
+        this.flaggedTopics = Collections.unmodifiableList(new ArrayList<>(flaggedTopics));
+        this.channelId = null;
+    }
 }

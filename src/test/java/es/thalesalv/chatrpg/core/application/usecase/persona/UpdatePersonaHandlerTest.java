@@ -11,10 +11,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.UpdatePersona;
-import es.thalesalv.chatrpg.core.application.usecase.persona.result.UpdatePersonaResult;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaServiceImpl;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class UpdatePersonaHandlerTest {
@@ -42,13 +43,13 @@ public class UpdatePersonaHandlerTest {
         Persona expectedUpdatedPersona = PersonaFixture.privatePersona().build();
 
         when(service.update(any(UpdatePersona.class)))
-                .thenReturn(expectedUpdatedPersona);
-
-        // When
-        UpdatePersonaResult result = handler.handle(command);
+                .thenReturn(Mono.just(expectedUpdatedPersona));
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getLastUpdatedDateTime()).isEqualTo(expectedUpdatedPersona.getLastUpdateDate());
+        StepVerifier.create(handler.handle(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getLastUpdatedDateTime()).isEqualTo(expectedUpdatedPersona.getLastUpdateDate());
+                });
     }
 }

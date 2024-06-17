@@ -96,11 +96,12 @@ public class PersonaController extends SecurityContextAware {
     @ResponseStatus(code = HttpStatus.CREATED)
     public Mono<CreatePersonaResponse> createPersona(@Valid @RequestBody CreatePersonaRequest request) {
 
-        return mapWithAuthenticatedUser(authenticatedUser -> {
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
             CreatePersona command = requestMapper.toCommand(request, authenticatedUser.getId());
-            return responseMapper.toResponse(useCaseRunner.run(command));
-        });
+            return useCaseRunner.run(command);
+        })
+                .map(result -> responseMapper.toResponse(result));
     }
 
     @PutMapping("/{personaId}")
@@ -109,13 +110,14 @@ public class PersonaController extends SecurityContextAware {
             @PathVariable(name = "personaId", required = true) String personaId,
             @Valid @RequestBody UpdatePersonaRequest request) {
 
-        return mapWithAuthenticatedUser(authenticatedUser -> {
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
             UpdatePersona command = requestMapper.toCommand(request, personaId,
                     authenticatedUser.getId());
 
-            return responseMapper.toResponse(useCaseRunner.run(command));
-        });
+            return useCaseRunner.run(command);
+        })
+                .map(result -> responseMapper.toResponse(result));
     }
 
     @DeleteMapping("/{personaId}")

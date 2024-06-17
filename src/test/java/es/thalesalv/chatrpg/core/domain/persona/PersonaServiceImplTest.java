@@ -18,6 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
+import es.thalesalv.chatrpg.common.exception.ModerationException;
+import es.thalesalv.chatrpg.core.application.model.result.TextModerationResultFixture;
+import es.thalesalv.chatrpg.core.application.port.TextModerationPort;
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.CreatePersona;
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.DeletePersona;
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.GetPersonaById;
@@ -25,9 +28,14 @@ import es.thalesalv.chatrpg.core.application.usecase.persona.request.UpdatePerso
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class PersonaServiceImplTest {
+
+    @Mock
+    private TextModerationPort moderationPort;
 
     @Mock
     private PersonaRepository repository;
@@ -66,19 +74,27 @@ public class PersonaServiceImplTest {
                 .visibility(visibility)
                 .build();
 
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
+
         when(repository.save(any(Persona.class))).thenReturn(expectedPersona);
 
-        // When
-        Persona createdPersona = service.createFrom(command);
-
         // Then
-        assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
-        assertThat(createdPersona.getName()).isEqualTo(expectedPersona.getName());
-        assertThat(createdPersona.getOwnerDiscordId()).isEqualTo(expectedPersona.getOwnerDiscordId());
-        assertThat(createdPersona.getUsersAllowedToWrite()).isEqualTo(expectedPersona.getUsersAllowedToWrite());
-        assertThat(createdPersona.getUsersAllowedToRead()).isEqualTo(expectedPersona.getUsersAllowedToRead());
-        assertThat(createdPersona.getPersonality()).isEqualTo(expectedPersona.getPersonality());
-        assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
+        StepVerifier.create(service.createFrom(command))
+                .assertNext(createdPersona -> {
+                    assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
+                    assertThat(createdPersona.getName()).isEqualTo(expectedPersona.getName());
+                    assertThat(createdPersona.getOwnerDiscordId()).isEqualTo(expectedPersona.getOwnerDiscordId());
+                    assertThat(createdPersona.getUsersAllowedToWrite())
+                            .isEqualTo(expectedPersona.getUsersAllowedToWrite());
+
+                    assertThat(createdPersona.getUsersAllowedToRead())
+                            .isEqualTo(expectedPersona.getUsersAllowedToRead());
+
+                    assertThat(createdPersona.getPersonality()).isEqualTo(expectedPersona.getPersonality());
+                    assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -107,19 +123,27 @@ public class PersonaServiceImplTest {
                 .visibility(visibility)
                 .build();
 
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
+
         when(repository.save(any(Persona.class))).thenReturn(expectedPersona);
 
-        // When
-        Persona createdPersona = service.createFrom(command);
-
         // Then
-        assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
-        assertThat(createdPersona.getName()).isEqualTo(expectedPersona.getName());
-        assertThat(createdPersona.getOwnerDiscordId()).isEqualTo(expectedPersona.getOwnerDiscordId());
-        assertThat(createdPersona.getUsersAllowedToWrite()).isEqualTo(expectedPersona.getUsersAllowedToWrite());
-        assertThat(createdPersona.getUsersAllowedToRead()).isEqualTo(expectedPersona.getUsersAllowedToRead());
-        assertThat(createdPersona.getPersonality()).isEqualTo(expectedPersona.getPersonality());
-        assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
+        StepVerifier.create(service.createFrom(command))
+                .assertNext(createdPersona -> {
+                    assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
+                    assertThat(createdPersona.getName()).isEqualTo(expectedPersona.getName());
+                    assertThat(createdPersona.getOwnerDiscordId()).isEqualTo(expectedPersona.getOwnerDiscordId());
+                    assertThat(createdPersona.getUsersAllowedToWrite())
+                            .isEqualTo(expectedPersona.getUsersAllowedToWrite());
+
+                    assertThat(createdPersona.getUsersAllowedToRead())
+                            .isEqualTo(expectedPersona.getUsersAllowedToRead());
+
+                    assertThat(createdPersona.getPersonality()).isEqualTo(expectedPersona.getPersonality());
+                    assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -149,19 +173,27 @@ public class PersonaServiceImplTest {
                 .visibility(visibility)
                 .build();
 
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
+
         when(repository.save(any(Persona.class))).thenReturn(expectedPersona);
 
-        // When
-        Persona createdPersona = service.createFrom(command);
-
         // Then
-        assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
-        assertThat(createdPersona.getName()).isEqualTo(expectedPersona.getName());
-        assertThat(createdPersona.getOwnerDiscordId()).isEqualTo(expectedPersona.getOwnerDiscordId());
-        assertThat(createdPersona.getUsersAllowedToWrite()).isEqualTo(expectedPersona.getUsersAllowedToWrite());
-        assertThat(createdPersona.getUsersAllowedToRead()).isEqualTo(expectedPersona.getUsersAllowedToRead());
-        assertThat(createdPersona.getPersonality()).isEqualTo(expectedPersona.getPersonality());
-        assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
+        StepVerifier.create(service.createFrom(command))
+                .assertNext(createdPersona -> {
+                    assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
+                    assertThat(createdPersona.getName()).isEqualTo(expectedPersona.getName());
+                    assertThat(createdPersona.getOwnerDiscordId()).isEqualTo(expectedPersona.getOwnerDiscordId());
+                    assertThat(createdPersona.getUsersAllowedToWrite())
+                            .isEqualTo(expectedPersona.getUsersAllowedToWrite());
+
+                    assertThat(createdPersona.getUsersAllowedToRead())
+                            .isEqualTo(expectedPersona.getUsersAllowedToRead());
+
+                    assertThat(createdPersona.getPersonality()).isEqualTo(expectedPersona.getPersonality());
+                    assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -189,9 +221,12 @@ public class PersonaServiceImplTest {
                 .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
                 .build();
 
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
+
         // Then
-        assertThrows(BusinessRuleViolationException.class,
-                () -> service.createFrom(command));
+        StepVerifier.create(service.createFrom(command))
+                .verifyError(BusinessRuleViolationException.class);
     }
 
     @Test
@@ -207,7 +242,8 @@ public class PersonaServiceImplTest {
         when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> service.update(command));
+        StepVerifier.create(service.update(command))
+                .verifyError(AssetNotFoundException.class);
     }
 
     @Test
@@ -232,7 +268,8 @@ public class PersonaServiceImplTest {
         when(repository.findById(anyString())).thenReturn(Optional.of(persona));
 
         // Then
-        assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
+        StepVerifier.create(service.update(command))
+                .verifyError(AssetAccessDeniedException.class);
     }
 
     @Test
@@ -421,15 +458,18 @@ public class PersonaServiceImplTest {
                 .name("New name")
                 .build();
 
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
         when(repository.findById(anyString())).thenReturn(Optional.of(unchangedPersona));
         when(repository.save(any(Persona.class))).thenReturn(expectedUpdatedPersona);
 
-        // When
-        Persona result = service.update(command);
-
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(expectedUpdatedPersona.getName());
+        StepVerifier.create(service.update(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getName()).isEqualTo(expectedUpdatedPersona.getName());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -452,12 +492,13 @@ public class PersonaServiceImplTest {
         when(repository.findById(anyString())).thenReturn(Optional.of(unchangedPersona));
         when(repository.save(any(Persona.class))).thenReturn(unchangedPersona);
 
-        // When
-        Persona result = service.update(command);
-
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(unchangedPersona.getName());
+        StepVerifier.create(service.update(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getName()).isEqualTo(unchangedPersona.getName());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -485,13 +526,14 @@ public class PersonaServiceImplTest {
         when(repository.findById(anyString())).thenReturn(Optional.of(unchangedPersona));
         when(repository.save(any(Persona.class))).thenReturn(expectedUpdatedPersona);
 
-        // When
-        Persona result = service.update(command);
-
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.isPublic()).isFalse();
-        assertThat(result.getVisibility()).isEqualTo(expectedUpdatedPersona.getVisibility());
+        StepVerifier.create(service.update(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.isPublic()).isFalse();
+                    assertThat(result.getVisibility()).isEqualTo(expectedUpdatedPersona.getVisibility());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -519,12 +561,69 @@ public class PersonaServiceImplTest {
         when(repository.findById(anyString())).thenReturn(Optional.of(unchangedPersona));
         when(repository.save(any(Persona.class))).thenReturn(expectedUpdatedPersona);
 
-        // When
-        Persona result = service.update(command);
+        // Then
+        StepVerifier.create(service.update(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.isPublic()).isFalse();
+                    assertThat(result.getVisibility()).isEqualTo(expectedUpdatedPersona.getVisibility());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void updatePersona_whenContentIsFlagged_thenThrowException() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        UpdatePersona command = UpdatePersona.builder()
+                .id(id)
+                .name("ChatRPG")
+                .personality("I am a Discord chatbot")
+                .visibility("PUBLIC")
+                .requesterDiscordId("CRTID")
+                .bumpContent("This is a bump")
+                .bumpRole("system")
+                .bumpFrequency(5)
+                .nudgeContent("This is a nudge")
+                .nudgeRole("system")
+                .gameMode("author")
+                .requesterDiscordId(requesterId)
+                .build();
+
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withFlags().build()));
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.isPublic()).isFalse();
-        assertThat(result.getVisibility()).isEqualTo(expectedUpdatedPersona.getVisibility());
+        StepVerifier.create(service.update(command))
+                .verifyError(ModerationException.class);
+    }
+
+    @Test
+    public void createPersona_whenContentIsFlagged_thenThrowException() {
+
+        // Given
+        String name = "ChatRPG";
+        String personality = "I am a chatbot";
+        String visibility = "PRIVATE";
+
+        Nudge nudge = NudgeFixture.sample().build();
+
+        CreatePersona command = CreatePersona.builder()
+                .name(name)
+                .personality(personality)
+                .nudgeContent(nudge.getContent())
+                .nudgeRole(nudge.getRole().toString())
+                .gameMode("rpg")
+                .visibility(visibility)
+                .build();
+
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withFlags().build()));
+
+        // Then
+        StepVerifier.create(service.createFrom(command))
+                .verifyError(ModerationException.class);
     }
 }

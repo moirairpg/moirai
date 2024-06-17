@@ -4,6 +4,7 @@ import es.thalesalv.chatrpg.core.application.usecase.persona.request.CreatePerso
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.DeletePersona;
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.GetPersonaById;
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.UpdatePersona;
+import reactor.core.publisher.Mono;
 
 public interface PersonaService {
 
@@ -11,9 +12,9 @@ public interface PersonaService {
 
     Persona getPersonaById(String id);
 
-    Persona createFrom(CreatePersona command);
+    Mono<Persona> createFrom(CreatePersona command);
 
-    Persona update(UpdatePersona command);
+    Mono<Persona> update(UpdatePersona command);
 
     void deletePersona(DeletePersona command);
 }

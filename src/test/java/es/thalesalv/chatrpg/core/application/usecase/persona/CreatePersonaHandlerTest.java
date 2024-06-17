@@ -13,10 +13,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.CreatePersona;
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.CreatePersonaFixture;
-import es.thalesalv.chatrpg.core.application.usecase.persona.result.CreatePersonaResult;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaFixture;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class CreatePersonaHandlerTest {
@@ -46,13 +47,13 @@ public class CreatePersonaHandlerTest {
         CreatePersona command = CreatePersonaFixture.createPrivatePersona().build();
 
         when(domainService.createFrom(any(CreatePersona.class)))
-                .thenReturn(persona);
-
-        // When
-        CreatePersonaResult result = handler.handle(command);
+                .thenReturn(Mono.just(persona));
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(id);
+        StepVerifier.create(handler.handle(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getId()).isEqualTo(id);
+                });
     }
 }

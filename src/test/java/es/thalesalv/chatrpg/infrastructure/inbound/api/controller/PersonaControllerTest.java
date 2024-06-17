@@ -39,6 +39,7 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.PersonaResponseF
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchPersonasResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdatePersonaResponse;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
+import reactor.core.publisher.Mono;
 
 @WebFluxTest(controllers = {
         PersonaController.class
@@ -170,7 +171,7 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         when(personaRequestMapper.toCommand(any(CreatePersonaRequest.class), anyString()))
                 .thenReturn(mock(CreatePersona.class));
 
-        when(useCaseRunner.run(any(CreatePersona.class))).thenReturn(mock(CreatePersonaResult.class));
+        when(useCaseRunner.run(any(CreatePersona.class))).thenReturn(Mono.just(mock(CreatePersonaResult.class)));
         when(personaResponseMapper.toResponse(any(CreatePersonaResult.class))).thenReturn(expectedResponse);
 
         // Then
@@ -198,7 +199,7 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         when(personaRequestMapper.toCommand(any(UpdatePersonaRequest.class), anyString(), anyString()))
                 .thenReturn(mock(UpdatePersona.class));
 
-        when(useCaseRunner.run(any(UpdatePersona.class))).thenReturn(mock(UpdatePersonaResult.class));
+        when(useCaseRunner.run(any(UpdatePersona.class))).thenReturn(Mono.just(mock(UpdatePersonaResult.class)));
         when(personaResponseMapper.toResponse(any(UpdatePersonaResult.class))).thenReturn(expectedResponse);
 
         // Then
