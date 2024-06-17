@@ -50,6 +50,7 @@ public class UpdatePersonaHandlerTest {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getLastUpdatedDateTime()).isEqualTo(expectedUpdatedPersona.getLastUpdateDate());
-                });
+                })
+                .verifyComplete();
     }
 }

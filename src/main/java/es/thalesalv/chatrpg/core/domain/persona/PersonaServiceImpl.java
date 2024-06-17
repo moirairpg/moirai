@@ -77,6 +77,7 @@ public class PersonaServiceImpl implements PersonaService {
     public Mono<Persona> createFrom(CreatePersona command) {
 
         return moderateContent(command.getPersonality())
+                .flatMap(__ -> moderateContent(command.getName()))
                 .map(__ -> {
                     Persona.Builder personaBuilder = Persona.builder();
                     if (StringUtils.isNotBlank(command.getBumpContent())) {
@@ -119,6 +120,7 @@ public class PersonaServiceImpl implements PersonaService {
     public Mono<Persona> update(UpdatePersona command) {
 
         return moderateContent(command.getPersonality())
+                .flatMap(__ -> moderateContent(command.getName()))
                 .map(__ -> {
                     Persona persona = repository.findById(command.getId())
                             .orElseThrow(() -> new AssetNotFoundException(PERSONA_NOT_FOUND));

@@ -98,11 +98,12 @@ public class WorldController extends SecurityContextAware {
     @ResponseStatus(code = HttpStatus.CREATED)
     public Mono<CreateWorldResponse> createWorld(@Valid @RequestBody CreateWorldRequest request) {
 
-        return mapWithAuthenticatedUser(authenticatedUser -> {
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
             CreateWorld command = requestMapper.toCommand(request, authenticatedUser.getId());
-            return responseMapper.toResponse(useCaseRunner.run(command));
-        });
+            return useCaseRunner.run(command);
+        })
+                .map(result -> responseMapper.toResponse(result));
     }
 
     @PutMapping("/{worldId}")
@@ -110,11 +111,12 @@ public class WorldController extends SecurityContextAware {
     public Mono<UpdateWorldResponse> updateWorld(@PathVariable(name = "worldId", required = true) String worldId,
             @Valid @RequestBody UpdateWorldRequest request) {
 
-        return mapWithAuthenticatedUser(authenticatedUser -> {
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
             UpdateWorld command = requestMapper.toCommand(request, worldId, authenticatedUser.getId());
-            return responseMapper.toResponse(useCaseRunner.run(command));
-        });
+            return useCaseRunner.run(command);
+        })
+                .map(result -> responseMapper.toResponse(result));
     }
 
     @DeleteMapping("/{worldId}")

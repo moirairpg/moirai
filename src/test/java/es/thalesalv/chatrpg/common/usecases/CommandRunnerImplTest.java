@@ -13,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.thalesalv.chatrpg.core.application.usecase.world.CreateWorldHandler;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorld;
 import es.thalesalv.chatrpg.core.application.usecase.world.result.CreateWorldResult;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class CommandRunnerImplTest {
@@ -64,15 +66,16 @@ public class CommandRunnerImplTest {
         CreateWorld command = CreateWorld.builder().build();
         CreateWorldResult expectedResult = CreateWorldResult.build(id);
 
-        when(handler.handle(any(CreateWorld.class))).thenReturn(expectedResult);
+        when(handler.handle(any(CreateWorld.class))).thenReturn(Mono.just(expectedResult));
 
         runner.registerHandler(handler);
 
-        // When
-        CreateWorldResult result = runner.run(command);
-
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(id);
+        StepVerifier.create(runner.run(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getId()).isEqualTo(id);
+                })
+                .verifyComplete();
     }
 }

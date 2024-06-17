@@ -6,10 +6,11 @@ import es.thalesalv.chatrpg.common.usecases.UseCase;
 import es.thalesalv.chatrpg.core.application.usecase.world.result.CreateWorldResult;
 import lombok.Builder;
 import lombok.Getter;
+import reactor.core.publisher.Mono;
 
 @Getter
 @Builder(builderClassName = "Builder")
-public final class CreateWorld extends UseCase<CreateWorldResult> {
+public final class CreateWorld extends UseCase<Mono<CreateWorldResult>> {
 
     private final String name;
     private final String description;

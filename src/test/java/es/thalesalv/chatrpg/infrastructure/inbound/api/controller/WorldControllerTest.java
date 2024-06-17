@@ -39,6 +39,7 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldRespo
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponseFixture;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
+import reactor.core.publisher.Mono;
 
 @WebFluxTest(controllers = {
         WorldController.class
@@ -171,7 +172,7 @@ public class WorldControllerTest extends AbstractRestWebTest {
 
         when(worldRequestMapper.toCommand(any(CreateWorldRequest.class), anyString()))
                 .thenReturn(mock(CreateWorld.class));
-        when(useCaseRunner.run(any(CreateWorld.class))).thenReturn(mock(CreateWorldResult.class));
+        when(useCaseRunner.run(any(CreateWorld.class))).thenReturn(Mono.just(mock(CreateWorldResult.class)));
         when(worldResponseMapper.toResponse(any(CreateWorldResult.class))).thenReturn(expectedResponse);
 
         // Then
@@ -198,7 +199,7 @@ public class WorldControllerTest extends AbstractRestWebTest {
 
         when(worldRequestMapper.toCommand(any(UpdateWorldRequest.class), anyString(), anyString()))
                 .thenReturn(mock(UpdateWorld.class));
-        when(useCaseRunner.run(any(UpdateWorld.class))).thenReturn(mock(UpdateWorldResult.class));
+        when(useCaseRunner.run(any(UpdateWorld.class))).thenReturn(Mono.just(mock(UpdateWorldResult.class)));
         when(worldResponseMapper.toResponse(any(UpdateWorldResult.class))).thenReturn(expectedResponse);
 
         // Then

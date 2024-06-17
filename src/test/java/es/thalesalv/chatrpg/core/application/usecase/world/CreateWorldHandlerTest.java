@@ -13,10 +13,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorld;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorldFixture;
-import es.thalesalv.chatrpg.core.application.usecase.world.result.CreateWorldResult;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldFixture;
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class CreateWorldHandlerTest {
@@ -46,13 +47,14 @@ public class CreateWorldHandlerTest {
         CreateWorld command = CreateWorldFixture.createPrivateWorld().build();
 
         when(domainService.createFrom(any(CreateWorld.class)))
-                .thenReturn(world);
-
-        // When
-        CreateWorldResult result = handler.handle(command);
+                .thenReturn(Mono.just(world));
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(id);
+        StepVerifier.create(handler.handle(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getId()).isEqualTo(id);
+                })
+                .verifyComplete();
     }
 }

@@ -18,6 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
+import es.thalesalv.chatrpg.common.exception.ModerationException;
+import es.thalesalv.chatrpg.core.application.model.result.TextModerationResultFixture;
+import es.thalesalv.chatrpg.core.application.port.TextModerationPort;
 import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.CreateLorebookEntryFixture;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorld;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorldLorebookEntry;
@@ -30,9 +33,14 @@ import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorldLo
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.PermissionsFixture;
 import es.thalesalv.chatrpg.core.domain.Visibility;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class WorldServiceImplTest {
+
+    @Mock
+    private TextModerationPort moderationPort;
 
     @Mock
     private WorldLorebookEntryRepository lorebookEntryRepository;
@@ -73,20 +81,24 @@ public class WorldServiceImplTest {
                 .lorebookEntries(Collections.singletonList(CreateLorebookEntryFixture.sampleLorebookEntry().build()))
                 .build();
 
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
+
         when(worldRepository.save(any(World.class))).thenReturn(expectedWorld);
 
-        // When
-        World createdWorld = service.createFrom(command);
-
         // Then
-        assertThat(createdWorld).isNotNull().isEqualTo(expectedWorld);
-        assertThat(createdWorld.getName()).isEqualTo(expectedWorld.getName());
-        assertThat(createdWorld.getOwnerDiscordId()).isEqualTo(expectedWorld.getOwnerDiscordId());
-        assertThat(createdWorld.getUsersAllowedToWrite()).isEqualTo(expectedWorld.getUsersAllowedToWrite());
-        assertThat(createdWorld.getUsersAllowedToRead()).isEqualTo(expectedWorld.getUsersAllowedToRead());
-        assertThat(createdWorld.getDescription()).isEqualTo(expectedWorld.getDescription());
-        assertThat(createdWorld.getAdventureStart()).isEqualTo(expectedWorld.getAdventureStart());
-        assertThat(createdWorld.getVisibility()).isEqualTo(expectedWorld.getVisibility());
+        StepVerifier.create(service.createFrom(command))
+                .assertNext(createdWorld -> {
+                    assertThat(createdWorld).isNotNull().isEqualTo(expectedWorld);
+                    assertThat(createdWorld.getName()).isEqualTo(expectedWorld.getName());
+                    assertThat(createdWorld.getOwnerDiscordId()).isEqualTo(expectedWorld.getOwnerDiscordId());
+                    assertThat(createdWorld.getUsersAllowedToWrite()).isEqualTo(expectedWorld.getUsersAllowedToWrite());
+                    assertThat(createdWorld.getUsersAllowedToRead()).isEqualTo(expectedWorld.getUsersAllowedToRead());
+                    assertThat(createdWorld.getDescription()).isEqualTo(expectedWorld.getDescription());
+                    assertThat(createdWorld.getAdventureStart()).isEqualTo(expectedWorld.getAdventureStart());
+                    assertThat(createdWorld.getVisibility()).isEqualTo(expectedWorld.getVisibility());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -117,20 +129,24 @@ public class WorldServiceImplTest {
                 .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
                 .build();
 
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
+
         when(worldRepository.save(any(World.class))).thenReturn(expectedWorld);
 
-        // When
-        World createdWorld = service.createFrom(command);
-
         // Then
-        assertThat(createdWorld).isNotNull().isEqualTo(expectedWorld);
-        assertThat(createdWorld.getName()).isEqualTo(expectedWorld.getName());
-        assertThat(createdWorld.getOwnerDiscordId()).isEqualTo(expectedWorld.getOwnerDiscordId());
-        assertThat(createdWorld.getUsersAllowedToWrite()).isEqualTo(expectedWorld.getUsersAllowedToWrite());
-        assertThat(createdWorld.getUsersAllowedToRead()).isEqualTo(expectedWorld.getUsersAllowedToRead());
-        assertThat(createdWorld.getDescription()).isEqualTo(expectedWorld.getDescription());
-        assertThat(createdWorld.getAdventureStart()).isEqualTo(expectedWorld.getAdventureStart());
-        assertThat(createdWorld.getVisibility()).isEqualTo(expectedWorld.getVisibility());
+        StepVerifier.create(service.createFrom(command))
+                .assertNext(createdWorld -> {
+                    assertThat(createdWorld).isNotNull().isEqualTo(expectedWorld);
+                    assertThat(createdWorld.getName()).isEqualTo(expectedWorld.getName());
+                    assertThat(createdWorld.getOwnerDiscordId()).isEqualTo(expectedWorld.getOwnerDiscordId());
+                    assertThat(createdWorld.getUsersAllowedToWrite()).isEqualTo(expectedWorld.getUsersAllowedToWrite());
+                    assertThat(createdWorld.getUsersAllowedToRead()).isEqualTo(expectedWorld.getUsersAllowedToRead());
+                    assertThat(createdWorld.getDescription()).isEqualTo(expectedWorld.getDescription());
+                    assertThat(createdWorld.getAdventureStart()).isEqualTo(expectedWorld.getAdventureStart());
+                    assertThat(createdWorld.getVisibility()).isEqualTo(expectedWorld.getVisibility());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -279,15 +295,18 @@ public class WorldServiceImplTest {
                 .visibility(Visibility.PUBLIC)
                 .build();
 
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
+
         when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
         when(worldRepository.save(any(World.class))).thenReturn(expectedUpdatedWorld);
 
-        // When
-        World result = service.update(command);
-
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(expectedUpdatedWorld.getName());
+        StepVerifier.create(service.update(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getName()).isEqualTo(expectedUpdatedWorld.getName());
+                }).verifyComplete();
     }
 
     @Test
@@ -310,12 +329,12 @@ public class WorldServiceImplTest {
         when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
         when(worldRepository.save(any(World.class))).thenReturn(unchangedWorld);
 
-        // When
-        World result = service.update(command);
-
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(unchangedWorld.getName());
+        StepVerifier.create(service.update(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getName()).isEqualTo(unchangedWorld.getName());
+                }).verifyComplete();
     }
 
     @Test
@@ -336,12 +355,12 @@ public class WorldServiceImplTest {
         when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
         when(worldRepository.save(any(World.class))).thenReturn(expectedWorld);
 
-        // When
-        World result = service.update(command);
-
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getVisibility()).isEqualTo(expectedWorld.getVisibility());
+        StepVerifier.create(service.update(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getVisibility()).isEqualTo(expectedWorld.getVisibility());
+                }).verifyComplete();
     }
 
     @Test
@@ -361,12 +380,12 @@ public class WorldServiceImplTest {
         when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
         when(worldRepository.save(any(World.class))).thenReturn(unchangedWorld);
 
-        // When
-        World result = service.update(command);
-
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getVisibility()).isEqualTo(unchangedWorld.getVisibility());
+        StepVerifier.create(service.update(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getVisibility()).isEqualTo(unchangedWorld.getVisibility());
+                }).verifyComplete();
     }
 
     @Test
@@ -382,7 +401,8 @@ public class WorldServiceImplTest {
         when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> service.update(command));
+        StepVerifier.create(service.update(command))
+                .verifyError(AssetNotFoundException.class);
     }
 
     @Test
@@ -407,7 +427,8 @@ public class WorldServiceImplTest {
         when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // Then
-        assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
+        StepVerifier.create(service.update(command))
+                .verifyError(AssetAccessDeniedException.class);
     }
 
     @Test
@@ -427,10 +448,14 @@ public class WorldServiceImplTest {
 
         World unchangedWorld = WorldFixture.privateWorld().build();
 
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
+
         when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
 
         // Then
-        assertThrows(AssetAccessDeniedException.class, () -> service.update(command));
+        StepVerifier.create(service.update(command))
+                .verifyError(AssetAccessDeniedException.class);
     }
 
     @Test
@@ -999,5 +1024,56 @@ public class WorldServiceImplTest {
         // Then
         assertThrows(AssetNotFoundException.class,
                 () -> service.findAllEntriesByRegex(worldId, valueToSearch));
+    }
+
+    @Test
+    public void createWorld_whenContentIsFlagged_thenExceptionIsThrown() {
+
+        // Given
+        String name = "Eldrida";
+        String description = "Eldrida is a fantasy world";
+        String adventureStart = "You have arrived at the world of Eldrida.";
+        Permissions permissions = PermissionsFixture.samplePermissions().build();
+        String visibility = "PRIVATE";
+
+        CreateWorld command = CreateWorld.builder()
+                .name(name)
+                .adventureStart(adventureStart)
+                .description(description)
+                .visibility(visibility)
+                .requesterDiscordId(permissions.getOwnerDiscordId())
+                .usersAllowedToRead(permissions.getUsersAllowedToRead())
+                .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
+                .lorebookEntries(Collections.singletonList(CreateLorebookEntryFixture.sampleLorebookEntry().build()))
+                .build();
+
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withFlags().build()));
+
+        // Then
+        StepVerifier.create(service.createFrom(command))
+                .verifyError(ModerationException.class);
+    }
+
+    @Test
+    public void updateWorld_whenContentIsFlagged_thenExceptionIsThrown() {
+
+        // Given
+        String id = "CHCONFID";
+        UpdateWorld command = UpdateWorld.builder()
+                .id(id)
+                .name("ChatRPG")
+                .description("This is an RPG world")
+                .adventureStart("As you enter the city, people around you start looking at you.")
+                .visibility("PUBLIC")
+                .requesterDiscordId("586678721356875")
+                .build();
+
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(TextModerationResultFixture.withFlags().build()));
+
+        // Then
+        StepVerifier.create(service.update(command))
+                .verifyError(ModerationException.class);
     }
 }

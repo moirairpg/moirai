@@ -1,12 +1,18 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 
 import es.thalesalv.chatrpg.common.annotation.DomainService;
 import es.thalesalv.chatrpg.common.exception.AssetAccessDeniedException;
 import es.thalesalv.chatrpg.common.exception.AssetNotFoundException;
+import es.thalesalv.chatrpg.common.exception.ModerationException;
+import es.thalesalv.chatrpg.core.application.port.TextModerationPort;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorld;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.CreateWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.DeleteWorld;
@@ -17,20 +23,24 @@ import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorld;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
+import es.thalesalv.chatrpg.core.domain.channelconfig.Moderation;
 import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @DomainService
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class WorldServiceImpl implements WorldService {
 
+    private static final String WORLD_FLAGGED_BY_MODERATION = "Persona flagged by moderation";
     private static final String WORLD_TO_BE_UPDATED_WAS_NOT_FOUND = "World to be updated was not found";
     private static final String LOREBOOK_ENTRY_TO_BE_UPDATED_WAS_NOT_FOUND = "Lorebook entry to be updated was not found";
     private static final String WORLD_TO_BE_VIEWED_WAS_NOT_FOUND = "World to be viewed was not found";
     private static final String USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD = "User does not have permission to modify this world";
     private static final String USER_DOES_NOT_HAVE_PERMISSION_TO_VIEW_THIS_WORLD = "User does not have permission to view this world";
 
+    private final TextModerationPort moderationPort;
     private final WorldLorebookEntryRepository lorebookEntryRepository;
     private final WorldRepository repository;
 
@@ -61,73 +71,84 @@ public class WorldServiceImpl implements WorldService {
     }
 
     @Override
-    public World createFrom(CreateWorld command) {
+    public Mono<World> createFrom(CreateWorld command) {
 
-        Permissions permissions = Permissions.builder()
-                .ownerDiscordId(command.getRequesterDiscordId())
-                .usersAllowedToRead(command.getUsersAllowedToRead())
-                .usersAllowedToWrite(command.getUsersAllowedToWrite())
-                .build();
+        return moderateContent(command.getAdventureStart())
+                .flatMap(__ -> moderateContent(command.getName()))
+                .flatMap(__ -> moderateContent(command.getDescription()))
+                .map(__ -> {
+                    Permissions permissions = Permissions.builder()
+                            .ownerDiscordId(command.getRequesterDiscordId())
+                            .usersAllowedToRead(command.getUsersAllowedToRead())
+                            .usersAllowedToWrite(command.getUsersAllowedToWrite())
+                            .build();
 
-        World world = World.builder()
-                .name(command.getName())
-                .description(command.getDescription())
-                .adventureStart(command.getAdventureStart())
-                .visibility(Visibility.fromString(command.getVisibility()))
-                .permissions(permissions)
-                .creatorDiscordId(command.getRequesterDiscordId())
-                .build();
+                    World world = World.builder()
+                            .name(command.getName())
+                            .description(command.getDescription())
+                            .adventureStart(command.getAdventureStart())
+                            .visibility(Visibility.fromString(command.getVisibility()))
+                            .permissions(permissions)
+                            .creatorDiscordId(command.getRequesterDiscordId())
+                            .build();
 
-        return repository.save(world);
+                    return repository.save(world);
+                });
+
     }
 
     @Override
-    public World update(UpdateWorld command) {
+    public Mono<World> update(UpdateWorld command) {
 
-        World world = repository.findById(command.getId())
-                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_UPDATED_WAS_NOT_FOUND));
+        return moderateContent(command.getAdventureStart())
+                .flatMap(__ -> moderateContent(command.getName()))
+                .flatMap(__ -> moderateContent(command.getDescription()))
+                .map(__ -> {
+                    World world = repository.findById(command.getId())
+                            .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_UPDATED_WAS_NOT_FOUND));
 
-        if (!world.canUserWrite(command.getRequesterDiscordId())) {
-            throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD);
-        }
+                    if (!world.canUserWrite(command.getRequesterDiscordId())) {
+                        throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD);
+                    }
 
-        if (StringUtils.isNotBlank(command.getName())) {
-            world.updateName(command.getName());
-        }
+                    if (StringUtils.isNotBlank(command.getName())) {
+                        world.updateName(command.getName());
+                    }
 
-        if (StringUtils.isNotBlank(command.getDescription())) {
-            world.updateDescription(command.getDescription());
-        }
+                    if (StringUtils.isNotBlank(command.getDescription())) {
+                        world.updateDescription(command.getDescription());
+                    }
 
-        if (StringUtils.isNotBlank(command.getAdventureStart())) {
-            world.updateAdventureStart(command.getAdventureStart());
-        }
+                    if (StringUtils.isNotBlank(command.getAdventureStart())) {
+                        world.updateAdventureStart(command.getAdventureStart());
+                    }
 
-        if (StringUtils.isNotBlank(command.getVisibility())) {
-            if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
-                world.makePublic();
-            } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
-                world.makePrivate();
-            }
-        }
+                    if (StringUtils.isNotBlank(command.getVisibility())) {
+                        if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
+                            world.makePublic();
+                        } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
+                            world.makePrivate();
+                        }
+                    }
 
-        CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToAdd())
-                .stream()
-                .filter(userId -> !world.canUserRead(userId))
-                .forEach(world::addReaderUser);
+                    CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToAdd())
+                            .stream()
+                            .filter(userId -> !world.canUserRead(userId))
+                            .forEach(world::addReaderUser);
 
-        CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToAdd())
-                .stream()
-                .filter(userId -> !world.canUserWrite(userId))
-                .forEach(world::addWriterUser);
+                    CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToAdd())
+                            .stream()
+                            .filter(userId -> !world.canUserWrite(userId))
+                            .forEach(world::addWriterUser);
 
-        CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToRemove())
-                .forEach(world::removeReaderUser);
+                    CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToRemove())
+                            .forEach(world::removeReaderUser);
 
-        CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToRemove())
-                .forEach(world::removeWriterUser);
+                    CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToRemove())
+                            .forEach(world::removeWriterUser);
 
-        return repository.save(world);
+                    return repository.save(world);
+                });
     }
 
     @Override
@@ -238,5 +259,36 @@ public class WorldServiceImpl implements WorldService {
                 .orElseThrow(() -> new AssetNotFoundException(LOREBOOK_ENTRY_TO_BE_UPDATED_WAS_NOT_FOUND));
 
         lorebookEntryRepository.deleteById(command.getLorebookEntryId());
+    }
+
+    private Mono<List<String>> moderateContent(String personality) {
+
+        if (StringUtils.isBlank(personality)) {
+            return Mono.just(Collections.emptyList());
+        }
+
+        return getTopicsFlaggedByModeration(personality)
+                .map(flaggedTopics -> {
+                    if (CollectionUtils.isNotEmpty(flaggedTopics)) {
+                        throw new ModerationException(WORLD_FLAGGED_BY_MODERATION, flaggedTopics);
+                    }
+
+                    return flaggedTopics;
+                });
+    }
+
+    private Mono<List<String>> getTopicsFlaggedByModeration(String input) {
+
+        return moderationPort.moderate(input)
+                .map(result -> result.getModerationScores()
+                        .entrySet()
+                        .stream()
+                        .filter(this::isTopicFlagged)
+                        .map(Map.Entry::getKey)
+                        .collect(Collectors.toList()));
+    }
+
+    private boolean isTopicFlagged(Entry<String, Double> entry) {
+        return entry.getValue() > Moderation.PERMISSIVE.getThresholds().get(entry.getKey());
     }
 }

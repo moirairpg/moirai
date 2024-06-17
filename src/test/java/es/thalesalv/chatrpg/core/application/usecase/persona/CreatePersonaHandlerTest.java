@@ -54,6 +54,7 @@ public class CreatePersonaHandlerTest {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getId()).isEqualTo(id);
-                });
+                })
+                .verifyComplete();
     }
 }

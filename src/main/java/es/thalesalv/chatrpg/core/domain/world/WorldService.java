@@ -10,14 +10,15 @@ import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldById;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldLorebookEntryById;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorld;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorldLorebookEntry;
+import reactor.core.publisher.Mono;
 
 public interface WorldService {
 
     World getWorldById(GetWorldById query);
 
-    World createFrom(CreateWorld command);
+    Mono<World> createFrom(CreateWorld command);
 
-    World update(UpdateWorld command);
+    Mono<World> update(UpdateWorld command);
 
     void deleteWorld(DeleteWorld command);
 

@@ -11,10 +11,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorld;
-import es.thalesalv.chatrpg.core.application.usecase.world.result.UpdateWorldResult;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldFixture;
 import es.thalesalv.chatrpg.core.domain.world.WorldServiceImpl;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class UpdateWorldHandlerTest {
@@ -43,13 +44,14 @@ public class UpdateWorldHandlerTest {
         World expectedUpdatedWorld = WorldFixture.privateWorld().build();
 
         when(service.update(any(UpdateWorld.class)))
-                .thenReturn(expectedUpdatedWorld);
-
-        // When
-        UpdateWorldResult result = handler.handle(command);
+                .thenReturn(Mono.just(expectedUpdatedWorld));
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getLastUpdatedDateTime()).isEqualTo(expectedUpdatedWorld.getLastUpdateDate());
+        StepVerifier.create(handler.handle(command))
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getLastUpdatedDateTime()).isEqualTo(expectedUpdatedWorld.getLastUpdateDate());
+                })
+                .verifyComplete();
     }
 }
