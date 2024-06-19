@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import es.thalesalv.chatrpg.core.application.model.result.TextModerationResult;
 import es.thalesalv.chatrpg.core.application.port.TextModerationPort;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.ModerationRequest;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ModerationResponse;
 import reactor.core.publisher.Mono;
 
@@ -38,9 +39,10 @@ public class TextModerationAdapter implements TextModerationPort {
     @Override
     public Mono<TextModerationResult> moderate(String text) {
 
+        ModerationRequest request = ModerationRequest.build(text);
         return webClient.post()
                 .uri(moderationUrl)
-                .bodyValue(text)
+                .bodyValue(request)
                 .retrieve()
                 .bodyToMono(ModerationResponse.class)
                 .map(this::toResult);

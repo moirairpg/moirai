@@ -5,6 +5,7 @@ import static es.thalesalv.chatrpg.core.application.model.request.ChatMessage.Ro
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -226,8 +227,12 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
 
         return textModerationPort.moderate(input)
                 .map(result -> {
-                    if (moderation.isAbsolute() && result.isContentFlagged()) {
-                        return result.getFlaggedTopics();
+                    if (moderation.isAbsolute()) {
+                        if (result.isContentFlagged()) {
+                            return result.getFlaggedTopics();
+                        }
+
+                        return Collections.emptyList();
                     }
 
                     return result.getModerationScores()
