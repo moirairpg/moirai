@@ -21,10 +21,8 @@ import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldRepository;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper.WorldPersistenceMapper;
 import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
 
 @Repository
-@RequiredArgsConstructor
 public class WorldRepositoryImpl implements WorldRepository {
 
     private static final int DEFAULT_PAGE = 0;
@@ -33,6 +31,12 @@ public class WorldRepositoryImpl implements WorldRepository {
 
     private final WorldJpaRepository jpaRepository;
     private final WorldPersistenceMapper mapper;
+
+    public WorldRepositoryImpl(WorldJpaRepository jpaRepository, WorldPersistenceMapper mapper) {
+
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
+    }
 
     @Override
     public World save(World world) {

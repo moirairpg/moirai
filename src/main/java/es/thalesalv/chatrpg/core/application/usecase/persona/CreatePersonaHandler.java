@@ -5,14 +5,16 @@ import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.CreatePersona;
 import es.thalesalv.chatrpg.core.application.usecase.persona.result.CreatePersonaResult;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class CreatePersonaHandler extends AbstractUseCaseHandler<CreatePersona, Mono<CreatePersonaResult>> {
 
     private final PersonaService domainService;
+
+    public CreatePersonaHandler(PersonaService domainService) {
+        this.domainService = domainService;
+    }
 
     @Override
     public Mono<CreatePersonaResult> execute(CreatePersona command) {

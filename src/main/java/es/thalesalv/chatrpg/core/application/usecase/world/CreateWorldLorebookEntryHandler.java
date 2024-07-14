@@ -7,14 +7,16 @@ import es.thalesalv.chatrpg.core.application.usecase.world.result.CreateWorldLor
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import io.micrometer.common.util.StringUtils;
-import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class CreateWorldLorebookEntryHandler
         extends AbstractUseCaseHandler<CreateWorldLorebookEntry, CreateWorldLorebookEntryResult> {
 
     private final WorldService domainService;
+
+    public CreateWorldLorebookEntryHandler(WorldService domainService) {
+        this.domainService = domainService;
+    }
 
     @Override
     public void validate(CreateWorldLorebookEntry command) {

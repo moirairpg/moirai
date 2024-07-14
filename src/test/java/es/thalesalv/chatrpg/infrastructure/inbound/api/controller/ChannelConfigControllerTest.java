@@ -74,6 +74,7 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
 
         when(useCaseRunner.run(any(SearchChannelConfigsWithReadAccess.class)))
                 .thenReturn(mock(SearchChannelConfigsResult.class));
+
         when(channelConfigResponseMapper.toResponse(any(SearchChannelConfigsResult.class)))
                 .thenReturn(expectedResponse);
 
@@ -168,7 +169,7 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
     public void http201WhenCreateChannelConfig() {
 
         // Given
-        CreateChannelConfigRequest request = CreateChannelConfigRequestFixture.sample().build();
+        CreateChannelConfigRequest request = CreateChannelConfigRequestFixture.sample();
         CreateChannelConfigResponse expectedResponse = CreateChannelConfigResponse.build("WRLDID");
 
         when(channelConfigRequestMapper.toCommand(any(CreateChannelConfigRequest.class), anyString()))
@@ -196,7 +197,7 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
 
         // Given
         String channelConfigId = "WRLDID";
-        UpdateChannelConfigRequest request = UpdateChannelConfigRequestFixture.sample().build();
+        UpdateChannelConfigRequest request = UpdateChannelConfigRequestFixture.sample();
         UpdateChannelConfigResponse expectedResponse = UpdateChannelConfigResponse.build(OffsetDateTime.now());
 
         when(channelConfigRequestMapper.toCommand(any(UpdateChannelConfigRequest.class), anyString(), anyString()))

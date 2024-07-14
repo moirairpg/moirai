@@ -5,18 +5,20 @@ import es.thalesalv.chatrpg.core.domain.world.WorldFixture;
 
 public class CreateWorldRequestFixture {
 
-    public static CreateWorldRequest.Builder createPrivateWorld() {
+    public static CreateWorldRequest createPrivateWorld() {
 
         World world = WorldFixture.privateWorld().build();
+        CreateWorldRequest request = new CreateWorldRequest();
 
-        return CreateWorldRequest.builder()
-                .name(world.getName())
-                .description(world.getDescription())
-                .adventureStart(world.getAdventureStart())
-                .visibility(world.getVisibility().toString())
-                .usersAllowedToWrite(world.getUsersAllowedToWrite())
-                .usersAllowedToRead(world.getUsersAllowedToRead())
-                .usersAllowedToRead(world.getUsersAllowedToRead())
-                .usersAllowedToWrite(world.getUsersAllowedToWrite());
+        request.setName(world.getName());
+        request.setDescription(world.getDescription());
+        request.setAdventureStart(world.getAdventureStart());
+        request.setVisibility(world.getVisibility().toString());
+        request.setUsersAllowedToWrite(world.getUsersAllowedToWrite());
+        request.setUsersAllowedToRead(world.getUsersAllowedToRead());
+        request.setUsersAllowedToRead(world.getUsersAllowedToRead());
+        request.setUsersAllowedToWrite(world.getUsersAllowedToWrite());
+
+        return request;
     }
 }

@@ -10,11 +10,7 @@ import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.ShareableAsset;
 import es.thalesalv.chatrpg.core.domain.Visibility;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
 public class World extends ShareableAsset {
 
     private String id;
@@ -38,6 +34,22 @@ public class World extends ShareableAsset {
     public static Builder builder() {
 
         return new Builder();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getAdventureStart() {
+        return adventureStart;
     }
 
     public List<WorldLorebookEntry> getLorebook() {
@@ -70,7 +82,6 @@ public class World extends ShareableAsset {
         lorebook.remove(lorebookEntry);
     }
 
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
         private String id;
@@ -83,6 +94,9 @@ public class World extends ShareableAsset {
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
 

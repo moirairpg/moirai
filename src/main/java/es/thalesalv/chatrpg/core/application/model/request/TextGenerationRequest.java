@@ -10,9 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-
-@Getter
 public final class TextGenerationRequest {
 
     private final String model;
@@ -44,6 +41,38 @@ public final class TextGenerationRequest {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public List<ChatMessage> getMessages() {
+        return messages;
+    }
+
+    public List<String> getStopSequences() {
+        return stopSequences;
+    }
+
+    public Integer getMaxTokens() {
+        return maxTokens;
+    }
+
+    public Double getTemperature() {
+        return temperature;
+    }
+
+    public Double getPresencePenalty() {
+        return presencePenalty;
+    }
+
+    public Double getFrequencyPenalty() {
+        return frequencyPenalty;
+    }
+
+    public Map<String, Double> getLogitBias() {
+        return logitBias;
     }
 
     public static class Builder {

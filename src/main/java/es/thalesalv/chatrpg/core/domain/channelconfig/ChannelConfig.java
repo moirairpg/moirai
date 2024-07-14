@@ -8,11 +8,7 @@ import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.ShareableAsset;
 import es.thalesalv.chatrpg.core.domain.Visibility;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
 public class ChannelConfig extends ShareableAsset {
 
     private String id;
@@ -35,6 +31,34 @@ public class ChannelConfig extends ShareableAsset {
         this.discordChannelId = builder.discordChannelId;
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getWorldId() {
+        return worldId;
+    }
+
+    public String getPersonaId() {
+        return personaId;
+    }
+
+    public String getDiscordChannelId() {
+        return discordChannelId;
+    }
+
+    public ModelConfiguration getModelConfiguration() {
+        return modelConfiguration;
+    }
+
+    public Moderation getModeration() {
+        return moderation;
     }
 
     public static Builder builder() {
@@ -121,8 +145,7 @@ public class ChannelConfig extends ShareableAsset {
         this.modelConfiguration = newModelConfiguration;
     }
 
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class Builder {
+    public static final class Builder {
 
         private String id;
         private String name;
@@ -136,6 +159,9 @@ public class ChannelConfig extends ShareableAsset {
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
 

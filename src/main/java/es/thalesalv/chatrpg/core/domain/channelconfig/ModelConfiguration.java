@@ -11,11 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
 public final class ModelConfiguration {
 
     private static final double DEFAULT_FREQUENCY_PENALTY = 0.0;
@@ -59,6 +55,34 @@ public final class ModelConfiguration {
                 .presencePenalty(modelConfiguration.getPresencePenalty())
                 .stopSequences(modelConfiguration.getStopSequences())
                 .logitBias(modelConfiguration.getLogitBias());
+    }
+
+    public ArtificialIntelligenceModel getAiModel() {
+        return aiModel;
+    }
+
+    public Integer getMaxTokenLimit() {
+        return maxTokenLimit;
+    }
+
+    public Double getTemperature() {
+        return temperature;
+    }
+
+    public Double getFrequencyPenalty() {
+        return frequencyPenalty;
+    }
+
+    public Double getPresencePenalty() {
+        return presencePenalty;
+    }
+
+    public List<String> getStopSequences() {
+        return stopSequences;
+    }
+
+    public Map<String, Double> getLogitBias() {
+        return logitBias;
     }
 
     public ModelConfiguration updateAiModel(ArtificialIntelligenceModel aiModel) {
@@ -172,8 +196,7 @@ public final class ModelConfiguration {
         }
     }
 
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class Builder {
+    public static final class Builder {
 
         private ArtificialIntelligenceModel aiModel;
         private Integer maxTokenLimit;
@@ -182,6 +205,9 @@ public final class ModelConfiguration {
         private Double presencePenalty;
         private List<String> stopSequences;
         private Map<String, Double> logitBias;
+
+        private Builder() {
+        }
 
         public Builder aiModel(ArtificialIntelligenceModel aiModel) {
 

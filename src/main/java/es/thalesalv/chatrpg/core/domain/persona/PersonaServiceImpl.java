@@ -22,12 +22,9 @@ import es.thalesalv.chatrpg.core.domain.CompletionRole;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.channelconfig.Moderation;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @DomainService
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PersonaServiceImpl implements PersonaService {
 
     private static final String PERSONA_FLAGGED_BY_MODERATION = "Persona flagged by moderation";
@@ -37,6 +34,11 @@ public class PersonaServiceImpl implements PersonaService {
 
     private final TextModerationPort moderationPort;
     private final PersonaRepository repository;
+
+    public PersonaServiceImpl(TextModerationPort moderationPort, PersonaRepository repository) {
+        this.moderationPort = moderationPort;
+        this.repository = repository;
+    }
 
     @Override
     public Persona getPersonaById(GetPersonaById query) {

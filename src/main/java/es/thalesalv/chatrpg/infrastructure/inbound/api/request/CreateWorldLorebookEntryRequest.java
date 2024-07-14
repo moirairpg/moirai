@@ -2,15 +2,7 @@ package es.thalesalv.chatrpg.infrastructure.inbound.api.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-@Builder(builderClassName = "Builder")
-@AllArgsConstructor
 public class CreateWorldLorebookEntryRequest {
 
     @NotEmpty(message = "cannot be empty")
@@ -23,4 +15,47 @@ public class CreateWorldLorebookEntryRequest {
     private String description;
     private String playerDiscordId;
     private boolean isPlayerCharacter;
+
+    public CreateWorldLorebookEntryRequest() {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getRegex() {
+        return regex;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getPlayerDiscordId() {
+        return playerDiscordId;
+    }
+
+    public boolean isPlayerCharacter() {
+        return isPlayerCharacter;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setRegex(String regex) {
+        this.regex = regex;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setPlayerDiscordId(String playerDiscordId) {
+        this.playerDiscordId = playerDiscordId;
+    }
+
+    public void setIsPlayerCharacter(boolean isPlayerCharacter) {
+        this.isPlayerCharacter = isPlayerCharacter;
+    }
 }

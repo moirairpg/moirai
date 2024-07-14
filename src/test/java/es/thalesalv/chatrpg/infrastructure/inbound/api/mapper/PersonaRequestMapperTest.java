@@ -26,7 +26,7 @@ public class PersonaRequestMapperTest {
 
         // Given
         String requesterId = "RQSTRID";
-        CreatePersonaRequest request = CreatePersonaRequestFixture.createPrivatePersona().build();
+        CreatePersonaRequest request = CreatePersonaRequestFixture.createPrivatePersona();
 
         // When
         CreatePersona command = mapper.toCommand(request, requesterId);
@@ -52,7 +52,7 @@ public class PersonaRequestMapperTest {
         // Given
         String personaId = "WRLDID";
         String requesterId = "RQSTRID";
-        UpdatePersonaRequest request = UpdatePersonaRequestFixture.privatePersona().build();
+        UpdatePersonaRequest request = UpdatePersonaRequestFixture.privatePersona();
 
         // When
         UpdatePersona command = mapper.toCommand(request, personaId, requesterId);

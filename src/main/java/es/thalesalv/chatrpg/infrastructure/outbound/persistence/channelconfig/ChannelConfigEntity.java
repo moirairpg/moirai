@@ -13,13 +13,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity(name = "ChannelConfig")
 @Table(name = "channel_config")
 public class ChannelConfigEntity extends ShareableAssetEntity {
@@ -71,8 +65,35 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         return new Builder();
     }
 
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class Builder {
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getWorldId() {
+        return worldId;
+    }
+
+    public String getPersonaId() {
+        return personaId;
+    }
+
+    public String getDiscordChannelId() {
+        return discordChannelId;
+    }
+
+    public ModelConfigurationEntity getModelConfiguration() {
+        return modelConfiguration;
+    }
+
+    public String getModeration() {
+        return moderation;
+    }
+
+    public static final class Builder {
 
         private String id;
         private String name;
@@ -88,6 +109,9 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
 
@@ -142,11 +166,13 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
             this.ownerDiscordId = ownerDiscordId;
             return this;
         }
+
         public Builder usersAllowedToRead(List<String> usersAllowedToRead) {
 
             this.usersAllowedToRead = usersAllowedToRead;
             return this;
         }
+
         public Builder usersAllowedToWrite(List<String> usersAllowedToWrite) {
 
             this.usersAllowedToWrite = usersAllowedToWrite;

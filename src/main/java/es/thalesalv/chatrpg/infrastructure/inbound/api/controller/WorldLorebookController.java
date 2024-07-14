@@ -29,18 +29,25 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchLorebookEn
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldLorebookEntryResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/world/{worldId}/lorebook")
-@RequiredArgsConstructor
 @Tag(name = "World Lorebooks", description = "Endpoints for managing ChatRPG World Lorebooks")
 public class WorldLorebookController extends SecurityContextAware {
 
     private final UseCaseRunner useCaseRunner;
     private final WorldLorebookEntryRequestMapper requestMapper;
     private final WorldLorebookEntryResponseMapper responseMapper;
+
+    public WorldLorebookController(UseCaseRunner useCaseRunner,
+            WorldLorebookEntryRequestMapper requestMapper,
+            WorldLorebookEntryResponseMapper responseMapper) {
+
+        this.useCaseRunner = useCaseRunner;
+        this.requestMapper = requestMapper;
+        this.responseMapper = responseMapper;
+    }
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)

@@ -9,29 +9,9 @@ import es.thalesalv.chatrpg.common.dbutil.StringListConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.MappedSuperclass;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @MappedSuperclass
 public abstract class ShareableAssetEntity extends AssetEntity {
-
-    protected ShareableAssetEntity(String creatorDiscordId, OffsetDateTime creationDate,
-            OffsetDateTime lastUpdateDate, String ownerDiscordId, List<String> usersAllowedToRead,
-            List<String> usersAllowedToWrite, String visibility) {
-
-        super(creatorDiscordId, creationDate, lastUpdateDate);
-
-        this.ownerDiscordId = ownerDiscordId;
-        this.usersAllowedToRead = usersAllowedToRead;
-        this.usersAllowedToWrite = usersAllowedToWrite;
-        this.visibility = visibility;
-    }
-
-    protected ShareableAssetEntity() {
-        super();
-    }
 
     @Column(name = "owner_discordId")
     protected String ownerDiscordId;
@@ -52,4 +32,44 @@ public abstract class ShareableAssetEntity extends AssetEntity {
 
     @Column(name = "visibility")
     protected String visibility;
+
+    protected ShareableAssetEntity(String creatorDiscordId, OffsetDateTime creationDate,
+            OffsetDateTime lastUpdateDate, String ownerDiscordId, List<String> usersAllowedToRead,
+            List<String> usersAllowedToWrite, String visibility) {
+
+        super(creatorDiscordId, creationDate, lastUpdateDate);
+
+        this.ownerDiscordId = ownerDiscordId;
+        this.usersAllowedToRead = usersAllowedToRead;
+        this.usersAllowedToWrite = usersAllowedToWrite;
+        this.visibility = visibility;
+    }
+
+    protected ShareableAssetEntity() {
+        super();
+    }
+
+    public String getOwnerDiscordId() {
+        return ownerDiscordId;
+    }
+
+    public List<String> getUsersAllowedToRead() {
+        return usersAllowedToRead;
+    }
+
+    public String getUsersAllowedToReadString() {
+        return usersAllowedToReadString;
+    }
+
+    public List<String> getUsersAllowedToWrite() {
+        return usersAllowedToWrite;
+    }
+
+    public String getUsersAllowedToWriteString() {
+        return usersAllowedToWriteString;
+    }
+
+    public String getVisibility() {
+        return visibility;
+    }
 }

@@ -8,34 +8,38 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.common.web.SecurityContextAware;
+import es.thalesalv.chatrpg.core.application.model.request.DiscordAuthRequest;
+import es.thalesalv.chatrpg.core.application.model.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
-import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordAuthRequest;
-import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
 import io.swagger.v3.oas.annotations.Hidden;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Hidden
 @RestController
 @RequestMapping("/auth")
-@RequiredArgsConstructor
 public class AuthenticationController extends SecurityContextAware {
 
     private static final String TOKEN_TYPE_HINT = "access_token";
     private static final String DISCORD_SCOPE = "identify";
     private static final String DISCORD_GRANT_TYPE = "authorization_code";
 
-    @Value("${chatrpg.discord.oauth.client-id}")
-    private String clientId;
-
-    @Value("${chatrpg.discord.oauth.client-secret}")
-    private String clientSecret;
-
-    @Value("${chatrpg.discord.oauth.redirect-url}")
-    private String redirectUrl;
-
+    private final String clientId;
+    private final String clientSecret;
+    private final String redirectUrl;
     private final DiscordAuthenticationPort discordAuthenticationPort;
+
+    public AuthenticationController(
+            @Value("${chatrpg.discord.oauth.client-id}") String clientId,
+            @Value("${chatrpg.discord.oauth.client-secret}") String clientSecret,
+            @Value("${chatrpg.discord.oauth.redirect-url}") String redirectUrl,
+            DiscordAuthenticationPort discordAuthenticationPort) {
+
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.redirectUrl = redirectUrl;
+        this.discordAuthenticationPort = discordAuthenticationPort;
+    }
 
     @GetMapping("/code")
     public Mono<DiscordAuthResponse> codeExchange(@RequestParam("code") String code) {

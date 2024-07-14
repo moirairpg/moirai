@@ -20,10 +20,8 @@ import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntryRepository;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper.WorldLorebookPersistenceMapper;
 import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
 
 @Repository
-@RequiredArgsConstructor
 public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepository {
 
     private static final int DEFAULT_PAGE = 0;
@@ -32,6 +30,13 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
 
     private final WorldLorebookEntryJpaRepository jpaRepository;
     private final WorldLorebookPersistenceMapper mapper;
+
+    public WorldLorebookEntryRepositoryImpl(WorldLorebookEntryJpaRepository jpaRepository,
+            WorldLorebookPersistenceMapper mapper) {
+
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
+    }
 
     @Override
     public WorldLorebookEntry save(WorldLorebookEntry world) {

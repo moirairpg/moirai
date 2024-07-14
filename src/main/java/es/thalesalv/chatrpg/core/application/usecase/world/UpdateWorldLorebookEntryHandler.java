@@ -6,14 +6,16 @@ import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorldLo
 import es.thalesalv.chatrpg.core.application.usecase.world.result.UpdateWorldLorebookEntryResult;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
-import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class UpdateWorldLorebookEntryHandler
         extends AbstractUseCaseHandler<UpdateWorldLorebookEntry, UpdateWorldLorebookEntryResult> {
 
     private final WorldService service;
+
+    public UpdateWorldLorebookEntryHandler(WorldService service) {
+        this.service = service;
+    }
 
     @Override
     public UpdateWorldLorebookEntryResult execute(UpdateWorldLorebookEntry command) {

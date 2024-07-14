@@ -25,13 +25,13 @@ public class WorldLorebookEntryRequestMapperTest {
         // Given
         String worldId = "WRLDID";
         String requesterId = "RQSTRID";
-        CreateWorldLorebookEntryRequest request = CreateWorldLorebookEntryRequest.builder()
-                .name("Volin Habar")
-                .description("Volin Habar is a warrior that fights with a sword.")
-                .regex("[Vv]olin [Hh]abar|[Vv]oha")
-                .playerDiscordId("2423423423423")
-                .isPlayerCharacter(true)
-                .build();
+
+        CreateWorldLorebookEntryRequest request = new CreateWorldLorebookEntryRequest();
+        request.setName("Volin Habar");
+        request.setDescription("Volin Habar is a warrior that fights with a sword.");
+        request.setRegex("[Vv]olin [Hh]abar|[Vv]oha");
+        request.setPlayerDiscordId("2423423423423");
+        request.setIsPlayerCharacter(true);
 
         // When
         CreateWorldLorebookEntry command = mapper.toCommand(request, worldId, requesterId);
@@ -53,13 +53,13 @@ public class WorldLorebookEntryRequestMapperTest {
         String entryId = "ENTRID";
         String worldId = "WRLDID";
         String requesterId = "RQSTRID";
-        UpdateWorldLorebookEntryRequest request = UpdateWorldLorebookEntryRequest.builder()
-                .name("Volin Habar")
-                .description("Volin Habar is a warrior that fights with a sword.")
-                .regex("[Vv]olin [Hh]abar|[Vv]oha")
-                .playerDiscordId("2423423423423")
-                .isPlayerCharacter(true)
-                .build();
+
+        UpdateWorldLorebookEntryRequest request = new UpdateWorldLorebookEntryRequest();
+        request.setName("Volin Habar");
+        request.setDescription("Volin Habar is a warrior that fights with a sword.");
+        request.setRegex("[Vv]olin [Hh]abar|[Vv]oha");
+        request.setPlayerDiscordId("2423423423423");
+        request.setIsPlayerCharacter(true);
 
         // When
         UpdateWorldLorebookEntry command = mapper.toCommand(request, entryId, worldId, requesterId);

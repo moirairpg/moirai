@@ -13,14 +13,16 @@ import discord4j.core.object.entity.Message;
 import es.thalesalv.chatrpg.common.usecases.UseCaseRunner;
 import es.thalesalv.chatrpg.common.util.DefaultStringProcessors;
 import es.thalesalv.chatrpg.core.application.usecase.discord.messagereceived.MessageReceived;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor
 public class MessageCreatedListener implements DiscordEventListener<MessageCreateEvent> {
 
     private final UseCaseRunner useCaseRunner;
+
+    public MessageCreatedListener(UseCaseRunner useCaseRunner) {
+        this.useCaseRunner = useCaseRunner;
+    }
 
     @Override
     public Class<MessageCreateEvent> eventType() {

@@ -7,17 +7,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CompletionRequest {
@@ -45,4 +34,146 @@ public class CompletionRequest {
 
     @JsonProperty("logit_bias")
     private Map<String, Double> logitBias;
+
+    public CompletionRequest() {
+    }
+
+    private CompletionRequest(Builder builder) {
+
+        this.model = builder.model;
+        this.messages = builder.messages;
+        this.stop = builder.stop;
+        this.maxTokens = builder.maxTokens;
+        this.temperature = builder.temperature;
+        this.presencePenalty = builder.presencePenalty;
+        this.frequencyPenalty = builder.frequencyPenalty;
+        this.logitBias = builder.logitBias;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public List<ChatMessage> getMessages() {
+        return messages;
+    }
+
+    public List<String> getStop() {
+        return stop;
+    }
+
+    public Integer getMaxTokens() {
+        return maxTokens;
+    }
+
+    public Double getTemperature() {
+        return temperature;
+    }
+
+    public Double getPresencePenalty() {
+        return presencePenalty;
+    }
+
+    public Double getFrequencyPenalty() {
+        return frequencyPenalty;
+    }
+
+    public Map<String, Double> getLogitBias() {
+        return logitBias;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public void setMessages(List<ChatMessage> messages) {
+        this.messages = messages;
+    }
+
+    public void setStop(List<String> stop) {
+        this.stop = stop;
+    }
+
+    public void setMaxTokens(Integer maxTokens) {
+        this.maxTokens = maxTokens;
+    }
+
+    public void setTemperature(Double temperature) {
+        this.temperature = temperature;
+    }
+
+    public void setPresencePenalty(Double presencePenalty) {
+        this.presencePenalty = presencePenalty;
+    }
+
+    public void setFrequencyPenalty(Double frequencyPenalty) {
+        this.frequencyPenalty = frequencyPenalty;
+    }
+
+    public void setLogitBias(Map<String, Double> logitBias) {
+        this.logitBias = logitBias;
+    }
+
+    public static final class Builder {
+
+        private String model;
+        private List<ChatMessage> messages;
+        private List<String> stop;
+        private Integer maxTokens;
+        private Double temperature;
+        private Double presencePenalty;
+        private Double frequencyPenalty;
+        private Map<String, Double> logitBias;
+
+        private Builder() {
+        }
+
+        public Builder model(String model) {
+            this.model = model;
+            return this;
+        }
+
+        public Builder messages(List<ChatMessage> messages) {
+            this.messages = messages;
+            return this;
+        }
+
+        public Builder stop(List<String> stop) {
+            this.stop = stop;
+            return this;
+        }
+
+        public Builder maxTokens(Integer maxTokens) {
+            this.maxTokens = maxTokens;
+            return this;
+        }
+
+        public Builder temperature(Double temperature) {
+            this.temperature = temperature;
+            return this;
+        }
+
+        public Builder presencePenalty(Double presencePenalty) {
+            this.presencePenalty = presencePenalty;
+            return this;
+        }
+
+        public Builder frequencyPenalty(Double frequencyPenalty) {
+            this.frequencyPenalty = frequencyPenalty;
+            return this;
+        }
+
+        public Builder logitBias(Map<String, Double> logitBias) {
+            this.logitBias = logitBias;
+            return this;
+        }
+
+        public CompletionRequest build() {
+            return new CompletionRequest(this);
+        }
+    }
 }

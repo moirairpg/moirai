@@ -13,10 +13,8 @@ import org.apache.commons.collections4.ListUtils;
 import es.thalesalv.chatrpg.common.annotation.ApplicationService;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
-import lombok.RequiredArgsConstructor;
 
 @ApplicationService
-@RequiredArgsConstructor
 @SuppressWarnings("unchecked")
 public class ChatMessageServiceImpl implements ChatMessageService {
 
@@ -24,6 +22,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
 
     private final TokenizerPort tokenizerPort;
+
+    public ChatMessageServiceImpl(TokenizerPort tokenizerPort) {
+        this.tokenizerPort = tokenizerPort;
+    }
 
     @Override
     public Map<String, Object> addMessagesToContext(Map<String, Object> context, int reservedTokens) {

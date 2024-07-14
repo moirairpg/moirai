@@ -13,11 +13,9 @@ import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
 import io.micrometer.common.util.StringUtils;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @ApplicationService
-@RequiredArgsConstructor
 @SuppressWarnings("unchecked")
 public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService {
 
@@ -29,6 +27,14 @@ public class LorebookEnrichmentServiceImpl implements LorebookEnrichmentService 
     private final TokenizerPort tokenizerPort;
     private final WorldService worldService;
     private final ChatMessageService chatMessageService;
+
+    public LorebookEnrichmentServiceImpl(TokenizerPort tokenizerPort, WorldService worldService,
+            ChatMessageService chatMessageService) {
+
+        this.tokenizerPort = tokenizerPort;
+        this.worldService = worldService;
+        this.chatMessageService = chatMessageService;
+    }
 
     @Override
     public Mono<Map<String, Object>> enrichContextWith(Map<String, Object> context, String worldId,

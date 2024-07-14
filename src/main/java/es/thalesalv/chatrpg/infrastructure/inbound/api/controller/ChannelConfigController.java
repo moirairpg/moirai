@@ -31,18 +31,25 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchChannelCon
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateChannelConfigResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/channel-config")
-@RequiredArgsConstructor
 @Tag(name = "Channel Configs", description = "Endpoints for managing ChatRPG Channel Configs")
 public class ChannelConfigController extends SecurityContextAware {
 
     private final UseCaseRunner useCaseRunner;
     private final ChannelConfigResponseMapper responseMapper;
     private final ChannelConfigRequestMapper requestMapper;
+
+    public ChannelConfigController(UseCaseRunner useCaseRunner,
+            ChannelConfigResponseMapper responseMapper,
+            ChannelConfigRequestMapper requestMapper) {
+
+        this.useCaseRunner = useCaseRunner;
+        this.responseMapper = responseMapper;
+        this.requestMapper = requestMapper;
+    }
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)

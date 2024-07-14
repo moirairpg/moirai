@@ -6,15 +6,17 @@ import es.thalesalv.chatrpg.common.annotation.UseCaseHandler;
 import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.DeleteWorld;
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
-import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class DeleteWorldHandler extends AbstractUseCaseHandler<DeleteWorld, Void> {
 
     private static final String ID_CANNOT_BE_NULL_OR_EMPTY = "World ID cannot be null or empty";
 
     private final WorldService domainService;
+
+    public DeleteWorldHandler(WorldService domainService) {
+        this.domainService = domainService;
+    }
 
     @Override
     public void validate(DeleteWorld command) {

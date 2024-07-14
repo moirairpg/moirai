@@ -7,20 +7,15 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Moderation {
 
     STRICT(true, null),
     PERMISSIVE(false, permissiveThresholds()),
     DISABLED(false, null);
 
-    private boolean isAbsolute;
-    private Map<String, Double> thresholds;
+    private final boolean isAbsolute;
+    private final Map<String, Double> thresholds;
 
     private static final String HATE = "hate";
     private static final String HATE_THREATENING = "hate/threatening";
@@ -49,6 +44,19 @@ public enum Moderation {
         thresholds.put(VIOLENCE, 1.1);
         thresholds.put(VIOLENCE_GRAPHIC, 0.4);
 
+        return thresholds;
+    }
+
+    private Moderation(boolean isAbsolute, Map<String, Double> thresholds) {
+        this.isAbsolute = isAbsolute;
+        this.thresholds = thresholds;
+    }
+
+    public boolean isAbsolute() {
+        return isAbsolute;
+    }
+
+    public Map<String, Double> getThresholds() {
         return thresholds;
     }
 

@@ -2,18 +2,20 @@ package es.thalesalv.chatrpg.core.application.usecase.channelconfig.result;
 
 import java.time.OffsetDateTime;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UpdateChannelConfigResult {
 
     private final OffsetDateTime lastUpdatedDateTime;
 
+    private UpdateChannelConfigResult(OffsetDateTime lastUpdatedDateTime) {
+        this.lastUpdatedDateTime = lastUpdatedDateTime;
+    }
+
     public static UpdateChannelConfigResult build(OffsetDateTime lastUpdatedDateTime) {
 
         return new UpdateChannelConfigResult(lastUpdatedDateTime);
+    }
+
+    public OffsetDateTime getLastUpdatedDateTime() {
+        return lastUpdatedDateTime;
     }
 }

@@ -9,11 +9,9 @@ import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @ApplicationService
-@RequiredArgsConstructor
 public class PersonaEnrichmentServiceImpl implements PersonaEnrichmentService {
 
     private static final String PERSONA_DESCRIPTION = "[ DEBUG MODE ON: You are an actor interpreting the role of {name}. {name}'s persona is as follows, and you are to maintain character during this conversation: %s ]";
@@ -23,6 +21,14 @@ public class PersonaEnrichmentServiceImpl implements PersonaEnrichmentService {
     private final TokenizerPort tokenizerPort;
     private final PersonaService personaService;
     private final ChatMessageService chatMessageService;
+
+    public PersonaEnrichmentServiceImpl(TokenizerPort tokenizerPort, PersonaService personaService,
+            ChatMessageService chatMessageService) {
+
+        this.tokenizerPort = tokenizerPort;
+        this.personaService = personaService;
+        this.chatMessageService = chatMessageService;
+    }
 
     @Override
     public Mono<Map<String, Object>> enrichContextWith(Map<String, Object> context, String personaId,

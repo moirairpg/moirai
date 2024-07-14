@@ -2,6 +2,8 @@ package es.thalesalv.chatrpg.infrastructure.outbound.adapter;
 
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,12 +22,12 @@ import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.ChatMessage;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.CompletionRequest;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.CompletionResponse;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.CompletionResponseError;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @Component
 public class TextCompletionAdapter implements TextCompletionPort {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TextCompletionAdapter.class);
 
     private static final String AUTHENTICATION_ERROR = "Error authenticating user on OpenAI";
     private static final String UNKNOWN_ERROR = "Error on OpenAI API";
@@ -104,7 +106,7 @@ public class TextCompletionAdapter implements TextCompletionPort {
 
         return clientResponse.bodyToMono(CompletionResponseError.class)
                 .map(resp -> {
-                    log.error(BAD_REQUEST_ERROR + " -> {}", resp);
+                    LOG.error(BAD_REQUEST_ERROR + " -> {}", resp);
                     return new OpenAiApiException(HttpStatus.BAD_REQUEST, resp.getType(), resp.getMessage(),
                             String.format(BAD_REQUEST_ERROR, resp.getType(), resp.getMessage()));
                 });
@@ -114,7 +116,7 @@ public class TextCompletionAdapter implements TextCompletionPort {
 
         return clientResponse.bodyToMono(CompletionResponseError.class)
                 .map(resp -> {
-                    log.error(UNKNOWN_ERROR + " -> {}", resp);
+                    LOG.error(UNKNOWN_ERROR + " -> {}", resp);
                     return new OpenAiApiException(HttpStatus.INTERNAL_SERVER_ERROR, resp.getType(), resp.getMessage(),
                             String.format(UNKNOWN_ERROR, resp.getType(), resp.getMessage()));
                 });

@@ -8,11 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
 public final class Permissions {
 
     private final String ownerDiscordId;
@@ -40,6 +36,18 @@ public final class Permissions {
         return builder().ownerDiscordId(permissions.getOwnerDiscordId())
                 .usersAllowedToRead(permissions.getUsersAllowedToRead())
                 .usersAllowedToWrite(permissions.getUsersAllowedToWrite());
+    }
+
+    public String getOwnerDiscordId() {
+        return ownerDiscordId;
+    }
+
+    public List<String> getUsersAllowedToRead() {
+        return usersAllowedToRead;
+    }
+
+    public List<String> getUsersAllowedToWrite() {
+        return usersAllowedToWrite;
     }
 
     public Permissions updateOwner(String newOwnerDiscordId, String currentOwnerDiscordId) {
@@ -118,12 +126,14 @@ public final class Permissions {
         return !disjoint(this.usersAllowedToRead, discordUserIds) || areAllowedToWrite(discordUserIds);
     }
 
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
         private String ownerDiscordId;
         private List<String> usersAllowedToRead;
         private List<String> usersAllowedToWrite;
+
+        private Builder() {
+        }
 
         public Builder ownerDiscordId(String ownerDiscordId) {
 

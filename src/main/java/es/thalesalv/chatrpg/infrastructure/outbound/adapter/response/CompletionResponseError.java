@@ -6,19 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
-@ToString
-@Getter
-@Setter
-@Builder(builderClassName = "Builder")
-@AllArgsConstructor
-@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeName("error")
@@ -36,4 +23,81 @@ public class CompletionResponseError {
 
     @JsonProperty("code")
     private String code;
+
+    public CompletionResponseError() {
+    }
+
+    private CompletionResponseError(Builder builder) {
+        this.message = builder.message;
+        this.type = builder.type;
+        this.param = builder.param;
+        this.code = builder.code;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getParam() {
+        return param;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setParam(String param) {
+        this.param = param;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public static final class Builder {
+
+        private String message;
+        private String type;
+        private String param;
+        private String code;
+
+        private Builder() {
+        }
+
+        public void message(String message) {
+            this.message = message;
+        }
+
+        public void type(String type) {
+            this.type = type;
+        }
+
+        public void param(String param) {
+            this.param = param;
+        }
+
+        public void code(String code) {
+            this.code = code;
+        }
+
+        public CompletionResponseError build() {
+            return new CompletionResponseError(this);
+        }
+    }
 }

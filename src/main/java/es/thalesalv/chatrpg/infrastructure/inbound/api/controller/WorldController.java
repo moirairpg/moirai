@@ -31,18 +31,25 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdateWorldRespo
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.WorldResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/world")
-@RequiredArgsConstructor
 @Tag(name = "Worlds", description = "Endpoints for managing ChatRPG Worlds")
 public class WorldController extends SecurityContextAware {
 
     private final UseCaseRunner useCaseRunner;
     private final WorldResponseMapper responseMapper;
     private final WorldRequestMapper requestMapper;
+
+    public WorldController(UseCaseRunner useCaseRunner,
+            WorldResponseMapper responseMapper,
+            WorldRequestMapper requestMapper) {
+
+        this.useCaseRunner = useCaseRunner;
+        this.responseMapper = responseMapper;
+        this.requestMapper = requestMapper;
+    }
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)

@@ -13,17 +13,20 @@ import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpe
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import es.thalesalv.chatrpg.infrastructure.security.authentication.filter.DiscordAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebFluxSecurity
-@RequiredArgsConstructor
 public class AuthenticationSecurityConfig {
 
+    private final String[] ignoredPaths;
     private final DiscordAuthenticationFilter discordRequestFilter;
 
-    @Value("${chatrpg.security.ignored-paths}")
-    private String[] ignoredPaths;
+    public AuthenticationSecurityConfig(@Value("${chatrpg.security.ignored-paths}") String[] ignoredPaths,
+            DiscordAuthenticationFilter discordRequestFilter) {
+
+        this.ignoredPaths = ignoredPaths;
+        this.discordRequestFilter = discordRequestFilter;
+    }
 
     @Bean
     SecurityWebFilterChain configure(ServerHttpSecurity http) {

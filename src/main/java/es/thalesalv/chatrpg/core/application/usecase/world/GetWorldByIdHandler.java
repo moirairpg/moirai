@@ -6,13 +6,15 @@ import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldById;
 import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldResult;
 import es.thalesalv.chatrpg.core.domain.world.World;
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
-import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class GetWorldByIdHandler extends AbstractUseCaseHandler<GetWorldById, GetWorldResult> {
 
     private final WorldService domainService;
+
+    public GetWorldByIdHandler(WorldService domainService) {
+        this.domainService = domainService;
+    }
 
     @Override
     public GetWorldResult execute(GetWorldById query) {

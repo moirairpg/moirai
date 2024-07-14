@@ -6,13 +6,15 @@ import es.thalesalv.chatrpg.core.application.usecase.persona.request.GetPersonaB
 import es.thalesalv.chatrpg.core.application.usecase.persona.result.GetPersonaResult;
 import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaService;
-import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class GetPersonaByIdHandler extends AbstractUseCaseHandler<GetPersonaById, GetPersonaResult> {
 
     private final PersonaService domainService;
+
+    public GetPersonaByIdHandler(PersonaService domainService) {
+        this.domainService = domainService;
+    }
 
     @Override
     public GetPersonaResult execute(GetPersonaById query) {

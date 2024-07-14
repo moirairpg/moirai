@@ -25,12 +25,9 @@ import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import es.thalesalv.chatrpg.core.domain.channelconfig.Moderation;
 import io.micrometer.common.util.StringUtils;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @DomainService
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class WorldServiceImpl implements WorldService {
 
     private static final String WORLD_FLAGGED_BY_MODERATION = "Persona flagged by moderation";
@@ -43,6 +40,15 @@ public class WorldServiceImpl implements WorldService {
     private final TextModerationPort moderationPort;
     private final WorldLorebookEntryRepository lorebookEntryRepository;
     private final WorldRepository repository;
+
+    public WorldServiceImpl(TextModerationPort moderationPort,
+            WorldLorebookEntryRepository lorebookEntryRepository,
+            WorldRepository repository) {
+
+        this.moderationPort = moderationPort;
+        this.lorebookEntryRepository = lorebookEntryRepository;
+        this.repository = repository;
+    }
 
     @Override
     public World getWorldById(GetWorldById query) {

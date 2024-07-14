@@ -108,7 +108,7 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
     public void http400WhenValidationInvalid() {
 
         // Given
-        CreateWorldRequest request = CreateWorldRequest.builder().build();
+        CreateWorldRequest request = new CreateWorldRequest();
 
         when(useCaseRunner.run(any(GetWorldById.class))).thenThrow(WebExchangeBindException.class);
 

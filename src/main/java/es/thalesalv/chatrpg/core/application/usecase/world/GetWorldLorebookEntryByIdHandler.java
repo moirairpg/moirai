@@ -8,13 +8,15 @@ import es.thalesalv.chatrpg.core.application.usecase.world.request.GetWorldLoreb
 import es.thalesalv.chatrpg.core.application.usecase.world.result.GetWorldLorebookEntryResult;
 import es.thalesalv.chatrpg.core.domain.world.WorldLorebookEntry;
 import es.thalesalv.chatrpg.core.domain.world.WorldService;
-import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class GetWorldLorebookEntryByIdHandler extends AbstractUseCaseHandler<GetWorldLorebookEntryById, GetWorldLorebookEntryResult> {
 
     private final WorldService domainService;
+
+    public GetWorldLorebookEntryByIdHandler(WorldService domainService) {
+        this.domainService = domainService;
+    }
 
     @Override
     public void validate(GetWorldLorebookEntryById query) {

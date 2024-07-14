@@ -1,11 +1,5 @@
 package es.thalesalv.chatrpg.core.application.model.request;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ChatMessage {
 
     public enum Role {
@@ -17,6 +11,19 @@ public final class ChatMessage {
 
     private final Role role;
     private final String content;
+
+    public ChatMessage(Role role, String content) {
+        this.role = role;
+        this.content = content;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public String getContent() {
+        return content;
+    }
 
     public static ChatMessage build(Role role, String content) {
 

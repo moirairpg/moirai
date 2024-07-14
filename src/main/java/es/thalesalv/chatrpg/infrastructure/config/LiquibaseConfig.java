@@ -7,22 +7,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import liquibase.integration.spring.SpringLiquibase;
-import lombok.RequiredArgsConstructor;
 
 @Configuration
-@RequiredArgsConstructor
 public class LiquibaseConfig {
 
     private final DataSource dataSource;
+    private final String defaultSchema;
+    private final String changeLogPath;
 
-    @Value("${spring.liquibase.enabled}")
-    private boolean enabled;
+    public LiquibaseConfig(
+            @Value("${spring.liquibase.defaultSchema}") String defaultSchema,
+            @Value("${spring.liquibase.change-log}") String changeLogPath,
+            DataSource dataSource) {
 
-    @Value("${spring.liquibase.defaultSchema}")
-    private String defaultSchema;
-
-    @Value("${spring.liquibase.change-log}")
-    private String changeLogPath;
+        this.defaultSchema = defaultSchema;
+        this.changeLogPath = changeLogPath;
+        this.dataSource = dataSource;
+    }
 
     @Bean
     public SpringLiquibase liquibase() {

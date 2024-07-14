@@ -8,11 +8,7 @@ import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.ShareableAsset;
 import es.thalesalv.chatrpg.core.domain.Visibility;
 import io.micrometer.common.util.StringUtils;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
 public class Persona extends ShareableAsset {
 
     private String id;
@@ -38,6 +34,30 @@ public class Persona extends ShareableAsset {
     public static Builder builder() {
 
         return new Builder();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPersonality() {
+        return personality;
+    }
+
+    public Nudge getNudge() {
+        return nudge;
+    }
+
+    public Bump getBump() {
+        return bump;
+    }
+
+    public GameMode getGameMode() {
+        return gameMode;
     }
 
     public void updateName(String name) {
@@ -85,7 +105,6 @@ public class Persona extends ShareableAsset {
         this.gameMode = gameMode;
     }
 
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
         private String id;
@@ -99,6 +118,9 @@ public class Persona extends ShareableAsset {
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
         private GameMode gameMode;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
 

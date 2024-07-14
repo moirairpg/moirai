@@ -4,20 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Builder(builderClassName = "Builder")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DiscordErrorResponse {
 
     @JsonProperty("error")
@@ -25,4 +13,43 @@ public class DiscordErrorResponse {
 
     @JsonProperty("error_description")
     private String errorDescription;
+
+    public DiscordErrorResponse() {
+    }
+
+    private DiscordErrorResponse(Builder builder) {
+        this.error = builder.error;
+        this.errorDescription = builder.errorDescription;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public String getErrorDescription() {
+        return errorDescription;
+    }
+
+    public static class Builder {
+        private String error;
+        private String errorDescription;
+
+        public Builder error(String error) {
+            this.error = error;
+            return this;
+        }
+
+        public Builder errorDescription(String errorDescription) {
+            this.errorDescription = errorDescription;
+            return this;
+        }
+
+        public DiscordErrorResponse build() {
+            return new DiscordErrorResponse(this);
+        }
+    }
 }

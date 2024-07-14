@@ -2,18 +2,20 @@ package es.thalesalv.chatrpg.core.application.usecase.persona.result;
 
 import java.time.OffsetDateTime;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UpdatePersonaResult {
 
     private final OffsetDateTime lastUpdatedDateTime;
 
+    private UpdatePersonaResult(OffsetDateTime lastUpdatedDateTime) {
+        this.lastUpdatedDateTime = lastUpdatedDateTime;
+    }
+
     public static UpdatePersonaResult build(OffsetDateTime lastUpdatedDateTime) {
 
         return new UpdatePersonaResult(lastUpdatedDateTime);
+    }
+
+    public OffsetDateTime getLastUpdatedDateTime() {
+        return lastUpdatedDateTime;
     }
 }

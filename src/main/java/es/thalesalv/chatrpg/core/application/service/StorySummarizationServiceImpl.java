@@ -18,11 +18,9 @@ import es.thalesalv.chatrpg.core.application.port.TextCompletionPort;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ModelConfiguration;
 import es.thalesalv.chatrpg.core.domain.port.TokenizerPort;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @ApplicationService
-@RequiredArgsConstructor
 @SuppressWarnings("unchecked")
 public class StorySummarizationServiceImpl implements StorySummarizationService {
 
@@ -36,6 +34,14 @@ public class StorySummarizationServiceImpl implements StorySummarizationService 
     private final TextCompletionPort openAiPort;
     private final TokenizerPort tokenizerPort;
     private final ChatMessageService chatMessageService;
+
+    public StorySummarizationServiceImpl(TextCompletionPort openAiPort, TokenizerPort tokenizerPort,
+            ChatMessageService chatMessageService) {
+
+        this.openAiPort = openAiPort;
+        this.tokenizerPort = tokenizerPort;
+        this.chatMessageService = chatMessageService;
+    }
 
     @Override
     public Mono<Map<String, Object>> summarizeContextWith(List<ChatMessageData> messagesExtracted,

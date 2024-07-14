@@ -5,13 +5,15 @@ import es.thalesalv.chatrpg.common.usecases.AbstractUseCaseHandler;
 import es.thalesalv.chatrpg.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
 import es.thalesalv.chatrpg.core.application.usecase.persona.result.SearchPersonasResult;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
-import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class SearchPersonasWithReadAccessHandler extends AbstractUseCaseHandler<SearchPersonasWithReadAccess, SearchPersonasResult> {
 
     private final PersonaRepository repository;
+
+    public SearchPersonasWithReadAccessHandler(PersonaRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public SearchPersonasResult execute(SearchPersonasWithReadAccess query) {

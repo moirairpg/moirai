@@ -6,11 +6,7 @@ import es.thalesalv.chatrpg.common.dbutil.AssetBaseDataAssigner;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @MappedSuperclass
 @EntityListeners(AssetBaseDataAssigner.class)
 public abstract class AssetEntity {
@@ -32,5 +28,29 @@ public abstract class AssetEntity {
 
     protected AssetEntity() {
         super();
+    }
+
+    public String getCreatorDiscordId() {
+        return creatorDiscordId;
+    }
+
+    public OffsetDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public OffsetDateTime getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setCreatorDiscordId(String creatorDiscordId) {
+        this.creatorDiscordId = creatorDiscordId;
+    }
+
+    public void setCreationDate(OffsetDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public void setLastUpdateDate(OffsetDateTime lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
     }
 }

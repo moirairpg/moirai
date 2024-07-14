@@ -10,9 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-
-@Getter
 public final class TextModerationResult {
 
     private final boolean contentFlagged;
@@ -32,6 +29,18 @@ public final class TextModerationResult {
     public static Builder builder() {
 
         return new Builder();
+    }
+
+    public boolean isContentFlagged() {
+        return contentFlagged;
+    }
+
+    public Map<String, Double> getModerationScores() {
+        return moderationScores;
+    }
+
+    public List<String> getFlaggedTopics() {
+        return flaggedTopics;
     }
 
     public static class Builder {

@@ -26,7 +26,7 @@ public class WorldRequestMapperTest {
 
         // Given
         String requesterId = "RQSTRID";
-        CreateWorldRequest request = CreateWorldRequestFixture.createPrivateWorld().build();
+        CreateWorldRequest request = CreateWorldRequestFixture.createPrivateWorld();
 
         // When
         CreateWorld command = mapper.toCommand(request, requesterId);
@@ -48,7 +48,7 @@ public class WorldRequestMapperTest {
         // Given
         String worldId = "WRLDID";
         String requesterId = "RQSTRID";
-        UpdateWorldRequest request = UpdateWorldRequestFixture.createPrivateWorld().build();
+        UpdateWorldRequest request = UpdateWorldRequestFixture.createPrivateWorld();
 
         // When
         UpdateWorld command = mapper.toCommand(request, worldId, requesterId);
@@ -61,7 +61,8 @@ public class WorldRequestMapperTest {
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
         assertThat(command.getRequesterDiscordId()).isEqualTo(requesterId);
         assertThat(command.getUsersAllowedToWriteToAdd()).hasSameElementsAs(request.getUsersAllowedToWriteToAdd());
-        assertThat(command.getUsersAllowedToWriteToRemove()).hasSameElementsAs(request.getUsersAllowedToWriteToRemove());
+        assertThat(command.getUsersAllowedToWriteToRemove())
+                .hasSameElementsAs(request.getUsersAllowedToWriteToRemove());
         assertThat(command.getUsersAllowedToReadToAdd()).hasSameElementsAs(request.getUsersAllowedToReadToAdd());
         assertThat(command.getUsersAllowedToReadToRemove()).hasSameElementsAs(request.getUsersAllowedToReadToRemove());
     }

@@ -21,10 +21,8 @@ import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper.ChannelConfigPersistenceMapper;
 import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
 
 @Repository
-@RequiredArgsConstructor
 public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
 
     private static final int DEFAULT_PAGE = 0;
@@ -33,6 +31,13 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
 
     private final ChannelConfigJpaRepository jpaRepository;
     private final ChannelConfigPersistenceMapper mapper;
+
+    public ChannelConfigRepositoryImpl(ChannelConfigJpaRepository jpaRepository,
+            ChannelConfigPersistenceMapper mapper) {
+
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
+    }
 
     @Override
     public ChannelConfig save(ChannelConfig channelConfig) {

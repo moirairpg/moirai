@@ -30,11 +30,9 @@ import es.thalesalv.chatrpg.core.application.service.StorySummarizationService;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigRepository;
 import es.thalesalv.chatrpg.core.domain.channelconfig.Moderation;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceived, Mono<Void>> {
 
     private static final String BUMP = "bump";
@@ -56,6 +54,20 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
     private final PersonaEnrichmentService personaEnrichmentService;
     private final TextCompletionPort textCompletionPort;
     private final TextModerationPort textModerationPort;
+
+    public MessageReceivedHandler(ChannelConfigRepository channelConfigRepository,
+            DiscordChannelPort discordChannelOperationsPort, StorySummarizationService summarizationService,
+            LorebookEnrichmentService lorebookEnrichmentService, PersonaEnrichmentService personaEnrichmentService,
+            TextCompletionPort textCompletionPort, TextModerationPort textModerationPort) {
+
+        this.channelConfigRepository = channelConfigRepository;
+        this.discordChannelOperationsPort = discordChannelOperationsPort;
+        this.summarizationService = summarizationService;
+        this.lorebookEnrichmentService = lorebookEnrichmentService;
+        this.personaEnrichmentService = personaEnrichmentService;
+        this.textCompletionPort = textCompletionPort;
+        this.textModerationPort = textModerationPort;
+    }
 
     @Override
     public Mono<Void> execute(MessageReceived query) {

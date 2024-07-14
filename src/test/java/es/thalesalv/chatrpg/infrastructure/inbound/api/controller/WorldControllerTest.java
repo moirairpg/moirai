@@ -167,7 +167,7 @@ public class WorldControllerTest extends AbstractRestWebTest {
     public void http201WhenCreateWorld() {
 
         // Given
-        CreateWorldRequest request = CreateWorldRequestFixture.createPrivateWorld().build();
+        CreateWorldRequest request = CreateWorldRequestFixture.createPrivateWorld();
         CreateWorldResponse expectedResponse = CreateWorldResponse.build("WRLDID");
 
         when(worldRequestMapper.toCommand(any(CreateWorldRequest.class), anyString()))
@@ -194,7 +194,7 @@ public class WorldControllerTest extends AbstractRestWebTest {
 
         // Given
         String worldId = "WRLDID";
-        UpdateWorldRequest request = UpdateWorldRequestFixture.createPrivateWorld().build();
+        UpdateWorldRequest request = UpdateWorldRequestFixture.createPrivateWorld();
         UpdateWorldResponse expectedResponse = UpdateWorldResponse.build(OffsetDateTime.now());
 
         when(worldRequestMapper.toCommand(any(UpdateWorldRequest.class), anyString(), anyString()))

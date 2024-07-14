@@ -7,14 +7,17 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import es.thalesalv.chatrpg.core.application.port.DiscordUserDetailsPort;
 import es.thalesalv.chatrpg.core.application.usecase.discord.DiscordUserDetails;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor(onConstructor_ = { @Lazy })
 public class DiscordUserDetailsAdapter implements DiscordUserDetailsPort {
 
     private final GatewayDiscordClient discordClient;
+
+    @Lazy
+    public DiscordUserDetailsAdapter(GatewayDiscordClient discordClient) {
+        this.discordClient = discordClient;
+    }
 
     @Override
     public Mono<DiscordUserDetails> getUserById(String userDiscordId) {

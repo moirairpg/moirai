@@ -9,11 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @SuppressWarnings("all")
 public class UseCaseRunnerImpl implements UseCaseRunner {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UseCaseRunnerImpl.class);
 
     private static final String HANDLER_NOT_FOUND = "No use case handler found for %s";
     private static final String HANDLER_CANNOT_BE_NULL = "Cannot register null handlers";
@@ -51,13 +50,13 @@ public class UseCaseRunnerImpl implements UseCaseRunner {
 
         handlersByUseCase.putIfAbsent(useCaseType, handler);
 
-        log.debug(HANDLER_REGISTERED, handler.getClass().getSimpleName(), useCaseType.getSimpleName());
+        LOG.debug(HANDLER_REGISTERED, handler.getClass().getSimpleName(), useCaseType.getSimpleName());
     }
 
     private <A extends UseCase<T>, T> Class<A> extractUseCaseType(AbstractUseCaseHandler<A, T> handler) {
 
-        Class<? extends AbstractUseCaseHandler<A, T>> unproxiedHandler =
-                (Class<? extends AbstractUseCaseHandler<A, T>>) AopUtils.getTargetClass(handler);
+        Class<? extends AbstractUseCaseHandler<A, T>> unproxiedHandler = (Class<? extends AbstractUseCaseHandler<A, T>>) AopUtils
+                .getTargetClass(handler);
 
         ParameterizedType parameterizedType = (ParameterizedType) unproxiedHandler.getGenericSuperclass();
 

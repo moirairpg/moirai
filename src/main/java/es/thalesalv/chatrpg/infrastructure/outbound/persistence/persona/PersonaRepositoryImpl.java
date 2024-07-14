@@ -21,10 +21,8 @@ import es.thalesalv.chatrpg.core.domain.persona.Persona;
 import es.thalesalv.chatrpg.core.domain.persona.PersonaRepository;
 import es.thalesalv.chatrpg.infrastructure.outbound.persistence.mapper.PersonaPersistenceMapper;
 import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
 
 @Repository
-@RequiredArgsConstructor
 public class PersonaRepositoryImpl implements PersonaRepository {
 
     private static final int DEFAULT_PAGE = 0;
@@ -33,6 +31,12 @@ public class PersonaRepositoryImpl implements PersonaRepository {
 
     private final PersonaJpaRepository jpaRepository;
     private final PersonaPersistenceMapper mapper;
+
+    public PersonaRepositoryImpl(PersonaJpaRepository jpaRepository, PersonaPersistenceMapper mapper) {
+
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
+    }
 
     @Override
     public Persona save(Persona persona) {

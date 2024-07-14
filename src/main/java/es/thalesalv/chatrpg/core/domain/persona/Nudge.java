@@ -1,11 +1,7 @@
 package es.thalesalv.chatrpg.core.domain.persona;
 
 import es.thalesalv.chatrpg.core.domain.CompletionRole;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
 public final class Nudge {
 
     private final String content;
@@ -29,6 +25,14 @@ public final class Nudge {
                 .role(nudge.role);
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public CompletionRole getRole() {
+        return role;
+    }
+
     public Nudge updateContent(String content) {
 
         return cloneFrom(this).content(content).build();
@@ -39,11 +43,13 @@ public final class Nudge {
         return cloneFrom(this).role(role).build();
     }
 
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
         private String content;
         private CompletionRole role;
+
+        private Builder() {
+        }
 
         public Builder content(String content) {
 

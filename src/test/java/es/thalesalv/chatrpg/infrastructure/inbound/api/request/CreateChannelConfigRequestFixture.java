@@ -5,23 +5,26 @@ import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigFixture;
 
 public class CreateChannelConfigRequestFixture {
 
-    public static CreateChannelConfigRequest.Builder sample() {
+    public static CreateChannelConfigRequest sample() {
 
         ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
-        return CreateChannelConfigRequest.builder()
-                .name(channelConfig.getName())
-                .personaId(channelConfig.getPersonaId())
-                .worldId(channelConfig.getWorldId())
-                .discordChannelId(channelConfig.getDiscordChannelId())
-                .aiModel(channelConfig.getModelConfiguration().getAiModel().toString())
-                .logitBias(channelConfig.getModelConfiguration().getLogitBias())
-                .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
-                .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
-                .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .moderation(channelConfig.getModeration().name())
-                .usersAllowedToRead(channelConfig.getUsersAllowedToRead())
-                .usersAllowedToWrite(channelConfig.getUsersAllowedToWrite())
-                .temperature(channelConfig.getModelConfiguration().getTemperature())
-                .visibility(channelConfig.getVisibility().name());
+        CreateChannelConfigRequest request = new CreateChannelConfigRequest();
+
+        request.setName(channelConfig.getName());
+        request.setPersonaId(channelConfig.getPersonaId());
+        request.setWorldId(channelConfig.getWorldId());
+        request.setDiscordChannelId(channelConfig.getDiscordChannelId());
+        request.setAiModel(channelConfig.getModelConfiguration().getAiModel().toString());
+        request.setLogitBias(channelConfig.getModelConfiguration().getLogitBias());
+        request.setStopSequences(channelConfig.getModelConfiguration().getStopSequences());
+        request.setFrequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty());
+        request.setMaxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit());
+        request.setModeration(channelConfig.getModeration().name());
+        request.setUsersAllowedToRead(channelConfig.getUsersAllowedToRead());
+        request.setUsersAllowedToWrite(channelConfig.getUsersAllowedToWrite());
+        request.setTemperature(channelConfig.getModelConfiguration().getTemperature());
+        request.setVisibility(channelConfig.getVisibility().name());
+
+        return request;
     }
 }

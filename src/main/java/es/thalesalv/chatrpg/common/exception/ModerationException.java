@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import lombok.Getter;
-
-@Getter
 public class ModerationException extends RuntimeException {
 
     private final List<String> flaggedTopics;
@@ -26,5 +23,13 @@ public class ModerationException extends RuntimeException {
 
         this.flaggedTopics = Collections.unmodifiableList(new ArrayList<>(flaggedTopics));
         this.channelId = null;
+    }
+
+    public List<String> getFlaggedTopics() {
+        return flaggedTopics;
+    }
+
+    public String getChannelId() {
+        return channelId;
     }
 }

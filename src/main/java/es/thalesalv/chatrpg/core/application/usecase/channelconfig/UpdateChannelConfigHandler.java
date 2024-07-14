@@ -6,13 +6,15 @@ import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.Updat
 import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.UpdateChannelConfigResult;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigService;
-import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class UpdateChannelConfigHandler extends AbstractUseCaseHandler<UpdateChannelConfig, UpdateChannelConfigResult> {
 
     private final ChannelConfigService service;
+
+    public UpdateChannelConfigHandler(ChannelConfigService service) {
+        this.service = service;
+    }
 
     @Override
     public UpdateChannelConfigResult execute(UpdateChannelConfig command) {

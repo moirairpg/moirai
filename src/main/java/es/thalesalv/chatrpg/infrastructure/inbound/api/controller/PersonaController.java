@@ -30,18 +30,25 @@ import es.thalesalv.chatrpg.infrastructure.inbound.api.response.SearchPersonasRe
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.UpdatePersonaResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/persona")
-@RequiredArgsConstructor
 @Tag(name = "Personas", description = "Endpoints for managing ChatRPG Personas")
 public class PersonaController extends SecurityContextAware {
 
     private final UseCaseRunner useCaseRunner;
     private final PersonaRequestMapper requestMapper;
     private final PersonaResponseMapper responseMapper;
+
+    public PersonaController(UseCaseRunner useCaseRunner,
+            PersonaRequestMapper requestMapper,
+            PersonaResponseMapper responseMapper) {
+
+        this.useCaseRunner = useCaseRunner;
+        this.requestMapper = requestMapper;
+        this.responseMapper = responseMapper;
+    }
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)

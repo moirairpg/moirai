@@ -5,12 +5,7 @@ import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import es.thalesalv.chatrpg.common.exception.AIModelNotSupportedException;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ArtificialIntelligenceModel {
 
     @JsonProperty("gpt35-16k")
@@ -22,6 +17,24 @@ public enum ArtificialIntelligenceModel {
     private final String internalModelName;
     private final String officialModelName;
     private final int hardTokenLimit;
+
+    private ArtificialIntelligenceModel(String internalModelName, String officialModelName, int hardTokenLimit) {
+        this.internalModelName = internalModelName;
+        this.officialModelName = officialModelName;
+        this.hardTokenLimit = hardTokenLimit;
+    }
+
+    public String getInternalModelName() {
+        return internalModelName;
+    }
+
+    public String getOfficialModelName() {
+        return officialModelName;
+    }
+
+    public int getHardTokenLimit() {
+        return hardTokenLimit;
+    }
 
     @Override
     public String toString() {

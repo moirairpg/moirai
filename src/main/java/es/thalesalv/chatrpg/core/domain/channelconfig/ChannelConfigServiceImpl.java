@@ -15,14 +15,15 @@ import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.GetCh
 import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 import es.thalesalv.chatrpg.core.domain.Permissions;
 import es.thalesalv.chatrpg.core.domain.Visibility;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
 @DomainService
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChannelConfigServiceImpl implements ChannelConfigService {
 
     private final ChannelConfigRepository repository;
+
+    public ChannelConfigServiceImpl(ChannelConfigRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public ChannelConfig getChannelConfigById(GetChannelConfigById query) {

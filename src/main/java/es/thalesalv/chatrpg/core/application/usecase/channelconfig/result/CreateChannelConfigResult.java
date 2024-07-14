@@ -1,17 +1,19 @@
 package es.thalesalv.chatrpg.core.application.usecase.channelconfig.result;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CreateChannelConfigResult {
 
     private final String id;
 
+    private CreateChannelConfigResult(String id) {
+        this.id = id;
+    }
+
     public static CreateChannelConfigResult build(String id) {
 
         return new CreateChannelConfigResult(id);
+    }
+
+    public String getId() {
+        return id;
     }
 }

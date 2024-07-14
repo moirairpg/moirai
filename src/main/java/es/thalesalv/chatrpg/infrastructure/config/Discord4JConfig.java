@@ -2,6 +2,8 @@ package es.thalesalv.chatrpg.infrastructure.config;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,20 +13,24 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import es.thalesalv.chatrpg.infrastructure.inbound.discord.listener.DiscordEventErrorHandler;
 import es.thalesalv.chatrpg.infrastructure.inbound.discord.listener.DiscordEventListener;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Configuration
-@RequiredArgsConstructor
 public class Discord4JConfig {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Discord4JConfig.class);
 
     private static final String REGISTERED_EVENT_LISTENERS = "{} discord event listeners have been registered";
 
-    @Value("${chatrpg.discord.api.token}")
-    private String discordApiToken;
-
+    private final String discordApiToken;
     private final DiscordEventErrorHandler errorHandler;
+
+    public Discord4JConfig(
+            @Value("${chatrpg.discord.api.token}") String discordApiToken,
+            DiscordEventErrorHandler errorHandler) {
+
+        this.discordApiToken = discordApiToken;
+        this.errorHandler = errorHandler;
+    }
 
     @Bean
     public <T extends Event> GatewayDiscordClient gatewayDiscordClient(List<DiscordEventListener<T>> eventListeners) {
@@ -41,7 +47,7 @@ public class Discord4JConfig {
                     .subscribe();
         }
 
-        log.info(REGISTERED_EVENT_LISTENERS, eventListeners.size());
+        LOG.info(REGISTERED_EVENT_LISTENERS, eventListeners.size());
 
         return client;
     }

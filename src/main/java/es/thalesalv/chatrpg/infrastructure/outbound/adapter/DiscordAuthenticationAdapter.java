@@ -20,9 +20,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.thalesalv.chatrpg.common.exception.DiscordApiException;
+import es.thalesalv.chatrpg.core.application.model.request.DiscordAuthRequest;
+import es.thalesalv.chatrpg.core.application.model.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
-import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordAuthRequest;
-import es.thalesalv.chatrpg.infrastructure.inbound.api.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordErrorResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordUserDataResponse;

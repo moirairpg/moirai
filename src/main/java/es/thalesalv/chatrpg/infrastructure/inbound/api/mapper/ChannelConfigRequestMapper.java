@@ -7,10 +7,8 @@ import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.Delet
 import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateChannelConfigRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateChannelConfigRequest;
-import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 public class ChannelConfigRequestMapper {
 
     public CreateChannelConfig toCommand(CreateChannelConfigRequest request, String requesterDiscordId) {

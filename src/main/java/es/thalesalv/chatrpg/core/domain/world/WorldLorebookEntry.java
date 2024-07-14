@@ -3,11 +3,7 @@ package es.thalesalv.chatrpg.core.domain.world;
 import java.time.OffsetDateTime;
 
 import es.thalesalv.chatrpg.core.domain.Asset;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
 public class WorldLorebookEntry extends Asset {
 
     private String id;
@@ -33,6 +29,34 @@ public class WorldLorebookEntry extends Asset {
     public static Builder builder() {
 
         return new Builder();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getRegex() {
+        return regex;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getPlayerDiscordId() {
+        return playerDiscordId;
+    }
+
+    public boolean isPlayerCharacter() {
+        return isPlayerCharacter;
+    }
+
+    public String getWorldId() {
+        return worldId;
     }
 
     public void updateName(String name) {
@@ -62,7 +86,6 @@ public class WorldLorebookEntry extends Asset {
         this.playerDiscordId = null;
     }
 
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
         private String id;
@@ -75,6 +98,9 @@ public class WorldLorebookEntry extends Asset {
         private String worldId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
 

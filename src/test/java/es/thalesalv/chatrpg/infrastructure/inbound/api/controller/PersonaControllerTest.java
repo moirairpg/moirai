@@ -165,7 +165,7 @@ public class PersonaControllerTest extends AbstractRestWebTest {
     public void http201WhenCreatePersona() {
 
         // Given
-        CreatePersonaRequest request = CreatePersonaRequestFixture.createPrivatePersona().build();
+        CreatePersonaRequest request = CreatePersonaRequestFixture.createPrivatePersona();
         CreatePersonaResponse expectedResponse = CreatePersonaResponse.build("WRLDID");
 
         when(personaRequestMapper.toCommand(any(CreatePersonaRequest.class), anyString()))
@@ -193,7 +193,7 @@ public class PersonaControllerTest extends AbstractRestWebTest {
 
         // Given
         String personaId = "WRLDID";
-        UpdatePersonaRequest request = UpdatePersonaRequestFixture.privatePersona().build();
+        UpdatePersonaRequest request = UpdatePersonaRequestFixture.privatePersona();
         UpdatePersonaResponse expectedResponse = UpdatePersonaResponse.build(OffsetDateTime.now());
 
         when(personaRequestMapper.toCommand(any(UpdatePersonaRequest.class), anyString(), anyString()))

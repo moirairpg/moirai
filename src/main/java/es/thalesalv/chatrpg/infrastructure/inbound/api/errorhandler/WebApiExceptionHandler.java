@@ -3,6 +3,8 @@ package es.thalesalv.chatrpg.infrastructure.inbound.api.errorhandler;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
@@ -29,18 +31,18 @@ import es.thalesalv.chatrpg.common.exception.DiscordApiException;
 import es.thalesalv.chatrpg.common.exception.OpenAiApiException;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.ErrorResponse;
 import io.micrometer.common.util.StringUtils;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @RestControllerAdvice
-public class WebExceptionHandler extends AbstractErrorWebExceptionHandler {
+public class WebApiExceptionHandler extends AbstractErrorWebExceptionHandler {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WebApiExceptionHandler.class);
 
     private static final String UNKNOWN_ERROR = "An error has occurred. Please contact support.";
     private static final String ASSET_NOT_FOUND_ERROR = "The asset requested could not be found.";
     private static final String RESOURCE_NOT_FOUND_ERROR = "The endpoint requested could not be found.";
 
-    public WebExceptionHandler(ErrorAttributes errorAttributes, WebProperties webProperties,
+    public WebApiExceptionHandler(ErrorAttributes errorAttributes, WebProperties webProperties,
             ApplicationContext applicationContext, ServerCodecConfigurer configurer) {
 
         super(errorAttributes, webProperties.getResources(), applicationContext);
@@ -69,7 +71,7 @@ public class WebExceptionHandler extends AbstractErrorWebExceptionHandler {
             return handleOpenAiApiError(originalException);
         }
 
-        log.error("Unknown exception caught", originalException);
+        LOG.error("Unknown exception caught", originalException);
         return ServerResponse.status(500)
                 .bodyValue(ErrorResponse.builder()
                         .code(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -150,7 +152,7 @@ public class WebExceptionHandler extends AbstractErrorWebExceptionHandler {
     @ExceptionHandler(AuthenticationFailedException.class)
     public ResponseEntity<ErrorResponse> authenticationError(AuthenticationFailedException exception) {
 
-        log.error("Error during authentication", exception);
+        LOG.error("Error during authentication", exception);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(HttpStatus.UNAUTHORIZED)
@@ -165,7 +167,7 @@ public class WebExceptionHandler extends AbstractErrorWebExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> unknownError(Exception exception) {
 
-        log.error("An unknown error has occurred", exception);
+        LOG.error("An unknown error has occurred", exception);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(HttpStatus.INTERNAL_SERVER_ERROR)

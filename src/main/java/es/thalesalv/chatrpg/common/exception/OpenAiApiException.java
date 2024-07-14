@@ -2,9 +2,6 @@ package es.thalesalv.chatrpg.common.exception;
 
 import org.springframework.http.HttpStatus;
 
-import lombok.Getter;
-
-@Getter
 public class OpenAiApiException extends RuntimeException {
 
     private final HttpStatus httpStatusCode;
@@ -38,5 +35,17 @@ public class OpenAiApiException extends RuntimeException {
         this.httpStatusCode = httpStatusCode;
         this.errorMessage = errorMessage;
         this.errorDescription = errorDescription;
+    }
+
+    public HttpStatus getHttpStatusCode() {
+        return httpStatusCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public String getErrorDescription() {
+        return errorDescription;
     }
 }

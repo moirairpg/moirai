@@ -19,12 +19,10 @@ import es.thalesalv.chatrpg.common.util.DefaultStringProcessors;
 import es.thalesalv.chatrpg.core.application.port.DiscordChannelPort;
 import es.thalesalv.chatrpg.core.application.port.DiscordUserDetailsPort;
 import es.thalesalv.chatrpg.infrastructure.outbound.adapter.response.ChatMessageData;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor(onConstructor_ = { @Lazy })
 public class DiscordChannelAdapter implements DiscordChannelPort {
 
     private static final String USER_MENTION_PLACEHOLDER = "<@%s>";
@@ -32,6 +30,12 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
 
     private final GatewayDiscordClient discordClient;
     private final DiscordUserDetailsPort discordUserDetailsPort;
+
+    @Lazy
+    public DiscordChannelAdapter(GatewayDiscordClient discordClient, DiscordUserDetailsPort discordUserDetailsPort) {
+        this.discordClient = discordClient;
+        this.discordUserDetailsPort = discordUserDetailsPort;
+    }
 
     @Override
     public Mono<Void> sendMessage(String channelId, String messageContent) {

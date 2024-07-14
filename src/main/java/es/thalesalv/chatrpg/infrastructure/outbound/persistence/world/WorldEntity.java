@@ -12,11 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity(name = "World")
 @Table(name = "world")
 public class WorldEntity extends ShareableAssetEntity {
@@ -56,7 +52,23 @@ public class WorldEntity extends ShareableAssetEntity {
         return new Builder();
     }
 
-    public static class Builder {
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getAdventureStart() {
+        return adventureStart;
+    }
+
+    public static final class Builder {
 
         private String id;
         private String name;
@@ -69,6 +81,9 @@ public class WorldEntity extends ShareableAssetEntity {
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
 

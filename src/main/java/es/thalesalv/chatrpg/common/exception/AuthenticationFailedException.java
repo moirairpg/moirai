@@ -1,8 +1,5 @@
 package es.thalesalv.chatrpg.common.exception;
 
-import lombok.Getter;
-
-@Getter
 public class AuthenticationFailedException extends RuntimeException {
 
     private final String responseMessage;
@@ -11,5 +8,9 @@ public class AuthenticationFailedException extends RuntimeException {
         super(msg + ": " + responseMessage);
 
         this.responseMessage = responseMessage;
+    }
+
+    public String getResponseMessage() {
+        return responseMessage;
     }
 }

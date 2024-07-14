@@ -13,11 +13,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity(name = "Persona")
 @Table(name = "persona")
 public class PersonaEntity extends ShareableAssetEntity {
@@ -65,7 +61,31 @@ public class PersonaEntity extends ShareableAssetEntity {
         return new Builder();
     }
 
-    public static class Builder {
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPersonality() {
+        return personality;
+    }
+
+    public NudgeEntity getNudge() {
+        return nudge;
+    }
+
+    public BumpEntity getBump() {
+        return bump;
+    }
+
+    public String getGameMode() {
+        return gameMode;
+    }
+
+    public static final class Builder {
 
         private String id;
         private String name;
@@ -80,6 +100,9 @@ public class PersonaEntity extends ShareableAssetEntity {
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
 

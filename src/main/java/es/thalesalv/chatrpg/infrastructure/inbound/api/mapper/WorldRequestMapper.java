@@ -7,10 +7,8 @@ import es.thalesalv.chatrpg.core.application.usecase.world.request.DeleteWorld;
 import es.thalesalv.chatrpg.core.application.usecase.world.request.UpdateWorld;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.CreateWorldRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.request.UpdateWorldRequest;
-import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 public class WorldRequestMapper {
 
     public CreateWorld toCommand(CreateWorldRequest request, String requesterDiscordId) {

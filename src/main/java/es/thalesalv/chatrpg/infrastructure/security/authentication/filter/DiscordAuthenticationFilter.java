@@ -15,19 +15,23 @@ import org.springframework.web.server.WebFilterChain;
 
 import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordPrincipal;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.DiscordUserDetailsService;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor
 public class DiscordAuthenticationFilter implements WebFilter {
 
     private static final int HTTP_FORBIDDEN = 403;
 
-    @Value("#{'${chatrpg.security.ignored-paths}'.split(',')}")
-    private List<String> ignoredPaths;
-
+    private final List<String> ignoredPaths;
     private final DiscordUserDetailsService userDetailsService;
+
+    public DiscordAuthenticationFilter(
+            @Value("#{'${chatrpg.security.ignored-paths}'.split(',')}") List<String> ignoredPaths,
+            DiscordUserDetailsService userDetailsService) {
+
+        this.ignoredPaths = ignoredPaths;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
     public @NonNull Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {

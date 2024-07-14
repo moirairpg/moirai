@@ -6,13 +6,15 @@ import es.thalesalv.chatrpg.core.application.usecase.channelconfig.request.GetCh
 import es.thalesalv.chatrpg.core.application.usecase.channelconfig.result.GetChannelConfigResult;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfig;
 import es.thalesalv.chatrpg.core.domain.channelconfig.ChannelConfigService;
-import lombok.RequiredArgsConstructor;
 
 @UseCaseHandler
-@RequiredArgsConstructor
 public class GetChannelConfigByIdHandler extends AbstractUseCaseHandler<GetChannelConfigById, GetChannelConfigResult> {
 
     private final ChannelConfigService domainService;
+
+    public GetChannelConfigByIdHandler(ChannelConfigService domainService) {
+        this.domainService = domainService;
+    }
 
     @Override
     public GetChannelConfigResult execute(GetChannelConfigById query) {

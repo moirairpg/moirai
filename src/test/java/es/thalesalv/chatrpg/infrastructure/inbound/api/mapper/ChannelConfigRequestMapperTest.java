@@ -26,7 +26,7 @@ public class ChannelConfigRequestMapperTest {
 
         // Given
         String requesterId = "RQSTRID";
-        CreateChannelConfigRequest request = CreateChannelConfigRequestFixture.sample().build();
+        CreateChannelConfigRequest request = CreateChannelConfigRequestFixture.sample();
 
         // When
         CreateChannelConfig command = mapper.toCommand(request, requesterId);
@@ -54,7 +54,7 @@ public class ChannelConfigRequestMapperTest {
         // Given
         String channelConfigId = "WRLDID";
         String requesterId = "RQSTRID";
-        UpdateChannelConfigRequest request = UpdateChannelConfigRequestFixture.sample().build();
+        UpdateChannelConfigRequest request = UpdateChannelConfigRequestFixture.sample();
 
         // When
         UpdateChannelConfig command = mapper.toCommand(request, channelConfigId, requesterId);

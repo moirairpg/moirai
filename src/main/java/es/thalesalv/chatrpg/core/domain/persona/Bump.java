@@ -2,11 +2,7 @@ package es.thalesalv.chatrpg.core.domain.persona;
 
 import es.thalesalv.chatrpg.common.exception.BusinessRuleViolationException;
 import es.thalesalv.chatrpg.core.domain.CompletionRole;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
 public final class Bump {
 
     private final String content;
@@ -33,6 +29,18 @@ public final class Bump {
                 .role(bump.role);
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public Integer getFrequency() {
+        return frequency;
+    }
+
+    public CompletionRole getRole() {
+        return role;
+    }
+
     public Bump updateContent(String content) {
 
         return cloneFrom(this).content(content).build();
@@ -48,12 +56,14 @@ public final class Bump {
         return cloneFrom(this).role(role).build();
     }
 
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Builder {
 
         private String content;
         private Integer frequency;
         private CompletionRole role;
+
+        private Builder() {
+        }
 
         public Builder content(String content) {
 

@@ -137,11 +137,10 @@ public class WorldLorebookControllerTest extends AbstractRestWebTest {
     public void http201WhenCreateLorebookEntry() {
 
         // Given
-        CreateWorldLorebookEntryRequest request = CreateWorldLorebookEntryRequest.builder()
-                .name("NAME")
-                .description("DESC")
-                .regex("regex")
-                .build();
+        CreateWorldLorebookEntryRequest request = new CreateWorldLorebookEntryRequest();
+        request.setName("NAME");
+        request.setDescription("DESC");
+        request.setRegex("regex");
 
         CreateLorebookEntryResponse expectedResponse = CreateLorebookEntryResponse.build("ID");
 
@@ -172,11 +171,10 @@ public class WorldLorebookControllerTest extends AbstractRestWebTest {
     public void http200WhenUpdateLorebookEntry() {
 
         // Given
-        UpdateWorldLorebookEntryRequest request = UpdateWorldLorebookEntryRequest.builder()
-                .name("NAME")
-                .description("DESC")
-                .regex("regex")
-                .build();
+        UpdateWorldLorebookEntryRequest request = new UpdateWorldLorebookEntryRequest();
+        request.setName("NAME");
+        request.setDescription("DESC");
+        request.setRegex("regex");
 
         UpdateWorldLorebookEntryResponse expectedResponse = UpdateWorldLorebookEntryResponse
                 .build(OffsetDateTime.now());
