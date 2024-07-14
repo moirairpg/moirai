@@ -47,6 +47,7 @@ public class ModelConfigurationTest {
         assertThat(modelConfiguration.getMaxTokenLimit()).isEqualTo(100);
         assertThat(modelConfiguration.getTemperature()).isEqualTo(1.0);
     }
+
     @Test
     public void createModelConfiguration_whenStopSequencesNull_thenCreateModelConfigurations() {
 
@@ -336,10 +337,13 @@ public class ModelConfigurationTest {
     public void createModelConfigurationWithNullLogitBias() {
 
         // Given
-        Map<String, Double> logitBias = null;
-
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
-                .logitBias(logitBias);
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfiguration.builder();
+        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT35_16K);
+        modelConfigurationBuilder.frequencyPenalty(0.2);
+        modelConfigurationBuilder.presencePenalty(0.2);
+        modelConfigurationBuilder.maxTokenLimit(100);
+        modelConfigurationBuilder.temperature(1.0);
+        modelConfigurationBuilder.logitBias(null);
 
         // When
         ModelConfiguration modelConfiguration = modelConfigurationBuilder.build();
