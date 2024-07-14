@@ -105,7 +105,7 @@ public class Persona extends ShareableAsset {
         this.gameMode = gameMode;
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private String id;
         private String name;

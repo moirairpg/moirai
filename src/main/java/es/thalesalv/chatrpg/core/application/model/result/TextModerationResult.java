@@ -1,7 +1,5 @@
 package es.thalesalv.chatrpg.core.application.model.result;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
@@ -17,13 +15,10 @@ public final class TextModerationResult {
     private final List<String> flaggedTopics;
 
     public TextModerationResult(Builder builder) {
+
         this.contentFlagged = builder.contentFlagged;
-
-        this.moderationScores = unmodifiableMap(
-                builder.moderationScores == null ? emptyMap() : new HashMap<>(builder.moderationScores));
-
-        this.flaggedTopics = unmodifiableList(
-                builder.flaggedTopics == null ? emptyList() : new ArrayList<>(builder.flaggedTopics));
+        this.moderationScores = unmodifiableMap(builder.moderationScores);
+        this.flaggedTopics = unmodifiableList(builder.flaggedTopics);
     }
 
     public static Builder builder() {
@@ -43,11 +38,14 @@ public final class TextModerationResult {
         return flaggedTopics;
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private boolean contentFlagged;
-        private Map<String, Double> moderationScores;
-        private List<String> flaggedTopics;
+        private Map<String, Double> moderationScores = new HashMap<>();
+        private List<String> flaggedTopics = new ArrayList<>();
+
+        private Builder() {
+        }
 
         public Builder contentFlagged(boolean contentFlagged) {
             this.contentFlagged = contentFlagged;
@@ -55,12 +53,20 @@ public final class TextModerationResult {
         }
 
         public Builder moderationScores(Map<String, Double> moderationScores) {
-            this.moderationScores = moderationScores;
+
+            if (moderationScores != null) {
+                this.moderationScores = moderationScores;
+            }
+
             return this;
         }
 
         public Builder flaggedTopics(List<String> flaggedTopics) {
-            this.flaggedTopics = flaggedTopics;
+
+            if (flaggedTopics != null) {
+                this.flaggedTopics = flaggedTopics;
+            }
+
             return this;
         }
 

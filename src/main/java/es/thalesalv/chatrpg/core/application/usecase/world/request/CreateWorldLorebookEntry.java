@@ -14,6 +14,7 @@ public final class CreateWorldLorebookEntry extends UseCase<CreateWorldLorebookE
     private final String requesterDiscordId;
 
     private CreateWorldLorebookEntry(Builder builder) {
+
         this.worldId = builder.worldId;
         this.name = builder.name;
         this.regex = builder.regex;
@@ -56,6 +57,7 @@ public final class CreateWorldLorebookEntry extends UseCase<CreateWorldLorebookE
     }
 
     public static final class Builder {
+
         private String worldId;
         private String name;
         private String regex;

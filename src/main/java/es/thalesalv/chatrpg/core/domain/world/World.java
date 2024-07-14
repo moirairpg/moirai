@@ -1,6 +1,7 @@
 package es.thalesalv.chatrpg.core.domain.world;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -82,13 +83,13 @@ public class World extends ShareableAsset {
         lorebook.remove(lorebookEntry);
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private String id;
         private String name;
         private String description;
         private String adventureStart;
-        private List<WorldLorebookEntry> lorebook;
+        private List<WorldLorebookEntry> lorebook = new ArrayList<>();
         private Visibility visibility;
         private Permissions permissions;
         private String creatorDiscordId;
@@ -124,7 +125,10 @@ public class World extends ShareableAsset {
 
         public Builder lorebook(List<WorldLorebookEntry> lorebook) {
 
-            this.lorebook = lorebook;
+            if (lorebook != null) {
+                this.lorebook = lorebook;
+            }
+
             return this;
         }
 

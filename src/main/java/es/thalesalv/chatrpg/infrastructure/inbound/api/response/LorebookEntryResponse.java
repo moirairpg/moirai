@@ -68,7 +68,7 @@ public class LorebookEntryResponse {
         return lastUpdateDate;
     }
 
-    public static class Builder {
+    public static final class Builder {
         private String id;
         private String name;
         private String regex;
@@ -77,6 +77,9 @@ public class LorebookEntryResponse {
         private boolean isPlayerCharacter;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
             this.id = id;

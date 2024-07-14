@@ -1,5 +1,8 @@
 package es.thalesalv.chatrpg.core.application.usecase.discord.messagereceived;
 
+import static java.util.Collections.unmodifiableList;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import es.thalesalv.chatrpg.common.usecases.UseCase;
@@ -12,8 +15,8 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
     private final String messageChannelId;
     private final String messageGuildId;
     private final String botName;
-    private final List<String> mentionedUsersIds;
     private final boolean isBotMentioned;
+    private final List<String> mentionedUsersIds;
 
     public MessageReceived(Builder builder) {
 
@@ -22,8 +25,8 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
         this.messageChannelId = builder.messageChannelId;
         this.messageGuildId = builder.messageGuildId;
         this.botName = builder.botName;
-        this.mentionedUsersIds = builder.mentionedUsersIds;
         this.isBotMentioned = builder.isBotMentioned;
+        this.mentionedUsersIds = unmodifiableList(builder.mentionedUsersIds);
     }
 
     public static Builder builder() {
@@ -65,8 +68,8 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
         private String messageChannelId;
         private String messageGuildId;
         private String botName;
-        private List<String> mentionedUsersIds;
         private boolean isBotMentioned;
+        private List<String> mentionedUsersIds = new ArrayList<>();
 
         private Builder() {
         }
@@ -97,7 +100,11 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
         }
 
         public Builder mentionedUsersIds(List<String> mentionedUsersIds) {
-            this.mentionedUsersIds = mentionedUsersIds;
+
+            if (mentionedUsersIds != null) {
+                this.mentionedUsersIds = mentionedUsersIds;
+            }
+
             return this;
         }
 

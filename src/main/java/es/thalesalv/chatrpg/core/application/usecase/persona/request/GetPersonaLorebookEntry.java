@@ -8,6 +8,7 @@ public final class GetPersonaLorebookEntry {
     private final String playerDiscordId;
 
     private GetPersonaLorebookEntry(Builder builder) {
+
         this.name = builder.name;
         this.regex = builder.regex;
         this.description = builder.description;
@@ -35,6 +36,7 @@ public final class GetPersonaLorebookEntry {
     }
 
     public static final class Builder {
+
         private String name;
         private String regex;
         private String description;

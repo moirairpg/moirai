@@ -1,21 +1,24 @@
 package es.thalesalv.chatrpg.core.application.usecase.channelconfig.result;
 
+import static java.util.Collections.unmodifiableList;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public final class SearchChannelConfigsResult {
 
     private final int page;
+    private final int totalPages;
     private final int items;
     private final long totalItems;
-    private final int totalPages;
     private final List<GetChannelConfigResult> results;
 
     private SearchChannelConfigsResult(Builder builder) {
         this.page = builder.page;
+        this.totalPages = builder.totalPages;
         this.items = builder.items;
         this.totalItems = builder.totalItems;
-        this.totalPages = builder.totalPages;
-        this.results = builder.results;
+        this.results = unmodifiableList(builder.results);
     }
 
     public static Builder builder() {
@@ -45,10 +48,10 @@ public final class SearchChannelConfigsResult {
     public static final class Builder {
 
         private int page;
+        private int totalPages;
         private int items;
         private long totalItems;
-        private int totalPages;
-        private List<GetChannelConfigResult> results;
+        private List<GetChannelConfigResult> results = new ArrayList<>();
 
         private Builder() {
         }
@@ -74,7 +77,11 @@ public final class SearchChannelConfigsResult {
         }
 
         public Builder results(List<GetChannelConfigResult> results) {
-            this.results = results;
+
+            if (results != null) {
+                this.results = results;
+            }
+
             return this;
         }
 

@@ -1,7 +1,5 @@
 package es.thalesalv.chatrpg.core.application.model.request;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
@@ -28,15 +26,9 @@ public final class TextGenerationRequest {
         this.temperature = builder.temperature;
         this.presencePenalty = builder.presencePenalty;
         this.frequencyPenalty = builder.frequencyPenalty;
-
-        this.messages = unmodifiableList(
-                builder.messages == null ? emptyList() : new ArrayList<>(builder.messages));
-
-        this.stopSequences = unmodifiableList(
-                builder.stopSequences == null ? emptyList() : new ArrayList<>(builder.stopSequences));
-
-        this.logitBias = unmodifiableMap(
-                builder.logitBias == null ? emptyMap() : new HashMap<>(builder.logitBias));
+        this.messages = unmodifiableList(builder.messages);
+        this.stopSequences = unmodifiableList(builder.stopSequences);
+        this.logitBias = unmodifiableMap(builder.logitBias);
     }
 
     public static Builder builder() {
@@ -75,16 +67,19 @@ public final class TextGenerationRequest {
         return logitBias;
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private String model;
-        private List<ChatMessage> messages;
-        private List<String> stopSequences;
+        private List<ChatMessage> messages = new ArrayList<>();
+        private List<String> stopSequences = new ArrayList<>();
         private Integer maxTokens;
         private Double temperature;
         private Double presencePenalty;
         private Double frequencyPenalty;
-        private Map<String, Double> logitBias;
+        private Map<String, Double> logitBias = new HashMap<>();
+
+        private Builder() {
+        }
 
         public Builder model(String model) {
 
@@ -94,13 +89,19 @@ public final class TextGenerationRequest {
 
         public Builder messages(List<ChatMessage> messages) {
 
-            this.messages = messages;
+            if (messages != null) {
+                this.messages = messages;
+            }
+
             return this;
         }
 
         public Builder stopSequences(List<String> stopSequences) {
 
-            this.stopSequences = stopSequences;
+            if (stopSequences != null) {
+                this.stopSequences = stopSequences;
+            }
+
             return this;
         }
 
@@ -130,7 +131,10 @@ public final class TextGenerationRequest {
 
         public Builder logitBias(Map<String, Double> logitBias) {
 
-            this.logitBias = logitBias;
+            if (logitBias != null) {
+                this.logitBias = logitBias;
+            }
+
             return this;
         }
 

@@ -1,5 +1,8 @@
 package es.thalesalv.chatrpg.core.application.usecase.persona.request;
 
+import static java.util.Collections.unmodifiableList;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import es.thalesalv.chatrpg.common.usecases.UseCase;
@@ -17,9 +20,9 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
     private final String visibility;
     private final String gameMode;
     private final Integer bumpFrequency;
+    private final String requesterDiscordId;
     private final List<String> usersAllowedToWrite;
     private final List<String> usersAllowedToRead;
-    private final String requesterDiscordId;
 
     public CreatePersona(Builder builder) {
         this.name = builder.name;
@@ -31,9 +34,9 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
         this.visibility = builder.visibility;
         this.gameMode = builder.gameMode;
         this.bumpFrequency = builder.bumpFrequency;
-        this.usersAllowedToWrite = builder.usersAllowedToWrite;
-        this.usersAllowedToRead = builder.usersAllowedToRead;
         this.requesterDiscordId = builder.requesterDiscordId;
+        this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
+        this.usersAllowedToRead = unmodifiableList(builder.usersAllowedToRead);
     }
 
     public static Builder builder() {
@@ -99,9 +102,9 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
         private String visibility;
         private String gameMode;
         private Integer bumpFrequency;
-        private List<String> usersAllowedToWrite;
-        private List<String> usersAllowedToRead;
         private String requesterDiscordId;
+        private List<String> usersAllowedToWrite = new ArrayList<>();
+        private List<String> usersAllowedToRead = new ArrayList<>();
 
         private Builder() {
         }
@@ -152,12 +155,20 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
         }
 
         public Builder usersAllowedToWrite(List<String> usersAllowedToWrite) {
-            this.usersAllowedToWrite = usersAllowedToWrite;
+
+            if (usersAllowedToWrite != null) {
+                this.usersAllowedToWrite = usersAllowedToWrite;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToRead(List<String> usersAllowedToRead) {
-            this.usersAllowedToRead = usersAllowedToRead;
+
+            if (usersAllowedToRead != null) {
+                this.usersAllowedToRead = usersAllowedToRead;
+            }
+
             return this;
         }
 

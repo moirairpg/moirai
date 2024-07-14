@@ -8,6 +8,7 @@ public final class WorldLorebookEntryResult {
     private String playerDiscordId;
 
     private WorldLorebookEntryResult(Builder builder) {
+
         this.name = builder.name;
         this.regex = builder.regex;
         this.description = builder.description;
@@ -35,6 +36,7 @@ public final class WorldLorebookEntryResult {
     }
 
     public static final class Builder {
+
         private String name;
         private String regex;
         private String description;

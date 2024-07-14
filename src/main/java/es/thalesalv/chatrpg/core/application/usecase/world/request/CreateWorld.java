@@ -1,5 +1,8 @@
 package es.thalesalv.chatrpg.core.application.usecase.world.request;
 
+import static java.util.Collections.unmodifiableList;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import es.thalesalv.chatrpg.common.usecases.UseCase;
@@ -18,13 +21,14 @@ public final class CreateWorld extends UseCase<Mono<CreateWorldResult>> {
     private final String requesterDiscordId;
 
     private CreateWorld(Builder builder) {
+
         this.name = builder.name;
         this.description = builder.description;
         this.adventureStart = builder.adventureStart;
         this.visibility = builder.visibility;
-        this.lorebookEntries = builder.lorebookEntries;
-        this.usersAllowedToWrite = builder.usersAllowedToWrite;
-        this.usersAllowedToRead = builder.usersAllowedToRead;
+        this.lorebookEntries = unmodifiableList(builder.lorebookEntries);
+        this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
+        this.usersAllowedToRead = unmodifiableList(builder.usersAllowedToRead);
         this.requesterDiscordId = builder.requesterDiscordId;
     }
 
@@ -65,13 +69,14 @@ public final class CreateWorld extends UseCase<Mono<CreateWorldResult>> {
     }
 
     public static final class Builder {
+
         private String name;
         private String description;
         private String adventureStart;
         private String visibility;
-        private List<CreateWorldLorebookEntry> lorebookEntries;
-        private List<String> usersAllowedToWrite;
-        private List<String> usersAllowedToRead;
+        private List<CreateWorldLorebookEntry> lorebookEntries = new ArrayList<>();
+        private List<String> usersAllowedToWrite = new ArrayList<>();
+        private List<String> usersAllowedToRead = new ArrayList<>();
         private String requesterDiscordId;
 
         private Builder() {
@@ -98,17 +103,29 @@ public final class CreateWorld extends UseCase<Mono<CreateWorldResult>> {
         }
 
         public Builder lorebookEntries(List<CreateWorldLorebookEntry> lorebookEntries) {
-            this.lorebookEntries = lorebookEntries;
+
+            if (lorebookEntries != null) {
+                this.lorebookEntries = lorebookEntries;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToWrite(List<String> usersAllowedToWrite) {
-            this.usersAllowedToWrite = usersAllowedToWrite;
+
+            if (usersAllowedToWrite != null) {
+                this.usersAllowedToWrite = usersAllowedToWrite;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToRead(List<String> usersAllowedToRead) {
-            this.usersAllowedToRead = usersAllowedToRead;
+
+            if (usersAllowedToRead != null) {
+                this.usersAllowedToRead = usersAllowedToRead;
+            }
+
             return this;
         }
 

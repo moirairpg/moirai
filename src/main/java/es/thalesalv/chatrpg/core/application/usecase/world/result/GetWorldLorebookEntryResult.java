@@ -14,6 +14,7 @@ public final class GetWorldLorebookEntryResult {
     private final OffsetDateTime lastUpdateDate;
 
     private GetWorldLorebookEntryResult(Builder builder) {
+
         this.id = builder.id;
         this.name = builder.name;
         this.regex = builder.regex;
@@ -61,6 +62,7 @@ public final class GetWorldLorebookEntryResult {
     }
 
     public static final class Builder {
+
         private String id;
         private String name;
         private String regex;

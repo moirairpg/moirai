@@ -1,7 +1,6 @@
 package es.thalesalv.chatrpg.core.domain;
 
 import static java.util.Collections.disjoint;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 import java.util.ArrayList;
@@ -18,12 +17,8 @@ public final class Permissions {
     private Permissions(Builder builder) {
 
         this.ownerDiscordId = builder.ownerDiscordId;
-
-        this.usersAllowedToRead = unmodifiableList(builder.usersAllowedToRead == null ? emptyList()
-                : new ArrayList<>(builder.usersAllowedToRead));
-
-        this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToRead == null ? emptyList()
-                : new ArrayList<>(builder.usersAllowedToWrite));
+        this.usersAllowedToRead = unmodifiableList(builder.usersAllowedToRead);
+        this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
     }
 
     public static Builder builder() {
@@ -126,11 +121,11 @@ public final class Permissions {
         return !disjoint(this.usersAllowedToRead, discordUserIds) || areAllowedToWrite(discordUserIds);
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private String ownerDiscordId;
-        private List<String> usersAllowedToRead;
-        private List<String> usersAllowedToWrite;
+        private List<String> usersAllowedToRead = new ArrayList<>();
+        private List<String> usersAllowedToWrite = new ArrayList<>();
 
         private Builder() {
         }
@@ -143,13 +138,19 @@ public final class Permissions {
 
         public Builder usersAllowedToRead(List<String> usersAllowedToRead) {
 
-            this.usersAllowedToRead = usersAllowedToRead;
+            if (usersAllowedToRead != null) {
+                this.usersAllowedToRead = usersAllowedToRead;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToWrite(List<String> usersAllowedToWrite) {
 
-            this.usersAllowedToWrite = usersAllowedToWrite;
+            if (usersAllowedToWrite != null) {
+                this.usersAllowedToWrite = usersAllowedToWrite;
+            }
+
             return this;
         }
 

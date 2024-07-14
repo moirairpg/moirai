@@ -1,5 +1,8 @@
 package es.thalesalv.chatrpg.core.application.usecase.persona.result;
 
+import static java.util.Collections.unmodifiableList;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public final class SearchPersonasResult {
@@ -11,11 +14,12 @@ public final class SearchPersonasResult {
     private final List<GetPersonaResult> results;
 
     private SearchPersonasResult(Builder builder) {
+
         this.page = builder.page;
         this.items = builder.items;
         this.totalItems = builder.totalItems;
         this.totalPages = builder.totalPages;
-        this.results = builder.results;
+        this.results = unmodifiableList(builder.results);
     }
 
     public static Builder builder() {
@@ -43,11 +47,12 @@ public final class SearchPersonasResult {
     }
 
     public static final class Builder {
+
         private int page;
         private int items;
         private long totalItems;
         private int totalPages;
-        private List<GetPersonaResult> results;
+        private List<GetPersonaResult> results = new ArrayList<>();
 
         private Builder() {
         }
@@ -73,7 +78,11 @@ public final class SearchPersonasResult {
         }
 
         public Builder results(List<GetPersonaResult> results) {
-            this.results = results;
+
+            if (results != null) {
+                this.results = results;
+            }
+
             return this;
         }
 

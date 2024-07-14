@@ -82,7 +82,7 @@ public class DiscordUserDataResponse {
         return error;
     }
 
-    public static class Builder {
+    public static final class Builder {
         private String id;
         private String username;
         private String globalName;
@@ -91,6 +91,9 @@ public class DiscordUserDataResponse {
         private String discriminator;
         private String email;
         private DiscordErrorResponse error;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
             this.id = id;

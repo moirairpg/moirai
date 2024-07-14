@@ -111,7 +111,7 @@ public class PersonaResponse {
         return lastUpdateDate;
     }
 
-    public static class Builder {
+    public static final class Builder {
         private String id;
         private String name;
         private String personality;
@@ -127,6 +127,9 @@ public class PersonaResponse {
         private List<String> usersAllowedToRead;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
             this.id = id;

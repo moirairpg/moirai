@@ -71,7 +71,7 @@ public final class DiscordPrincipal implements UserDetails {
         return true;
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private String id;
         private String username;

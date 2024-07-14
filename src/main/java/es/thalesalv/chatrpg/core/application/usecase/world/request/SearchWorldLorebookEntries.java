@@ -14,6 +14,7 @@ public final class SearchWorldLorebookEntries extends UseCase<SearchWorldLoreboo
     private final String requesterDiscordId;
 
     private SearchWorldLorebookEntries(Builder builder) {
+
         this.page = builder.page;
         this.items = builder.items;
         this.sortByField = builder.sortByField;
@@ -56,6 +57,7 @@ public final class SearchWorldLorebookEntries extends UseCase<SearchWorldLoreboo
     }
 
     public static final class Builder {
+
         private Integer page;
         private Integer items;
         private String sortByField;

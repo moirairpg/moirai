@@ -1,5 +1,8 @@
 package es.thalesalv.chatrpg.core.application.usecase.world.result;
 
+import static java.util.Collections.unmodifiableList;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public final class SearchWorldsResult {
@@ -11,11 +14,12 @@ public final class SearchWorldsResult {
     private final List<GetWorldResult> results;
 
     private SearchWorldsResult(Builder builder) {
+
         this.page = builder.page;
         this.items = builder.items;
         this.totalItems = builder.totalItems;
         this.totalPages = builder.totalPages;
-        this.results = builder.results;
+        this.results = unmodifiableList(builder.results);
     }
 
     public static Builder builder() {
@@ -43,37 +47,42 @@ public final class SearchWorldsResult {
     }
 
     public static final class Builder {
+
         private int page;
         private int items;
         private long totalItems;
         private int totalPages;
-        private List<GetWorldResult> results;
+        private List<GetWorldResult> results = new ArrayList<>();
 
         private Builder() {
         }
 
-        public Builder page(int val) {
-            page = val;
+        public Builder page(int page) {
+            this.page = page;
             return this;
         }
 
-        public Builder items(int val) {
-            items = val;
+        public Builder items(int items) {
+            this.items = items;
             return this;
         }
 
-        public Builder totalItems(long val) {
-            totalItems = val;
+        public Builder totalItems(long totalItems) {
+            this.totalItems = totalItems;
             return this;
         }
 
-        public Builder totalPages(int val) {
-            totalPages = val;
+        public Builder totalPages(int totalPages) {
+            this.totalPages = totalPages;
             return this;
         }
 
-        public Builder results(List<GetWorldResult> val) {
-            results = val;
+        public Builder results(List<GetWorldResult> results) {
+
+            if (results != null) {
+                this.results = results;
+            }
+
             return this;
         }
 

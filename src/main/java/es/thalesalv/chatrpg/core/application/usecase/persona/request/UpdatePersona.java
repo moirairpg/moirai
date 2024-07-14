@@ -1,5 +1,8 @@
 package es.thalesalv.chatrpg.core.application.usecase.persona.request;
 
+import static java.util.Collections.unmodifiableList;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import es.thalesalv.chatrpg.common.usecases.UseCase;
@@ -25,6 +28,7 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
     private final String requesterDiscordId;
 
     private UpdatePersona(Builder builder) {
+
         this.id = builder.id;
         this.name = builder.name;
         this.personality = builder.personality;
@@ -35,10 +39,10 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
         this.visibility = builder.visibility;
         this.gameMode = builder.gameMode;
         this.bumpFrequency = builder.bumpFrequency;
-        this.usersAllowedToWriteToAdd = builder.usersAllowedToWriteToAdd;
-        this.usersAllowedToWriteToRemove = builder.usersAllowedToWriteToRemove;
-        this.usersAllowedToReadToAdd = builder.usersAllowedToReadToAdd;
-        this.usersAllowedToReadToRemove = builder.usersAllowedToReadToRemove;
+        this.usersAllowedToWriteToAdd = unmodifiableList(builder.usersAllowedToWriteToAdd);
+        this.usersAllowedToWriteToRemove = unmodifiableList(builder.usersAllowedToWriteToRemove);
+        this.usersAllowedToReadToAdd = unmodifiableList(builder.usersAllowedToReadToAdd);
+        this.usersAllowedToReadToRemove = unmodifiableList(builder.usersAllowedToReadToRemove);
         this.requesterDiscordId = builder.requesterDiscordId;
     }
 
@@ -117,10 +121,10 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
         private String visibility;
         private String gameMode;
         private Integer bumpFrequency;
-        private List<String> usersAllowedToWriteToAdd;
-        private List<String> usersAllowedToWriteToRemove;
-        private List<String> usersAllowedToReadToAdd;
-        private List<String> usersAllowedToReadToRemove;
+        private List<String> usersAllowedToWriteToAdd = new ArrayList<>();
+        private List<String> usersAllowedToWriteToRemove = new ArrayList<>();
+        private List<String> usersAllowedToReadToAdd = new ArrayList<>();
+        private List<String> usersAllowedToReadToRemove = new ArrayList<>();
         private String requesterDiscordId;
 
         private Builder() {
@@ -177,22 +181,38 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
         }
 
         public Builder usersAllowedToWriteToAdd(List<String> usersAllowedToWriteToAdd) {
-            this.usersAllowedToWriteToAdd = usersAllowedToWriteToAdd;
+
+            if (usersAllowedToWriteToAdd != null) {
+                this.usersAllowedToWriteToAdd = usersAllowedToWriteToAdd;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToWriteToRemove(List<String> usersAllowedToWriteToRemove) {
-            this.usersAllowedToWriteToRemove = usersAllowedToWriteToRemove;
+
+            if (usersAllowedToWriteToRemove != null) {
+                this.usersAllowedToWriteToRemove = usersAllowedToWriteToRemove;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToReadToAdd(List<String> usersAllowedToReadToAdd) {
-            this.usersAllowedToReadToAdd = usersAllowedToReadToAdd;
+
+            if (usersAllowedToReadToAdd != null) {
+                this.usersAllowedToReadToAdd = usersAllowedToReadToAdd;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToReadToRemove(List<String> usersAllowedToReadToRemove) {
-            this.usersAllowedToReadToRemove = usersAllowedToReadToRemove;
+
+            if (usersAllowedToReadToRemove != null) {
+                this.usersAllowedToReadToRemove = usersAllowedToReadToRemove;
+            }
+
             return this;
         }
 

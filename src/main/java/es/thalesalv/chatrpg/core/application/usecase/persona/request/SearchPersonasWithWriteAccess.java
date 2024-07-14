@@ -16,6 +16,7 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
     private final String requesterDiscordId;
 
     private SearchPersonasWithWriteAccess(Builder builder) {
+
         this.page = builder.page;
         this.items = builder.items;
         this.searchField = builder.searchField;
@@ -68,6 +69,7 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
     }
 
     public static final class Builder {
+
         private Integer page;
         private Integer items;
         private String searchField;

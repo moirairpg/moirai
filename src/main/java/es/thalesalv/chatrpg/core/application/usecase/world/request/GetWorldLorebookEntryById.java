@@ -10,6 +10,7 @@ public final class GetWorldLorebookEntryById extends UseCase<GetWorldLorebookEnt
     private final String requesterDiscordId;
 
     private GetWorldLorebookEntryById(Builder builder) {
+
         this.entryId = builder.entryId;
         this.worldId = builder.worldId;
         this.requesterDiscordId = builder.requesterDiscordId;
@@ -32,6 +33,7 @@ public final class GetWorldLorebookEntryById extends UseCase<GetWorldLorebookEnt
     }
 
     public static final class Builder {
+
         private String entryId;
         private String worldId;
         private String requesterDiscordId;

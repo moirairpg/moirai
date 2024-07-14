@@ -50,12 +50,15 @@ public class SearchPersonasResponse {
         return results;
     }
 
-    public static class Builder {
+    public static final class Builder {
         private int page;
         private int totalPages;
         private int resultsInPage;
         private long totalResults;
         private List<PersonaResponse> results;
+
+        private Builder() {
+        }
 
         public Builder page(int page) {
             this.page = page;

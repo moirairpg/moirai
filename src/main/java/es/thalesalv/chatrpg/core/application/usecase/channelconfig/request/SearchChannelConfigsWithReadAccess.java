@@ -15,6 +15,7 @@ public final class SearchChannelConfigsWithReadAccess extends UseCase<SearchChan
     private final String requesterDiscordId;
 
     private SearchChannelConfigsWithReadAccess(Builder builder) {
+
         this.page = builder.page;
         this.items = builder.items;
         this.sortByField = builder.sortByField;
@@ -62,6 +63,7 @@ public final class SearchChannelConfigsWithReadAccess extends UseCase<SearchChan
     }
 
     public static final class Builder {
+
         private Integer page;
         private Integer items;
         private String sortByField;

@@ -66,6 +66,9 @@ public class DiscordAuthResponse {
         private String scope;
         private String tokenType;
 
+        private Builder() {
+        }
+
         public Builder accessToken(String accessToken) {
             this.accessToken = accessToken;
             return this;

@@ -9,6 +9,7 @@ public final class DeleteWorldLorebookEntry extends UseCase<Void> {
     private final String requesterDiscordId;
 
     private DeleteWorldLorebookEntry(Builder builder) {
+
         this.lorebookEntryId = builder.lorebookEntryId;
         this.worldId = builder.worldId;
         this.requesterDiscordId = builder.requesterDiscordId;
@@ -31,6 +32,7 @@ public final class DeleteWorldLorebookEntry extends UseCase<Void> {
     }
 
     public static final class Builder {
+
         private String lorebookEntryId;
         private String worldId;
         private String requesterDiscordId;

@@ -1,6 +1,11 @@
 package es.thalesalv.chatrpg.core.application.usecase.channelconfig.result;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,15 +24,16 @@ public final class GetChannelConfigResult {
     private final double temperature;
     private final double frequencyPenalty;
     private final double presencePenalty;
-    private final List<String> stopSequences;
-    private final Map<String, Double> logitBias;
     private final String ownerDiscordId;
-    private final List<String> usersAllowedToRead;
-    private final List<String> usersAllowedToWrite;
     private final OffsetDateTime creationDate;
     private final OffsetDateTime lastUpdateDate;
+    private final Map<String, Double> logitBias;
+    private final List<String> stopSequences;
+    private final List<String> usersAllowedToRead;
+    private final List<String> usersAllowedToWrite;
 
     private GetChannelConfigResult(Builder builder) {
+
         this.id = builder.id;
         this.name = builder.name;
         this.worldId = builder.worldId;
@@ -41,13 +47,13 @@ public final class GetChannelConfigResult {
         this.temperature = builder.temperature;
         this.frequencyPenalty = builder.frequencyPenalty;
         this.presencePenalty = builder.presencePenalty;
-        this.stopSequences = builder.stopSequences;
-        this.logitBias = builder.logitBias;
         this.ownerDiscordId = builder.ownerDiscordId;
-        this.usersAllowedToRead = builder.usersAllowedToRead;
-        this.usersAllowedToWrite = builder.usersAllowedToWrite;
         this.creationDate = builder.creationDate;
         this.lastUpdateDate = builder.lastUpdateDate;
+        this.logitBias = unmodifiableMap(builder.logitBias);
+        this.stopSequences = unmodifiableList(builder.stopSequences);
+        this.usersAllowedToRead = unmodifiableList(builder.usersAllowedToRead);
+        this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
     }
 
     public static Builder builder() {
@@ -135,6 +141,7 @@ public final class GetChannelConfigResult {
     }
 
     public static final class Builder {
+
         private String id;
         private String name;
         private String worldId;
@@ -148,13 +155,13 @@ public final class GetChannelConfigResult {
         private double temperature;
         private double frequencyPenalty;
         private double presencePenalty;
-        private List<String> stopSequences;
-        private Map<String, Double> logitBias;
         private String ownerDiscordId;
-        private List<String> usersAllowedToRead;
-        private List<String> usersAllowedToWrite;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+        private Map<String, Double> logitBias = new HashMap<>();
+        private List<String> stopSequences = new ArrayList<>();
+        private List<String> usersAllowedToRead = new ArrayList<>();
+        private List<String> usersAllowedToWrite = new ArrayList<>();
 
         private Builder() {
         }
@@ -225,12 +232,20 @@ public final class GetChannelConfigResult {
         }
 
         public Builder stopSequences(List<String> stopSequences) {
-            this.stopSequences = stopSequences;
+
+            if (stopSequences != null) {
+                this.stopSequences = stopSequences;
+            }
+
             return this;
         }
 
         public Builder logitBias(Map<String, Double> logitBias) {
-            this.logitBias = logitBias;
+
+            if (logitBias != null) {
+                this.logitBias = logitBias;
+            }
+
             return this;
         }
 
@@ -240,12 +255,20 @@ public final class GetChannelConfigResult {
         }
 
         public Builder usersAllowedToRead(List<String> usersAllowedToRead) {
-            this.usersAllowedToRead = usersAllowedToRead;
+
+            if (usersAllowedToRead != null) {
+                this.usersAllowedToRead = usersAllowedToRead;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToWrite(List<String> usersAllowedToWrite) {
-            this.usersAllowedToWrite = usersAllowedToWrite;
+
+            if (usersAllowedToWrite != null) {
+                this.usersAllowedToWrite = usersAllowedToWrite;
+            }
+
             return this;
         }
 

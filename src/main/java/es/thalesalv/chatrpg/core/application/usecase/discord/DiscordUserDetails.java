@@ -9,6 +9,7 @@ public final class DiscordUserDetails {
     private final String mention;
 
     public DiscordUserDetails(Builder builder) {
+
         this.id = builder.id;
         this.username = builder.username;
         this.globalName = builder.globalName;

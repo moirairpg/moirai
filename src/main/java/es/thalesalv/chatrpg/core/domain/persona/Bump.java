@@ -56,7 +56,7 @@ public final class Bump {
         return cloneFrom(this).role(role).build();
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private String content;
         private Integer frequency;

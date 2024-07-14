@@ -81,7 +81,7 @@ public class WorldResponse {
         return lastUpdateDate;
     }
 
-    public static class Builder {
+    public static final class Builder {
         private String id;
         private String name;
         private String description;
@@ -92,6 +92,9 @@ public class WorldResponse {
         private List<String> usersAllowedToWrite;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+
+        private Builder() {
+        }
 
         public Builder id(String id) {
             this.id = id;

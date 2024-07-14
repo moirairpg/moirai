@@ -8,6 +8,7 @@ public final class TextGenerationResult {
     private final Integer totalTokens;
 
     public TextGenerationResult(Builder builder) {
+
         this.outputText = builder.outputText;
         this.promptTokens = builder.promptTokens;
         this.completionTokens = builder.completionTokens;
@@ -34,11 +35,15 @@ public final class TextGenerationResult {
         return totalTokens;
     }
 
-    public static class Builder {
+    public static final class Builder {
+
         private String outputText;
         private Integer promptTokens;
         private Integer completionTokens;
         private Integer totalTokens;
+
+        private Builder() {
+        }
 
         public Builder outputText(String outputText) {
             this.outputText = outputText;

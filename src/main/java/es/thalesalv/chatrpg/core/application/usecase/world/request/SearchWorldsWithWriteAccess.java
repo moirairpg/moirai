@@ -13,6 +13,7 @@ public final class SearchWorldsWithWriteAccess extends UseCase<SearchWorldsResul
     private final String requesterDiscordId;
 
     private SearchWorldsWithWriteAccess(Builder builder) {
+
         this.page = builder.page;
         this.items = builder.items;
         this.sortByField = builder.sortByField;
@@ -50,6 +51,7 @@ public final class SearchWorldsWithWriteAccess extends UseCase<SearchWorldsResul
     }
 
     public static final class Builder {
+
         private Integer page;
         private Integer items;
         private String sortByField;

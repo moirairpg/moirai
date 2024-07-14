@@ -1,5 +1,10 @@
 package es.thalesalv.chatrpg.core.application.usecase.channelconfig.request;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +31,7 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
     private final String requesterDiscordId;
 
     private CreateChannelConfig(Builder builder) {
+
         this.name = builder.name;
         this.worldId = builder.worldId;
         this.personaId = builder.personaId;
@@ -37,11 +43,11 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
         this.temperature = builder.temperature;
         this.frequencyPenalty = builder.frequencyPenalty;
         this.presencePenalty = builder.presencePenalty;
-        this.stopSequences = builder.stopSequences;
-        this.logitBias = builder.logitBias;
-        this.usersAllowedToWrite = builder.usersAllowedToWrite;
-        this.usersAllowedToRead = builder.usersAllowedToRead;
         this.requesterDiscordId = builder.requesterDiscordId;
+        this.logitBias = unmodifiableMap(builder.logitBias);
+        this.stopSequences = unmodifiableList(builder.stopSequences);
+        this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
+        this.usersAllowedToRead = unmodifiableList(builder.usersAllowedToRead);
     }
 
     public static Builder builder() {
@@ -125,10 +131,10 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
         private Double temperature;
         private Double frequencyPenalty;
         private Double presencePenalty;
-        private List<String> stopSequences;
-        private Map<String, Double> logitBias;
-        private List<String> usersAllowedToWrite;
-        private List<String> usersAllowedToRead;
+        private List<String> stopSequences = new ArrayList<>();
+        private Map<String, Double> logitBias = new HashMap<>();
+        private List<String> usersAllowedToWrite = new ArrayList<>();
+        private List<String> usersAllowedToRead = new ArrayList<>();
         private String requesterDiscordId;
 
         private Builder() {
@@ -190,22 +196,38 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
         }
 
         public Builder stopSequences(List<String> stopSequences) {
-            this.stopSequences = stopSequences;
+
+            if (stopSequences != null) {
+                this.stopSequences = stopSequences;
+            }
+
             return this;
         }
 
         public Builder logitBias(Map<String, Double> logitBias) {
-            this.logitBias = logitBias;
+
+            if (logitBias != null) {
+                this.logitBias = logitBias;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToWrite(List<String> usersAllowedToWrite) {
-            this.usersAllowedToWrite = usersAllowedToWrite;
+
+            if (usersAllowedToWrite != null) {
+                this.usersAllowedToWrite = usersAllowedToWrite;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToRead(List<String> usersAllowedToRead) {
-            this.usersAllowedToRead = usersAllowedToRead;
+
+            if (usersAllowedToRead != null) {
+                this.usersAllowedToRead = usersAllowedToRead;
+            }
+
             return this;
         }
 

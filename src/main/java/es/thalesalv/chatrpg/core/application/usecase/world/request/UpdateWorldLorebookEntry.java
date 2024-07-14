@@ -15,6 +15,7 @@ public final class UpdateWorldLorebookEntry extends UseCase<UpdateWorldLorebookE
     private final String requesterDiscordId;
 
     private UpdateWorldLorebookEntry(Builder builder) {
+
         this.id = builder.id;
         this.worldId = builder.worldId;
         this.name = builder.name;
@@ -62,6 +63,7 @@ public final class UpdateWorldLorebookEntry extends UseCase<UpdateWorldLorebookE
     }
 
     public static final class Builder {
+
         private String id;
         private String worldId;
         private String name;

@@ -8,6 +8,7 @@ public final class GetChannelConfigLorebookEntry {
     private final String playerDiscordId;
 
     private GetChannelConfigLorebookEntry(Builder builder) {
+
         this.name = builder.name;
         this.regex = builder.regex;
         this.description = builder.description;

@@ -42,9 +42,12 @@ public class DiscordErrorResponse {
                 '}';
     }
 
-    public static class Builder {
+    public static final class Builder {
         private String error;
         private String errorDescription;
+
+        private Builder() {
+        }
 
         public Builder error(String error) {
             this.error = error;

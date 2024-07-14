@@ -203,8 +203,8 @@ public final class ModelConfiguration {
         private Double temperature;
         private Double frequencyPenalty;
         private Double presencePenalty;
-        private List<String> stopSequences;
-        private Map<String, Double> logitBias;
+        private List<String> stopSequences = new ArrayList<>();
+        private Map<String, Double> logitBias = new HashMap<>();
 
         private Builder() {
         }
@@ -241,13 +241,19 @@ public final class ModelConfiguration {
 
         public Builder stopSequences(List<String> stopSequences) {
 
-            this.stopSequences = stopSequences;
+            if (stopSequences != null) {
+                this.stopSequences = stopSequences;
+            }
+
             return this;
         }
 
         public Builder logitBias(Map<String, Double> logitBias) {
 
-            this.logitBias = logitBias;
+            if (logitBias != null) {
+                this.logitBias = logitBias;
+            }
+
             return this;
         }
 
@@ -266,11 +272,9 @@ public final class ModelConfiguration {
             validatePresencePenalty(presencePenalty);
             validateMaxTokenLimit(maxTokenLimit, aiModel);
 
-            if (logitBias != null && !logitBias.isEmpty()) {
-                logitBias.entrySet()
-                        .stream()
-                        .forEach(entry -> validateLogitBias(entry.getValue()));
-            }
+            logitBias.entrySet()
+                    .stream()
+                    .forEach(entry -> validateLogitBias(entry.getValue()));
 
             return new ModelConfiguration(this);
         }

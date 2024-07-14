@@ -49,10 +49,13 @@ public class ErrorResponse {
                 '}';
     }
 
-    public static class Builder {
+    public static final class Builder {
         private HttpStatus code;
         private String message;
         private List<String> details;
+
+        private Builder() {
+        }
 
         public Builder code(HttpStatus code) {
             this.code = code;

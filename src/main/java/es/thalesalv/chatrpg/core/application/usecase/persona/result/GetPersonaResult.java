@@ -1,6 +1,9 @@
 package es.thalesalv.chatrpg.core.application.usecase.persona.result;
 
+import static java.util.Collections.unmodifiableList;
+
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class GetPersonaResult {
@@ -22,6 +25,7 @@ public final class GetPersonaResult {
     private final OffsetDateTime lastUpdateDate;
 
     private GetPersonaResult(Builder builder) {
+
         this.id = builder.id;
         this.name = builder.name;
         this.personality = builder.personality;
@@ -33,8 +37,8 @@ public final class GetPersonaResult {
         this.visibility = builder.visibility;
         this.gameMode = builder.gameMode;
         this.ownerDiscordId = builder.ownerDiscordId;
-        this.usersAllowedToWrite = builder.usersAllowedToWrite;
-        this.usersAllowedToRead = builder.usersAllowedToRead;
+        this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
+        this.usersAllowedToRead = unmodifiableList(builder.usersAllowedToRead);
         this.creationDate = builder.creationDate;
         this.lastUpdateDate = builder.lastUpdateDate;
     }
@@ -104,6 +108,7 @@ public final class GetPersonaResult {
     }
 
     public static final class Builder {
+
         private String id;
         private String name;
         private String personality;
@@ -115,8 +120,8 @@ public final class GetPersonaResult {
         private String visibility;
         private String gameMode;
         private String ownerDiscordId;
-        private List<String> usersAllowedToWrite;
-        private List<String> usersAllowedToRead;
+        private List<String> usersAllowedToWrite = new ArrayList<>();
+        private List<String> usersAllowedToRead = new ArrayList<>();
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
 
@@ -179,12 +184,20 @@ public final class GetPersonaResult {
         }
 
         public Builder usersAllowedToWrite(List<String> usersAllowedToWrite) {
-            this.usersAllowedToWrite = usersAllowedToWrite;
+
+            if (usersAllowedToWrite != null) {
+                this.usersAllowedToWrite = usersAllowedToWrite;
+            }
+
             return this;
         }
 
         public Builder usersAllowedToRead(List<String> usersAllowedToRead) {
-            this.usersAllowedToRead = usersAllowedToRead;
+
+            if (usersAllowedToRead != null) {
+                this.usersAllowedToRead = usersAllowedToRead;
+            }
+
             return this;
         }
 

@@ -86,7 +86,7 @@ public class WorldLorebookEntry extends Asset {
         this.playerDiscordId = null;
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private String id;
         private String name;

@@ -165,6 +165,9 @@ public class ChannelConfigResponse {
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
 
+        private Builder() {
+        }
+
         public Builder id(String id) {
             this.id = id;
             return this;
