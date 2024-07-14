@@ -40,6 +40,15 @@ public class ErrorResponse {
         return details;
     }
 
+    @Override
+    public String toString() {
+        return "ErrorResponse{" +
+                "code='" + code + "\', " +
+                "message='" + message + "\', " +
+                "details=" + (details != null ? '\'' + String.join(", ", details) + '\'' : "null") +
+                '}';
+    }
+
     public static class Builder {
         private HttpStatus code;
         private String message;

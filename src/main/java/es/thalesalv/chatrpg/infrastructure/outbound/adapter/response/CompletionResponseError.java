@@ -70,6 +70,16 @@ public class CompletionResponseError {
         this.code = code;
     }
 
+    @Override
+    public String toString() {
+        return "CompletionResponseError{" +
+                "message='" + message + "\', " +
+                "type='" + type + "\', " +
+                "param='" + param + "\', " +
+                "code='" + code + "\', " +
+                '}';
+    }
+
     public static final class Builder {
 
         private String message;

@@ -1,9 +1,9 @@
 package es.thalesalv.chatrpg.core.application.port;
 
-import es.thalesalv.chatrpg.core.application.model.request.DiscordAuthRequest;
-import es.thalesalv.chatrpg.core.application.model.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordUserDataResponse;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.DiscordAuthRequest;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
 import reactor.core.publisher.Mono;
 
 public interface DiscordAuthenticationPort {

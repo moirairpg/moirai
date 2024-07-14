@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.thalesalv.chatrpg.common.web.SecurityContextAware;
-import es.thalesalv.chatrpg.core.application.model.request.DiscordAuthRequest;
-import es.thalesalv.chatrpg.core.application.model.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.DiscordAuthRequest;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
 import io.swagger.v3.oas.annotations.Hidden;
 import reactor.core.publisher.Mono;
 

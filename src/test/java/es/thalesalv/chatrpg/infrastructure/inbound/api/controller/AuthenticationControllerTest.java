@@ -11,10 +11,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 
 import es.thalesalv.chatrpg.AbstractRestWebTest;
-import es.thalesalv.chatrpg.core.application.model.request.DiscordAuthRequest;
-import es.thalesalv.chatrpg.core.application.model.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.DiscordAuthRequest;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
 import reactor.core.publisher.Mono;
 

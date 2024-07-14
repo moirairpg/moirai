@@ -14,11 +14,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.thalesalv.chatrpg.common.exception.DiscordApiException;
-import es.thalesalv.chatrpg.core.application.model.request.DiscordAuthRequest;
-import es.thalesalv.chatrpg.core.application.model.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordErrorResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordUserDataResponse;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.DiscordAuthRequest;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import reactor.test.StepVerifier;

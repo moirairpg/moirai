@@ -34,6 +34,14 @@ public class DiscordErrorResponse {
         return errorDescription;
     }
 
+    @Override
+    public String toString() {
+        return "DiscordErrorResponse{" +
+                "error='" + error + "\', " +
+                "errorDescription='" + errorDescription + '\'' +
+                '}';
+    }
+
     public static class Builder {
         private String error;
         private String errorDescription;

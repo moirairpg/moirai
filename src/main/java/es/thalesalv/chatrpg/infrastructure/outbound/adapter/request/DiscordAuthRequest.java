@@ -1,4 +1,4 @@
-package es.thalesalv.chatrpg.core.application.model.request;
+package es.thalesalv.chatrpg.infrastructure.outbound.adapter.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

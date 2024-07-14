@@ -3,6 +3,8 @@ package es.thalesalv.chatrpg.infrastructure.outbound.adapter;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,16 +22,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.thalesalv.chatrpg.common.exception.DiscordApiException;
-import es.thalesalv.chatrpg.core.application.model.request.DiscordAuthRequest;
-import es.thalesalv.chatrpg.core.application.model.request.DiscordTokenRevocationRequest;
 import es.thalesalv.chatrpg.core.application.port.DiscordAuthenticationPort;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordAuthResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordErrorResponse;
 import es.thalesalv.chatrpg.infrastructure.inbound.api.response.DiscordUserDataResponse;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.DiscordAuthRequest;
+import es.thalesalv.chatrpg.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
 import reactor.core.publisher.Mono;
 
 @Component
 public class DiscordAuthenticationAdapter implements DiscordAuthenticationPort {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DiscordAuthenticationAdapter.class);
 
     private static final String CONTENT_TYPE_VALUE = "application/x-www-form-urlencoded";
     private static final String AUTHENTICATION_ERROR = "Error authenticating user on Discord";
@@ -119,16 +123,22 @@ public class DiscordAuthenticationAdapter implements DiscordAuthenticationPort {
     private Mono<? extends Throwable> handleBadRequest(ClientResponse clientResponse) {
 
         return clientResponse.bodyToMono(DiscordErrorResponse.class)
-                .map(resp -> new DiscordApiException(HttpStatus.BAD_REQUEST, resp.getError(),
+                .map(resp -> {
+                    LOG.error(BAD_REQUEST_ERROR + " -> {}", resp);
+                    return new DiscordApiException(HttpStatus.BAD_REQUEST, resp.getError(),
                         resp.getErrorDescription(),
-                        String.format(BAD_REQUEST_ERROR, resp.getError(), resp.getErrorDescription())));
+                        String.format(BAD_REQUEST_ERROR, resp.getError(), resp.getErrorDescription()));
+                    });
     }
 
     private Mono<? extends Throwable> handleUnknownError(ClientResponse clientResponse) {
 
         return clientResponse.bodyToMono(DiscordErrorResponse.class)
-                .map(resp -> new DiscordApiException(HttpStatus.INTERNAL_SERVER_ERROR, resp.getError(),
-                        resp.getErrorDescription(),
-                        String.format(UNKNOWN_ERROR, resp.getError(), resp.getErrorDescription())));
+                .map(resp -> {
+                    LOG.error(UNKNOWN_ERROR + " -> {}", resp);
+                    return new DiscordApiException(HttpStatus.INTERNAL_SERVER_ERROR, resp.getError(),
+                            resp.getErrorDescription(),
+                            String.format(UNKNOWN_ERROR, resp.getError(), resp.getErrorDescription()));
+                });
     }
 }
