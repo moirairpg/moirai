@@ -6,4 +6,4 @@ COPY ./target/moirai-0.0.1-SNAPSHOT.jar moirai-0.0.1-SNAPSHOT.jar
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "/opt/moirai/moirai-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "/opt/moirai/discordbot-0.0.1-SNAPSHOT.jar"]
