@@ -1,0 +1,47 @@
+package me.moirai.discordbot.infrastructure.inbound.api.mapper;
+
+import org.springframework.stereotype.Component;
+
+import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
+import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
+import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorld;
+import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldRequest;
+
+@Component
+public class WorldRequestMapper {
+
+    public CreateWorld toCommand(CreateWorldRequest request, String requesterDiscordId) {
+
+        return CreateWorld.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .adventureStart(request.getAdventureStart())
+                .visibility(request.getVisibility())
+                .usersAllowedToWrite(request.getUsersAllowedToWrite())
+                .usersAllowedToRead(request.getUsersAllowedToRead())
+                .requesterDiscordId(requesterDiscordId)
+                .build();
+    }
+
+    public UpdateWorld toCommand(UpdateWorldRequest request, String worldId, String requesterDiscordId) {
+
+        return UpdateWorld.builder()
+                .id(worldId)
+                .name(request.getName())
+                .description(request.getDescription())
+                .adventureStart(request.getAdventureStart())
+                .visibility(request.getVisibility())
+                .usersAllowedToWriteToAdd(request.getUsersAllowedToWriteToAdd())
+                .usersAllowedToWriteToRemove(request.getUsersAllowedToWriteToRemove())
+                .usersAllowedToReadToAdd(request.getUsersAllowedToReadToAdd())
+                .usersAllowedToReadToRemove(request.getUsersAllowedToReadToRemove())
+                .requesterDiscordId(requesterDiscordId)
+                .build();
+    }
+
+    public DeleteWorld toCommand(String worldId, String requesterDiscordId) {
+
+        return DeleteWorld.build(worldId, requesterDiscordId);
+    }
+}

@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset chatrpg:1711197366_create_table_world
+--changeset moirai:1711197366_create_table_world
 --preconditions onFail:HALT, onError:HALT
 
 CREATE TABLE world (

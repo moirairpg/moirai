@@ -1,4 +1,4 @@
-chatrpg:
+moirai:
   nano-id:
     alphabet: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
     characters-amount: 10
@@ -65,7 +65,7 @@ spring:
 
 logging:
   level:
-    es.thalesalv: ${CHATRPG_LOG_LEVEL:INFO}
+    me.moirai: ${CHATRPG_LOG_LEVEL:INFO}
     root: ERROR
     org.hibernate: ERROR
     com.zaxxer.hikari: ERROR

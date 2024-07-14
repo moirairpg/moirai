@@ -15,7 +15,7 @@
 
     <springProfile name="json-log-stdout">
         <appender name="json-stdout" class="ch.qos.logback.core.ConsoleAppender">
-            <layout class="es.thalesalv.chatrpg.common.logging.JsonLoggerFormatter">
+            <layout class="me.moirai.discordbot.common.logging.JsonLoggerFormatter">
                 <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
                     <prettyPrint>true</prettyPrint>
                 </jsonFormatter>
@@ -29,7 +29,7 @@
 
     <springProfile name="json-log-file">
         <appender name="json-file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <layout class="es.thalesalv.chatrpg.common.logging.JsonLoggerFormatter">
+            <layout class="me.moirai.discordbot.common.logging.JsonLoggerFormatter">
                 <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
                     <prettyPrint>false</prettyPrint>
                 </jsonFormatter>

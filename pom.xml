@@ -12,10 +12,10 @@
         <relativePath />
     </parent>
 
-    <groupId>es.thalesalv</groupId>
-    <artifactId>chatrpg</artifactId>
+    <groupId>me.moirai</groupId>
+    <artifactId>discordbot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>ChatRPG</name>
+    <name>MoirAIR</name>
     <description>Discord RPG bot</description>
 
     <properties>
@@ -307,7 +307,7 @@
                 <configuration>
                     <timestampedReports>true</timestampedReports>
                     <targetClasses>
-                        <param>es.thalesalv.chatrpg*</param>
+                        <param>me.moirai.discordbot*</param>
                     </targetClasses>
                 </configuration>
                 <executions>
@@ -319,8 +319,8 @@
                             <timestampedReports>false</timestampedReports>
                             <withHistory>false</withHistory>
                             <excludedClasses>
-                                <param>es.thalesalv.chatrpg.common.logging.*</param>
-                                <param>es.thalesalv.chatrpg.core.config.*</param>
+                                <param>me.moirai.discordbot.common.logging.*</param>
+                                <param>me.moirai.discordbot.core.config.*</param>
                             </excludedClasses>
                         </configuration>
                         <goals>

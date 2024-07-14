@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset chatrpg:1711197488_create_table_channel_config
+--changeset moirai:1711197488_create_table_channel_config
 --preconditions onFail:HALT, onError:HALT
 
 CREATE TABLE channel_config (

@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset chatrpg:create_sample_table
+--changeset moirai:create_sample_table
 --preconditions onFail:HALT, onError:HALT
 
 CREATE TABLE sample_table (

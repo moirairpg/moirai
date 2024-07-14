@@ -12,6 +12,6 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: chatrpg
-      POSTGRES_PASSWORD: chatrpg
-      POSTGRES_DB: chatrpg
+      POSTGRES_USER: moirai
+      POSTGRES_PASSWORD: moirai
+      POSTGRES_DB: moirai

@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset chatrpg:1711197379_create_table_persona
+--changeset moirai:1711197379_create_table_persona
 --preconditions onFail:HALT, onError:HALT
 
 CREATE TABLE persona (
