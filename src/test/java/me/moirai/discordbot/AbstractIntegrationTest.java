@@ -11,10 +11,10 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import discord4j.core.GatewayDiscordClient;
 import me.moirai.discordbot.core.application.port.DiscordAuthenticationPort;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
+import me.moirai.discordbot.core.application.port.PersonaEnrichmentPort;
+import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
-import me.moirai.discordbot.core.application.service.PersonaEnrichmentService;
-import me.moirai.discordbot.core.application.service.StorySummarizationService;
 import me.moirai.discordbot.infrastructure.config.Discord4JConfig;
 
 @ActiveProfiles("test")
@@ -31,10 +31,10 @@ public abstract class AbstractIntegrationTest {
     private DiscordChannelPort discordChannelOperationsPort;
 
     @MockBean
-    private PersonaEnrichmentService inputEnrichmentService;
+    private PersonaEnrichmentPort inputEnrichmentService;
 
     @MockBean
-    private StorySummarizationService contextSummarizationService;
+    private StorySummarizationPort contextSummarizationService;
 
     @MockBean
     private GatewayDiscordClient gatewayDiscordClient;

@@ -11,9 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import me.moirai.discordbot.core.application.query.persona.GetPersonaResultFixture;
 import me.moirai.discordbot.core.application.usecase.persona.result.CreatePersonaResult;
 import me.moirai.discordbot.core.application.usecase.persona.result.GetPersonaResult;
+import me.moirai.discordbot.core.application.usecase.persona.result.GetPersonaResultFixture;
 import me.moirai.discordbot.core.application.usecase.persona.result.SearchPersonasResult;
 import me.moirai.discordbot.core.application.usecase.persona.result.UpdatePersonaResult;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreatePersonaResponse;

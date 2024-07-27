@@ -11,9 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import me.moirai.discordbot.core.application.query.channelconfig.GetChannelConfigResultFixture;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.CreateChannelConfigResult;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.GetChannelConfigResult;
+import me.moirai.discordbot.core.application.usecase.channelconfig.result.GetChannelConfigResultFixture;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.SearchChannelConfigsResult;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.UpdateChannelConfigResult;
 import me.moirai.discordbot.infrastructure.inbound.api.response.ChannelConfigResponse;

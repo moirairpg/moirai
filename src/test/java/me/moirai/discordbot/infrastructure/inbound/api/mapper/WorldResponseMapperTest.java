@@ -11,9 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import me.moirai.discordbot.core.application.query.world.GetWorldResultFixture;
 import me.moirai.discordbot.core.application.usecase.world.result.CreateWorldResult;
 import me.moirai.discordbot.core.application.usecase.world.result.GetWorldResult;
+import me.moirai.discordbot.core.application.usecase.world.result.GetWorldResultFixture;
 import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldsResult;
 import me.moirai.discordbot.core.application.usecase.world.result.UpdateWorldResult;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateWorldResponse;

@@ -22,11 +22,11 @@ import me.moirai.discordbot.core.application.model.request.ChatMessage;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
 import me.moirai.discordbot.core.application.model.result.TextGenerationResult;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
+import me.moirai.discordbot.core.application.port.LorebookEnrichmentPort;
+import me.moirai.discordbot.core.application.port.PersonaEnrichmentPort;
+import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
-import me.moirai.discordbot.core.application.service.LorebookEnrichmentService;
-import me.moirai.discordbot.core.application.service.PersonaEnrichmentService;
-import me.moirai.discordbot.core.application.service.StorySummarizationService;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.core.domain.channelconfig.Moderation;
@@ -49,22 +49,22 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
 
     private final ChannelConfigRepository channelConfigRepository;
     private final DiscordChannelPort discordChannelOperationsPort;
-    private final StorySummarizationService summarizationService;
-    private final LorebookEnrichmentService lorebookEnrichmentService;
-    private final PersonaEnrichmentService personaEnrichmentService;
+    private final StorySummarizationPort summarizationPort;
+    private final LorebookEnrichmentPort lorebookEnrichmentPort;
+    private final PersonaEnrichmentPort personaEnrichmentPort;
     private final TextCompletionPort textCompletionPort;
     private final TextModerationPort textModerationPort;
 
     public MessageReceivedHandler(ChannelConfigRepository channelConfigRepository,
-            DiscordChannelPort discordChannelOperationsPort, StorySummarizationService summarizationService,
-            LorebookEnrichmentService lorebookEnrichmentService, PersonaEnrichmentService personaEnrichmentService,
+            DiscordChannelPort discordChannelOperationsPort, StorySummarizationPort summarizationPort,
+            LorebookEnrichmentPort lorebookEnrichmentPort, PersonaEnrichmentPort personaEnrichmentPort,
             TextCompletionPort textCompletionPort, TextModerationPort textModerationPort) {
 
         this.channelConfigRepository = channelConfigRepository;
         this.discordChannelOperationsPort = discordChannelOperationsPort;
-        this.summarizationService = summarizationService;
-        this.lorebookEnrichmentService = lorebookEnrichmentService;
-        this.personaEnrichmentService = personaEnrichmentService;
+        this.summarizationPort = summarizationPort;
+        this.lorebookEnrichmentPort = lorebookEnrichmentPort;
+        this.personaEnrichmentPort = personaEnrichmentPort;
         this.textCompletionPort = textCompletionPort;
         this.textModerationPort = textModerationPort;
     }
@@ -77,11 +77,11 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                 .map(channelConfig -> discordChannelOperationsPort
                         .retrieveEntireHistoryFrom(query.getMessageGuildId(), query.getMessageChannelId(),
                                 query.getMessageId(), query.getMentionedUsersIds())
-                        .map(messageHistory -> lorebookEnrichmentService.enrichContextWithLorebook(messageHistory,
+                        .map(messageHistory -> lorebookEnrichmentPort.enrichContextWithLorebook(messageHistory,
                                 channelConfig.getWorldId(), channelConfig.getModelConfiguration()))
-                        .flatMap(contextWithLorebook -> summarizationService.summarizeContextWith(contextWithLorebook,
+                        .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook,
                                 channelConfig.getModelConfiguration()))
-                        .flatMap(contextWithSummary -> personaEnrichmentService.enrichContextWithPersona(
+                        .flatMap(contextWithSummary -> personaEnrichmentPort.enrichContextWithPersona(
                                 contextWithSummary, channelConfig.getPersonaId(),
                                 channelConfig.getModelConfiguration()))
                         .map(contextWithPersona -> processEnrichedContext(contextWithPersona, query.getBotName()))
