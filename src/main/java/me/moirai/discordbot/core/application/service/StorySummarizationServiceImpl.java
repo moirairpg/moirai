@@ -6,10 +6,11 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.LF;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 
 import me.moirai.discordbot.common.annotation.ApplicationService;
 import me.moirai.discordbot.core.application.model.request.ChatMessage;
@@ -27,6 +28,7 @@ public class StorySummarizationServiceImpl implements StorySummarizationService 
     private static final String PERIOD = ".";
     private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-Za-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
     private static final String SUMMARY = "summary";
+    private static final Object LOREBOOK = "lorebook";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
     private static final String MESSAGE_HISTORY = "messageHistory";
     private static final String SUMMARIZATION_INSTRUCTION = "Write a detailed summary of this converation. The summary needs to be detailed and explain the conversation so far, as best as possible, so more context on what has happened is available.";
@@ -44,35 +46,41 @@ public class StorySummarizationServiceImpl implements StorySummarizationService 
     }
 
     @Override
-    public Mono<Map<String, Object>> summarizeContextWith(List<ChatMessageData> messagesExtracted,
+    public Mono<Map<String, Object>> summarizeContextWith(Map<String, Object> context,
             ModelConfiguration modelConfiguration) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
         int reservedTokensForStory = (int) Math.floor(totalTokens * 0.30);
 
-        return generateSummary(messagesExtracted, modelConfiguration)
-                .map(context -> {
-                    context.putAll(chatMessageService.addMessagesToContext(context, reservedTokensForStory, 5));
-                    context.putAll(addSummaryToContext(context, reservedTokensForStory));
-                    context.putAll(chatMessageService.addMessagesToContext(context, reservedTokensForStory, SUMMARY));
+        return generateSummary(context, modelConfiguration)
+                .map(contextWithSummary -> {
+                    contextWithSummary.putAll(
+                            chatMessageService.addMessagesToContext(contextWithSummary, reservedTokensForStory, 5));
 
-                    return context;
+                    contextWithSummary.putAll(addSummaryToContext(contextWithSummary, reservedTokensForStory));
+
+                    contextWithSummary.putAll(chatMessageService.addMessagesToContext(contextWithSummary,
+                            reservedTokensForStory, SUMMARY));
+
+                    return contextWithSummary;
                 });
     }
 
-    private Mono<? extends Map<String, Object>> generateSummary(List<ChatMessageData> messagesExtracted,
+    private Mono<? extends Map<String, Object>> generateSummary(Map<String, Object> context,
             ModelConfiguration modelConfiguration) {
 
-        TextGenerationRequest request = createSummarizationRequest(messagesExtracted, modelConfiguration);
+        List<ChatMessageData> rawMessageHistory = (List<ChatMessageData>) context.get(RETRIEVED_MESSAGES);
+        String lorebook = (String) context.get(LOREBOOK);
+
+        TextGenerationRequest request = createSummarizationRequest(rawMessageHistory, lorebook, modelConfiguration);
         return openAiPort.generateTextFrom(request)
                 .map(summaryGenerated -> {
                     String summary = summaryGenerated.getOutputText().trim();
-                    Map<String, Object> processedContext = new HashMap<>();
 
-                    processedContext.put(RETRIEVED_MESSAGES, messagesExtracted);
-                    processedContext.put(SUMMARY, summary.trim());
+                    context.put(RETRIEVED_MESSAGES, rawMessageHistory);
+                    context.put(SUMMARY, summary.trim());
 
-                    return processedContext;
+                    return context;
                 });
     }
 
@@ -98,13 +106,18 @@ public class StorySummarizationServiceImpl implements StorySummarizationService 
     }
 
     private TextGenerationRequest createSummarizationRequest(List<ChatMessageData> messagesExtracted,
-            ModelConfiguration modelConfiguration) {
+            String lorebook, ModelConfiguration modelConfiguration) {
 
         List<ChatMessage> chatMessages = new ArrayList<>();
+
         chatMessages.addAll(messagesExtracted.stream()
                 .map(messageData -> ChatMessage.build(USER, messageData.getContent()))
                 .collect(Collectors.toCollection(ArrayList::new))
                 .reversed());
+
+        if (StringUtils.isNotBlank(lorebook)) {
+            chatMessages.addFirst(ChatMessage.build(SYSTEM, lorebook));
+        }
 
         chatMessages.addFirst(ChatMessage.build(SYSTEM, SUMMARIZATION_INSTRUCTION));
 

@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +63,6 @@ public class ContextSummarizationServiceImplTest {
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
-        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
@@ -75,7 +73,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeContextWith(messages, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(context, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -88,7 +86,6 @@ public class ContextSummarizationServiceImplTest {
     public void summarizeWith_emptyMessageHistory_thenEmptySummaryReturned() {
 
         // Given
-        List<ChatMessageData> messages = Collections.emptyList();
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
         Map<String, Object> context = createContextWithMessageNumber(3);
 
@@ -101,7 +98,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeContextWith(messages, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(context, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -121,7 +118,6 @@ public class ContextSummarizationServiceImplTest {
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
-        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
@@ -146,7 +142,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeContextWith(messages, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(context, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -175,7 +171,6 @@ public class ContextSummarizationServiceImplTest {
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
-        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
@@ -200,7 +195,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeContextWith(messages, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(context, modelConfiguration);
 
         // Then
         StepVerifier.create(result)
@@ -229,7 +224,6 @@ public class ContextSummarizationServiceImplTest {
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
-        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
                 .thenReturn(Mono.just(TextGenerationResultFixture.create()
@@ -254,7 +248,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeContextWith(messages, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(context, modelConfiguration);
 
         // Then
         StepVerifier.create(result)

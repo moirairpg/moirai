@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +27,6 @@ import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
@@ -45,160 +44,173 @@ public class LorebookEnrichmentServiceImplTest {
     @Mock
     private ChatMessageService chatMessageService;
 
+    private static final String LF = "\n";
+    private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";
+
     @Test
     public void enrich_withValidInput_thenLorebookAndMessagesAdded() {
         // Given
         String worldId = "worldId";
-        Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
+        Map<String, Object> context = contextWithSummaryAndMessages(5);
+        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
+
+        List<WorldLorebookEntry> lorebook = lorebookEntriesNumber(5);
+        Map<String, Object> contextWithLorebook = new HashMap<>(context);
+        contextWithLorebook.put("lorebook", stringifyList(lorebook
+                .stream()
+                .map(entryData -> String.format(ENTRY_DESCRIPTION, entryData.getName(), entryData.getDescription()))
+                .toList()));
 
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
-                .thenReturn(lorebookEntriesNumber(5));
+                .thenReturn(lorebook);
 
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
 
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
-                .thenReturn(contextWithSummary);
+                .thenReturn(contextWithLorebook);
 
         // When
-        Mono<Map<String, Object>> result = service.enrichContextWith(contextWithSummary, worldId, modelConfiguration);
+        Map<String, Object> processedContext = service.enrichContextWithLorebook(messages, worldId, modelConfiguration);
 
         // Then
-        StepVerifier.create(result)
-                .assertNext(processedContext -> {
-                    assertThat(processedContext).containsKey("lorebook");
+        assertThat(processedContext).containsKey("lorebook");
 
-                    String lorebook = (String) processedContext.get("lorebook");
-                    List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
-                            .get("retrievedMessages");
+        String lorebookExtracted = (String) processedContext.get("lorebook");
+        List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
+        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+                .get("retrievedMessages");
 
-                    assertThat(messageHistory).hasSize(5);
-                    assertThat(retrievedMessages).isEmpty();
+        assertThat(messageHistory).hasSize(5);
+        assertThat(retrievedMessages).isEmpty();
 
-                    assertThat(lorebook)
-                            .isEqualTo("[ Description of Entry 1: Description 1 ]\n"
-                                    + "[ Description of Entry 2: Description 2 ]\n"
-                                    + "[ Description of Entry 3: Description 3 ]\n"
-                                    + "[ Description of Entry 4: Description 4 ]\n"
-                                    + "[ Description of Entry 5: Description 5 ]");
-                })
-                .verifyComplete();
+        assertThat(lorebookExtracted)
+                .isEqualTo("[ Description of Entry 1: Description 1 ]\n"
+                        + "[ Description of Entry 2: Description 2 ]\n"
+                        + "[ Description of Entry 3: Description 3 ]\n"
+                        + "[ Description of Entry 4: Description 4 ]\n"
+                        + "[ Description of Entry 5: Description 5 ]");
     }
 
     @Test
     public void enrich_withNoEntriesFound_thenOnlyMessagesAdded() {
         // Given
         String worldId = "worldId";
-        Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
+        Map<String, Object> context = contextWithSummaryAndMessages(5);
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(Collections.emptyList());
 
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
-                .thenReturn(contextWithSummary);
+                .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.enrichContextWith(contextWithSummary, worldId, modelConfiguration);
+        Map<String, Object> processedContext = service.enrichContextWithLorebook(messages, worldId, modelConfiguration);
 
         // Then
-        StepVerifier.create(result)
-                .assertNext(processedContext -> {
-                    assertThat(processedContext).doesNotContainKey("lorebook");
+        assertThat(processedContext).doesNotContainKey("lorebook");
 
-                    List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
-                            .get("retrievedMessages");
-                    assertThat(messageHistory).hasSize(5);
-                    assertThat(retrievedMessages).isEmpty();
-                })
-                .verifyComplete();
+        List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
+        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+                .get("retrievedMessages");
+        assertThat(messageHistory).hasSize(5);
+        assertThat(retrievedMessages).isEmpty();
     }
 
     @Test
     public void enrich_withNoExtraMessages_thenOnlyLorebookAdded() {
         // Given
         String worldId = "worldId";
-        Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
-        contextWithSummary.put("retrievedMessages", Collections.emptyList());
+        Map<String, Object> context = contextWithSummaryAndMessages(5);
+        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
+
+        List<WorldLorebookEntry> lorebook = lorebookEntriesNumber(5);
+        Map<String, Object> contextWithLorebook = new HashMap<>(context);
+        contextWithLorebook.put("lorebook", stringifyList(lorebook
+                .stream()
+                .map(entryData -> String.format(ENTRY_DESCRIPTION, entryData.getName(), entryData.getDescription()))
+                .toList()));
+
+        context.put("retrievedMessages", Collections.emptyList());
 
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
-                .thenReturn(lorebookEntriesNumber(5));
+                .thenReturn(lorebook);
 
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
 
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
-                .thenReturn(contextWithSummary);
+                .thenReturn(contextWithLorebook);
 
         // When
-        Mono<Map<String, Object>> result = service.enrichContextWith(contextWithSummary, worldId, modelConfiguration);
+        Map<String, Object> processedContext = service.enrichContextWithLorebook(messages, worldId, modelConfiguration);
 
         // Then
-        StepVerifier.create(result)
-                .assertNext(processedContext -> {
-                    assertThat(processedContext).containsKey("lorebook");
+        assertThat(processedContext).containsKey("lorebook");
 
-                    String lorebook = (String) processedContext.get("lorebook");
-                    List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
-                            .get("retrievedMessages");
+        String lorebookExtracted = (String) processedContext.get("lorebook");
+        List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
+        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+                .get("retrievedMessages");
 
-                    assertThat(messageHistory).hasSize(5);
-                    assertThat(retrievedMessages).isEmpty();
+        assertThat(messageHistory).hasSize(5);
+        assertThat(retrievedMessages).isEmpty();
 
-                    assertThat(lorebook)
-                            .isEqualTo("[ Description of Entry 1: Description 1 ]\n"
-                                    + "[ Description of Entry 2: Description 2 ]\n"
-                                    + "[ Description of Entry 3: Description 3 ]\n"
-                                    + "[ Description of Entry 4: Description 4 ]\n"
-                                    + "[ Description of Entry 5: Description 5 ]");
-                })
-                .verifyComplete();
+        assertThat(lorebookExtracted)
+                .isEqualTo("[ Description of Entry 1: Description 1 ]\n"
+                        + "[ Description of Entry 2: Description 2 ]\n"
+                        + "[ Description of Entry 3: Description 3 ]\n"
+                        + "[ Description of Entry 4: Description 4 ]\n"
+                        + "[ Description of Entry 5: Description 5 ]");
     }
 
     @Test
     public void enrich_whenReservedTokensAreReached_thenNoExtraMessagesAreAdded() {
         // Given
         String worldId = "worldId";
-        Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
+        Map<String, Object> context = contextWithSummaryAndMessages(5);
         ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
+
+        List<WorldLorebookEntry> lorebook = lorebookEntriesNumber(5);
+        Map<String, Object> contextWithLorebook = new HashMap<>(context);
+        contextWithLorebook.put("lorebook", stringifyList(lorebook
+                .stream()
+                .map(entryData -> String.format(ENTRY_DESCRIPTION, entryData.getName(), entryData.getDescription()))
+                .toList()));
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
-                .thenReturn(lorebookEntriesNumber(5));
+                .thenReturn(lorebook);
 
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(10);
 
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
-                .thenReturn(contextWithSummary);
+                .thenReturn(contextWithLorebook);
 
         // When
-        Mono<Map<String, Object>> result = service.enrichContextWith(contextWithSummary, worldId, modelConfiguration);
+        Map<String, Object> processedContext = service.enrichContextWithLorebook(messages, worldId, modelConfiguration);
 
         // Then
-        StepVerifier.create(result)
-                .assertNext(processedContext -> {
-                    assertThat(processedContext).containsKey("lorebook");
+        assertThat(processedContext).containsKey("lorebook");
 
-                    String lorebook = (String) processedContext.get("lorebook");
-                    List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-                    List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
-                            .get("retrievedMessages");
+        String lorebookExtracted = (String) processedContext.get("lorebook");
+        List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
+        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+                .get("retrievedMessages");
 
-                    assertThat(messageHistory).hasSize(5);
-                    assertThat(retrievedMessages).isEmpty();
+        assertThat(messageHistory).hasSize(5);
+        assertThat(retrievedMessages).isEmpty();
 
-                    assertThat(lorebook)
-                            .isEqualTo("[ Description of Entry 1: Description 1 ]\n"
-                                    + "[ Description of Entry 2: Description 2 ]\n"
-                                    + "[ Description of Entry 3: Description 3 ]\n"
-                                    + "[ Description of Entry 4: Description 4 ]\n"
-                                    + "[ Description of Entry 5: Description 5 ]");
-                })
-                .verifyComplete();
+        assertThat(lorebookExtracted)
+                .isEqualTo("[ Description of Entry 1: Description 1 ]\n"
+                        + "[ Description of Entry 2: Description 2 ]\n"
+                        + "[ Description of Entry 3: Description 3 ]\n"
+                        + "[ Description of Entry 4: Description 4 ]\n"
+                        + "[ Description of Entry 5: Description 5 ]");
     }
 
     private List<WorldLorebookEntry> lorebookEntriesNumber(int number) {
@@ -239,5 +251,10 @@ public class LorebookEnrichmentServiceImplTest {
         context.put("messageHistory", textMessages);
 
         return context;
+    }
+
+    private String stringifyList(List<String> list) {
+
+        return list.stream().collect(Collectors.joining(LF));
     }
 }

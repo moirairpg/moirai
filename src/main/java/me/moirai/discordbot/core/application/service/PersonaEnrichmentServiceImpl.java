@@ -31,7 +31,7 @@ public class PersonaEnrichmentServiceImpl implements PersonaEnrichmentService {
     }
 
     @Override
-    public Mono<Map<String, Object>> enrichContextWith(Map<String, Object> context, String personaId,
+    public Mono<Map<String, Object>> enrichContextWithPersona(Map<String, Object> context, String personaId,
             ModelConfiguration modelConfiguration) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();

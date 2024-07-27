@@ -77,12 +77,13 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                 .map(channelConfig -> discordChannelOperationsPort
                         .retrieveEntireHistoryFrom(query.getMessageGuildId(), query.getMessageChannelId(),
                                 query.getMessageId(), query.getMentionedUsersIds())
-                        .flatMap(messageHistory -> summarizationService.summarizeContextWith(messageHistory,
-                                channelConfig.getModelConfiguration()))
-                        .flatMap(contextWithSummary -> lorebookEnrichmentService.enrichContextWith(contextWithSummary,
+                        .map(messageHistory -> lorebookEnrichmentService.enrichContextWithLorebook(messageHistory,
                                 channelConfig.getWorldId(), channelConfig.getModelConfiguration()))
-                        .flatMap(contextWithLorebook -> personaEnrichmentService.enrichContextWith(contextWithLorebook,
-                                channelConfig.getPersonaId(), channelConfig.getModelConfiguration()))
+                        .flatMap(contextWithLorebook -> summarizationService.summarizeContextWith(contextWithLorebook,
+                                channelConfig.getModelConfiguration()))
+                        .flatMap(contextWithSummary -> personaEnrichmentService.enrichContextWithPersona(
+                                contextWithSummary, channelConfig.getPersonaId(),
+                                channelConfig.getModelConfiguration()))
                         .map(contextWithPersona -> processEnrichedContext(contextWithPersona, query.getBotName()))
                         .flatMap(processedContext -> moderateInput(processedContext, query.getMessageChannelId(),
                                 channelConfig.getModeration()))

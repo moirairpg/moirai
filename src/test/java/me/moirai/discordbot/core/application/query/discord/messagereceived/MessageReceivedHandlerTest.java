@@ -116,16 +116,16 @@ public class MessageReceivedHandlerTest {
         when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
                 .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
 
-        when(summarizationService.summarizeContextWith(anyList(), any(ModelConfiguration.class)))
+        when(summarizationService.summarizeContextWith(anyMap(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
 
         when(channelConfigRepository.findByDiscordChannelId(channelId))
                 .thenReturn(Optional.of(channelConfig));
 
-        when(lorebookEnrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
-                .thenReturn(Mono.just(context));
+        when(lorebookEnrichmentService.enrichContextWithLorebook(anyList(), anyString(), any(ModelConfiguration.class)))
+                .thenReturn(context);
 
-        when(enrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
+        when(enrichmentService.enrichContextWithPersona(anyMap(), anyString(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
 
         when(textCompletionPort.generateTextFrom(any(TextGenerationRequest.class)))
@@ -211,16 +211,16 @@ public class MessageReceivedHandlerTest {
         when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
                 .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
 
-        when(summarizationService.summarizeContextWith(anyList(), any(ModelConfiguration.class)))
+        when(summarizationService.summarizeContextWith(anyMap(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
 
         when(channelConfigRepository.findByDiscordChannelId(channelId))
                 .thenReturn(Optional.of(channelConfig));
 
-        when(lorebookEnrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
-                .thenReturn(Mono.just(context));
+        when(lorebookEnrichmentService.enrichContextWithLorebook(anyList(), anyString(), any(ModelConfiguration.class)))
+                .thenReturn(context);
 
-        when(enrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
+        when(enrichmentService.enrichContextWithPersona(anyMap(), anyString(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
 
         when(textModerationPort.moderate(anyString()))
@@ -276,16 +276,16 @@ public class MessageReceivedHandlerTest {
         when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
                 .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
 
-        when(summarizationService.summarizeContextWith(anyList(), any(ModelConfiguration.class)))
+        when(summarizationService.summarizeContextWith(anyMap(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
 
         when(channelConfigRepository.findByDiscordChannelId(channelId))
                 .thenReturn(Optional.of(channelConfig));
 
-        when(lorebookEnrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
-                .thenReturn(Mono.just(context));
+        when(lorebookEnrichmentService.enrichContextWithLorebook(anyList(), anyString(), any(ModelConfiguration.class)))
+                .thenReturn(context);
 
-        when(enrichmentService.enrichContextWith(anyMap(), anyString(), any(ModelConfiguration.class)))
+        when(enrichmentService.enrichContextWithPersona(anyMap(), anyString(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
 
         when(textModerationPort.moderate(anyString()))

@@ -4,12 +4,12 @@
 
 CREATE TABLE world (
     id VARCHAR(100) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    adventure_start VARCHAR(255) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR NOT NULL,
+    adventure_start VARCHAR NOT NULL,
     owner_discord_id VARCHAR(100) NOT NULL,
-    discord_users_allowed_to_read VARCHAR(255),
-    discord_users_allowed_to_write VARCHAR(255),
+    discord_users_allowed_to_read VARCHAR,
+    discord_users_allowed_to_write VARCHAR,
     visibility VARCHAR(20) NOT NULL,
     creator_discord_id VARCHAR(100) NOT NULL,
     creation_date TIMESTAMP WITH TIME ZONE,
@@ -18,8 +18,8 @@ CREATE TABLE world (
 
 CREATE TABLE world_lorebook (
     id VARCHAR(100) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR NOT NULL,
     regex VARCHAR(255) NOT NULL,
     player_discord_id VARCHAR(100),
     is_player_character BOOLEAN DEFAULT FALSE NOT NULL,
