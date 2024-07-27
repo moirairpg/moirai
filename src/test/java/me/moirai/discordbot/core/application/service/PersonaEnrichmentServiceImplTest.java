@@ -46,7 +46,7 @@ public class PersonaEnrichmentServiceImplTest {
 
         // Given
         Persona persona = PersonaFixture.privatePersona().build();
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
         Map<String, Object> context = contextWithSummaryAndMessages(10);
 
         String expectedPersona = String.format(
@@ -76,7 +76,7 @@ public class PersonaEnrichmentServiceImplTest {
 
         // Given
         Persona persona = PersonaFixture.privatePersona().build();
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
         Map<String, Object> context = contextWithSummaryAndMessages(5);
 
         String expectedPersona = String.format(
@@ -109,7 +109,7 @@ public class PersonaEnrichmentServiceImplTest {
 
         // Given
         Persona persona = PersonaFixture.privatePersona().build();
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
         Map<String, Object> context = contextWithSummaryAndMessages(5);
 
         when(personaService.getPersonaById(anyString())).thenReturn(persona);

@@ -20,7 +20,7 @@ public class ModelConfigurationTest {
 
         // Given
         ModelConfiguration.Builder modelConfigurationBuilder = ModelConfiguration.builder();
-        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT35_16K);
+        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT4_MINI);
         modelConfigurationBuilder.frequencyPenalty(0.2);
         modelConfigurationBuilder.presencePenalty(0.2);
         modelConfigurationBuilder.maxTokenLimit(100);
@@ -41,7 +41,7 @@ public class ModelConfigurationTest {
 
         // Then
         assertThat(modelConfiguration).isNotNull();
-        assertThat(modelConfiguration.getAiModel()).isEqualTo(ArtificialIntelligenceModel.GPT35_16K);
+        assertThat(modelConfiguration.getAiModel()).isEqualTo(ArtificialIntelligenceModel.GPT4_MINI);
         assertThat(modelConfiguration.getFrequencyPenalty()).isEqualTo(0.2);
         assertThat(modelConfiguration.getPresencePenalty()).isEqualTo(0.2);
         assertThat(modelConfiguration.getMaxTokenLimit()).isEqualTo(100);
@@ -53,7 +53,7 @@ public class ModelConfigurationTest {
 
         // Given
         ModelConfiguration.Builder modelConfigurationBuilder = ModelConfiguration.builder();
-        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT35_16K);
+        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT4_MINI);
         modelConfigurationBuilder.frequencyPenalty(0.2);
         modelConfigurationBuilder.presencePenalty(0.2);
         modelConfigurationBuilder.maxTokenLimit(100);
@@ -81,8 +81,8 @@ public class ModelConfigurationTest {
     public void updateAiModel() {
 
         // Given
-        ArtificialIntelligenceModel newModel = ArtificialIntelligenceModel.GPT4_128K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ArtificialIntelligenceModel newModel = ArtificialIntelligenceModel.GPT4_OMNI;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updateAiModel(newModel);
@@ -96,7 +96,7 @@ public class ModelConfigurationTest {
 
         // Given
         Integer newTokenLimit = 700;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updateMaxTokenLimit(newTokenLimit);
@@ -110,7 +110,7 @@ public class ModelConfigurationTest {
 
         // Given
         Double newTemperature = 1.7;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updateTemperature(newTemperature);
@@ -124,7 +124,7 @@ public class ModelConfigurationTest {
 
         // Given
         Double newFrequencyPenalty = 1.7;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updateFrequencyPenalty(newFrequencyPenalty);
@@ -138,7 +138,7 @@ public class ModelConfigurationTest {
 
         // Given
         Double defaultFrequencyPenalty = 0.0;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updateFrequencyPenalty(null);
@@ -152,7 +152,7 @@ public class ModelConfigurationTest {
 
         // Given
         Double newPresencePenalty = 1.7;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updatePresencePenalty(newPresencePenalty);
@@ -166,7 +166,7 @@ public class ModelConfigurationTest {
 
         // Given
         Double defaultPresencePenalty = 0.0;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.updatePresencePenalty(null);
@@ -181,7 +181,7 @@ public class ModelConfigurationTest {
         // Given
         String newToken = "323";
         Double bias = 57.0;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.addLogitBias(newToken, bias);
@@ -196,7 +196,7 @@ public class ModelConfigurationTest {
         // Given
         String newToken = "323";
         Double bias = 57.0;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
         modelConfiguration = modelConfiguration.addLogitBias(newToken, bias);
 
         // When
@@ -211,7 +211,7 @@ public class ModelConfigurationTest {
 
         // Given
         String newToken = "323";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         // When
         ModelConfiguration newModelConfiguration = modelConfiguration.addStopSequence(newToken);
@@ -225,7 +225,7 @@ public class ModelConfigurationTest {
 
         // Given
         String newToken = "323";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
         modelConfiguration = modelConfiguration.addStopSequence(newToken);
 
         // When
@@ -242,7 +242,7 @@ public class ModelConfigurationTest {
     public void errorWhenTemperatureIsHigherThanLimit() {
 
         // Given
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .temperature(3.0);
 
         // Then
@@ -253,7 +253,7 @@ public class ModelConfigurationTest {
     public void errorWhenTemperatureIsLowerThanLimit() {
 
         // Given
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .temperature(-3.0);
 
         // Then
@@ -264,7 +264,7 @@ public class ModelConfigurationTest {
     public void errorWhenMaxTokenLimitIsLowerThanLimit() {
 
         // Given
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .maxTokenLimit(5);
 
         // Then
@@ -275,17 +275,15 @@ public class ModelConfigurationTest {
     public void errorWhenMaxTokenLimitIsHigherThanModelLimit() {
 
         // Given
-        ModelConfiguration.Builder gpt3516k = ModelConfigurationFixture.gpt3516k()
-                .aiModel(ArtificialIntelligenceModel.GPT35_16K)
-                .maxTokenLimit(20000);
+        ModelConfiguration.Builder gpt4Mini = ModelConfigurationFixture.gpt4Mini()
+                .maxTokenLimit(200000);
 
-        ModelConfiguration.Builder gpt4128k = ModelConfigurationFixture.gpt3516k()
-                .aiModel(ArtificialIntelligenceModel.GPT4_128K)
+        ModelConfiguration.Builder gpt4Omni = ModelConfigurationFixture.gpt4Omni()
                 .maxTokenLimit(500000);
 
         // Then
-        assertThrows(BusinessRuleViolationException.class, gpt3516k::build);
-        assertThrows(BusinessRuleViolationException.class, gpt4128k::build);
+        assertThrows(BusinessRuleViolationException.class, gpt4Mini::build);
+        assertThrows(BusinessRuleViolationException.class, gpt4Omni::build);
     }
 
     @Test
@@ -295,7 +293,7 @@ public class ModelConfigurationTest {
         Map<String, Double> logitBias = new HashMap<>();
         logitBias.put("ABC", -200.0);
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .logitBias(logitBias);
 
         // Then
@@ -309,7 +307,7 @@ public class ModelConfigurationTest {
         Map<String, Double> logitBias = new HashMap<>();
         logitBias.put("ABC", 200.0);
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .logitBias(logitBias);
 
         // Then
@@ -322,7 +320,7 @@ public class ModelConfigurationTest {
         // Given
         Map<String, Double> logitBias = Collections.emptyMap();
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .logitBias(logitBias);
 
         // When
@@ -338,7 +336,7 @@ public class ModelConfigurationTest {
 
         // Given
         ModelConfiguration.Builder modelConfigurationBuilder = ModelConfiguration.builder();
-        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT35_16K);
+        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT4_MINI);
         modelConfigurationBuilder.frequencyPenalty(0.2);
         modelConfigurationBuilder.presencePenalty(0.2);
         modelConfigurationBuilder.maxTokenLimit(100);
@@ -360,7 +358,7 @@ public class ModelConfigurationTest {
         Double frequencyPenalty = null;
         Double expectedFrequencyPenalty = 0.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .frequencyPenalty(frequencyPenalty);
 
         // When
@@ -378,7 +376,7 @@ public class ModelConfigurationTest {
         Double presencePenalty = null;
         Double expectedPresencePenalty = 0.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .presencePenalty(presencePenalty);
 
         // When
@@ -395,7 +393,7 @@ public class ModelConfigurationTest {
         // Given
         double frequencyPenalty = 3.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .frequencyPenalty(frequencyPenalty);
 
         // Then
@@ -408,7 +406,7 @@ public class ModelConfigurationTest {
         // Given
         double frequencyPenalty = -3.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .frequencyPenalty(frequencyPenalty);
 
         // Then
@@ -421,7 +419,7 @@ public class ModelConfigurationTest {
         // Given
         double presencePenalty = 3.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .presencePenalty(presencePenalty);
 
         // Then
@@ -434,7 +432,7 @@ public class ModelConfigurationTest {
         // Given
         double presencePenalty = -3.0;
 
-        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration.Builder modelConfigurationBuilder = ModelConfigurationFixture.gpt4Mini()
                 .presencePenalty(presencePenalty);
 
         // Then

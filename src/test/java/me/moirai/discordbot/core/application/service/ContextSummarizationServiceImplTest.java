@@ -1,6 +1,6 @@
 package me.moirai.discordbot.core.application.service;
 
-import static me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel.GPT35_16K;
+import static me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel.GPT4_MINI;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,7 +61,7 @@ public class ContextSummarizationServiceImplTest {
 
         // Given
         String generatedSummary = "Generated summary";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
         List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
@@ -89,7 +89,7 @@ public class ContextSummarizationServiceImplTest {
 
         // Given
         List<ChatMessageData> messages = Collections.emptyList();
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
         Map<String, Object> context = createContextWithMessageNumber(3);
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
@@ -116,8 +116,8 @@ public class ContextSummarizationServiceImplTest {
         // Given
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
         String trimmedSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor.";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
-                .aiModel(GPT35_16K)
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini()
+                .aiModel(GPT4_MINI)
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
@@ -140,7 +140,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(1000);
 
         when(tokenizerPort.getTokenCountFrom(eq(longSummary)))
-                .thenReturn(20000);
+                .thenReturn(200000);
 
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
                 .thenReturn(context);
@@ -170,8 +170,8 @@ public class ContextSummarizationServiceImplTest {
 
         // Given
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
-                .aiModel(GPT35_16K)
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini()
+                .aiModel(GPT4_MINI)
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
@@ -194,7 +194,7 @@ public class ContextSummarizationServiceImplTest {
                 .thenReturn(1000);
 
         when(tokenizerPort.getTokenCountFrom(eq(longSummary)))
-                .thenReturn(20000);
+                .thenReturn(200000);
 
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
                 .thenReturn(context);
@@ -224,8 +224,8 @@ public class ContextSummarizationServiceImplTest {
 
         // Given
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
-                .aiModel(GPT35_16K)
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini()
+                .aiModel(GPT4_MINI)
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);

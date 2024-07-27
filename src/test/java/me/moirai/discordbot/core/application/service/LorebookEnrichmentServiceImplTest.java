@@ -51,7 +51,7 @@ public class LorebookEnrichmentServiceImplTest {
         String worldId = "worldId";
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
 
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(lorebookEntriesNumber(5));
@@ -92,7 +92,7 @@ public class LorebookEnrichmentServiceImplTest {
         // Given
         String worldId = "worldId";
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(Collections.emptyList());
@@ -124,7 +124,7 @@ public class LorebookEnrichmentServiceImplTest {
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
         contextWithSummary.put("retrievedMessages", Collections.emptyList());
 
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(lorebookEntriesNumber(5));
@@ -165,7 +165,7 @@ public class LorebookEnrichmentServiceImplTest {
         // Given
         String worldId = "worldId";
         Map<String, Object> contextWithSummary = contextWithSummaryAndMessages(5);
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(lorebookEntriesNumber(5));

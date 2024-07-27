@@ -108,12 +108,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721356875";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .ownerDiscordId("580485734")
                 .usersAllowedToRead(Collections.singletonList(ownerDiscordId))
@@ -124,8 +124,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .ownerDiscordId("580485734")
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
@@ -140,8 +140,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetWorldResult> worlds = result.getResults();
-        assertThat(worlds.get(0).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(worlds.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -150,11 +150,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721356875";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .build();
 
@@ -162,8 +162,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .id(null)
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
@@ -178,8 +178,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetWorldResult> worlds = result.getResults();
-        assertThat(worlds.get(0).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(worlds.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt4Mini.getName());
         assertThat(worlds.get(2).getName()).isEqualTo(gpt354k.getName());
     }
 
@@ -189,11 +189,11 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721356875";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .build();
 
@@ -201,8 +201,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .id(null)
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
@@ -219,8 +219,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
 
         List<GetWorldResult> worlds = result.getResults();
         assertThat(worlds.get(0).getName()).isEqualTo(gpt354k.getName());
-        assertThat(worlds.get(1).getName()).isEqualTo(gpt3516k.getName());
-        assertThat(worlds.get(2).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt4Mini.getName());
+        assertThat(worlds.get(2).getName()).isEqualTo(gpt4Omni.getName());
     }
 
     @Test
@@ -229,12 +229,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721356875";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 2")
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 1")
                 .build();
@@ -244,7 +244,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
                 .sortByField("name")
@@ -261,8 +261,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetWorldResult> worlds = result.getResults();
-        assertThat(worlds.get(0).getName()).isEqualTo(gpt3516k.getName());
-        assertThat(worlds.get(1).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Mini.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt4Omni.getName());
         assertThat(worlds.get(2).getName()).isEqualTo(gpt354k.getName());
     }
 
@@ -272,12 +272,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721356875";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 2")
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 1")
                 .build();
@@ -287,7 +287,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
                 .sortByField("name")
@@ -304,8 +304,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
 
         List<GetWorldResult> worlds = result.getResults();
         assertThat(worlds.get(0).getName()).isEqualTo(gpt354k.getName());
-        assertThat(worlds.get(1).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(worlds.get(2).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(worlds.get(2).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -314,12 +314,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721356875";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 1")
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 2")
                 .build();
@@ -329,7 +329,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
                 .name("Number 2")
@@ -344,7 +344,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
 
         List<GetWorldResult> worlds = result.getResults();
-        assertThat(worlds.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -353,12 +353,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721358363";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .ownerDiscordId("580485734")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
@@ -369,8 +369,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .ownerDiscordId("580485734")
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
@@ -385,8 +385,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetWorldResult> worlds = result.getResults();
-        assertThat(worlds.get(0).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(worlds.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -395,12 +395,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721358363";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .build();
@@ -409,8 +409,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .id(null)
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
@@ -425,8 +425,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetWorldResult> worlds = result.getResults();
-        assertThat(worlds.get(0).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(worlds.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -435,12 +435,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721358363";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .build();
@@ -449,8 +449,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .id(null)
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
@@ -467,7 +467,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
 
         List<GetWorldResult> worlds = result.getResults();
         assertThat(worlds.get(0).getName()).isEqualTo(gpt354k.getName());
-        assertThat(worlds.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -476,13 +476,13 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721358363";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 2")
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 1")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
@@ -493,7 +493,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .sortByField("name")
@@ -510,8 +510,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetWorldResult> worlds = result.getResults();
-        assertThat(worlds.get(0).getName()).isEqualTo(gpt3516k.getName());
-        assertThat(worlds.get(1).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Mini.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt4Omni.getName());
     }
 
     @Test
@@ -520,13 +520,13 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721358363";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 2")
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 1")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
@@ -537,7 +537,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .sortByField("name")
@@ -553,8 +553,8 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetWorldResult> worlds = result.getResults();
-        assertThat(worlds.get(0).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(worlds.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(worlds.get(1).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -563,12 +563,12 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721358363";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 1")
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 2")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
@@ -579,7 +579,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .name("Number 2")
@@ -594,7 +594,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
 
         List<GetWorldResult> worlds = result.getResults();
-        assertThat(worlds.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -603,13 +603,13 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Given
         String ownerDiscordId = "586678721358363";
 
-        WorldEntity gpt4128k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 1")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .build();
 
-        WorldEntity gpt3516k = WorldEntityFixture.privateWorld()
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
                 .id(null)
                 .name("Number 2")
                 .build();
@@ -619,7 +619,7 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .name("Number 2")

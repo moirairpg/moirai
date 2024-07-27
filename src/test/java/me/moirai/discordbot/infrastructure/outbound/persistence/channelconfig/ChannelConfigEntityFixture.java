@@ -21,6 +21,6 @@ public class ChannelConfigEntityFixture {
                 .usersAllowedToWrite(channelConfig.getUsersAllowedToWrite())
                 .ownerDiscordId(channelConfig.getOwnerDiscordId())
                 .creatorDiscordId(channelConfig.getCreatorDiscordId())
-                .modelConfiguration(ModelConfigurationEntityFixture.gpt3516k().build());
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build());
     }
 }

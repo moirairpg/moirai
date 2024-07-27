@@ -116,12 +116,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721356875";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .ownerDiscordId("580485734")
                 .usersAllowedToRead(Collections.singletonList(ownerDiscordId))
@@ -132,8 +132,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .ownerDiscordId("580485734")
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
@@ -148,8 +148,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -158,11 +158,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721356875";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .build();
 
@@ -170,8 +170,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .id(null)
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
@@ -186,8 +186,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4Mini.getName());
         assertThat(personas.get(2).getName()).isEqualTo(gpt354k.getName());
     }
 
@@ -197,11 +197,11 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721356875";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .build();
 
@@ -209,8 +209,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .id(null)
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
@@ -229,8 +229,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         List<GetPersonaResult> personas = result.getResults();
         assertThat(personas.get(0).getName()).isEqualTo(gpt354k.getName());
-        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
-        assertThat(personas.get(2).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4Mini.getName());
+        assertThat(personas.get(2).getName()).isEqualTo(gpt4Omni.getName());
     }
 
     @Test
@@ -239,12 +239,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721356875";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 2")
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 1")
                 .build();
@@ -254,7 +254,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .sortByField("name")
@@ -269,8 +269,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt3516k.getName());
-        assertThat(personas.get(1).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Mini.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4Omni.getName());
         assertThat(personas.get(2).getName()).isEqualTo(gpt354k.getName());
     }
 
@@ -280,12 +280,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721356875";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 2")
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 1")
                 .build();
@@ -295,7 +295,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .sortByField("name")
@@ -312,8 +312,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         List<GetPersonaResult> personas = result.getResults();
         assertThat(personas.get(0).getName()).isEqualTo(gpt354k.getName());
-        assertThat(personas.get(1).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(personas.get(2).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(personas.get(2).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -322,12 +322,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721356875";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 1")
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 2")
                 .build();
@@ -337,7 +337,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .name("Number 2")
@@ -352,7 +352,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -361,12 +361,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721356875";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .gameMode("CHAT")
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .gameMode("RPG")
                 .build();
@@ -376,7 +376,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .gameMode("AUTHOR")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
                 .gameMode("RPG")
@@ -391,7 +391,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -400,12 +400,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721358363";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .ownerDiscordId("580485734")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
@@ -416,8 +416,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .ownerDiscordId("580485734")
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
@@ -432,8 +432,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -442,12 +442,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721358363";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .build();
@@ -456,8 +456,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .id(null)
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
@@ -472,8 +472,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -482,12 +482,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721358363";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
                 .build();
@@ -496,8 +496,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .id(null)
                 .build();
 
-        jpaRepository.save(gpt4128k);
-        jpaRepository.save(gpt3516k);
+        jpaRepository.save(gpt4Omni);
+        jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
@@ -516,7 +516,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         List<GetPersonaResult> personas = result.getResults();
         assertThat(personas.get(0).getName()).isEqualTo(gpt354k.getName());
-        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -525,13 +525,13 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721358363";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 2")
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 1")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
@@ -542,7 +542,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .sortByField("name")
@@ -557,8 +557,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt3516k.getName());
-        assertThat(personas.get(1).getName()).isEqualTo(gpt4128k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Mini.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4Omni.getName());
     }
 
     @Test
@@ -567,13 +567,13 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721358363";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 2")
                 .ownerDiscordId(ownerDiscordId)
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 1")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
@@ -584,7 +584,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .sortByField("name")
@@ -600,8 +600,8 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt4128k.getName());
-        assertThat(personas.get(1).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Omni.getName());
+        assertThat(personas.get(1).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -610,12 +610,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721358363";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 1")
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 2")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
@@ -626,7 +626,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .name("Number 2")
@@ -641,7 +641,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -650,12 +650,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721358363";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .gameMode("AUTHOR")
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .gameMode("CHAT")
                 .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
@@ -666,7 +666,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .gameMode("RPG")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .gameMode("CHAT")
@@ -681,7 +681,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
 
         List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt3516k.getName());
+        assertThat(personas.get(0).getName()).isEqualTo(gpt4Mini.getName());
     }
 
     @Test
@@ -690,12 +690,12 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
         // Given
         String ownerDiscordId = "586678721358363";
 
-        PersonaEntity gpt4128k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 1")
                 .build();
 
-        PersonaEntity gpt3516k = PersonaEntityFixture.privatePersona()
+        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
                 .id(null)
                 .name("Number 2")
                 .build();
@@ -705,7 +705,7 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4128k, gpt3516k, gpt354k));
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .name("Number 2")

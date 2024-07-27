@@ -7,10 +7,10 @@ import java.util.Map;
 
 public class ModelConfigurationFixture {
 
-    public static ModelConfiguration.Builder gpt3516k() {
+    public static ModelConfiguration.Builder gpt4Mini() {
 
         ModelConfiguration.Builder modelConfigurationBuilder = ModelConfiguration.builder();
-        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT35_16K);
+        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT4_MINI);
         modelConfigurationBuilder.frequencyPenalty(0.2);
         modelConfigurationBuilder.presencePenalty(0.2);
         modelConfigurationBuilder.maxTokenLimit(100);
@@ -29,10 +29,10 @@ public class ModelConfigurationFixture {
         return modelConfigurationBuilder;
     }
 
-    public static ModelConfiguration.Builder gpt4128k() {
+    public static ModelConfiguration.Builder gpt4Omni() {
 
         ModelConfiguration.Builder modelConfigurationBuilder = ModelConfiguration.builder();
-        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT4_128K);
+        modelConfigurationBuilder.aiModel(ArtificialIntelligenceModel.GPT4_OMNI);
         modelConfigurationBuilder.frequencyPenalty(0.2);
         modelConfigurationBuilder.presencePenalty(0.2);
         modelConfigurationBuilder.maxTokenLimit(100);

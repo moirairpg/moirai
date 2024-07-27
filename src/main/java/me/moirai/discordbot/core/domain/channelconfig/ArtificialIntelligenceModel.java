@@ -8,11 +8,11 @@ import me.moirai.discordbot.common.exception.AIModelNotSupportedException;
 
 public enum ArtificialIntelligenceModel {
 
-    @JsonProperty("gpt35-16k")
-    GPT35_16K("gpt35-16k", "gpt-3.5-turbo", 16385),
+    @JsonProperty("gpt4-mini")
+    GPT4_MINI("gpt4-mini", "gpt-4o-mini", 128000),
 
-    @JsonProperty("gpt4-128k")
-    GPT4_128K("gpt4-128k", "gpt-4-turbo", 128000);
+    @JsonProperty("gpt4-omni")
+    GPT4_OMNI("gpt4-omni", "gpt-4o", 128000);
 
     private final String internalModelName;
     private final String officialModelName;

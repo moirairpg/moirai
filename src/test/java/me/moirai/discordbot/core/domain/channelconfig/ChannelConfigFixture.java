@@ -19,7 +19,7 @@ public class ChannelConfigFixture {
         builder.discordChannelId("CHNLID");
         builder.moderation(Moderation.STRICT);
         builder.visibility(Visibility.fromString("PRIVATE"));
-        builder.modelConfiguration(ModelConfigurationFixture.gpt3516k().build());
+        builder.modelConfiguration(ModelConfigurationFixture.gpt4Mini().build());
         builder.permissions(PermissionsFixture.samplePermissions().build());
         builder.creatorDiscordId(OWNER_DISCORD_ID);
         builder.creationDate(OffsetDateTime.now());

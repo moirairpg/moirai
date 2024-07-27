@@ -30,7 +30,7 @@ public class ChannelConfigTest {
         channelConfigBuilder.discordChannelId("CHNLID");
         channelConfigBuilder.moderation(Moderation.STRICT);
         channelConfigBuilder.visibility(Visibility.fromString("PRIVATE"));
-        channelConfigBuilder.modelConfiguration(ModelConfigurationFixture.gpt3516k().build());
+        channelConfigBuilder.modelConfiguration(ModelConfigurationFixture.gpt4Mini().build());
         channelConfigBuilder.permissions(PermissionsFixture.samplePermissions().build());
 
         // When
@@ -273,7 +273,7 @@ public class ChannelConfigTest {
     public void updateChannelConfig_whenNewAiModelIsProvided_thenAiModelShouldBeUpdated() {
 
         // Given
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT4_128K;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT4_OMNI;
         ChannelConfig channelConfig = ChannelConfigFixture.sample().build();
 
         // When
@@ -288,8 +288,8 @@ public class ChannelConfigTest {
 
         // Given
         int maxTokenLimit = 100;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT4_MINI;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
         // When
@@ -303,9 +303,9 @@ public class ChannelConfigTest {
     public void updateChannelConfig_whenNewMaxTokenLimitGreaterThanAllowed_thenThrowException() {
 
         // Given
-        int maxTokenLimit = 50000;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
+        int maxTokenLimit = 500000;
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT4_MINI;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
         // Then
@@ -318,8 +318,8 @@ public class ChannelConfigTest {
 
         // Given
         int maxTokenLimit = 10;
-        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT35_16K;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().aiModel(aiModel).build();
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT4_MINI;
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().aiModel(aiModel).build();
         ChannelConfig channelConfig = ChannelConfigFixture.sample().modelConfiguration(modelConfiguration).build();
 
         // Then
@@ -447,7 +447,7 @@ public class ChannelConfigTest {
         // Given
         String token = "TOKEN";
         double bias = 1.3;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini()
                 .logitBias(new HashMap<>())
                 .build();
 
@@ -493,7 +493,7 @@ public class ChannelConfigTest {
 
         // Given
         String token = "TOKEN";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini()
                 .stopSequences(new ArrayList<>())
                 .build();
 
@@ -513,7 +513,7 @@ public class ChannelConfigTest {
 
         // Given
         String token = "TOKEN";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini()
                 .stopSequences(Collections.singletonList(token))
                 .build();
 
@@ -534,7 +534,7 @@ public class ChannelConfigTest {
         // Given
         String token = "TOKEN";
         double bias = 1.3;
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k()
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini()
                 .logitBias(Collections.singletonMap(token, bias))
                 .build();
 

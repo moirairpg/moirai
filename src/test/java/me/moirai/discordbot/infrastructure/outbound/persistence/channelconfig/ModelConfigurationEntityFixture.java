@@ -5,9 +5,9 @@ import me.moirai.discordbot.core.domain.channelconfig.ModelConfigurationFixture;
 
 public class ModelConfigurationEntityFixture {
 
-    public static ModelConfigurationEntity.Builder gpt3516k() {
+    public static ModelConfigurationEntity.Builder gpt4Mini() {
 
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt3516k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
         return ModelConfigurationEntity.builder()
                 .aiModel(modelConfiguration.getAiModel().getInternalModelName())
                 .frequencyPenalty(modelConfiguration.getFrequencyPenalty())
@@ -18,9 +18,9 @@ public class ModelConfigurationEntityFixture {
                 .temperature(modelConfiguration.getTemperature());
     }
 
-    public static ModelConfigurationEntity.Builder gpt4128k() {
+    public static ModelConfigurationEntity.Builder gpt4Omni() {
 
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4128k().build();
+        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Omni().build();
         return ModelConfigurationEntity.builder()
                 .aiModel(modelConfiguration.getAiModel().getInternalModelName())
                 .frequencyPenalty(modelConfiguration.getFrequencyPenalty())

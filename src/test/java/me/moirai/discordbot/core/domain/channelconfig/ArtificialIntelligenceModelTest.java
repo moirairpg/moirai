@@ -13,7 +13,7 @@ public class ArtificialIntelligenceModelTest {
     public void retrieveModelFromName() {
 
         // Given
-        String internalModelName = "gpt35-16k";
+        String internalModelName = "gpt4-omni";
 
         // When
         ArtificialIntelligenceModel model = ArtificialIntelligenceModel.findByInternalModelName(internalModelName);
