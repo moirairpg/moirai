@@ -8,7 +8,8 @@ public class MessageReceivedFixture {
 
         return MessageReceived.builder()
                 .authordDiscordId("John")
-                .botName("TestBot")
+                .botUsername("TestBot")
+                .botNickname("BotNickname")
                 .isBotMentioned(false)
                 .mentionedUsersIds(Collections.emptyList())
                 .messageChannelId("CHNLID")

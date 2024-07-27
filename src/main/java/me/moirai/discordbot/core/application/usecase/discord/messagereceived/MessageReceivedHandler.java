@@ -84,14 +84,14 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                         .flatMap(contextWithSummary -> personaEnrichmentPort.enrichContextWithPersona(
                                 contextWithSummary, channelConfig.getPersonaId(),
                                 channelConfig.getModelConfiguration()))
-                        .map(contextWithPersona -> processEnrichedContext(contextWithPersona, query.getBotName()))
+                        .map(contextWithPersona -> processEnrichedContext(contextWithPersona, query.getBotUsername(), query.getBotNickname()))
                         .flatMap(processedContext -> moderateInput(processedContext, query.getMessageChannelId(),
                                 channelConfig.getModeration()))
                         .flatMap(processedContext -> generateAiOutput(channelConfig, processedContext))
                         .flatMap(aiOutput -> moderateOutput(aiOutput, query.getMessageChannelId(),
                                 channelConfig.getModeration()))
                         .flatMap(generatedOutput -> sendOutputTo(query.getMessageChannelId(),
-                                query.getBotName(), generatedOutput)))
+                                query.getBotUsername(), generatedOutput)))
                 .orElseGet(() -> Mono.empty());
     }
 
@@ -118,7 +118,8 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                 .build();
     }
 
-    private List<ChatMessage> processEnrichedContext(Map<String, Object> unsortedContext, String botName) {
+    private List<ChatMessage> processEnrichedContext(Map<String, Object> unsortedContext,
+            String botName, String botNickname) {
 
         String persona = (String) unsortedContext.get(PERSONA);
         String personaName = (String) unsortedContext.get(PERSONA_NAME);
@@ -128,9 +129,10 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
 
         List<ChatMessage> processedContext = new ArrayList<>();
         processedContext.add(
-                ChatMessage.build(ChatMessage.Role.SYSTEM, replacePlaceholders(storySummary, botName, personaName)));
+                ChatMessage.build(ChatMessage.Role.SYSTEM,
+                        replacePlaceholders(storySummary, botName, botNickname, personaName)));
 
-        processedContext.addAll(buildContextForGeneration(unsortedContext, botName, personaName));
+        processedContext.addAll(buildContextForGeneration(unsortedContext, botName, botNickname, personaName));
 
         if (StringUtils.isNotBlank(lorebookEntries)) {
             processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
@@ -145,25 +147,27 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
         return extractBumpFrom(unsortedContext, processedContext);
     }
 
-    private String replacePlaceholders(String summary, String botName, String personaName) {
+    private String replacePlaceholders(String summary, String botName, String botNickname, String personaName) {
 
         StringProcessor processor = new StringProcessor();
         processor.addRule(DefaultStringProcessors.stripChatPrefix());
         processor.addRule(DefaultStringProcessors.stripTrailingFragment());
         processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botName));
+        processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botNickname));
 
         return processor.process(summary);
     }
 
     @SuppressWarnings("unchecked")
     private List<ChatMessage> buildContextForGeneration(Map<String, Object> unsortedContext,
-            String botName, String personaName) {
+            String botName, String botNickname, String personaName) {
 
         List<String> messageHistory = (List<String>) unsortedContext.get(MESSAGE_HISTORY);
         return messageHistory.stream()
                 .map(message -> {
                     StringProcessor processor = new StringProcessor();
                     processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botName));
+                    processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botNickname));
 
                     String modifiedContent = processor.process(message);
                     String senderName = message.substring(0, message.indexOf(SAID));

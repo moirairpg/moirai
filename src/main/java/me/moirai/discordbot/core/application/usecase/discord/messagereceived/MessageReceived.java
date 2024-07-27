@@ -14,7 +14,8 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
     private final String messageId;
     private final String messageChannelId;
     private final String messageGuildId;
-    private final String botName;
+    private final String botUsername;
+    private final String botNickname;
     private final boolean isBotMentioned;
     private final List<String> mentionedUsersIds;
 
@@ -24,7 +25,8 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
         this.messageId = builder.messageId;
         this.messageChannelId = builder.messageChannelId;
         this.messageGuildId = builder.messageGuildId;
-        this.botName = builder.botName;
+        this.botUsername = builder.botUsername;
+        this.botNickname = builder.botNickname;
         this.isBotMentioned = builder.isBotMentioned;
         this.mentionedUsersIds = unmodifiableList(builder.mentionedUsersIds);
     }
@@ -49,8 +51,12 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
         return messageGuildId;
     }
 
-    public String getBotName() {
-        return botName;
+    public String getBotUsername() {
+        return botUsername;
+    }
+
+    public String getBotNickname() {
+        return botNickname;
     }
 
     public List<String> getMentionedUsersIds() {
@@ -67,7 +73,8 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
         private String messageId;
         private String messageChannelId;
         private String messageGuildId;
-        private String botName;
+        private String botUsername;
+        private String botNickname;
         private boolean isBotMentioned;
         private List<String> mentionedUsersIds = new ArrayList<>();
 
@@ -94,8 +101,13 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
             return this;
         }
 
-        public Builder botName(String botName) {
-            this.botName = botName;
+        public Builder botUsername(String botUsername) {
+            this.botUsername = botUsername;
+            return this;
+        }
+
+        public Builder botNickname(String botNickname) {
+            this.botNickname = botNickname;
             return this;
         }
 

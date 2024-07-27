@@ -311,7 +311,7 @@ public class MessageReceivedHandlerTest {
         String channelId = "CHNLID";
         MessageReceived query = MessageReceived.builder()
                 .authordDiscordId("John")
-                .botName("TestBot")
+                .botUsername("TestBot")
                 .isBotMentioned(false)
                 .mentionedUsersIds(Collections.emptyList())
                 .messageChannelId(channelId)

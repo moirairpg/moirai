@@ -56,7 +56,8 @@ public class MessageCreatedListener implements DiscordEventListener<MessageCreat
                                 .messageGuildId(guild.getId().asString())
                                 .isBotMentioned(mentions.contains(bot.getId().asString()))
                                 .mentionedUsersIds(mentions)
-                                .botName(bot.getNickname()
+                                .botUsername(bot.getUsername())
+                                .botNickname(bot.getNickname()
                                         .orElse(bot.getUsername()))
                                 .build();
                     })
