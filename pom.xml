@@ -30,9 +30,18 @@
         <sonar.projectName>backend</sonar.projectName>
         <sonar.projectKey>chatrpg-cs_chatrpg-be</sonar.projectKey>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <pitest.version>1.11.7</pitest.version>
+        <tokenizer.version>0.26.0</tokenizer.version>
+        <jna.version>2.0.0</jna.version>
+        <discord4j.version>3.2.6</discord4j.version>
+        <apache.commons.lang.version>3.14.0</apache.commons.lang.version>
+        <apache.commons.collections.version>4.4</apache.commons.collections.version>
+        <jackson.dataformat.version>2.16.1</jackson.dataformat.version>
+        <logback.encoder.version>7.4</logback.encoder.version>
     </properties>
 
     <dependencies>
+
         <!-- Spring Framework -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -93,7 +102,7 @@
         <dependency>
             <groupId>org.pitest</groupId>
             <artifactId>pitest</artifactId>
-            <version>1.11.7</version>
+            <version>${pitest.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -116,13 +125,11 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <!-- <version>4.12.0</version> -->
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
-            <!-- <version>4.12.0</version> -->
             <scope>test</scope>
         </dependency>
 
@@ -130,45 +137,39 @@
         <dependency>
             <groupId>ai.djl.huggingface</groupId>
             <artifactId>tokenizers</artifactId>
-            <version>0.26.0</version>
+            <version>${tokenizer.version}</version>
         </dependency>
         <dependency>
             <groupId>com.discord4j</groupId>
             <artifactId>discord4j-core</artifactId>
-            <version>3.2.6</version>
+            <version>${discord4j.version}</version>
         </dependency>
-
 
         <!-- Libraries -->
         <dependency>
             <groupId>com.aventrix.jnanoid</groupId>
             <artifactId>jnanoid</artifactId>
-            <version>2.0.0</version>
+            <version>${jna.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.14.0</version>
+            <version>${apache.commons.lang.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.4</version>
+            <version>${apache.commons.collections.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.16.1</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback.contrib</groupId>
-            <artifactId>logback-jackson</artifactId>
-            <version>${logback.json.version}</version>
+            <version>${jackson.dataformat.version}</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>7.4</version>
+            <version>${logback.encoder.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -183,6 +184,11 @@
         <dependency>
             <groupId>ch.qos.logback.contrib</groupId>
             <artifactId>logback-json-classic</artifactId>
+            <version>${logback.json.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-jackson</artifactId>
             <version>${logback.json.version}</version>
         </dependency>
         <dependency>
@@ -296,7 +302,7 @@
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
-                <version>1.11.7</version>
+                <version>${pitest.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.pitest</groupId>
