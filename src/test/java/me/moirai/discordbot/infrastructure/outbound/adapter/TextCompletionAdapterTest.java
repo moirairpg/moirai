@@ -1,12 +1,12 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.util.Collections;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,38 +14,24 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import me.moirai.discordbot.AbstractWebMockTest;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessage;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.CompletionResponse;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.CompletionResponseChoice;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.CompletionResponseUsage;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import reactor.test.StepVerifier;
 
-public class TextCompletionAdapterTest {
+public class TextCompletionAdapterTest extends AbstractWebMockTest {
 
     private TextCompletionAdapter adapter;
     private ObjectMapper objectMapper;
-
-    private static MockWebServer mockBackEnd;
-
-    @BeforeAll
-    static void setUp() throws IOException {
-        mockBackEnd = new MockWebServer();
-        mockBackEnd.start();
-    }
-
-    @AfterAll
-    static void tearDown() throws IOException {
-        mockBackEnd.shutdown();
-    }
 
     @BeforeEach
     void before() {
 
         objectMapper = new ObjectMapper();
-        adapter = new TextCompletionAdapter("http://localhost:" + mockBackEnd.getPort(),
+        adapter = new TextCompletionAdapter("http://localhost:" + PORT,
                 "/completion", "api-token", WebClient.builder());
     }
 
@@ -76,9 +62,9 @@ public class TextCompletionAdapterTest {
                         .build()))
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setBody(objectMapper.writeValueAsString(expectedResponse))
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(expectedResponse))
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
         // Then
         StepVerifier.create(adapter.generateTextFrom(request))

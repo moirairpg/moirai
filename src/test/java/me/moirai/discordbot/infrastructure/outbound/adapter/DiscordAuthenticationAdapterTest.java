@@ -1,11 +1,10 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,41 +12,27 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import me.moirai.discordbot.AbstractWebMockTest;
 import me.moirai.discordbot.common.exception.DiscordApiException;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordAuthResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordErrorResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordUserDataResponse;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordAuthRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import reactor.test.StepVerifier;
 
-public class DiscordAuthenticationAdapterTest {
+public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
 
     private static final String DUMMY_VALUE = "DUMMY";
 
     private DiscordAuthenticationAdapter adapter;
     private ObjectMapper objectMapper;
 
-    private static MockWebServer mockBackEnd;
-
-    @BeforeAll
-    static void setUp() throws IOException {
-        mockBackEnd = new MockWebServer();
-        mockBackEnd.start();
-    }
-
-    @AfterAll
-    static void tearDown() throws IOException {
-        mockBackEnd.shutdown();
-    }
-
     @BeforeEach
     void before() {
 
         objectMapper = new ObjectMapper();
-        adapter = new DiscordAuthenticationAdapter("http://localhost:" + mockBackEnd.getPort(),
+        adapter = new DiscordAuthenticationAdapter("http://localhost:" + PORT,
                 "/users", "/token", "/token/revoke",
                 WebClient.builder(), objectMapper);
     }
@@ -73,9 +58,9 @@ public class DiscordAuthenticationAdapterTest {
                 .tokenType(DUMMY_VALUE)
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setBody(objectMapper.writeValueAsString(response))
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(response))
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
         // Then
         StepVerifier.create(adapter.authenticate(request))
@@ -99,9 +84,8 @@ public class DiscordAuthenticationAdapterTest {
                 .scope(DUMMY_VALUE)
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setResponseCode(401)
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withStatus(401)));
 
         // Then
         StepVerifier.create(adapter.authenticate(request))
@@ -128,10 +112,10 @@ public class DiscordAuthenticationAdapterTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .setBody(objectMapper.writeValueAsString(errorResponse))
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(errorResponse))
+                        .withStatus(400)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
         // Then
         StepVerifier.create(adapter.authenticate(request))
@@ -157,10 +141,10 @@ public class DiscordAuthenticationAdapterTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setResponseCode(500)
-                .setBody(objectMapper.writeValueAsString(errorResponse))
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(errorResponse))
+                        .withStatus(500)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
         // Then
         StepVerifier.create(adapter.authenticate(request))
@@ -178,8 +162,8 @@ public class DiscordAuthenticationAdapterTest {
                 .tokenTypeHint(DUMMY_VALUE)
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
         // Then
         StepVerifier.create(adapter.logout(request))
@@ -198,9 +182,8 @@ public class DiscordAuthenticationAdapterTest {
                 .tokenTypeHint(DUMMY_VALUE)
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setResponseCode(401)
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withStatus(401)));
 
         // Then
         StepVerifier.create(adapter.logout(request))
@@ -225,10 +208,10 @@ public class DiscordAuthenticationAdapterTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .setBody(objectMapper.writeValueAsString(errorResponse))
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withStatus(400)
+                        .withBody(objectMapper.writeValueAsString(errorResponse))
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
         // Then
         StepVerifier.create(adapter.logout(request))
@@ -252,10 +235,10 @@ public class DiscordAuthenticationAdapterTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setResponseCode(500)
-                .setBody(objectMapper.writeValueAsString(errorResponse))
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withStatus(500)
+                        .withBody(objectMapper.writeValueAsString(errorResponse))
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
         // Then
         StepVerifier.create(adapter.logout(request))
@@ -274,9 +257,9 @@ public class DiscordAuthenticationAdapterTest {
                 .email("email@email.com")
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setBody(objectMapper.writeValueAsString(response))
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(response))
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
         // Then
         StepVerifier.create(adapter.retrieveLoggedUser(token))
@@ -292,9 +275,8 @@ public class DiscordAuthenticationAdapterTest {
         // Given
         String token = "TOKEN";
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setResponseCode(401)
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withStatus(401)));
 
         // Then
         StepVerifier.create(adapter.retrieveLoggedUser(token))
@@ -313,10 +295,10 @@ public class DiscordAuthenticationAdapterTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .setBody(objectMapper.writeValueAsString(errorResponse))
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withStatus(400)
+                        .withBody(objectMapper.writeValueAsString(errorResponse))
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
         // Then
         StepVerifier.create(adapter.retrieveLoggedUser(token))
@@ -334,10 +316,10 @@ public class DiscordAuthenticationAdapterTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        mockBackEnd.enqueue(new MockResponse()
-                .setResponseCode(500)
-                .setBody(objectMapper.writeValueAsString(errorResponse))
-                .addHeader("Content-Type", "application/json"));
+        wireMockServer.stubFor(any(anyUrl())
+                .willReturn(aResponse().withStatus(500)
+                        .withBody(objectMapper.writeValueAsString(errorResponse))
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
         // Then
         StepVerifier.create(adapter.retrieveLoggedUser(token))
