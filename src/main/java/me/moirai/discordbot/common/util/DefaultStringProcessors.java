@@ -35,7 +35,7 @@ public class DefaultStringProcessors {
 
     public static UnaryOperator<String> stripChatPrefix() {
 
-        return input -> Pattern.compile("^[a-zA-ZÀ-úÀ-ÿ\\s]+ said:")
+        return input -> Pattern.compile("^[a-zA-ZÀ-úÀ-ÿ\\s$&+,:;=?@#|'<>.^*()%!-]+ said:")
                 .matcher(input)
                 .replaceAll(StringUtils.EMPTY)
                 .trim();
