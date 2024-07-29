@@ -1,8 +1,5 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
@@ -12,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import me.moirai.discordbot.AbstractWebMockTest;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
@@ -25,12 +21,10 @@ import reactor.test.StepVerifier;
 public class TextCompletionAdapterTest extends AbstractWebMockTest {
 
     private TextCompletionAdapter adapter;
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     void before() {
 
-        objectMapper = new ObjectMapper();
         adapter = new TextCompletionAdapter("http://localhost:" + PORT,
                 "/completion", "api-token", WebClient.builder());
     }
@@ -62,9 +56,7 @@ public class TextCompletionAdapterTest extends AbstractWebMockTest {
                         .build()))
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(expectedResponse))
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+        prepareWebserverFor(expectedResponse, 200);
 
         // Then
         StepVerifier.create(adapter.generateTextFrom(request))

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import me.moirai.discordbot.AbstractWebMockTest;
 import me.moirai.discordbot.common.exception.DiscordApiException;
@@ -26,12 +25,10 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
     private static final String DUMMY_VALUE = "DUMMY";
 
     private DiscordAuthenticationAdapter adapter;
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     void before() {
 
-        objectMapper = new ObjectMapper();
         adapter = new DiscordAuthenticationAdapter("http://localhost:" + PORT,
                 "/users", "/token", "/token/revoke",
                 WebClient.builder(), objectMapper);
@@ -58,9 +55,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
                 .tokenType(DUMMY_VALUE)
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(response))
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+        prepareWebserverFor(response, 200);
 
         // Then
         StepVerifier.create(adapter.authenticate(request))
@@ -84,8 +79,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
                 .scope(DUMMY_VALUE)
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withStatus(401)));
+        prepareWebserverFor(401);
 
         // Then
         StepVerifier.create(adapter.authenticate(request))
@@ -112,10 +106,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(errorResponse))
-                        .withStatus(400)
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+        prepareWebserverFor(errorResponse, 400);
 
         // Then
         StepVerifier.create(adapter.authenticate(request))
@@ -141,10 +132,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(errorResponse))
-                        .withStatus(500)
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+        prepareWebserverFor(errorResponse, 500);
 
         // Then
         StepVerifier.create(adapter.authenticate(request))
@@ -182,8 +170,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
                 .tokenTypeHint(DUMMY_VALUE)
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withStatus(401)));
+        prepareWebserverFor(401);
 
         // Then
         StepVerifier.create(adapter.logout(request))
@@ -208,10 +195,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withStatus(400)
-                        .withBody(objectMapper.writeValueAsString(errorResponse))
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+        prepareWebserverFor(errorResponse, 400);
 
         // Then
         StepVerifier.create(adapter.logout(request))
@@ -235,10 +219,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withStatus(500)
-                        .withBody(objectMapper.writeValueAsString(errorResponse))
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+        prepareWebserverFor(errorResponse, 500);
 
         // Then
         StepVerifier.create(adapter.logout(request))
@@ -257,9 +238,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
                 .email("email@email.com")
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(response))
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+        prepareWebserverFor(response, 200);
 
         // Then
         StepVerifier.create(adapter.retrieveLoggedUser(token))
@@ -275,8 +254,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
         // Given
         String token = "TOKEN";
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withStatus(401)));
+        prepareWebserverFor(401);
 
         // Then
         StepVerifier.create(adapter.retrieveLoggedUser(token))
@@ -295,10 +273,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withStatus(400)
-                        .withBody(objectMapper.writeValueAsString(errorResponse))
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+        prepareWebserverFor(errorResponse, 400);
 
         // Then
         StepVerifier.create(adapter.retrieveLoggedUser(token))
@@ -316,10 +291,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
                 .error(DUMMY_VALUE)
                 .build();
 
-        wireMockServer.stubFor(any(anyUrl())
-                .willReturn(aResponse().withStatus(500)
-                        .withBody(objectMapper.writeValueAsString(errorResponse))
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+        prepareWebserverFor(errorResponse, 500);
 
         // Then
         StepVerifier.create(adapter.retrieveLoggedUser(token))
