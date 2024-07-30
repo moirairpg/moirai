@@ -5,7 +5,7 @@ public final class DiscordUserDetails {
     private final String id;
     private final String username;
     private final String globalName;
-    private final String displayName;
+    private final String nickname;
     private final String mention;
 
     public DiscordUserDetails(Builder builder) {
@@ -13,7 +13,7 @@ public final class DiscordUserDetails {
         this.id = builder.id;
         this.username = builder.username;
         this.globalName = builder.globalName;
-        this.displayName = builder.displayName;
+        this.nickname = builder.nickname;
         this.mention = builder.mention;
     }
 
@@ -33,8 +33,8 @@ public final class DiscordUserDetails {
         return globalName;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getNickname() {
+        return nickname;
     }
 
     public String getMention() {
@@ -46,7 +46,7 @@ public final class DiscordUserDetails {
         private String id;
         private String username;
         private String globalName;
-        private String displayName;
+        private String nickname;
         private String mention;
 
         private Builder() {
@@ -67,8 +67,8 @@ public final class DiscordUserDetails {
             return this;
         }
 
-        public Builder displayName(String displayName) {
-            this.displayName = displayName;
+        public Builder nickname(String nickname) {
+            this.nickname = nickname;
             return this;
         }
 

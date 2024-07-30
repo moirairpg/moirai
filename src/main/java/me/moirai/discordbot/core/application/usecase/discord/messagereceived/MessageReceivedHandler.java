@@ -48,7 +48,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
     private static final int DISCORD_MAX_LENGTH = 2000;
 
     private final ChannelConfigRepository channelConfigRepository;
-    private final DiscordChannelPort discordChannelOperationsPort;
+    private final DiscordChannelPort discordChannelPort;
     private final StorySummarizationPort summarizationPort;
     private final LorebookEnrichmentPort lorebookEnrichmentPort;
     private final PersonaEnrichmentPort personaEnrichmentPort;
@@ -56,17 +56,18 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
     private final TextModerationPort textModerationPort;
 
     public MessageReceivedHandler(ChannelConfigRepository channelConfigRepository,
-            DiscordChannelPort discordChannelOperationsPort, StorySummarizationPort summarizationPort,
+            StorySummarizationPort summarizationPort, DiscordChannelPort discordChannelPort,
             LorebookEnrichmentPort lorebookEnrichmentPort, PersonaEnrichmentPort personaEnrichmentPort,
             TextCompletionPort textCompletionPort, TextModerationPort textModerationPort) {
 
         this.channelConfigRepository = channelConfigRepository;
-        this.discordChannelOperationsPort = discordChannelOperationsPort;
+        this.discordChannelPort = discordChannelPort;
         this.summarizationPort = summarizationPort;
         this.lorebookEnrichmentPort = lorebookEnrichmentPort;
         this.personaEnrichmentPort = personaEnrichmentPort;
         this.textCompletionPort = textCompletionPort;
         this.textModerationPort = textModerationPort;
+
     }
 
     @Override
@@ -74,9 +75,9 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
 
         return channelConfigRepository.findByDiscordChannelId(query.getMessageChannelId())
                 .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getMessageChannelId()))
-                .map(channelConfig -> discordChannelOperationsPort
-                        .retrieveEntireHistoryFrom(query.getMessageGuildId(), query.getMessageChannelId(),
-                                query.getMessageId(), query.getMentionedUsersIds())
+                .map(channelConfig -> Mono.just(
+                        discordChannelPort.retrieveEntireHistoryFrom(
+                                query.getMessageChannelId(), query.getMentionedUsersIds()))
                         .map(messageHistory -> lorebookEnrichmentPort.enrichContextWithLorebook(messageHistory,
                                 channelConfig.getWorldId(), channelConfig.getModelConfiguration()))
                         .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook,
@@ -84,14 +85,16 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                         .flatMap(contextWithSummary -> personaEnrichmentPort.enrichContextWithPersona(
                                 contextWithSummary, channelConfig.getPersonaId(),
                                 channelConfig.getModelConfiguration()))
-                        .map(contextWithPersona -> processEnrichedContext(contextWithPersona, query.getBotUsername(), query.getBotNickname()))
+                        .map(contextWithPersona -> processEnrichedContext(contextWithPersona, query.getBotUsername(),
+                                query.getBotNickname()))
                         .flatMap(processedContext -> moderateInput(processedContext, query.getMessageChannelId(),
                                 channelConfig.getModeration()))
                         .flatMap(processedContext -> generateAiOutput(channelConfig, processedContext))
                         .flatMap(aiOutput -> moderateOutput(aiOutput, query.getMessageChannelId(),
                                 channelConfig.getModeration()))
-                        .flatMap(generatedOutput -> sendOutputTo(query.getMessageChannelId(),
-                                query.getBotUsername(), generatedOutput)))
+                        .doOnNext(generatedOutput -> sendOutputTo(query.getMessageChannelId(),
+                                query.getBotUsername(), query.getBotNickname(), generatedOutput))
+                        .then())
                 .orElseGet(() -> Mono.empty());
     }
 
@@ -191,11 +194,13 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
         return processedContext;
     }
 
-    private Mono<Void> sendOutputTo(String messageChannelId, String botName, String content) {
+    private void sendOutputTo(String messageChannelId, String botName, String botNickname, String content) {
 
         StringProcessor processor = new StringProcessor();
         processor.addRule(DefaultStringProcessors.stripAsNamePrefixForLowercase(botName));
         processor.addRule(DefaultStringProcessors.stripAsNamePrefixForUppercase(botName));
+        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForLowercase(botNickname));
+        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForUppercase(botNickname));
         processor.addRule(DefaultStringProcessors.stripChatPrefix());
         processor.addRule(DefaultStringProcessors.stripTrailingFragment());
 
@@ -208,7 +213,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
             outputSize = output.length();
         }
 
-        return discordChannelOperationsPort.sendMessage(messageChannelId, output);
+        discordChannelPort.sendMessageTo(messageChannelId, output);
     }
 
     private Mono<List<ChatMessage>> moderateInput(List<ChatMessage> messages, String channelId, Moderation moderation) {

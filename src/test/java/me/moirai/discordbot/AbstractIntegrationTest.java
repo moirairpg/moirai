@@ -8,14 +8,14 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import discord4j.core.GatewayDiscordClient;
 import me.moirai.discordbot.core.application.port.DiscordAuthenticationPort;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.port.PersonaEnrichmentPort;
 import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
-import me.moirai.discordbot.infrastructure.config.Discord4JConfig;
+import me.moirai.discordbot.infrastructure.config.JdaConfig;
+import net.dv8tion.jda.api.JDA;
 
 @ActiveProfiles("test")
 @SpringBootTest(classes = MoiraiApplication.class)
@@ -37,13 +37,13 @@ public abstract class AbstractIntegrationTest {
     private StorySummarizationPort contextSummarizationService;
 
     @MockBean
-    private GatewayDiscordClient gatewayDiscordClient;
+    private JDA jda;
 
     @MockBean
     private TextModerationPort textModerationPort;
 
     @MockBean
-    private Discord4JConfig discord4jConfig;
+    private JdaConfig jdaConfig;
 
     private static final String POSTGRES_IMAGE_NAME = "postgres:15-alpine";
 

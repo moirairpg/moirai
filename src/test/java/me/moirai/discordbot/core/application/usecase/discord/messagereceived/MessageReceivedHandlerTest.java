@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +43,7 @@ import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.core.domain.channelconfig.ModelConfiguration;
+import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -111,8 +113,8 @@ public class MessageReceivedHandlerTest {
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
         TextModerationResult moderationResult = TextModerationResultFixture.withoutFlags().build();
 
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
-                .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
+        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyList()))
+                .thenReturn(ChatMessageDataFixture.messageList(5));
 
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
@@ -132,8 +134,8 @@ public class MessageReceivedHandlerTest {
         when(textModerationPort.moderate(anyString()))
                 .thenReturn(Mono.just(moderationResult));
 
-        when(discordChannelOperationsPort.sendMessage(eq(channelId), anyString()))
-                .thenReturn(Mono.empty());
+        when(discordChannelOperationsPort.sendMessageTo(eq(channelId), anyString()))
+                .thenReturn(mock(ChatMessageData.class));
 
         // When
         Mono<Void> result = messageReceivedHandler.execute(query);
@@ -141,7 +143,7 @@ public class MessageReceivedHandlerTest {
         // Then
         StepVerifier.create(result).verifyComplete();
         verify(textCompletionPort).generateTextFrom(textGenerationRequestCaptor.capture());
-        verify(discordChannelOperationsPort).sendMessage(eq(channelId), anyString());
+        verify(discordChannelOperationsPort).sendMessageTo(eq(channelId), anyString());
 
         List<ChatMessage> messagesSentToAi = textGenerationRequestCaptor.getValue().getMessages();
         assertThat(messagesSentToAi).isNotNull().isNotEmpty().hasSize(10);
@@ -206,8 +208,8 @@ public class MessageReceivedHandlerTest {
 
         TextModerationResult moderationResult = TextModerationResultFixture.withFlags().build();
 
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
-                .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
+        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyList()))
+                .thenReturn(ChatMessageDataFixture.messageList(5));
 
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
@@ -271,8 +273,8 @@ public class MessageReceivedHandlerTest {
         TextModerationResult goodModerationResult = TextModerationResultFixture.withoutFlags().build();
         TextModerationResult badModerationResult = TextModerationResultFixture.withFlags().build();
 
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyString(), anyString(), anyList()))
-                .thenReturn(Mono.just(ChatMessageDataFixture.messageList(5)));
+        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyList()))
+                .thenReturn(ChatMessageDataFixture.messageList(5));
 
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfiguration.class)))
                 .thenReturn(Mono.just(context));
@@ -326,6 +328,6 @@ public class MessageReceivedHandlerTest {
 
         // Then
         StepVerifier.create(result).verifyComplete();
-        verify(discordChannelOperationsPort, never()).sendMessage(anyString(), anyString());
+        verify(discordChannelOperationsPort, never()).sendMessageTo(anyString(), anyString());
     }
 }

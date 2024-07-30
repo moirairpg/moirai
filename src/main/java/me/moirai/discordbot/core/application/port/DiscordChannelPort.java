@@ -1,28 +1,24 @@
 package me.moirai.discordbot.core.application.port;
 
 import java.util.List;
+import java.util.Optional;
 
-import discord4j.discordjson.json.MessageData;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
-import reactor.core.publisher.Mono;
 
 public interface DiscordChannelPort {
 
-    Mono<Void> sendMessage(String channelId, String messageContent);
+    ChatMessageData sendMessageTo(String channelId, String messageContent);
 
-    Mono<Void> sendTemporaryMessage(String channelId, String messageContent, int deleteAfterSeconds);
+    void sendTemporaryMessageTo(String channelId, String messageContent, int deleteAfterSeconds);
 
-    Mono<MessageData> getMessageById(String channelId, String messageId);
+    Optional<ChatMessageData> getMessageById(String channelId, String messageId);
 
-    Mono<Void> deleteMessageById(String channelId, String messageId);
+    void deleteMessageById(String channelId, String messageId);
 
-    Mono<Void> editMessageById(String channelId, String messageId, String messageContent);
+    ChatMessageData editMessageById(String channelId, String messageId, String messageContent);
 
-    Mono<List<MessageData>> retrieveLastMessagesFrom(String channelId,
-            String startingMessageId, int numberOfMessages);
+    List<ChatMessageData> retrieveEntireHistoryFrom(String channelId, List<String> mentionedUserIds);
 
-    Mono<List<MessageData>> retrieveEntireHistoryFrom(String channelId, String startingMessageId);
-
-    Mono<List<ChatMessageData>> retrieveEntireHistoryFrom(String guildId, String channelId,
-            String startingMessageId, List<String> mentionedUserIds);
+    List<ChatMessageData> retrieveEntireHistoryBefore(String messageId, String channelId,
+            List<String> mentionedUserIds);
 }

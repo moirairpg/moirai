@@ -1,9 +1,12 @@
 package me.moirai.discordbot.core.application.port;
 
+import java.util.Optional;
+
 import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
-import reactor.core.publisher.Mono;
 
 public interface DiscordUserDetailsPort {
 
-    Mono<DiscordUserDetails> getUserById(String userDiscordId);
+    Optional<DiscordUserDetails> getUserById(String userDiscordId);
+
+    Optional<DiscordUserDetails> getGuildMemberById(String userId, String guildId);
 }

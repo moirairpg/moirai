@@ -33,12 +33,12 @@
         <pitest.version>1.11.7</pitest.version>
         <tokenizer.version>0.26.0</tokenizer.version>
         <jna.version>2.0.0</jna.version>
-        <discord4j.version>3.2.6</discord4j.version>
         <apache.commons.lang.version>3.14.0</apache.commons.lang.version>
         <apache.commons.collections.version>4.4</apache.commons.collections.version>
         <jackson.dataformat.version>2.16.1</jackson.dataformat.version>
         <logback.encoder.version>7.4</logback.encoder.version>
         <wiremock.version>3.9.1</wiremock.version>
+        <jda.version>5.0.1</jda.version>
     </properties>
 
     <dependencies>
@@ -137,9 +137,9 @@
             <version>${tokenizer.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.discord4j</groupId>
-            <artifactId>discord4j-core</artifactId>
-            <version>${discord4j.version}</version>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>${jda.version}</version>
         </dependency>
 
         <!-- Libraries -->

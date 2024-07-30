@@ -46,12 +46,12 @@ public class LorebookEnrichmentAdapter implements LorebookEnrichmentPort {
 
         List<String> messageHistory = rawMessageHistory.stream()
                 .map(ChatMessageData::getContent)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
 
         String stringifiedStory = stringifyList(messageHistory);
 
         Map<String, Object> context = new HashMap<>();
-        context.put(RETRIEVED_MESSAGES, rawMessageHistory);
+        context.put(RETRIEVED_MESSAGES, new ArrayList<>(rawMessageHistory));
 
         List<WorldLorebookEntry> entriesFound = worldService.findAllEntriesByRegex(worldId, stringifiedStory);
         Map<String, Object> enrichedContext = addEntriesFoundToContext(entriesFound, context,
