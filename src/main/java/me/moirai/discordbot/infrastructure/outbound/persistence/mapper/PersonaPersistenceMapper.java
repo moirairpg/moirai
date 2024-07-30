@@ -64,23 +64,20 @@ public class PersonaPersistenceMapper {
     public Persona mapFromEntity(PersonaEntity persona) {
 
         Persona.Builder personaBuilder = Persona.builder();
+
+        Bump.Builder bump = Bump.builder();
         if (persona.getBump() != null) {
-            Bump bump = Bump.builder()
-                    .content(persona.getBump().getContent())
+            bump.content(persona.getBump().getContent())
                     .role(CompletionRole.fromString(persona.getBump().getRole()))
                     .frequency(persona.getBump().getFrequency())
                     .build();
-
-            personaBuilder.bump(bump);
         }
 
+        Nudge.Builder nudge = Nudge.builder();
         if (persona.getNudge() != null) {
-            Nudge nudge = Nudge.builder()
-                    .content(persona.getNudge().getContent())
+            nudge.content(persona.getNudge().getContent())
                     .role(CompletionRole.fromString(persona.getNudge().getRole()))
                     .build();
-
-            personaBuilder.nudge(nudge);
         }
 
         Permissions permissions = Permissions.builder()
@@ -98,6 +95,8 @@ public class PersonaPersistenceMapper {
                 .creationDate(persona.getCreationDate())
                 .lastUpdateDate(persona.getLastUpdateDate())
                 .creatorDiscordId(persona.getCreatorDiscordId())
+                .bump(bump.build())
+                .nudge(nudge.build())
                 .build();
     }
 

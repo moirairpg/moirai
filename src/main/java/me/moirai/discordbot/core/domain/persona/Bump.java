@@ -1,12 +1,11 @@
 package me.moirai.discordbot.core.domain.persona;
 
-import me.moirai.discordbot.common.exception.BusinessRuleViolationException;
 import me.moirai.discordbot.core.domain.CompletionRole;
 
 public final class Bump {
 
     private final String content;
-    private final Integer frequency;
+    private final int frequency;
     private final CompletionRole role;
 
     private Bump(Builder builder) {
@@ -33,7 +32,7 @@ public final class Bump {
         return content;
     }
 
-    public Integer getFrequency() {
+    public int getFrequency() {
         return frequency;
     }
 
@@ -59,7 +58,7 @@ public final class Bump {
     public static final class Builder {
 
         private String content;
-        private Integer frequency;
+        private int frequency;
         private CompletionRole role;
 
         private Builder() {
@@ -71,7 +70,7 @@ public final class Bump {
             return this;
         }
 
-        public Builder frequency(Integer frequency) {
+        public Builder frequency(int frequency) {
 
             this.frequency = frequency;
             return this;
@@ -84,10 +83,6 @@ public final class Bump {
         }
 
         public Bump build() {
-
-            if (frequency < 1) {
-                throw new BusinessRuleViolationException("Bump frequency needs to be 1 or greater");
-            }
 
             return new Bump(this);
         }

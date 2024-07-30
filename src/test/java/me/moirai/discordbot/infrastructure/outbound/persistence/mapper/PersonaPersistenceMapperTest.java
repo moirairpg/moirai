@@ -155,7 +155,7 @@ public class PersonaPersistenceMapperTest {
     }
 
     @Test
-    public void mapPersonaPersistenceToDomain_whenBumpIsNull_thenPersonaIsCreatedSuccessfully() {
+    public void mapPersonaPersistenceToDomain_whenBumpIsNull_thenPersonaIsCreatedSuccessfullyWithEmptyBump() {
 
         // Given
         PersonaEntity persona = PersonaEntityFixture.privatePersona()
@@ -167,11 +167,11 @@ public class PersonaPersistenceMapperTest {
 
         // Then
         assertThat(entity).isNotNull();
-        assertThat(entity.getBump()).isNull();
+        assertThat(entity.getBump()).isNotNull();
     }
 
     @Test
-    public void mapPersonaPersistenceToDomain_whenNudgeIsNull_thenPersonaIsCreatedSuccessfully() {
+    public void mapPersonaPersistenceToDomain_whenNudgeIsNull_thenPersonaIsCreatedSuccessfullyWithEmptyNudge() {
 
         // Given
         PersonaEntity persona = PersonaEntityFixture.privatePersona()
@@ -183,7 +183,7 @@ public class PersonaPersistenceMapperTest {
 
         // Then
         assertThat(entity).isNotNull();
-        assertThat(entity.getNudge()).isNull();
+        assertThat(entity.getNudge()).isNotNull();
     }
 
     @Test
