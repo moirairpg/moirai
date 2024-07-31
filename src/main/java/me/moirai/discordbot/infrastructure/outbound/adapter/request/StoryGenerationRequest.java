@@ -1,0 +1,152 @@
+package me.moirai.discordbot.infrastructure.outbound.adapter.request;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class StoryGenerationRequest {
+
+    private final String botId;
+    private final String botUsername;
+    private final String botNickname;
+    private final String channelId;
+    private final String guildId;
+    private final String worldId;
+    private final String personaId;
+    private final List<String> mentionedUsersIds;
+    private final ModelConfigurationRequest modelConfiguration;
+    private final ModerationConfigurationRequest moderation;
+
+    protected StoryGenerationRequest(Builder builder) {
+
+        this.botId = builder.botId;
+        this.botUsername = builder.botUsername;
+        this.botNickname = builder.botNickname;
+        this.channelId = builder.channelId;
+        this.guildId = builder.guildId;
+        this.worldId = builder.worldId;
+        this.personaId = builder.personaId;
+        this.mentionedUsersIds = Collections.unmodifiableList(builder.mentionedUsersIds);
+        this.modelConfiguration = builder.modelConfiguration;
+        this.moderation = builder.moderation;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public String getBotId() {
+        return botId;
+    }
+
+    public String getBotUsername() {
+        return botUsername;
+    }
+
+    public String getBotNickname() {
+        return botNickname;
+    }
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public String getGuildId() {
+        return guildId;
+    }
+
+    public List<String> getMentionedUsersIds() {
+        return mentionedUsersIds;
+    }
+
+    public String getWorldId() {
+        return worldId;
+    }
+
+    public String getPersonaId() {
+        return personaId;
+    }
+
+    public ModelConfigurationRequest getModelConfiguration() {
+        return modelConfiguration;
+    }
+
+    public ModerationConfigurationRequest getModeration() {
+        return moderation;
+    }
+
+    public static final class Builder {
+
+        private String botId;
+        private String botUsername;
+        private String botNickname;
+        private String channelId;
+        private String guildId;
+        private String worldId;
+        private String personaId;
+        private List<String> mentionedUsersIds = new ArrayList<>();
+        private ModelConfigurationRequest modelConfiguration;
+        private ModerationConfigurationRequest moderation;
+
+        private Builder() {
+        }
+
+        public Builder channelId(String channelId) {
+            this.channelId = channelId;
+            return this;
+        }
+
+        public Builder guildId(String guildId) {
+            this.guildId = guildId;
+            return this;
+        }
+
+        public Builder botUsername(String botUsername) {
+            this.botUsername = botUsername;
+            return this;
+        }
+
+        public Builder botId(String botId) {
+            this.botId = botId;
+            return this;
+        }
+
+        public Builder worldId(String worldId) {
+            this.worldId = worldId;
+            return this;
+        }
+
+        public Builder personaId(String personaId) {
+            this.personaId = personaId;
+            return this;
+        }
+
+        public Builder modelConfiguration(ModelConfigurationRequest modelConfiguration) {
+            this.modelConfiguration = modelConfiguration;
+            return this;
+        }
+
+        public Builder moderation(ModerationConfigurationRequest moderation) {
+            this.moderation = moderation;
+            return this;
+        }
+
+        public Builder botNickname(String botNickname) {
+            this.botNickname = botNickname;
+            return this;
+        }
+
+        public Builder mentionedUsersIds(List<String> mentionedUsersIds) {
+
+            if (mentionedUsersIds != null) {
+                this.mentionedUsersIds.addAll(mentionedUsersIds);
+            }
+
+            return this;
+        }
+
+        public StoryGenerationRequest build() {
+            return new StoryGenerationRequest(this);
+        }
+    }
+}

@@ -18,12 +18,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
-import me.moirai.discordbot.core.domain.channelconfig.ModelConfiguration;
-import me.moirai.discordbot.core.domain.channelconfig.ModelConfigurationFixture;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.core.domain.persona.PersonaFixture;
 import me.moirai.discordbot.core.domain.persona.PersonaService;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequestFixture;
 import reactor.test.StepVerifier;
 
 @SuppressWarnings("unchecked")
@@ -47,7 +47,7 @@ public class PersonaEnrichmentAdapterTest {
 
         // Given
         Persona persona = PersonaFixture.privatePersona().build();
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
         Map<String, Object> context = contextWithSummaryAndMessages(10);
 
         String expectedPersona = String.format(
@@ -77,7 +77,7 @@ public class PersonaEnrichmentAdapterTest {
 
         // Given
         Persona persona = PersonaFixture.privatePersona().build();
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
         Map<String, Object> context = contextWithSummaryAndMessages(5);
 
         String expectedPersona = String.format(
@@ -110,7 +110,7 @@ public class PersonaEnrichmentAdapterTest {
 
         // Given
         Persona persona = PersonaFixture.privatePersona().build();
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
         Map<String, Object> context = contextWithSummaryAndMessages(5);
 
         when(personaService.getPersonaById(anyString())).thenReturn(persona);

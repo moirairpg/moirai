@@ -29,9 +29,10 @@ import me.moirai.discordbot.core.application.model.result.TextGenerationResultFi
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
-import me.moirai.discordbot.core.domain.channelconfig.ModelConfiguration;
-import me.moirai.discordbot.core.domain.channelconfig.ModelConfigurationFixture;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequestFixture;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
@@ -61,7 +62,7 @@ public class ContextSummarizationAdapterTest {
 
         // Given
         String generatedSummary = "Generated summary";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
 
@@ -87,7 +88,7 @@ public class ContextSummarizationAdapterTest {
     public void summarizeWith_emptyMessageHistory_thenEmptySummaryReturned() {
 
         // Given
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
         Map<String, Object> context = createContextWithMessageNumber(3);
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
@@ -114,8 +115,11 @@ public class ContextSummarizationAdapterTest {
         // Given
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
         String trimmedSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor.";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini()
-                .aiModel(GPT4_MINI)
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini()
+                .aiModel(AiModelRequest.build(
+                        GPT4_MINI.getInternalModelName(),
+                        GPT4_MINI.getOfficialModelName(),
+                        GPT4_MINI.getHardTokenLimit()))
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
@@ -167,8 +171,11 @@ public class ContextSummarizationAdapterTest {
 
         // Given
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini()
-                .aiModel(GPT4_MINI)
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini()
+                .aiModel(AiModelRequest.build(
+                        GPT4_MINI.getInternalModelName(),
+                        GPT4_MINI.getOfficialModelName(),
+                        GPT4_MINI.getHardTokenLimit()))
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
@@ -220,8 +227,11 @@ public class ContextSummarizationAdapterTest {
 
         // Given
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini()
-                .aiModel(GPT4_MINI)
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini()
+                .aiModel(AiModelRequest.build(
+                        GPT4_MINI.getInternalModelName(),
+                        GPT4_MINI.getOfficialModelName(),
+                        GPT4_MINI.getHardTokenLimit()))
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);

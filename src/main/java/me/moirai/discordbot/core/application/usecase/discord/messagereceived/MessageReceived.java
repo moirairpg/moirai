@@ -12,8 +12,8 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
 
     private final String authordDiscordId;
     private final String messageId;
-    private final String messageChannelId;
-    private final String messageGuildId;
+    private final String channelId;
+    private final String guildId;
     private final String botUsername;
     private final String botNickname;
     private final boolean isBotMentioned;
@@ -23,8 +23,8 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
 
         this.authordDiscordId = builder.authordDiscordId;
         this.messageId = builder.messageId;
-        this.messageChannelId = builder.messageChannelId;
-        this.messageGuildId = builder.messageGuildId;
+        this.channelId = builder.channelId;
+        this.guildId = builder.guildId;
         this.botUsername = builder.botUsername;
         this.botNickname = builder.botNickname;
         this.isBotMentioned = builder.isBotMentioned;
@@ -43,12 +43,12 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
         return messageId;
     }
 
-    public String getMessageChannelId() {
-        return messageChannelId;
+    public String getChannelId() {
+        return channelId;
     }
 
-    public String getMessageGuildId() {
-        return messageGuildId;
+    public String getGuildId() {
+        return guildId;
     }
 
     public String getBotUsername() {
@@ -71,8 +71,8 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
 
         private String authordDiscordId;
         private String messageId;
-        private String messageChannelId;
-        private String messageGuildId;
+        private String channelId;
+        private String guildId;
         private String botUsername;
         private String botNickname;
         private boolean isBotMentioned;
@@ -91,13 +91,13 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
             return this;
         }
 
-        public Builder messageChannelId(String messageChannelId) {
-            this.messageChannelId = messageChannelId;
+        public Builder channelId(String messageChannelId) {
+            this.channelId = messageChannelId;
             return this;
         }
 
-        public Builder messageGuildId(String messageGuildId) {
-            this.messageGuildId = messageGuildId;
+        public Builder guildId(String guildId) {
+            this.guildId = guildId;
             return this;
         }
 
@@ -114,7 +114,7 @@ public final class MessageReceived extends UseCase<Mono<Void>> {
         public Builder mentionedUsersIds(List<String> mentionedUsersIds) {
 
             if (mentionedUsersIds != null) {
-                this.mentionedUsersIds = mentionedUsersIds;
+                this.mentionedUsersIds.addAll(mentionedUsersIds);
             }
 
             return this;

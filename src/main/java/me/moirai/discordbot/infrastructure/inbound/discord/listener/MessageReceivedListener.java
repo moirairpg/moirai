@@ -40,9 +40,9 @@ public class MessageReceivedListener extends ListenerAdapter {
         if (StringUtils.isNotBlank(messageContent) && !author.getUser().isBot()) {
             MessageReceived request = MessageReceived.builder()
                     .authordDiscordId(author.getId())
-                    .messageChannelId(channelId)
+                    .channelId(channelId)
                     .messageId(message.getId())
-                    .messageGuildId(guildId)
+                    .guildId(guildId)
                     .isBotMentioned(mentions.contains(bot.getId()))
                     .mentionedUsersIds(mentions)
                     .botUsername(bot.getUser().getName())

@@ -1,5 +1,10 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter.response;
 
+import static java.util.Collections.unmodifiableList;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public final class ChatMessageData {
 
     private final String id;
@@ -8,6 +13,7 @@ public final class ChatMessageData {
     private final String authorNickname;
     private final String authorUsername;
     private final String content;
+    private final List<String> mentionedUsersIds;
 
     public ChatMessageData(Builder builder) {
 
@@ -17,6 +23,7 @@ public final class ChatMessageData {
         this.authorNickname = builder.authorNickname;
         this.authorUsername = builder.authorUsername;
         this.content = builder.content;
+        this.mentionedUsersIds = unmodifiableList(builder.mentionedUsersIds);
     }
 
     public static Builder builder() {
@@ -47,6 +54,10 @@ public final class ChatMessageData {
         return content;
     }
 
+    public List<String> getMentionedUsersIds() {
+        return mentionedUsersIds;
+    }
+
     public static final class Builder {
 
         private String id;
@@ -55,6 +66,7 @@ public final class ChatMessageData {
         private String authorNickname;
         private String authorUsername;
         private String content;
+        private List<String> mentionedUsersIds = new ArrayList<>();
 
         private Builder() {
         }
@@ -86,6 +98,15 @@ public final class ChatMessageData {
 
         public Builder content(String content) {
             this.content = content;
+            return this;
+        }
+
+        public Builder mentionedUsersIds(List<String> mentionedUsersIds) {
+
+            if (mentionedUsersIds != null) {
+                this.mentionedUsersIds.addAll(mentionedUsersIds);
+            }
+
             return this;
         }
 

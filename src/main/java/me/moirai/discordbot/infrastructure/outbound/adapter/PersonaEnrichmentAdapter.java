@@ -7,10 +7,10 @@ import me.moirai.discordbot.common.util.DefaultStringProcessors;
 import me.moirai.discordbot.common.util.StringProcessor;
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.PersonaEnrichmentPort;
-import me.moirai.discordbot.core.domain.channelconfig.ModelConfiguration;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.core.domain.persona.PersonaService;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import reactor.core.publisher.Mono;
 
 @ApplicationService
@@ -34,7 +34,7 @@ public class PersonaEnrichmentAdapter implements PersonaEnrichmentPort {
 
     @Override
     public Mono<Map<String, Object>> enrichContextWithPersona(Map<String, Object> context, String personaId,
-            ModelConfiguration modelConfiguration) {
+            ModelConfigurationRequest modelConfiguration) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
         int reservedTokensForPersona = (int) Math.floor(totalTokens * 0.20);

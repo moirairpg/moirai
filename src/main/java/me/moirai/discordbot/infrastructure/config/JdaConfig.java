@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import me.moirai.discordbot.infrastructure.inbound.discord.slashcommands.DiscordSlashCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 @Configuration
@@ -19,7 +22,8 @@ public class JdaConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdaConfig.class);
 
-    private static final String REGISTERED_EVENT_LISTENERS = "{} discord event listeners have been registered";
+    private static final String REGISTERED_EVENT_LISTENERS = "{} Discord event listeners have been registered";
+    private static final String REGISTERED_SLASH_COMMANDS = "{} Discord slash commands have been registered";
 
     private final String discordApiToken;
 
@@ -29,7 +33,7 @@ public class JdaConfig {
     }
 
     @Bean
-    <T extends ListenerAdapter> JDA jda(List<T> eventListeners) {
+    <T extends ListenerAdapter> JDA jda(List<T> eventListeners, List<? extends DiscordSlashCommand> slashCommands) {
 
         JDABuilder jdaBuilder = JDABuilder.createDefault(discordApiToken);
 
@@ -38,9 +42,23 @@ public class JdaConfig {
             jdaBuilder.addEventListeners(listener);
         }
 
-        LOG.info(REGISTERED_EVENT_LISTENERS, eventListeners.size());
-        return jdaBuilder.setActivity(Activity.watching("Writing stories, inspiring adventures."))
+        JDA jda = jdaBuilder
+                .setActivity(Activity.watching("Writing stories, inspiring adventures."))
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS)
                 .build();
+
+        for (DiscordSlashCommand slashCommand : slashCommands) {
+            LOG.debug("Registering slash command:  " + slashCommand.getClass().getSimpleName());
+            SlashCommandData slashCommandToBeCreated = Commands
+                    .slash(slashCommand.getName(), slashCommand.getDescription())
+                    .addOptions(slashCommand.getOptions());
+
+            jda.updateCommands().addCommands(slashCommandToBeCreated);
+        }
+
+        LOG.info(REGISTERED_EVENT_LISTENERS, eventListeners.size());
+        LOG.info(REGISTERED_SLASH_COMMANDS, slashCommands.size());
+
+        return jda;
     }
 }

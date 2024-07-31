@@ -30,6 +30,7 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessage
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.MessageHistory.MessageRetrieveAction;
@@ -137,6 +138,7 @@ public class DiscordChannelAdapterTest {
         String authorId = "123";
         String messageContent = "Hello, World!";
 
+        Mentions mentions = mock(Mentions.class);
         CacheRestAction<Member> cacheRestActionMemberMock = mock(CacheRestAction.class);
         RestAction<Message> restActionMessage = mock(RestAction.class);
 
@@ -151,6 +153,8 @@ public class DiscordChannelAdapterTest {
         when(member.getUser()).thenReturn(user);
         when(member.getId()).thenReturn(authorId);
         when(message.getContentRaw()).thenReturn(messageContent);
+        when(message.getMentions()).thenReturn(mentions);
+        when(mentions.getUsers()).thenReturn(Collections.emptyList());
 
         // When
         Optional<ChatMessageData> result = adapter.getMessageById(channelId, messageId);
@@ -294,21 +298,24 @@ public class DiscordChannelAdapterTest {
         for (int i = 0; i < amountOfMessages; i++) {
             int index = i + 1;
             String content = String.format("Message %s", index);
-            Message messageMock = mock(Message.class);
+            Message message = mock(Message.class);
+            Mentions mentions = mock(Mentions.class);
 
             CacheRestAction<Member> cacheRestActionMember = mock(CacheRestAction.class);
 
-            when(messageMock.getGuild()).thenReturn(guild);
-            when(messageMock.getAuthor()).thenReturn(user);
+            when(message.getGuild()).thenReturn(guild);
+            when(message.getAuthor()).thenReturn(user);
             when(user.getId()).thenReturn("USRID");
-            when(messageMock.getContentRaw()).thenReturn(content);
+            when(message.getContentRaw()).thenReturn(content);
             when(guild.retrieveMemberById(anyString())).thenReturn(cacheRestActionMember);
             when(cacheRestActionMember.complete()).thenReturn(member);
             when(member.getNickname()).thenReturn("NCKNM");
             when(member.getUser()).thenReturn(user);
             when(user.getName()).thenReturn("NM");
+            when(message.getMentions()).thenReturn(mentions);
+            when(mentions.getUsers()).thenReturn(Collections.emptyList());
 
-            messageList.add(messageMock);
+            messageList.add(message);
         }
 
         return messageList;

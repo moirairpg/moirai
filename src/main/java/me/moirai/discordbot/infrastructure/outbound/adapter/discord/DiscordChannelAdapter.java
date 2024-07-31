@@ -1,5 +1,6 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter.discord;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 @Component
@@ -54,7 +56,8 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
     @Override
     public void sendTemporaryMessageTo(String channelId, String messageContent, int deleteAfterSeconds) {
 
-        // FIXME message is not deleted after the specified time; takes longer than expected
+        // FIXME message is not deleted after the specified time; takes longer than
+        // expected
         TextChannel channel = jda.getTextChannelById(channelId);
         Message messageSent = channel
                 .sendMessage(messageContent + String.format(TEMPORARY_MESSAGE_WARNING, deleteAfterSeconds))
@@ -82,6 +85,10 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                     .channelId(channelId)
                     .content(message.getContentRaw())
                     .id(message.getId())
+                    .mentionedUsersIds(message.getMentions()
+                            .getUsers().stream()
+                            .map(User::getId)
+                            .toList())
                     .build());
         } catch (Exception e) {
             return Optional.empty();
@@ -146,8 +153,15 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .toList();
     }
 
+    @Override
+    public List<ChatMessageData> retrieveEntireHistoryFrom(String channelId) {
+
+        return retrieveEntireHistoryFrom(channelId, Collections.emptyList());
+    }
+
     /**
-     * Returns the last 100 messages in the channel provided, before the message supplied
+     * Returns the last 100 messages in the channel provided, before the message
+     * supplied
      *
      * @param channelId        Text channel ID to be searched for messages
      * @param mentionedUserIds List of users mentioned in the original message
@@ -174,6 +188,14 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .toList();
     }
 
+    @Override
+    public Optional<ChatMessageData> getLastMessageIn(String channelId) {
+
+        List<ChatMessageData> messageHistrory = retrieveEntireHistoryFrom(channelId, Collections.emptyList());
+
+        return Optional.of(messageHistrory.getFirst());
+    }
+
     private ChatMessageData buildMessageResult(String channelId, List<Member> mentionedUsers, Message message) {
 
         Member author = message.getGuild()
@@ -189,6 +211,10 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .channelId(channelId)
                 .content(formattedContent)
                 .id(message.getId())
+                .mentionedUsersIds(message.getMentions()
+                        .getUsers().stream()
+                        .map(User::getId)
+                        .toList())
                 .build();
     }
 

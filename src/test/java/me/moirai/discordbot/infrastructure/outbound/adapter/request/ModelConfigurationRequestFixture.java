@@ -1,0 +1,63 @@
+package me.moirai.discordbot.infrastructure.outbound.adapter.request;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel;
+
+public class ModelConfigurationRequestFixture {
+
+    public static ModelConfigurationRequest.Builder gpt4Mini() {
+
+        ModelConfigurationRequest.Builder modelConfigurationBuilder = ModelConfigurationRequest.builder();
+        modelConfigurationBuilder.frequencyPenalty(0.2);
+        modelConfigurationBuilder.presencePenalty(0.2);
+        modelConfigurationBuilder.maxTokenLimit(100);
+        modelConfigurationBuilder.temperature(1.0);
+
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT4_MINI;
+        modelConfigurationBuilder.aiModel(AiModelRequest.build(aiModel.getInternalModelName(),
+                aiModel.getOfficialModelName(),
+                aiModel.getHardTokenLimit()));
+
+        Map<String, Double> logitBias = new HashMap<>();
+        logitBias.put("ABC", 50.0);
+        logitBias.put("DEF", 5.0);
+
+        List<String> stopSequences = new ArrayList<>();
+        stopSequences.add("ABC");
+
+        modelConfigurationBuilder.logitBias(logitBias);
+        modelConfigurationBuilder.stopSequences(stopSequences);
+
+        return modelConfigurationBuilder;
+    }
+
+    public static ModelConfigurationRequest.Builder gpt4Omni() {
+
+        ModelConfigurationRequest.Builder modelConfigurationBuilder = ModelConfigurationRequest.builder();
+        modelConfigurationBuilder.frequencyPenalty(0.2);
+        modelConfigurationBuilder.presencePenalty(0.2);
+        modelConfigurationBuilder.maxTokenLimit(100);
+        modelConfigurationBuilder.temperature(1.0);
+
+        ArtificialIntelligenceModel aiModel = ArtificialIntelligenceModel.GPT4_OMNI;
+        modelConfigurationBuilder.aiModel(AiModelRequest.build(aiModel.getInternalModelName(),
+                aiModel.getOfficialModelName(),
+                aiModel.getHardTokenLimit()));
+
+        Map<String, Double> logitBias = new HashMap<>();
+        logitBias.put("ABC", 50.0);
+        logitBias.put("DEF", 5.0);
+
+        List<String> stopSequences = new ArrayList<>();
+        stopSequences.add("ABC");
+
+        modelConfigurationBuilder.logitBias(logitBias);
+        modelConfigurationBuilder.stopSequences(stopSequences);
+
+        return modelConfigurationBuilder;
+    }
+}

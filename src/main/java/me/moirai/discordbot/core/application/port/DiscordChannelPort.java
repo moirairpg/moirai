@@ -19,6 +19,10 @@ public interface DiscordChannelPort {
 
     List<ChatMessageData> retrieveEntireHistoryFrom(String channelId, List<String> mentionedUserIds);
 
+    List<ChatMessageData> retrieveEntireHistoryFrom(String channelId);
+
     List<ChatMessageData> retrieveEntireHistoryBefore(String messageId, String channelId,
             List<String> mentionedUserIds);
+
+    Optional<ChatMessageData> getLastMessageIn(String channelId);
 }

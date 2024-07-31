@@ -9,10 +9,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +21,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
-import me.moirai.discordbot.core.domain.channelconfig.ModelConfiguration;
-import me.moirai.discordbot.core.domain.channelconfig.ModelConfigurationFixture;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequestFixture;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 
@@ -62,7 +62,7 @@ public class LorebookEnrichmentAdapterTest {
                 .map(entryData -> String.format(ENTRY_DESCRIPTION, entryData.getName(), entryData.getDescription()))
                 .toList()));
 
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(lorebook);
@@ -99,7 +99,7 @@ public class LorebookEnrichmentAdapterTest {
         // Given
         String worldId = "worldId";
         Map<String, Object> context = contextWithSummaryAndMessages(5);
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
         List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
@@ -137,7 +137,7 @@ public class LorebookEnrichmentAdapterTest {
 
         context.put("retrievedMessages", Collections.emptyList());
 
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(lorebook);
@@ -174,7 +174,7 @@ public class LorebookEnrichmentAdapterTest {
         // Given
         String worldId = "worldId";
         Map<String, Object> context = contextWithSummaryAndMessages(5);
-        ModelConfiguration modelConfiguration = ModelConfigurationFixture.gpt4Mini().build();
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
         List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
 
         List<WorldLorebookEntry> lorebook = lorebookEntriesNumber(5);
