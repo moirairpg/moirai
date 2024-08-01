@@ -1,9 +1,5 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter.request;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public class StoryGenerationRequest {
 
     private final String botId;
@@ -13,7 +9,6 @@ public class StoryGenerationRequest {
     private final String guildId;
     private final String worldId;
     private final String personaId;
-    private final List<String> mentionedUsersIds;
     private final ModelConfigurationRequest modelConfiguration;
     private final ModerationConfigurationRequest moderation;
 
@@ -26,7 +21,6 @@ public class StoryGenerationRequest {
         this.guildId = builder.guildId;
         this.worldId = builder.worldId;
         this.personaId = builder.personaId;
-        this.mentionedUsersIds = Collections.unmodifiableList(builder.mentionedUsersIds);
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
     }
@@ -55,10 +49,6 @@ public class StoryGenerationRequest {
         return guildId;
     }
 
-    public List<String> getMentionedUsersIds() {
-        return mentionedUsersIds;
-    }
-
     public String getWorldId() {
         return worldId;
     }
@@ -84,7 +74,6 @@ public class StoryGenerationRequest {
         private String guildId;
         private String worldId;
         private String personaId;
-        private List<String> mentionedUsersIds = new ArrayList<>();
         private ModelConfigurationRequest modelConfiguration;
         private ModerationConfigurationRequest moderation;
 
@@ -133,15 +122,6 @@ public class StoryGenerationRequest {
 
         public Builder botNickname(String botNickname) {
             this.botNickname = botNickname;
-            return this;
-        }
-
-        public Builder mentionedUsersIds(List<String> mentionedUsersIds) {
-
-            if (mentionedUsersIds != null) {
-                this.mentionedUsersIds.addAll(mentionedUsersIds);
-            }
-
             return this;
         }
 

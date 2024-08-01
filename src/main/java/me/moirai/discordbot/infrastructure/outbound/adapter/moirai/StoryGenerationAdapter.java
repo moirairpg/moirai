@@ -69,7 +69,7 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
     public Mono<Void> continueStory(StoryGenerationRequest request) {
 
         return Mono
-                .just(discordChannelPort.retrieveEntireHistoryFrom(request.getChannelId(), request.getMentionedUsersIds()))
+                .just(discordChannelPort.retrieveEntireHistoryFrom(request.getChannelId()))
                 .map(messageHistory -> lorebookEnrichmentPort.enrichContextWithLorebook(messageHistory,
                         request.getWorldId(), request.getModelConfiguration()))
                 .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook,

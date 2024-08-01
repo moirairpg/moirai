@@ -1,6 +1,6 @@
 package me.moirai.discordbot.core.application.usecase.world;
 
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 
@@ -29,7 +29,8 @@ public class DeleteWorldLorebookEntryHandlerTest {
         DeleteWorldLorebookEntry command = DeleteWorldLorebookEntry.builder().build();
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> handler.handle(command));
     }
 
     @Test
@@ -41,7 +42,8 @@ public class DeleteWorldLorebookEntryHandlerTest {
                 .build();
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> handler.handle(command));
     }
 
     @Test

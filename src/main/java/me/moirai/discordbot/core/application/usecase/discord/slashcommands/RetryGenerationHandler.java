@@ -14,12 +14,9 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessage
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
-public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGeneration, Mono<String>> {
+public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGeneration, Mono<Void>> {
 
     private static final String COMMAND_ONLY_WHEN_LAST_MESSAGE_BY_BOT = "This command can only be used if the last message in channel was sent by the bot.";
-    private static final String COMMAND_ONLY_WHEN_LAST_MESSAGE_BOT_CHANNEL_NOT_EMPTY = "This command can only be used when there are messages in the channel and the last message has been sent by the bot.";
-    private static final String OUTPUT_GENERATED = "Output generated.";
-
     private final DiscordChannelPort discordChannelPort;
     private final ChannelConfigRepository channelConfigRepository;
     private final StoryGenerationPort storyGenerationPort;
@@ -34,7 +31,7 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
     }
 
     @Override
-    public Mono<String> execute(RetryGeneration useCase) {
+    public Mono<Void> execute(RetryGeneration useCase) {
 
         try {
             // TODO improve extraction of last message; do it without retrieving the entire
@@ -54,12 +51,13 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
             return channelConfigRepository.findByDiscordChannelId(useCase.getChannelId())
                     .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(useCase.getChannelId()))
                     .map(channelConfig -> buildGenerationRequest(useCase, channelConfig, messageBeforeLast))
-                    .map(generationRequest -> storyGenerationPort.continueStory(generationRequest)
-                            .map(__ -> OUTPUT_GENERATED))
+                    .map(generationRequest -> storyGenerationPort.continueStory(generationRequest))
                     .orElseGet(() -> Mono.empty());
         } catch (IllegalStateException e) {
+            return Mono.error(e);
+        } catch (Exception e) {
             return Mono.error(
-                    () -> new IllegalStateException(COMMAND_ONLY_WHEN_LAST_MESSAGE_BOT_CHANNEL_NOT_EMPTY));
+                    () -> new IllegalStateException("An error occurred while retrying generation of output"));
         }
     }
 
@@ -88,7 +86,6 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
                 .botUsername(useCase.getBotUsername())
                 .channelId(useCase.getChannelId())
                 .guildId(useCase.getGuildId())
-                .mentionedUsersIds(message.getMentionedUsersIds())
                 .moderation(moderation)
                 .modelConfiguration(modelConfigurationRequest)
                 .personaId(channelConfig.getPersonaId())

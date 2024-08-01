@@ -13,7 +13,6 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import me.moirai.discordbot.common.exception.DiscordApiException;
 import me.moirai.discordbot.common.exception.OpenAiApiException;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
 import me.moirai.discordbot.core.application.model.result.TextGenerationResult;
@@ -99,7 +98,7 @@ public class TextCompletionAdapter implements TextCompletionPort {
 
     private Mono<? extends Throwable> handleUnauthorized(ClientResponse clientResponse) {
 
-        return Mono.error(new DiscordApiException(HttpStatus.UNAUTHORIZED, AUTHENTICATION_ERROR));
+        return Mono.error(new OpenAiApiException(HttpStatus.UNAUTHORIZED, AUTHENTICATION_ERROR));
     }
 
     private Mono<? extends Throwable> handleBadRequest(ClientResponse clientResponse) {

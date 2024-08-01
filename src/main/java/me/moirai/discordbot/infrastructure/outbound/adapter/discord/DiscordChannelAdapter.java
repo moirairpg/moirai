@@ -1,10 +1,10 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter.discord;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -129,79 +129,61 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
     /**
      * Returns the last 100 messages in the channel provided
      *
-     * @param channelId        Text channel ID to be searched for messages
-     * @param mentionedUserIds List of users mentioned in the original message
+     * @param channelId Text channel ID to be searched for messages
      * @return List with all messages retrieved with their metadata (author details
      *         and mentions formatted)
      */
     @Override
-    public List<ChatMessageData> retrieveEntireHistoryFrom(String channelId, List<String> mentionedUserIds) {
+    public List<ChatMessageData> retrieveEntireHistoryFrom(String channelId) {
 
         TextChannel channel = jda.getTextChannelById(channelId);
-        List<Member> mentionedUsers = mentionedUserIds.stream()
-                .map(userId -> channel.getGuild()
-                        .retrieveMemberById(userId)
-                        .complete())
-                .toList();
 
         return MessageHistory.getHistoryFromBeginning(channel)
                 .limit(MAX_DISCORD_MESSAGES_ALLOWED)
                 .complete()
                 .getRetrievedHistory()
                 .stream()
-                .map(message -> buildMessageResult(channelId, mentionedUsers, message))
+                .map(message -> buildMessageResult(channelId, message))
                 .toList();
-    }
-
-    @Override
-    public List<ChatMessageData> retrieveEntireHistoryFrom(String channelId) {
-
-        return retrieveEntireHistoryFrom(channelId, Collections.emptyList());
     }
 
     /**
      * Returns the last 100 messages in the channel provided, before the message
      * supplied
      *
-     * @param channelId        Text channel ID to be searched for messages
-     * @param mentionedUserIds List of users mentioned in the original message
+     * @param channelId Text channel ID to be searched for messages
      * @return List with all messages retrieved with their metadata (author details
      *         and mentions formatted)
      */
     @Override
-    public List<ChatMessageData> retrieveEntireHistoryBefore(String messageId, String channelId,
-            List<String> mentionedUserIds) {
+    public List<ChatMessageData> retrieveEntireHistoryBefore(String messageId, String channelId) {
 
         TextChannel channel = jda.getTextChannelById(channelId);
-        List<Member> mentionedUsers = mentionedUserIds.stream()
-                .map(userId -> channel.getGuild()
-                        .retrieveMemberById(userId)
-                        .complete())
-                .toList();
 
         return MessageHistory.getHistoryBefore(channel, messageId)
                 .limit(MAX_DISCORD_MESSAGES_ALLOWED)
                 .complete()
                 .getRetrievedHistory()
                 .stream()
-                .map(message -> buildMessageResult(channelId, mentionedUsers, message))
+                .map(message -> buildMessageResult(channelId, message))
                 .toList();
     }
 
     @Override
     public Optional<ChatMessageData> getLastMessageIn(String channelId) {
 
-        List<ChatMessageData> messageHistrory = retrieveEntireHistoryFrom(channelId, Collections.emptyList());
+        List<ChatMessageData> messageHistrory = retrieveEntireHistoryFrom(channelId);
 
         return Optional.of(messageHistrory.getFirst());
     }
 
-    private ChatMessageData buildMessageResult(String channelId, List<Member> mentionedUsers, Message message) {
+    private ChatMessageData buildMessageResult(String channelId, Message message) {
 
         Member author = message.getGuild()
                 .retrieveMemberById(message.getAuthor().getId())
                 .complete();
 
+        List<Member> mentionedUsers = message.getMentions().getMembers();
         String formattedContent = formatMessageWithMentions(mentionedUsers, message, author);
 
         return ChatMessageData.builder()
@@ -220,12 +202,15 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
 
     private String formatMessageWithMentions(List<Member> mentionedUsers, Message message, Member author) {
 
+        String authorNickname = StringUtils.isNotBlank(author.getNickname()) ? author.getNickname()
+                : author.getUser().getName();
+
         String messageContent = message.getContentRaw();
         for (Member user : mentionedUsers) {
             messageContent = formatContent(user, messageContent);
         }
 
-        return DefaultStringProcessors.formatChatMessage(author.getNickname())
+        return DefaultStringProcessors.formatChatMessage(authorNickname)
                 .apply(messageContent);
     }
 

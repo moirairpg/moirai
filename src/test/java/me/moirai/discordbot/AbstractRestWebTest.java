@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 
 @WebFluxTest
 @ExtendWith(MockitoExtension.class)
-public class AbstractRestWebTest {
+public abstract class AbstractRestWebTest {
 
     @MockBean
     private JDA jda;

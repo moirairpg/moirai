@@ -1,7 +1,7 @@
 package me.moirai.discordbot.core.domain.persona;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,8 @@ public class GameModeTest {
         String input = "";
 
         // Then
-        assertThrows(BusinessRuleViolationException.class, () -> GameMode.fromString(input));
+        assertThatExceptionOfType(BusinessRuleViolationException.class)
+                .isThrownBy(() -> GameMode.fromString(input));
     }
 
     @Test
@@ -26,7 +27,8 @@ public class GameModeTest {
         String input = "invalid";
 
         // Then
-        assertThrows(BusinessRuleViolationException.class, () -> GameMode.fromString(input));
+        assertThatExceptionOfType(BusinessRuleViolationException.class)
+                .isThrownBy(() -> GameMode.fromString(input));
     }
 
     @Test

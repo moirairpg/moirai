@@ -38,6 +38,8 @@ public class MessageReceivedListener extends ListenerAdapter {
         String messageContent = message.getContentRaw();
 
         if (StringUtils.isNotBlank(messageContent) && !author.getUser().isBot()) {
+            String botUsername = bot.getUser().getName();
+            String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname() : botUsername;
             MessageReceived request = MessageReceived.builder()
                     .authordDiscordId(author.getId())
                     .channelId(channelId)
@@ -45,8 +47,8 @@ public class MessageReceivedListener extends ListenerAdapter {
                     .guildId(guildId)
                     .isBotMentioned(mentions.contains(bot.getId()))
                     .mentionedUsersIds(mentions)
-                    .botUsername(bot.getUser().getName())
-                    .botNickname(bot.getNickname())
+                    .botUsername(botUsername)
+                    .botNickname(botNickname)
                     .build();
 
             useCaseRunner.run(request).subscribe();

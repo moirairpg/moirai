@@ -53,7 +53,7 @@ public class JdaConfig {
                     .slash(slashCommand.getName(), slashCommand.getDescription())
                     .addOptions(slashCommand.getOptions());
 
-            jda.updateCommands().addCommands(slashCommandToBeCreated);
+            jda.upsertCommand(slashCommandToBeCreated).complete();
         }
 
         LOG.info(REGISTERED_EVENT_LISTENERS, eventListeners.size());

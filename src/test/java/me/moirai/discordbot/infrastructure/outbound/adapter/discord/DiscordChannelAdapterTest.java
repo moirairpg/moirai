@@ -242,7 +242,7 @@ public class DiscordChannelAdapterTest {
                 .thenReturn(messageRetrieveActionMock);
 
         // When
-        List<ChatMessageData> result = adapter.retrieveEntireHistoryFrom(channelId, Collections.emptyList());
+        List<ChatMessageData> result = adapter.retrieveEntireHistoryFrom(channelId);
 
         // Then
         assertThat(result).isNotNull().hasSize(expectedMessagesInEnd);
@@ -277,8 +277,7 @@ public class DiscordChannelAdapterTest {
                 .thenReturn(messageRetrieveActionMock);
 
         // When
-        List<ChatMessageData> result = adapter.retrieveEntireHistoryBefore(messageId, channelId,
-                Collections.emptyList());
+        List<ChatMessageData> result = adapter.retrieveEntireHistoryBefore(messageId, channelId);
 
         // Then
         assertThat(result).isNotNull().hasSize(expectedMessagesInEnd);

@@ -1,4 +1,4 @@
-package me.moirai.discordbot.core.application.usecase.discord.messagereceived;
+package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
@@ -12,12 +12,12 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerat
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
-public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceived, Mono<Void>> {
+public class GenerateOutputHandler extends AbstractUseCaseHandler<GenerateOutput, Mono<Void>> {
 
     private final ChannelConfigRepository channelConfigRepository;
     private final StoryGenerationPort storyGenerationPort;
 
-    public MessageReceivedHandler(StoryGenerationPort storyGenerationPort,
+    public GenerateOutputHandler(StoryGenerationPort storyGenerationPort,
             ChannelConfigRepository channelConfigRepository) {
 
         this.channelConfigRepository = channelConfigRepository;
@@ -25,16 +25,21 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
     }
 
     @Override
-    public Mono<Void> execute(MessageReceived query) {
+    public Mono<Void> execute(GenerateOutput useCase) {
 
-        return channelConfigRepository.findByDiscordChannelId(query.getChannelId())
-                .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getChannelId()))
-                .map(channelConfig -> buildGenerationRequest(query, channelConfig))
-                .map(generationRequest -> storyGenerationPort.continueStory(generationRequest))
-                .orElseGet(() -> Mono.empty());
+        try {
+            return channelConfigRepository.findByDiscordChannelId(useCase.getChannelId())
+                    .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(useCase.getChannelId()))
+                    .map(channelConfig -> buildGenerationRequest(useCase, channelConfig))
+                    .map(generationRequest -> storyGenerationPort.continueStory(generationRequest))
+                    .orElseGet(() -> Mono.empty());
+        } catch (Exception e) {
+            return Mono.error(
+                    () -> new IllegalStateException("An error occurred while generating output"));
+        }
     }
 
-    private StoryGenerationRequest buildGenerationRequest(MessageReceived useCase, ChannelConfig channelConfig) {
+    private StoryGenerationRequest buildGenerationRequest(GenerateOutput useCase, ChannelConfig channelConfig) {
 
         ModelConfigurationRequest modelConfigurationRequest = ModelConfigurationRequest.builder()
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
@@ -53,6 +58,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                 .build(channelConfig.getModeration().isAbsolute(), channelConfig.getModeration().getThresholds());
 
         return StoryGenerationRequest.builder()
+                .botId(useCase.getBotId())
                 .botNickname(useCase.getBotNickname())
                 .botUsername(useCase.getBotUsername())
                 .channelId(useCase.getChannelId())

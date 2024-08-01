@@ -1,4 +1,4 @@
-package me.moirai.discordbot.core.application.usecase.discord.messagereceived;
+package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -6,16 +6,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.core.application.port.StoryGenerationPort;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
@@ -24,8 +22,7 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerat
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-@ExtendWith(MockitoExtension.class)
-public class MessageReceivedHandlerTest {
+public class GenerateOutputHandlerTest extends AbstractDiscordTest {
 
     @Mock
     private ChannelConfigRepository channelConfigRepository;
@@ -34,10 +31,10 @@ public class MessageReceivedHandlerTest {
     private StoryGenerationPort storyGenerationPort;
 
     @InjectMocks
-    private MessageReceivedHandler handler;
+    private GenerateOutputHandler handler;
 
     @Test
-    public void messageReceived_whenMessageIsReceived_thenGenerateOutput() {
+    public void goCommand_whenIssued_thenGenerateOutput() {
 
         // Given
         String channelId = "CHID";
@@ -46,20 +43,19 @@ public class MessageReceivedHandlerTest {
                 .discordChannelId(channelId)
                 .build();
 
-        MessageReceived useCase = MessageReceived.builder()
-                .authordDiscordId("John")
-                .botUsername("TestBot")
-                .isBotMentioned(false)
-                .mentionedUsersIds(Collections.emptyList())
+        GenerateOutput useCase = GenerateOutput.builder()
+                .botId("BOTID")
+                .botNickname("nickname")
+                .botUsername("user.name")
                 .channelId(channelId)
-                .guildId("GLDID")
-                .messageId("MSGID")
+                .guildId("GDID")
                 .build();
 
         ArgumentCaptor<StoryGenerationRequest> generationRequestCaptor = ArgumentCaptor
                 .forClass(StoryGenerationRequest.class);
 
         when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));
+
         // When
         Mono<Void> result = handler.execute(useCase);
 
@@ -70,11 +66,35 @@ public class MessageReceivedHandlerTest {
 
         StoryGenerationRequest generationRequest = generationRequestCaptor.getValue();
         assertThat(generationRequest).isNotNull();
+        assertThat(generationRequest.getBotId()).isEqualTo(useCase.getBotId());
         assertThat(generationRequest.getBotNickname()).isEqualTo(useCase.getBotNickname());
         assertThat(generationRequest.getBotUsername()).isEqualTo(useCase.getBotUsername());
         assertThat(generationRequest.getChannelId()).isEqualTo(useCase.getChannelId());
         assertThat(generationRequest.getGuildId()).isEqualTo(useCase.getGuildId());
         assertThat(generationRequest.getPersonaId()).isEqualTo(channelConfig.getPersonaId());
         assertThat(generationRequest.getWorldId()).isEqualTo(channelConfig.getWorldId());
+    }
+
+    @Test
+    public void goCommand_whenUnknownError_thenThrowException() {
+
+        // Given
+        String channelId = "CHID";
+
+        GenerateOutput useCase = GenerateOutput.builder()
+                .botId("BOTID")
+                .botNickname("nickname")
+                .botUsername("user.name")
+                .channelId(channelId)
+                .guildId("GDID")
+                .build();
+
+        when(channelConfigRepository.findByDiscordChannelId(anyString())).thenThrow(RuntimeException.class);
+
+        // When
+        Mono<Void> result = handler.execute(useCase);
+
+        // Then
+        StepVerifier.create(result).verifyErrorMessage("An error occurred while generating output");
     }
 }

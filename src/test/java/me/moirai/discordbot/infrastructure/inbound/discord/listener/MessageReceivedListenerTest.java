@@ -1,0 +1,77 @@
+package me.moirai.discordbot.infrastructure.inbound.discord.listener;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+
+import me.moirai.discordbot.AbstractDiscordTest;
+import me.moirai.discordbot.common.usecases.UseCaseRunner;
+import me.moirai.discordbot.core.application.usecase.discord.messagereceived.MessageReceived;
+import net.dv8tion.jda.api.entities.Mentions;
+import net.dv8tion.jda.api.entities.SelfUser;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+public class MessageReceivedListenerTest extends AbstractDiscordTest {
+
+    @Mock
+    private UseCaseRunner useCaseRunner;
+
+    @InjectMocks
+    private MessageReceivedListener listener;
+
+    @Test
+    public void messageListener_whenMessageReceived_thenCallUseCase() {
+
+        // Given
+        String guildId = "GDID";
+        String channelId = "CHID";
+        String userId = "USRID";
+        String messageId = "MSGID";
+        String username = "user.name";
+        String nickname = "nickname";
+        String messageContent = "content";
+
+        MessageReceivedEvent event = mock(MessageReceivedEvent.class);
+        Mentions mentions = mock(Mentions.class);
+
+        when(event.getMessage()).thenReturn(message);
+        when(event.getMember()).thenReturn(member);
+        when(event.getGuild()).thenReturn(guild);
+        when(guild.getMember(any(SelfUser.class))).thenReturn(member);
+        when(message.getMentions()).thenReturn(mentions);
+        when(mentions.getMembers()).thenReturn(Collections.emptyList());
+        when(guild.getId()).thenReturn(guildId);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(channelUnion.getId()).thenReturn(channelId);
+        when(message.getContentRaw()).thenReturn(messageContent);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
+        when(user.getName()).thenReturn(username);
+        when(member.getNickname()).thenReturn(nickname);
+        when(member.getId()).thenReturn(userId);
+        when(message.getId()).thenReturn(messageId);
+        when(event.getJDA()).thenReturn(jda);
+        when(jda.getSelfUser()).thenReturn(selfUser);
+
+        Mono<Void> useCaseResult = Mono.just(mock(Void.class));
+
+        when(useCaseRunner.run(any(MessageReceived.class))).thenReturn(useCaseResult);
+
+        // When
+        listener.onMessageReceived(event);
+
+        // Then
+        StepVerifier.create(useCaseResult)
+                .assertNext(result -> assertThat(result).isNotNull())
+                .verifyComplete();
+    }
+}

@@ -102,7 +102,7 @@ public class StoryGenerationAdapterTest {
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
         TextModerationResult moderationResult = TextModerationResultFixture.withoutFlags().build();
 
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyList()))
+        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString()))
                 .thenReturn(ChatMessageDataFixture.messageList(5));
 
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
@@ -192,7 +192,7 @@ public class StoryGenerationAdapterTest {
 
         TextModerationResult moderationResult = TextModerationResultFixture.withFlags().build();
 
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyList()))
+        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString()))
                 .thenReturn(ChatMessageDataFixture.messageList(5));
 
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
@@ -252,7 +252,7 @@ public class StoryGenerationAdapterTest {
         TextModerationResult goodModerationResult = TextModerationResultFixture.withoutFlags().build();
         TextModerationResult badModerationResult = TextModerationResultFixture.withFlags().build();
 
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString(), anyList()))
+        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString()))
                 .thenReturn(ChatMessageDataFixture.messageList(5));
 
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
