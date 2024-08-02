@@ -79,6 +79,22 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
     }
 
     @Test
+    public void whenSlashCommandCalled_ifAuthorIsBot_thenDoNotOpenModal() {
+
+        // Given
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(true);
+
+        // When
+        listener.onSlashCommandInteraction(event);
+
+        // Then
+        verify(useCaseRunner, times(0)).run(any());
+    }
+
+    @Test
     public void retryCommand_whenSuccessfulExecution_thenShouldUpdateNotification() {
 
         // Given
@@ -87,6 +103,11 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(RetryGeneration.class))).thenReturn(commandResult);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
+        when(channelUnion.asTextChannel()).thenReturn(textChannel);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -108,6 +129,11 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(GenerateOutput.class))).thenReturn(commandResult);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
+        when(channelUnion.asTextChannel()).thenReturn(textChannel);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -129,6 +155,11 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(RetryGeneration.class))).thenReturn(commandResult);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
+        when(channelUnion.asTextChannel()).thenReturn(textChannel);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -149,6 +180,11 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(GenerateOutput.class))).thenReturn(commandResult);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
+        when(channelUnion.asTextChannel()).thenReturn(textChannel);
 
         // When
         listener.onSlashCommandInteraction(event);

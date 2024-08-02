@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.SayCommand;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -26,17 +27,20 @@ public class ModalListener extends ListenerAdapter {
 
         String modalId = event.getModalId();
         TextChannel textChannel = event.getChannel().asTextChannel();
+        User author = event.getMember().getUser();
 
-        switch (modalId) {
-            case "sayAsBot" -> {
-                InteractionHook interactionHook = sendNotification(event, "Waiting for input...");
-                String messageContent = event.getValue("content").getAsString();
- 
-                SayCommand useCase = SayCommand.build(textChannel.getId(), messageContent);
+        if (!author.isBot()) {
+            switch (modalId) {
+                case "sayAsBot" -> {
+                    InteractionHook interactionHook = sendNotification(event, "Waiting for input...");
+                    String messageContent = event.getValue("content").getAsString();
 
-                useCaseRunner.run(useCase);
+                    SayCommand useCase = SayCommand.build(textChannel.getId(), messageContent);
 
-                updateNotification(interactionHook, INPUT_SENT);
+                    useCaseRunner.run(useCase);
+
+                    updateNotification(interactionHook, INPUT_SENT);
+                }
             }
         }
     }

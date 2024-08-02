@@ -1,6 +1,7 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -33,6 +34,24 @@ public class ModalListenerTest extends AbstractDiscordTest {
     private ModalListener listener;
 
     @Test
+    public void whenModalCalled_ifAuthorIsBot_thenDoNotOpenModal() {
+
+        // Given
+        ModalInteractionEvent event = mock(ModalInteractionEvent.class);
+
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(true);
+
+        // When
+        listener.onModalInteraction(event);
+
+        // Then
+        verify(useCaseRunner, times(0)).run(any());
+    }
+
+    @Test
     public void sayModal_whenCommandCalled_thenSendInputToChannel() {
 
         // Given
@@ -59,6 +78,9 @@ public class ModalListenerTest extends AbstractDiscordTest {
         when(modalMapping.getAsString()).thenReturn(messageContent);
         when(interactionHook.editOriginal(anyString())).thenReturn(editNotificationAction);
         when(editNotificationAction.complete()).thenReturn(message);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
 
         // When
         listener.onModalInteraction(event);
