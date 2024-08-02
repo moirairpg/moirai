@@ -16,11 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.port.StoryGenerationPort;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -29,6 +31,9 @@ public class MessageReceivedHandlerTest {
 
     @Mock
     private ChannelConfigRepository channelConfigRepository;
+
+    @Mock
+    private DiscordChannelPort discordChannelPort;
 
     @Mock
     private StoryGenerationPort storyGenerationPort;
@@ -60,6 +65,10 @@ public class MessageReceivedHandlerTest {
                 .forClass(StoryGenerationRequest.class);
 
         when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));
+
+        when(discordChannelPort.retrieveEntireHistoryFrom(anyString()))
+                .thenReturn(ChatMessageDataFixture.messageList(5));
+
         // When
         Mono<Void> result = handler.execute(useCase);
 

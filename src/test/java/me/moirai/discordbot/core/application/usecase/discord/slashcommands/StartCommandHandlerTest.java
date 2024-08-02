@@ -19,24 +19,30 @@ import me.moirai.discordbot.core.application.port.StoryGenerationPort;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
+import me.moirai.discordbot.core.domain.world.World;
+import me.moirai.discordbot.core.domain.world.WorldFixture;
+import me.moirai.discordbot.core.domain.world.WorldRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-public class GenerateOutputHandlerTest extends AbstractDiscordTest {
+public class StartCommandHandlerTest extends AbstractDiscordTest {
 
     @Mock
     private ChannelConfigRepository channelConfigRepository;
 
     @Mock
-    private DiscordChannelPort discordChannelPort;
+    private WorldRepository worldRepository;
 
     @Mock
     private StoryGenerationPort storyGenerationPort;
 
+    @Mock
+    private DiscordChannelPort discordChannelPort;
+
     @InjectMocks
-    private GenerateOutputHandler handler;
+    private StartCommandHandler handler;
 
     @Test
     public void goCommand_whenIssued_thenGenerateOutput() {
@@ -48,13 +54,15 @@ public class GenerateOutputHandlerTest extends AbstractDiscordTest {
                 .discordChannelId(channelId)
                 .build();
 
-        GenerateOutput useCase = GenerateOutput.builder()
+        StartCommand useCase = StartCommand.builder()
                 .botId("BOTID")
                 .botNickname("nickname")
                 .botUsername("user.name")
                 .channelId(channelId)
                 .guildId("GDID")
                 .build();
+
+        World world = WorldFixture.privateWorld().build();
 
         ArgumentCaptor<StoryGenerationRequest> generationRequestCaptor = ArgumentCaptor
                 .forClass(StoryGenerationRequest.class);
@@ -63,6 +71,8 @@ public class GenerateOutputHandlerTest extends AbstractDiscordTest {
 
         when(discordChannelPort.retrieveEntireHistoryFrom(anyString()))
                 .thenReturn(ChatMessageDataFixture.messageList(5));
+
+        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // When
         Mono<Void> result = handler.execute(useCase);
@@ -89,7 +99,7 @@ public class GenerateOutputHandlerTest extends AbstractDiscordTest {
         // Given
         String channelId = "CHID";
 
-        GenerateOutput useCase = GenerateOutput.builder()
+        StartCommand useCase = StartCommand.builder()
                 .botId("BOTID")
                 .botNickname("nickname")
                 .botUsername("user.name")

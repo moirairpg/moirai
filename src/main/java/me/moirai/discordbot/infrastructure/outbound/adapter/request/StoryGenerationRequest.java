@@ -1,5 +1,11 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter.request;
 
+import java.util.*;
+
+import org.apache.commons.collections4.CollectionUtils;
+
+import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
+
 public class StoryGenerationRequest {
 
     private final String botId;
@@ -11,6 +17,7 @@ public class StoryGenerationRequest {
     private final String personaId;
     private final ModelConfigurationRequest modelConfiguration;
     private final ModerationConfigurationRequest moderation;
+    private final List<ChatMessageData> messageHistory;
 
     protected StoryGenerationRequest(Builder builder) {
 
@@ -23,6 +30,7 @@ public class StoryGenerationRequest {
         this.personaId = builder.personaId;
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
+        this.messageHistory = Collections.unmodifiableList(builder.messageHistory);
     }
 
     public static Builder builder() {
@@ -65,6 +73,10 @@ public class StoryGenerationRequest {
         return moderation;
     }
 
+    public List<ChatMessageData> getMessageHistory() {
+        return messageHistory;
+    }
+
     public static final class Builder {
 
         private String botId;
@@ -76,6 +88,7 @@ public class StoryGenerationRequest {
         private String personaId;
         private ModelConfigurationRequest modelConfiguration;
         private ModerationConfigurationRequest moderation;
+        private List<ChatMessageData> messageHistory = new ArrayList<>();
 
         private Builder() {
         }
@@ -122,6 +135,15 @@ public class StoryGenerationRequest {
 
         public Builder botNickname(String botNickname) {
             this.botNickname = botNickname;
+            return this;
+        }
+
+        public Builder messageHistory(List<ChatMessageData> messageHistory) {
+
+            if (CollectionUtils.isNotEmpty(messageHistory)) {
+                this.messageHistory.addAll(messageHistory);
+            }
+
             return this;
         }
 

@@ -53,9 +53,12 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
     private final TextCompletionPort textCompletionPort;
     private final TextModerationPort textModerationPort;
 
-    public StoryGenerationAdapter(StorySummarizationPort summarizationPort, DiscordChannelPort discordChannelPort,
-            LorebookEnrichmentPort lorebookEnrichmentPort, PersonaEnrichmentPort personaEnrichmentPort,
-            TextCompletionPort textCompletionPort, TextModerationPort textModerationPort) {
+    public StoryGenerationAdapter(StorySummarizationPort summarizationPort,
+            DiscordChannelPort discordChannelPort,
+            LorebookEnrichmentPort lorebookEnrichmentPort,
+            PersonaEnrichmentPort personaEnrichmentPort,
+            TextCompletionPort textCompletionPort,
+            TextModerationPort textModerationPort) {
 
         this.discordChannelPort = discordChannelPort;
         this.summarizationPort = summarizationPort;
@@ -68,8 +71,7 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
     @Override
     public Mono<Void> continueStory(StoryGenerationRequest request) {
 
-        return Mono
-                .just(discordChannelPort.retrieveEntireHistoryFrom(request.getChannelId()))
+        return Mono.just(request.getMessageHistory())
                 .map(messageHistory -> lorebookEnrichmentPort.enrichContextWithLorebook(messageHistory,
                         request.getWorldId(), request.getModelConfiguration()))
                 .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook,
@@ -78,10 +80,9 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
                         contextWithSummary, request.getPersonaId(), request.getModelConfiguration()))
                 .map(contextWithPersona -> processEnrichedContext(contextWithPersona, request.getBotUsername(),
                         request.getBotNickname()))
-                .flatMap(processedContext -> moderateInput(processedContext, request.getChannelId(),
-                        request.getModeration()))
+                .flatMap(processedContext -> moderateInput(processedContext, request.getModeration()))
                 .flatMap(processedContext -> generateAiOutput(request, processedContext))
-                .flatMap(aiOutput -> moderateOutput(aiOutput, request.getChannelId(), request.getModeration()))
+                .flatMap(aiOutput -> moderateOutput(aiOutput, request.getModeration()))
                 .doOnNext(generatedOutput -> sendOutputTo(request.getChannelId(),
                         request.getBotUsername(), request.getBotNickname(), generatedOutput))
                 .then();
@@ -205,7 +206,7 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
         discordChannelPort.sendMessageTo(messageChannelId, output);
     }
 
-    private Mono<List<ChatMessage>> moderateInput(List<ChatMessage> messages, String channelId,
+    private Mono<List<ChatMessage>> moderateInput(List<ChatMessage> messages,
             ModerationConfigurationRequest moderation) {
 
         String messageHistory = messages.stream()
@@ -215,7 +216,7 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
         return getTopicsFlaggedByModeration(messageHistory, moderation)
                 .map(result -> {
                     if (!result.isEmpty()) {
-                        throw new ModerationException("Inappropriate content found on user's input", channelId, result);
+                        throw new ModerationException("Inappropriate content found in message history", result);
                     }
 
                     return messages;
@@ -223,12 +224,12 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
     }
 
     private Mono<String> moderateOutput(TextGenerationResult generationResult,
-            String channelId, ModerationConfigurationRequest moderation) {
+            ModerationConfigurationRequest moderation) {
 
         return getTopicsFlaggedByModeration(generationResult.getOutputText(), moderation)
                 .map(result -> {
                     if (!result.isEmpty()) {
-                        throw new ModerationException("Inappropriate content found on AI's output", channelId, result);
+                        throw new ModerationException("Inappropriate content found in AI's output", result);
                     }
 
                     return generationResult.getOutputText();

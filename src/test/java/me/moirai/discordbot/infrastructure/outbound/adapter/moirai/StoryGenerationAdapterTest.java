@@ -40,7 +40,6 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigu
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequestFixture;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -101,9 +100,6 @@ public class StoryGenerationAdapterTest {
 
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
         TextModerationResult moderationResult = TextModerationResultFixture.withoutFlags().build();
-
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString()))
-                .thenReturn(ChatMessageDataFixture.messageList(5));
 
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
                 .thenReturn(Mono.just(context));
@@ -192,9 +188,6 @@ public class StoryGenerationAdapterTest {
 
         TextModerationResult moderationResult = TextModerationResultFixture.withFlags().build();
 
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString()))
-                .thenReturn(ChatMessageDataFixture.messageList(5));
-
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
                 .thenReturn(Mono.just(context));
 
@@ -251,9 +244,6 @@ public class StoryGenerationAdapterTest {
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
         TextModerationResult goodModerationResult = TextModerationResultFixture.withoutFlags().build();
         TextModerationResult badModerationResult = TextModerationResultFixture.withFlags().build();
-
-        when(discordChannelOperationsPort.retrieveEntireHistoryFrom(anyString()))
-                .thenReturn(ChatMessageDataFixture.messageList(5));
 
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
                 .thenReturn(Mono.just(context));

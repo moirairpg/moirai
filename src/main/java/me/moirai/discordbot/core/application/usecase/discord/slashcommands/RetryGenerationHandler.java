@@ -1,5 +1,7 @@
 package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
+import java.util.List;
+
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
@@ -17,6 +19,7 @@ import reactor.core.publisher.Mono;
 public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGeneration, Mono<Void>> {
 
     private static final String COMMAND_ONLY_WHEN_LAST_MESSAGE_BY_BOT = "This command can only be used if the last message in channel was sent by the bot.";
+
     private final DiscordChannelPort discordChannelPort;
     private final ChannelConfigRepository channelConfigRepository;
     private final StoryGenerationPort storyGenerationPort;
@@ -80,6 +83,8 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
                 .build(channelConfig.getModeration().isAbsolute(), channelConfig.getModeration().getThresholds());
 
+        List<ChatMessageData> messageHistory = discordChannelPort.retrieveEntireHistoryFrom(useCase.getChannelId());
+
         return StoryGenerationRequest.builder()
                 .botId(useCase.getBotId())
                 .botNickname(useCase.getBotNickname())
@@ -90,6 +95,7 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
                 .modelConfiguration(modelConfigurationRequest)
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
+                .messageHistory(messageHistory)
                 .build();
     }
 }
