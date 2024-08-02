@@ -45,7 +45,7 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
     private StartCommandHandler handler;
 
     @Test
-    public void goCommand_whenIssued_thenGenerateOutput() {
+    public void startCommand_whenIssued_thenSendAdventureStartAndCallGeneration() {
 
         // Given
         String channelId = "CHID";
@@ -94,7 +94,7 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
     }
 
     @Test
-    public void goCommand_whenUnknownError_thenThrowException() {
+    public void startCommand_whenUnknownError_thenThrowException() {
 
         // Given
         String channelId = "CHID";
