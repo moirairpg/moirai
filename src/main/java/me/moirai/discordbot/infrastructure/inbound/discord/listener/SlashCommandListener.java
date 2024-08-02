@@ -15,6 +15,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Component
 public class SlashCommandListener extends ListenerAdapter {
@@ -94,6 +98,19 @@ public class SlashCommandListener extends ListenerAdapter {
                 useCaseRunner.run(useCase)
                         .doOnError(error -> updateNotification(interactionHook, error.getMessage()))
                         .subscribe(__ -> updateNotification(interactionHook, "Adventure started! Enjoy!"));
+            }
+            case "say" -> {
+                TextInput content = TextInput.create("content", "Content", TextInputStyle.PARAGRAPH)
+                        .setPlaceholder("Message to be sent as the bot")
+                        .setMinLength(1)
+                        .setMaxLength(2000)
+                        .build();
+
+                Modal modal = Modal.create("sayAsBot", "Say as bot")
+                        .addComponents(ActionRow.of(content))
+                        .build();
+
+                event.replyModal(modal).complete();
             }
         }
     }
