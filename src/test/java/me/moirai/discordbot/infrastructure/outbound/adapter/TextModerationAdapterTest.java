@@ -1,6 +1,9 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import java.util.Collections;
 
@@ -11,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import me.moirai.discordbot.AbstractWebMockTest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.response.CompletionResponseError;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ModerationResponse;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ModerationResult;
 import reactor.test.StepVerifier;
@@ -52,5 +56,65 @@ public class TextModerationAdapterTest extends AbstractWebMockTest {
                             .containsAllEntriesOf(Collections.singletonMap("topic", 0.7));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void textGeneration_whenBadRequestOnOpenAiApi_thenHandleException() throws JsonProcessingException {
+
+        // Given
+        String input = "This is the input";
+
+        CompletionResponseError errorResponse = CompletionResponseError.builder()
+                .message("There was an unknown error")
+                .param("Parameter")
+                .type("Type")
+                .code("CODE")
+                .build();
+
+        prepareWebserverFor(errorResponse, BAD_REQUEST);
+
+        // Then
+        StepVerifier.create(adapter.moderate(input))
+                .verifyErrorMessage("Bad request calling OpenAI Moderation API");
+    }
+
+    @Test
+    public void textGeneration_whenInternalErrorOnOpenAiApi_thenHandleException() throws JsonProcessingException {
+
+        // Given
+        String input = "This is the input";
+
+        CompletionResponseError errorResponse = CompletionResponseError.builder()
+                .message("There was an unknown error")
+                .param("Parameter")
+                .type("Type")
+                .code("CODE")
+                .build();
+
+        prepareWebserverFor(errorResponse, INTERNAL_SERVER_ERROR);
+
+        // Then
+        StepVerifier.create(adapter.moderate(input))
+                .verifyErrorMessage("Error on OpenAI Moderation API");
+    }
+
+    @Test
+    public void textGeneration_whenUnauthorizedOpenAiApi_thenHandleException() throws JsonProcessingException {
+
+        // Given
+        String input = "This is the input";
+
+        CompletionResponseError errorResponse = CompletionResponseError.builder()
+                .message("Bad request error")
+                .param("Parameter")
+                .type("Type")
+                .code("CODE")
+                .build();
+
+        prepareWebserverFor(errorResponse, UNAUTHORIZED);
+
+        // Then
+        StepVerifier.create(adapter.moderate(input))
+                .verifyErrorMessage("Error authenticating user on OpenAI");
     }
 }

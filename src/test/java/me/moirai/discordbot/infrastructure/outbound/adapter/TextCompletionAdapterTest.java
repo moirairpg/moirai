@@ -1,6 +1,10 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import java.util.Collections;
 
@@ -15,6 +19,7 @@ import me.moirai.discordbot.core.application.model.request.TextGenerationRequest
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessage;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.CompletionResponse;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.CompletionResponseChoice;
+import me.moirai.discordbot.infrastructure.outbound.adapter.response.CompletionResponseError;
 import me.moirai.discordbot.infrastructure.outbound.adapter.response.CompletionResponseUsage;
 import reactor.test.StepVerifier;
 
@@ -56,7 +61,7 @@ public class TextCompletionAdapterTest extends AbstractWebMockTest {
                         .build()))
                 .build();
 
-        prepareWebserverFor(expectedResponse, 200);
+        prepareWebserverFor(expectedResponse, OK);
 
         // Then
         StepVerifier.create(adapter.generateTextFrom(request))
@@ -68,5 +73,89 @@ public class TextCompletionAdapterTest extends AbstractWebMockTest {
                     assertThat(result.getOutputText()).isEqualTo("Text output");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void textGeneration_whenBadRequestOnOpenAiApi_thenHandleException() throws JsonProcessingException {
+
+        // Given
+        TextGenerationRequest request = TextGenerationRequest.builder()
+                .frequencyPenalty(1.0)
+                .presencePenalty(1.0)
+                .temperature(1.0)
+                .maxTokens(100)
+                .model("gpt-3.5")
+                .logitBias(Collections.singletonMap("token", 1.0))
+                .stopSequences(Collections.singletonList("token"))
+                .build();
+
+        CompletionResponseError errorResponse = CompletionResponseError.builder()
+                .message("There was an unknown error")
+                .param("Parameter")
+                .type("Type")
+                .code("CODE")
+                .build();
+
+        prepareWebserverFor(errorResponse, BAD_REQUEST);
+
+        // Then
+        StepVerifier.create(adapter.generateTextFrom(request))
+                .verifyErrorMessage("Bad request calling OpenAI API");
+    }
+
+    @Test
+    public void textGeneration_whenInternalErrorOnOpenAiApi_thenHandleException() throws JsonProcessingException {
+
+        // Given
+        TextGenerationRequest request = TextGenerationRequest.builder()
+                .frequencyPenalty(1.0)
+                .presencePenalty(1.0)
+                .temperature(1.0)
+                .maxTokens(100)
+                .model("gpt-3.5")
+                .logitBias(Collections.singletonMap("token", 1.0))
+                .stopSequences(Collections.singletonList("token"))
+                .build();
+
+        CompletionResponseError errorResponse = CompletionResponseError.builder()
+                .message("There was an unknown error")
+                .param("Parameter")
+                .type("Type")
+                .code("CODE")
+                .build();
+
+        prepareWebserverFor(errorResponse, INTERNAL_SERVER_ERROR);
+
+        // Then
+        StepVerifier.create(adapter.generateTextFrom(request))
+                .verifyErrorMessage("Error on OpenAI API");
+    }
+
+    @Test
+    public void textGeneration_whenUnauthorizedOpenAiApi_thenHandleException() throws JsonProcessingException {
+
+        // Given
+        TextGenerationRequest request = TextGenerationRequest.builder()
+                .frequencyPenalty(1.0)
+                .presencePenalty(1.0)
+                .temperature(1.0)
+                .maxTokens(100)
+                .model("gpt-3.5")
+                .logitBias(Collections.singletonMap("token", 1.0))
+                .stopSequences(Collections.singletonList("token"))
+                .build();
+
+        CompletionResponseError errorResponse = CompletionResponseError.builder()
+                .message("Bad request error")
+                .param("Parameter")
+                .type("Type")
+                .code("CODE")
+                .build();
+
+        prepareWebserverFor(errorResponse, UNAUTHORIZED);
+
+        // Then
+        StepVerifier.create(adapter.generateTextFrom(request))
+                .verifyErrorMessage("Error authenticating user on OpenAI");
     }
 }

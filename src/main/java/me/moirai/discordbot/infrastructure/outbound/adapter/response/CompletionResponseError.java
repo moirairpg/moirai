@@ -90,20 +90,24 @@ public class CompletionResponseError {
         private Builder() {
         }
 
-        public void message(String message) {
+        public Builder message(String message) {
             this.message = message;
+            return this;
         }
 
-        public void type(String type) {
+        public Builder type(String type) {
             this.type = type;
+            return this;
         }
 
-        public void param(String param) {
+        public Builder param(String param) {
             this.param = param;
+            return this;
         }
 
-        public void code(String code) {
+        public Builder code(String code) {
             this.code = code;
+            return this;
         }
 
         public CompletionResponseError build() {

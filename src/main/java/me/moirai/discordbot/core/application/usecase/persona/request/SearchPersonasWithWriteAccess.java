@@ -7,8 +7,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
 
     private final Integer page;
     private final Integer items;
-    private final String searchField;
-    private final String searchCriteria;
     private final String sortByField;
     private final String direction;
     private final String name;
@@ -19,8 +17,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
 
         this.page = builder.page;
         this.items = builder.items;
-        this.searchField = builder.searchField;
-        this.searchCriteria = builder.searchCriteria;
         this.sortByField = builder.sortByField;
         this.direction = builder.direction;
         this.name = builder.name;
@@ -38,14 +34,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
 
     public Integer getItems() {
         return items;
-    }
-
-    public String getSearchField() {
-        return searchField;
-    }
-
-    public String getSearchCriteria() {
-        return searchCriteria;
     }
 
     public String getSortByField() {
@@ -72,8 +60,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
 
         private Integer page;
         private Integer items;
-        private String searchField;
-        private String searchCriteria;
         private String sortByField;
         private String direction;
         private String name;
@@ -90,16 +76,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
 
         public Builder items(Integer items) {
             this.items = items;
-            return this;
-        }
-
-        public Builder searchField(String searchField) {
-            this.searchField = searchField;
-            return this;
-        }
-
-        public Builder searchCriteria(String searchCriteria) {
-            this.searchCriteria = searchCriteria;
             return this;
         }
 

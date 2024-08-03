@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,9 +47,19 @@ public abstract class AbstractWebMockTest {
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
     }
 
+    protected void prepareWebserverFor(Object response, HttpStatus httpStatus) throws JsonProcessingException {
+
+        prepareWebserverFor(response, httpStatus.value());
+    }
+
     protected void prepareWebserverFor(int httpStatus) {
 
         wireMockServer.stubFor(any(anyUrl())
                 .willReturn(aResponse().withStatus(httpStatus)));
+    }
+
+    protected void prepareWebserverFor(HttpStatus httpStatus) {
+
+        prepareWebserverFor(httpStatus.value());
     }
 }

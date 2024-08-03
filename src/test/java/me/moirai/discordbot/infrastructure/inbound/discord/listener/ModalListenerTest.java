@@ -34,7 +34,7 @@ public class ModalListenerTest extends AbstractDiscordTest {
     private ModalListener listener;
 
     @Test
-    public void whenModalCalled_ifAuthorIsBot_thenDoNotOpenModal() {
+    public void whenModalCalled_whenAuthorIsBot_thenDoNotOpenModal() {
 
         // Given
         ModalInteractionEvent event = mock(ModalInteractionEvent.class);
@@ -43,6 +43,27 @@ public class ModalListenerTest extends AbstractDiscordTest {
         when(event.getMember()).thenReturn(member);
         when(member.getUser()).thenReturn(user);
         when(user.isBot()).thenReturn(true);
+
+        // When
+        listener.onModalInteraction(event);
+
+        // Then
+        verify(useCaseRunner, times(0)).run(any());
+    }
+
+    @Test
+    public void whenModalCalled_whenInvalidModal_thenDoNotOpenModal() {
+
+        // Given
+        String modalName = "invalidModal";
+
+        ModalInteractionEvent event = mock(ModalInteractionEvent.class);
+
+        when(event.getModalId()).thenReturn(modalName);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
 
         // When
         listener.onModalInteraction(event);

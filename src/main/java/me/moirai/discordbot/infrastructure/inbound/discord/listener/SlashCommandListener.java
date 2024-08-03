@@ -77,14 +77,6 @@ public class SlashCommandListener extends ListenerAdapter {
                             .doOnError(error -> updateNotification(interactionHook, error.getMessage()))
                             .subscribe(__ -> updateNotification(interactionHook, OUTPUT_GENERATED));
                 }
-                case "tokenize" -> {
-                    InteractionHook interactionHook = sendNotification(event, "Tokenizing input...");
-                    String inputToBeTokenized = event.getOption("input").getAsString();
-
-                    String tokenizationResult = useCaseRunner.run(TokenizeInput.build(inputToBeTokenized));
-
-                    updateNotification(interactionHook, tokenizationResult);
-                }
                 case "start" -> {
                     InteractionHook interactionHook = sendNotification(event, "Starting adventure...");
                     String botUsername = bot.getUser().getName();
@@ -114,6 +106,14 @@ public class SlashCommandListener extends ListenerAdapter {
                             .build();
 
                     event.replyModal(modal).complete();
+                }
+                case "tokenize" -> {
+                    InteractionHook interactionHook = sendNotification(event, "Tokenizing input...");
+                    String inputToBeTokenized = event.getOption("input").getAsString();
+
+                    String tokenizationResult = useCaseRunner.run(TokenizeInput.build(inputToBeTokenized));
+
+                    updateNotification(interactionHook, tokenizationResult);
                 }
             }
         }
