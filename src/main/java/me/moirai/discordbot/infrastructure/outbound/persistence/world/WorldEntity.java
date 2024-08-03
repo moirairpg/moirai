@@ -3,23 +3,19 @@ package me.moirai.discordbot.infrastructure.outbound.persistence.world;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import org.hibernate.annotations.GenericGenerator;
-
-import me.moirai.discordbot.common.dbutil.NanoIdIdentifierGenerator;
-import me.moirai.discordbot.infrastructure.outbound.persistence.ShareableAssetEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import me.moirai.discordbot.common.annotation.NanoId;
+import me.moirai.discordbot.infrastructure.outbound.persistence.ShareableAssetEntity;
 
 @Entity(name = "World")
 @Table(name = "world")
 public class WorldEntity extends ShareableAssetEntity {
 
     @Id
-    @GeneratedValue(generator = "nanoid-generator")
-    @GenericGenerator(name = "nanoid-generator", type = NanoIdIdentifierGenerator.class)
+    @NanoId
     private String id;
 
     @Column(name = "name", nullable = false)
