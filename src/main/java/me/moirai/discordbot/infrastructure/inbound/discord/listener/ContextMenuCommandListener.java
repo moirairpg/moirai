@@ -3,6 +3,9 @@ package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import me.moirai.discordbot.common.usecases.UseCaseRunner;
+import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeInput;
+import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeResult;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
@@ -15,6 +18,16 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 @Component
 public class ContextMenuCommandListener extends ListenerAdapter {
+
+    private static final String TOKEN_REPLY_MESSAGE = "**Characters:** %s\n**Tokens:** %s\n**Token IDs:** %s (contains %s total tokens).";
+    private static final String TOO_MUCH_CONTENT_TO_TOKENIZE = "Could not tokenize content. Too much content. Please use the web UI to tokenize large text";
+    private static final int DISCORD_MAX_LENGTH = 2000;
+
+    private final UseCaseRunner useCaseRunner;
+
+    public ContextMenuCommandListener(UseCaseRunner useCaseRunner) {
+        this.useCaseRunner = useCaseRunner;
+    }
 
     @Override
     public void onMessageContextInteraction(MessageContextInteractionEvent event) {
@@ -55,11 +68,37 @@ public class ContextMenuCommandListener extends ListenerAdapter {
 
                     event.replyModal(modal).complete();
                 }
+                case "(MoirAI) Tokenize content" -> {
+                    InteractionHook interactionHook = sendNotification(event, "Tokenizing input...");
+                    String inputToBeTokenized = message.getContentRaw();
+
+                    TokenizeResult tokenizationResult = useCaseRunner.run(TokenizeInput.build(inputToBeTokenized))
+                            .orElseThrow(() -> new IllegalStateException("Error tokenizing input"));
+
+                    String finalResult = mapTokenizationResultToMessage(tokenizationResult);
+
+                    if (finalResult.length() > DISCORD_MAX_LENGTH) {
+                        updateNotification(interactionHook, TOO_MUCH_CONTENT_TO_TOKENIZE);
+                        return;
+                    }
+
+                    updateNotification(interactionHook, finalResult);
+                }
             }
         }
     }
 
+    private String mapTokenizationResultToMessage(TokenizeResult tokenizationResult) {
+
+        return String.format(TOKEN_REPLY_MESSAGE, tokenizationResult.getCharacterCount(),
+                tokenizationResult.getTokens(), tokenizationResult.getTokenIds(), tokenizationResult.getTokenCount());
+    }
+
     private InteractionHook sendNotification(MessageContextInteractionEvent event, String message) {
         return event.reply(message).setEphemeral(true).complete();
+    }
+
+    private Message updateNotification(InteractionHook interactionHook, String newContent) {
+        return interactionHook.editOriginal(newContent).complete();
     }
 }

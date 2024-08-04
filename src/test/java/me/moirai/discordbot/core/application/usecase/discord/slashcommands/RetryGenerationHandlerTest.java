@@ -165,4 +165,66 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
         // Then
         StepVerifier.create(result).verifyErrorMessage(expectedErrorMessage);
     }
+
+    @Test
+    public void retryCommand_whenRetrieveUserMessageAndChannelIsEmpty_thenThrowException() {
+
+        // Given
+        String botId = "BOTID";
+        String channelId = "CHID";
+        String expectedErrorMessage = "Channel has no messages";
+
+        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+                .discordChannelId(channelId)
+                .build();
+
+        RetryGeneration useCase = RetryGeneration.builder()
+                .botId(botId)
+                .botNickname("nickname")
+                .botUsername("user.name")
+                .channelId(channelId)
+                .guildId("GDID")
+                .build();
+
+        ChatMessageData chatMessageData = ChatMessageDataFixture.messageData()
+                .authorId(botId)
+                .build();
+
+        when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));
+
+        when(discordChannelPort.getLastMessageIn(anyString()))
+                .thenReturn(Optional.of(chatMessageData))
+                .thenReturn(Optional.empty());
+
+        // When
+        Mono<Void> result = handler.execute(useCase);
+
+        // Then
+        StepVerifier.create(result).verifyErrorMessage(expectedErrorMessage);
+    }
+
+    @Test
+    public void retryCommand_whenRetrieveLastMessageAndChannelIsEmpty_thenThrowException() {
+
+        // Given
+        String botId = "BOTID";
+        String channelId = "CHID";
+        String expectedErrorMessage = "Channel has no messages";
+
+        RetryGeneration useCase = RetryGeneration.builder()
+                .botId(botId)
+                .botNickname("nickname")
+                .botUsername("user.name")
+                .channelId(channelId)
+                .guildId("GDID")
+                .build();
+
+        when(discordChannelPort.getLastMessageIn(anyString())).thenReturn(Optional.empty());
+
+        // When
+        Mono<Void> result = handler.execute(useCase);
+
+        // Then
+        StepVerifier.create(result).verifyErrorMessage(expectedErrorMessage);
+    }
 }

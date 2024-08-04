@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +17,6 @@ import me.moirai.discordbot.core.domain.port.TokenizerPort;
 
 @ExtendWith(MockitoExtension.class)
 public class TokenizeInputHandlerTest {
-
-    private static final String TOKENIZATION_BASE_RESPONSE = "**Characters:** %s\n**Tokens:** %s\n**Token IDs:** %s (contains %s total tokens).";
 
     @Mock
     private TokenizerPort tokenizerPort;
@@ -35,23 +33,25 @@ public class TokenizeInputHandlerTest {
         long[] tokenIds = { 1212, 318, 617, 2420, 13 };
         int tokenCount = 5;
 
-        String expectedResponse = String.format(TOKENIZATION_BASE_RESPONSE,
-                textToBeTokenized.length(), tokens, Arrays.toString(tokenIds), tokenCount);
+        TokenizeResult expectedAdapterResult = TokenizeResult.builder()
+                .tokens(tokens)
+                .tokenCount(tokenCount)
+                .tokenIds(tokenIds)
+                .characterCount(textToBeTokenized.length())
+                .build();
 
-        when(tokenizerPort.tokenize(anyString())).thenReturn(tokens);
-        when(tokenizerPort.getTokensIdsFrom(anyString())).thenReturn(tokenIds);
-        when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(tokenCount);
+        when(tokenizerPort.tokenize(anyString())).thenReturn(expectedAdapterResult);
 
         TokenizeInput useCase = TokenizeInput.build(textToBeTokenized);
 
         // When
-        String result = handler.execute(useCase);
+        Optional<TokenizeResult> result = handler.execute(useCase);
 
         // Then
         assertThat(result)
                 .isNotNull()
                 .isNotEmpty()
-                .isEqualTo(expectedResponse);
+                .contains(expectedAdapterResult);
     }
 
     @Test
@@ -59,19 +59,15 @@ public class TokenizeInputHandlerTest {
 
         // Given
         String textToBeTokenized = "This is some text.";
-        String expectedResponse = "There was an error tokenizing the input.";
-
-        when(tokenizerPort.tokenize(anyString())).thenThrow(UnsupportedEncodingException.class);
 
         TokenizeInput useCase = TokenizeInput.build(textToBeTokenized);
 
         // When
-        String result = handler.execute(useCase);
+        Optional<TokenizeResult> result = handler.execute(useCase);
 
         // Then
         assertThat(result)
                 .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(expectedResponse);
+                .isEmpty();
     }
 }

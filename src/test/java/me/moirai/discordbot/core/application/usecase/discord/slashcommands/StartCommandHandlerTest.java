@@ -118,4 +118,37 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
         // Then
         StepVerifier.create(result).verifyErrorMessage("An error occurred while generating output");
     }
+
+    @Test
+    public void startCommand_whenChannelConfigHasNoWorld_thenThrowException() {
+
+        // Given
+        String channelId = "CHID";
+        String expectedErrorMessage = "Channel config has no world linked to it";
+
+        StartCommand useCase = StartCommand.builder()
+                .botId("BOTID")
+                .botNickname("nickname")
+                .botUsername("user.name")
+                .channelId(channelId)
+                .guildId("GDID")
+                .build();
+
+        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+                .discordChannelId(channelId)
+                .build();
+
+        when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));
+
+        when(discordChannelPort.retrieveEntireHistoryFrom(anyString()))
+                .thenReturn(ChatMessageDataFixture.messageList(5));
+
+        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        // When
+        Mono<Void> result = handler.execute(useCase);
+
+        // Then
+        StepVerifier.create(result).verifyErrorMessage(expectedErrorMessage);
+    }
 }

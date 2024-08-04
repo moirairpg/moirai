@@ -138,7 +138,7 @@ public class TokenizerAdapterTest {
         String expectedTokenizedText = "This| is| a| test| in| English|.";
 
         // When
-        String tokenizedText = tokenizer.tokenize(englishText);
+        String tokenizedText = tokenizer.getTokens(englishText);
 
         // Then
         assertThat(expectedTokenizedText).isEqualTo(tokenizedText);
@@ -152,7 +152,7 @@ public class TokenizerAdapterTest {
         String expectedTokenizedText = "E|ste| é| um| test|e| num| idi|oma| n|ão|-|ing|l|ê|s|.";
 
         // When
-        String tokenizedText = tokenizer.tokenize(englishText);
+        String tokenizedText = tokenizer.getTokens(englishText);
 
         // Then
         assertThat(expectedTokenizedText).isEqualTo(tokenizedText);

@@ -48,6 +48,8 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
                     .map(channelConfig -> buildGenerationRequest(useCase, channelConfig))
                     .map(generationRequest -> storyGenerationPort.continueStory(generationRequest))
                     .orElseGet(() -> Mono.empty());
+        } catch (AssetNotFoundException e) {
+            return Mono.error(() -> e);
         } catch (Exception e) {
             return Mono.error(
                     () -> new IllegalStateException("An error occurred while generating output"));

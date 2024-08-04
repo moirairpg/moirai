@@ -12,6 +12,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
+import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeResult;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 
 @Component
@@ -30,6 +31,22 @@ public class TokenizerAdapter implements TokenizerPort {
 
         tokenizer = HuggingFaceTokenizer.newInstance(new ClassPathResource(TOKENIZER_FILE_PATH).getInputStream(),
                 tokenizerOptions);
+    }
+
+    @Override
+    public TokenizeResult tokenize(String text) throws UnsupportedEncodingException {
+
+        String tokens = getTokens(text);
+        long[] tokenIds = getTokensIdsFrom(text);
+        int tokenCount = getTokenCountFrom(text);
+        int characterCount = text.length();
+
+        return TokenizeResult.builder()
+                .characterCount(characterCount)
+                .tokenCount(tokenCount)
+                .tokens(tokens)
+                .tokenIds(tokenIds)
+                .build();
     }
 
     @Override
@@ -64,7 +81,7 @@ public class TokenizerAdapter implements TokenizerPort {
     }
 
     @Override
-    public String tokenize(String text) throws UnsupportedEncodingException {
+    public String getTokens(String text) throws UnsupportedEncodingException {
 
         List<String> tokenList = tokenizer.tokenize(text);
         tokenList.replaceAll(a -> a.replaceAll(SPECIAL_SPACE_TOKEN, StringUtils.SPACE));

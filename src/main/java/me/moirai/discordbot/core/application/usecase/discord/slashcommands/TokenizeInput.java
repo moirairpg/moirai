@@ -1,8 +1,10 @@
 package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
+import java.util.Optional;
+
 import me.moirai.discordbot.common.usecases.UseCase;
 
-public final class TokenizeInput extends UseCase<String> {
+public final class TokenizeInput extends UseCase<Optional<TokenizeResult>> {
 
     private final String input;
 

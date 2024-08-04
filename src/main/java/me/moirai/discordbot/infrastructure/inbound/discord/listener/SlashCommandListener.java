@@ -8,6 +8,7 @@ import me.moirai.discordbot.core.application.usecase.discord.slashcommands.Gener
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.RetryGeneration;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.StartCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeInput;
+import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeResult;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -24,7 +25,10 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @Component
 public class SlashCommandListener extends ListenerAdapter {
 
+    private static final String TOKEN_REPLY_MESSAGE = "**Characters:** %s\n**Tokens:** %s\n**Token IDs:** %s (contains %s total tokens).";
+    private static final String TOO_MUCH_CONTENT_TO_TOKENIZE = "Could not tokenize content. Too much content. Please use the web UI to tokenize large text";
     private static final String OUTPUT_GENERATED = "Output generated.";
+    private static final int DISCORD_MAX_LENGTH = 2000;
 
     private final UseCaseRunner useCaseRunner;
 
@@ -111,12 +115,26 @@ public class SlashCommandListener extends ListenerAdapter {
                     InteractionHook interactionHook = sendNotification(event, "Tokenizing input...");
                     String inputToBeTokenized = event.getOption("input").getAsString();
 
-                    String tokenizationResult = useCaseRunner.run(TokenizeInput.build(inputToBeTokenized));
+                    TokenizeResult tokenizationResult = useCaseRunner.run(TokenizeInput.build(inputToBeTokenized))
+                            .orElseThrow(() -> new IllegalStateException("Error tokenizing input"));
 
-                    updateNotification(interactionHook, tokenizationResult);
+                    String finalResult = mapTokenizationResultToMessage(tokenizationResult);
+
+                    if (finalResult.length() > DISCORD_MAX_LENGTH) {
+                        updateNotification(interactionHook, TOO_MUCH_CONTENT_TO_TOKENIZE);
+                        return;
+                    }
+
+                    updateNotification(interactionHook, finalResult);
                 }
             }
         }
+    }
+
+    private String mapTokenizationResultToMessage(TokenizeResult tokenizationResult) {
+
+        return String.format(TOKEN_REPLY_MESSAGE, tokenizationResult.getCharacterCount(),
+                tokenizationResult.getTokens(), tokenizationResult.getTokenIds(), tokenizationResult.getTokenCount());
     }
 
     private Message updateNotification(InteractionHook interactionHook, String newContent) {
