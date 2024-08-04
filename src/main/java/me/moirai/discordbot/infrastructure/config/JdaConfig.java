@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import me.moirai.discordbot.infrastructure.inbound.discord.contextmenu.DiscordContextMenuCommand;
 import me.moirai.discordbot.infrastructure.inbound.discord.slashcommands.DiscordSlashCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -24,6 +26,7 @@ public class JdaConfig {
 
     private static final String REGISTERED_EVENT_LISTENERS = "{} Discord event listeners have been registered";
     private static final String REGISTERED_SLASH_COMMANDS = "{} Discord slash commands have been registered";
+    private static final String REGISTERED_CONTEXT_MENU_COMMANDS = "{} Discord context menu commands have been registered";
 
     private final String discordApiToken;
 
@@ -33,7 +36,10 @@ public class JdaConfig {
     }
 
     @Bean
-    <T extends ListenerAdapter> JDA jda(List<T> eventListeners, List<? extends DiscordSlashCommand> slashCommands) {
+    <T extends ListenerAdapter> JDA jda(
+            List<T> eventListeners,
+            List<? extends DiscordSlashCommand> slashCommands,
+            List<? extends DiscordContextMenuCommand> ctxMenuCommands) {
 
         JDABuilder jdaBuilder = JDABuilder.createDefault(discordApiToken);
 
@@ -56,8 +62,15 @@ public class JdaConfig {
             jda.upsertCommand(slashCommandToBeCreated).complete();
         }
 
+        for (DiscordContextMenuCommand ctxMenuCommand : ctxMenuCommands) {
+            LOG.debug("Registering context menu command:  " + ctxMenuCommand.getClass().getSimpleName());
+            CommandData command = Commands.context(ctxMenuCommand.getCommandType(), ctxMenuCommand.getName());
+            jda.upsertCommand(command).complete();
+        }
+
         LOG.info(REGISTERED_EVENT_LISTENERS, eventListeners.size());
         LOG.info(REGISTERED_SLASH_COMMANDS, slashCommands.size());
+        LOG.info(REGISTERED_CONTEXT_MENU_COMMANDS, ctxMenuCommands.size());
 
         return jda;
     }

@@ -1,9 +1,13 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
+import me.moirai.discordbot.core.application.usecase.discord.contextmenu.EditMessage;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.SayCommand;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -14,6 +18,10 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 @Component
 public class ModalListener extends ListenerAdapter {
 
+    private static final String MESSAGE_EDITED = "Message edited.";
+    private static final String WAITING_FOR_INPUT = "Waiting for input...";
+    private static final String MESSAGE_ID = "messageId";
+    private static final String MESSAGE_CONTENT = "content";
     private static final String INPUT_SENT = "Input sent.";
 
     private final UseCaseRunner useCaseRunner;
@@ -26,14 +34,16 @@ public class ModalListener extends ListenerAdapter {
     public void onModalInteraction(ModalInteractionEvent event) {
 
         String modalId = event.getModalId();
+        Guild guild = event.getGuild();
         TextChannel textChannel = event.getChannel().asTextChannel();
         User author = event.getMember().getUser();
+        Member bot = guild.retrieveMember(event.getJDA().getSelfUser()).complete();
 
         if (!author.isBot()) {
             switch (modalId) {
                 case "sayAsBot" -> {
-                    InteractionHook interactionHook = sendNotification(event, "Waiting for input...");
-                    String messageContent = event.getValue("content").getAsString();
+                    InteractionHook interactionHook = sendNotification(event, WAITING_FOR_INPUT);
+                    String messageContent = event.getValue(MESSAGE_CONTENT).getAsString();
 
                     SayCommand useCase = SayCommand.build(textChannel.getId(), messageContent);
 
@@ -41,8 +51,32 @@ public class ModalListener extends ListenerAdapter {
 
                     updateNotification(interactionHook, INPUT_SENT);
                 }
+                case "editMessage" -> {
+                    InteractionHook interactionHook = sendNotification(event, WAITING_FOR_INPUT);
+                    String messageContent = event.getValue(MESSAGE_CONTENT).getAsString();
+                    String messageId = event.getValue(MESSAGE_ID).getAsString();
+                    Message message = textChannel.retrieveMessageById(messageId).complete();
+
+                    if (!message.getAuthor().getId().equals(bot.getId())) {
+                        updateNotification(interactionHook,
+                                "It's only possible to edit messages sent by " + getBotNickname(bot));
+                        return;
+                    }
+
+                    EditMessage useCase = EditMessage.build(textChannel.getId(), messageId, messageContent);
+
+                    useCaseRunner.run(useCase);
+
+                    updateNotification(interactionHook, MESSAGE_EDITED);
+                }
             }
         }
+    }
+
+    private String getBotNickname(Member bot) {
+
+        return StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname()
+                : bot.getUser().getName();
     }
 
     private Message updateNotification(InteractionHook interactionHook, String newContent) {

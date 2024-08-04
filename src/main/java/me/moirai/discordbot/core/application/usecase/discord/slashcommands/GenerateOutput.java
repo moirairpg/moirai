@@ -3,7 +3,7 @@ package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 import me.moirai.discordbot.common.usecases.UseCase;
 import reactor.core.publisher.Mono;
 
-public class GenerateOutput extends UseCase<Mono<Void>> {
+public final class GenerateOutput extends UseCase<Mono<Void>> {
 
     private final String botId;
     private final String channelId;

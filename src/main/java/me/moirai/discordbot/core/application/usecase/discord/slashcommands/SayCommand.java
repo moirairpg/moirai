@@ -2,7 +2,7 @@ package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
 import me.moirai.discordbot.common.usecases.UseCase;
 
-public class SayCommand extends UseCase<Void> {
+public final class SayCommand extends UseCase<Void> {
 
     private final String channelId;
     private final String messageContent;
