@@ -12,8 +12,8 @@ import org.apache.commons.collections4.ListUtils;
 
 import me.moirai.discordbot.common.annotation.ApplicationService;
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 
 @ApplicationService
 @SuppressWarnings("unchecked")
@@ -31,7 +31,7 @@ public class ChatMessageAdapter implements ChatMessagePort {
     @Override
     public Map<String, Object> addMessagesToContext(Map<String, Object> context, int reservedTokens) {
 
-        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) context.get(RETRIEVED_MESSAGES);
+        List<DiscordMessageData> retrievedMessages = (List<DiscordMessageData>) context.get(RETRIEVED_MESSAGES);
         List<String> messageHistory = ListUtils.defaultIfNull(
                 (List<String>) context.get(MESSAGE_HISTORY), new ArrayList<>());
 
@@ -43,7 +43,7 @@ public class ChatMessageAdapter implements ChatMessagePort {
 
                     return tokensInMessage <= tokensLeftInContext;
                 })
-                .map(ChatMessageData::getContent)
+                .map(DiscordMessageData::getContent)
                 .forEach(messageHistory::addFirst);
 
         retrievedMessages.removeIf(messageData -> messageHistory.contains(messageData.getContent()));
@@ -58,7 +58,7 @@ public class ChatMessageAdapter implements ChatMessagePort {
     public Map<String, Object> addMessagesToContext(Map<String, Object> context,
             int reservedTokens, int amountOfMessage) {
 
-        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) context.get(RETRIEVED_MESSAGES);
+        List<DiscordMessageData> retrievedMessages = (List<DiscordMessageData>) context.get(RETRIEVED_MESSAGES);
         List<String> messageHistory = ListUtils.defaultIfNull(
                 (List<String>) context.get(MESSAGE_HISTORY), new ArrayList<>());
 
@@ -72,7 +72,7 @@ public class ChatMessageAdapter implements ChatMessagePort {
 
                     return tokensInMessage <= tokensLeftInContext;
                 })
-                .map(ChatMessageData::getContent)
+                .map(DiscordMessageData::getContent)
                 .forEach(messageHistory::addFirst);
 
         retrievedMessages.removeIf(messageData -> messageHistory.contains(messageData.getContent()));
@@ -88,7 +88,7 @@ public class ChatMessageAdapter implements ChatMessagePort {
             int reservedTokens, String assetManipulated) {
 
         String stringifiedAsset = (String) context.get(assetManipulated);
-        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) context.get(RETRIEVED_MESSAGES);
+        List<DiscordMessageData> retrievedMessages = (List<DiscordMessageData>) context.get(RETRIEVED_MESSAGES);
         List<String> messageHistory = ListUtils.defaultIfNull(
                 (List<String>) context.get(MESSAGE_HISTORY), new ArrayList<>());
 
@@ -104,7 +104,7 @@ public class ChatMessageAdapter implements ChatMessagePort {
 
                     return tokensInMessage <= tokensLeftInContext;
                 })
-                .map(ChatMessageData::getContent)
+                .map(DiscordMessageData::getContent)
                 .forEach(messageHistory::addFirst);
 
         retrievedMessages.removeIf(messageData -> messageHistory.contains(messageData.getContent()));

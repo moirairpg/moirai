@@ -12,11 +12,11 @@ import io.micrometer.common.util.StringUtils;
 import me.moirai.discordbot.common.annotation.ApplicationService;
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.LorebookEnrichmentPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 
 @ApplicationService
 public class LorebookEnrichmentAdapter implements LorebookEnrichmentPort {
@@ -38,14 +38,14 @@ public class LorebookEnrichmentAdapter implements LorebookEnrichmentPort {
     }
 
     @Override
-    public Map<String, Object> enrichContextWithLorebook(List<ChatMessageData> rawMessageHistory, String worldId,
+    public Map<String, Object> enrichContextWithLorebook(List<DiscordMessageData> rawMessageHistory, String worldId,
             ModelConfigurationRequest modelConfiguration) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
         int reservedTokensForLorebook = (int) Math.floor(totalTokens * 0.30);
 
         List<String> messageHistory = rawMessageHistory.stream()
-                .map(ChatMessageData::getContent)
+                .map(DiscordMessageData::getContent)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         String stringifiedStory = stringifyList(messageHistory);

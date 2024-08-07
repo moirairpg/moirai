@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.port.StoryGenerationPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageDataFixture;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
@@ -23,7 +24,6 @@ import me.moirai.discordbot.core.domain.world.World;
 import me.moirai.discordbot.core.domain.world.WorldFixture;
 import me.moirai.discordbot.core.domain.world.WorldRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -70,7 +70,7 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
         when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));
 
         when(discordChannelPort.retrieveEntireHistoryFrom(anyString()))
-                .thenReturn(ChatMessageDataFixture.messageList(5));
+                .thenReturn(DiscordMessageDataFixture.messageList(5));
 
         when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
@@ -110,7 +110,7 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
         when(channelConfigRepository.findByDiscordChannelId(anyString())).thenThrow(RuntimeException.class);
 
         when(discordChannelPort.retrieveEntireHistoryFrom(anyString()))
-                .thenReturn(ChatMessageDataFixture.messageList(5));
+                .thenReturn(DiscordMessageDataFixture.messageList(5));
 
         // When
         Mono<Void> result = handler.execute(useCase);
@@ -141,7 +141,7 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
         when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));
 
         when(discordChannelPort.retrieveEntireHistoryFrom(anyString()))
-                .thenReturn(ChatMessageDataFixture.messageList(5));
+                .thenReturn(DiscordMessageDataFixture.messageList(5));
 
         when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
 

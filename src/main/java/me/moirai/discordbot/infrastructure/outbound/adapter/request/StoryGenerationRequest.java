@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 
 public class StoryGenerationRequest {
 
@@ -17,7 +17,7 @@ public class StoryGenerationRequest {
     private final String personaId;
     private final ModelConfigurationRequest modelConfiguration;
     private final ModerationConfigurationRequest moderation;
-    private final List<ChatMessageData> messageHistory;
+    private final List<DiscordMessageData> messageHistory;
 
     protected StoryGenerationRequest(Builder builder) {
 
@@ -73,7 +73,7 @@ public class StoryGenerationRequest {
         return moderation;
     }
 
-    public List<ChatMessageData> getMessageHistory() {
+    public List<DiscordMessageData> getMessageHistory() {
         return messageHistory;
     }
 
@@ -88,7 +88,7 @@ public class StoryGenerationRequest {
         private String personaId;
         private ModelConfigurationRequest modelConfiguration;
         private ModerationConfigurationRequest moderation;
-        private List<ChatMessageData> messageHistory = new ArrayList<>();
+        private List<DiscordMessageData> messageHistory = new ArrayList<>();
 
         private Builder() {
         }
@@ -138,7 +138,7 @@ public class StoryGenerationRequest {
             return this;
         }
 
-        public Builder messageHistory(List<ChatMessageData> messageHistory) {
+        public Builder messageHistory(List<DiscordMessageData> messageHistory) {
 
             if (CollectionUtils.isNotEmpty(messageHistory)) {
                 this.messageHistory.addAll(messageHistory);

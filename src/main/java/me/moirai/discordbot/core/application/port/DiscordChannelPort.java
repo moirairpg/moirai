@@ -3,23 +3,23 @@ package me.moirai.discordbot.core.application.port;
 import java.util.List;
 import java.util.Optional;
 
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 
 public interface DiscordChannelPort {
 
-    ChatMessageData sendMessageTo(String channelId, String messageContent);
+    DiscordMessageData sendMessageTo(String channelId, String messageContent);
 
     void sendTemporaryMessageTo(String channelId, String messageContent, int deleteAfterSeconds);
 
-    Optional<ChatMessageData> getMessageById(String channelId, String messageId);
+    Optional<DiscordMessageData> getMessageById(String channelId, String messageId);
 
     void deleteMessageById(String channelId, String messageId);
 
-    ChatMessageData editMessageById(String channelId, String messageId, String messageContent);
+    DiscordMessageData editMessageById(String channelId, String messageId, String messageContent);
 
-    List<ChatMessageData> retrieveEntireHistoryFrom(String channelId);
+    List<DiscordMessageData> retrieveEntireHistoryFrom(String channelId);
 
-    List<ChatMessageData> retrieveEntireHistoryBefore(String messageId, String channelId);
+    List<DiscordMessageData> retrieveEntireHistoryBefore(String messageId, String channelId);
 
-    Optional<ChatMessageData> getLastMessageIn(String channelId);
+    Optional<DiscordMessageData> getLastMessageIn(String channelId);
 }

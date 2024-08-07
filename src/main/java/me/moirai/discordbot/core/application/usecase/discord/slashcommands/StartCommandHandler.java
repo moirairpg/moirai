@@ -7,6 +7,8 @@ import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.port.StoryGenerationPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.core.domain.world.World;
@@ -15,7 +17,6 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelReque
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
@@ -79,13 +80,15 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
 
         discordChannelPort.sendMessageTo(useCase.getChannelId(), world.getAdventureStart());
 
-        ChatMessageData adventureStartMessage = ChatMessageData.builder()
-                .authorId(useCase.getBotId())
-                .authorNickname(useCase.getBotNickname())
-                .authorUsername(useCase.getBotUsername())
+        DiscordMessageData adventureStartMessage = DiscordMessageData.builder()
                 .channelId(useCase.getChannelId())
                 .content(String.format(CHAT_FORMAT, useCase.getBotNickname(), world.getAdventureStart()))
                 .mentionedUsersIds(Collections.emptyList())
+                .author(DiscordUserDetails.builder()
+                        .id(useCase.getBotId())
+                        .nickname(useCase.getBotNickname())
+                        .username(useCase.getBotUsername())
+                        .build())
                 .build();
 
         return StoryGenerationRequest.builder()

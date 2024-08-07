@@ -21,13 +21,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageDataFixture;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequestFixture;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
@@ -53,7 +53,7 @@ public class LorebookEnrichmentAdapterTest {
         // Given
         String worldId = "worldId";
         Map<String, Object> context = contextWithSummaryAndMessages(5);
-        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
+        List<DiscordMessageData> messages = (List<DiscordMessageData>) context.get("retrievedMessages");
 
         List<WorldLorebookEntry> lorebook = lorebookEntriesNumber(5);
         Map<String, Object> contextWithLorebook = new HashMap<>(context);
@@ -80,7 +80,7 @@ public class LorebookEnrichmentAdapterTest {
 
         String lorebookExtracted = (String) processedContext.get("lorebook");
         List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+        List<DiscordMessageData> retrievedMessages = (List<DiscordMessageData>) processedContext
                 .get("retrievedMessages");
 
         assertThat(messageHistory).hasSize(5);
@@ -100,7 +100,7 @@ public class LorebookEnrichmentAdapterTest {
         String worldId = "worldId";
         Map<String, Object> context = contextWithSummaryAndMessages(5);
         ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
-        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
+        List<DiscordMessageData> messages = (List<DiscordMessageData>) context.get("retrievedMessages");
 
         when(worldService.findAllEntriesByRegex(eq(worldId), anyString()))
                 .thenReturn(Collections.emptyList());
@@ -115,7 +115,7 @@ public class LorebookEnrichmentAdapterTest {
         assertThat(processedContext).doesNotContainKey("lorebook");
 
         List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+        List<DiscordMessageData> retrievedMessages = (List<DiscordMessageData>) processedContext
                 .get("retrievedMessages");
         assertThat(messageHistory).hasSize(5);
         assertThat(retrievedMessages).isEmpty();
@@ -126,7 +126,7 @@ public class LorebookEnrichmentAdapterTest {
         // Given
         String worldId = "worldId";
         Map<String, Object> context = contextWithSummaryAndMessages(5);
-        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
+        List<DiscordMessageData> messages = (List<DiscordMessageData>) context.get("retrievedMessages");
 
         List<WorldLorebookEntry> lorebook = lorebookEntriesNumber(5);
         Map<String, Object> contextWithLorebook = new HashMap<>(context);
@@ -155,7 +155,7 @@ public class LorebookEnrichmentAdapterTest {
 
         String lorebookExtracted = (String) processedContext.get("lorebook");
         List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+        List<DiscordMessageData> retrievedMessages = (List<DiscordMessageData>) processedContext
                 .get("retrievedMessages");
 
         assertThat(messageHistory).hasSize(5);
@@ -175,7 +175,7 @@ public class LorebookEnrichmentAdapterTest {
         String worldId = "worldId";
         Map<String, Object> context = contextWithSummaryAndMessages(5);
         ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
-        List<ChatMessageData> messages = (List<ChatMessageData>) context.get("retrievedMessages");
+        List<DiscordMessageData> messages = (List<DiscordMessageData>) context.get("retrievedMessages");
 
         List<WorldLorebookEntry> lorebook = lorebookEntriesNumber(5);
         Map<String, Object> contextWithLorebook = new HashMap<>(context);
@@ -200,7 +200,7 @@ public class LorebookEnrichmentAdapterTest {
 
         String lorebookExtracted = (String) processedContext.get("lorebook");
         List<String> messageHistory = (List<String>) processedContext.get("messageHistory");
-        List<ChatMessageData> retrievedMessages = (List<ChatMessageData>) processedContext
+        List<DiscordMessageData> retrievedMessages = (List<DiscordMessageData>) processedContext
                 .get("retrievedMessages");
 
         assertThat(messageHistory).hasSize(5);
@@ -230,16 +230,16 @@ public class LorebookEnrichmentAdapterTest {
 
     private Map<String, Object> contextWithSummaryAndMessages(int items) {
 
-        List<ChatMessageData> messageDataList = new ArrayList<>();
+        List<DiscordMessageData> messageDataList = new ArrayList<>();
         for (int i = 0; i < items; i++) {
-            messageDataList.add(ChatMessageDataFixture.messageData()
+            messageDataList.add(DiscordMessageDataFixture.messageData()
                     .id(String.valueOf(i + 1))
                     .content(String.format("Message %s", i + 1))
                     .build());
         }
 
         List<String> textMessages = new ArrayList<>(messageDataList.stream()
-                .map(ChatMessageData::getContent)
+                .map(DiscordMessageData::getContent)
                 .map(content -> String.format("User said before test said: %s", content))
                 .toList());
 

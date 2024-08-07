@@ -18,9 +18,9 @@ import me.moirai.discordbot.core.application.model.request.TextGenerationRequest
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 import reactor.core.publisher.Mono;
 
 @ApplicationService
@@ -71,7 +71,7 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
     private Mono<? extends Map<String, Object>> generateSummary(Map<String, Object> context,
             ModelConfigurationRequest modelConfiguration) {
 
-        List<ChatMessageData> rawMessageHistory = (List<ChatMessageData>) context.get(RETRIEVED_MESSAGES);
+        List<DiscordMessageData> rawMessageHistory = (List<DiscordMessageData>) context.get(RETRIEVED_MESSAGES);
         String lorebook = (String) context.get(LOREBOOK);
 
         TextGenerationRequest request = createSummarizationRequest(rawMessageHistory, lorebook, modelConfiguration);
@@ -107,7 +107,7 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
         return processedContext;
     }
 
-    private TextGenerationRequest createSummarizationRequest(List<ChatMessageData> messagesExtracted,
+    private TextGenerationRequest createSummarizationRequest(List<DiscordMessageData> messagesExtracted,
             String lorebook, ModelConfigurationRequest modelConfiguration) {
 
         List<ChatMessage> chatMessages = new ArrayList<>();

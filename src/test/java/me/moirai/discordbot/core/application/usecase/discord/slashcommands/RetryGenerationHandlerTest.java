@@ -16,12 +16,13 @@ import org.mockito.Mock;
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.port.StoryGenerationPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageDataFixture;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetailsFixture;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -58,8 +59,10 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
                 .guildId("GDID")
                 .build();
 
-        ChatMessageData chatMessageData = ChatMessageDataFixture.messageData()
-                .authorId(botId)
+        DiscordMessageData chatMessageData = DiscordMessageDataFixture.messageData()
+                .author(DiscordUserDetailsFixture.create()
+                        .id(botId)
+                        .build())
                 .build();
 
         ArgumentCaptor<StoryGenerationRequest> generationRequestCaptor = ArgumentCaptor
@@ -103,8 +106,10 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
                 .guildId("GDID")
                 .build();
 
-        ChatMessageData chatMessageData = ChatMessageDataFixture.messageData()
-                .authorId("SMID")
+        DiscordMessageData chatMessageData = DiscordMessageDataFixture.messageData()
+                .author(DiscordUserDetailsFixture.create()
+                        .id("SMID")
+                        .build())
                 .build();
 
         when(discordChannelPort.getLastMessageIn(anyString())).thenReturn(Optional.of(chatMessageData));
@@ -186,8 +191,10 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
                 .guildId("GDID")
                 .build();
 
-        ChatMessageData chatMessageData = ChatMessageDataFixture.messageData()
-                .authorId(botId)
+        DiscordMessageData chatMessageData = DiscordMessageDataFixture.messageData()
+                .author(DiscordUserDetailsFixture.create()
+                        .id(botId)
+                        .build())
                 .build();
 
         when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));

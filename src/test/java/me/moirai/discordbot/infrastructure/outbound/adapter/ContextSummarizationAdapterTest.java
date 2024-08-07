@@ -29,12 +29,12 @@ import me.moirai.discordbot.core.application.model.result.TextGenerationResultFi
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageDataFixture;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequestFixture;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -282,17 +282,17 @@ public class ContextSummarizationAdapterTest {
 
     private Map<String, Object> createContextWithMessageNumber(int items) {
 
-        List<ChatMessageData> messageDataList = new ArrayList<>();
+        List<DiscordMessageData> messageDataList = new ArrayList<>();
         for (int i = 0; i < items; i++) {
             int messageNumber = i + 1;
-            messageDataList.add(ChatMessageDataFixture.messageData()
+            messageDataList.add(DiscordMessageDataFixture.messageData()
                     .id(String.valueOf(messageNumber))
                     .content(String.format("Message %s", messageNumber))
                     .build());
         }
 
         List<String> messageStringList = messageDataList.stream()
-                .map(ChatMessageData::getContent)
+                .map(DiscordMessageData::getContent)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         Map<String, Object> context = new HashMap<>();

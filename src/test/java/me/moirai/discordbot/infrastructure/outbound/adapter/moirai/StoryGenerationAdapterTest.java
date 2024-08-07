@@ -36,10 +36,10 @@ import me.moirai.discordbot.core.application.port.PersonaEnrichmentPort;
 import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequestFixture;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -119,7 +119,7 @@ public class StoryGenerationAdapterTest {
                 .thenReturn(Mono.just(moderationResult));
 
         when(discordChannelOperationsPort.sendMessageTo(eq(channelId), anyString()))
-                .thenReturn(mock(ChatMessageData.class));
+                .thenReturn(mock(DiscordMessageData.class));
 
         // When
         Mono<Void> result = adapter.continueStory(query);

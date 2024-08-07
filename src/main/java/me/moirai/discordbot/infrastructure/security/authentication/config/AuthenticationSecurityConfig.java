@@ -31,7 +31,6 @@ public class AuthenticationSecurityConfig {
     @Bean
     SecurityWebFilterChain configure(ServerHttpSecurity http) {
 
-        // TODO verify csrf and cors, they shouldn't be disabled
         return http.addFilterBefore(discordRequestFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .authorizeExchange(exchanges -> exchanges.pathMatchers(ignoredPaths).permitAll())
                 .authorizeExchange(exchanges -> exchanges.anyExchange().authenticated())

@@ -15,9 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageDataFixture;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageDataFixture;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
@@ -46,11 +46,11 @@ public class ChatMessageAdapterTest {
 
         // Then
         assertThat(result).isNotNull().isNotEmpty();
-        assertThat((List<ChatMessageData>) result.get("retrievedMessages"))
+        assertThat((List<DiscordMessageData>) result.get("retrievedMessages"))
                 .isNotNull()
                 .isEmpty();
 
-        assertThat((List<ChatMessageData>) result.get("messageHistory")).isNotNull()
+        assertThat((List<DiscordMessageData>) result.get("messageHistory")).isNotNull()
                 .isNotEmpty()
                 .hasSize(10);
     }
@@ -92,11 +92,11 @@ public class ChatMessageAdapterTest {
 
         // Then
         assertThat(result).isNotNull().isNotEmpty();
-        assertThat((List<ChatMessageData>) result.get("retrievedMessages"))
+        assertThat((List<DiscordMessageData>) result.get("retrievedMessages"))
                 .isNotNull()
                 .hasSize(5);
 
-        assertThat((List<ChatMessageData>) result.get("messageHistory")).isNotNull()
+        assertThat((List<DiscordMessageData>) result.get("messageHistory")).isNotNull()
                 .isNotEmpty()
                 .hasSize(expectedNumberOfMessagesAdded);
     }
@@ -119,11 +119,11 @@ public class ChatMessageAdapterTest {
 
         // Then
         assertThat(result).isNotNull().isNotEmpty();
-        assertThat((List<ChatMessageData>) result.get("retrievedMessages"))
+        assertThat((List<DiscordMessageData>) result.get("retrievedMessages"))
                 .isNotNull()
                 .hasSize(expectedNumberOfMessagesNotAdded);
 
-        assertThat((List<ChatMessageData>) result.get("messageHistory"))
+        assertThat((List<DiscordMessageData>) result.get("messageHistory"))
                 .isNotNull()
                 .isEmpty();
     }
@@ -142,11 +142,11 @@ public class ChatMessageAdapterTest {
 
         // Then
         assertThat(result).isNotNull().isNotEmpty();
-        assertThat((List<ChatMessageData>) result.get("retrievedMessages"))
+        assertThat((List<DiscordMessageData>) result.get("retrievedMessages"))
                 .isNotNull()
                 .isEmpty();
 
-        assertThat((List<ChatMessageData>) result.get("messageHistory")).isNotNull()
+        assertThat((List<DiscordMessageData>) result.get("messageHistory")).isNotNull()
                 .isNotEmpty()
                 .hasSize(10);
     }
@@ -183,11 +183,11 @@ public class ChatMessageAdapterTest {
 
         // Then
         assertThat(result).isNotNull().isNotEmpty();
-        assertThat((List<ChatMessageData>) result.get("retrievedMessages"))
+        assertThat((List<DiscordMessageData>) result.get("retrievedMessages"))
                 .isNotNull()
                 .hasSize(5);
 
-        assertThat((List<ChatMessageData>) result.get("messageHistory")).isNotNull()
+        assertThat((List<DiscordMessageData>) result.get("messageHistory")).isNotNull()
                 .isNotEmpty()
                 .hasSize(expectedNumberOfMessagesAdded);
     }
@@ -209,11 +209,11 @@ public class ChatMessageAdapterTest {
 
         // Then
         assertThat(result).isNotNull().isNotEmpty();
-        assertThat((List<ChatMessageData>) result.get("retrievedMessages"))
+        assertThat((List<DiscordMessageData>) result.get("retrievedMessages"))
                 .isNotNull()
                 .hasSize(expectedNumberOfMessagesNotAdded);
 
-        assertThat((List<ChatMessageData>) result.get("messageHistory")).isNotNull()
+        assertThat((List<DiscordMessageData>) result.get("messageHistory")).isNotNull()
                 .isNotEmpty()
                 .hasSize(expectedNumberOfMessagesAdded);
     }
@@ -252,21 +252,21 @@ public class ChatMessageAdapterTest {
 
         // Then
         assertThat(result).isNotNull().isNotEmpty();
-        assertThat((List<ChatMessageData>) result.get("retrievedMessages"))
+        assertThat((List<DiscordMessageData>) result.get("retrievedMessages"))
                 .isNotNull()
                 .hasSize(expectedNumberOfMessagesNotAdded);
 
-        assertThat((List<ChatMessageData>) result.get("messageHistory")).isNotNull()
+        assertThat((List<DiscordMessageData>) result.get("messageHistory")).isNotNull()
                 .isNotEmpty()
                 .hasSize(expectedNumberOfMessagesAdded);
     }
 
     private Map<String, Object> createContextWithMessageNumber(int items) {
 
-        List<ChatMessageData> messageDataList = new ArrayList<>();
+        List<DiscordMessageData> messageDataList = new ArrayList<>();
         for (int i = 0; i < items; i++) {
             int messageNumber = i + 1;
-            messageDataList.add(ChatMessageDataFixture.messageData()
+            messageDataList.add(DiscordMessageDataFixture.messageData()
                     .id(String.valueOf(messageNumber))
                     .content(String.format("Message %s", messageNumber))
                     .build());

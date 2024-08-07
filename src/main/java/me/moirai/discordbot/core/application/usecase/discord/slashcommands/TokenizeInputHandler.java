@@ -14,8 +14,6 @@ public class TokenizeInputHandler extends AbstractUseCaseHandler<TokenizeInput, 
 
     private static final Logger LOG = LoggerFactory.getLogger(TokenizeInputHandler.class);
 
-    private static final String TOKEN_REPLY_MESSAGE = "**Characters:** %s\n**Tokens:** %s\n**Token IDs:** %s (contains %s total tokens).";
-
     private final TokenizerPort tokenizerPort;
 
     public TokenizeInputHandler(TokenizerPort tokenizerPort) {
@@ -26,7 +24,7 @@ public class TokenizeInputHandler extends AbstractUseCaseHandler<TokenizeInput, 
     public Optional<TokenizeResult> execute(TokenizeInput useCase) {
 
         try {
-            return Optional.of(tokenizerPort.tokenize(TOKEN_REPLY_MESSAGE));
+            return Optional.of(tokenizerPort.tokenize(useCase.getInput()));
         } catch (Exception e) {
             LOG.error("Error tokenizing input -> {}", useCase.getInput(), e);
             return Optional.empty();

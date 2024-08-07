@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 
 import me.moirai.discordbot.common.util.DefaultStringProcessors;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 @Component
@@ -29,11 +29,12 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
 
     @Lazy
     public DiscordChannelAdapter(JDA jda) {
+
         this.jda = jda;
     }
 
     @Override
-    public ChatMessageData sendMessageTo(String channelId, String messageContent) {
+    public DiscordMessageData sendMessageTo(String channelId, String messageContent) {
 
         Message messageSent = jda.getTextChannelById(channelId)
                 .sendMessage(messageContent)
@@ -43,21 +44,23 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .retrieveMemberById(messageSent.getAuthor().getId())
                 .complete();
 
-        return ChatMessageData.builder()
-                .authorId(author.getId())
-                .authorNickname(author.getNickname())
-                .authorUsername(author.getUser().getName())
+        return DiscordMessageData.builder()
+                .id(messageSent.getId())
                 .channelId(channelId)
                 .content(messageSent.getContentRaw())
-                .id(messageSent.getId())
+                .author(DiscordUserDetails.builder()
+                        .id(author.getId())
+                        .nickname(author.getNickname())
+                        .username(author.getUser().getName())
+                        .mention(author.getAsMention())
+                        .build())
                 .build();
     }
 
     @Override
     public void sendTemporaryMessageTo(String channelId, String messageContent, int deleteAfterSeconds) {
 
-        // FIXME message is not deleted after the specified time; takes longer than
-        // expected
+        // FIXME message is not deleted after the specified time
         TextChannel channel = jda.getTextChannelById(channelId);
         Message messageSent = channel
                 .sendMessage(messageContent + String.format(TEMPORARY_MESSAGE_WARNING, deleteAfterSeconds))
@@ -68,7 +71,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
     }
 
     @Override
-    public Optional<ChatMessageData> getMessageById(String channelId, String messageId) {
+    public Optional<DiscordMessageData> getMessageById(String channelId, String messageId) {
         try {
             Message message = jda.getTextChannelById(channelId)
                     .retrieveMessageById(messageId)
@@ -78,16 +81,24 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                     .retrieveMemberById(message.getAuthor().getId())
                     .complete();
 
-            return Optional.of(ChatMessageData.builder()
-                    .authorId(author.getId())
-                    .authorNickname(author.getNickname())
-                    .authorUsername(author.getUser().getName())
+            return Optional.of(DiscordMessageData.builder()
+                    .id(message.getId())
                     .channelId(channelId)
                     .content(message.getContentRaw())
-                    .id(message.getId())
+                    .author(DiscordUserDetails.builder()
+                            .id(author.getId())
+                            .nickname(author.getNickname())
+                            .username(author.getUser().getName())
+                            .mention(author.getAsMention())
+                            .build())
                     .mentionedUsersIds(message.getMentions()
-                            .getUsers().stream()
-                            .map(User::getId)
+                            .getMembers().stream()
+                            .map(member -> DiscordUserDetails.builder()
+                                    .id(member.getId())
+                                    .mention(member.getAsMention())
+                                    .nickname(member.getNickname())
+                                    .username(member.getUser().getName())
+                                    .build())
                             .toList())
                     .build());
         } catch (Exception e) {
@@ -104,7 +115,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
     }
 
     @Override
-    public ChatMessageData editMessageById(String channelId, String messageId, String messageContent) {
+    public DiscordMessageData editMessageById(String channelId, String messageId, String messageContent) {
 
         Message msgToEdit = jda.getTextChannelById(channelId)
                 .retrieveMessageById(messageId)
@@ -116,13 +127,25 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .retrieveMemberById(msgToEdit.getAuthor().getId())
                 .complete();
 
-        return ChatMessageData.builder()
-                .authorId(author.getId())
-                .authorNickname(author.getNickname())
-                .authorUsername(author.getUser().getName())
+        return DiscordMessageData.builder()
+                .id(msgToEdit.getId())
                 .channelId(channelId)
                 .content(messageContent)
-                .id(msgToEdit.getId())
+                .author(DiscordUserDetails.builder()
+                        .id(author.getId())
+                        .nickname(author.getNickname())
+                        .username(author.getUser().getName())
+                        .mention(author.getAsMention())
+                        .build())
+                .mentionedUsersIds(msgToEdit.getMentions()
+                        .getMembers().stream()
+                        .map(member -> DiscordUserDetails.builder()
+                                .id(member.getId())
+                                .mention(member.getAsMention())
+                                .nickname(member.getNickname())
+                                .username(member.getUser().getName())
+                                .build())
+                        .toList())
                 .build();
     }
 
@@ -134,7 +157,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
      *         and mentions formatted)
      */
     @Override
-    public List<ChatMessageData> retrieveEntireHistoryFrom(String channelId) {
+    public List<DiscordMessageData> retrieveEntireHistoryFrom(String channelId) {
 
         TextChannel channel = jda.getTextChannelById(channelId);
 
@@ -156,7 +179,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
      *         and mentions formatted)
      */
     @Override
-    public List<ChatMessageData> retrieveEntireHistoryBefore(String messageId, String channelId) {
+    public List<DiscordMessageData> retrieveEntireHistoryBefore(String messageId, String channelId) {
 
         TextChannel channel = jda.getTextChannelById(channelId);
 
@@ -170,14 +193,15 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
     }
 
     @Override
-    public Optional<ChatMessageData> getLastMessageIn(String channelId) {
+    public Optional<DiscordMessageData> getLastMessageIn(String channelId) {
 
-        List<ChatMessageData> messageHistrory = retrieveEntireHistoryFrom(channelId);
+        // TODO improve extraction of last messageso it doesn't retrieve entire history.
+        List<DiscordMessageData> messageHistrory = retrieveEntireHistoryFrom(channelId);
 
         return Optional.of(messageHistrory.getFirst());
     }
 
-    private ChatMessageData buildMessageResult(String channelId, Message message) {
+    private DiscordMessageData buildMessageResult(String channelId, Message message) {
 
         Member author = message.getGuild()
                 .retrieveMemberById(message.getAuthor().getId())
@@ -186,16 +210,23 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
         List<Member> mentionedUsers = message.getMentions().getMembers();
         String formattedContent = formatMessageWithMentions(mentionedUsers, message, author);
 
-        return ChatMessageData.builder()
-                .authorId(author.getId())
-                .authorNickname(author.getNickname())
-                .authorUsername(author.getUser().getName())
+        return DiscordMessageData.builder()
+                .id(message.getId())
                 .channelId(channelId)
                 .content(formattedContent)
-                .id(message.getId())
-                .mentionedUsersIds(message.getMentions()
-                        .getUsers().stream()
-                        .map(User::getId)
+                .author(DiscordUserDetails.builder()
+                        .id(author.getId())
+                        .nickname(author.getNickname())
+                        .username(author.getUser().getName())
+                        .mention(author.getAsMention())
+                        .build())
+                .mentionedUsersIds(mentionedUsers.stream()
+                        .map(member -> DiscordUserDetails.builder()
+                                .id(member.getId())
+                                .mention(member.getAsMention())
+                                .nickname(member.getNickname())
+                                .username(member.getUser().getName())
+                                .build())
                         .toList())
                 .build();
     }

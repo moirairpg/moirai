@@ -1,4 +1,4 @@
-package me.moirai.discordbot.infrastructure.outbound.adapter;
+package me.moirai.discordbot.infrastructure.outbound.adapter.discord;
 
 import java.util.Map;
 import java.util.function.Predicate;

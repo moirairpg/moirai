@@ -6,13 +6,13 @@ import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.port.StoryGenerationPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
@@ -37,18 +37,16 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
     public Mono<Void> execute(RetryGeneration useCase) {
 
         try {
-            // TODO improve extraction of last message; do it without retrieving the entire
-            // history.
-            ChatMessageData lastMessageSent = discordChannelPort.getLastMessageIn(useCase.getChannelId())
+            DiscordMessageData lastMessageSent = discordChannelPort.getLastMessageIn(useCase.getChannelId())
                     .orElseThrow(() -> new IllegalStateException("Channel has no messages"));
 
-            if (!lastMessageSent.getAuthorId().equals(useCase.getBotId())) {
+            if (!lastMessageSent.getAuthor().getId().equals(useCase.getBotId())) {
                 return Mono.error(() -> new IllegalStateException(COMMAND_ONLY_WHEN_LAST_MESSAGE_BY_BOT));
             }
 
             discordChannelPort.deleteMessageById(useCase.getChannelId(), lastMessageSent.getId());
 
-            ChatMessageData messageBeforeLast = discordChannelPort.getLastMessageIn(useCase.getChannelId())
+            DiscordMessageData messageBeforeLast = discordChannelPort.getLastMessageIn(useCase.getChannelId())
                     .orElseThrow(() -> new IllegalStateException("Channel has no messages"));
 
             return channelConfigRepository.findByDiscordChannelId(useCase.getChannelId())
@@ -65,7 +63,7 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
     }
 
     private StoryGenerationRequest buildGenerationRequest(RetryGeneration useCase,
-            ChannelConfig channelConfig, ChatMessageData message) {
+            ChannelConfig channelConfig, DiscordMessageData message) {
 
         ModelConfigurationRequest modelConfigurationRequest = ModelConfigurationRequest.builder()
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
@@ -83,7 +81,7 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
                 .build(channelConfig.getModeration().isAbsolute(), channelConfig.getModeration().getThresholds());
 
-        List<ChatMessageData> messageHistory = discordChannelPort.retrieveEntireHistoryFrom(useCase.getChannelId());
+        List<DiscordMessageData> messageHistory = discordChannelPort.retrieveEntireHistoryFrom(useCase.getChannelId());
 
         return StoryGenerationRequest.builder()
                 .botId(useCase.getBotId())

@@ -1,5 +1,7 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -91,7 +93,8 @@ public class ContextMenuCommandListener extends ListenerAdapter {
     private String mapTokenizationResultToMessage(TokenizeResult tokenizationResult) {
 
         return String.format(TOKEN_REPLY_MESSAGE, tokenizationResult.getCharacterCount(),
-                tokenizationResult.getTokens(), tokenizationResult.getTokenIds(), tokenizationResult.getTokenCount());
+                tokenizationResult.getTokens(), Arrays.toString(tokenizationResult.getTokenIds()),
+                tokenizationResult.getTokenCount());
     }
 
     private InteractionHook sendNotification(MessageContextInteractionEvent event, String message) {

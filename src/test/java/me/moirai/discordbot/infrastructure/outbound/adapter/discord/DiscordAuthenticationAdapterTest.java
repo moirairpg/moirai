@@ -1,4 +1,4 @@
-package me.moirai.discordbot.infrastructure.outbound.adapter;
+package me.moirai.discordbot.infrastructure.outbound.adapter.discord;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;

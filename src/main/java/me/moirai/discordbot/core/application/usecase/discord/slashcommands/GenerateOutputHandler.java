@@ -6,13 +6,13 @@ import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.port.StoryGenerationPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
@@ -64,7 +64,7 @@ public class GenerateOutputHandler extends AbstractUseCaseHandler<GenerateOutput
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
                 .build(channelConfig.getModeration().isAbsolute(), channelConfig.getModeration().getThresholds());
 
-        List<ChatMessageData> messageHistory = discordChannelPort.retrieveEntireHistoryFrom(useCase.getChannelId());
+        List<DiscordMessageData> messageHistory = discordChannelPort.retrieveEntireHistoryFrom(useCase.getChannelId());
 
         return StoryGenerationRequest.builder()
                 .botId(useCase.getBotId())

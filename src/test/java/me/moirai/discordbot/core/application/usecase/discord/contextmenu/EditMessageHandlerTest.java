@@ -14,7 +14,7 @@ import org.mockito.Mock;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 
 public class EditMessageHandlerTest extends AbstractDiscordTest {
 
@@ -37,7 +37,7 @@ public class EditMessageHandlerTest extends AbstractDiscordTest {
         ArgumentCaptor<String> messageIdCaptor = ArgumentCaptor.forClass(String.class);
 
         when(discordChannelPort.editMessageById(channelIdCaptor.capture(), messageIdCaptor.capture(),
-                messageContentCaptor.capture())).thenReturn(mock(ChatMessageData.class));
+                messageContentCaptor.capture())).thenReturn(mock(DiscordMessageData.class));
 
         // When
         handler.execute(useCase);

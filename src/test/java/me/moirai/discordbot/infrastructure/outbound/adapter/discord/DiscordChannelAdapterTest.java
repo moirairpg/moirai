@@ -26,7 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import me.moirai.discordbot.infrastructure.outbound.adapter.response.ChatMessageData;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -92,14 +92,14 @@ public class DiscordChannelAdapterTest {
         when(cacheRestActionMemberMock.complete()).thenReturn(member);
 
         // When
-        ChatMessageData result = adapter.sendMessageTo(channelId, messageContent);
+        DiscordMessageData result = adapter.sendMessageTo(channelId, messageContent);
 
         // Then
         verify(textChannel, times(1)).sendMessage(anyString());
 
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEqualTo(messageContent);
-        assertThat(result.getAuthorId()).isEqualTo(authorId);
+        assertThat(result.getAuthor().getId()).isEqualTo(authorId);
     }
 
     @Test
@@ -133,9 +133,12 @@ public class DiscordChannelAdapterTest {
     void getMessageById_whenCalled_thenMessageShouldBeRetrieved() {
 
         // Given
+        String authorId = "123";
+        String mention = "<@123>";
+        String nickname = "FireDragon";
+        String username = "john.doe";
         String channelId = "123";
         String messageId = "123";
-        String authorId = "123";
         String messageContent = "Hello, World!";
 
         Mentions mentions = mock(Mentions.class);
@@ -150,21 +153,40 @@ public class DiscordChannelAdapterTest {
         when(cacheRestActionMemberMock.complete()).thenReturn(member);
         when(message.getAuthor()).thenReturn(user);
         when(user.getId()).thenReturn(authorId);
+        when(user.getName()).thenReturn(username);
         when(member.getUser()).thenReturn(user);
         when(member.getId()).thenReturn(authorId);
+        when(member.getNickname()).thenReturn(nickname);
+        when(member.getAsMention()).thenReturn(mention);
         when(message.getContentRaw()).thenReturn(messageContent);
         when(message.getMentions()).thenReturn(mentions);
-        when(mentions.getUsers()).thenReturn(Collections.emptyList());
+        when(mentions.getMembers()).thenReturn(Collections.singletonList(member));
 
         // When
-        Optional<ChatMessageData> result = adapter.getMessageById(channelId, messageId);
+        Optional<DiscordMessageData> result = adapter.getMessageById(channelId, messageId);
 
         // Then
         verify(textChannel, times(1)).retrieveMessageById(anyString());
 
         assertThat(result).isNotNull().isNotEmpty();
         assertThat(result.get().getContent()).isEqualTo(messageContent);
-        assertThat(result.get().getAuthorId()).isEqualTo(authorId);
+        assertThat(result.get().getAuthor().getId()).isEqualTo(authorId);
+    }
+
+    @Test
+    void getMessageById_whenErrorIsThrown_thenEmptyResultIsReturned() {
+
+        // Given
+        String channelId = "123";
+        String messageId = "123";
+
+        when(jda.getTextChannelById(channelId)).thenThrow(RuntimeException.class);
+
+        // When
+        Optional<DiscordMessageData> result = adapter.getMessageById(channelId, messageId);
+
+        // Then
+        assertThat(result).isNotNull().isEmpty();
     }
 
     @Test
@@ -190,11 +212,15 @@ public class DiscordChannelAdapterTest {
     void editMessageById_whenCalled_thenMessageShouldBeEdited() {
 
         // Given
-        String channelId = "123";
         String authorId = "123";
+        String mention = "<@123>";
+        String nickname = "FireDragon";
+        String username = "john.doe";
+        String channelId = "123";
         String messageId = "456";
         String newMessageContent = "Edited message";
 
+        Mentions mentions = mock(Mentions.class);
         CacheRestAction<Member> cacheRestActionMemberMock = mock(CacheRestAction.class);
         RestAction<Message> restActionMessage = mock(RestAction.class);
         MessageEditAction messageEditAction = mock(MessageEditAction.class);
@@ -209,15 +235,21 @@ public class DiscordChannelAdapterTest {
         when(cacheRestActionMemberMock.complete()).thenReturn(member);
         when(message.getAuthor()).thenReturn(user);
         when(member.getUser()).thenReturn(user);
-        when(user.getId()).thenReturn(authorId);
         when(member.getId()).thenReturn(authorId);
+        when(member.getNickname()).thenReturn(nickname);
+        when(member.getAsMention()).thenReturn(mention);
+        when(user.getId()).thenReturn(authorId);
+        when(user.getName()).thenReturn(username);
+        when(member.getId()).thenReturn(authorId);
+        when(message.getMentions()).thenReturn(mentions);
+        when(mentions.getMembers()).thenReturn(Collections.singletonList(member));
 
         // When
-        ChatMessageData result = adapter.editMessageById(channelId, messageId, newMessageContent);
+        DiscordMessageData result = adapter.editMessageById(channelId, messageId, newMessageContent);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getAuthorId()).isEqualTo(authorId);
+        assertThat(result.getAuthor().getId()).isEqualTo(authorId);
         assertThat(result.getContent()).isEqualTo(newMessageContent);
     }
 
@@ -225,6 +257,10 @@ public class DiscordChannelAdapterTest {
     void messageHistory_whenEntireHistoryWanted_thenHistoryShouldReturnAllMessages() {
 
         // Given
+        String authorId = "123";
+        String mention = "<@123>";
+        String nickname = "NCKNM";
+        String username = "john.doe";
         String channelId = "123";
         int expectedMessagesInEnd = 5;
         List<Message> messageList = buildMessageList(5);
@@ -237,12 +273,17 @@ public class DiscordChannelAdapterTest {
         when(messageRetrieveActionMock.limit(anyInt())).thenReturn(messageRetrieveActionMock);
         when(messageRetrieveActionMock.complete()).thenReturn(messageHistoryMock);
         when(messageHistoryMock.getRetrievedHistory()).thenReturn(messageList);
+        when(user.getName()).thenReturn(username);
+        when(member.getUser()).thenReturn(user);
+        when(member.getId()).thenReturn(authorId);
+        when(member.getNickname()).thenReturn(nickname);
+        when(member.getAsMention()).thenReturn(mention);
 
         messageHistoryStaticMock.when(() -> MessageHistory.getHistoryFromBeginning(any()))
                 .thenReturn(messageRetrieveActionMock);
 
         // When
-        List<ChatMessageData> result = adapter.retrieveEntireHistoryFrom(channelId);
+        List<DiscordMessageData> result = adapter.retrieveEntireHistoryFrom(channelId);
 
         // Then
         assertThat(result).isNotNull().hasSize(expectedMessagesInEnd);
@@ -259,11 +300,16 @@ public class DiscordChannelAdapterTest {
     void messageHistory_whenMessagesBeforeOneSuppliedWanted_thenHistoryShouldReturnAllMessages() {
 
         // Given
+        String authorId = "123";
+        String mention = "<@123>";
+        String nickname = "NCKNM";
+        String username = "john.doe";
         String messageId = "123";
         String channelId = "123";
         int expectedMessagesInEnd = 5;
         List<Message> messageList = buildMessageList(5);
 
+        Mentions mentions = mock(Mentions.class);
         MessageRetrieveAction messageRetrieveActionMock = mock(MessageRetrieveAction.class);
         MessageHistory messageHistoryMock = mock(MessageHistory.class);
         MockedStatic<MessageHistory> messageHistoryStaticMock = mockStatic(MessageHistory.class);
@@ -272,12 +318,19 @@ public class DiscordChannelAdapterTest {
         when(messageRetrieveActionMock.limit(anyInt())).thenReturn(messageRetrieveActionMock);
         when(messageRetrieveActionMock.complete()).thenReturn(messageHistoryMock);
         when(messageHistoryMock.getRetrievedHistory()).thenReturn(messageList);
+        when(message.getMentions()).thenReturn(mentions);
+        when(mentions.getMembers()).thenReturn(Collections.singletonList(member));
+        when(user.getName()).thenReturn(username);
+        when(member.getUser()).thenReturn(user);
+        when(member.getId()).thenReturn(authorId);
+        when(member.getNickname()).thenReturn(nickname);
+        when(member.getAsMention()).thenReturn(mention);
 
         messageHistoryStaticMock.when(() -> MessageHistory.getHistoryBefore(any(), anyString()))
                 .thenReturn(messageRetrieveActionMock);
 
         // When
-        List<ChatMessageData> result = adapter.retrieveEntireHistoryBefore(messageId, channelId);
+        List<DiscordMessageData> result = adapter.retrieveEntireHistoryBefore(messageId, channelId);
 
         // Then
         assertThat(result).isNotNull().hasSize(expectedMessagesInEnd);
