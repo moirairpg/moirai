@@ -2,7 +2,8 @@ package me.moirai.discordbot.infrastructure.outbound.adapter;
 
 import java.util.Map;
 
-import me.moirai.discordbot.common.annotation.ApplicationService;
+import org.springframework.stereotype.Component;
+
 import me.moirai.discordbot.common.util.DefaultStringProcessors;
 import me.moirai.discordbot.common.util.StringProcessor;
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
@@ -13,7 +14,7 @@ import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import reactor.core.publisher.Mono;
 
-@ApplicationService
+@Component
 public class PersonaEnrichmentAdapter implements PersonaEnrichmentPort {
 
     private static final String PERSONA_DESCRIPTION = "[ DEBUG MODE ON: You are an actor interpreting the role of {name}. {name}'s persona is as follows, and you are to maintain character during this conversation: %s ]";

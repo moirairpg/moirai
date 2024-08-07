@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Component;
+
 import io.micrometer.common.util.StringUtils;
-import me.moirai.discordbot.common.annotation.ApplicationService;
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.LorebookEnrichmentPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
@@ -18,7 +19,7 @@ import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 
-@ApplicationService
+@Component
 public class LorebookEnrichmentAdapter implements LorebookEnrichmentPort {
 
     private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";
@@ -29,7 +30,9 @@ public class LorebookEnrichmentAdapter implements LorebookEnrichmentPort {
     private final WorldService worldService;
     private final ChatMessagePort chatMessageService;
 
-    public LorebookEnrichmentAdapter(TokenizerPort tokenizerPort, WorldService worldService,
+    public LorebookEnrichmentAdapter(
+            TokenizerPort tokenizerPort,
+            WorldService worldService,
             ChatMessagePort chatMessageService) {
 
         this.tokenizerPort = tokenizerPort;

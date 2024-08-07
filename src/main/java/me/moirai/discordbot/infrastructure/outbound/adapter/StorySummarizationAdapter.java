@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
-import me.moirai.discordbot.common.annotation.ApplicationService;
 import me.moirai.discordbot.core.application.model.request.ChatMessage;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
@@ -23,7 +23,7 @@ import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import reactor.core.publisher.Mono;
 
-@ApplicationService
+@Component
 @SuppressWarnings("unchecked")
 public class StorySummarizationAdapter implements StorySummarizationPort {
 

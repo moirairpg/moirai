@@ -9,13 +9,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.commons.collections4.ListUtils;
+import org.springframework.stereotype.Component;
 
-import me.moirai.discordbot.common.annotation.ApplicationService;
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 
-@ApplicationService
+@Component
 @SuppressWarnings("unchecked")
 public class ChatMessageAdapter implements ChatMessagePort {
 
