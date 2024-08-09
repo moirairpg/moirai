@@ -18,8 +18,8 @@ import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 
-@HelperService("commonLorebookEnrichmentPort")
-public class CommonLorebookEnrichmentAdapter implements LorebookEnrichmentPort {
+@HelperService("commonLorebookEnrichmentHelperService")
+public class CommonLorebookEnrichmentHelperService implements LorebookEnrichmentPort {
 
     private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
@@ -29,7 +29,7 @@ public class CommonLorebookEnrichmentAdapter implements LorebookEnrichmentPort {
     private final WorldService worldService;
     private final ChatMessagePort chatMessageService;
 
-    public CommonLorebookEnrichmentAdapter(
+    public CommonLorebookEnrichmentHelperService(
             TokenizerPort tokenizerPort,
             WorldService worldService,
             ChatMessagePort chatMessageService) {

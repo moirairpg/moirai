@@ -26,7 +26,7 @@ import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 
-@HelperService("rpgLorebookEnrichmentPort")
+@HelperService("rpgLorebookEnrichmentHelperService")
 public class RpgLorebookEnrichmentHelperService implements LorebookEnrichmentPort {
 
     private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";

@@ -48,21 +48,21 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
 
     private final DiscordChannelPort discordChannelPort;
     private final StorySummarizationPort summarizationPort;
-    private final LorebookEnrichmentPort commonLorebookEnrichmentPort;
+    private final LorebookEnrichmentPort commonLorebookEnrichmentHelperService;
     private final PersonaEnrichmentPort personaEnrichmentPort;
     private final TextCompletionPort textCompletionPort;
     private final TextModerationPort textModerationPort;
 
     public StoryGenerationAdapter(StorySummarizationPort summarizationPort,
             DiscordChannelPort discordChannelPort,
-            LorebookEnrichmentPort commonLorebookEnrichmentPort,
+            LorebookEnrichmentPort commonLorebookEnrichmentHelperService,
             PersonaEnrichmentPort personaEnrichmentPort,
             TextCompletionPort textCompletionPort,
             TextModerationPort textModerationPort) {
 
         this.discordChannelPort = discordChannelPort;
         this.summarizationPort = summarizationPort;
-        this.commonLorebookEnrichmentPort = commonLorebookEnrichmentPort;
+        this.commonLorebookEnrichmentHelperService = commonLorebookEnrichmentHelperService;
         this.personaEnrichmentPort = personaEnrichmentPort;
         this.textCompletionPort = textCompletionPort;
         this.textModerationPort = textModerationPort;
@@ -72,7 +72,7 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
     public Mono<Void> continueStory(StoryGenerationRequest request) {
 
         return Mono.just(request.getMessageHistory())
-                .map(messageHistory -> commonLorebookEnrichmentPort.enrichContextWithLorebook(messageHistory,
+                .map(messageHistory -> commonLorebookEnrichmentHelperService.enrichContextWithLorebook(messageHistory,
                         request.getWorldId(), request.getModelConfiguration()))
                 .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook,
                         request.getModelConfiguration()))
