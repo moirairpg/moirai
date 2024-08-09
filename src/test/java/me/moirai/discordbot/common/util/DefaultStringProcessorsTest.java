@@ -84,7 +84,7 @@ public class DefaultStringProcessorsTest {
         String input = "as Geraldo, how are you doing today?";
 
         // When
-        String output = DefaultStringProcessors.replaceBotNameWithPersonaName(nameToUse, nameToReplace).apply(input);
+        String output = DefaultStringProcessors.replaceTemplateWithValue(nameToUse, nameToReplace).apply(input);
 
         // Then
         assertThat(output).isEqualTo("as John, how are you doing today?");

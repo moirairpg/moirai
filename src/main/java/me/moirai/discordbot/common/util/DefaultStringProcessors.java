@@ -48,11 +48,18 @@ public class DefaultStringProcessors {
                 .replaceAll(r -> personaName);
     }
 
-    public static UnaryOperator<String> replaceBotNameWithPersonaName(String personaName, String botName) {
+    public static UnaryOperator<String> replaceTemplateWithValue(String newValue, String template) {
 
-        return input -> Pattern.compile(botName)
+        return input -> Pattern.compile(template, Pattern.MULTILINE)
                 .matcher(input)
-                .replaceAll(r -> personaName);
+                .replaceAll(r -> newValue);
+    }
+
+    public static UnaryOperator<String> replaceTemplateWithValueIgnoreCase(String newValue, String template) {
+
+        return input -> Pattern.compile(template, Pattern.CASE_INSENSITIVE & Pattern.MULTILINE)
+                .matcher(input)
+                .replaceAll(r -> newValue);
     }
 
     public static Function<String, String> formatChatMessage(String nickname) {

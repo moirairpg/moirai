@@ -14,9 +14,12 @@ import me.moirai.discordbot.AbstractIntegrationTest;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldLorebookEntries;
 import me.moirai.discordbot.core.application.usecase.world.result.GetWorldLorebookEntryResult;
 import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
+import me.moirai.discordbot.core.domain.world.World;
+import me.moirai.discordbot.core.domain.world.WorldFixture;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntryFixture;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntryRepository;
+import me.moirai.discordbot.core.domain.world.WorldRepository;
 
 public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
@@ -25,6 +28,9 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
 
     @Autowired
     private WorldLorebookEntryJpaRepository jpaRepository;
+
+    @Autowired
+    private WorldRepository worldRepository;
 
     @BeforeEach
     public void before() {
@@ -122,7 +128,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchWorldLorebookEntriesByWorldId(query);
+        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -160,7 +166,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchWorldLorebookEntriesByWorldId(query);
+        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -199,7 +205,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchWorldLorebookEntriesByWorldId(query);
+        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -241,7 +247,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchWorldLorebookEntriesByWorldId(query);
+        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -282,7 +288,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchWorldLorebookEntriesByWorldId(query);
+        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -321,7 +327,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchWorldLorebookEntriesByWorldId(query);
+        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -335,22 +341,26 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
     public void findAllEntriesByRegex_whenValidRegex_thenReturnMatchingEntries() {
 
         // Then
+        World world = worldRepository.save(WorldFixture.privateWorld().build());
         WorldLorebookEntryEntity gpt4Omni = WorldLorebookEntryEntityFixture.sampleLorebookEntry()
                 .id(null)
                 .name("John")
                 .regex("[Jj]ohn")
+                .worldId(world.getId())
                 .build();
 
         WorldLorebookEntryEntity gpt4Mini = WorldLorebookEntryEntityFixture.sampleLorebookEntry()
                 .id(null)
                 .name("Immune")
                 .regex("[Ii]mmun(e|ity)")
+                .worldId(world.getId())
                 .build();
 
         WorldLorebookEntryEntity gpt354k = WorldLorebookEntryEntityFixture.sampleLorebookEntry()
                 .id(null)
                 .name("Archmage")
                 .regex("[Aa]rch(|-|\s)[Mm]age")
+                .worldId(world.getId())
                 .build();
 
         jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
@@ -362,11 +372,11 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
         String triggerAll = "John, the Arch-Mage, is immune to disease";
 
         // When
-        List<WorldLorebookEntry> archmageLowerCaseResult = repository.findAllEntriesByRegex(archmageLowerCase);
-        List<WorldLorebookEntry> archmageDashResult = repository.findAllEntriesByRegex(archmageDash);
-        List<WorldLorebookEntry> archmageSpaceResult = repository.findAllEntriesByRegex(archmageSpace);
-        List<WorldLorebookEntry> immunityLowerCaseResult = repository.findAllEntriesByRegex(immunityLowerCase);
-        List<WorldLorebookEntry> allEntries = repository.findAllEntriesByRegex(triggerAll);
+        List<WorldLorebookEntry> archmageLowerCaseResult = repository.findAllByRegex(archmageLowerCase, world.getId());
+        List<WorldLorebookEntry> archmageDashResult = repository.findAllByRegex(archmageDash, world.getId());
+        List<WorldLorebookEntry> archmageSpaceResult = repository.findAllByRegex(archmageSpace, world.getId());
+        List<WorldLorebookEntry> immunityLowerCaseResult = repository.findAllByRegex(immunityLowerCase, world.getId());
+        List<WorldLorebookEntry> allEntries = repository.findAllByRegex(triggerAll, world.getId());
 
         // Then
         assertThat(archmageLowerCaseResult).isNotNull().isNotEmpty().hasSize(1);

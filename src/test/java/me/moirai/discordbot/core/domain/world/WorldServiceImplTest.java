@@ -764,7 +764,7 @@ public class WorldServiceImplTest {
         when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(entry));
 
         // When
-        WorldLorebookEntry retrievedEntry = service.findWorldLorebookEntryById(query);
+        WorldLorebookEntry retrievedEntry = service.findLorebookEntryById(query);
 
         // Then
         assertThat(retrievedEntry).isNotNull();
@@ -784,7 +784,7 @@ public class WorldServiceImplTest {
         when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> service.findWorldLorebookEntryById(query));
+        assertThrows(AssetNotFoundException.class, () -> service.findLorebookEntryById(query));
     }
 
     @Test
@@ -807,7 +807,7 @@ public class WorldServiceImplTest {
         when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
         // Then
-        assertThrows(AssetAccessDeniedException.class, () -> service.findWorldLorebookEntryById(query));
+        assertThrows(AssetAccessDeniedException.class, () -> service.findLorebookEntryById(query));
     }
 
     @Test
@@ -831,7 +831,7 @@ public class WorldServiceImplTest {
         when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> service.findWorldLorebookEntryById(query));
+        assertThrows(AssetNotFoundException.class, () -> service.findLorebookEntryById(query));
     }
 
     @Test
@@ -925,70 +925,6 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void findAllEntriesByRegexWithRequesterId_whenWorldNotFound_thenThrowAssetNotFoundException() {
-
-        // Given
-        String worldId = "worldId";
-        String requesterId = "RQSTRID";
-        String valueToSearch = "Armando";
-
-        when(worldRepository.findById(worldId)).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class,
-                () -> service.findAllEntriesByRegex(requesterId, worldId, valueToSearch));
-    }
-
-    @Test
-    public void findAllEntriesByRegexWithRequesterId_whenUserCannotRead_thenThrowAssetAccessDeniedException() {
-
-        // Given
-        String worldId = "worldId";
-        String requesterId = "RQSTRID";
-        String valueToSearch = "Armando";
-        World world = WorldFixture.privateWorld()
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId("ANTRUSR")
-                        .build())
-                .build();
-
-        when(worldRepository.findById(worldId)).thenReturn(Optional.of(world));
-
-        // Then
-        assertThrows(AssetAccessDeniedException.class,
-                () -> service.findAllEntriesByRegex(requesterId, worldId, valueToSearch));
-    }
-
-    @Test
-    public void findAllEntriesByRegexWithRequesterId_whenUserCanRead_thenReturnEntries() {
-
-        // Given
-        String worldId = "worldId";
-        String requesterId = "RQSTRID";
-        String valueToSearch = "Armando";
-        World world = WorldFixture.privateWorld()
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId(requesterId)
-                        .build())
-                .build();
-
-        List<WorldLorebookEntry> expectedEntries = Collections
-                .singletonList(WorldLorebookEntryFixture.sampleLorebookEntry()
-                        .regex("[Aa]rmando")
-                        .build());
-
-        when(worldRepository.findById(worldId)).thenReturn(Optional.of(world));
-        when(lorebookEntryRepository.findAllEntriesByRegex(valueToSearch)).thenReturn(expectedEntries);
-
-        // When
-        List<WorldLorebookEntry> result = service.findAllEntriesByRegex(requesterId, worldId, valueToSearch);
-
-        // Then
-        assertThat(result).isNotNull().isNotEmpty().hasSize(1);
-        assertThat(result).isEqualTo(expectedEntries);
-    }
-
-    @Test
     public void findAllEntriesByRegex_whenUserCanRead_thenReturnEntries() {
 
         // Given
@@ -1002,10 +938,10 @@ public class WorldServiceImplTest {
                         .build());
 
         when(worldRepository.findById(worldId)).thenReturn(Optional.of(world));
-        when(lorebookEntryRepository.findAllEntriesByRegex(valueToSearch)).thenReturn(expectedEntries);
+        when(lorebookEntryRepository.findAllByRegex(valueToSearch, worldId)).thenReturn(expectedEntries);
 
         // When
-        List<WorldLorebookEntry> result = service.findAllEntriesByRegex(worldId, valueToSearch);
+        List<WorldLorebookEntry> result = service.findAllLorebookEntriesByRegex(valueToSearch, worldId);
 
         // Then
         assertThat(result).isNotNull().isNotEmpty().hasSize(1);
@@ -1023,7 +959,7 @@ public class WorldServiceImplTest {
 
         // Then
         assertThrows(AssetNotFoundException.class,
-                () -> service.findAllEntriesByRegex(worldId, valueToSearch));
+                () -> service.findAllLorebookEntriesByRegex(valueToSearch, worldId));
     }
 
     @Test

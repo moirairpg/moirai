@@ -16,13 +16,13 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerat
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
-public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceived, Mono<Void>> {
+public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeDto, Mono<Void>> {
 
     private final ChannelConfigRepository channelConfigRepository;
     private final StoryGenerationPort storyGenerationPort;
     private final DiscordChannelPort discordChannelPort;
 
-    public MessageReceivedHandler(StoryGenerationPort storyGenerationPort,
+    public RpgModeHandler(StoryGenerationPort storyGenerationPort,
             ChannelConfigRepository channelConfigRepository,
             DiscordChannelPort discordChannelPort) {
 
@@ -32,7 +32,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
     }
 
     @Override
-    public Mono<Void> execute(MessageReceived query) {
+    public Mono<Void> execute(RpgModeDto query) {
 
         return channelConfigRepository.findByDiscordChannelId(query.getChannelId())
                 .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getChannelId()))
@@ -43,7 +43,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                 .orElseGet(() -> Mono.empty());
     }
 
-    private StoryGenerationRequest buildGenerationRequest(MessageReceived useCase, ChannelConfig channelConfig) {
+    private StoryGenerationRequest buildGenerationRequest(RpgModeDto useCase, ChannelConfig channelConfig) {
 
         AiModelRequest aiModel = AiModelRequest
                 .build(channelConfig.getModelConfiguration().getAiModel().getInternalModelName(),

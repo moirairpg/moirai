@@ -10,7 +10,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
     private final String sortByField;
     private final String direction;
     private final String name;
-    private final String gameMode;
     private final String requesterDiscordId;
 
     private SearchPersonasWithWriteAccess(Builder builder) {
@@ -20,7 +19,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
         this.sortByField = builder.sortByField;
         this.direction = builder.direction;
         this.name = builder.name;
-        this.gameMode = builder.gameMode;
         this.requesterDiscordId = builder.requesterDiscordId;
     }
 
@@ -48,10 +46,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
         return name;
     }
 
-    public String getGameMode() {
-        return gameMode;
-    }
-
     public String getRequesterDiscordId() {
         return requesterDiscordId;
     }
@@ -63,7 +57,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
         private String sortByField;
         private String direction;
         private String name;
-        private String gameMode;
         private String requesterDiscordId;
 
         private Builder() {
@@ -91,11 +84,6 @@ public final class SearchPersonasWithWriteAccess extends UseCase<SearchPersonasR
 
         public Builder name(String name) {
             this.name = name;
-            return this;
-        }
-
-        public Builder gameMode(String gameMode) {
-            this.gameMode = gameMode;
             return this;
         }
 

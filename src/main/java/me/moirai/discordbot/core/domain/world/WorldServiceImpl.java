@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import io.micrometer.common.util.StringUtils;
 import me.moirai.discordbot.common.annotation.DomainService;
 import me.moirai.discordbot.common.exception.AssetAccessDeniedException;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
@@ -24,7 +25,6 @@ import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorldLo
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.Visibility;
 import me.moirai.discordbot.core.domain.channelconfig.Moderation;
-import io.micrometer.common.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 @DomainService
@@ -32,10 +32,12 @@ public class WorldServiceImpl implements WorldService {
 
     private static final String WORLD_FLAGGED_BY_MODERATION = "Persona flagged by moderation";
     private static final String WORLD_TO_BE_UPDATED_WAS_NOT_FOUND = "World to be updated was not found";
-    private static final String LOREBOOK_ENTRY_TO_BE_UPDATED_WAS_NOT_FOUND = "Lorebook entry to be updated was not found";
     private static final String WORLD_TO_BE_VIEWED_WAS_NOT_FOUND = "World to be viewed was not found";
     private static final String USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD = "User does not have permission to modify this world";
     private static final String USER_DOES_NOT_HAVE_PERMISSION_TO_VIEW_THIS_WORLD = "User does not have permission to view this world";
+    private static final String LOREBOOK_ENTRY_TO_BE_UPDATED_WAS_NOT_FOUND = "Lorebook entry to be updated was not found";
+    private static final String LOREBOOK_ENTRY_TO_BE_DELETED_WAS_NOT_FOUND = "Lorebook entry to be deleted was not found";
+    private static final String LOREBOOK_ENTRY_TO_BE_VIEWED_NOT_FOUND = "Lorebook entry to be viewed was not found";
 
     private final TextModerationPort moderationPort;
     private final WorldLorebookEntryRepository lorebookEntryRepository;
@@ -158,30 +160,26 @@ public class WorldServiceImpl implements WorldService {
     }
 
     @Override
-    public List<WorldLorebookEntry> findAllEntriesByRegex(String requesterDiscordId, String worldId,
-            String valueToSearch) {
-
-        World world = repository.findById(worldId)
-                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
-
-        if (!world.canUserRead(requesterDiscordId)) {
-            throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_VIEW_THIS_WORLD);
-        }
-
-        return lorebookEntryRepository.findAllEntriesByRegex(valueToSearch);
-    }
-
-    @Override
-    public List<WorldLorebookEntry> findAllEntriesByRegex(String worldId, String valueToSearch) {
+    public WorldLorebookEntry findLorebookEntryByPlayerDiscordId(String playerDiscordId, String worldId) {
 
         repository.findById(worldId)
                 .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
 
-        return lorebookEntryRepository.findAllEntriesByRegex(valueToSearch);
+                return lorebookEntryRepository.findByPlayerDiscordId(playerDiscordId, worldId)
+                        .orElseThrow(() -> new AssetNotFoundException(LOREBOOK_ENTRY_TO_BE_VIEWED_NOT_FOUND));
     }
 
     @Override
-    public WorldLorebookEntry findWorldLorebookEntryById(GetWorldLorebookEntryById query) {
+    public List<WorldLorebookEntry> findAllLorebookEntriesByRegex(String valueToMatch, String worldId) {
+
+        repository.findById(worldId)
+                .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
+
+        return lorebookEntryRepository.findAllByRegex(valueToMatch, worldId);
+    }
+
+    @Override
+    public WorldLorebookEntry findLorebookEntryById(GetWorldLorebookEntryById query) {
 
         World world = repository.findById(query.getWorldId())
                 .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
@@ -191,7 +189,7 @@ public class WorldServiceImpl implements WorldService {
         }
 
         return lorebookEntryRepository.findById(query.getEntryId())
-                .orElseThrow(() -> new AssetNotFoundException(LOREBOOK_ENTRY_TO_BE_UPDATED_WAS_NOT_FOUND));
+                .orElseThrow(() -> new AssetNotFoundException(LOREBOOK_ENTRY_TO_BE_VIEWED_NOT_FOUND));
     }
 
     @Override
@@ -262,7 +260,7 @@ public class WorldServiceImpl implements WorldService {
         }
 
         lorebookEntryRepository.findById(command.getLorebookEntryId())
-                .orElseThrow(() -> new AssetNotFoundException(LOREBOOK_ENTRY_TO_BE_UPDATED_WAS_NOT_FOUND));
+                .orElseThrow(() -> new AssetNotFoundException(LOREBOOK_ENTRY_TO_BE_DELETED_WAS_NOT_FOUND));
 
         lorebookEntryRepository.deleteById(command.getLorebookEntryId());
     }

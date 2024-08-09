@@ -77,6 +77,7 @@ public class ChannelConfigServiceImpl implements ChannelConfigService {
                 .personaId(command.getPersonaId())
                 .worldId(command.getWorldId())
                 .discordChannelId(command.getDiscordChannelId())
+                .gameMode(GameMode.fromString(command.getGameMode()))
                 .visibility(Visibility.fromString(command.getVisibility()))
                 .moderation(Moderation.fromString(command.getModeration()))
                 .build();
@@ -116,6 +117,10 @@ public class ChannelConfigServiceImpl implements ChannelConfigService {
 
         if (StringUtils.isNotBlank(command.getDiscordChannelId())) {
             channelConfig.updateDiscordChannel(command.getDiscordChannelId());
+        }
+
+        if (StringUtils.isNotBlank(command.getGameMode())) {
+            channelConfig.updateGameMode(GameMode.fromString(command.getGameMode()));
         }
 
         if (command.getTemperature() != null) {

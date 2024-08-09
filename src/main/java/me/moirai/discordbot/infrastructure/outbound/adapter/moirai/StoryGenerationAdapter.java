@@ -48,21 +48,21 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
 
     private final DiscordChannelPort discordChannelPort;
     private final StorySummarizationPort summarizationPort;
-    private final LorebookEnrichmentPort lorebookEnrichmentPort;
+    private final LorebookEnrichmentPort commonLorebookEnrichmentPort;
     private final PersonaEnrichmentPort personaEnrichmentPort;
     private final TextCompletionPort textCompletionPort;
     private final TextModerationPort textModerationPort;
 
     public StoryGenerationAdapter(StorySummarizationPort summarizationPort,
             DiscordChannelPort discordChannelPort,
-            LorebookEnrichmentPort lorebookEnrichmentPort,
+            LorebookEnrichmentPort commonLorebookEnrichmentPort,
             PersonaEnrichmentPort personaEnrichmentPort,
             TextCompletionPort textCompletionPort,
             TextModerationPort textModerationPort) {
 
         this.discordChannelPort = discordChannelPort;
         this.summarizationPort = summarizationPort;
-        this.lorebookEnrichmentPort = lorebookEnrichmentPort;
+        this.commonLorebookEnrichmentPort = commonLorebookEnrichmentPort;
         this.personaEnrichmentPort = personaEnrichmentPort;
         this.textCompletionPort = textCompletionPort;
         this.textModerationPort = textModerationPort;
@@ -72,7 +72,7 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
     public Mono<Void> continueStory(StoryGenerationRequest request) {
 
         return Mono.just(request.getMessageHistory())
-                .map(messageHistory -> lorebookEnrichmentPort.enrichContextWithLorebook(messageHistory,
+                .map(messageHistory -> commonLorebookEnrichmentPort.enrichContextWithLorebook(messageHistory,
                         request.getWorldId(), request.getModelConfiguration()))
                 .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook,
                         request.getModelConfiguration()))
@@ -145,8 +145,8 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
         StringProcessor processor = new StringProcessor();
         processor.addRule(DefaultStringProcessors.stripChatPrefix());
         processor.addRule(DefaultStringProcessors.stripTrailingFragment());
-        processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botName));
-        processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botNickname));
+        processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botName));
+        processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botNickname));
 
         return processor.process(summary);
     }
@@ -159,8 +159,8 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
         return messageHistory.stream()
                 .map(message -> {
                     StringProcessor processor = new StringProcessor();
-                    processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botName));
-                    processor.addRule(DefaultStringProcessors.replaceBotNameWithPersonaName(personaName, botNickname));
+                    processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botName));
+                    processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botNickname));
 
                     String modifiedContent = processor.process(message);
                     String senderName = message.substring(0, message.indexOf(SAID));

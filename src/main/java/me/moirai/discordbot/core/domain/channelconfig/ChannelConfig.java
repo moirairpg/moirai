@@ -18,6 +18,7 @@ public class ChannelConfig extends ShareableAsset {
     private String discordChannelId;
     private ModelConfiguration modelConfiguration;
     private Moderation moderation;
+    private GameMode gameMode;
 
     private ChannelConfig(Builder builder) {
 
@@ -31,6 +32,7 @@ public class ChannelConfig extends ShareableAsset {
         this.discordChannelId = builder.discordChannelId;
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
+        this.gameMode = builder.gameMode;
     }
 
     public String getId() {
@@ -61,6 +63,10 @@ public class ChannelConfig extends ShareableAsset {
         return moderation;
     }
 
+    public GameMode getGameMode() {
+        return gameMode;
+    }
+
     public static Builder builder() {
 
         return new Builder();
@@ -89,6 +95,11 @@ public class ChannelConfig extends ShareableAsset {
     public void updateModeration(Moderation moderation) {
 
         this.moderation = moderation;
+    }
+
+    public void updateGameMode(GameMode gameMode) {
+
+        this.gameMode = gameMode;
     }
 
     public void updateAiModel(ArtificialIntelligenceModel aiModel) {
@@ -152,6 +163,7 @@ public class ChannelConfig extends ShareableAsset {
         private String worldId;
         private String personaId;
         private String discordChannelId;
+        private GameMode gameMode;
         private ModelConfiguration modelConfiguration;
         private Moderation moderation;
         private Visibility visibility;
@@ -184,6 +196,12 @@ public class ChannelConfig extends ShareableAsset {
         public Builder personaId(String personaId) {
 
             this.personaId = personaId;
+            return this;
+        }
+
+        public Builder gameMode(GameMode gameMode) {
+
+            this.gameMode = gameMode;
             return this;
         }
 
@@ -259,6 +277,10 @@ public class ChannelConfig extends ShareableAsset {
 
             if (permissions == null) {
                 throw new BusinessRuleViolationException("Permissions cannot be null");
+            }
+
+            if (gameMode == null) {
+                throw new BusinessRuleViolationException("Game Mode cannot be null");
             }
 
             return new ChannelConfig(this);

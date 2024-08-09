@@ -72,7 +72,7 @@ public class GetWorldLorebookEntryByIdHandlerTest {
                 .requesterDiscordId(requesterId)
                 .build();
 
-        when(domainService.findWorldLorebookEntryById(any(GetWorldLorebookEntryById.class))).thenReturn(entry);
+        when(domainService.findLorebookEntryById(any(GetWorldLorebookEntryById.class))).thenReturn(entry);
 
         // When
         GetWorldLorebookEntryResult result = handler.handle(query);

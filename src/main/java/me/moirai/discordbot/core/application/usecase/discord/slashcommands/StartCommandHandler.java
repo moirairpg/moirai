@@ -83,7 +83,7 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
         DiscordMessageData adventureStartMessage = DiscordMessageData.builder()
                 .channelId(useCase.getChannelId())
                 .content(String.format(CHAT_FORMAT, useCase.getBotNickname(), world.getAdventureStart()))
-                .mentionedUsersIds(Collections.emptyList())
+                .mentionedUsers(Collections.emptyList())
                 .author(DiscordUserDetails.builder()
                         .id(useCase.getBotId())
                         .nickname(useCase.getBotNickname())

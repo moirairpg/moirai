@@ -20,6 +20,7 @@ public class CreateChannelConfigRequestFixture {
         request.setFrequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty());
         request.setMaxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit());
         request.setModeration(channelConfig.getModeration().name());
+        request.setGameMode(channelConfig.getGameMode().name());
         request.setUsersAllowedToRead(channelConfig.getUsersAllowedToRead());
         request.setUsersAllowedToWrite(channelConfig.getUsersAllowedToWrite());
         request.setTemperature(channelConfig.getModelConfiguration().getTemperature());

@@ -20,6 +20,7 @@ public class GetChannelConfigResultFixture {
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
                 .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
                 .moderation(channelConfig.getModeration().name())
+                .gameMode(channelConfig.getGameMode().name())
                 .usersAllowedToRead(channelConfig.getUsersAllowedToRead())
                 .usersAllowedToWrite(channelConfig.getUsersAllowedToWrite())
                 .temperature(channelConfig.getModelConfiguration().getTemperature())

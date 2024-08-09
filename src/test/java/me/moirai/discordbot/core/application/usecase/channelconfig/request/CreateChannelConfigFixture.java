@@ -22,6 +22,7 @@ public class CreateChannelConfigFixture {
                 .usersAllowedToRead(channelConfig.getUsersAllowedToRead())
                 .usersAllowedToWrite(channelConfig.getUsersAllowedToWrite())
                 .temperature(1.7)
+                .gameMode(channelConfig.getGameMode().name())
                 .visibility("private");
     }
 }

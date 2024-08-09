@@ -19,6 +19,7 @@ public class ChannelConfigResponse {
     private String visibility;
     private String aiModel;
     private String moderation;
+    private String gameMode;
     private Integer maxTokenLimit;
     private Integer messageHistorySize;
     private Double temperature;
@@ -56,6 +57,7 @@ public class ChannelConfigResponse {
         this.usersAllowedToWrite = builder.usersAllowedToWrite;
         this.creationDate = builder.creationDate;
         this.lastUpdateDate = builder.lastUpdateDate;
+        this.gameMode = builder.gameMode;
     }
 
     public static Builder builder() {
@@ -92,6 +94,10 @@ public class ChannelConfigResponse {
 
     public String getModeration() {
         return moderation;
+    }
+
+    public String getGameMode() {
+        return gameMode;
     }
 
     public Integer getMaxTokenLimit() {
@@ -152,6 +158,7 @@ public class ChannelConfigResponse {
         private String visibility;
         private String aiModel;
         private String moderation;
+        private String gameMode;
         private Integer maxTokenLimit;
         private Integer messageHistorySize;
         private Double temperature;
@@ -205,6 +212,11 @@ public class ChannelConfigResponse {
 
         public Builder moderation(String moderation) {
             this.moderation = moderation;
+            return this;
+        }
+
+        public Builder gameMode(String gameMode) {
+            this.gameMode = gameMode;
             return this;
         }
 

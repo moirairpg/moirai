@@ -13,7 +13,6 @@ public class GetPersonaResultFixture {
                 .name(persona.getName())
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility().name())
-                .gameMode(persona.getGameMode().name())
                 .usersAllowedToRead(persona.getUsersAllowedToRead())
                 .usersAllowedToWrite(persona.getUsersAllowedToWrite())
                 .creationDate(persona.getCreationDate())

@@ -24,6 +24,7 @@ public class UpdateChannelConfigRequestFixture {
         request.setFrequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty());
         request.setMaxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit());
         request.setModeration(channelConfig.getModeration().name());
+        request.setGameMode(channelConfig.getGameMode().name());
         request.setUsersAllowedToWriteToAdd(Collections.singletonList("USRID"));
         request.setUsersAllowedToWriteToRemove(Collections.singletonList("USRID"));
         request.setUsersAllowedToReadToAdd(Collections.singletonList("USRID"));

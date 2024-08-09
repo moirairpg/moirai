@@ -11,7 +11,6 @@ import me.moirai.discordbot.core.domain.CompletionRole;
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.Visibility;
 import me.moirai.discordbot.core.domain.persona.Bump;
-import me.moirai.discordbot.core.domain.persona.GameMode;
 import me.moirai.discordbot.core.domain.persona.Nudge;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.infrastructure.outbound.persistence.persona.BumpEntity;
@@ -52,7 +51,6 @@ public class PersonaPersistenceMapper {
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility().toString())
                 .ownerDiscordId(persona.getOwnerDiscordId())
-                .gameMode(persona.getGameMode().name())
                 .usersAllowedToRead(persona.getUsersAllowedToRead())
                 .usersAllowedToWrite(persona.getUsersAllowedToWrite())
                 .creatorDiscordId(creatorOrOwnerDiscordId)
@@ -91,7 +89,6 @@ public class PersonaPersistenceMapper {
                 .personality(persona.getPersonality())
                 .visibility(Visibility.fromString(persona.getVisibility()))
                 .permissions(permissions)
-                .gameMode(GameMode.fromString(persona.getGameMode()))
                 .creationDate(persona.getCreationDate())
                 .lastUpdateDate(persona.getLastUpdateDate())
                 .creatorDiscordId(persona.getCreatorDiscordId())
@@ -107,7 +104,6 @@ public class PersonaPersistenceMapper {
                 .name(persona.getName())
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility())
-                .gameMode(persona.getGameMode())
                 .usersAllowedToRead(persona.getUsersAllowedToRead())
                 .usersAllowedToWrite(persona.getUsersAllowedToWrite())
                 .creationDate(persona.getCreationDate())

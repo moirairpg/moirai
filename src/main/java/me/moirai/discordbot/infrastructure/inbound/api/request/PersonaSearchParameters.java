@@ -7,7 +7,6 @@ public class PersonaSearchParameters {
     private String sortByField;
     private String direction;
     private String name;
-    private String gameMode;
 
     public PersonaSearchParameters() {
     }
@@ -32,10 +31,6 @@ public class PersonaSearchParameters {
         return name;
     }
 
-    public String getGameMode() {
-        return gameMode;
-    }
-
     public void setPage(Integer page) {
         this.page = page;
     }
@@ -54,9 +49,5 @@ public class PersonaSearchParameters {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setGameMode(String gameMode) {
-        this.gameMode = gameMode;
     }
 }

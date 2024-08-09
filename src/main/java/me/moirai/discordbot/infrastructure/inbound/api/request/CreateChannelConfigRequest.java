@@ -56,6 +56,7 @@ public class CreateChannelConfigRequest {
     @DecimalMax(value = "2", message = "cannot be greater than 2")
     private Double presencePenalty;
 
+    private String gameMode;
     private List<String> stopSequences;
     private Map<String, Double> logitBias;
     private List<String> usersAllowedToWrite;
@@ -92,6 +93,10 @@ public class CreateChannelConfigRequest {
         return moderation;
     }
 
+    public String getGameMode() {
+        return gameMode;
+    }
+
     public Integer getMaxTokenLimit() {
         return maxTokenLimit;
     }
@@ -126,6 +131,10 @@ public class CreateChannelConfigRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setGameMode(String gameMode) {
+        this.gameMode = gameMode;
     }
 
     public void setWorldId(String worldId) {

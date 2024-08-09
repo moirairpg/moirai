@@ -1,4 +1,4 @@
-package me.moirai.discordbot.core.domain.persona;
+package me.moirai.discordbot.core.domain.channelconfig;
 
 import java.util.Arrays;
 

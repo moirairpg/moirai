@@ -81,16 +81,6 @@ public class PersonaTest {
     }
 
     @Test
-    public void createPersona_whenNullGameMode_thenThrowException() {
-
-        // Given
-        Persona.Builder personaBuilder = PersonaFixture.publicPersona().gameMode(null);
-
-        // Then
-        assertThrows(BusinessRuleViolationException.class, personaBuilder::build);
-    }
-
-    @Test
     public void createPersona_whenEmptyName_thenThrowException() {
 
         // Given

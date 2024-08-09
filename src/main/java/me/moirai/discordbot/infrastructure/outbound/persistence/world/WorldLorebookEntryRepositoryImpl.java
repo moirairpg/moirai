@@ -54,12 +54,19 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
     }
 
     @Override
-    public List<WorldLorebookEntry> findAllEntriesByRegex(String valueToSearch) {
+    public List<WorldLorebookEntry> findAllByRegex(String valueToSearch, String worldId) {
 
-        return jpaRepository.findAllByNameRegex(valueToSearch)
+        return jpaRepository.findAllByNameRegex(valueToSearch, worldId)
                 .stream()
                 .map(mapper::mapFromEntity)
                 .toList();
+    }
+
+    @Override
+    public Optional<WorldLorebookEntry> findByPlayerDiscordId(String playerDiscordId, String worldId) {
+
+        return jpaRepository.findByPlayerDiscordId(playerDiscordId, worldId)
+                .map(mapper::mapFromEntity);
     }
 
     @Override
@@ -69,7 +76,7 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
     }
 
     @Override
-    public SearchWorldLorebookEntriesResult searchWorldLorebookEntriesByWorldId(SearchWorldLorebookEntries query) {
+    public SearchWorldLorebookEntriesResult searchBy(SearchWorldLorebookEntries query) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();

@@ -13,7 +13,6 @@ public class CreatePersonaRequestFixture {
         request.setName(persona.getName());
         request.setPersonality(persona.getPersonality());
         request.setVisibility(persona.getVisibility().toString());
-        request.setGameMode(persona.getGameMode().name());
         request.setUsersAllowedToRead(persona.getUsersAllowedToRead());
         request.setUsersAllowedToWrite(persona.getUsersAllowedToWrite());
         request.setNudgeContent(persona.getNudge().getContent());

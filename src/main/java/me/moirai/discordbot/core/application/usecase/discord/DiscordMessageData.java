@@ -77,7 +77,7 @@ public final class DiscordMessageData {
             return this;
         }
 
-        public Builder mentionedUsersIds(List<DiscordUserDetails> mentionedUsers) {
+        public Builder mentionedUsers(List<DiscordUserDetails> mentionedUsers) {
 
             if (mentionedUsers != null) {
                 this.mentionedUsers.addAll(mentionedUsers);

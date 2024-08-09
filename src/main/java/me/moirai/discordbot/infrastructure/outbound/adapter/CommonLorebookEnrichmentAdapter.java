@@ -19,8 +19,8 @@ import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 
-@Component
-public class LorebookEnrichmentAdapter implements LorebookEnrichmentPort {
+@Component("commonLorebookEnrichmentPort")
+public class CommonLorebookEnrichmentAdapter implements LorebookEnrichmentPort {
 
     private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
@@ -30,7 +30,7 @@ public class LorebookEnrichmentAdapter implements LorebookEnrichmentPort {
     private final WorldService worldService;
     private final ChatMessagePort chatMessageService;
 
-    public LorebookEnrichmentAdapter(
+    public CommonLorebookEnrichmentAdapter(
             TokenizerPort tokenizerPort,
             WorldService worldService,
             ChatMessagePort chatMessageService) {
@@ -56,7 +56,7 @@ public class LorebookEnrichmentAdapter implements LorebookEnrichmentPort {
         Map<String, Object> context = new HashMap<>();
         context.put(RETRIEVED_MESSAGES, new ArrayList<>(rawMessageHistory));
 
-        List<WorldLorebookEntry> entriesFound = worldService.findAllEntriesByRegex(worldId, stringifiedStory);
+        List<WorldLorebookEntry> entriesFound = worldService.findAllLorebookEntriesByRegex(stringifiedStory, worldId);
         Map<String, Object> enrichedContext = addEntriesFoundToContext(entriesFound, context,
                 reservedTokensForLorebook);
 

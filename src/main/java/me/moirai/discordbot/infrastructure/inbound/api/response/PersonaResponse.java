@@ -19,7 +19,6 @@ public class PersonaResponse {
     private String bumpRole;
     private Integer bumpFrequency;
     private String visibility;
-    private String gameMode;
     private String ownerDiscordId;
     private List<String> usersAllowedToWrite;
     private List<String> usersAllowedToRead;
@@ -39,7 +38,6 @@ public class PersonaResponse {
         this.bumpRole = builder.bumpRole;
         this.bumpFrequency = builder.bumpFrequency;
         this.visibility = builder.visibility;
-        this.gameMode = builder.gameMode;
         this.ownerDiscordId = builder.ownerDiscordId;
         this.usersAllowedToWrite = builder.usersAllowedToWrite;
         this.usersAllowedToRead = builder.usersAllowedToRead;
@@ -87,10 +85,6 @@ public class PersonaResponse {
         return visibility;
     }
 
-    public String getGameMode() {
-        return gameMode;
-    }
-
     public String getOwnerDiscordId() {
         return ownerDiscordId;
     }
@@ -121,7 +115,6 @@ public class PersonaResponse {
         private String bumpRole;
         private Integer bumpFrequency;
         private String visibility;
-        private String gameMode;
         private String ownerDiscordId;
         private List<String> usersAllowedToWrite;
         private List<String> usersAllowedToRead;
@@ -173,11 +166,6 @@ public class PersonaResponse {
 
         public Builder visibility(String visibility) {
             this.visibility = visibility;
-            return this;
-        }
-
-        public Builder gameMode(String gameMode) {
-            this.gameMode = gameMode;
             return this;
         }
 

@@ -18,6 +18,6 @@ public class SearchWorldLorebookEntriesHandler extends AbstractUseCaseHandler<Se
     @Override
     public SearchWorldLorebookEntriesResult execute(SearchWorldLorebookEntries query) {
 
-        return repository.searchWorldLorebookEntriesByWorldId(query);
+        return repository.searchBy(query);
     }
 }

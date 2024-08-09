@@ -33,7 +33,7 @@ public class GetWorldLorebookEntryByIdHandler extends AbstractUseCaseHandler<Get
     @Override
     public GetWorldLorebookEntryResult execute(GetWorldLorebookEntryById query) {
 
-        WorldLorebookEntry entry = domainService.findWorldLorebookEntryById(query);
+        WorldLorebookEntry entry = domainService.findLorebookEntryById(query);
 
         return mapResult(entry);
     }

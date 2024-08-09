@@ -29,6 +29,7 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
     private final List<String> usersAllowedToWrite;
     private final List<String> usersAllowedToRead;
     private final String requesterDiscordId;
+    private final String gameMode;
 
     private CreateChannelConfig(Builder builder) {
 
@@ -44,6 +45,7 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
         this.frequencyPenalty = builder.frequencyPenalty;
         this.presencePenalty = builder.presencePenalty;
         this.requesterDiscordId = builder.requesterDiscordId;
+        this.gameMode = builder.gameMode;
         this.logitBias = unmodifiableMap(builder.logitBias);
         this.stopSequences = unmodifiableList(builder.stopSequences);
         this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
@@ -80,6 +82,10 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
 
     public String getModeration() {
         return moderation;
+    }
+
+    public String getGameMode() {
+        return gameMode;
     }
 
     public Integer getMaxTokenLimit() {
@@ -127,6 +133,7 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
         private String visibility;
         private String aiModel;
         private String moderation;
+        private String gameMode;
         private Integer maxTokenLimit;
         private Double temperature;
         private Double frequencyPenalty;
@@ -172,6 +179,11 @@ public final class CreateChannelConfig extends UseCase<CreateChannelConfigResult
 
         public Builder moderation(String moderation) {
             this.moderation = moderation;
+            return this;
+        }
+
+        public Builder gameMode(String gameMode) {
+            this.gameMode = gameMode;
             return this;
         }
 

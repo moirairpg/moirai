@@ -52,6 +52,7 @@ public class ChannelConfigResponseMapper {
                 .usersAllowedToWrite(result.getUsersAllowedToWrite())
                 .usersAllowedToRead(result.getUsersAllowedToRead())
                 .discordChannelId(result.getDiscordChannelId())
+                .gameMode(result.getGameMode())
                 .build();
     }
 

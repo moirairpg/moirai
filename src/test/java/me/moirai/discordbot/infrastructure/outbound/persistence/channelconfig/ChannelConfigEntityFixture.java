@@ -14,6 +14,7 @@ public class ChannelConfigEntityFixture {
                 .name(channelConfig.getName())
                 .worldId(channelConfig.getWorldId())
                 .personaId(channelConfig.getPersonaId())
+                .gameMode(channelConfig.getGameMode().name())
                 .discordChannelId(channelConfig.getDiscordChannelId())
                 .moderation(channelConfig.getModeration().toString())
                 .visibility(channelConfig.getVisibility().toString())

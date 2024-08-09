@@ -47,7 +47,6 @@ public class PersonaResponseMapper {
                 .bumpRole(result.getBumpRole())
                 .bumpFrequency(result.getBumpFrequency())
                 .visibility(result.getVisibility())
-                .gameMode(result.getGameMode())
                 .ownerDiscordId(result.getOwnerDiscordId())
                 .build();
     }

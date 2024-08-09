@@ -356,45 +356,6 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     }
 
     @Test
-    public void searchPersonaFilterByGameMode() {
-
-        // Given
-        String ownerDiscordId = "586678721356875";
-
-        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
-                .id(null)
-                .gameMode("CHAT")
-                .build();
-
-        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
-                .id(null)
-                .gameMode("RPG")
-                .build();
-
-        PersonaEntity gpt354k = PersonaEntityFixture.privatePersona()
-                .id(null)
-                .gameMode("AUTHOR")
-                .build();
-
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
-
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
-                .gameMode("RPG")
-                .requesterDiscordId(ownerDiscordId)
-                .build();
-
-        // When
-        SearchPersonasResult result = repository.searchPersonasWithReadAccess(query);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
-
-        List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt4Mini.getName());
-    }
-
-    @Test
     public void returnAllPersonasWhenSearchingWithoutParametersShowOnlyWithWriteAccess() {
 
         // Given
@@ -630,46 +591,6 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
                 .name("Number 2")
-                .requesterDiscordId(ownerDiscordId)
-                .build();
-
-        // When
-        SearchPersonasResult result = repository.searchPersonasWithWriteAccess(query);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
-
-        List<GetPersonaResult> personas = result.getResults();
-        assertThat(personas.get(0).getName()).isEqualTo(gpt4Mini.getName());
-    }
-
-    @Test
-    public void searchPersonaFilterByGameModeShowOnlyWithWriteAccess() {
-
-        // Given
-        String ownerDiscordId = "586678721358363";
-
-        PersonaEntity gpt4Omni = PersonaEntityFixture.privatePersona()
-                .id(null)
-                .gameMode("AUTHOR")
-                .build();
-
-        PersonaEntity gpt4Mini = PersonaEntityFixture.privatePersona()
-                .id(null)
-                .gameMode("CHAT")
-                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
-                .build();
-
-        PersonaEntity gpt354k = PersonaEntityFixture.privatePersona()
-                .id(null)
-                .gameMode("RPG")
-                .build();
-
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
-
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
-                .gameMode("CHAT")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 

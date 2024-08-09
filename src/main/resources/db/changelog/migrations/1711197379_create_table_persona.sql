@@ -11,7 +11,6 @@ CREATE TABLE persona (
     bump_content VARCHAR,
     bump_role VARCHAR(25),
     bump_frequency SMALLINT,
-    game_mode VARCHAR(10),
     owner_discord_id VARCHAR(100) NOT NULL,
     discord_users_allowed_to_read VARCHAR,
     discord_users_allowed_to_write VARCHAR,

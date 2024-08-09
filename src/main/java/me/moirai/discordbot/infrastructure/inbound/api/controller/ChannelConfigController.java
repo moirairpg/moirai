@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.common.web.SecurityContextAware;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateChannelConfig;
@@ -22,15 +24,13 @@ import me.moirai.discordbot.core.application.usecase.channelconfig.request.Searc
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.ChannelConfigRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.ChannelConfigResponseMapper;
+import me.moirai.discordbot.infrastructure.inbound.api.request.ChannelConfigSearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateChannelConfigRequest;
-import me.moirai.discordbot.infrastructure.inbound.api.request.SearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateChannelConfigRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.response.ChannelConfigResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateChannelConfigResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchChannelConfigsResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateChannelConfigResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -53,7 +53,7 @@ public class ChannelConfigController extends SecurityContextAware {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchChannelConfigsResponse> searchChannelConfigsWithReadAccess(SearchParameters searchParameters) {
+    public Mono<SearchChannelConfigsResponse> searchChannelConfigsWithReadAccess(ChannelConfigSearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -72,7 +72,7 @@ public class ChannelConfigController extends SecurityContextAware {
 
     @GetMapping("/search/own")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchChannelConfigsResponse> searchChannelConfigsWithWriteAccess(SearchParameters searchParameters,
+    public Mono<SearchChannelConfigsResponse> searchChannelConfigsWithWriteAccess(ChannelConfigSearchParameters searchParameters,
             Authentication authentication) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {

@@ -16,7 +16,6 @@ public class Persona extends ShareableAsset {
     private String personality;
     private Nudge nudge;
     private Bump bump;
-    private GameMode gameMode;
 
     private Persona(Builder builder) {
 
@@ -28,7 +27,6 @@ public class Persona extends ShareableAsset {
         this.personality = builder.personality;
         this.nudge = builder.nudge;
         this.bump = builder.bump;
-        this.gameMode = builder.gameMode;
     }
 
     public static Builder builder() {
@@ -54,10 +52,6 @@ public class Persona extends ShareableAsset {
 
     public Bump getBump() {
         return bump;
-    }
-
-    public GameMode getGameMode() {
-        return gameMode;
     }
 
     public void updateName(String name) {
@@ -100,11 +94,6 @@ public class Persona extends ShareableAsset {
         this.nudge = newNudge;
     }
 
-    public void updateGameMode(GameMode gameMode) {
-
-        this.gameMode = gameMode;
-    }
-
     public static final class Builder {
 
         private String id;
@@ -117,7 +106,6 @@ public class Persona extends ShareableAsset {
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
-        private GameMode gameMode;
 
         private Builder() {
         }
@@ -164,12 +152,6 @@ public class Persona extends ShareableAsset {
             return this;
         }
 
-        public Builder gameMode(GameMode gameMode) {
-
-            this.gameMode = gameMode;
-            return this;
-        }
-
         public Builder creatorDiscordId(String creatorDiscordId) {
 
             this.creatorDiscordId = creatorDiscordId;
@@ -196,10 +178,6 @@ public class Persona extends ShareableAsset {
 
             if (StringUtils.isBlank(personality)) {
                 throw new BusinessRuleViolationException("Persona personality cannot be null or empty");
-            }
-
-            if (gameMode == null) {
-                throw new BusinessRuleViolationException("Game Mode cannot be null");
             }
 
             if (visibility == null) {

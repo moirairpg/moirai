@@ -19,7 +19,6 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
     private final String bumpRole;
     private final String bumpContent;
     private final String visibility;
-    private final String gameMode;
     private final Integer bumpFrequency;
     private final List<String> usersAllowedToWriteToAdd;
     private final List<String> usersAllowedToWriteToRemove;
@@ -37,7 +36,6 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
         this.bumpRole = builder.bumpRole;
         this.bumpContent = builder.bumpContent;
         this.visibility = builder.visibility;
-        this.gameMode = builder.gameMode;
         this.bumpFrequency = builder.bumpFrequency;
         this.usersAllowedToWriteToAdd = unmodifiableList(builder.usersAllowedToWriteToAdd);
         this.usersAllowedToWriteToRemove = unmodifiableList(builder.usersAllowedToWriteToRemove);
@@ -82,10 +80,6 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
         return visibility;
     }
 
-    public String getGameMode() {
-        return gameMode;
-    }
-
     public Integer getBumpFrequency() {
         return bumpFrequency;
     }
@@ -119,7 +113,6 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
         private String bumpRole;
         private String bumpContent;
         private String visibility;
-        private String gameMode;
         private Integer bumpFrequency;
         private List<String> usersAllowedToWriteToAdd = new ArrayList<>();
         private List<String> usersAllowedToWriteToRemove = new ArrayList<>();
@@ -167,11 +160,6 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
 
         public Builder visibility(String visibility) {
             this.visibility = visibility;
-            return this;
-        }
-
-        public Builder gameMode(String gameMode) {
-            this.gameMode = gameMode;
             return this;
         }
 

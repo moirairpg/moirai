@@ -34,6 +34,7 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
     private final List<String> usersAllowedToWriteToRemove;
     private final List<String> usersAllowedToReadToAdd;
     private final List<String> usersAllowedToReadToRemove;
+    private final String gameMode;
 
     private UpdateChannelConfig(Builder builder) {
 
@@ -50,6 +51,7 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
         this.frequencyPenalty = builder.frequencyPenalty;
         this.presencePenalty = builder.presencePenalty;
         this.requesterDiscordId = builder.requesterDiscordId;
+        this.gameMode = builder.gameMode;
         this.logitBiasToAdd = unmodifiableMap(builder.logitBiasToAdd);
         this.logitBiasToRemove = unmodifiableList(builder.logitBiasToRemove);
         this.stopSequencesToAdd = unmodifiableList(builder.stopSequencesToAdd);
@@ -94,6 +96,10 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
 
     public String getModeration() {
         return moderation;
+    }
+
+    public String getGameMode() {
+        return gameMode;
     }
 
     public Integer getMaxTokenLimit() {
@@ -158,6 +164,7 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
         private String visibility;
         private String aiModel;
         private String moderation;
+        private String gameMode;
         private Integer maxTokenLimit;
         private Double temperature;
         private Double frequencyPenalty;
@@ -212,6 +219,11 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
 
         public Builder moderation(String moderation) {
             this.moderation = moderation;
+            return this;
+        }
+
+        public Builder gameMode(String gameMode) {
+            this.gameMode = gameMode;
             return this;
         }
 

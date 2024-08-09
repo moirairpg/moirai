@@ -43,7 +43,6 @@ public class PersonaPersistenceMapperTest {
         assertThat(entity).isNotNull();
         assertThat(entity.getName()).isEqualTo(persona.getName());
         assertThat(entity.getPersonality()).isEqualTo(persona.getPersonality());
-        assertThat(entity.getGameMode().toLowerCase()).isEqualTo(persona.getGameMode().toString().toLowerCase());
         assertThat(entity.getOwnerDiscordId()).isEqualTo(persona.getOwnerDiscordId());
         assertThat(entity.getCreatorDiscordId()).isEqualTo(persona.getCreatorDiscordId());
         assertThat(entity.getCreationDate()).isEqualTo(persona.getCreationDate());
@@ -74,7 +73,6 @@ public class PersonaPersistenceMapperTest {
         assertThat(entity).isNotNull();
         assertThat(entity.getName()).isEqualTo(persona.getName());
         assertThat(entity.getPersonality()).isEqualTo(persona.getPersonality());
-        assertThat(entity.getGameMode().toLowerCase()).isEqualTo(persona.getGameMode().toString().toLowerCase());
         assertThat(entity.getOwnerDiscordId()).isEqualTo(persona.getOwnerDiscordId());
         assertThat(entity.getCreatorDiscordId()).isEqualTo(persona.getOwnerDiscordId());
         assertThat(entity.getCreationDate()).isEqualTo(persona.getCreationDate());
@@ -138,7 +136,6 @@ public class PersonaPersistenceMapperTest {
         assertThat(entity).isNotNull();
         assertThat(entity.getName()).isEqualTo(persona.getName());
         assertThat(entity.getPersonality()).isEqualTo(persona.getPersonality());
-        assertThat(entity.getGameMode().toString().toLowerCase()).isEqualTo(persona.getGameMode().toLowerCase());
         assertThat(entity.getOwnerDiscordId()).isEqualTo(persona.getOwnerDiscordId());
         assertThat(entity.getCreatorDiscordId()).isEqualTo(persona.getCreatorDiscordId());
         assertThat(entity.getCreationDate()).isEqualTo(persona.getCreationDate());
@@ -201,7 +198,6 @@ public class PersonaPersistenceMapperTest {
         assertThat(result.getName()).isEqualTo(persona.getName());
         assertThat(result.getPersonality()).isEqualTo(persona.getPersonality());
         assertThat(result.getVisibility()).isEqualTo(persona.getVisibility());
-        assertThat(result.getGameMode()).isEqualTo(persona.getGameMode());
         assertThat(result.getUsersAllowedToRead()).hasSameElementsAs(persona.getUsersAllowedToRead());
         assertThat(result.getUsersAllowedToWrite()).hasSameElementsAs(persona.getUsersAllowedToWrite());
         assertThat(result.getCreationDate()).isEqualTo(persona.getCreationDate());

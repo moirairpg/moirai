@@ -12,6 +12,7 @@ public class UpdateChannelConfigRequest {
     private String visibility;
     private String aiModel;
     private String moderation;
+    private String gameMode;
     private Integer maxTokenLimit;
     private Double temperature;
     private Double frequencyPenalty;
@@ -54,6 +55,10 @@ public class UpdateChannelConfigRequest {
 
     public String getModeration() {
         return moderation;
+    }
+
+    public String getGameMode() {
+        return gameMode;
     }
 
     public Integer getMaxTokenLimit() {
@@ -106,6 +111,10 @@ public class UpdateChannelConfigRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setGameMode(String gameMode) {
+        this.gameMode = gameMode;
     }
 
     public void setWorldId(String worldId) {

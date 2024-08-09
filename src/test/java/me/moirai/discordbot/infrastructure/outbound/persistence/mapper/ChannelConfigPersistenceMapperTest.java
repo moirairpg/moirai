@@ -51,6 +51,7 @@ public class ChannelConfigPersistenceMapperTest {
         assertThat(entity.getDiscordChannelId()).isEqualTo(channelConfig.getDiscordChannelId());
         assertThat(entity.getWorldId()).isEqualTo(channelConfig.getWorldId());
         assertThat(entity.getPersonaId()).isEqualTo(channelConfig.getPersonaId());
+        assertThat(entity.getGameMode().toLowerCase()).isEqualTo(channelConfig.getGameMode().toString().toLowerCase());
     }
 
     @Test
@@ -76,6 +77,7 @@ public class ChannelConfigPersistenceMapperTest {
         assertThat(entity.getDiscordChannelId()).isEqualTo(channelConfig.getDiscordChannelId());
         assertThat(entity.getWorldId()).isEqualTo(channelConfig.getWorldId());
         assertThat(entity.getPersonaId()).isEqualTo(channelConfig.getPersonaId());
+        assertThat(entity.getGameMode().toLowerCase()).isEqualTo(channelConfig.getGameMode().toString().toLowerCase());
     }
 
     @Test
@@ -99,6 +101,7 @@ public class ChannelConfigPersistenceMapperTest {
         assertThat(entity.getLastUpdateDate()).isEqualTo(channelConfig.getLastUpdateDate());
         assertThat(entity.getUsersAllowedToRead()).hasSameElementsAs(channelConfig.getUsersAllowedToRead());
         assertThat(entity.getUsersAllowedToWrite()).hasSameElementsAs(channelConfig.getUsersAllowedToWrite());
+        assertThat(entity.getGameMode().toString().toLowerCase()).isEqualTo(channelConfig.getGameMode().toLowerCase());
     }
 
     @Test
@@ -120,6 +123,7 @@ public class ChannelConfigPersistenceMapperTest {
         assertThat(result.getCreationDate()).isEqualTo(channelConfig.getCreationDate());
         assertThat(result.getLastUpdateDate()).isEqualTo(channelConfig.getLastUpdateDate());
         assertThat(result.getOwnerDiscordId()).isEqualTo(channelConfig.getOwnerDiscordId());
+        assertThat(result.getGameMode()).isEqualTo(channelConfig.getGameMode());
     }
 
     @Test

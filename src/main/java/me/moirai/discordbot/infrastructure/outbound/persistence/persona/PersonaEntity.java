@@ -31,9 +31,6 @@ public class PersonaEntity extends ShareableAssetEntity {
     @Embedded
     private BumpEntity bump;
 
-    @Column(name = "game_mode", nullable = false)
-    private String gameMode;
-
     private PersonaEntity(Builder builder) {
 
         super(builder.creatorDiscordId, builder.creationDate,
@@ -45,7 +42,6 @@ public class PersonaEntity extends ShareableAssetEntity {
         this.personality = builder.personality;
         this.nudge = builder.nudge;
         this.bump = builder.bump;
-        this.gameMode = builder.gameMode;
     }
 
     protected PersonaEntity() {
@@ -77,10 +73,6 @@ public class PersonaEntity extends ShareableAssetEntity {
         return bump;
     }
 
-    public String getGameMode() {
-        return gameMode;
-    }
-
     public static final class Builder {
 
         private String id;
@@ -92,7 +84,6 @@ public class PersonaEntity extends ShareableAssetEntity {
         private List<String> usersAllowedToRead;
         private List<String> usersAllowedToWrite;
         private String visibility;
-        private String gameMode;
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
@@ -151,12 +142,6 @@ public class PersonaEntity extends ShareableAssetEntity {
         public Builder usersAllowedToWrite(List<String> usersAllowedToWrite) {
 
             this.usersAllowedToWrite = usersAllowedToWrite;
-            return this;
-        }
-
-        public Builder gameMode(String gameMode) {
-
-            this.gameMode = gameMode;
             return this;
         }
 

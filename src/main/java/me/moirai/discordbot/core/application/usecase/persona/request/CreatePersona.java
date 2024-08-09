@@ -18,7 +18,6 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
     private final String bumpRole;
     private final String bumpContent;
     private final String visibility;
-    private final String gameMode;
     private final Integer bumpFrequency;
     private final String requesterDiscordId;
     private final List<String> usersAllowedToWrite;
@@ -32,7 +31,6 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
         this.bumpRole = builder.bumpRole;
         this.bumpContent = builder.bumpContent;
         this.visibility = builder.visibility;
-        this.gameMode = builder.gameMode;
         this.bumpFrequency = builder.bumpFrequency;
         this.requesterDiscordId = builder.requesterDiscordId;
         this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
@@ -71,10 +69,6 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
         return visibility;
     }
 
-    public String getGameMode() {
-        return gameMode;
-    }
-
     public Integer getBumpFrequency() {
         return bumpFrequency;
     }
@@ -100,7 +94,6 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
         private String bumpRole;
         private String bumpContent;
         private String visibility;
-        private String gameMode;
         private Integer bumpFrequency;
         private String requesterDiscordId;
         private List<String> usersAllowedToWrite = new ArrayList<>();
@@ -141,11 +134,6 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
 
         public Builder visibility(String visibility) {
             this.visibility = visibility;
-            return this;
-        }
-
-        public Builder gameMode(String gameMode) {
-            this.gameMode = gameMode;
             return this;
         }
 

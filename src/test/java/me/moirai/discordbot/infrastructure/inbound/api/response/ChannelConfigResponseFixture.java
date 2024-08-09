@@ -23,6 +23,7 @@ public class ChannelConfigResponseFixture {
                 .usersAllowedToRead(channelConfig.getUsersAllowedToRead())
                 .usersAllowedToWrite(channelConfig.getUsersAllowedToWrite())
                 .temperature(channelConfig.getModelConfiguration().getTemperature())
-                .visibility(channelConfig.getVisibility().name());
+                .visibility(channelConfig.getVisibility().name())
+                .gameMode(channelConfig.getGameMode().name());
     }
 }

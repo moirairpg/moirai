@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.common.exception.AssetAccessDeniedException;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
-import me.moirai.discordbot.common.exception.BusinessRuleViolationException;
 import me.moirai.discordbot.common.exception.ModerationException;
 import me.moirai.discordbot.core.application.model.result.TextModerationResultFixture;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
@@ -25,7 +24,6 @@ import me.moirai.discordbot.core.application.usecase.persona.request.CreatePerso
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
 import me.moirai.discordbot.core.application.usecase.persona.request.UpdatePersona;
-import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.PermissionsFixture;
 import me.moirai.discordbot.core.domain.Visibility;
 import reactor.core.publisher.Mono;
@@ -70,7 +68,6 @@ public class PersonaServiceImplTest {
                 .bumpContent(bump.getContent())
                 .bumpRole(bump.getRole().toString())
                 .bumpFrequency(bump.getFrequency())
-                .gameMode("rpg")
                 .visibility(visibility)
                 .build();
 
@@ -119,7 +116,6 @@ public class PersonaServiceImplTest {
                 .personality(personality)
                 .nudgeContent(nudge.getContent())
                 .nudgeRole(nudge.getRole().toString())
-                .gameMode("rpg")
                 .visibility(visibility)
                 .build();
 
@@ -169,7 +165,6 @@ public class PersonaServiceImplTest {
                 .bumpContent(bump.getContent())
                 .bumpRole(bump.getRole().toString())
                 .bumpFrequency(bump.getFrequency())
-                .gameMode("rpg")
                 .visibility(visibility)
                 .build();
 
@@ -194,39 +189,6 @@ public class PersonaServiceImplTest {
                     assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void createPersona_whenBumpIsProvidedAndFrequencyIsLowerThanOne_thenExceptionIsThrown() {
-
-        // Given
-        String name = "MoirAI";
-        String personality = "I am a chatbot";
-        String visibility = "PRIVATE";
-        String role = "SYSTEM";
-        String content = "This is content";
-        Permissions permissions = PermissionsFixture.samplePermissions().build();
-
-        CreatePersona command = CreatePersona.builder()
-                .name(name)
-                .personality(personality)
-                .nudgeContent(content)
-                .nudgeRole(role)
-                .bumpContent(content)
-                .bumpRole(role)
-                .bumpFrequency(0)
-                .visibility(visibility)
-                .requesterDiscordId(permissions.getOwnerDiscordId())
-                .usersAllowedToRead(permissions.getUsersAllowedToRead())
-                .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
-                .build();
-
-        when(moderationPort.moderate(anyString()))
-                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
-
-        // Then
-        StepVerifier.create(service.createFrom(command))
-                .verifyError(BusinessRuleViolationException.class);
     }
 
     @Test
@@ -443,7 +405,6 @@ public class PersonaServiceImplTest {
                 .bumpFrequency(5)
                 .nudgeContent("This is a nudge")
                 .nudgeRole("system")
-                .gameMode("author")
                 .requesterDiscordId(requesterId)
                 .build();
 
@@ -588,7 +549,6 @@ public class PersonaServiceImplTest {
                 .bumpFrequency(5)
                 .nudgeContent("This is a nudge")
                 .nudgeRole("system")
-                .gameMode("author")
                 .requesterDiscordId(requesterId)
                 .build();
 
@@ -615,7 +575,6 @@ public class PersonaServiceImplTest {
                 .personality(personality)
                 .nudgeContent(nudge.getContent())
                 .nudgeRole(nudge.getRole().toString())
-                .gameMode("rpg")
                 .visibility(visibility)
                 .build();
 

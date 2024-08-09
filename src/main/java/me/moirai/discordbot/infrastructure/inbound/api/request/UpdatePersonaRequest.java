@@ -11,7 +11,6 @@ public class UpdatePersonaRequest {
     private String bumpRole;
     private String bumpContent;
     private String visibility;
-    private String gameMode;
     private Integer bumpFrequency;
     private List<String> usersAllowedToWriteToAdd;
     private List<String> usersAllowedToWriteToRemove;
@@ -47,10 +46,6 @@ public class UpdatePersonaRequest {
 
     public String getVisibility() {
         return visibility;
-    }
-
-    public String getGameMode() {
-        return gameMode;
     }
 
     public Integer getBumpFrequency() {
@@ -99,10 +94,6 @@ public class UpdatePersonaRequest {
 
     public void setVisibility(String visibility) {
         this.visibility = visibility;
-    }
-
-    public void setGameMode(String gameMode) {
-        this.gameMode = gameMode;
     }
 
     public void setBumpFrequency(Integer bumpFrequency) {

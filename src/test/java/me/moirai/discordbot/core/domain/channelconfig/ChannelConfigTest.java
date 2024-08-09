@@ -32,6 +32,7 @@ public class ChannelConfigTest {
         channelConfigBuilder.visibility(Visibility.fromString("PRIVATE"));
         channelConfigBuilder.modelConfiguration(ModelConfigurationFixture.gpt4Mini().build());
         channelConfigBuilder.permissions(PermissionsFixture.samplePermissions().build());
+        channelConfigBuilder.gameMode(GameMode.RPG);
 
         // When
         ChannelConfig channelConfig = channelConfigBuilder.build();
@@ -558,5 +559,15 @@ public class ChannelConfigTest {
 
         // Then
         assertThrows(BusinessRuleViolationException.class, () -> channelConfigBuilder.build());
+    }
+
+    @Test
+    public void createPersona_whenNullGameMode_thenThrowException() {
+
+        // Given
+        ChannelConfig.Builder channelConfigBuilder = ChannelConfigFixture.sample().gameMode(null);
+
+        // Then
+        assertThrows(BusinessRuleViolationException.class, channelConfigBuilder::build);
     }
 }

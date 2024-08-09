@@ -17,7 +17,6 @@ public final class GetPersonaResult {
     private final String bumpRole;
     private final int bumpFrequency;
     private final String visibility;
-    private final String gameMode;
     private final String ownerDiscordId;
     private final List<String> usersAllowedToWrite;
     private final List<String> usersAllowedToRead;
@@ -35,7 +34,6 @@ public final class GetPersonaResult {
         this.bumpRole = builder.bumpRole;
         this.bumpFrequency = builder.bumpFrequency;
         this.visibility = builder.visibility;
-        this.gameMode = builder.gameMode;
         this.ownerDiscordId = builder.ownerDiscordId;
         this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
         this.usersAllowedToRead = unmodifiableList(builder.usersAllowedToRead);
@@ -83,10 +81,6 @@ public final class GetPersonaResult {
         return visibility;
     }
 
-    public String getGameMode() {
-        return gameMode;
-    }
-
     public String getOwnerDiscordId() {
         return ownerDiscordId;
     }
@@ -118,7 +112,6 @@ public final class GetPersonaResult {
         private String bumpRole;
         private int bumpFrequency;
         private String visibility;
-        private String gameMode;
         private String ownerDiscordId;
         private List<String> usersAllowedToWrite = new ArrayList<>();
         private List<String> usersAllowedToRead = new ArrayList<>();
@@ -170,11 +163,6 @@ public final class GetPersonaResult {
 
         public Builder visibility(String visibility) {
             this.visibility = visibility;
-            return this;
-        }
-
-        public Builder gameMode(String gameMode) {
-            this.gameMode = gameMode;
             return this;
         }
 

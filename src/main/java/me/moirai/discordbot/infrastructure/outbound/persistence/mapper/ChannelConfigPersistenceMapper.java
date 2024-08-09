@@ -11,6 +11,7 @@ import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.Visibility;
 import me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
+import me.moirai.discordbot.core.domain.channelconfig.GameMode;
 import me.moirai.discordbot.core.domain.channelconfig.ModelConfiguration;
 import me.moirai.discordbot.core.domain.channelconfig.Moderation;
 import me.moirai.discordbot.infrastructure.outbound.persistence.channelconfig.ChannelConfigEntity;
@@ -50,6 +51,7 @@ public class ChannelConfigPersistenceMapper {
                 .usersAllowedToRead(channelConfig.getUsersAllowedToRead())
                 .creationDate(channelConfig.getCreationDate())
                 .lastUpdateDate(channelConfig.getLastUpdateDate())
+                .gameMode(channelConfig.getGameMode().name())
                 .build();
     }
 
@@ -84,6 +86,7 @@ public class ChannelConfigPersistenceMapper {
                 .creatorDiscordId(channelConfig.getCreatorDiscordId())
                 .creationDate(channelConfig.getCreationDate())
                 .lastUpdateDate(channelConfig.getLastUpdateDate())
+                .gameMode(GameMode.fromString(channelConfig.getGameMode()))
                 .build();
     }
 
@@ -110,6 +113,7 @@ public class ChannelConfigPersistenceMapper {
                 .ownerDiscordId(channelConfig.getOwnerDiscordId())
                 .creationDate(channelConfig.getCreationDate())
                 .lastUpdateDate(channelConfig.getLastUpdateDate())
+                .gameMode(channelConfig.getGameMode())
                 .build();
     }
 

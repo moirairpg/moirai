@@ -31,6 +31,9 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
     @Column(name = "discord_channel_id", nullable = false)
     private String discordChannelId;
 
+    @Column(name = "game_mode", nullable = false)
+    private String gameMode;
+
     @Embedded
     private ModelConfigurationEntity modelConfiguration;
 
@@ -47,6 +50,7 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         this.name = builder.name;
         this.worldId = builder.worldId;
         this.personaId = builder.personaId;
+        this.gameMode = builder.gameMode;
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
         this.discordChannelId = builder.discordChannelId;
@@ -89,6 +93,10 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         return moderation;
     }
 
+    public String getGameMode() {
+        return gameMode;
+    }
+
     public static final class Builder {
 
         private String id;
@@ -96,6 +104,7 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         private String worldId;
         private String personaId;
         private String discordChannelId;
+        private String gameMode;
         private ModelConfigurationEntity modelConfiguration;
         private String moderation;
         protected String ownerDiscordId;
@@ -172,6 +181,12 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         public Builder usersAllowedToWrite(List<String> usersAllowedToWrite) {
 
             this.usersAllowedToWrite = usersAllowedToWrite;
+            return this;
+        }
+
+        public Builder gameMode(String gameMode) {
+
+            this.gameMode = gameMode;
             return this;
         }
 

@@ -29,6 +29,7 @@ public class ChannelConfigRequestMapper {
                 .usersAllowedToWrite(request.getUsersAllowedToWrite())
                 .usersAllowedToRead(request.getUsersAllowedToRead())
                 .discordChannelId(request.getDiscordChannelId())
+                .gameMode(request.getGameMode())
                 .requesterDiscordId(requesterDiscordId)
                 .build();
     }
@@ -56,6 +57,7 @@ public class ChannelConfigRequestMapper {
                 .usersAllowedToReadToAdd(request.getUsersAllowedToReadToAdd())
                 .usersAllowedToReadToRemove(request.getUsersAllowedToReadToRemove())
                 .discordChannelId(request.getDiscordChannelId())
+                .gameMode(request.getGameMode())
                 .requesterDiscordId(requesterDiscordId)
                 .build();
     }

@@ -39,7 +39,7 @@ public class SearchWorldLorebookEntriesHandlerTest {
                 .items(2)
                 .build();
 
-        when(repository.searchWorldLorebookEntriesByWorldId(any(SearchWorldLorebookEntries.class)))
+        when(repository.searchBy(any(SearchWorldLorebookEntries.class)))
                 .thenReturn(expectedResult);
 
         // When

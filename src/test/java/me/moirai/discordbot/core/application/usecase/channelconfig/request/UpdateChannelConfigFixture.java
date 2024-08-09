@@ -33,6 +33,7 @@ public class UpdateChannelConfigFixture {
                 .usersAllowedToWriteToRemove(Collections.singletonList("USRID"))
                 .usersAllowedToReadToAdd(Collections.singletonList("USRID"))
                 .usersAllowedToReadToRemove(Collections.singletonList("USRID"))
+                .gameMode(channelConfig.getGameMode().name())
                 .requesterDiscordId(channelConfig.getOwnerDiscordId());
     }
 }

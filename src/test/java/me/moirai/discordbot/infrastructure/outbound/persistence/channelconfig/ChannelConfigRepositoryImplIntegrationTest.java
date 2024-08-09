@@ -1261,4 +1261,109 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt4Mini.getName());
         assertThat(channelConfigs.get(1).getName()).isEqualTo(gpt354k.getName());
     }
+
+    @Test
+    public void searchChannelConfigFilterByGameMode() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+
+        ChannelConfigEntity gpt4Omni = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .moderation("STRICT")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .gameMode("CHAT")
+                .build();
+
+        ChannelConfigEntity gpt4Mini = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .ownerDiscordId(ownerDiscordId)
+                .moderation("PERMISSIVE")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .gameMode("RPG")
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .moderation("PERMISSIVE")
+                .discordChannelId("CHNLID3")
+                .gameMode("AUTHOR")
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
+                .gameMode("RPG")
+                .requesterDiscordId(ownerDiscordId)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt4Mini.getName());
+    }
+
+    @Test
+    public void searchChannelConfigFilterByGameModeShowOnlyWithWriteAccess() {
+
+        // Given
+        String ownerDiscordId = "586678721358363";
+
+        ChannelConfigEntity gpt4Omni = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .moderation("STRICT")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .gameMode("AUTHOR")
+                .build();
+
+        ChannelConfigEntity gpt4Mini = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .ownerDiscordId(ownerDiscordId)
+                .moderation("PERMISSIVE")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .gameMode("CHAT")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .build();
+
+        ChannelConfigEntity gpt354k = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 3")
+                .usersAllowedToWrite(Collections.singletonList(ownerDiscordId))
+                .moderation("PERMISSIVE")
+                .discordChannelId("CHNLID3")
+                .gameMode("RPG")
+                .build();
+
+        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .gameMode("CHAT")
+                .requesterDiscordId(ownerDiscordId)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt4Mini.getName());
+    }
 }

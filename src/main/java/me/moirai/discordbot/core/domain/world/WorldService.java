@@ -26,11 +26,11 @@ public interface WorldService {
 
     WorldLorebookEntry updateLorebookEntry(UpdateWorldLorebookEntry command);
 
-    List<WorldLorebookEntry> findAllEntriesByRegex(String requesterDiscordId, String worldId, String valueToSearch);
+    List<WorldLorebookEntry> findAllLorebookEntriesByRegex(String worldId, String valueToSearch);
 
-    List<WorldLorebookEntry> findAllEntriesByRegex(String worldId, String valueToSearch);
+    WorldLorebookEntry findLorebookEntryByPlayerDiscordId(String worldId, String playerDiscordId);
 
-    WorldLorebookEntry findWorldLorebookEntryById(GetWorldLorebookEntryById query);
+    WorldLorebookEntry findLorebookEntryById(GetWorldLorebookEntryById query);
 
     void deleteLorebookEntry(DeleteWorldLorebookEntry command);
 }

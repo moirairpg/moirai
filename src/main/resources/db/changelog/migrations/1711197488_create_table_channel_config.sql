@@ -5,6 +5,7 @@
 CREATE TABLE channel_config (
     id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
+    game_mode VARCHAR(10),
     world_id VARCHAR(100) NOT NULL,
     persona_id VARCHAR(100) NOT NULL,
     discord_channel_id VARCHAR(100) UNIQUE NOT NULL,

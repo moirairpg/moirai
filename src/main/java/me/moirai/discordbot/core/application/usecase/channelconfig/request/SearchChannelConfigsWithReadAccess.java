@@ -13,6 +13,7 @@ public final class SearchChannelConfigsWithReadAccess extends UseCase<SearchChan
     private final String moderation;
     private final String name;
     private final String requesterDiscordId;
+    private final String gameMode;
 
     private SearchChannelConfigsWithReadAccess(Builder builder) {
 
@@ -24,6 +25,7 @@ public final class SearchChannelConfigsWithReadAccess extends UseCase<SearchChan
         this.moderation = builder.moderation;
         this.name = builder.name;
         this.requesterDiscordId = builder.requesterDiscordId;
+        this.gameMode = builder.gameMode;
     }
 
     public static Builder builder() {
@@ -62,6 +64,10 @@ public final class SearchChannelConfigsWithReadAccess extends UseCase<SearchChan
         return requesterDiscordId;
     }
 
+    public String getGameMode() {
+        return gameMode;
+    }
+
     public static final class Builder {
 
         private Integer page;
@@ -72,6 +78,7 @@ public final class SearchChannelConfigsWithReadAccess extends UseCase<SearchChan
         private String moderation;
         private String name;
         private String requesterDiscordId;
+        private String gameMode;
 
         private Builder() {
         }
@@ -108,6 +115,11 @@ public final class SearchChannelConfigsWithReadAccess extends UseCase<SearchChan
 
         public Builder name(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder gameMode(String gameMode) {
+            this.gameMode = gameMode;
             return this;
         }
 
