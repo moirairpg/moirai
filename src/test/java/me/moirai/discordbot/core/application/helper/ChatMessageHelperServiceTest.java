@@ -1,4 +1,4 @@
-package me.moirai.discordbot.infrastructure.outbound.adapter;
+package me.moirai.discordbot.core.application.helper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -21,13 +21,13 @@ import me.moirai.discordbot.core.domain.port.TokenizerPort;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
-public class ChatMessageAdapterTest {
+public class ChatMessageHelperServiceTest {
 
     @Mock
     private TokenizerPort tokenizerPort;
 
     @InjectMocks
-    private ChatMessageAdapter service;
+    private ChatMessageHelperService service;
 
     @Test
     public void addMessagesToContext_whenEnoughTokensAndAssetDefined_thenMessagesAreAdded() {

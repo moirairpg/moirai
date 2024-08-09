@@ -1,4 +1,4 @@
-package me.moirai.discordbot.infrastructure.outbound.adapter;
+package me.moirai.discordbot.core.application.helper;
 
 import static org.apache.commons.lang3.StringUtils.LF;
 
@@ -8,9 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
-
 import io.micrometer.common.util.StringUtils;
+import me.moirai.discordbot.common.annotation.HelperService;
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.LorebookEnrichmentPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
@@ -19,7 +18,7 @@ import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 
-@Component("commonLorebookEnrichmentPort")
+@HelperService("commonLorebookEnrichmentPort")
 public class CommonLorebookEnrichmentAdapter implements LorebookEnrichmentPort {
 
     private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";

@@ -1,4 +1,4 @@
-package me.moirai.discordbot.infrastructure.outbound.adapter;
+package me.moirai.discordbot.core.application.helper;
 
 import static org.apache.commons.lang3.StringUtils.LF;
 
@@ -9,22 +9,22 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.commons.collections4.ListUtils;
-import org.springframework.stereotype.Component;
 
+import me.moirai.discordbot.common.annotation.HelperService;
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 
-@Component
+@HelperService
 @SuppressWarnings("unchecked")
-public class ChatMessageAdapter implements ChatMessagePort {
+public class ChatMessageHelperService implements ChatMessagePort {
 
     private static final String MESSAGE_HISTORY = "messageHistory";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
 
     private final TokenizerPort tokenizerPort;
 
-    public ChatMessageAdapter(TokenizerPort tokenizerPort) {
+    public ChatMessageHelperService(TokenizerPort tokenizerPort) {
         this.tokenizerPort = tokenizerPort;
     }
 

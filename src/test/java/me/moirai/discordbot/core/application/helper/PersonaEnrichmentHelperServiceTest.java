@@ -1,4 +1,4 @@
-package me.moirai.discordbot.infrastructure.outbound.adapter;
+package me.moirai.discordbot.core.application.helper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -28,7 +28,7 @@ import reactor.test.StepVerifier;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
-public class PersonaEnrichmentAdapterTest {
+public class PersonaEnrichmentHelperServiceTest {
 
     @Mock
     private TokenizerPort tokenizerPort;
@@ -36,11 +36,11 @@ public class PersonaEnrichmentAdapterTest {
     @Mock
     private PersonaService personaService;
 
-    @InjectMocks
-    private PersonaEnrichmentAdapter service;
-
     @Mock
     private ChatMessagePort chatMessageService;
+
+    @InjectMocks
+    private PersonaEnrichmentHelperService service;
 
     @Test
     public void enrichWithPersona_whenSufficientTokens_addPersonaAndMessages() {

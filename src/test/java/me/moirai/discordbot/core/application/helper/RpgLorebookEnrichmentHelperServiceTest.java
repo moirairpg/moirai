@@ -1,4 +1,4 @@
-package me.moirai.discordbot.infrastructure.outbound.adapter;
+package me.moirai.discordbot.core.application.helper;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -22,7 +22,7 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigu
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequestFixture;
 
 @ExtendWith(MockitoExtension.class)
-public class RpgLorebookEnrichmentAdapterTest {
+public class RpgLorebookEnrichmentHelperServiceTest {
 
     @Mock
     private TokenizerPort tokenizerPort;
@@ -34,7 +34,7 @@ public class RpgLorebookEnrichmentAdapterTest {
     private ChatMessagePort chatMessageService;
 
     @InjectMocks
-    private RpgLorebookEnrichmentAdapter adapter;
+    private RpgLorebookEnrichmentHelperService adapter;
 
     @Test
     void enrichContextWithLorebook_whenMessagesAreValid_thenReturnContextWithProcessedPlayerEntries() {

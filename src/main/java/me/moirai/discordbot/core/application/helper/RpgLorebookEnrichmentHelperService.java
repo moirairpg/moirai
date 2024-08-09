@@ -1,4 +1,4 @@
-package me.moirai.discordbot.infrastructure.outbound.adapter;
+package me.moirai.discordbot.core.application.helper;
 
 import static me.moirai.discordbot.common.util.DefaultStringProcessors.replaceTemplateWithValueIgnoreCase;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -14,9 +14,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.stereotype.Component;
-
 import io.micrometer.common.util.StringUtils;
+import me.moirai.discordbot.common.annotation.HelperService;
 import me.moirai.discordbot.common.util.StringProcessor;
 import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.LorebookEnrichmentPort;
@@ -27,8 +26,8 @@ import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 
-@Component("rpgLorebookEnrichmentPort")
-public class RpgLorebookEnrichmentAdapter implements LorebookEnrichmentPort {
+@HelperService("rpgLorebookEnrichmentPort")
+public class RpgLorebookEnrichmentHelperService implements LorebookEnrichmentPort {
 
     private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
@@ -38,7 +37,7 @@ public class RpgLorebookEnrichmentAdapter implements LorebookEnrichmentPort {
     private final WorldService worldService;
     private final ChatMessagePort chatMessageService;
 
-    public RpgLorebookEnrichmentAdapter(
+    public RpgLorebookEnrichmentHelperService(
             TokenizerPort tokenizerPort,
             WorldService worldService,
             ChatMessagePort chatMessageService) {
