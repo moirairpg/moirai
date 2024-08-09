@@ -45,7 +45,7 @@ import reactor.test.StepVerifier;
 public class StoryGenerationHelperImplTest {
 
     @Mock
-    private LorebookEnrichmentHelper commonLorebookEnrichmentHelper;
+    private LorebookEnrichmentHelper lorebookEnrichmentHelper;
 
     @Mock
     private StorySummarizationPort summarizationPort;
@@ -102,7 +102,7 @@ public class StoryGenerationHelperImplTest {
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
                 .thenReturn(Mono.just(context));
 
-        when(commonLorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
+        when(lorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
                 any(ModelConfigurationRequest.class)))
                 .thenReturn(context);
 
@@ -189,7 +189,7 @@ public class StoryGenerationHelperImplTest {
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
                 .thenReturn(Mono.just(context));
 
-        when(commonLorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
+        when(lorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
                 any(ModelConfigurationRequest.class)))
                 .thenReturn(context);
 
@@ -246,7 +246,7 @@ public class StoryGenerationHelperImplTest {
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
                 .thenReturn(Mono.just(context));
 
-        when(commonLorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
+        when(lorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
                 any(ModelConfigurationRequest.class)))
                 .thenReturn(context);
 

@@ -45,21 +45,21 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
 
     private final DiscordChannelPort discordChannelPort;
     private final StorySummarizationPort summarizationPort;
-    private final LorebookEnrichmentHelper commonLorebookEnrichmentHelper;
+    private final LorebookEnrichmentHelper lorebookEnrichmentHelper;
     private final PersonaEnrichmentHelper personaEnrichmentPort;
     private final TextCompletionPort textCompletionPort;
     private final TextModerationPort textModerationPort;
 
     public StoryGenerationHelperImpl(StorySummarizationPort summarizationPort,
             DiscordChannelPort discordChannelPort,
-            LorebookEnrichmentHelper commonLorebookEnrichmentHelper,
+            LorebookEnrichmentHelper lorebookEnrichmentHelper,
             PersonaEnrichmentHelper personaEnrichmentPort,
             TextCompletionPort textCompletionPort,
             TextModerationPort textModerationPort) {
 
         this.discordChannelPort = discordChannelPort;
         this.summarizationPort = summarizationPort;
-        this.commonLorebookEnrichmentHelper = commonLorebookEnrichmentHelper;
+        this.lorebookEnrichmentHelper = lorebookEnrichmentHelper;
         this.personaEnrichmentPort = personaEnrichmentPort;
         this.textCompletionPort = textCompletionPort;
         this.textModerationPort = textModerationPort;
@@ -69,7 +69,7 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
     public Mono<Void> continueStory(StoryGenerationRequest request) {
 
         return Mono.just(request.getMessageHistory())
-                .map(messageHistory -> commonLorebookEnrichmentHelper.enrichContextWithLorebook(messageHistory,
+                .map(messageHistory -> lorebookEnrichmentHelper.enrichContextWithLorebook(messageHistory,
                         request.getWorldId(), request.getModelConfiguration()))
                 .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook,
                         request.getModelConfiguration()))

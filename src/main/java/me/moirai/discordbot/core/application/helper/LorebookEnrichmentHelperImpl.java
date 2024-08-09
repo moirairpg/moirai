@@ -24,8 +24,8 @@ import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 
-@Helper("rpgLorebookEnrichmentHelper")
-public class RpgLorebookEnrichmentHelperImpl implements LorebookEnrichmentHelper {
+@Helper
+public class LorebookEnrichmentHelperImpl implements LorebookEnrichmentHelper {
 
     private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
@@ -35,7 +35,7 @@ public class RpgLorebookEnrichmentHelperImpl implements LorebookEnrichmentHelper
     private final WorldService worldService;
     private final ChatMessageHelper chatMessageService;
 
-    public RpgLorebookEnrichmentHelperImpl(
+    public LorebookEnrichmentHelperImpl(
             TokenizerPort tokenizerPort,
             WorldService worldService,
             ChatMessageHelper chatMessageService) {
@@ -46,8 +46,8 @@ public class RpgLorebookEnrichmentHelperImpl implements LorebookEnrichmentHelper
     }
 
     @Override
-    public Map<String, Object> enrichContextWithLorebook(List<DiscordMessageData> rawMessageHistory, String worldId,
-            ModelConfigurationRequest modelConfiguration) {
+    public Map<String, Object> enrichContextWithLorebookForRpg(List<DiscordMessageData> rawMessageHistory,
+            String worldId, ModelConfigurationRequest modelConfiguration) {
 
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
         int reservedTokensForLorebook = (int) Math.floor(totalTokens * 0.30);
@@ -65,6 +65,29 @@ public class RpgLorebookEnrichmentHelperImpl implements LorebookEnrichmentHelper
         }
 
         return chatMessageService.addMessagesToContext(context, reservedTokensForLorebook);
+    }
+
+    @Override
+    public Map<String, Object> enrichContextWithLorebook(List<DiscordMessageData> rawMessageHistory, String worldId,
+            ModelConfigurationRequest modelConfiguration) {
+
+        int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
+        int reservedTokensForLorebook = (int) Math.floor(totalTokens * 0.30);
+
+        List<String> messageHistory = rawMessageHistory.stream()
+                .map(DiscordMessageData::getContent)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        String stringifiedStory = stringifyList(messageHistory);
+
+        Map<String, Object> context = new HashMap<>();
+        context.put(RETRIEVED_MESSAGES, new ArrayList<>(rawMessageHistory));
+
+        List<WorldLorebookEntry> entriesFound = worldService.findAllLorebookEntriesByRegex(stringifiedStory, worldId);
+        Map<String, Object> enrichedContext = addEntriesFoundToContext(entriesFound, context,
+                reservedTokensForLorebook);
+
+        return chatMessageService.addMessagesToContext(enrichedContext, reservedTokensForLorebook);
     }
 
     private List<WorldLorebookEntry> findLorebookEntries(String worldId, List<DiscordMessageData> rawMessageHistory) {
@@ -210,6 +233,34 @@ public class RpgLorebookEnrichmentHelperImpl implements LorebookEnrichmentHelper
                 .forEach(lorebook::add);
 
         return lorebook;
+    }
+
+    private Map<String, Object> addEntriesFoundToContext(List<WorldLorebookEntry> entries, Map<String, Object> context,
+            int reservedTokensForLorebook) {
+
+        List<String> lorebook = new ArrayList<>();
+
+        entries.stream()
+                .takeWhile(entryData -> {
+                    String entry = String.format(ENTRY_DESCRIPTION, entryData.getName(), entryData.getDescription());
+                    String stringifiedLorebook = stringifyList(lorebook);
+
+                    int tokensInEntry = tokenizerPort.getTokenCountFrom(entry);
+                    int tokensInContext = tokenizerPort.getTokenCountFrom(stringifiedLorebook);
+
+                    int tokensLeftInContext = reservedTokensForLorebook - tokensInContext;
+
+                    return tokensInEntry <= tokensLeftInContext;
+                })
+                .map(entryData -> String.format(ENTRY_DESCRIPTION, entryData.getName(), entryData.getDescription()))
+                .forEach(lorebook::add);
+
+        String stringifiedLorebook = stringifyList(lorebook);
+        if (StringUtils.isNotBlank(stringifiedLorebook)) {
+            context.put(LOREBOOK, stringifiedLorebook);
+        }
+
+        return context;
     }
 
     private String stringifyList(List<String> list) {

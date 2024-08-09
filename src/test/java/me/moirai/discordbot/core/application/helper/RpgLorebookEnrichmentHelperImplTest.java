@@ -33,10 +33,10 @@ public class RpgLorebookEnrichmentHelperImplTest {
     private ChatMessageHelper chatMessageService;
 
     @InjectMocks
-    private RpgLorebookEnrichmentHelperImpl adapter;
+    private LorebookEnrichmentHelperImpl adapter;
 
     @Test
-    void enrichContextWithLorebook_whenMessagesAreValid_thenReturnContextWithProcessedPlayerEntries() {
+    void enrichContextWithLorebookForRpg_whenMessagesAreValid_thenReturnContextWithProcessedPlayerEntries() {
 
         // Given
         String worldId = "WRLDID";
@@ -60,7 +60,7 @@ public class RpgLorebookEnrichmentHelperImplTest {
                 .thenReturn(10);
 
         // When
-        adapter.enrichContextWithLorebook(messageList, worldId, modelConfiguration);
+        adapter.enrichContextWithLorebookForRpg(messageList, worldId, modelConfiguration);
 
         // Then
     }

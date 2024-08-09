@@ -8,6 +8,9 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigu
 
 public interface LorebookEnrichmentHelper {
 
+    Map<String, Object> enrichContextWithLorebookForRpg(List<DiscordMessageData> messagesExtracted, String worldId,
+            ModelConfigurationRequest modelConfiguration);
+
     Map<String, Object> enrichContextWithLorebook(List<DiscordMessageData> messagesExtracted, String worldId,
             ModelConfigurationRequest modelConfiguration);
 }
