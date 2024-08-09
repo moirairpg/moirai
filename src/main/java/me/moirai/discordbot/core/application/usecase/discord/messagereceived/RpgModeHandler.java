@@ -4,8 +4,8 @@ import java.util.List;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
+import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
-import me.moirai.discordbot.core.application.port.StoryGenerationPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
@@ -19,10 +19,10 @@ import reactor.core.publisher.Mono;
 public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeDto, Mono<Void>> {
 
     private final ChannelConfigRepository channelConfigRepository;
-    private final StoryGenerationPort storyGenerationPort;
+    private final StoryGenerationHelper storyGenerationPort;
     private final DiscordChannelPort discordChannelPort;
 
-    public RpgModeHandler(StoryGenerationPort storyGenerationPort,
+    public RpgModeHandler(StoryGenerationHelper storyGenerationPort,
             ChannelConfigRepository channelConfigRepository,
             DiscordChannelPort discordChannelPort) {
 

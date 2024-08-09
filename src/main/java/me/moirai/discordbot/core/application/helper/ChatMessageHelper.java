@@ -1,8 +1,8 @@
-package me.moirai.discordbot.core.application.port;
+package me.moirai.discordbot.core.application.helper;
 
 import java.util.Map;
 
-public interface ChatMessagePort {
+public interface ChatMessageHelper {
 
     Map<String, Object> addMessagesToContext(Map<String, Object> context, int reservedTokens);
 

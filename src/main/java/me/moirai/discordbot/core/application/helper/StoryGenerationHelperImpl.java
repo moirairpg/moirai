@@ -1,4 +1,4 @@
-package me.moirai.discordbot.infrastructure.outbound.adapter.moirai;
+package me.moirai.discordbot.core.application.helper;
 
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.ASSISTANT;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.USER;
@@ -12,8 +12,8 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
+import me.moirai.discordbot.common.annotation.Helper;
 import me.moirai.discordbot.common.exception.ModerationException;
 import me.moirai.discordbot.common.util.DefaultStringProcessors;
 import me.moirai.discordbot.common.util.StringProcessor;
@@ -21,9 +21,6 @@ import me.moirai.discordbot.core.application.model.request.ChatMessage;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
 import me.moirai.discordbot.core.application.model.result.TextGenerationResult;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
-import me.moirai.discordbot.core.application.port.LorebookEnrichmentPort;
-import me.moirai.discordbot.core.application.port.PersonaEnrichmentPort;
-import me.moirai.discordbot.core.application.port.StoryGenerationPort;
 import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
@@ -31,8 +28,8 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationCo
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
 import reactor.core.publisher.Mono;
 
-@Component
-public class StoryGenerationAdapter implements StoryGenerationPort {
+@Helper
+public class StoryGenerationHelperImpl implements StoryGenerationHelper {
 
     private static final String BUMP = "bump";
     private static final String LOREBOOK_ENTRIES = "lorebook";
@@ -48,21 +45,21 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
 
     private final DiscordChannelPort discordChannelPort;
     private final StorySummarizationPort summarizationPort;
-    private final LorebookEnrichmentPort commonLorebookEnrichmentHelperService;
-    private final PersonaEnrichmentPort personaEnrichmentPort;
+    private final LorebookEnrichmentHelper commonLorebookEnrichmentHelper;
+    private final PersonaEnrichmentHelper personaEnrichmentPort;
     private final TextCompletionPort textCompletionPort;
     private final TextModerationPort textModerationPort;
 
-    public StoryGenerationAdapter(StorySummarizationPort summarizationPort,
+    public StoryGenerationHelperImpl(StorySummarizationPort summarizationPort,
             DiscordChannelPort discordChannelPort,
-            LorebookEnrichmentPort commonLorebookEnrichmentHelperService,
-            PersonaEnrichmentPort personaEnrichmentPort,
+            LorebookEnrichmentHelper commonLorebookEnrichmentHelper,
+            PersonaEnrichmentHelper personaEnrichmentPort,
             TextCompletionPort textCompletionPort,
             TextModerationPort textModerationPort) {
 
         this.discordChannelPort = discordChannelPort;
         this.summarizationPort = summarizationPort;
-        this.commonLorebookEnrichmentHelperService = commonLorebookEnrichmentHelperService;
+        this.commonLorebookEnrichmentHelper = commonLorebookEnrichmentHelper;
         this.personaEnrichmentPort = personaEnrichmentPort;
         this.textCompletionPort = textCompletionPort;
         this.textModerationPort = textModerationPort;
@@ -72,7 +69,7 @@ public class StoryGenerationAdapter implements StoryGenerationPort {
     public Mono<Void> continueStory(StoryGenerationRequest request) {
 
         return Mono.just(request.getMessageHistory())
-                .map(messageHistory -> commonLorebookEnrichmentHelperService.enrichContextWithLorebook(messageHistory,
+                .map(messageHistory -> commonLorebookEnrichmentHelper.enrichContextWithLorebook(messageHistory,
                         request.getWorldId(), request.getModelConfiguration()))
                 .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook,
                         request.getModelConfiguration()))

@@ -2,19 +2,17 @@ package me.moirai.discordbot.core.application.helper;
 
 import java.util.Map;
 
-import me.moirai.discordbot.common.annotation.HelperService;
+import me.moirai.discordbot.common.annotation.Helper;
 import me.moirai.discordbot.common.util.DefaultStringProcessors;
 import me.moirai.discordbot.common.util.StringProcessor;
-import me.moirai.discordbot.core.application.port.ChatMessagePort;
-import me.moirai.discordbot.core.application.port.PersonaEnrichmentPort;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.core.domain.persona.PersonaService;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import reactor.core.publisher.Mono;
 
-@HelperService
-public class PersonaEnrichmentHelperService implements PersonaEnrichmentPort {
+@Helper
+public class PersonaEnrichmentHelperImpl implements PersonaEnrichmentHelper {
 
     private static final String PERSONA_DESCRIPTION = "[ DEBUG MODE ON: You are an actor interpreting the role of {name}. {name}'s persona is as follows, and you are to maintain character during this conversation: %s ]";
     private static final String PERSONA = "persona";
@@ -22,10 +20,10 @@ public class PersonaEnrichmentHelperService implements PersonaEnrichmentPort {
 
     private final TokenizerPort tokenizerPort;
     private final PersonaService personaService;
-    private final ChatMessagePort chatMessageService;
+    private final ChatMessageHelper chatMessageService;
 
-    public PersonaEnrichmentHelperService(TokenizerPort tokenizerPort, PersonaService personaService,
-            ChatMessagePort chatMessageService) {
+    public PersonaEnrichmentHelperImpl(TokenizerPort tokenizerPort, PersonaService personaService,
+            ChatMessageHelper chatMessageService) {
 
         this.tokenizerPort = tokenizerPort;
         this.personaService = personaService;

@@ -15,10 +15,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.micrometer.common.util.StringUtils;
-import me.moirai.discordbot.common.annotation.HelperService;
+import me.moirai.discordbot.common.annotation.Helper;
 import me.moirai.discordbot.common.util.StringProcessor;
-import me.moirai.discordbot.core.application.port.ChatMessagePort;
-import me.moirai.discordbot.core.application.port.LorebookEnrichmentPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
@@ -26,8 +24,8 @@ import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 
-@HelperService("rpgLorebookEnrichmentHelperService")
-public class RpgLorebookEnrichmentHelperService implements LorebookEnrichmentPort {
+@Helper("rpgLorebookEnrichmentHelper")
+public class RpgLorebookEnrichmentHelperImpl implements LorebookEnrichmentHelper {
 
     private static final String ENTRY_DESCRIPTION = "[ Description of %s: %s ]";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
@@ -35,12 +33,12 @@ public class RpgLorebookEnrichmentHelperService implements LorebookEnrichmentPor
 
     private final TokenizerPort tokenizerPort;
     private final WorldService worldService;
-    private final ChatMessagePort chatMessageService;
+    private final ChatMessageHelper chatMessageService;
 
-    public RpgLorebookEnrichmentHelperService(
+    public RpgLorebookEnrichmentHelperImpl(
             TokenizerPort tokenizerPort,
             WorldService worldService,
-            ChatMessagePort chatMessageService) {
+            ChatMessageHelper chatMessageService) {
 
         this.tokenizerPort = tokenizerPort;
         this.worldService = worldService;

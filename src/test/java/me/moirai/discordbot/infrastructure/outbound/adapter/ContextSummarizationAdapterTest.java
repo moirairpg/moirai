@@ -24,9 +24,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.discordbot.core.application.helper.ChatMessageHelper;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
 import me.moirai.discordbot.core.application.model.result.TextGenerationResultFixture;
-import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
@@ -52,7 +52,7 @@ public class ContextSummarizationAdapterTest {
     private TokenizerPort tokenizerPort;
 
     @Mock
-    private ChatMessagePort chatMessageService;
+    private ChatMessageHelper chatMessageService;
 
     @InjectMocks
     private StorySummarizationAdapter service;

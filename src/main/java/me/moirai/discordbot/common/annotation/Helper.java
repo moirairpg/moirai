@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-public @interface HelperService {
+public @interface Helper {
 
     @AliasFor(annotation = Service.class, attribute = "value")
     String value() default "";

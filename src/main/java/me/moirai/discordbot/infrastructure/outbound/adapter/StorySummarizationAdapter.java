@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import me.moirai.discordbot.core.application.helper.ChatMessageHelper;
 import me.moirai.discordbot.core.application.model.request.ChatMessage;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
-import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
@@ -37,10 +37,10 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
 
     private final TextCompletionPort openAiPort;
     private final TokenizerPort tokenizerPort;
-    private final ChatMessagePort chatMessageService;
+    private final ChatMessageHelper chatMessageService;
 
     public StorySummarizationAdapter(TextCompletionPort openAiPort, TokenizerPort tokenizerPort,
-            ChatMessagePort chatMessageService) {
+            ChatMessageHelper chatMessageService) {
 
         this.openAiPort = openAiPort;
         this.tokenizerPort = tokenizerPort;

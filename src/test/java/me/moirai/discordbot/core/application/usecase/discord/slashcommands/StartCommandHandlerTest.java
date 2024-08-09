@@ -14,8 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import me.moirai.discordbot.AbstractDiscordTest;
+import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
-import me.moirai.discordbot.core.application.port.StoryGenerationPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageDataFixture;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
@@ -36,7 +36,7 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
     private WorldRepository worldRepository;
 
     @Mock
-    private StoryGenerationPort storyGenerationPort;
+    private StoryGenerationHelper storyGenerationPort;
 
     @Mock
     private DiscordChannelPort discordChannelPort;

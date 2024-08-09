@@ -21,13 +21,13 @@ import me.moirai.discordbot.core.domain.port.TokenizerPort;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
-public class ChatMessageHelperServiceTest {
+public class ChatMessageHelperImplTest {
 
     @Mock
     private TokenizerPort tokenizerPort;
 
     @InjectMocks
-    private ChatMessageHelperService service;
+    private ChatMessageHelperImpl service;
 
     @Test
     public void addMessagesToContext_whenEnoughTokensAndAssetDefined_thenMessagesAreAdded() {

@@ -1,4 +1,4 @@
-package me.moirai.discordbot.infrastructure.outbound.adapter.moirai;
+package me.moirai.discordbot.core.application.helper;
 
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.SYSTEM;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,8 +31,6 @@ import me.moirai.discordbot.core.application.model.result.TextGenerationResultFi
 import me.moirai.discordbot.core.application.model.result.TextModerationResult;
 import me.moirai.discordbot.core.application.model.result.TextModerationResultFixture;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
-import me.moirai.discordbot.core.application.port.LorebookEnrichmentPort;
-import me.moirai.discordbot.core.application.port.PersonaEnrichmentPort;
 import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
@@ -44,16 +42,16 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class StoryGenerationAdapterTest {
+public class StoryGenerationHelperImplTest {
 
     @Mock
-    private LorebookEnrichmentPort commonLorebookEnrichmentHelperService;
+    private LorebookEnrichmentHelper commonLorebookEnrichmentHelper;
 
     @Mock
     private StorySummarizationPort summarizationPort;
 
     @Mock
-    private PersonaEnrichmentPort personaEnrichmentPort;
+    private PersonaEnrichmentHelper personaEnrichmentPort;
 
     @Mock
     private DiscordChannelPort discordChannelOperationsPort;
@@ -68,7 +66,7 @@ public class StoryGenerationAdapterTest {
     private ArgumentCaptor<TextGenerationRequest> textGenerationRequestCaptor;
 
     @InjectMocks
-    private StoryGenerationAdapter adapter;
+    private StoryGenerationHelperImpl adapter;
 
     @Test
     void givenValidMessage_whenExecute_thenShouldProcessAndSendResponse() {
@@ -104,7 +102,7 @@ public class StoryGenerationAdapterTest {
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
                 .thenReturn(Mono.just(context));
 
-        when(commonLorebookEnrichmentHelperService.enrichContextWithLorebook(anyList(), anyString(),
+        when(commonLorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
                 any(ModelConfigurationRequest.class)))
                 .thenReturn(context);
 
@@ -191,7 +189,7 @@ public class StoryGenerationAdapterTest {
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
                 .thenReturn(Mono.just(context));
 
-        when(commonLorebookEnrichmentHelperService.enrichContextWithLorebook(anyList(), anyString(),
+        when(commonLorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
                 any(ModelConfigurationRequest.class)))
                 .thenReturn(context);
 
@@ -248,7 +246,7 @@ public class StoryGenerationAdapterTest {
         when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
                 .thenReturn(Mono.just(context));
 
-        when(commonLorebookEnrichmentHelperService.enrichContextWithLorebook(anyList(), anyString(),
+        when(commonLorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
                 any(ModelConfigurationRequest.class)))
                 .thenReturn(context);
 

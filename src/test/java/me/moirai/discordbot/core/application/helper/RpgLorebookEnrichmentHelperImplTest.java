@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
@@ -22,7 +21,7 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigu
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequestFixture;
 
 @ExtendWith(MockitoExtension.class)
-public class RpgLorebookEnrichmentHelperServiceTest {
+public class RpgLorebookEnrichmentHelperImplTest {
 
     @Mock
     private TokenizerPort tokenizerPort;
@@ -31,10 +30,10 @@ public class RpgLorebookEnrichmentHelperServiceTest {
     private WorldService worldService;
 
     @Mock
-    private ChatMessagePort chatMessageService;
+    private ChatMessageHelper chatMessageService;
 
     @InjectMocks
-    private RpgLorebookEnrichmentHelperService adapter;
+    private RpgLorebookEnrichmentHelperImpl adapter;
 
     @Test
     void enrichContextWithLorebook_whenMessagesAreValid_thenReturnContextWithProcessedPlayerEntries() {

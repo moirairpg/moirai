@@ -1,9 +1,9 @@
-package me.moirai.discordbot.core.application.port;
+package me.moirai.discordbot.core.application.helper;
 
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
 import reactor.core.publisher.Mono;
 
-public interface StoryGenerationPort {
+public interface StoryGenerationHelper {
 
     Mono<Void> continueStory(StoryGenerationRequest useCase);
 }

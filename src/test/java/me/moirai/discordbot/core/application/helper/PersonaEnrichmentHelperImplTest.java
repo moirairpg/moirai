@@ -17,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.core.domain.persona.PersonaFixture;
 import me.moirai.discordbot.core.domain.persona.PersonaService;
@@ -28,7 +27,7 @@ import reactor.test.StepVerifier;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
-public class PersonaEnrichmentHelperServiceTest {
+public class PersonaEnrichmentHelperImplTest {
 
     @Mock
     private TokenizerPort tokenizerPort;
@@ -37,10 +36,10 @@ public class PersonaEnrichmentHelperServiceTest {
     private PersonaService personaService;
 
     @Mock
-    private ChatMessagePort chatMessageService;
+    private ChatMessageHelper chatMessageService;
 
     @InjectMocks
-    private PersonaEnrichmentHelperService service;
+    private PersonaEnrichmentHelperImpl service;
 
     @Test
     public void enrichWithPersona_whenSufficientTokens_addPersonaAndMessages() {

@@ -10,21 +10,20 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.collections4.ListUtils;
 
-import me.moirai.discordbot.common.annotation.HelperService;
-import me.moirai.discordbot.core.application.port.ChatMessagePort;
+import me.moirai.discordbot.common.annotation.Helper;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 
-@HelperService
+@Helper
 @SuppressWarnings("unchecked")
-public class ChatMessageHelperService implements ChatMessagePort {
+public class ChatMessageHelperImpl implements ChatMessageHelper {
 
     private static final String MESSAGE_HISTORY = "messageHistory";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
 
     private final TokenizerPort tokenizerPort;
 
-    public ChatMessageHelperService(TokenizerPort tokenizerPort) {
+    public ChatMessageHelperImpl(TokenizerPort tokenizerPort) {
         this.tokenizerPort = tokenizerPort;
     }
 
