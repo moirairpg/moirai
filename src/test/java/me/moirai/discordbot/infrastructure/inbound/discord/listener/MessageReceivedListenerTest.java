@@ -1,6 +1,5 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
-import static me.moirai.discordbot.core.domain.channelconfig.GameMode.CHAT;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,7 +10,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,9 +17,8 @@ import org.mockito.Mock;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
-import me.moirai.discordbot.core.application.usecase.discord.messagereceived.MessageReceived;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
+import me.moirai.discordbot.core.application.helper.ChannelConfigHelper;
+import me.moirai.discordbot.core.application.usecase.discord.messagereceived.ChatModeRequest;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -34,7 +31,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
     private UseCaseRunner useCaseRunner;
 
     @Mock
-    private ChannelConfigRepository channelConfigRepository;
+    private ChannelConfigHelper channelConfigHelper;
 
     @InjectMocks
     private MessageReceivedListener listener;
@@ -50,6 +47,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         String username = "user.name";
         String nickname = "nickname";
         String messageContent = "content";
+        String gameMode = "CHAT";
 
         MessageReceivedEvent event = mock(MessageReceivedEvent.class);
         Mentions mentions = mock(Mentions.class);
@@ -72,12 +70,11 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(message.getId()).thenReturn(messageId);
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
-        when(channelConfigRepository.findByDiscordChannelId(anyString()))
-                .thenReturn(Optional.of(ChannelConfigFixture.sample().gameMode(CHAT).build()));
+        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));
 
-        when(useCaseRunner.run(any(MessageReceived.class))).thenReturn(useCaseResult);
+        when(useCaseRunner.run(any(ChatModeRequest.class))).thenReturn(useCaseResult);
 
         // When
         listener.onMessageReceived(event);
@@ -99,6 +96,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         String username = "user.name";
         String nickname = null;
         String messageContent = "content";
+        String gameMode = "CHAT";
 
         MessageReceivedEvent event = mock(MessageReceivedEvent.class);
         Mentions mentions = mock(Mentions.class);
@@ -121,12 +119,11 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(message.getId()).thenReturn(messageId);
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
-        when(channelConfigRepository.findByDiscordChannelId(anyString()))
-                .thenReturn(Optional.of(ChannelConfigFixture.sample().gameMode(CHAT).build()));
+        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));
 
-        when(useCaseRunner.run(any(MessageReceived.class))).thenReturn(useCaseResult);
+        when(useCaseRunner.run(any(ChatModeRequest.class))).thenReturn(useCaseResult);
 
         // When
         listener.onMessageReceived(event);
@@ -144,6 +141,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         String guildId = "GDID";
         String channelId = "CHID";
         String messageContent = "content";
+        String gameMode = "CHAT";
 
         MessageReceivedEvent event = mock(MessageReceivedEvent.class);
         Mentions mentions = mock(Mentions.class);
@@ -162,8 +160,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(mentions.getMembers()).thenReturn(Collections.emptyList());
         when(member.getUser()).thenReturn(user);
         when(user.isBot()).thenReturn(true);
-        when(channelConfigRepository.findByDiscordChannelId(anyString()))
-                .thenReturn(Optional.of(ChannelConfigFixture.sample().gameMode(CHAT).build()));
+        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
 
         // When
         listener.onMessageReceived(event);
@@ -178,6 +175,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         // Given
         String guildId = "GDID";
         String channelId = "CHID";
+        String gameMode = "CHAT";
 
         MessageReceivedEvent event = mock(MessageReceivedEvent.class);
         Mentions mentions = mock(Mentions.class);
@@ -196,8 +194,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(mentions.getMembers()).thenReturn(Collections.emptyList());
         when(member.getUser()).thenReturn(user);
         when(user.isBot()).thenReturn(false);
-        when(channelConfigRepository.findByDiscordChannelId(anyString()))
-                .thenReturn(Optional.of(ChannelConfigFixture.sample().gameMode(CHAT).build()));
+        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
 
         // When
         listener.onMessageReceived(event);

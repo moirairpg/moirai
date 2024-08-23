@@ -37,7 +37,7 @@ public class PersonaEnrichmentHelperImpl implements PersonaEnrichmentHelper {
         int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
         int reservedTokensForPersona = (int) Math.floor(totalTokens * 0.20);
 
-        return Mono.just(personaService.getPersonaById(personaId))
+        return Mono.just(personaService.getById(personaId))
                 .map(persona -> addPersonaToContext(persona, context, reservedTokensForPersona))
                 .map(ctx -> chatMessageService.addMessagesToContext(ctx, reservedTokensForPersona));
     }

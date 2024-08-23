@@ -17,20 +17,20 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageDataFixture;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class MessageReceivedHandlerTest {
+public class ChatModeHandlerTest {
 
     @Mock
-    private ChannelConfigRepository channelConfigRepository;
+    private ChannelConfigQueryRepository channelConfigRepository;
 
     @Mock
     private DiscordChannelPort discordChannelPort;
@@ -39,7 +39,7 @@ public class MessageReceivedHandlerTest {
     private StoryGenerationHelper storyGenerationPort;
 
     @InjectMocks
-    private MessageReceivedHandler handler;
+    private ChatModeHandler handler;
 
     @Test
     public void messageReceived_whenMessageIsReceived_thenGenerateOutput() {
@@ -51,7 +51,7 @@ public class MessageReceivedHandlerTest {
                 .discordChannelId(channelId)
                 .build();
 
-        MessageReceived useCase = MessageReceived.builder()
+        ChatModeRequest useCase = ChatModeRequest.builder()
                 .authordDiscordId("John")
                 .botUsername("TestBot")
                 .isBotMentioned(false)

@@ -5,10 +5,10 @@ import java.util.List;
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
@@ -21,12 +21,12 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
     private static final String COMMAND_ONLY_WHEN_LAST_MESSAGE_BY_BOT = "This command can only be used if the last message in channel was sent by the bot.";
 
     private final DiscordChannelPort discordChannelPort;
-    private final ChannelConfigRepository channelConfigRepository;
     private final StoryGenerationHelper storyGenerationPort;
+    private final ChannelConfigQueryRepository channelConfigRepository;
 
     public RetryGenerationHandler(DiscordChannelPort discordChannelPort,
             StoryGenerationHelper storyGenerationPort,
-            ChannelConfigRepository channelConfigRepository) {
+            ChannelConfigQueryRepository channelConfigRepository) {
 
         this.discordChannelPort = discordChannelPort;
         this.channelConfigRepository = channelConfigRepository;

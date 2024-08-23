@@ -10,15 +10,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.discordbot.core.application.port.PersonaQueryRepository;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.persona.result.SearchPersonasResult;
-import me.moirai.discordbot.core.domain.persona.PersonaRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class SearchPersonasWithReadAccessHandlerTest {
 
     @Mock
-    private PersonaRepository repository;
+    private PersonaQueryRepository repository;
 
     @InjectMocks
     private SearchPersonasWithReadAccessHandler handler;

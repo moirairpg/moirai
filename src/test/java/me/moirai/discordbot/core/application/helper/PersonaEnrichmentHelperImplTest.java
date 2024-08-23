@@ -53,7 +53,7 @@ public class PersonaEnrichmentHelperImplTest {
                 "[ DEBUG MODE ON: You are an actor interpreting the role of %s. %s's persona is as follows, and you are to maintain character during this conversation: %s ]",
                 persona.getName(), persona.getName(), persona.getPersonality());
 
-        when(personaService.getPersonaById(anyString())).thenReturn(persona);
+        when(personaService.getById(anyString())).thenReturn(persona);
         when(tokenizerPort.getTokenCountFrom(anyString())).thenReturn(100);
 
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt()))
@@ -83,7 +83,7 @@ public class PersonaEnrichmentHelperImplTest {
                 "[ DEBUG MODE ON: You are an actor interpreting the role of %s. %s's persona is as follows, and you are to maintain character during this conversation: %s ]",
                 persona.getName(), persona.getName(), persona.getPersonality());
 
-        when(personaService.getPersonaById(anyString())).thenReturn(persona);
+        when(personaService.getById(anyString())).thenReturn(persona);
         when(tokenizerPort.getTokenCountFrom(anyString()))
                 .thenReturn(100)
                 .thenReturn(100)
@@ -112,7 +112,7 @@ public class PersonaEnrichmentHelperImplTest {
         ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
         Map<String, Object> context = contextWithSummaryAndMessages(5);
 
-        when(personaService.getPersonaById(anyString())).thenReturn(persona);
+        when(personaService.getById(anyString())).thenReturn(persona);
         when(tokenizerPort.getTokenCountFrom(anyString()))
                 .thenReturn(100000)
                 .thenReturn(100);

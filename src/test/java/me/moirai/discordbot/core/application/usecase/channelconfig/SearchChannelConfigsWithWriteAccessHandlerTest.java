@@ -10,15 +10,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.SearchChannelConfigsResult;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class SearchChannelConfigsWithWriteAccessHandlerTest {
 
     @Mock
-    private ChannelConfigRepository repository;
+    private ChannelConfigQueryRepository repository;
 
     @InjectMocks
     private SearchChannelConfigsWithWriteAccessHandler handler;

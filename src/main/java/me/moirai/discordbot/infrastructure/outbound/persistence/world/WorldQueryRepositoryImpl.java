@@ -14,16 +14,16 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.criteria.Predicate;
+import me.moirai.discordbot.core.application.port.WorldQueryRepository;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldsResult;
 import me.moirai.discordbot.core.domain.world.World;
-import me.moirai.discordbot.core.domain.world.WorldRepository;
 import me.moirai.discordbot.infrastructure.outbound.persistence.mapper.WorldPersistenceMapper;
-import jakarta.persistence.criteria.Predicate;
 
 @Repository
-public class WorldRepositoryImpl implements WorldRepository {
+public class WorldQueryRepositoryImpl implements WorldQueryRepository {
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_ITEMS = 10;
@@ -32,18 +32,11 @@ public class WorldRepositoryImpl implements WorldRepository {
     private final WorldJpaRepository jpaRepository;
     private final WorldPersistenceMapper mapper;
 
-    public WorldRepositoryImpl(WorldJpaRepository jpaRepository, WorldPersistenceMapper mapper) {
+    public WorldQueryRepositoryImpl(WorldJpaRepository jpaRepository, 
+    WorldPersistenceMapper mapper) {
 
         this.jpaRepository = jpaRepository;
         this.mapper = mapper;
-    }
-
-    @Override
-    public World save(World world) {
-
-        WorldEntity entity = mapper.mapToEntity(world);
-
-        return mapper.mapFromEntity(jpaRepository.save(entity));
     }
 
     @Override
@@ -51,12 +44,6 @@ public class WorldRepositoryImpl implements WorldRepository {
 
         return jpaRepository.findById(id)
                 .map(mapper::mapFromEntity);
-    }
-
-    @Override
-    public void deleteById(String id) {
-
-        jpaRepository.deleteById(id);
     }
 
     @Override

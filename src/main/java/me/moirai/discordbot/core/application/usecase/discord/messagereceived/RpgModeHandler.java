@@ -5,10 +5,10 @@ import java.util.List;
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
@@ -16,14 +16,14 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerat
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
-public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeDto, Mono<Void>> {
+public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeRequest, Mono<Void>> {
 
-    private final ChannelConfigRepository channelConfigRepository;
     private final StoryGenerationHelper storyGenerationPort;
+    private final ChannelConfigQueryRepository channelConfigRepository;
     private final DiscordChannelPort discordChannelPort;
 
     public RpgModeHandler(StoryGenerationHelper storyGenerationPort,
-            ChannelConfigRepository channelConfigRepository,
+            ChannelConfigQueryRepository channelConfigRepository,
             DiscordChannelPort discordChannelPort) {
 
         this.channelConfigRepository = channelConfigRepository;
@@ -32,7 +32,7 @@ public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeDto, Mono<Void
     }
 
     @Override
-    public Mono<Void> execute(RpgModeDto query) {
+    public Mono<Void> execute(RpgModeRequest query) {
 
         return channelConfigRepository.findByDiscordChannelId(query.getChannelId())
                 .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getChannelId()))
@@ -43,7 +43,7 @@ public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeDto, Mono<Void
                 .orElseGet(() -> Mono.empty());
     }
 
-    private StoryGenerationRequest buildGenerationRequest(RpgModeDto useCase, ChannelConfig channelConfig) {
+    private StoryGenerationRequest buildGenerationRequest(RpgModeRequest useCase, ChannelConfig channelConfig) {
 
         AiModelRequest aiModel = AiModelRequest
                 .build(channelConfig.getModelConfiguration().getAiModel().getInternalModelName(),

@@ -5,10 +5,10 @@ import java.util.List;
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
@@ -16,14 +16,14 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerat
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
-public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceived, Mono<Void>> {
+public class ChatModeHandler extends AbstractUseCaseHandler<ChatModeRequest, Mono<Void>> {
 
-    private final ChannelConfigRepository channelConfigRepository;
     private final StoryGenerationHelper storyGenerationPort;
+    private final ChannelConfigQueryRepository channelConfigRepository;
     private final DiscordChannelPort discordChannelPort;
 
-    public MessageReceivedHandler(StoryGenerationHelper storyGenerationPort,
-            ChannelConfigRepository channelConfigRepository,
+    public ChatModeHandler(StoryGenerationHelper storyGenerationPort,
+            ChannelConfigQueryRepository channelConfigRepository,
             DiscordChannelPort discordChannelPort) {
 
         this.channelConfigRepository = channelConfigRepository;
@@ -32,7 +32,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
     }
 
     @Override
-    public Mono<Void> execute(MessageReceived query) {
+    public Mono<Void> execute(ChatModeRequest query) {
 
         return channelConfigRepository.findByDiscordChannelId(query.getChannelId())
                 .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getChannelId()))
@@ -43,7 +43,7 @@ public class MessageReceivedHandler extends AbstractUseCaseHandler<MessageReceiv
                 .orElseGet(() -> Mono.empty());
     }
 
-    private StoryGenerationRequest buildGenerationRequest(MessageReceived useCase, ChannelConfig channelConfig) {
+    private StoryGenerationRequest buildGenerationRequest(ChatModeRequest useCase, ChannelConfig channelConfig) {
 
         AiModelRequest aiModel = AiModelRequest
                 .build(channelConfig.getModelConfiguration().getAiModel().getInternalModelName(),

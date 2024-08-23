@@ -5,13 +5,10 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
-import me.moirai.discordbot.core.application.usecase.discord.messagereceived.MessageReceived;
-import me.moirai.discordbot.core.application.usecase.discord.messagereceived.RpgModeDto;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
-import me.moirai.discordbot.core.domain.channelconfig.GameMode;
+import me.moirai.discordbot.core.application.helper.ChannelConfigHelper;
+import me.moirai.discordbot.core.application.usecase.discord.messagereceived.ChatModeRequest;
+import me.moirai.discordbot.core.application.usecase.discord.messagereceived.RpgModeRequest;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -21,13 +18,13 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class MessageReceivedListener extends ListenerAdapter {
 
     private final UseCaseRunner useCaseRunner;
-    private final ChannelConfigRepository channelConfigRepository;
+    private final ChannelConfigHelper channelConfigHelper;
 
     public MessageReceivedListener(UseCaseRunner useCaseRunner,
-            ChannelConfigRepository channelConfigRepository) {
+            ChannelConfigHelper channelConfigHelper) {
 
         this.useCaseRunner = useCaseRunner;
-        this.channelConfigRepository = channelConfigRepository;
+        this.channelConfigHelper = channelConfigHelper;
     }
 
     @Override
@@ -45,18 +42,15 @@ public class MessageReceivedListener extends ListenerAdapter {
         String guildId = event.getGuild().getId();
         String channelId = event.getChannel().getId();
         String messageContent = message.getContentRaw();
-
-        GameMode gameMode = channelConfigRepository.findByDiscordChannelId(channelId)
-                .map(ChannelConfig::getGameMode)
-                .orElseThrow(() -> new AssetNotFoundException("Channel config not found for this channel"));
+        String gameMode = channelConfigHelper.getGameModeByDiscordChannelId(channelId);
 
         if (StringUtils.isNotBlank(messageContent) && !author.getUser().isBot()) {
             String botUsername = bot.getUser().getName();
             String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname() : botUsername;
 
             switch (gameMode) {
-                case CHAT -> {
-                    MessageReceived request = MessageReceived.builder()
+                case "CHAT" -> {
+                    ChatModeRequest request = ChatModeRequest.builder()
                             .authordDiscordId(author.getId())
                             .channelId(channelId)
                             .messageId(message.getId())
@@ -69,8 +63,8 @@ public class MessageReceivedListener extends ListenerAdapter {
 
                     useCaseRunner.run(request).subscribe();
                 }
-                case RPG -> {
-                    RpgModeDto request = RpgModeDto.builder()
+                case "RPG" -> {
+                    RpgModeRequest request = RpgModeRequest.builder()
                             .authordDiscordId(author.getId())
                             .channelId(channelId)
                             .messageId(message.getId())

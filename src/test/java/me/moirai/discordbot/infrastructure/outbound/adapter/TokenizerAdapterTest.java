@@ -3,10 +3,11 @@ package me.moirai.discordbot.infrastructure.outbound.adapter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeResult;
 
 public class TokenizerAdapterTest {
 
@@ -33,20 +34,6 @@ public class TokenizerAdapterTest {
     }
 
     @Test
-    void extractTokenIdsFromMultipleInputs() {
-
-        // Given
-        long[] expectedTokenIds = { 1212, 318, 257, 1332, 13, 1212, 318, 691, 257, 1332, 13 };
-        String[] textsToTokenize = { "This is a test.", "This is only a test." };
-
-        // When
-        long[] returnedTokenIds = tokenizer.getTokensIdsFrom(textsToTokenize);
-
-        // Then
-        assertThat(expectedTokenIds).isEqualTo(returnedTokenIds);
-    }
-
-    @Test
     public void countTokensFromSingleInput() {
 
         // Given
@@ -55,20 +42,6 @@ public class TokenizerAdapterTest {
 
         // When
         int tokenCount = tokenizer.getTokenCountFrom(textToTokenize);
-
-        // Then
-        assertThat(expectedTokenCount).isEqualTo(tokenCount);
-    }
-
-    @Test
-    public void countTokensFromMultipleInputs() {
-
-        // Given
-        String[] textsToTokenize = { "This is a test.", "This is only a test." };
-        int expectedTokenCount = 11;
-
-        // When
-        int tokenCount = tokenizer.getTokenCountFrom(textsToTokenize);
 
         // Then
         assertThat(expectedTokenCount).isEqualTo(tokenCount);
@@ -103,35 +76,7 @@ public class TokenizerAdapterTest {
     }
 
     @Test
-    public void countTokens_whenNullTextArray_returnsZero() {
-
-        // Given
-        String[] textsToTokenize = null;
-        int expectedTokenCount = 0;
-
-        // When
-        int tokenCount = tokenizer.getTokenCountFrom(textsToTokenize);
-
-        // Then
-        assertThat(expectedTokenCount).isEqualTo(tokenCount);
-    }
-
-    @Test
-    public void countTokens_whenEmptyTextArray_returnsZero() {
-
-        // Given
-        String[] textsToTokenize = {};
-        int expectedTokenCount = 0;
-
-        // When
-        int tokenCount = tokenizer.getTokenCountFrom(textsToTokenize);
-
-        // Then
-        assertThat(expectedTokenCount).isEqualTo(tokenCount);
-    }
-
-    @Test
-    public void tokenizeEnglishText() throws UnsupportedEncodingException {
+    public void tokenizeEnglishText() {
 
         // Given
         String englishText = "This is a test in English.";
@@ -145,7 +90,7 @@ public class TokenizerAdapterTest {
     }
 
     @Test
-    public void tokenizeNonEnglishText() throws UnsupportedEncodingException {
+    public void tokenizeNonEnglishText() {
 
         // Given
         String englishText = "Este é um teste num idioma não-inglês.";
@@ -156,5 +101,26 @@ public class TokenizerAdapterTest {
 
         // Then
         assertThat(expectedTokenizedText).isEqualTo(tokenizedText);
+    }
+
+    @Test
+    public void tokenizeForCompleteOutput() {
+
+        // Given
+        String textToTokenize = "This is a test.";
+        long[] expectedTokenIds = { 1212, 318, 257, 1332, 13 };
+        String expectedTokenizedText = "This| is| a| test|.";
+        int expectedTokenCount = 5;
+        int length = textToTokenize.length();
+
+        // When
+        TokenizeResult result = tokenizer.tokenize(textToTokenize);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getCharacterCount()).isEqualTo(length);
+        assertThat(result.getTokenIds()).isEqualTo(expectedTokenIds);
+        assertThat(result.getTokens()).isEqualTo(expectedTokenizedText);
+        assertThat(result.getTokenCount()).isEqualTo(expectedTokenCount);
     }
 }

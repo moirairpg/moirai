@@ -1,25 +1,35 @@
 package me.moirai.discordbot.core.application.usecase.persona;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
+import me.moirai.discordbot.common.exception.AssetAccessDeniedException;
+import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
+import me.moirai.discordbot.core.application.port.PersonaQueryRepository;
 import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
 import me.moirai.discordbot.core.application.usecase.persona.result.GetPersonaResult;
 import me.moirai.discordbot.core.domain.persona.Persona;
-import me.moirai.discordbot.core.domain.persona.PersonaService;
 
 @UseCaseHandler
 public class GetPersonaByIdHandler extends AbstractUseCaseHandler<GetPersonaById, GetPersonaResult> {
 
-    private final PersonaService domainService;
+    private static final String PERSONA_NOT_FOUND = "Persona was not found";
+    private static final String PERMISSION_VIEW_DENIED = "User does not have permission to view this persona";
 
-    public GetPersonaByIdHandler(PersonaService domainService) {
-        this.domainService = domainService;
+    private final PersonaQueryRepository queryRepository;
+
+    public GetPersonaByIdHandler(PersonaQueryRepository queryRepository) {
+        this.queryRepository = queryRepository;
     }
 
     @Override
     public GetPersonaResult execute(GetPersonaById query) {
 
-        Persona persona = domainService.getPersonaById(query);
+        Persona persona = queryRepository.findById(query.getId())
+                .orElseThrow(() -> new AssetNotFoundException(PERSONA_NOT_FOUND));
+
+        if (!persona.canUserRead(query.getRequesterDiscordId())) {
+            throw new AssetAccessDeniedException(PERMISSION_VIEW_DENIED);
+        }
 
         return mapResult(persona);
     }

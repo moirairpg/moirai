@@ -2,11 +2,11 @@ package me.moirai.discordbot.core.application.usecase.discord.messagereceived;
 
 import java.util.Collections;
 
-public class MessageReceivedFixture {
+public class ChatModeRequestFixture {
 
-    public static MessageReceived.Builder create() {
+    public static ChatModeRequest.Builder create() {
 
-        return MessageReceived.builder()
+        return ChatModeRequest.builder()
                 .authordDiscordId("John")
                 .botUsername("TestBot")
                 .botNickname("BotNickname")

@@ -5,10 +5,10 @@ import java.util.List;
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
@@ -18,12 +18,12 @@ import reactor.core.publisher.Mono;
 @UseCaseHandler
 public class GenerateOutputHandler extends AbstractUseCaseHandler<GenerateOutput, Mono<Void>> {
 
-    private final ChannelConfigRepository channelConfigRepository;
+    private final ChannelConfigQueryRepository channelConfigRepository;
     private final StoryGenerationHelper storyGenerationPort;
     private final DiscordChannelPort discordChannelPort;
 
     public GenerateOutputHandler(StoryGenerationHelper storyGenerationPort,
-            ChannelConfigRepository channelConfigRepository,
+            ChannelConfigQueryRepository channelConfigRepository,
             DiscordChannelPort discordChannelPort) {
 
         this.channelConfigRepository = channelConfigRepository;

@@ -12,18 +12,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import me.moirai.discordbot.AbstractIntegrationTest;
+import me.moirai.discordbot.core.application.port.PersonaQueryRepository;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.persona.result.GetPersonaResult;
 import me.moirai.discordbot.core.application.usecase.persona.result.SearchPersonasResult;
 import me.moirai.discordbot.core.domain.persona.Persona;
-import me.moirai.discordbot.core.domain.persona.PersonaFixture;
-import me.moirai.discordbot.core.domain.persona.PersonaRepository;
 
-public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTest {
+public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
-    private PersonaRepository repository;
+    private PersonaQueryRepository repository;
 
     @Autowired
     private PersonaJpaRepository jpaRepository;
@@ -34,41 +33,10 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
     }
 
     @Test
-    public void createPersona() {
-
-        // Given
-        Persona persona = PersonaFixture.privatePersona()
-                .id(null)
-                .build();
-
-        // When
-        Persona createdPersona = repository.save(persona);
-
-        // Then
-        assertThat(createdPersona).isNotNull();
-
-        assertThat(createdPersona.getCreationDate()).isNotNull();
-        assertThat(createdPersona.getLastUpdateDate()).isNotNull();
-
-        assertThat(createdPersona.getName()).isEqualTo(persona.getName());
-        assertThat(createdPersona.getPersonality()).isEqualTo(persona.getPersonality());
-        assertThat(createdPersona.getVisibility()).isEqualTo(persona.getVisibility());
-        assertThat(createdPersona.getUsersAllowedToWrite()).hasSameElementsAs(persona.getUsersAllowedToWrite());
-        assertThat(createdPersona.getUsersAllowedToRead()).hasSameElementsAs(persona.getUsersAllowedToRead());
-
-        assertThat(createdPersona.getBump().getContent()).isEqualTo(persona.getBump().getContent());
-        assertThat(createdPersona.getBump().getRole()).isEqualTo(persona.getBump().getRole());
-        assertThat(createdPersona.getBump().getFrequency()).isEqualTo(persona.getBump().getFrequency());
-
-        assertThat(createdPersona.getNudge().getContent()).isEqualTo(persona.getNudge().getContent());
-        assertThat(createdPersona.getNudge().getRole()).isEqualTo(persona.getNudge().getRole());
-    }
-
-    @Test
     public void retrievePersonaById() {
 
         // Given
-        Persona persona = repository.save(PersonaFixture.privatePersona()
+        PersonaEntity persona = jpaRepository.save(PersonaEntityFixture.privatePersona()
                 .id(null)
                 .build());
 
@@ -93,21 +61,6 @@ public class PersonaRepositoryImplIntegrationTest extends AbstractIntegrationTes
 
         // Then
         assertThat(retrievedPersonaOptional).isNotNull().isEmpty();
-    }
-
-    @Test
-    public void deletePersona() {
-
-        // Given
-        Persona persona = repository.save(PersonaFixture.privatePersona()
-                .id(null)
-                .build());
-
-        // When
-        repository.deleteById(persona.getId());
-
-        // Then
-        assertThat(repository.findById(persona.getId())).isNotNull().isEmpty();
     }
 
     @Test

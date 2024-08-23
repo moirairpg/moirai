@@ -11,7 +11,6 @@ import me.moirai.discordbot.common.exception.AssetAccessDeniedException;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.DeleteChannelConfig;
-import me.moirai.discordbot.core.application.usecase.channelconfig.request.GetChannelConfigById;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.Visibility;
@@ -19,27 +18,23 @@ import me.moirai.discordbot.core.domain.Visibility;
 @DomainService
 public class ChannelConfigServiceImpl implements ChannelConfigService {
 
-    private final ChannelConfigRepository repository;
+    private final ChannelConfigDomainRepository repository;
 
-    public ChannelConfigServiceImpl(ChannelConfigRepository repository) {
+    public ChannelConfigServiceImpl(ChannelConfigDomainRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    public ChannelConfig getChannelConfigById(GetChannelConfigById query) {
+    public ChannelConfig getById(String channelConfigId) {
 
-        ChannelConfig channelConfig = repository.findById(query.getId())
+        ChannelConfig channelConfig = repository.findById(channelConfigId)
                 .orElseThrow(() -> new AssetNotFoundException("Channel config to be viewed was not found"));
-
-        if (!channelConfig.canUserRead(query.getRequesterDiscordId())) {
-            throw new AssetAccessDeniedException("User does not have permission to view this channel config");
-        }
 
         return channelConfig;
     }
 
     @Override
-    public void deleteChannelConfig(DeleteChannelConfig command) {
+    public void delete(DeleteChannelConfig command) {
 
         ChannelConfig channelConfig = repository.findById(command.getId())
                 .orElseThrow(() -> new AssetNotFoundException("Channel config to be deleted was not found"));

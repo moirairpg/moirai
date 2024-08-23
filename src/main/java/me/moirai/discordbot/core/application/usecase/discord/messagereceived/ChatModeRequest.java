@@ -8,7 +8,7 @@ import java.util.List;
 import me.moirai.discordbot.common.usecases.UseCase;
 import reactor.core.publisher.Mono;
 
-public final class RpgModeDto extends UseCase<Mono<Void>> {
+public final class ChatModeRequest extends UseCase<Mono<Void>> {
 
     private final String authordDiscordId;
     private final String messageId;
@@ -19,7 +19,7 @@ public final class RpgModeDto extends UseCase<Mono<Void>> {
     private final boolean isBotMentioned;
     private final List<String> mentionedUsersIds;
 
-    public RpgModeDto(Builder builder) {
+    public ChatModeRequest(Builder builder) {
 
         this.authordDiscordId = builder.authordDiscordId;
         this.messageId = builder.messageId;
@@ -125,8 +125,8 @@ public final class RpgModeDto extends UseCase<Mono<Void>> {
             return this;
         }
 
-        public RpgModeDto build() {
-            return new RpgModeDto(this);
+        public ChatModeRequest build() {
+            return new ChatModeRequest(this);
         }
     }
 }

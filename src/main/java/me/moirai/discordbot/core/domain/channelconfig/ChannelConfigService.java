@@ -2,7 +2,6 @@ package me.moirai.discordbot.core.domain.channelconfig;
 
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.DeleteChannelConfig;
-import me.moirai.discordbot.core.application.usecase.channelconfig.request.GetChannelConfigById;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 
 public interface ChannelConfigService {
@@ -11,7 +10,7 @@ public interface ChannelConfigService {
 
     ChannelConfig update(UpdateChannelConfig command);
 
-    ChannelConfig getChannelConfigById(GetChannelConfigById query);
+    ChannelConfig getById(String channelConfigId);
 
-    void deleteChannelConfig(DeleteChannelConfig command);
+    void delete(DeleteChannelConfig command);
 }

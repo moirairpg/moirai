@@ -14,16 +14,16 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.criteria.Predicate;
+import me.moirai.discordbot.core.application.port.PersonaQueryRepository;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.persona.result.SearchPersonasResult;
 import me.moirai.discordbot.core.domain.persona.Persona;
-import me.moirai.discordbot.core.domain.persona.PersonaRepository;
 import me.moirai.discordbot.infrastructure.outbound.persistence.mapper.PersonaPersistenceMapper;
-import jakarta.persistence.criteria.Predicate;
 
 @Repository
-public class PersonaRepositoryImpl implements PersonaRepository {
+public class PersonaQueryRepositoryImpl implements PersonaQueryRepository {
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_ITEMS = 10;
@@ -32,18 +32,11 @@ public class PersonaRepositoryImpl implements PersonaRepository {
     private final PersonaJpaRepository jpaRepository;
     private final PersonaPersistenceMapper mapper;
 
-    public PersonaRepositoryImpl(PersonaJpaRepository jpaRepository, PersonaPersistenceMapper mapper) {
+    public PersonaQueryRepositoryImpl(PersonaJpaRepository jpaRepository,
+            PersonaPersistenceMapper mapper) {
 
         this.jpaRepository = jpaRepository;
         this.mapper = mapper;
-    }
-
-    @Override
-    public Persona save(Persona persona) {
-
-        PersonaEntity entity = mapper.mapToEntity(persona);
-
-        return mapper.mapFromEntity(jpaRepository.save(entity));
     }
 
     @Override
@@ -54,9 +47,9 @@ public class PersonaRepositoryImpl implements PersonaRepository {
     }
 
     @Override
-    public void deleteById(String id) {
+    public boolean existsById(String id) {
 
-        jpaRepository.deleteById(id);
+        return jpaRepository.existsById(id);
     }
 
     @Override

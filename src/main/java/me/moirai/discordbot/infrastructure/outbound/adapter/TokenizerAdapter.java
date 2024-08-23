@@ -1,7 +1,6 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +33,7 @@ public class TokenizerAdapter implements TokenizerPort {
     }
 
     @Override
-    public TokenizeResult tokenize(String text) throws UnsupportedEncodingException {
+    public TokenizeResult tokenize(String text) {
 
         String tokens = getTokens(text);
         long[] tokenIds = getTokensIdsFrom(text);
@@ -56,12 +55,6 @@ public class TokenizerAdapter implements TokenizerPort {
     }
 
     @Override
-    public long[] getTokensIdsFrom(String[] texts) {
-
-        return tokenizer.encode(texts).getIds();
-    }
-
-    @Override
     public int getTokenCountFrom(String text) {
 
         if (StringUtils.isBlank(text)) {
@@ -72,16 +65,7 @@ public class TokenizerAdapter implements TokenizerPort {
     }
 
     @Override
-    public int getTokenCountFrom(String[] texts) {
-        if (texts == null || texts.length == 0) {
-            return 0;
-        }
-
-        return getTokensIdsFrom(texts).length;
-    }
-
-    @Override
-    public String getTokens(String text) throws UnsupportedEncodingException {
+    public String getTokens(String text) {
 
         List<String> tokenList = tokenizer.tokenize(text);
         tokenList.replaceAll(a -> a.replaceAll(SPECIAL_SPACE_TOKEN, StringUtils.SPACE));

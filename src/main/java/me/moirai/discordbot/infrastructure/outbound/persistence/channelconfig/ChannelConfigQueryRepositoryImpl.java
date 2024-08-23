@@ -14,16 +14,16 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.criteria.Predicate;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.SearchChannelConfigsResult;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.persistence.mapper.ChannelConfigPersistenceMapper;
-import jakarta.persistence.criteria.Predicate;
 
 @Repository
-public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
+public class ChannelConfigQueryRepositoryImpl implements ChannelConfigQueryRepository {
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_ITEMS = 10;
@@ -32,19 +32,11 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
     private final ChannelConfigJpaRepository jpaRepository;
     private final ChannelConfigPersistenceMapper mapper;
 
-    public ChannelConfigRepositoryImpl(ChannelConfigJpaRepository jpaRepository,
+    public ChannelConfigQueryRepositoryImpl(ChannelConfigJpaRepository jpaRepository,
             ChannelConfigPersistenceMapper mapper) {
 
         this.jpaRepository = jpaRepository;
         this.mapper = mapper;
-    }
-
-    @Override
-    public ChannelConfig save(ChannelConfig channelConfig) {
-
-        ChannelConfigEntity entity = mapper.mapToEntity(channelConfig);
-
-        return mapper.mapFromEntity(jpaRepository.save(entity));
     }
 
     @Override
@@ -59,12 +51,6 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
 
         return jpaRepository.findByDiscordChannelId(channelId)
                 .map(mapper::mapFromEntity);
-    }
-
-    @Override
-    public void deleteById(String id) {
-
-        jpaRepository.deleteById(id);
     }
 
     @Override
@@ -97,6 +83,12 @@ public class ChannelConfigRepositoryImpl implements ChannelConfigRepository {
         Page<ChannelConfigEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return mapper.mapToResult(pagedResult);
+    }
+
+    @Override
+    public String getGameModeByDiscordChannelId(String discordChannelId) {
+
+        return jpaRepository.getGameModeByDiscordChannelId(discordChannelId);
     }
 
     private Specification<ChannelConfigEntity> readAccessSpecificationFrom(SearchChannelConfigsWithReadAccess query) {

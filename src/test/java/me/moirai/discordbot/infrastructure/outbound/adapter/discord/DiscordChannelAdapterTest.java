@@ -1,5 +1,6 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter.discord;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -171,6 +172,7 @@ public class DiscordChannelAdapterTest {
         assertThat(result).isNotNull().isNotEmpty();
         assertThat(result.get().getContent()).isEqualTo(messageContent);
         assertThat(result.get().getAuthor().getId()).isEqualTo(authorId);
+        assertThat(result.get().getChannelId()).isEqualTo(channelId);
     }
 
     @Test
@@ -319,7 +321,54 @@ public class DiscordChannelAdapterTest {
         when(messageRetrieveActionMock.complete()).thenReturn(messageHistoryMock);
         when(messageHistoryMock.getRetrievedHistory()).thenReturn(messageList);
         when(message.getMentions()).thenReturn(mentions);
-        when(mentions.getMembers()).thenReturn(Collections.singletonList(member));
+        when(mentions.getMembers()).thenReturn(singletonList(member));
+        when(user.getName()).thenReturn(username);
+        when(member.getUser()).thenReturn(user);
+        when(member.getId()).thenReturn(authorId);
+        when(member.getNickname()).thenReturn(nickname);
+        when(member.getAsMention()).thenReturn(mention);
+
+        messageHistoryStaticMock.when(() -> MessageHistory.getHistoryBefore(any(), anyString()))
+                .thenReturn(messageRetrieveActionMock);
+
+        // When
+        List<DiscordMessageData> result = adapter.retrieveEntireHistoryBefore(messageId, channelId);
+
+        // Then
+        assertThat(result).isNotNull().hasSize(expectedMessagesInEnd);
+        assertThat(result.get(0).getContent()).isEqualTo("NCKNM said: Message 1");
+        assertThat(result.get(1).getContent()).isEqualTo("NCKNM said: Message 2");
+        assertThat(result.get(2).getContent()).isEqualTo("NCKNM said: Message 3");
+        assertThat(result.get(3).getContent()).isEqualTo("NCKNM said: Message 4");
+        assertThat(result.get(4).getContent()).isEqualTo("NCKNM said: Message 5");
+
+        messageHistoryStaticMock.close();
+    }
+
+    @Test
+    void messageHistory_whenMessagesBeforeOneSuppliedWantedAndNoUsersAreMentioned_thenHistoryShouldReturnAllMessages() {
+
+        // Given
+        String authorId = "123";
+        String mention = "<@123>";
+        String nickname = "NCKNM";
+        String username = "john.doe";
+        String messageId = "123";
+        String channelId = "123";
+        int expectedMessagesInEnd = 5;
+        List<Message> messageList = buildMessageList(5);
+
+        Mentions mentions = mock(Mentions.class);
+        MessageRetrieveAction messageRetrieveActionMock = mock(MessageRetrieveAction.class);
+        MessageHistory messageHistoryMock = mock(MessageHistory.class);
+        MockedStatic<MessageHistory> messageHistoryStaticMock = mockStatic(MessageHistory.class);
+
+        when(jda.getTextChannelById(channelId)).thenReturn(textChannel);
+        when(messageRetrieveActionMock.limit(anyInt())).thenReturn(messageRetrieveActionMock);
+        when(messageRetrieveActionMock.complete()).thenReturn(messageHistoryMock);
+        when(messageHistoryMock.getRetrievedHistory()).thenReturn(messageList);
+        when(message.getMentions()).thenReturn(mentions);
+        when(mentions.getMembers()).thenReturn(Collections.emptyList());
         when(user.getName()).thenReturn(username);
         when(member.getUser()).thenReturn(user);
         when(member.getId()).thenReturn(authorId);

@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,6 @@ import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateChannelConfigFixture;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.DeleteChannelConfig;
-import me.moirai.discordbot.core.application.usecase.channelconfig.request.GetChannelConfigById;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.UpdateChannelConfigFixture;
 import me.moirai.discordbot.core.domain.PermissionsFixture;
@@ -30,7 +28,7 @@ import me.moirai.discordbot.core.domain.Visibility;
 public class ChannelConfigServiceImplTest {
 
     @Mock
-    private ChannelConfigRepository repository;
+    private ChannelConfigDomainRepository repository;
 
     @InjectMocks
     private ChannelConfigServiceImpl service;
@@ -264,7 +262,7 @@ public class ChannelConfigServiceImplTest {
         when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> service.deleteChannelConfig(command));
+        assertThrows(AssetNotFoundException.class, () -> service.delete(command));
     }
 
     @Test
@@ -286,7 +284,7 @@ public class ChannelConfigServiceImplTest {
         when(repository.findById(anyString())).thenReturn(Optional.of(persona));
 
         // Then
-        assertThrows(AssetAccessDeniedException.class, () -> service.deleteChannelConfig(command));
+        assertThrows(AssetAccessDeniedException.class, () -> service.delete(command));
     }
 
     @Test
@@ -308,69 +306,6 @@ public class ChannelConfigServiceImplTest {
         when(repository.findById(anyString())).thenReturn(Optional.of(persona));
 
         // Then
-        service.deleteChannelConfig(command);
-    }
-
-    @Test
-    public void findChannelConfig_whenValidId_thenChannelConfigIsReturned() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        GetChannelConfigById query = GetChannelConfigById.build(id, requesterId);
-
-        ChannelConfig persona = ChannelConfigFixture.sample()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId(requesterId)
-                        .build())
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
-
-        // When
-        ChannelConfig result = service.getChannelConfigById(query);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(persona.getName());
-    }
-
-    @Test
-    public void findChannelConfig_whenChannelConfigNotFound_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        GetChannelConfigById query = GetChannelConfigById.build(id, requesterId);
-
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class, () -> service.getChannelConfigById(query));
-    }
-
-    @Test
-    public void findChannelConfig_whenInvalidPermission_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        GetChannelConfigById query = GetChannelConfigById.build(id, requesterId);
-
-        ChannelConfig persona = ChannelConfigFixture.sample()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId("ANTHRUSR")
-                        .usersAllowedToRead(Collections.emptyList())
-                        .build())
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
-
-        // Then
-        assertThrows(AssetAccessDeniedException.class, () -> service.getChannelConfigById(query));
+        service.delete(command);
     }
 }

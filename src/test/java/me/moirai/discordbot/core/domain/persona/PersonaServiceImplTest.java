@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -15,16 +14,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import me.moirai.discordbot.common.exception.AssetAccessDeniedException;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.exception.ModerationException;
 import me.moirai.discordbot.core.application.model.result.TextModerationResultFixture;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
 import me.moirai.discordbot.core.application.usecase.persona.request.CreatePersona;
-import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
-import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
-import me.moirai.discordbot.core.application.usecase.persona.request.UpdatePersona;
-import me.moirai.discordbot.core.domain.PermissionsFixture;
 import me.moirai.discordbot.core.domain.Visibility;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -36,7 +30,7 @@ public class PersonaServiceImplTest {
     private TextModerationPort moderationPort;
 
     @Mock
-    private PersonaRepository repository;
+    private PersonaDomainRepository repository;
 
     @InjectMocks
     private PersonaServiceImpl service;
@@ -192,49 +186,6 @@ public class PersonaServiceImplTest {
     }
 
     @Test
-    public void updatePersona_whenPersonaNotFound_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdatePersona command = UpdatePersona.builder()
-                .id(id)
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .verifyError(AssetNotFoundException.class);
-    }
-
-    @Test
-    public void updatePersona_whenNotEnoughPermissions_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdatePersona command = UpdatePersona.builder()
-                .id(id)
-                .requesterDiscordId("USRID")
-                .build();
-
-        Persona persona = PersonaFixture.privatePersona()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId("ANTHRUSR")
-                        .build())
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .verifyError(AssetAccessDeniedException.class);
-    }
-
-    @Test
     public void findPersona_whenValidId_thenReturnPersona() {
 
         // Given
@@ -248,7 +199,7 @@ public class PersonaServiceImplTest {
         when(repository.findById(anyString())).thenReturn(Optional.of(persona));
 
         // When
-        Persona result = service.getPersonaById(id);
+        Persona result = service.getById(id);
 
         // Then
         assertThat(result).isNotNull();
@@ -264,300 +215,7 @@ public class PersonaServiceImplTest {
         when(repository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(AssetNotFoundException.class, () -> service.getPersonaById(id));
-    }
-
-    @Test
-    public void findPersonaWithPermission_whenProperPermission_thenReturnPersona() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        GetPersonaById query = GetPersonaById.build(id, requesterId);
-
-        Persona persona = PersonaFixture.privatePersona()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId(requesterId)
-                        .build())
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
-
-        // When
-        Persona result = service.getPersonaById(query);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(persona.getName());
-    }
-
-    @Test
-    public void findPersonaWithPermission_whenPersonaNotFound_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        GetPersonaById query = GetPersonaById.build(id, requesterId);
-
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class, () -> service.getPersonaById(query));
-    }
-
-    @Test
-    public void findPersonaWithPermission_whenInvalidPermission_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        GetPersonaById query = GetPersonaById.build(id, requesterId);
-
-        Persona persona = PersonaFixture.privatePersona()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId("ANTHRUSR")
-                        .usersAllowedToRead(Collections.emptyList())
-                        .build())
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
-
-        // Then
-        assertThrows(AssetAccessDeniedException.class, () -> service.getPersonaById(query));
-    }
-
-    @Test
-    public void deletePersona_whenPersonaNotFound_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        DeletePersona command = DeletePersona.build(id, requesterId);
-
-        when(repository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class, () -> service.deletePersona(command));
-    }
-
-    @Test
-    public void deletePersona_whenInvalidPermission_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        DeletePersona command = DeletePersona.build(id, requesterId);
-
-        Persona persona = PersonaFixture.privatePersona()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId("ANTHRUSR")
-                        .build())
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
-
-        // Then
-        assertThrows(AssetAccessDeniedException.class, () -> service.deletePersona(command));
-    }
-
-    @Test
-    public void deletePersona_whenProperIdAndPermission_thenPersonaIsDeleted() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        DeletePersona command = DeletePersona.build(id, requesterId);
-
-        Persona persona = PersonaFixture.privatePersona()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId(requesterId)
-                        .build())
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.of(persona));
-
-        // Then
-        service.deletePersona(command);
-    }
-
-    @Test
-    public void updatePersona_whenValidData_thenPersonaIsUpdated() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        UpdatePersona command = UpdatePersona.builder()
-                .id(id)
-                .name("MoirAI")
-                .personality("I am a Discord chatbot")
-                .visibility("PUBLIC")
-                .requesterDiscordId("CRTID")
-                .bumpContent("This is a bump")
-                .bumpRole("system")
-                .bumpFrequency(5)
-                .nudgeContent("This is a nudge")
-                .nudgeRole("system")
-                .requesterDiscordId(requesterId)
-                .build();
-
-        Persona unchangedPersona = PersonaFixture.privatePersona()
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId(requesterId)
-                        .build())
-                .build();
-
-        Persona expectedUpdatedPersona = PersonaFixture.privatePersona()
-                .id(id)
-                .name("New name")
-                .build();
-
-        when(moderationPort.moderate(anyString()))
-                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
-        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedPersona));
-        when(repository.save(any(Persona.class))).thenReturn(expectedUpdatedPersona);
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .assertNext(result -> {
-                    assertThat(result).isNotNull();
-                    assertThat(result.getName()).isEqualTo(expectedUpdatedPersona.getName());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void updatePersona_whenUpdateFieldsAreEmpty_thenPersonaIsNotChanged() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        UpdatePersona command = UpdatePersona.builder()
-                .id(id)
-                .requesterDiscordId(requesterId)
-                .build();
-
-        Persona unchangedPersona = PersonaFixture.privatePersona()
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId(requesterId)
-                        .build())
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedPersona));
-        when(repository.save(any(Persona.class))).thenReturn(unchangedPersona);
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .assertNext(result -> {
-                    assertThat(result).isNotNull();
-                    assertThat(result.getName()).isEqualTo(unchangedPersona.getName());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void updatePersona_whenPublicToMakePrivate_thenPersonaIsMadePrivate() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        UpdatePersona command = UpdatePersona.builder()
-                .id(id)
-                .requesterDiscordId(requesterId)
-                .visibility("private")
-                .build();
-
-        Persona unchangedPersona = PersonaFixture.publicPersona()
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId(requesterId)
-                        .build())
-                .build();
-
-        Persona expectedUpdatedPersona = PersonaFixture.privatePersona()
-                .id(id)
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedPersona));
-        when(repository.save(any(Persona.class))).thenReturn(expectedUpdatedPersona);
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .assertNext(result -> {
-                    assertThat(result).isNotNull();
-                    assertThat(result.isPublic()).isFalse();
-                    assertThat(result.getVisibility()).isEqualTo(expectedUpdatedPersona.getVisibility());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void updatePersona_whenInvalidVisibility_thenNothingIsChanged() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        UpdatePersona command = UpdatePersona.builder()
-                .id(id)
-                .requesterDiscordId(requesterId)
-                .visibility("invalid")
-                .build();
-
-        Persona unchangedPersona = PersonaFixture.privatePersona()
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId(requesterId)
-                        .build())
-                .build();
-
-        Persona expectedUpdatedPersona = PersonaFixture.privatePersona()
-                .id(id)
-                .build();
-
-        when(repository.findById(anyString())).thenReturn(Optional.of(unchangedPersona));
-        when(repository.save(any(Persona.class))).thenReturn(expectedUpdatedPersona);
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .assertNext(result -> {
-                    assertThat(result).isNotNull();
-                    assertThat(result.isPublic()).isFalse();
-                    assertThat(result.getVisibility()).isEqualTo(expectedUpdatedPersona.getVisibility());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void updatePersona_whenContentIsFlagged_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        UpdatePersona command = UpdatePersona.builder()
-                .id(id)
-                .name("MoirAI")
-                .personality("I am a Discord chatbot")
-                .visibility("PUBLIC")
-                .requesterDiscordId("CRTID")
-                .bumpContent("This is a bump")
-                .bumpRole("system")
-                .bumpFrequency(5)
-                .nudgeContent("This is a nudge")
-                .nudgeRole("system")
-                .requesterDiscordId(requesterId)
-                .build();
-
-        when(moderationPort.moderate(anyString()))
-                .thenReturn(Mono.just(TextModerationResultFixture.withFlags().build()));
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .verifyError(ModerationException.class);
+        assertThrows(AssetNotFoundException.class, () -> service.getById(id));
     }
 
     @Test

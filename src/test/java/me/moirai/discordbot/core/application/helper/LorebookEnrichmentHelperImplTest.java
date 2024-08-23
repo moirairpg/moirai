@@ -21,7 +21,7 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigu
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequestFixture;
 
 @ExtendWith(MockitoExtension.class)
-public class RpgLorebookEnrichmentHelperImplTest {
+public class LorebookEnrichmentHelperImplTest {
 
     @Mock
     private TokenizerPort tokenizerPort;

@@ -54,7 +54,7 @@ public abstract class AbstractIntegrationTest {
             .withPassword("moirai");
 
     @DynamicPropertySource
-    static void redisProperties(DynamicPropertyRegistry registry) {
+    static void databaseProperties(DynamicPropertyRegistry registry) {
 
         container.start();
 

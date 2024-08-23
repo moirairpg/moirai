@@ -6,13 +6,13 @@ import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.core.domain.world.World;
-import me.moirai.discordbot.core.domain.world.WorldRepository;
+import me.moirai.discordbot.core.domain.world.WorldDomainRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
@@ -24,14 +24,14 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
 
     private static final String CHAT_FORMAT = "%s said: %s";
 
-    private final ChannelConfigRepository channelConfigRepository;
-    private final WorldRepository worldRepository;
+    private final ChannelConfigQueryRepository channelConfigRepository;
+    private final WorldDomainRepository worldRepository;
     private final StoryGenerationHelper storyGenerationPort;
     private final DiscordChannelPort discordChannelPort;
 
     public StartCommandHandler(StoryGenerationHelper storyGenerationPort,
-            WorldRepository worldRepository,
-            ChannelConfigRepository channelConfigRepository,
+            WorldDomainRepository worldRepository,
+            ChannelConfigQueryRepository channelConfigRepository,
             DiscordChannelPort discordChannelPort) {
 
         this.channelConfigRepository = channelConfigRepository;

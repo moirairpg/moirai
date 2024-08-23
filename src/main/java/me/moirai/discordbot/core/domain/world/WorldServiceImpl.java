@@ -18,9 +18,7 @@ import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorldLorebookEntry;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorldLorebookEntry;
-import me.moirai.discordbot.core.application.usecase.world.request.GetWorldById;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldLorebookEntryById;
-import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorldLorebookEntry;
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.Visibility;
@@ -41,11 +39,11 @@ public class WorldServiceImpl implements WorldService {
 
     private final TextModerationPort moderationPort;
     private final WorldLorebookEntryRepository lorebookEntryRepository;
-    private final WorldRepository repository;
+    private final WorldDomainRepository repository;
 
     public WorldServiceImpl(TextModerationPort moderationPort,
             WorldLorebookEntryRepository lorebookEntryRepository,
-            WorldRepository repository) {
+            WorldDomainRepository repository) {
 
         this.moderationPort = moderationPort;
         this.lorebookEntryRepository = lorebookEntryRepository;
@@ -53,14 +51,10 @@ public class WorldServiceImpl implements WorldService {
     }
 
     @Override
-    public World getWorldById(GetWorldById query) {
+    public World getWorldById(String worldId) {
 
-        World world = repository.findById(query.getId())
+        World world = repository.findById(worldId)
                 .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
-
-        if (!world.canUserRead(query.getRequesterDiscordId())) {
-            throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_VIEW_THIS_WORLD);
-        }
 
         return world;
     }
@@ -103,60 +97,6 @@ public class WorldServiceImpl implements WorldService {
                     return repository.save(world);
                 });
 
-    }
-
-    @Override
-    public Mono<World> update(UpdateWorld command) {
-
-        return moderateContent(command.getAdventureStart())
-                .flatMap(__ -> moderateContent(command.getName()))
-                .flatMap(__ -> moderateContent(command.getDescription()))
-                .map(__ -> {
-                    World world = repository.findById(command.getId())
-                            .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_UPDATED_WAS_NOT_FOUND));
-
-                    if (!world.canUserWrite(command.getRequesterDiscordId())) {
-                        throw new AssetAccessDeniedException(USER_DOES_NOT_HAVE_PERMISSION_TO_MODIFY_THIS_WORLD);
-                    }
-
-                    if (StringUtils.isNotBlank(command.getName())) {
-                        world.updateName(command.getName());
-                    }
-
-                    if (StringUtils.isNotBlank(command.getDescription())) {
-                        world.updateDescription(command.getDescription());
-                    }
-
-                    if (StringUtils.isNotBlank(command.getAdventureStart())) {
-                        world.updateAdventureStart(command.getAdventureStart());
-                    }
-
-                    if (StringUtils.isNotBlank(command.getVisibility())) {
-                        if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
-                            world.makePublic();
-                        } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
-                            world.makePrivate();
-                        }
-                    }
-
-                    CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToAdd())
-                            .stream()
-                            .filter(userId -> !world.canUserRead(userId))
-                            .forEach(world::addReaderUser);
-
-                    CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToAdd())
-                            .stream()
-                            .filter(userId -> !world.canUserWrite(userId))
-                            .forEach(world::addWriterUser);
-
-                    CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToRemove())
-                            .forEach(world::removeReaderUser);
-
-                    CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToRemove())
-                            .forEach(world::removeWriterUser);
-
-                    return repository.save(world);
-                });
     }
 
     @Override
