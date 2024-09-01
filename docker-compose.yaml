@@ -1,4 +1,3 @@
-version: "3"
 networks:
   ? dockerlan
 services:
@@ -15,3 +14,28 @@ services:
       POSTGRES_USER: moirai
       POSTGRES_PASSWORD: moirai
       POSTGRES_DB: moirai
+  moirai:
+    container_name: moirai
+    hostname: moirai
+    image: moirai:latest
+    depends_on:
+      - postgresql
+    networks:
+      - dockerlan
+    ports:
+      - "8080:8080"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DISCORD_BOT_CLIENT_ID: REPLACE_THIS_WITH_KEY
+      DISCORD_BOT_CLIENT_SECRET: REPLACE_THIS_WITH_KEY
+      DISCORD_BOT_REDIRECT_URL: http://localhost:8080/auth/code
+      DISCORD_BOT_API_TOKEN: REPLACE_THIS_WITH_KEY
+      OPENAI_API_TOKEN: REPLACE_THIS_WITH_KEY
+      SPRING_APPLICATION_PROFILES: default
+      POSTGRES_HOST: postgresql:5432
+      POSTGRES_DB: moirai
+      POSTGRES_USER: moirai
+      POSTGRES_PASSWORD: moirai
+      CHATRPG_LOG_LEVEL: INFO

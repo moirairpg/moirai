@@ -1,0 +1,16 @@
+networks:
+  ? dockerlan
+services:
+  postgresql:
+    restart: always
+    container_name: postgresql
+    hostname: postgresql
+    image: postgres:15-alpine
+    networks:
+      - dockerlan
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: moirai
+      POSTGRES_PASSWORD: moirai
+      POSTGRES_DB: moirai
