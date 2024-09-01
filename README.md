@@ -43,7 +43,14 @@ You need to have both yout Discord API Key and your OpenAI API key in hand to se
 6. Run the bot
     - Through the IDE of your choice
     - Through the console with Maven by running `mvn spring-boot:run` on the bot's root folder
-    - Through the console by running the JAR file directly with `java -jar chatrpg-0.0.1-SNAPSHOT.jar`
+    - Through the console by running the JAR file directly with `java -jar discordbot-0.0.1-SNAPSHOT.jar`
+
+### With Docker
+1. Clone the repo
+2. Open `docker-compose.yaml` and add your tokens and keys to the `environment` section
+    - Replace `REPLACE_THIS_WITH_KEY` with your keys
+3. Run `docker-compose up` with your console in the project's root folder
+    - This will create two containers: one for the database and one for MoirAI itself
 
 ## Features
 MoirAI was made with RPG DM'ing in mind, so we're striving to add commands and features that make that experience richer.
@@ -51,11 +58,9 @@ MoirAI was made with RPG DM'ing in mind, so we're striving to add commands and f
 * Slash commands to manage the bot.
 * Custom personas with their own model settings.
 * Custom worlds for the bot to generate adventures in.
+* Moderation filters powered by OpenAI's API to avoid problematic and abusive topics.
 * Channel configurations to set up model definitions and moderation used.
 * Lorebook with regex capabilities to improve the AI's context on the adventure.
-* Lorebook entries that can be set as player characters so the AI knows who's who and refrains from speaking on behalf of players.
-* Moderation filters powered by OpenAI's API to avoid problematic and abusive topics.
-* Compatibility with GPT-3.5 and GPT-4.
-* Main use case is as an RPG dungeon master.
-* Can also be used as the author of a story.
-* Can also be used as a normal chatbot if the right intent is used.
+* Lorebook entries that can be set as player characters so the AI knows who's who.
+* Compatibility with GPT-4.
+* Can be used as a chat or as a storyteller for RPG or writing stories
