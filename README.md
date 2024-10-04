@@ -47,9 +47,9 @@ You need to have both yout Discord API Key and your OpenAI API key in hand to se
 
 ### With Docker
 1. Clone the repo
-2. Open `docker-compose.yaml` and add your tokens and keys to the `environment` section
-    - Replace `REPLACE_THIS_WITH_KEY` with your keys
-3. Run `docker-compose up` with your console in the project's root folder
+2. Copy the file `docker.env.sample` and create one named `docker.env`
+3. Replace the values that say `CHANGE_THIS_VALUE` with the keys that match the variable name (i.e., your OpenAI API key or Discord secret)
+4. Run `docker-compose up` with your console in the project's root folder
     - This will create two containers: one for the database and one for MoirAI itself
 
 ## Features
