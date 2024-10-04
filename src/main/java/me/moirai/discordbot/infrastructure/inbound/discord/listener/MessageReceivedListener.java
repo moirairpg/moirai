@@ -44,7 +44,7 @@ public class MessageReceivedListener extends ListenerAdapter {
         String messageContent = message.getContentRaw();
         String gameMode = channelConfigHelper.getGameModeByDiscordChannelId(channelId);
 
-        if (StringUtils.isNotBlank(messageContent) && !author.getUser().isBot()) {
+        if (StringUtils.isNoneBlank(messageContent, gameMode) && !author.getUser().isBot()) {
             String botUsername = bot.getUser().getName();
             String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname() : botUsername;
 
