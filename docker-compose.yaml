@@ -1,5 +1,5 @@
 networks:
-  ? dockerlan
+  ? moirai_network
 services:
   postgresql:
     restart: always
@@ -7,7 +7,7 @@ services:
     hostname: postgresql
     image: postgres:15-alpine
     networks:
-      - dockerlan
+      - moirai_network
     ports:
       - "5432:5432"
     environment:
@@ -21,18 +21,20 @@ services:
     depends_on:
       - postgresql
     networks:
-      - dockerlan
+      - moirai_network
     ports:
       - "8080:8080"
+      - "8000:8000"
+    env_file: docker.env
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      DISCORD_BOT_CLIENT_ID: REPLACE_THIS_WITH_KEY
-      DISCORD_BOT_CLIENT_SECRET: REPLACE_THIS_WITH_KEY
+      DISCORD_BOT_CLIENT_ID: ${DISCORD_BOT_CLIENT_ID}
+      DISCORD_BOT_CLIENT_SECRET: ${DISCORD_BOT_CLIENT_SECRET}
       DISCORD_BOT_REDIRECT_URL: http://localhost:8080/auth/code
-      DISCORD_BOT_API_TOKEN: REPLACE_THIS_WITH_KEY
-      OPENAI_API_TOKEN: REPLACE_THIS_WITH_KEY
+      DISCORD_BOT_API_TOKEN: ${DISCORD_BOT_API_TOKEN}
+      OPENAI_API_TOKEN: ${OPENAI_API_TOKEN}
       SPRING_APPLICATION_PROFILES: default
       POSTGRES_HOST: postgresql:5432
       POSTGRES_DB: moirai

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import me.moirai.discordbot.common.exception.DiscordApiException;
+import me.moirai.discordbot.common.exception.AuthenticationFailedException;
 import me.moirai.discordbot.core.application.port.DiscordAuthenticationPort;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordAuthResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordErrorResponse;
@@ -117,7 +118,7 @@ public class DiscordAuthenticationAdapter implements DiscordAuthenticationPort {
 
     private Mono<? extends Throwable> handleUnauthorized(ClientResponse clientResponse) {
 
-        return Mono.error(new DiscordApiException(HttpStatus.UNAUTHORIZED, AUTHENTICATION_ERROR));
+        return Mono.error(new AuthenticationFailedException(AUTHENTICATION_ERROR, AUTHENTICATION_ERROR));
     }
 
     private Mono<? extends Throwable> handleBadRequest(ClientResponse clientResponse) {
