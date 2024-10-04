@@ -6,8 +6,6 @@ target/
 !**/src/test/**/target/
 *.log
 docker.env
-docker-compose.yaml
-docker-compose-database.yaml
 
 ### STS ###
 .apt_generated
