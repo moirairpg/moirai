@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import me.moirai.discordbot.AbstractWebMockTest;
+import me.moirai.discordbot.common.exception.AuthenticationFailedException;
 import me.moirai.discordbot.common.exception.DiscordApiException;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordAuthResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordErrorResponse;
@@ -83,7 +84,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
 
         // Then
         StepVerifier.create(adapter.authenticate(request))
-                .expectError(DiscordApiException.class)
+                .expectError(AuthenticationFailedException.class)
                 .verify();
     }
 
@@ -174,7 +175,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
 
         // Then
         StepVerifier.create(adapter.logout(request))
-                .expectError(DiscordApiException.class)
+                .expectError(AuthenticationFailedException.class)
                 .verify();
     }
 
@@ -258,7 +259,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
 
         // Then
         StepVerifier.create(adapter.retrieveLoggedUser(token))
-                .expectError(DiscordApiException.class)
+                .expectError(AuthenticationFailedException.class)
                 .verify();
     }
 
