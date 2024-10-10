@@ -259,6 +259,11 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
     }
 
     private boolean isTopicFlagged(Entry<String, Double> entry, ModerationConfigurationRequest moderation) {
+
+        if (moderation.getThresholds() == null) {
+            return false;
+        }
+
         return entry.getValue() > moderation.getThresholds().get(entry.getKey());
     }
 }
