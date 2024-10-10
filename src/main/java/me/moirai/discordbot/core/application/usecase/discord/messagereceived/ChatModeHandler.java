@@ -62,7 +62,7 @@ public class ChatModeHandler extends AbstractUseCaseHandler<ChatModeRequest, Mon
                 .aiModel(aiModel)
                 .build();
 
-        boolean isModerationEnabled = channelConfig.getModeration().equals(DISABLED);
+        boolean isModerationEnabled = !channelConfig.getModeration().equals(DISABLED);
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
                 .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
                         channelConfig.getModeration().getThresholds());

@@ -63,7 +63,7 @@ public class GenerateOutputHandler extends AbstractUseCaseHandler<GenerateOutput
                                 channelConfig.getModelConfiguration().getAiModel().getHardTokenLimit()))
                 .build();
 
-        boolean isModerationEnabled = channelConfig.getModeration().equals(DISABLED);
+        boolean isModerationEnabled = !channelConfig.getModeration().equals(DISABLED);
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
                 .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
                         channelConfig.getModeration().getThresholds());
