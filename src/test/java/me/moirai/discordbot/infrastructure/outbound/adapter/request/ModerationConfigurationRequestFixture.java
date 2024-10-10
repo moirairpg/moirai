@@ -10,6 +10,6 @@ public class ModerationConfigurationRequestFixture {
         Map<String, Double> thresholds = new HashMap<>();
         thresholds.put("violence", 10.0);
 
-        return ModerationConfigurationRequest.build(true, thresholds);
+        return ModerationConfigurationRequest.build(true, true, thresholds);
     }
 }

@@ -1,5 +1,7 @@
 package me.moirai.discordbot.core.application.usecase.discord.messagereceived;
 
+import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
+
 import java.util.List;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
@@ -60,8 +62,10 @@ public class ChatModeHandler extends AbstractUseCaseHandler<ChatModeRequest, Mon
                 .aiModel(aiModel)
                 .build();
 
+        boolean isModerationEnabled = channelConfig.getModeration().equals(DISABLED);
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
-                .build(channelConfig.getModeration().isAbsolute(), channelConfig.getModeration().getThresholds());
+                .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
+                        channelConfig.getModeration().getThresholds());
 
         List<DiscordMessageData> messageHistory = discordChannelPort.retrieveEntireHistoryFrom(useCase.getChannelId());
 

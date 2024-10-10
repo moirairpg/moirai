@@ -1,11 +1,11 @@
 package me.moirai.discordbot.core.application.helper;
 
+import static java.util.Collections.emptyList;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.ASSISTANT;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.USER;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -235,6 +235,10 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
 
     private Mono<List<String>> getTopicsFlaggedByModeration(String input, ModerationConfigurationRequest moderation) {
 
+        if (!moderation.isEnabled()) {
+            return Mono.just(emptyList());
+        }
+
         return textModerationPort.moderate(input)
                 .map(result -> {
                     if (moderation.isAbsolute()) {
@@ -242,7 +246,7 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
                             return result.getFlaggedTopics();
                         }
 
-                        return Collections.emptyList();
+                        return emptyList();
                     }
 
                     return result.getModerationScores()

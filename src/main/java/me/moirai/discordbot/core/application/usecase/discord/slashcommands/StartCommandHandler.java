@@ -1,5 +1,7 @@
 package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
+import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
+
 import java.util.Collections;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
@@ -75,8 +77,10 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
                                 channelConfig.getModelConfiguration().getAiModel().getHardTokenLimit()))
                 .build();
 
+        boolean isModerationEnabled = channelConfig.getModeration().equals(DISABLED);
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
-                .build(channelConfig.getModeration().isAbsolute(), channelConfig.getModeration().getThresholds());
+                .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
+                        channelConfig.getModeration().getThresholds());
 
         discordChannelPort.sendMessageTo(useCase.getChannelId(), world.getAdventureStart());
 
