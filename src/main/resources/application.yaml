@@ -34,6 +34,9 @@ moirai:
       /v3/api-docs
 
 spring:
+  jpa:
+    show-sql: false
+    properties.hibernate.format_sql: true
   profiles.active: ${SPRING_APPLICATION_PROFILES:default}
   main.banner-mode: off
   datasource:
@@ -69,6 +72,6 @@ logging:
     root: ERROR
     org.hibernate: ERROR
     com.zaxxer.hikari: ERROR
-    discord4j: ERROR
+    net.dv8tion: ERROR
     org.springframework: ERROR
     ch.qos.logback: ERROR
