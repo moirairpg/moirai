@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 public class StorySummarizationAdapter implements StorySummarizationPort {
 
     private static final String PERIOD = ".";
-    private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-Za-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
+    private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-ZÀ-ÿa-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
     private static final String SUMMARY = "summary";
     private static final Object LOREBOOK = "lorebook";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
