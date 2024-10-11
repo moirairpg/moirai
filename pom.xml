@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.3</version>
+        <version>3.3.4</version>
         <relativePath />
     </parent>
 
@@ -38,7 +38,7 @@
         <jackson.dataformat.version>2.16.1</jackson.dataformat.version>
         <logback.encoder.version>7.4</logback.encoder.version>
         <wiremock.version>3.9.1</wiremock.version>
-        <jda.version>5.0.1</jda.version>
+        <jda.version>5.1.2</jda.version>
         <jacoco.version>0.8.11</jacoco.version>
     </properties>
 
