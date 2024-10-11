@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import me.moirai.discordbot.common.util.DefaultStringProcessors;
+import me.moirai.discordbot.common.util.StringProcessor;
 import me.moirai.discordbot.core.application.helper.ChatMessageHelper;
 import me.moirai.discordbot.core.application.model.request.ChatMessage;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
@@ -77,8 +79,14 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
         TextGenerationRequest request = createSummarizationRequest(rawMessageHistory, lorebook, modelConfiguration);
         return openAiPort.generateTextFrom(request)
                 .map(summaryGenerated -> {
+                    StringProcessor processor = new StringProcessor();
                     String summary = summaryGenerated.getOutputText().trim();
-                    summary = summary.replaceAll(LF, EMPTY).trim();
+
+                    processor.addRule(DefaultStringProcessors.stripChatPrefix());
+                    processor.addRule(DefaultStringProcessors.stripTrailingFragment());
+                    processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(EMPTY, LF));
+
+                    summary = processor.process(summary);
 
                     context.put(RETRIEVED_MESSAGES, rawMessageHistory);
                     context.put(SUMMARY, summary.trim());
