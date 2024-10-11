@@ -78,6 +78,7 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
         return openAiPort.generateTextFrom(request)
                 .map(summaryGenerated -> {
                     String summary = summaryGenerated.getOutputText().trim();
+                    summary = summary.replaceAll(LF, EMPTY).trim();
 
                     context.put(RETRIEVED_MESSAGES, rawMessageHistory);
                     context.put(SUMMARY, summary.trim());
@@ -97,7 +98,7 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
         int tokensLeftInContext = reservedTokensForStory - tokensInContext;
 
         while (tokensInSummary > tokensLeftInContext) {
-            summary = summary.replaceAll(SENTENCE_EXPRESSION, PERIOD).trim();
+            summary = summary.trim().replaceAll(SENTENCE_EXPRESSION, PERIOD).trim();
             summary = summary.equals(PERIOD) ? EMPTY : summary;
             tokensInSummary = tokenizerPort.getTokenCountFrom(summary);
         }
