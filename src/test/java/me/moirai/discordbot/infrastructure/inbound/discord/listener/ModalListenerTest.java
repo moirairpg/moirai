@@ -90,6 +90,7 @@ public class ModalListenerTest extends AbstractDiscordTest {
         ModalInteractionEvent event = mock(ModalInteractionEvent.class);
         ModalMapping modalMapping = mock(ModalMapping.class);
         WebhookMessageEditAction<Message> editNotificationAction = mock(WebhookMessageEditAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
 
         ArgumentCaptor<SayCommand> useCaseCaptor = ArgumentCaptor.forClass(SayCommand.class);
 
@@ -100,6 +101,7 @@ public class ModalListenerTest extends AbstractDiscordTest {
         when(sendMessageCallback.complete()).thenReturn(interactionHook);
         when(event.getValue(anyString())).thenReturn(modalMapping);
         when(modalMapping.getAsString()).thenReturn(messageContent);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
         when(interactionHook.editOriginal(anyString())).thenReturn(editNotificationAction);
         when(editNotificationAction.complete()).thenReturn(message);
         when(event.getMember()).thenReturn(member);
@@ -132,6 +134,7 @@ public class ModalListenerTest extends AbstractDiscordTest {
         ModalMapping modalMapping = mock(ModalMapping.class);
         WebhookMessageEditAction<Message> editNotificationAction = mock(WebhookMessageEditAction.class);
         RestAction<Message> getMessageAction = mock(RestAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
 
         when(event.getModalId()).thenReturn(modalName);
         when(event.getChannel()).thenReturn(channelUnion);
@@ -151,6 +154,7 @@ public class ModalListenerTest extends AbstractDiscordTest {
         when(getMessageAction.complete()).thenReturn(message);
 
         when(interactionHook.editOriginal(anyString())).thenReturn(editNotificationAction);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
         when(editNotificationAction.complete()).thenReturn(message);
 
         ArgumentCaptor<EditMessage> useCaseCaptor = ArgumentCaptor.forClass(EditMessage.class);
@@ -185,6 +189,7 @@ public class ModalListenerTest extends AbstractDiscordTest {
         WebhookMessageEditAction<Message> editNotificationAction = mock(WebhookMessageEditAction.class);
         ModalMapping modalMapping = mock(ModalMapping.class);
         RestAction<Message> getMessageAction = mock(RestAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
 
         ArgumentCaptor<String> notificationCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -207,6 +212,7 @@ public class ModalListenerTest extends AbstractDiscordTest {
         when(sendMessageCallback.complete()).thenReturn(interactionHook);
 
         when(interactionHook.editOriginal(notificationCaptor.capture())).thenReturn(editNotificationAction);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
         when(editNotificationAction.complete()).thenReturn(message);
 
         // When
@@ -234,6 +240,7 @@ public class ModalListenerTest extends AbstractDiscordTest {
         WebhookMessageEditAction<Message> editNotificationAction = mock(WebhookMessageEditAction.class);
         ModalMapping modalMapping = mock(ModalMapping.class);
         RestAction<Message> getMessageAction = mock(RestAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
 
         ArgumentCaptor<String> notificationCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -257,6 +264,7 @@ public class ModalListenerTest extends AbstractDiscordTest {
         when(sendMessageCallback.complete()).thenReturn(interactionHook);
 
         when(interactionHook.editOriginal(notificationCaptor.capture())).thenReturn(editNotificationAction);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
         when(editNotificationAction.complete()).thenReturn(message);
 
         // When

@@ -141,6 +141,7 @@ public class DiscordChannelAdapterTest {
         String channelId = "123";
         String messageId = "123";
         String messageContent = "Hello, World!";
+        String expectedMessageContent = "FireDragon said: Hello, World!";
 
         Mentions mentions = mock(Mentions.class);
         CacheRestAction<Member> cacheRestActionMemberMock = mock(CacheRestAction.class);
@@ -170,7 +171,7 @@ public class DiscordChannelAdapterTest {
         verify(textChannel, times(1)).retrieveMessageById(anyString());
 
         assertThat(result).isNotNull().isNotEmpty();
-        assertThat(result.get().getContent()).isEqualTo(messageContent);
+        assertThat(result.get().getContent()).isEqualTo(expectedMessageContent);
         assertThat(result.get().getAuthor().getId()).isEqualTo(authorId);
         assertThat(result.get().getChannelId()).isEqualTo(channelId);
     }

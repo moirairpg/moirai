@@ -1,6 +1,7 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,7 @@ public class SlashCommandListener extends ListenerAdapter {
     private static final String TOO_MUCH_CONTENT_TO_TOKENIZE = "Could not tokenize content. Too much content. Please use the web UI to tokenize large text";
     private static final String OUTPUT_GENERATED = "Output generated.";
     private static final int DISCORD_MAX_LENGTH = 2000;
+    private static final int EPHEMERAL_MESSAGE_TTL = 10;
 
     private final UseCaseRunner useCaseRunner;
 
@@ -141,6 +143,8 @@ public class SlashCommandListener extends ListenerAdapter {
     }
 
     private Message updateNotification(InteractionHook interactionHook, String newContent) {
+
+        interactionHook.deleteOriginal().completeAfter(EPHEMERAL_MESSAGE_TTL, TimeUnit.SECONDS);
         return interactionHook.editOriginal(newContent).complete();
     }
 

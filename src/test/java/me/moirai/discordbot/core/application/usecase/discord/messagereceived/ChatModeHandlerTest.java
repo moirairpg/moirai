@@ -66,7 +66,10 @@ public class ChatModeHandlerTest {
 
         when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));
 
-        when(discordChannelPort.retrieveEntireHistoryFrom(anyString()))
+        when(discordChannelPort.getLastMessageIn(anyString()))
+                .thenReturn(Optional.of(DiscordMessageDataFixture.messageData().build()));
+
+        when(discordChannelPort.retrieveEntireHistoryBefore(anyString(), anyString()))
                 .thenReturn(DiscordMessageDataFixture.messageList(5));
 
         // When

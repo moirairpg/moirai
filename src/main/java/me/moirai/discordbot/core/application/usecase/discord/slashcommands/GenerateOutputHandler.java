@@ -2,6 +2,7 @@ package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
 import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
@@ -68,7 +69,7 @@ public class GenerateOutputHandler extends AbstractUseCaseHandler<GenerateOutput
                 .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
                         channelConfig.getModeration().getThresholds());
 
-        List<DiscordMessageData> messageHistory = discordChannelPort.retrieveEntireHistoryFrom(useCase.getChannelId());
+        List<DiscordMessageData> messageHistory = getMessageHistory(useCase.getChannelId());
 
         return StoryGenerationRequest.builder()
                 .botId(useCase.getBotId())
@@ -82,5 +83,18 @@ public class GenerateOutputHandler extends AbstractUseCaseHandler<GenerateOutput
                 .worldId(channelConfig.getWorldId())
                 .messageHistory(messageHistory)
                 .build();
+    }
+
+    private List<DiscordMessageData> getMessageHistory(String channelId) {
+
+        DiscordMessageData lastMessageSent = discordChannelPort.getLastMessageIn(channelId)
+                .orElseThrow(() -> new IllegalStateException("Channel has no messages"));
+
+        List<DiscordMessageData> messageHistory = new ArrayList<>(discordChannelPort
+                .retrieveEntireHistoryBefore(lastMessageSent.getId(), channelId));
+
+        messageHistory.addFirst(lastMessageSent);
+
+        return messageHistory;
     }
 }

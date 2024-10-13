@@ -81,10 +81,12 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                     .retrieveMemberById(message.getAuthor().getId())
                     .complete();
 
+            String formattedContent = formatMessageWithMentions(message.getMentions().getMembers(), message, author);
+
             return Optional.of(DiscordMessageData.builder()
                     .id(message.getId())
                     .channelId(channelId)
-                    .content(message.getContentRaw())
+                    .content(formattedContent)
                     .author(DiscordUserDetails.builder()
                             .id(author.getId())
                             .nickname(author.getNickname())
@@ -195,10 +197,11 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
     @Override
     public Optional<DiscordMessageData> getLastMessageIn(String channelId) {
 
-        // TODO improve extraction of last messageso it doesn't retrieve entire history.
-        List<DiscordMessageData> messageHistrory = retrieveEntireHistoryFrom(channelId);
+        TextChannel channel = jda.getTextChannelById(channelId);
+        return Optional.of(getMessageById(channelId, channel.getLatestMessageId())
+                .orElseGet(() -> retrieveEntireHistoryBefore(channel.getLatestMessageId(), channelId).getFirst()));
 
-        return Optional.of(messageHistrory.getFirst());
+        // return getMessageById(channelId, channel.getLatestMessageId());
     }
 
     private DiscordMessageData buildMessageResult(String channelId, Message message) {

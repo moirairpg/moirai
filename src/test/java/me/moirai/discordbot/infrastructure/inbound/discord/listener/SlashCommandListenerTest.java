@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ModalCallbackAction;
@@ -422,6 +423,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         CacheRestAction<Member> memberRetrievalAction = mock(CacheRestAction.class);
         MessageChannelUnion baseChannel = mock(MessageChannelUnion.class);
         WebhookMessageEditAction<Message> editAction = mock(WebhookMessageEditAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
 
         TokenizeResult expectedAdapterResult = TokenizeResult.builder()
                 .tokens(tokens)
@@ -444,6 +446,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(event.reply(anyString())).thenReturn(eventReplyAction);
         when(eventReplyAction.setEphemeral(anyBoolean())).thenReturn(eventReplyAction);
         when(eventReplyAction.complete()).thenReturn(interactionHook);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
         when(interactionHook.editOriginal(anyString())).thenReturn(editAction);
         when(editAction.complete()).thenReturn(message);
         when(event.getOption(anyString())).thenReturn(commandParameterContent);
@@ -475,6 +478,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         CacheRestAction<Member> memberRetrievalAction = mock(CacheRestAction.class);
         MessageChannelUnion baseChannel = mock(MessageChannelUnion.class);
         WebhookMessageEditAction<Message> editAction = mock(WebhookMessageEditAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
 
         TokenizeResult expectedAdapterResult = TokenizeResult.builder()
                 .tokens(tokens)
@@ -499,6 +503,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(event.reply(anyString())).thenReturn(eventReplyAction);
         when(eventReplyAction.setEphemeral(anyBoolean())).thenReturn(eventReplyAction);
         when(eventReplyAction.complete()).thenReturn(interactionHook);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
         when(interactionHook.editOriginal(notificationCaptor.capture())).thenReturn(editAction);
         when(editAction.complete()).thenReturn(message);
         when(event.getOption(anyString())).thenReturn(commandParameterContent);
