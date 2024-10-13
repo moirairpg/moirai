@@ -103,9 +103,9 @@ public class ContextMenuCommandListener extends ListenerAdapter {
         return event.reply(message).setEphemeral(true).complete();
     }
 
-    private Message updateNotification(InteractionHook interactionHook, String newContent) {
+    private void updateNotification(InteractionHook interactionHook, String newContent) {
 
-        interactionHook.deleteOriginal().completeAfter(EPHEMERAL_MESSAGE_TTL, TimeUnit.SECONDS);
-        return interactionHook.editOriginal(newContent).complete();
+        interactionHook.editOriginal(newContent)
+                .queue(msg -> msg.delete().queueAfter(EPHEMERAL_MESSAGE_TTL, TimeUnit.SECONDS));
     }
 }

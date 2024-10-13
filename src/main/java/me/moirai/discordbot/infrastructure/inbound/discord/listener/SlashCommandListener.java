@@ -14,7 +14,6 @@ import me.moirai.discordbot.core.application.usecase.discord.slashcommands.Token
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeResult;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -67,6 +66,8 @@ public class SlashCommandListener extends ListenerAdapter {
                     useCaseRunner.run(useCase)
                             .doOnError(error -> updateNotification(interactionHook, error.getMessage()))
                             .subscribe(__ -> updateNotification(interactionHook, OUTPUT_GENERATED));
+
+                    updateNotification(interactionHook, "Output generated.");
                 }
                 case "go" -> {
                     InteractionHook interactionHook = sendNotification(event, "Generating output...");
@@ -84,6 +85,8 @@ public class SlashCommandListener extends ListenerAdapter {
                     useCaseRunner.run(useCase)
                             .doOnError(error -> updateNotification(interactionHook, error.getMessage()))
                             .subscribe(__ -> updateNotification(interactionHook, OUTPUT_GENERATED));
+
+                    updateNotification(interactionHook, "Output generated.");
                 }
                 case "start" -> {
                     InteractionHook interactionHook = sendNotification(event, "Starting adventure...");
@@ -142,13 +145,13 @@ public class SlashCommandListener extends ListenerAdapter {
                 tokenizationResult.getTokenCount());
     }
 
-    private Message updateNotification(InteractionHook interactionHook, String newContent) {
-
-        interactionHook.deleteOriginal().completeAfter(EPHEMERAL_MESSAGE_TTL, TimeUnit.SECONDS);
-        return interactionHook.editOriginal(newContent).complete();
-    }
-
     private InteractionHook sendNotification(SlashCommandInteractionEvent event, String message) {
         return event.reply(message).setEphemeral(true).complete();
+    }
+
+    private void updateNotification(InteractionHook interactionHook, String newContent) {
+
+        interactionHook.editOriginal(newContent)
+                .queue(msg -> msg.delete().queueAfter(EPHEMERAL_MESSAGE_TTL, TimeUnit.SECONDS));
     }
 }
