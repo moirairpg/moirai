@@ -121,10 +121,21 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
 
         List<ChatMessage> chatMessages = new ArrayList<>();
 
-        chatMessages.addAll(messagesExtracted.stream()
+        messagesExtracted.stream()
+                .takeWhile(message -> {
+                    int tokensInMessage = tokenizerPort.getTokenCountFrom(message.getContent());
+                    int tokensInRequest = tokenizerPort.getTokenCountFrom(stringifyMessageList(chatMessages));
+                    int tokensAvailable = tokensInRequest - tokensInMessage;
+
+                    return modelConfiguration.getAiModel().getHardTokenLimit() >= tokensAvailable;
+                })
                 .map(messageData -> ChatMessage.build(USER, messageData.getContent()))
-                .collect(Collectors.toCollection(ArrayList::new))
-                .reversed());
+                .forEach(chatMessages::addFirst);
+
+        // chatMessages.addAll(messagesExtracted.stream()
+        //         .map(messageData -> ChatMessage.build(USER, messageData.getContent()))
+        //         .collect(Collectors.toCollection(ArrayList::new))
+        //         .reversed());
 
         if (StringUtils.isNotBlank(lorebook)) {
             chatMessages.addFirst(ChatMessage.build(SYSTEM, lorebook));
@@ -147,5 +158,12 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
     private String stringifyList(List<String> list) {
 
         return list.stream().collect(Collectors.joining(LF));
+    }
+
+    private String stringifyMessageList(List<ChatMessage> list) {
+
+        return list.stream()
+                .map(ChatMessage::getContent)
+                .collect(Collectors.joining(LF));
     }
 }
