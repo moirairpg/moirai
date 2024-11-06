@@ -132,11 +132,6 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
                 .map(messageData -> ChatMessage.build(USER, messageData.getContent()))
                 .forEach(chatMessages::addFirst);
 
-        // chatMessages.addAll(messagesExtracted.stream()
-        //         .map(messageData -> ChatMessage.build(USER, messageData.getContent()))
-        //         .collect(Collectors.toCollection(ArrayList::new))
-        //         .reversed());
-
         if (StringUtils.isNotBlank(lorebook)) {
             chatMessages.addFirst(ChatMessage.build(SYSTEM, lorebook));
         }
