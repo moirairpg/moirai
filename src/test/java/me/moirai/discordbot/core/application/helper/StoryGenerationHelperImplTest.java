@@ -99,7 +99,7 @@ public class StoryGenerationHelperImplTest {
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
         TextModerationResult moderationResult = TextModerationResultFixture.withoutFlags().build();
 
-        when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
+        when(summarizationPort.summarizeContextWith(anyMap(), any(StoryGenerationRequest.class)))
                 .thenReturn(Mono.just(context));
 
         when(lorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
@@ -186,7 +186,7 @@ public class StoryGenerationHelperImplTest {
 
         TextModerationResult moderationResult = TextModerationResultFixture.withFlags().build();
 
-        when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
+        when(summarizationPort.summarizeContextWith(anyMap(), any(StoryGenerationRequest.class)))
                 .thenReturn(Mono.just(context));
 
         when(lorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),
@@ -243,7 +243,7 @@ public class StoryGenerationHelperImplTest {
         TextModerationResult goodModerationResult = TextModerationResultFixture.withoutFlags().build();
         TextModerationResult badModerationResult = TextModerationResultFixture.withFlags().build();
 
-        when(summarizationPort.summarizeContextWith(anyMap(), any(ModelConfigurationRequest.class)))
+        when(summarizationPort.summarizeContextWith(anyMap(), any(StoryGenerationRequest.class)))
                 .thenReturn(Mono.just(context));
 
         when(lorebookEnrichmentHelper.enrichContextWithLorebook(anyList(), anyString(),

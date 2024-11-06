@@ -71,8 +71,7 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
         return Mono.just(request.getMessageHistory())
                 .map(messageHistory -> lorebookEnrichmentHelper.enrichContextWithLorebook(messageHistory,
                         request.getWorldId(), request.getModelConfiguration()))
-                .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook,
-                        request.getModelConfiguration()))
+                .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook, request))
                 .flatMap(contextWithSummary -> personaEnrichmentPort.enrichContextWithPersona(
                         contextWithSummary, request.getPersonaId(), request.getModelConfiguration()))
                 .map(contextWithPersona -> processEnrichedContext(contextWithPersona, request.getBotUsername(),

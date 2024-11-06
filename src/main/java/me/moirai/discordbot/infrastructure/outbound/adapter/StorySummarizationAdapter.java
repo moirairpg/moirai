@@ -23,6 +23,7 @@ import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -51,12 +52,12 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
 
     @Override
     public Mono<Map<String, Object>> summarizeContextWith(Map<String, Object> context,
-            ModelConfigurationRequest modelConfiguration) {
+            StoryGenerationRequest storyGenerationRequest) {
 
-        int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
+        int totalTokens = storyGenerationRequest.getModelConfiguration().getAiModel().getHardTokenLimit();
         int reservedTokensForStory = (int) Math.floor(totalTokens * 0.30);
 
-        return generateSummary(context, modelConfiguration)
+        return generateSummary(context, storyGenerationRequest)
                 .map(contextWithSummary -> {
                     contextWithSummary.putAll(
                             chatMessageService.addMessagesToContext(contextWithSummary, reservedTokensForStory, 5));
@@ -71,12 +72,12 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
     }
 
     private Mono<? extends Map<String, Object>> generateSummary(Map<String, Object> context,
-            ModelConfigurationRequest modelConfiguration) {
+            StoryGenerationRequest storyGenerationRequest) {
 
         List<DiscordMessageData> rawMessageHistory = (List<DiscordMessageData>) context.get(RETRIEVED_MESSAGES);
         String lorebook = (String) context.get(LOREBOOK);
 
-        TextGenerationRequest request = createSummarizationRequest(rawMessageHistory, lorebook, modelConfiguration);
+        TextGenerationRequest request = createSummarizationRequest(rawMessageHistory, lorebook, storyGenerationRequest);
         return openAiPort.generateTextFrom(request)
                 .map(summaryGenerated -> {
                     StringProcessor processor = new StringProcessor();
@@ -117,17 +118,19 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
     }
 
     private TextGenerationRequest createSummarizationRequest(List<DiscordMessageData> messagesExtracted,
-            String lorebook, ModelConfigurationRequest modelConfiguration) {
+            String lorebook, StoryGenerationRequest storyGenerationRequest) {
 
+        ModelConfigurationRequest modelConfiguration = storyGenerationRequest.getModelConfiguration();
         List<ChatMessage> chatMessages = new ArrayList<>();
 
-        messagesExtracted.stream()
+        storyGenerationRequest.getMessageHistory().stream()
                 .takeWhile(message -> {
                     int tokensInMessage = tokenizerPort.getTokenCountFrom(message.getContent());
                     int tokensInRequest = tokenizerPort.getTokenCountFrom(stringifyMessageList(chatMessages));
                     int tokensAvailable = tokensInRequest - tokensInMessage;
 
-                    return modelConfiguration.getAiModel().getHardTokenLimit() >= tokensAvailable;
+                    return modelConfiguration.getAiModel()
+                            .getHardTokenLimit() >= tokensAvailable;
                 })
                 .map(messageData -> ChatMessage.build(USER, messageData.getContent()))
                 .forEach(chatMessages::addFirst);

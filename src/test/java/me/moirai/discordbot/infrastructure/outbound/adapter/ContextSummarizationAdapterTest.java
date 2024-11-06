@@ -33,8 +33,9 @@ import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageDataFixture;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
-import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequestFixture;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequestFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -62,7 +63,9 @@ public class ContextSummarizationAdapterTest {
 
         // Given
         String generatedSummary = "Generated summary";
-        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
+        StoryGenerationRequest storyGenerationRequest = StoryGenerationRequestFixture.create()
+                .modelConfiguration(ModelConfigurationRequestFixture.gpt4Mini().build())
+                .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
 
@@ -75,7 +78,7 @@ public class ContextSummarizationAdapterTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeContextWith(context, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(context, storyGenerationRequest);
 
         // Then
         StepVerifier.create(result)
@@ -88,7 +91,9 @@ public class ContextSummarizationAdapterTest {
     public void summarizeWith_emptyMessageHistory_thenEmptySummaryReturned() {
 
         // Given
-        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
+        StoryGenerationRequest storyGenerationRequest = StoryGenerationRequestFixture.create()
+                .modelConfiguration(ModelConfigurationRequestFixture.gpt4Mini().build())
+                .build();
         Map<String, Object> context = createContextWithMessageNumber(3);
 
         when(openAiPort.generateTextFrom(any(TextGenerationRequest.class)))
@@ -100,7 +105,7 @@ public class ContextSummarizationAdapterTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeContextWith(context, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(context, storyGenerationRequest);
 
         // Then
         StepVerifier.create(result)
@@ -115,11 +120,13 @@ public class ContextSummarizationAdapterTest {
         // Given
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
         String trimmedSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor.";
-        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini()
-                .aiModel(AiModelRequest.build(
-                        GPT4_MINI.getInternalModelName(),
-                        GPT4_MINI.getOfficialModelName(),
-                        GPT4_MINI.getHardTokenLimit()))
+        StoryGenerationRequest storyGenerationRequest = StoryGenerationRequestFixture.create()
+                .modelConfiguration(ModelConfigurationRequestFixture.gpt4Mini()
+                        .aiModel(AiModelRequest.build(
+                                GPT4_MINI.getInternalModelName(),
+                                GPT4_MINI.getOfficialModelName(),
+                                GPT4_MINI.getHardTokenLimit()))
+                        .build())
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
@@ -147,7 +154,7 @@ public class ContextSummarizationAdapterTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeContextWith(context, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(context, storyGenerationRequest);
 
         // Then
         StepVerifier.create(result)
@@ -171,11 +178,13 @@ public class ContextSummarizationAdapterTest {
 
         // Given
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
-        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini()
-                .aiModel(AiModelRequest.build(
-                        GPT4_MINI.getInternalModelName(),
-                        GPT4_MINI.getOfficialModelName(),
-                        GPT4_MINI.getHardTokenLimit()))
+        StoryGenerationRequest storyGenerationRequest = StoryGenerationRequestFixture.create()
+                .modelConfiguration(ModelConfigurationRequestFixture.gpt4Mini()
+                        .aiModel(AiModelRequest.build(
+                                GPT4_MINI.getInternalModelName(),
+                                GPT4_MINI.getOfficialModelName(),
+                                GPT4_MINI.getHardTokenLimit()))
+                        .build())
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
@@ -203,7 +212,7 @@ public class ContextSummarizationAdapterTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeContextWith(context, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(context, storyGenerationRequest);
 
         // Then
         StepVerifier.create(result)
@@ -227,11 +236,13 @@ public class ContextSummarizationAdapterTest {
 
         // Given
         String longSummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam egestas dignissim velit, ut pellentesque ipsum. Ut auctor ipsum suscipit sapien tristique suscipit. Donec bibendum lectus neque, nec porttitor turpis commodo at. Nulla facilisi. Nulla gravida interdum tempor. Mauris iaculis pharetra leo.";
-        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini()
-                .aiModel(AiModelRequest.build(
-                        GPT4_MINI.getInternalModelName(),
-                        GPT4_MINI.getOfficialModelName(),
-                        GPT4_MINI.getHardTokenLimit()))
+        StoryGenerationRequest storyGenerationRequest = StoryGenerationRequestFixture.create()
+                .modelConfiguration(ModelConfigurationRequestFixture.gpt4Mini()
+                        .aiModel(AiModelRequest.build(
+                                GPT4_MINI.getInternalModelName(),
+                                GPT4_MINI.getOfficialModelName(),
+                                GPT4_MINI.getHardTokenLimit()))
+                        .build())
                 .build();
 
         Map<String, Object> context = createContextWithMessageNumber(3);
@@ -259,7 +270,7 @@ public class ContextSummarizationAdapterTest {
                 .thenReturn(context);
 
         // When
-        Mono<Map<String, Object>> result = service.summarizeContextWith(context, modelConfiguration);
+        Mono<Map<String, Object>> result = service.summarizeContextWith(context, storyGenerationRequest);
 
         // Then
         StepVerifier.create(result)
