@@ -1,5 +1,7 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter.discord;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +52,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .content(messageSent.getContentRaw())
                 .author(DiscordUserDetails.builder()
                         .id(author.getId())
-                        .nickname(author.getNickname())
+                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname() : author.getUser().getGlobalName())
                         .username(author.getUser().getName())
                         .mention(author.getAsMention())
                         .build())
@@ -89,7 +91,8 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                     .content(formattedContent)
                     .author(DiscordUserDetails.builder()
                             .id(author.getId())
-                            .nickname(author.getNickname())
+                            .nickname(isNotEmpty(author.getNickname()) ? author.getNickname()
+                                    : author.getUser().getGlobalName())
                             .username(author.getUser().getName())
                             .mention(author.getAsMention())
                             .build())
@@ -98,7 +101,8 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                             .map(member -> DiscordUserDetails.builder()
                                     .id(member.getId())
                                     .mention(member.getAsMention())
-                                    .nickname(member.getNickname())
+                                    .nickname(isNotEmpty(member.getNickname()) ? member.getNickname()
+                                            : member.getUser().getGlobalName())
                                     .username(member.getUser().getName())
                                     .build())
                             .toList())
@@ -135,7 +139,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .content(messageContent)
                 .author(DiscordUserDetails.builder()
                         .id(author.getId())
-                        .nickname(author.getNickname())
+                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname() : author.getUser().getGlobalName())
                         .username(author.getUser().getName())
                         .mention(author.getAsMention())
                         .build())
@@ -144,7 +148,8 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                         .map(member -> DiscordUserDetails.builder()
                                 .id(member.getId())
                                 .mention(member.getAsMention())
-                                .nickname(member.getNickname())
+                                .nickname(isNotEmpty(member.getNickname()) ? member.getNickname()
+                                        : member.getUser().getGlobalName())
                                 .username(member.getUser().getName())
                                 .build())
                         .toList())
@@ -219,7 +224,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .content(formattedContent)
                 .author(DiscordUserDetails.builder()
                         .id(author.getId())
-                        .nickname(author.getNickname())
+                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname() : author.getUser().getGlobalName())
                         .username(author.getUser().getName())
                         .mention(author.getAsMention())
                         .build())
@@ -227,7 +232,8 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                         .map(member -> DiscordUserDetails.builder()
                                 .id(member.getId())
                                 .mention(member.getAsMention())
-                                .nickname(member.getNickname())
+                                .nickname(isNotEmpty(member.getNickname()) ? member.getNickname()
+                                        : member.getUser().getGlobalName())
                                 .username(member.getUser().getName())
                                 .build())
                         .toList())

@@ -1,5 +1,7 @@
 package me.moirai.discordbot.core.domain.world;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +149,7 @@ public class WorldServiceImpl implements WorldService {
                 .regex(command.getRegex())
                 .description(command.getDescription())
                 .playerDiscordId(command.getPlayerDiscordId())
-                .isPlayerCharacter(command.isPlayerCharacter())
+                .isPlayerCharacter(isEmpty(command.getPlayerDiscordId()))
                 .worldId(command.getWorldId())
                 .creatorDiscordId(command.getRequesterDiscordId())
                 .build();

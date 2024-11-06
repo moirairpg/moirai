@@ -1,5 +1,6 @@
 package me.moirai.discordbot.core.application.helper;
 
+import static java.util.Objects.nonNull;
 import static me.moirai.discordbot.common.util.DefaultStringProcessors.replaceTemplateWithValueIgnoreCase;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.LF;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 
 import io.micrometer.common.util.StringUtils;
 import me.moirai.discordbot.common.annotation.Helper;
+import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.util.StringProcessor;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
@@ -124,8 +126,22 @@ public class LorebookEnrichmentHelperImpl implements LorebookEnrichmentHelper {
 
     private List<WorldLorebookEntry> findLorebookEntriesByAuthor(String worldId,
             List<DiscordMessageData> rawMessageHistory) {
+
         return rawMessageHistory.stream()
-                .map(message -> worldService.findLorebookEntryByPlayerDiscordId(message.getAuthor().getId(), worldId))
+                .map(message -> {
+                    try {
+                        return worldService.findLorebookEntryByPlayerDiscordId(message.getAuthor().getId(), worldId);
+                    } catch (AssetNotFoundException exception) {
+                        return null;
+                    }
+                })
+                .filter(message -> nonNull(message))
+                .collect(Collectors.toMap(
+                        WorldLorebookEntry::getId,
+                        entry -> entry,
+                        (existing, replacement) -> existing))
+                .values()
+                .stream()
                 .toList();
     }
 

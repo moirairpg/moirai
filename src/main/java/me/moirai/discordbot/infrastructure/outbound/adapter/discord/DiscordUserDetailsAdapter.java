@@ -1,5 +1,7 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter.discord;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -54,7 +56,7 @@ public class DiscordUserDetailsAdapter implements DiscordUserDetailsPort {
             return Optional.of(DiscordUserDetails.builder()
                     .id(member.getId())
                     .username(member.getUser().getName())
-                    .nickname(member.getNickname())
+                    .nickname(isNotBlank(member.getNickname()) ? member.getNickname() : member.getUser().getGlobalName())
                     .mention(member.getAsMention())
                     .build());
         } catch (Exception e) {

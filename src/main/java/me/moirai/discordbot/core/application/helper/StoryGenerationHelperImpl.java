@@ -21,14 +21,17 @@ import me.moirai.discordbot.core.application.model.request.ChatMessage;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
 import me.moirai.discordbot.core.application.model.result.TextGenerationResult;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
+import me.moirai.discordbot.core.application.port.DiscordUserDetailsPort;
 import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
 import reactor.core.publisher.Mono;
 
 @Helper
+@SuppressWarnings("unchecked")
 public class StoryGenerationHelperImpl implements StoryGenerationHelper {
 
     private static final String BUMP = "bump";
@@ -41,6 +44,7 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
     private static final String SAID = " said: ";
     private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-Za-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
     private static final String PERIOD = ".";
+    private static final String RPG = "RPG";
     private static final int DISCORD_MAX_LENGTH = 2000;
 
     private final DiscordChannelPort discordChannelPort;
@@ -50,7 +54,8 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
     private final TextCompletionPort textCompletionPort;
     private final TextModerationPort textModerationPort;
 
-    public StoryGenerationHelperImpl(StorySummarizationPort summarizationPort,
+    public StoryGenerationHelperImpl(DiscordUserDetailsPort discordUserDetailsPort,
+            StorySummarizationPort summarizationPort,
             DiscordChannelPort discordChannelPort,
             LorebookEnrichmentHelper lorebookEnrichmentHelper,
             PersonaEnrichmentHelper personaEnrichmentPort,
@@ -69,19 +74,29 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
     public Mono<Void> continueStory(StoryGenerationRequest request) {
 
         return Mono.just(request.getMessageHistory())
-                .map(messageHistory -> lorebookEnrichmentHelper.enrichContextWithLorebook(messageHistory,
-                        request.getWorldId(), request.getModelConfiguration()))
+                .map(messageHistory -> enrichWithLorebook(request, messageHistory))
                 .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook, request))
                 .flatMap(contextWithSummary -> personaEnrichmentPort.enrichContextWithPersona(
                         contextWithSummary, request.getPersonaId(), request.getModelConfiguration()))
-                .map(contextWithPersona -> processEnrichedContext(contextWithPersona, request.getBotUsername(),
-                        request.getBotNickname()))
+                .map(contextWithPersona -> processEnrichedContext(contextWithPersona, request))
                 .flatMap(processedContext -> moderateInput(processedContext, request.getModeration()))
                 .flatMap(processedContext -> generateAiOutput(request, processedContext))
                 .flatMap(aiOutput -> moderateOutput(aiOutput, request.getModeration()))
                 .doOnNext(generatedOutput -> sendOutputTo(request.getChannelId(),
                         request.getBotUsername(), request.getBotNickname(), generatedOutput))
                 .then();
+    }
+
+    private Map<String, Object> enrichWithLorebook(StoryGenerationRequest request,
+            List<DiscordMessageData> messageHistory) {
+
+        if (request.getGameMode().equals(RPG)) {
+            return lorebookEnrichmentHelper.enrichContextWithLorebookForRpg(messageHistory,
+                    request.getWorldId(), request.getModelConfiguration());
+        }
+
+        return lorebookEnrichmentHelper.enrichContextWithLorebook(messageHistory,
+                request.getWorldId(), request.getModelConfiguration());
     }
 
     private Mono<? extends TextGenerationResult> generateAiOutput(StoryGenerationRequest query,
@@ -108,20 +123,22 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
     }
 
     private List<ChatMessage> processEnrichedContext(Map<String, Object> unsortedContext,
-            String botName, String botNickname) {
+            StoryGenerationRequest request) {
+
+        List<ChatMessage> processedContext = new ArrayList<>();
 
         String persona = (String) unsortedContext.get(PERSONA);
         String personaName = (String) unsortedContext.get(PERSONA_NAME);
         String nudge = (String) unsortedContext.get(NUDGE);
+        String bump = (String) unsortedContext.get(BUMP);
         String storySummary = (String) unsortedContext.get(STORY_SUMMARY);
         String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
 
-        List<ChatMessage> processedContext = new ArrayList<>();
-        processedContext.add(
-                ChatMessage.build(ChatMessage.Role.SYSTEM,
-                        replacePlaceholders(storySummary, botName, botNickname, personaName)));
+        processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM,
+                replacePlaceholders(storySummary, request.getBotUsername(), request.getBotNickname(), personaName)));
 
-        processedContext.addAll(buildContextForGeneration(unsortedContext, botName, botNickname, personaName));
+        processedContext.addAll(buildContextForGeneration(unsortedContext,
+                request.getBotUsername(), request.getBotNickname(), personaName));
 
         if (StringUtils.isNotBlank(lorebookEntries)) {
             processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
@@ -133,7 +150,14 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
             processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, nudge));
         }
 
-        return extractBumpFrom(unsortedContext, processedContext);
+        if (StringUtils.isNotBlank(bump)) {
+            int bumpFrequency = 5;
+            for (int index = processedContext.size() - 1 - bumpFrequency; index > 0; index = index - bumpFrequency) {
+                processedContext.add(index, ChatMessage.build(ChatMessage.Role.SYSTEM, bump));
+            }
+        }
+
+        return processedContext;
     }
 
     private String replacePlaceholders(String summary, String botName, String botNickname, String personaName) {
@@ -147,7 +171,6 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
         return processor.process(summary);
     }
 
-    @SuppressWarnings("unchecked")
     private List<ChatMessage> buildContextForGeneration(Map<String, Object> unsortedContext,
             String botName, String botNickname, String personaName) {
 
@@ -165,19 +188,6 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
                     return ChatMessage.build(senderRole, modifiedContent);
                 })
                 .toList();
-    }
-
-    private List<ChatMessage> extractBumpFrom(Map<String, Object> unsortedContext, List<ChatMessage> processedContext) {
-
-        String bump = (String) unsortedContext.get(BUMP);
-        if (StringUtils.isNotBlank(bump)) {
-            int bumpFrequency = 5;
-            for (int index = processedContext.size() - 1 - bumpFrequency; index > 0; index = index - bumpFrequency) {
-                processedContext.add(index, ChatMessage.build(ChatMessage.Role.SYSTEM, bump));
-            }
-        }
-
-        return processedContext;
     }
 
     private void sendOutputTo(String messageChannelId, String botName, String botNickname, String content) {

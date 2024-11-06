@@ -1,5 +1,6 @@
 package me.moirai.discordbot.core.application.usecase.discord.messagereceived;
 
+import static me.moirai.discordbot.core.domain.channelconfig.GameMode.CHAT;
 import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
 
 import java.util.ArrayList;
@@ -80,6 +81,7 @@ public class ChatModeHandler extends AbstractUseCaseHandler<ChatModeRequest, Mon
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
                 .messageHistory(messageHistory)
+                .gameMode(CHAT.name())
                 .build();
     }
 

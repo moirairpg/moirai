@@ -15,6 +15,7 @@ public class StoryGenerationRequest {
     private final String guildId;
     private final String worldId;
     private final String personaId;
+    private final String gameMode;
     private final ModelConfigurationRequest modelConfiguration;
     private final ModerationConfigurationRequest moderation;
     private final List<DiscordMessageData> messageHistory;
@@ -28,6 +29,7 @@ public class StoryGenerationRequest {
         this.guildId = builder.guildId;
         this.worldId = builder.worldId;
         this.personaId = builder.personaId;
+        this.gameMode = builder.gameMode;
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
         this.messageHistory = Collections.unmodifiableList(builder.messageHistory);
@@ -65,6 +67,10 @@ public class StoryGenerationRequest {
         return personaId;
     }
 
+    public String getGameMode() {
+        return gameMode;
+    }
+
     public ModelConfigurationRequest getModelConfiguration() {
         return modelConfiguration;
     }
@@ -86,6 +92,7 @@ public class StoryGenerationRequest {
         private String guildId;
         private String worldId;
         private String personaId;
+        private String gameMode;
         private ModelConfigurationRequest modelConfiguration;
         private ModerationConfigurationRequest moderation;
         private List<DiscordMessageData> messageHistory = new ArrayList<>();
@@ -120,6 +127,11 @@ public class StoryGenerationRequest {
 
         public Builder personaId(String personaId) {
             this.personaId = personaId;
+            return this;
+        }
+
+        public Builder gameMode(String gameMode) {
+            this.gameMode = gameMode;
             return this;
         }
 

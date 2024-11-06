@@ -1,5 +1,6 @@
 package me.moirai.discordbot.core.application.usecase.discord.messagereceived;
 
+import static me.moirai.discordbot.core.domain.channelconfig.GameMode.RPG;
 import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
 
 import java.util.ArrayList;
@@ -80,6 +81,7 @@ public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeRequest, Mono<
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
                 .messageHistory(messageHistory)
+                .gameMode(RPG.name())
                 .build();
     }
 
