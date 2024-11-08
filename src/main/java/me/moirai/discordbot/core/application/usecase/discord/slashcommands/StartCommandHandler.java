@@ -106,6 +106,7 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
                 .messageHistory(Collections.singletonList(adventureStartMessage))
+                .gameMode(channelConfig.getGameMode().name())
                 .build();
     }
 }

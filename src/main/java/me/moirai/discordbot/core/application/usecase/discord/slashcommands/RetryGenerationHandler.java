@@ -99,6 +99,7 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
                 .messageHistory(messageHistory)
+                .gameMode(channelConfig.getGameMode().name())
                 .build();
     }
 

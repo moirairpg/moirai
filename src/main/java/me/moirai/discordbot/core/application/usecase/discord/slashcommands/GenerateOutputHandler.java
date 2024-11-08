@@ -82,6 +82,7 @@ public class GenerateOutputHandler extends AbstractUseCaseHandler<GenerateOutput
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
                 .messageHistory(messageHistory)
+                .gameMode(channelConfig.getGameMode().name())
                 .build();
     }
 
