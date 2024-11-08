@@ -19,6 +19,7 @@ public class ChannelConfig extends ShareableAsset {
     private ModelConfiguration modelConfiguration;
     private Moderation moderation;
     private GameMode gameMode;
+    private boolean isMultiplayer;
 
     private ChannelConfig(Builder builder) {
 
@@ -33,6 +34,7 @@ public class ChannelConfig extends ShareableAsset {
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
         this.gameMode = builder.gameMode;
+        this.isMultiplayer = builder.isMultiplayer;
     }
 
     public String getId() {
@@ -65,6 +67,10 @@ public class ChannelConfig extends ShareableAsset {
 
     public GameMode getGameMode() {
         return gameMode;
+    }
+
+    public boolean isMultiplayer() {
+        return isMultiplayer;
     }
 
     public static Builder builder() {
@@ -156,6 +162,14 @@ public class ChannelConfig extends ShareableAsset {
         this.modelConfiguration = newModelConfiguration;
     }
 
+    public void makeMultiplayer() {
+        this.isMultiplayer = true;
+    }
+
+    public void makeSinglePlayer() {
+        this.isMultiplayer = false;
+    }
+
     public static final class Builder {
 
         private String id;
@@ -163,6 +177,7 @@ public class ChannelConfig extends ShareableAsset {
         private String worldId;
         private String personaId;
         private String discordChannelId;
+        private boolean isMultiplayer;
         private GameMode gameMode;
         private ModelConfiguration modelConfiguration;
         private Moderation moderation;
@@ -202,6 +217,12 @@ public class ChannelConfig extends ShareableAsset {
         public Builder gameMode(GameMode gameMode) {
 
             this.gameMode = gameMode;
+            return this;
+        }
+
+        public Builder isMultiplayer(boolean isMultiplayer) {
+
+            this.isMultiplayer = isMultiplayer;
             return this;
         }
 

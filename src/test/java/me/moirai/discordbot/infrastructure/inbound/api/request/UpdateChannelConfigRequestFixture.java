@@ -31,6 +31,7 @@ public class UpdateChannelConfigRequestFixture {
         request.setUsersAllowedToReadToRemove(Collections.singletonList("USRID"));
         request.setTemperature(1.7);
         request.setVisibility(channelConfig.getVisibility().name());
+        request.setMultiplayer(false);
 
         return request;
     }

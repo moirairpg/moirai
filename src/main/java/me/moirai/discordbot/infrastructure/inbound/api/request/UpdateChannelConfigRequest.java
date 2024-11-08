@@ -3,20 +3,61 @@ package me.moirai.discordbot.infrastructure.inbound.api.request;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 public class UpdateChannelConfigRequest {
 
+    @NotEmpty(message = "cannot be empty")
+    @NotNull(message = "cannot be null")
     private String name;
+
+    @NotEmpty(message = "cannot be empty")
+    @NotNull(message = "cannot be null")
     private String worldId;
+
+    @NotEmpty(message = "cannot be empty")
+    @NotNull(message = "cannot be null")
     private String personaId;
+
+    @NotEmpty(message = "cannot be empty")
+    @NotNull(message = "cannot be null")
     private String discordChannelId;
+
+    @NotEmpty(message = "cannot be empty")
+    @NotNull(message = "cannot be null")
     private String visibility;
+
+    @NotEmpty(message = "cannot be empty")
+    @NotNull(message = "cannot be null")
     private String aiModel;
+
+    @NotEmpty(message = "cannot be empty")
+    @NotNull(message = "cannot be null")
     private String moderation;
-    private String gameMode;
+
+    @NotNull(message = "cannot be null")
+    @Min(value = 100, message = "cannot be less than 100")
     private Integer maxTokenLimit;
+
+    @NotNull(message = "cannot be null")
+    @DecimalMin(value = "0.1", message = "cannot be less than 0.1")
+    @DecimalMax(value = "2", message = "cannot be greater than 2")
     private Double temperature;
+
+    @DecimalMin(value = "-2", message = "cannot be less than -2")
+    @DecimalMax(value = "2", message = "cannot be greater than 2")
     private Double frequencyPenalty;
+
+    @DecimalMin(value = "-2", message = "cannot be less than -2")
+    @DecimalMax(value = "2", message = "cannot be greater than 2")
     private Double presencePenalty;
+
+    private String gameMode;
+    private boolean isMultiplayer;
     private List<String> stopSequencesToAdd;
     private List<String> stopSequencesToRemove;
     private Map<String, Double> logitBiasToAdd;
@@ -59,6 +100,10 @@ public class UpdateChannelConfigRequest {
 
     public String getGameMode() {
         return gameMode;
+    }
+
+    public boolean isMultiplayer() {
+        return isMultiplayer;
     }
 
     public Integer getMaxTokenLimit() {
@@ -115,6 +160,10 @@ public class UpdateChannelConfigRequest {
 
     public void setGameMode(String gameMode) {
         this.gameMode = gameMode;
+    }
+
+    public void setMultiplayer(boolean isMultiplayer) {
+        this.isMultiplayer = isMultiplayer;
     }
 
     public void setWorldId(String worldId) {

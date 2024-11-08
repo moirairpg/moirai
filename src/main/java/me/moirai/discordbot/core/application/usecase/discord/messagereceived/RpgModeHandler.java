@@ -42,6 +42,11 @@ public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeRequest, Mono<
                 .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getChannelId()))
                 .map(channelConfig -> {
                     StoryGenerationRequest generationRequest = buildGenerationRequest(query, channelConfig);
+
+                    if (channelConfig.isMultiplayer()) {
+                        return Mono.<Void>empty();
+                    }
+
                     return storyGenerationPort.continueStory(generationRequest);
                 })
                 .orElseGet(() -> Mono.empty());

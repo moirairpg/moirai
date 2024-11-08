@@ -31,6 +31,7 @@ public class ChannelConfigRequestMapper {
                 .discordChannelId(request.getDiscordChannelId())
                 .gameMode(request.getGameMode())
                 .requesterDiscordId(requesterDiscordId)
+                .isMultiplayer(request.isMultiplayer())
                 .build();
     }
 
@@ -59,6 +60,7 @@ public class ChannelConfigRequestMapper {
                 .discordChannelId(request.getDiscordChannelId())
                 .gameMode(request.getGameMode())
                 .requesterDiscordId(requesterDiscordId)
+                .isMultiplayer(request.isMultiplayer())
                 .build();
     }
 

@@ -35,6 +35,7 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
     private final List<String> usersAllowedToReadToAdd;
     private final List<String> usersAllowedToReadToRemove;
     private final String gameMode;
+    private final boolean isMultiplayer;
 
     private UpdateChannelConfig(Builder builder) {
 
@@ -52,6 +53,7 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
         this.presencePenalty = builder.presencePenalty;
         this.requesterDiscordId = builder.requesterDiscordId;
         this.gameMode = builder.gameMode;
+        this.isMultiplayer = builder.isMultiplayer;
         this.logitBiasToAdd = unmodifiableMap(builder.logitBiasToAdd);
         this.logitBiasToRemove = unmodifiableList(builder.logitBiasToRemove);
         this.stopSequencesToAdd = unmodifiableList(builder.stopSequencesToAdd);
@@ -100,6 +102,10 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
 
     public String getGameMode() {
         return gameMode;
+    }
+
+    public boolean isMultiplayer() {
+        return isMultiplayer;
     }
 
     public Integer getMaxTokenLimit() {
@@ -165,6 +171,7 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
         private String aiModel;
         private String moderation;
         private String gameMode;
+        private boolean isMultiplayer;
         private Integer maxTokenLimit;
         private Double temperature;
         private Double frequencyPenalty;
@@ -224,6 +231,11 @@ public final class UpdateChannelConfig extends UseCase<UpdateChannelConfigResult
 
         public Builder gameMode(String gameMode) {
             this.gameMode = gameMode;
+            return this;
+        }
+
+        public Builder isMultiplayer(boolean isMultiplayer) {
+            this.isMultiplayer = isMultiplayer;
             return this;
         }
 

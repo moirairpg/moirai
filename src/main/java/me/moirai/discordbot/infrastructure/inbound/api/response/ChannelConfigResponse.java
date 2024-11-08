@@ -20,6 +20,7 @@ public class ChannelConfigResponse {
     private String aiModel;
     private String moderation;
     private String gameMode;
+    private boolean isMultiplayer;
     private Integer maxTokenLimit;
     private Integer messageHistorySize;
     private Double temperature;
@@ -58,6 +59,7 @@ public class ChannelConfigResponse {
         this.creationDate = builder.creationDate;
         this.lastUpdateDate = builder.lastUpdateDate;
         this.gameMode = builder.gameMode;
+        this.isMultiplayer = builder.isMultiplayer;
     }
 
     public static Builder builder() {
@@ -98,6 +100,10 @@ public class ChannelConfigResponse {
 
     public String getGameMode() {
         return gameMode;
+    }
+
+    public boolean isMultiplayer() {
+        return isMultiplayer;
     }
 
     public Integer getMaxTokenLimit() {
@@ -159,6 +165,7 @@ public class ChannelConfigResponse {
         private String aiModel;
         private String moderation;
         private String gameMode;
+        private boolean isMultiplayer;
         private Integer maxTokenLimit;
         private Integer messageHistorySize;
         private Double temperature;
@@ -217,6 +224,11 @@ public class ChannelConfigResponse {
 
         public Builder gameMode(String gameMode) {
             this.gameMode = gameMode;
+            return this;
+        }
+
+        public Builder isMultiplayer(boolean isMultiplayer) {
+            this.isMultiplayer = isMultiplayer;
             return this;
         }
 

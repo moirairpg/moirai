@@ -75,6 +75,7 @@ public class ChannelConfigServiceImpl implements ChannelConfigService {
                 .gameMode(GameMode.fromString(command.getGameMode()))
                 .visibility(Visibility.fromString(command.getVisibility()))
                 .moderation(Moderation.fromString(command.getModeration()))
+                .isMultiplayer(command.isMultiplayer())
                 .build();
 
         return repository.save(channelConfig);
@@ -136,6 +137,12 @@ public class ChannelConfigServiceImpl implements ChannelConfigService {
             } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
                 channelConfig.makePrivate();
             }
+        }
+
+        if (!command.isMultiplayer() && channelConfig.isMultiplayer()) {
+            channelConfig.makeSinglePlayer();
+        } else if (command.isMultiplayer() && !channelConfig.isMultiplayer()) {
+            channelConfig.makeMultiplayer();
         }
 
         CollectionUtils.emptyIfNull(command.getStopSequencesToAdd())
