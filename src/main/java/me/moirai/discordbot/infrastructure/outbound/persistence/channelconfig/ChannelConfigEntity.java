@@ -34,6 +34,9 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
     @Column(name = "game_mode", nullable = false)
     private String gameMode;
 
+    @Column(name = "is_multiplayer", nullable = false)
+    private boolean isMultiplayer;
+
     @Embedded
     private ModelConfigurationEntity modelConfiguration;
 
@@ -54,6 +57,7 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
         this.discordChannelId = builder.discordChannelId;
+        this.isMultiplayer = builder.isMultiplayer;
     }
 
     protected ChannelConfigEntity() {
@@ -93,6 +97,10 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         return moderation;
     }
 
+    public boolean isMultiplayer() {
+        return isMultiplayer;
+    }
+
     public String getGameMode() {
         return gameMode;
     }
@@ -105,6 +113,7 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         private String personaId;
         private String discordChannelId;
         private String gameMode;
+        private boolean isMultiplayer;
         private ModelConfigurationEntity modelConfiguration;
         private String moderation;
         protected String ownerDiscordId;
@@ -187,6 +196,12 @@ public class ChannelConfigEntity extends ShareableAssetEntity {
         public Builder gameMode(String gameMode) {
 
             this.gameMode = gameMode;
+            return this;
+        }
+
+        public Builder isMultiplayer(boolean isMultiplayer) {
+
+            this.isMultiplayer = isMultiplayer;
             return this;
         }
 

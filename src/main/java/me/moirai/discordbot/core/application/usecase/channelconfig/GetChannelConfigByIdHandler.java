@@ -1,25 +1,36 @@
 package me.moirai.discordbot.core.application.usecase.channelconfig;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
+import me.moirai.discordbot.common.exception.AssetAccessDeniedException;
+import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.GetChannelConfigById;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.GetChannelConfigResult;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigService;
 
 @UseCaseHandler
 public class GetChannelConfigByIdHandler extends AbstractUseCaseHandler<GetChannelConfigById, GetChannelConfigResult> {
 
-    private final ChannelConfigService domainService;
+    private static final String CHANNEL_CONFIG_NOT_FOUND = "Channel config to be viewed was not found";
+    private static final String PERMISSION_VIEW_DENIED = "User does not have permission to view this channel config";
 
-    public GetChannelConfigByIdHandler(ChannelConfigService domainService) {
-        this.domainService = domainService;
+    private final ChannelConfigQueryRepository queryRepository;
+
+    public GetChannelConfigByIdHandler(ChannelConfigQueryRepository queryRepository) {
+        this.queryRepository = queryRepository;
     }
 
     @Override
     public GetChannelConfigResult execute(GetChannelConfigById query) {
 
-        ChannelConfig channelConfig = domainService.getChannelConfigById(query);
+        ChannelConfig channelConfig = queryRepository.findById(query.getId())
+                .orElseThrow(() -> new AssetNotFoundException(CHANNEL_CONFIG_NOT_FOUND));
+
+        if (!channelConfig.canUserRead(query.getRequesterDiscordId())) {
+            throw new AssetAccessDeniedException(PERMISSION_VIEW_DENIED);
+        }
+
         return mapResult(channelConfig);
     }
 

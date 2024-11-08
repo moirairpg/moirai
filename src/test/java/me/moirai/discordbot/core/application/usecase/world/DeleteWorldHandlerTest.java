@@ -2,7 +2,11 @@ package me.moirai.discordbot.core.application.usecase.world;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
+import me.moirai.discordbot.core.domain.PermissionsFixture;
+import me.moirai.discordbot.core.domain.world.World;
+import me.moirai.discordbot.core.domain.world.WorldFixture;
 import me.moirai.discordbot.core.domain.world.WorldService;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,8 +49,16 @@ public class DeleteWorldHandlerTest {
         String requesterDiscordId = "84REAC";
         String id = "WRDID";
 
+        World world = WorldFixture.publicWorld()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterDiscordId)
+                        .usersAllowedToRead(Collections.emptyList())
+                        .build())
+                .build();
+
         DeleteWorld command = DeleteWorld.build(id, requesterDiscordId);
 
+        when(domainService.getWorldById(anyString())).thenReturn(world);
         doNothing().when(domainService).deleteWorld(any(DeleteWorld.class));
 
         // When

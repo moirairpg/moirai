@@ -2,16 +2,16 @@ package me.moirai.discordbot.core.application.usecase.channelconfig;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.SearchChannelConfigsResult;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 
 @UseCaseHandler
 public class SearchChannelConfigsWithReadAccessHandler extends AbstractUseCaseHandler<SearchChannelConfigsWithReadAccess, SearchChannelConfigsResult> {
 
-    private final ChannelConfigRepository repository;
+    private final ChannelConfigQueryRepository repository;
 
-    public SearchChannelConfigsWithReadAccessHandler(ChannelConfigRepository repository) {
+    public SearchChannelConfigsWithReadAccessHandler(ChannelConfigQueryRepository repository) {
         this.repository = repository;
     }
 

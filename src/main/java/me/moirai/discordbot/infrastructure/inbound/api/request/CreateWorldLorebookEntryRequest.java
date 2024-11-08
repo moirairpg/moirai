@@ -14,7 +14,6 @@ public class CreateWorldLorebookEntryRequest {
     @NotNull(message = "cannot be null")
     private String description;
     private String playerDiscordId;
-    private boolean isPlayerCharacter;
 
     public CreateWorldLorebookEntryRequest() {
     }
@@ -35,10 +34,6 @@ public class CreateWorldLorebookEntryRequest {
         return playerDiscordId;
     }
 
-    public boolean isPlayerCharacter() {
-        return isPlayerCharacter;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -53,9 +48,5 @@ public class CreateWorldLorebookEntryRequest {
 
     public void setPlayerDiscordId(String playerDiscordId) {
         this.playerDiscordId = playerDiscordId;
-    }
-
-    public void setIsPlayerCharacter(boolean isPlayerCharacter) {
-        this.isPlayerCharacter = isPlayerCharacter;
     }
 }

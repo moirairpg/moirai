@@ -25,6 +25,7 @@ public class CreateChannelConfigRequestFixture {
         request.setUsersAllowedToWrite(channelConfig.getUsersAllowedToWrite());
         request.setTemperature(channelConfig.getModelConfiguration().getTemperature());
         request.setVisibility(channelConfig.getVisibility().name());
+        request.setMultiplayer(false);
 
         return request;
     }

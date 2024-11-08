@@ -1,8 +1,8 @@
 package me.moirai.discordbot.core.application.usecase.persona;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,7 +10,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.discordbot.common.exception.AssetAccessDeniedException;
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
+import me.moirai.discordbot.core.domain.PermissionsFixture;
+import me.moirai.discordbot.core.domain.persona.Persona;
+import me.moirai.discordbot.core.domain.persona.PersonaFixture;
 import me.moirai.discordbot.core.domain.persona.PersonaService;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,21 +36,52 @@ public class DeletePersonaHandlerTest {
         DeletePersona config = DeletePersona.build(id, requesterId);
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> handler.handle(config));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> handler.handle(config));
     }
 
     @Test
-    public void deletePersona() {
+    public void deletePersona_whenProperIdAndPermission_thenPersonaIsDeleted() {
 
         // Given
-        String id = "WRDID";
-        String requesterId = "RUEYAHA";
-
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
         DeletePersona command = DeletePersona.build(id, requesterId);
 
-        doNothing().when(domainService).deletePersona(any(DeletePersona.class));
+        Persona persona = PersonaFixture.privatePersona()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
 
-        // When
+        when(domainService.getById(anyString())).thenReturn(persona);
+
+        // Then
         handler.handle(command);
+    }
+
+    @Test
+    public void deletePersona_whenInvalidPermission_thenThrowException() {
+
+        // Given
+        String id = "CHCONFID";
+        String requesterId = "RQSTRID";
+        DeletePersona command = DeletePersona.build(id, requesterId);
+
+        Persona persona = PersonaFixture.privatePersona()
+                .id(id)
+                .name("New name")
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId("ANTHRUSR")
+                        .build())
+                .build();
+
+        when(domainService.getById(anyString())).thenReturn(persona);
+
+        // Then
+        assertThatExceptionOfType(AssetAccessDeniedException.class)
+                .isThrownBy(() -> handler.handle(command));
     }
 }

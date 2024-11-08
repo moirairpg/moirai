@@ -29,7 +29,7 @@ public class DeleteChannelConfigHandler extends AbstractUseCaseHandler<DeleteCha
     @Override
     public Void execute(DeleteChannelConfig command) {
 
-        domainService.deleteChannelConfig(command);
+        domainService.delete(command);
 
         return null;
     }

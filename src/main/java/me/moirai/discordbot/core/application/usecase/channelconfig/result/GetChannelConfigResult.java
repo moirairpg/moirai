@@ -20,6 +20,7 @@ public final class GetChannelConfigResult {
     private final String aiModel;
     private final String moderation;
     private final String gameMode;
+    private final boolean isMultiplayer;
     private final int maxTokenLimit;
     private final int messageHistorySize;
     private final double temperature;
@@ -44,6 +45,7 @@ public final class GetChannelConfigResult {
         this.aiModel = builder.aiModel;
         this.moderation = builder.moderation;
         this.gameMode = builder.gameMode;
+        this.isMultiplayer = builder.isMultiplayer;
         this.maxTokenLimit = builder.maxTokenLimit;
         this.messageHistorySize = builder.messageHistorySize;
         this.temperature = builder.temperature;
@@ -96,6 +98,10 @@ public final class GetChannelConfigResult {
 
     public String getGameMode() {
         return gameMode;
+    }
+
+    public boolean isMultiplayer() {
+        return isMultiplayer;
     }
 
     public int getMaxTokenLimit() {
@@ -157,6 +163,7 @@ public final class GetChannelConfigResult {
         private String aiModel;
         private String moderation;
         private String gameMode;
+        private boolean isMultiplayer;
         private int maxTokenLimit;
         private int messageHistorySize;
         private double temperature;
@@ -215,6 +222,11 @@ public final class GetChannelConfigResult {
 
         public Builder gameMode(String gameMode) {
             this.gameMode = gameMode;
+            return this;
+        }
+
+        public Builder isMultiplayer(boolean isMultiplayer) {
+            this.isMultiplayer = isMultiplayer;
             return this;
         }
 

@@ -13,14 +13,17 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import me.moirai.discordbot.common.util.DefaultStringProcessors;
+import me.moirai.discordbot.common.util.StringProcessor;
+import me.moirai.discordbot.core.application.helper.ChatMessageHelper;
 import me.moirai.discordbot.core.application.model.request.ChatMessage;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
-import me.moirai.discordbot.core.application.port.ChatMessagePort;
 import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -28,7 +31,7 @@ import reactor.core.publisher.Mono;
 public class StorySummarizationAdapter implements StorySummarizationPort {
 
     private static final String PERIOD = ".";
-    private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-Za-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
+    private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-ZÀ-ÿa-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
     private static final String SUMMARY = "summary";
     private static final Object LOREBOOK = "lorebook";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
@@ -37,10 +40,10 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
 
     private final TextCompletionPort openAiPort;
     private final TokenizerPort tokenizerPort;
-    private final ChatMessagePort chatMessageService;
+    private final ChatMessageHelper chatMessageService;
 
     public StorySummarizationAdapter(TextCompletionPort openAiPort, TokenizerPort tokenizerPort,
-            ChatMessagePort chatMessageService) {
+            ChatMessageHelper chatMessageService) {
 
         this.openAiPort = openAiPort;
         this.tokenizerPort = tokenizerPort;
@@ -49,12 +52,12 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
 
     @Override
     public Mono<Map<String, Object>> summarizeContextWith(Map<String, Object> context,
-            ModelConfigurationRequest modelConfiguration) {
+            StoryGenerationRequest storyGenerationRequest) {
 
-        int totalTokens = modelConfiguration.getAiModel().getHardTokenLimit();
+        int totalTokens = storyGenerationRequest.getModelConfiguration().getAiModel().getHardTokenLimit();
         int reservedTokensForStory = (int) Math.floor(totalTokens * 0.30);
 
-        return generateSummary(context, modelConfiguration)
+        return generateSummary(context, storyGenerationRequest)
                 .map(contextWithSummary -> {
                     contextWithSummary.putAll(
                             chatMessageService.addMessagesToContext(contextWithSummary, reservedTokensForStory, 5));
@@ -69,15 +72,22 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
     }
 
     private Mono<? extends Map<String, Object>> generateSummary(Map<String, Object> context,
-            ModelConfigurationRequest modelConfiguration) {
+            StoryGenerationRequest storyGenerationRequest) {
 
         List<DiscordMessageData> rawMessageHistory = (List<DiscordMessageData>) context.get(RETRIEVED_MESSAGES);
         String lorebook = (String) context.get(LOREBOOK);
 
-        TextGenerationRequest request = createSummarizationRequest(rawMessageHistory, lorebook, modelConfiguration);
+        TextGenerationRequest request = createSummarizationRequest(rawMessageHistory, lorebook, storyGenerationRequest);
         return openAiPort.generateTextFrom(request)
                 .map(summaryGenerated -> {
+                    StringProcessor processor = new StringProcessor();
                     String summary = summaryGenerated.getOutputText().trim();
+
+                    processor.addRule(DefaultStringProcessors.stripChatPrefix());
+                    processor.addRule(DefaultStringProcessors.stripTrailingFragment());
+                    processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(EMPTY, LF));
+
+                    summary = processor.process(summary);
 
                     context.put(RETRIEVED_MESSAGES, rawMessageHistory);
                     context.put(SUMMARY, summary.trim());
@@ -97,7 +107,7 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
         int tokensLeftInContext = reservedTokensForStory - tokensInContext;
 
         while (tokensInSummary > tokensLeftInContext) {
-            summary = summary.replaceAll(SENTENCE_EXPRESSION, PERIOD).trim();
+            summary = summary.trim().replaceAll(SENTENCE_EXPRESSION, PERIOD).trim();
             summary = summary.equals(PERIOD) ? EMPTY : summary;
             tokensInSummary = tokenizerPort.getTokenCountFrom(summary);
         }
@@ -108,14 +118,22 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
     }
 
     private TextGenerationRequest createSummarizationRequest(List<DiscordMessageData> messagesExtracted,
-            String lorebook, ModelConfigurationRequest modelConfiguration) {
+            String lorebook, StoryGenerationRequest storyGenerationRequest) {
 
+        ModelConfigurationRequest modelConfiguration = storyGenerationRequest.getModelConfiguration();
         List<ChatMessage> chatMessages = new ArrayList<>();
 
-        chatMessages.addAll(messagesExtracted.stream()
+        storyGenerationRequest.getMessageHistory().stream()
+                .takeWhile(message -> {
+                    int tokensInMessage = tokenizerPort.getTokenCountFrom(message.getContent());
+                    int tokensInRequest = tokenizerPort.getTokenCountFrom(stringifyMessageList(chatMessages));
+                    int tokensAvailable = tokensInRequest - tokensInMessage;
+
+                    return modelConfiguration.getAiModel()
+                            .getHardTokenLimit() >= tokensAvailable;
+                })
                 .map(messageData -> ChatMessage.build(USER, messageData.getContent()))
-                .collect(Collectors.toCollection(ArrayList::new))
-                .reversed());
+                .forEach(chatMessages::addFirst);
 
         if (StringUtils.isNotBlank(lorebook)) {
             chatMessages.addFirst(ChatMessage.build(SYSTEM, lorebook));
@@ -138,5 +156,12 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
     private String stringifyList(List<String> list) {
 
         return list.stream().collect(Collectors.joining(LF));
+    }
+
+    private String stringifyMessageList(List<ChatMessage> list) {
+
+        return list.stream()
+                .map(ChatMessage::getContent)
+                .collect(Collectors.joining(LF));
     }
 }

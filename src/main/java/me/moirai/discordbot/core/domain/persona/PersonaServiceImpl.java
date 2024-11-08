@@ -10,14 +10,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import me.moirai.discordbot.common.annotation.DomainService;
-import me.moirai.discordbot.common.exception.AssetAccessDeniedException;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.exception.ModerationException;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
 import me.moirai.discordbot.core.application.usecase.persona.request.CreatePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
-import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
-import me.moirai.discordbot.core.application.usecase.persona.request.UpdatePersona;
 import me.moirai.discordbot.core.domain.CompletionRole;
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.Visibility;
@@ -29,32 +26,17 @@ public class PersonaServiceImpl implements PersonaService {
 
     private static final String PERSONA_FLAGGED_BY_MODERATION = "Persona flagged by moderation";
     private static final String PERSONA_NOT_FOUND = "Persona was not found";
-    private static final String PERMISSION_VIEW_DENIED = "User does not have permission to view this persona";
-    private static final String PERMISSION_MODIFY_DENIED = "User does not have permission to modify this persona";
 
     private final TextModerationPort moderationPort;
-    private final PersonaRepository repository;
+    private final PersonaDomainRepository repository;
 
-    public PersonaServiceImpl(TextModerationPort moderationPort, PersonaRepository repository) {
+    public PersonaServiceImpl(TextModerationPort moderationPort, PersonaDomainRepository repository) {
         this.moderationPort = moderationPort;
         this.repository = repository;
     }
 
     @Override
-    public Persona getPersonaById(GetPersonaById query) {
-
-        Persona persona = repository.findById(query.getId())
-                .orElseThrow(() -> new AssetNotFoundException(PERSONA_NOT_FOUND));
-
-        if (!persona.canUserRead(query.getRequesterDiscordId())) {
-            throw new AssetAccessDeniedException(PERMISSION_VIEW_DENIED);
-        }
-
-        return persona;
-    }
-
-    @Override
-    public Persona getPersonaById(String id) {
+    public Persona getById(String id) {
 
         Persona persona = repository.findById(id)
                 .orElseThrow(() -> new AssetNotFoundException(PERSONA_NOT_FOUND));
@@ -63,14 +45,7 @@ public class PersonaServiceImpl implements PersonaService {
     }
 
     @Override
-    public void deletePersona(DeletePersona command) {
-
-        Persona persona = repository.findById(command.getId())
-                .orElseThrow(() -> new AssetNotFoundException(PERSONA_NOT_FOUND));
-
-        if (!persona.canUserWrite(command.getRequesterDiscordId())) {
-            throw new AssetAccessDeniedException(PERMISSION_MODIFY_DENIED);
-        }
+    public void delete(DeletePersona command) {
 
         repository.deleteById(command.getId());
     }
@@ -112,75 +87,6 @@ public class PersonaServiceImpl implements PersonaService {
                             .visibility(Visibility.fromString(command.getVisibility()))
                             .permissions(permissions)
                             .build();
-
-                    return repository.save(persona);
-                });
-    }
-
-    @Override
-    public Mono<Persona> update(UpdatePersona command) {
-
-        return moderateContent(command.getPersonality())
-                .flatMap(__ -> moderateContent(command.getName()))
-                .map(__ -> {
-                    Persona persona = repository.findById(command.getId())
-                            .orElseThrow(() -> new AssetNotFoundException(PERSONA_NOT_FOUND));
-
-                    if (!persona.canUserWrite(command.getRequesterDiscordId())) {
-                        throw new AssetAccessDeniedException(PERMISSION_MODIFY_DENIED);
-                    }
-
-                    if (StringUtils.isNotBlank(command.getName())) {
-                        persona.updateName(command.getName());
-                    }
-
-                    if (StringUtils.isNotBlank(command.getPersonality())) {
-                        persona.updatePersonality(command.getPersonality());
-                    }
-
-                    if (StringUtils.isNotBlank(command.getNudgeRole())) {
-                        persona.updateNudgeRole(CompletionRole.fromString(command.getNudgeRole()));
-                    }
-
-                    if (StringUtils.isNotBlank(command.getNudgeContent())) {
-                        persona.updateNudgeContent(command.getNudgeContent());
-                    }
-
-                    if (StringUtils.isNotBlank(command.getBumpRole())) {
-                        persona.updateBumpRole(CompletionRole.fromString(command.getBumpRole()));
-                    }
-
-                    if (StringUtils.isNotBlank(command.getBumpContent())) {
-                        persona.updateBumpContent(command.getBumpContent());
-                    }
-
-                    if (command.getBumpFrequency() != null) {
-                        persona.updateBumpFrequency(command.getBumpFrequency());
-                    }
-
-                    if (StringUtils.isNotBlank(command.getVisibility())) {
-                        if (command.getVisibility().equalsIgnoreCase(Visibility.PUBLIC.name())) {
-                            persona.makePublic();
-                        } else if (command.getVisibility().equalsIgnoreCase(Visibility.PRIVATE.name())) {
-                            persona.makePrivate();
-                        }
-                    }
-
-                    CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToAdd())
-                            .stream()
-                            .filter(userId -> !persona.canUserRead(userId))
-                            .forEach(persona::addReaderUser);
-
-                    CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToAdd())
-                            .stream()
-                            .filter(userId -> !persona.canUserWrite(userId))
-                            .forEach(persona::addWriterUser);
-
-                    CollectionUtils.emptyIfNull(command.getUsersAllowedToReadToRemove())
-                            .forEach(persona::removeReaderUser);
-
-                    CollectionUtils.emptyIfNull(command.getUsersAllowedToWriteToRemove())
-                            .forEach(persona::removeWriterUser);
 
                     return repository.save(persona);
                 });

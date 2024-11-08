@@ -31,7 +31,6 @@ public class WorldLorebookEntryRequestMapperTest {
         request.setDescription("Volin Habar is a warrior that fights with a sword.");
         request.setRegex("[Vv]olin [Hh]abar|[Vv]oha");
         request.setPlayerDiscordId("2423423423423");
-        request.setIsPlayerCharacter(true);
 
         // When
         CreateWorldLorebookEntry command = mapper.toCommand(request, worldId, requesterId);

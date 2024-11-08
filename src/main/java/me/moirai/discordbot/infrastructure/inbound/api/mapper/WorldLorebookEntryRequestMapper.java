@@ -20,7 +20,6 @@ public class WorldLorebookEntryRequestMapper {
                 .playerDiscordId(request.getPlayerDiscordId())
                 .regex(request.getRegex())
                 .worldId(worldId)
-                .isPlayerCharacter(request.isPlayerCharacter())
                 .requesterDiscordId(requesterDiscordId)
                 .build();
     }

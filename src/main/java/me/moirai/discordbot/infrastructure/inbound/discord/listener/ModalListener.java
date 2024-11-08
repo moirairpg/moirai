@@ -1,5 +1,7 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,7 @@ public class ModalListener extends ListenerAdapter {
     private static final String MESSAGE_ID = "messageId";
     private static final String MESSAGE_CONTENT = "content";
     private static final String INPUT_SENT = "Input sent.";
+    private static final int EPHEMERAL_MESSAGE_TTL = 10;
 
     private final UseCaseRunner useCaseRunner;
 
@@ -79,11 +82,13 @@ public class ModalListener extends ListenerAdapter {
                 : bot.getUser().getName();
     }
 
-    private Message updateNotification(InteractionHook interactionHook, String newContent) {
-        return interactionHook.editOriginal(newContent).complete();
-    }
-
     private InteractionHook sendNotification(ModalInteractionEvent event, String message) {
         return event.reply(message).setEphemeral(true).complete();
+    }
+
+    private void updateNotification(InteractionHook interactionHook, String newContent) {
+
+        interactionHook.editOriginal(newContent)
+                .queue(msg -> msg.delete().queueAfter(EPHEMERAL_MESSAGE_TTL, TimeUnit.SECONDS));
     }
 }

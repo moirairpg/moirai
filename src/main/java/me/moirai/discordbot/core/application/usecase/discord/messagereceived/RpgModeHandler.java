@@ -1,14 +1,18 @@
 package me.moirai.discordbot.core.application.usecase.discord.messagereceived;
 
+import static me.moirai.discordbot.core.domain.channelconfig.GameMode.RPG;
+import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
+import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
-import me.moirai.discordbot.core.application.port.StoryGenerationPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
@@ -16,14 +20,14 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerat
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
-public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeDto, Mono<Void>> {
+public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeRequest, Mono<Void>> {
 
-    private final ChannelConfigRepository channelConfigRepository;
-    private final StoryGenerationPort storyGenerationPort;
+    private final StoryGenerationHelper storyGenerationPort;
+    private final ChannelConfigQueryRepository channelConfigRepository;
     private final DiscordChannelPort discordChannelPort;
 
-    public RpgModeHandler(StoryGenerationPort storyGenerationPort,
-            ChannelConfigRepository channelConfigRepository,
+    public RpgModeHandler(StoryGenerationHelper storyGenerationPort,
+            ChannelConfigQueryRepository channelConfigRepository,
             DiscordChannelPort discordChannelPort) {
 
         this.channelConfigRepository = channelConfigRepository;
@@ -32,18 +36,23 @@ public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeDto, Mono<Void
     }
 
     @Override
-    public Mono<Void> execute(RpgModeDto query) {
+    public Mono<Void> execute(RpgModeRequest query) {
 
         return channelConfigRepository.findByDiscordChannelId(query.getChannelId())
                 .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getChannelId()))
                 .map(channelConfig -> {
                     StoryGenerationRequest generationRequest = buildGenerationRequest(query, channelConfig);
+
+                    if (channelConfig.isMultiplayer()) {
+                        return Mono.<Void>empty();
+                    }
+
                     return storyGenerationPort.continueStory(generationRequest);
                 })
                 .orElseGet(() -> Mono.empty());
     }
 
-    private StoryGenerationRequest buildGenerationRequest(RpgModeDto useCase, ChannelConfig channelConfig) {
+    private StoryGenerationRequest buildGenerationRequest(RpgModeRequest useCase, ChannelConfig channelConfig) {
 
         AiModelRequest aiModel = AiModelRequest
                 .build(channelConfig.getModelConfiguration().getAiModel().getInternalModelName(),
@@ -60,10 +69,12 @@ public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeDto, Mono<Void
                 .aiModel(aiModel)
                 .build();
 
+        boolean isModerationEnabled = !channelConfig.getModeration().equals(DISABLED);
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
-                .build(channelConfig.getModeration().isAbsolute(), channelConfig.getModeration().getThresholds());
+                .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
+                        channelConfig.getModeration().getThresholds());
 
-        List<DiscordMessageData> messageHistory = discordChannelPort.retrieveEntireHistoryFrom(useCase.getChannelId());
+        List<DiscordMessageData> messageHistory = getMessageHistory(useCase.getChannelId());
 
         return StoryGenerationRequest.builder()
                 .botNickname(useCase.getBotNickname())
@@ -75,6 +86,20 @@ public class RpgModeHandler extends AbstractUseCaseHandler<RpgModeDto, Mono<Void
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
                 .messageHistory(messageHistory)
+                .gameMode(RPG.name())
                 .build();
+    }
+
+    private List<DiscordMessageData> getMessageHistory(String channelId) {
+
+        DiscordMessageData lastMessageSent = discordChannelPort.getLastMessageIn(channelId)
+                .orElseThrow(() -> new IllegalStateException("Channel has no messages"));
+
+        List<DiscordMessageData> messageHistory = new ArrayList<>(discordChannelPort
+                .retrieveEntireHistoryBefore(lastMessageSent.getId(), channelId));
+
+        messageHistory.addFirst(lastMessageSent);
+
+        return messageHistory;
     }
 }

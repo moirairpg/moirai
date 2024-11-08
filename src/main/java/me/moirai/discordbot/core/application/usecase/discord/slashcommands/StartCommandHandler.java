@@ -1,18 +1,20 @@
 package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
+import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
+
 import java.util.Collections;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
+import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
-import me.moirai.discordbot.core.application.port.StoryGenerationPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.core.domain.world.World;
-import me.moirai.discordbot.core.domain.world.WorldRepository;
+import me.moirai.discordbot.core.domain.world.WorldDomainRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
@@ -24,14 +26,14 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
 
     private static final String CHAT_FORMAT = "%s said: %s";
 
-    private final ChannelConfigRepository channelConfigRepository;
-    private final WorldRepository worldRepository;
-    private final StoryGenerationPort storyGenerationPort;
+    private final ChannelConfigQueryRepository channelConfigRepository;
+    private final WorldDomainRepository worldRepository;
+    private final StoryGenerationHelper storyGenerationPort;
     private final DiscordChannelPort discordChannelPort;
 
-    public StartCommandHandler(StoryGenerationPort storyGenerationPort,
-            WorldRepository worldRepository,
-            ChannelConfigRepository channelConfigRepository,
+    public StartCommandHandler(StoryGenerationHelper storyGenerationPort,
+            WorldDomainRepository worldRepository,
+            ChannelConfigQueryRepository channelConfigRepository,
             DiscordChannelPort discordChannelPort) {
 
         this.channelConfigRepository = channelConfigRepository;
@@ -75,8 +77,10 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
                                 channelConfig.getModelConfiguration().getAiModel().getHardTokenLimit()))
                 .build();
 
+        boolean isModerationEnabled = !channelConfig.getModeration().equals(DISABLED);
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
-                .build(channelConfig.getModeration().isAbsolute(), channelConfig.getModeration().getThresholds());
+                .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
+                        channelConfig.getModeration().getThresholds());
 
         discordChannelPort.sendMessageTo(useCase.getChannelId(), world.getAdventureStart());
 
@@ -102,6 +106,7 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
                 .messageHistory(Collections.singletonList(adventureStartMessage))
+                .gameMode(channelConfig.getGameMode().name())
                 .build();
     }
 }

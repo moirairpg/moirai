@@ -1,5 +1,5 @@
 networks:
-  ? dockerlan
+  ? moirai_network
 services:
   postgresql:
     restart: always
@@ -7,7 +7,7 @@ services:
     hostname: postgresql
     image: postgres:15-alpine
     networks:
-      - dockerlan
+      - moirai_network
     ports:
       - "5432:5432"
     environment:

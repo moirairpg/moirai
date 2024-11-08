@@ -10,15 +10,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.discordbot.core.application.port.WorldQueryRepository;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldsResult;
-import me.moirai.discordbot.core.domain.world.WorldRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class SearchWorldsWithReadAccessHandlerTest {
 
     @Mock
-    private WorldRepository repository;
+    private WorldQueryRepository repository;
 
     @InjectMocks
     private SearchWorldsWithReadAccessHandler handler;

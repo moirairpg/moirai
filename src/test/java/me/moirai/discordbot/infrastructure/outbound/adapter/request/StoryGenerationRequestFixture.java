@@ -12,6 +12,7 @@ public class StoryGenerationRequestFixture {
                 .guildId("GLDID")
                 .worldId("WRLDID")
                 .personaId("PRSNID")
+                .gameMode("CHAT")
                 .modelConfiguration(ModelConfigurationRequestFixture.gpt4Mini().build())
                 .moderation(ModerationConfigurationRequestFixture.absolute());
     }

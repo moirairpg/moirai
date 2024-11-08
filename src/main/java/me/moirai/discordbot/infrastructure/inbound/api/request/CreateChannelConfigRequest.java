@@ -57,6 +57,7 @@ public class CreateChannelConfigRequest {
     private Double presencePenalty;
 
     private String gameMode;
+    private boolean isMultiplayer;
     private List<String> stopSequences;
     private Map<String, Double> logitBias;
     private List<String> usersAllowedToWrite;
@@ -97,6 +98,10 @@ public class CreateChannelConfigRequest {
         return gameMode;
     }
 
+    public boolean isMultiplayer() {
+        return isMultiplayer;
+    }
+
     public Integer getMaxTokenLimit() {
         return maxTokenLimit;
     }
@@ -135,6 +140,10 @@ public class CreateChannelConfigRequest {
 
     public void setGameMode(String gameMode) {
         this.gameMode = gameMode;
+    }
+
+    public void setMultiplayer(boolean isMultiplayer) {
+        this.isMultiplayer = isMultiplayer;
     }
 
     public void setWorldId(String worldId) {

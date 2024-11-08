@@ -26,9 +26,7 @@ import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorldLorebookEntry;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorldLorebookEntry;
-import me.moirai.discordbot.core.application.usecase.world.request.GetWorldById;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldLorebookEntryById;
-import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorldLorebookEntry;
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.PermissionsFixture;
@@ -46,7 +44,7 @@ public class WorldServiceImplTest {
     private WorldLorebookEntryRepository lorebookEntryRepository;
 
     @Mock
-    private WorldRepository worldRepository;
+    private WorldDomainRepository worldRepository;
 
     @InjectMocks
     private WorldServiceImpl service;
@@ -150,69 +148,6 @@ public class WorldServiceImplTest {
     }
 
     @Test
-    public void findWorld_whenValidId_thenWorldIsReturned() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        GetWorldById query = GetWorldById.build(id, requesterId);
-
-        World world = WorldFixture.privateWorld()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId(requesterId)
-                        .build())
-                .build();
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
-
-        // When
-        World result = service.getWorldById(query);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(world.getName());
-    }
-
-    @Test
-    public void findWorld_whenWorldNotFound_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        GetWorldById query = GetWorldById.build(id, requesterId);
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        assertThrows(AssetNotFoundException.class, () -> service.getWorldById(query));
-    }
-
-    @Test
-    public void findWorld_whenNotEnoughPermission_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-        String requesterId = "RQSTRID";
-        GetWorldById query = GetWorldById.build(id, requesterId);
-
-        World world = WorldFixture.privateWorld()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId("ANTHRUSR")
-                        .usersAllowedToRead(Collections.emptyList())
-                        .build())
-                .build();
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
-
-        // Then
-        assertThrows(AssetAccessDeniedException.class, () -> service.getWorldById(query));
-    }
-
-    @Test
     public void deleteWorld_whenWorldNotFound_thenThrowException() {
 
         // Given
@@ -268,194 +203,6 @@ public class WorldServiceImplTest {
 
         // Then
         service.deleteWorld(command);
-    }
-
-    @Test
-    public void updateWorld_whenValidData_thenWorldIsUpdated() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdateWorld command = UpdateWorld.builder()
-                .id(id)
-                .name("MoirAI")
-                .description("This is an RPG world")
-                .adventureStart("As you enter the city, people around you start looking at you.")
-                .visibility("PUBLIC")
-                .requesterDiscordId("586678721356875")
-                .build();
-
-        World unchangedWorld = WorldFixture.privateWorld().build();
-
-        World expectedUpdatedWorld = WorldFixture.privateWorld()
-                .id(id)
-                .name("MoirAI")
-                .description("This is an RPG world")
-                .adventureStart("As you enter the city, people around you start looking at you.")
-                .visibility(Visibility.PUBLIC)
-                .build();
-
-        when(moderationPort.moderate(anyString()))
-                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
-        when(worldRepository.save(any(World.class))).thenReturn(expectedUpdatedWorld);
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .assertNext(result -> {
-                    assertThat(result).isNotNull();
-                    assertThat(result.getName()).isEqualTo(expectedUpdatedWorld.getName());
-                }).verifyComplete();
-    }
-
-    @Test
-    public void updateWorld_whenEmptyUpdateFields_thenWorldIsNotChanged() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdateWorld command = UpdateWorld.builder()
-                .id(id)
-                .name(null)
-                .description(null)
-                .adventureStart(null)
-                .visibility(null)
-                .requesterDiscordId("586678721356875")
-                .build();
-
-        World unchangedWorld = WorldFixture.privateWorld().build();
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
-        when(worldRepository.save(any(World.class))).thenReturn(unchangedWorld);
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .assertNext(result -> {
-                    assertThat(result).isNotNull();
-                    assertThat(result.getName()).isEqualTo(unchangedWorld.getName());
-                }).verifyComplete();
-    }
-
-    @Test
-    public void updateWorld_whenPublicToBeMadePrivate_thenWorldIsMadePrivate() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdateWorld command = UpdateWorld.builder()
-                .id(id)
-                .visibility("private")
-                .requesterDiscordId("586678721356875")
-                .build();
-
-        World unchangedWorld = WorldFixture.publicWorld().build();
-        World expectedWorld = WorldFixture.privateWorld().build();
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
-        when(worldRepository.save(any(World.class))).thenReturn(expectedWorld);
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .assertNext(result -> {
-                    assertThat(result).isNotNull();
-                    assertThat(result.getVisibility()).isEqualTo(expectedWorld.getVisibility());
-                }).verifyComplete();
-    }
-
-    @Test
-    public void updateWorld_whenInvalidVisibility_thenNothingIsChanged() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdateWorld command = UpdateWorld.builder()
-                .id(id)
-                .visibility("invalid")
-                .requesterDiscordId("586678721356875")
-                .build();
-
-        World unchangedWorld = WorldFixture.privateWorld().build();
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
-        when(worldRepository.save(any(World.class))).thenReturn(unchangedWorld);
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .assertNext(result -> {
-                    assertThat(result).isNotNull();
-                    assertThat(result.getVisibility()).isEqualTo(unchangedWorld.getVisibility());
-                }).verifyComplete();
-    }
-
-    @Test
-    public void updateWorld_whenWorldNotFound_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdateWorld command = UpdateWorld.builder()
-                .id(id)
-                .build();
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .verifyError(AssetNotFoundException.class);
-    }
-
-    @Test
-    public void updateWorld_whenNotEnoughPermission_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdateWorld command = UpdateWorld.builder()
-                .id(id)
-                .requesterDiscordId("USRID")
-                .build();
-
-        World world = WorldFixture.privateWorld()
-                .id(id)
-                .name("New name")
-                .permissions(PermissionsFixture.samplePermissions()
-                        .ownerDiscordId("ANTHRUSR")
-                        .build())
-                .build();
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .verifyError(AssetAccessDeniedException.class);
-    }
-
-    @Test
-    public void updateWorld_whenInvalidPermission_thenThrowException() {
-
-        // Given
-        String id = "CHCONFID";
-
-        UpdateWorld command = UpdateWorld.builder()
-                .id(id)
-                .name("MoirAI")
-                .description("This is an RPG world")
-                .adventureStart("As you enter the city, people around you start looking at you.")
-                .visibility("PUBLIC")
-                .requesterDiscordId("INVLDUSR")
-                .build();
-
-        World unchangedWorld = WorldFixture.privateWorld().build();
-
-        when(moderationPort.moderate(anyString()))
-                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
-
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(unchangedWorld));
-
-        // Then
-        StepVerifier.create(service.update(command))
-                .verifyError(AssetAccessDeniedException.class);
     }
 
     @Test
@@ -988,28 +735,6 @@ public class WorldServiceImplTest {
 
         // Then
         StepVerifier.create(service.createFrom(command))
-                .verifyError(ModerationException.class);
-    }
-
-    @Test
-    public void updateWorld_whenContentIsFlagged_thenExceptionIsThrown() {
-
-        // Given
-        String id = "CHCONFID";
-        UpdateWorld command = UpdateWorld.builder()
-                .id(id)
-                .name("MoirAI")
-                .description("This is an RPG world")
-                .adventureStart("As you enter the city, people around you start looking at you.")
-                .visibility("PUBLIC")
-                .requesterDiscordId("586678721356875")
-                .build();
-
-        when(moderationPort.moderate(anyString()))
-                .thenReturn(Mono.just(TextModerationResultFixture.withFlags().build()));
-
-        // Then
-        StepVerifier.create(service.update(command))
                 .verifyError(ModerationException.class);
     }
 }

@@ -52,6 +52,7 @@ public class ChannelConfigPersistenceMapper {
                 .creationDate(channelConfig.getCreationDate())
                 .lastUpdateDate(channelConfig.getLastUpdateDate())
                 .gameMode(channelConfig.getGameMode().name())
+                .isMultiplayer(channelConfig.isMultiplayer())
                 .build();
     }
 
@@ -87,6 +88,7 @@ public class ChannelConfigPersistenceMapper {
                 .creationDate(channelConfig.getCreationDate())
                 .lastUpdateDate(channelConfig.getLastUpdateDate())
                 .gameMode(GameMode.fromString(channelConfig.getGameMode()))
+                .isMultiplayer(channelConfig.isMultiplayer())
                 .build();
     }
 
@@ -114,6 +116,7 @@ public class ChannelConfigPersistenceMapper {
                 .creationDate(channelConfig.getCreationDate())
                 .lastUpdateDate(channelConfig.getLastUpdateDate())
                 .gameMode(channelConfig.getGameMode())
+                .isMultiplayer(channelConfig.isMultiplayer())
                 .build();
     }
 

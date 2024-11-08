@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ModalCallbackAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
@@ -205,6 +206,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         ReplyCallbackAction messageReplyAction = mock(ReplyCallbackAction.class);
         InteractionHook interactionHook = mock(InteractionHook.class);
         WebhookMessageEditAction<Message> messageEditAction = mock(WebhookMessageEditAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
 
         TokenizeResult expectedAdapterResult = TokenizeResult.builder()
                 .tokens(tokens)
@@ -225,6 +227,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(useCaseRunner.run(any())).thenReturn(Optional.of(expectedAdapterResult));
 
         when(interactionHook.editOriginal(anyString())).thenReturn(messageEditAction);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
         when(messageEditAction.complete()).thenReturn(message);
 
         // When
@@ -248,6 +251,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         ReplyCallbackAction messageReplyAction = mock(ReplyCallbackAction.class);
         InteractionHook interactionHook = mock(InteractionHook.class);
         WebhookMessageEditAction<Message> messageEditAction = mock(WebhookMessageEditAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
 
         TokenizeResult expectedAdapterResult = TokenizeResult.builder()
                 .tokens(tokens)
@@ -268,6 +272,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(useCaseRunner.run(any())).thenReturn(Optional.of(expectedAdapterResult));
 
         when(interactionHook.editOriginal(anyString())).thenReturn(messageEditAction);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
         when(messageEditAction.complete()).thenReturn(message);
 
         // When

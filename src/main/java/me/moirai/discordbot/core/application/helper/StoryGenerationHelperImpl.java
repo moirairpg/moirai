@@ -1,0 +1,278 @@
+package me.moirai.discordbot.core.application.helper;
+
+import static java.util.Collections.emptyList;
+import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.ASSISTANT;
+import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.USER;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
+import me.moirai.discordbot.common.annotation.Helper;
+import me.moirai.discordbot.common.exception.ModerationException;
+import me.moirai.discordbot.common.util.DefaultStringProcessors;
+import me.moirai.discordbot.common.util.StringProcessor;
+import me.moirai.discordbot.core.application.model.request.ChatMessage;
+import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
+import me.moirai.discordbot.core.application.model.result.TextGenerationResult;
+import me.moirai.discordbot.core.application.port.DiscordChannelPort;
+import me.moirai.discordbot.core.application.port.DiscordUserDetailsPort;
+import me.moirai.discordbot.core.application.port.StorySummarizationPort;
+import me.moirai.discordbot.core.application.port.TextCompletionPort;
+import me.moirai.discordbot.core.application.port.TextModerationPort;
+import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
+import reactor.core.publisher.Mono;
+
+@Helper
+@SuppressWarnings("unchecked")
+public class StoryGenerationHelperImpl implements StoryGenerationHelper {
+
+    private static final String BUMP = "bump";
+    private static final String LOREBOOK_ENTRIES = "lorebook";
+    private static final String STORY_SUMMARY = "summary";
+    private static final String NUDGE = "nudge";
+    private static final String PERSONA = "persona";
+    private static final String PERSONA_NAME = "personaName";
+    private static final String MESSAGE_HISTORY = "messageHistory";
+    private static final String SAID = " said: ";
+    private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-Za-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
+    private static final String PERIOD = ".";
+    private static final String RPG = "RPG";
+    private static final int DISCORD_MAX_LENGTH = 2000;
+
+    private final DiscordChannelPort discordChannelPort;
+    private final StorySummarizationPort summarizationPort;
+    private final LorebookEnrichmentHelper lorebookEnrichmentHelper;
+    private final PersonaEnrichmentHelper personaEnrichmentPort;
+    private final TextCompletionPort textCompletionPort;
+    private final TextModerationPort textModerationPort;
+
+    public StoryGenerationHelperImpl(DiscordUserDetailsPort discordUserDetailsPort,
+            StorySummarizationPort summarizationPort,
+            DiscordChannelPort discordChannelPort,
+            LorebookEnrichmentHelper lorebookEnrichmentHelper,
+            PersonaEnrichmentHelper personaEnrichmentPort,
+            TextCompletionPort textCompletionPort,
+            TextModerationPort textModerationPort) {
+
+        this.discordChannelPort = discordChannelPort;
+        this.summarizationPort = summarizationPort;
+        this.lorebookEnrichmentHelper = lorebookEnrichmentHelper;
+        this.personaEnrichmentPort = personaEnrichmentPort;
+        this.textCompletionPort = textCompletionPort;
+        this.textModerationPort = textModerationPort;
+    }
+
+    @Override
+    public Mono<Void> continueStory(StoryGenerationRequest request) {
+
+        return Mono.just(request.getMessageHistory())
+                .map(messageHistory -> enrichWithLorebook(request, messageHistory))
+                .flatMap(contextWithLorebook -> summarizationPort.summarizeContextWith(contextWithLorebook, request))
+                .flatMap(contextWithSummary -> personaEnrichmentPort.enrichContextWithPersona(
+                        contextWithSummary, request.getPersonaId(), request.getModelConfiguration()))
+                .map(contextWithPersona -> processEnrichedContext(contextWithPersona, request))
+                .flatMap(processedContext -> moderateInput(processedContext, request.getModeration()))
+                .flatMap(processedContext -> generateAiOutput(request, processedContext))
+                .flatMap(aiOutput -> moderateOutput(aiOutput, request.getModeration()))
+                .doOnNext(generatedOutput -> sendOutputTo(request.getChannelId(),
+                        request.getBotUsername(), request.getBotNickname(), generatedOutput))
+                .then();
+    }
+
+    private Map<String, Object> enrichWithLorebook(StoryGenerationRequest request,
+            List<DiscordMessageData> messageHistory) {
+
+        if (request.getGameMode().equals(RPG)) {
+            return lorebookEnrichmentHelper.enrichContextWithLorebookForRpg(messageHistory,
+                    request.getWorldId(), request.getModelConfiguration());
+        }
+
+        return lorebookEnrichmentHelper.enrichContextWithLorebook(messageHistory,
+                request.getWorldId(), request.getModelConfiguration());
+    }
+
+    private Mono<? extends TextGenerationResult> generateAiOutput(StoryGenerationRequest query,
+            List<ChatMessage> processedContext) {
+        TextGenerationRequest textGenerationRequest = buildTextGenerationRequest(query,
+                processedContext);
+
+        return textCompletionPort.generateTextFrom(textGenerationRequest);
+    }
+
+    private TextGenerationRequest buildTextGenerationRequest(StoryGenerationRequest query,
+            List<ChatMessage> processedContext) {
+
+        return TextGenerationRequest.builder()
+                .frequencyPenalty(query.getModelConfiguration().getFrequencyPenalty())
+                .presencePenalty(query.getModelConfiguration().getPresencePenalty())
+                .temperature(query.getModelConfiguration().getTemperature())
+                .model(query.getModelConfiguration().getAiModel().getOfficialModelName())
+                .logitBias(query.getModelConfiguration().getLogitBias())
+                .maxTokens(query.getModelConfiguration().getMaxTokenLimit())
+                .stopSequences(query.getModelConfiguration().getStopSequences())
+                .messages(processedContext)
+                .build();
+    }
+
+    private List<ChatMessage> processEnrichedContext(Map<String, Object> unsortedContext,
+            StoryGenerationRequest request) {
+
+        List<ChatMessage> processedContext = new ArrayList<>();
+
+        String persona = (String) unsortedContext.get(PERSONA);
+        String personaName = (String) unsortedContext.get(PERSONA_NAME);
+        String nudge = (String) unsortedContext.get(NUDGE);
+        String bump = (String) unsortedContext.get(BUMP);
+        String storySummary = (String) unsortedContext.get(STORY_SUMMARY);
+        String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
+
+        processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM,
+                replacePlaceholders(storySummary, request.getBotUsername(), request.getBotNickname(), personaName)));
+
+        processedContext.addAll(buildContextForGeneration(unsortedContext,
+                request.getBotUsername(), request.getBotNickname(), personaName));
+
+        if (StringUtils.isNotBlank(lorebookEntries)) {
+            processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
+        }
+
+        processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, persona));
+
+        if (StringUtils.isNotBlank(nudge)) {
+            processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, nudge));
+        }
+
+        if (StringUtils.isNotBlank(bump)) {
+            int bumpFrequency = 5;
+            for (int index = processedContext.size() - 1 - bumpFrequency; index > 0; index = index - bumpFrequency) {
+                processedContext.add(index, ChatMessage.build(ChatMessage.Role.SYSTEM, bump));
+            }
+        }
+
+        return processedContext;
+    }
+
+    private String replacePlaceholders(String summary, String botName, String botNickname, String personaName) {
+
+        StringProcessor processor = new StringProcessor();
+        processor.addRule(DefaultStringProcessors.stripChatPrefix());
+        processor.addRule(DefaultStringProcessors.stripTrailingFragment());
+        processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botName));
+        processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botNickname));
+
+        return processor.process(summary);
+    }
+
+    private List<ChatMessage> buildContextForGeneration(Map<String, Object> unsortedContext,
+            String botName, String botNickname, String personaName) {
+
+        List<String> messageHistory = (List<String>) unsortedContext.get(MESSAGE_HISTORY);
+        return messageHistory.stream()
+                .map(message -> {
+                    StringProcessor processor = new StringProcessor();
+                    processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botName));
+                    processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botNickname));
+
+                    String modifiedContent = processor.process(message);
+                    String senderName = message.substring(0, message.indexOf(SAID));
+                    ChatMessage.Role senderRole = senderName.equals(botName) ? ASSISTANT : USER;
+
+                    return ChatMessage.build(senderRole, modifiedContent);
+                })
+                .toList();
+    }
+
+    private void sendOutputTo(String messageChannelId, String botName, String botNickname, String content) {
+
+        StringProcessor processor = new StringProcessor();
+        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForLowercase(botName));
+        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForUppercase(botName));
+        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForLowercase(botNickname));
+        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForUppercase(botNickname));
+        processor.addRule(DefaultStringProcessors.stripChatPrefix());
+        processor.addRule(DefaultStringProcessors.stripTrailingFragment());
+
+        String output = processor.process(content);
+        int outputSize = output.length();
+
+        while (outputSize > DISCORD_MAX_LENGTH) {
+            output = output.replaceAll(SENTENCE_EXPRESSION, PERIOD).trim();
+            output = output.equals(PERIOD) ? EMPTY : output;
+            outputSize = output.length();
+        }
+
+        discordChannelPort.sendMessageTo(messageChannelId, output);
+    }
+
+    private Mono<List<ChatMessage>> moderateInput(List<ChatMessage> messages,
+            ModerationConfigurationRequest moderation) {
+
+        String messageHistory = messages.stream()
+                .map(ChatMessage::getContent)
+                .collect(Collectors.joining("\n"));
+
+        return getTopicsFlaggedByModeration(messageHistory, moderation)
+                .map(result -> {
+                    if (!result.isEmpty()) {
+                        throw new ModerationException("Inappropriate content found in message history", result);
+                    }
+
+                    return messages;
+                });
+    }
+
+    private Mono<String> moderateOutput(TextGenerationResult generationResult,
+            ModerationConfigurationRequest moderation) {
+
+        return getTopicsFlaggedByModeration(generationResult.getOutputText(), moderation)
+                .map(result -> {
+                    if (!result.isEmpty()) {
+                        throw new ModerationException("Inappropriate content found in AI's output", result);
+                    }
+
+                    return generationResult.getOutputText();
+                });
+    }
+
+    private Mono<List<String>> getTopicsFlaggedByModeration(String input, ModerationConfigurationRequest moderation) {
+
+        if (!moderation.isEnabled()) {
+            return Mono.just(emptyList());
+        }
+
+        return textModerationPort.moderate(input)
+                .map(result -> {
+                    if (moderation.isAbsolute()) {
+                        if (result.isContentFlagged()) {
+                            return result.getFlaggedTopics();
+                        }
+
+                        return emptyList();
+                    }
+
+                    return result.getModerationScores()
+                            .entrySet()
+                            .stream()
+                            .filter(entry -> isTopicFlagged(entry, moderation))
+                            .map(Map.Entry::getKey)
+                            .collect(Collectors.toList());
+                });
+    }
+
+    private boolean isTopicFlagged(Entry<String, Double> entry, ModerationConfigurationRequest moderation) {
+
+        if (moderation.getThresholds() == null) {
+            return false;
+        }
+
+        return entry.getValue() > moderation.getThresholds().get(entry.getKey());
+    }
+}

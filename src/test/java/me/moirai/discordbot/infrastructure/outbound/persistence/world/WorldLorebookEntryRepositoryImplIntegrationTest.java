@@ -19,7 +19,7 @@ import me.moirai.discordbot.core.domain.world.WorldFixture;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntryFixture;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntryRepository;
-import me.moirai.discordbot.core.domain.world.WorldRepository;
+import me.moirai.discordbot.core.domain.world.WorldDomainRepository;
 
 public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
@@ -30,7 +30,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
     private WorldLorebookEntryJpaRepository jpaRepository;
 
     @Autowired
-    private WorldRepository worldRepository;
+    private WorldDomainRepository worldRepository;
 
     @BeforeEach
     public void before() {

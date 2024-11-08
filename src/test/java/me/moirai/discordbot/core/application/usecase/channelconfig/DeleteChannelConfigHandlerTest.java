@@ -42,7 +42,7 @@ public class DeleteChannelConfigHandlerTest {
 
         DeleteChannelConfig command = DeleteChannelConfig.build(id, requesterId);
 
-        doNothing().when(domainService).deleteChannelConfig(command);
+        doNothing().when(domainService).delete(command);
 
         // Then
         handler.handle(command);

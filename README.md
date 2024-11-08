@@ -43,12 +43,12 @@ You need to have both yout Discord API Key and your OpenAI API key in hand to se
 6. Run the bot
     - Through the IDE of your choice
     - Through the console with Maven by running `mvn spring-boot:run` on the bot's root folder
-    - Through the console by running the JAR file directly with `java -jar discordbot-0.0.1-SNAPSHOT.jar`
+    - Through the console by running the JAR file directly with `java -jar discordbot-2.0.0-SNAPSHOT.jar`
 
 ### With Docker
 1. Clone the repo
 2. Open `docker-compose.yaml` and add your tokens and keys to the `environment` section
-    - Replace `REPLACE_THIS_WITH_KEY` with your keys
+    - Replace `CHANGE_THIS_VALUE` with your keys
 3. Run `docker-compose up` with your console in the project's root folder
     - This will create two containers: one for the database and one for MoirAI itself
 

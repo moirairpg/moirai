@@ -1,14 +1,17 @@
 package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
+import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
+import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
+import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
-import me.moirai.discordbot.core.application.port.StoryGenerationPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
@@ -21,12 +24,12 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
     private static final String COMMAND_ONLY_WHEN_LAST_MESSAGE_BY_BOT = "This command can only be used if the last message in channel was sent by the bot.";
 
     private final DiscordChannelPort discordChannelPort;
-    private final ChannelConfigRepository channelConfigRepository;
-    private final StoryGenerationPort storyGenerationPort;
+    private final StoryGenerationHelper storyGenerationPort;
+    private final ChannelConfigQueryRepository channelConfigRepository;
 
     public RetryGenerationHandler(DiscordChannelPort discordChannelPort,
-            StoryGenerationPort storyGenerationPort,
-            ChannelConfigRepository channelConfigRepository) {
+            StoryGenerationHelper storyGenerationPort,
+            ChannelConfigQueryRepository channelConfigRepository) {
 
         this.discordChannelPort = discordChannelPort;
         this.channelConfigRepository = channelConfigRepository;
@@ -78,10 +81,12 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
                                 channelConfig.getModelConfiguration().getAiModel().getHardTokenLimit()))
                 .build();
 
+        boolean isModerationEnabled = !channelConfig.getModeration().equals(DISABLED);
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
-                .build(channelConfig.getModeration().isAbsolute(), channelConfig.getModeration().getThresholds());
+                .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
+                        channelConfig.getModeration().getThresholds());
 
-        List<DiscordMessageData> messageHistory = discordChannelPort.retrieveEntireHistoryFrom(useCase.getChannelId());
+        List<DiscordMessageData> messageHistory = getMessageHistory(useCase.getChannelId());
 
         return StoryGenerationRequest.builder()
                 .botId(useCase.getBotId())
@@ -94,6 +99,20 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
                 .personaId(channelConfig.getPersonaId())
                 .worldId(channelConfig.getWorldId())
                 .messageHistory(messageHistory)
+                .gameMode(channelConfig.getGameMode().name())
                 .build();
+    }
+
+    private List<DiscordMessageData> getMessageHistory(String channelId) {
+
+        DiscordMessageData lastMessageSent = discordChannelPort.getLastMessageIn(channelId)
+                .orElseThrow(() -> new IllegalStateException("Channel has no messages"));
+
+        List<DiscordMessageData> messageHistory = new ArrayList<>(discordChannelPort
+                .retrieveEntireHistoryBefore(lastMessageSent.getId(), channelId));
+
+        messageHistory.addFirst(lastMessageSent);
+
+        return messageHistory;
     }
 }

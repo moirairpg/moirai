@@ -46,6 +46,7 @@ public class ChannelConfigRequestMapperTest {
         assertThat(command.getUsersAllowedToRead()).hasSameElementsAs(request.getUsersAllowedToRead());
         assertThat(command.getUsersAllowedToWrite()).hasSameElementsAs(request.getUsersAllowedToWrite());
         assertThat(command.getLogitBias()).containsAllEntriesOf(request.getLogitBias());
+        assertThat(command.isMultiplayer()).isEqualTo(request.isMultiplayer());
     }
 
     @Test
@@ -79,6 +80,7 @@ public class ChannelConfigRequestMapperTest {
         assertThat(command.getUsersAllowedToWriteToRemove()).hasSameElementsAs(request.getUsersAllowedToWriteToRemove());
         assertThat(command.getLogitBiasToAdd()).containsAllEntriesOf(request.getLogitBiasToAdd());
         assertThat(command.getLogitBiasToRemove()).hasSameElementsAs(request.getLogitBiasToRemove());
+        assertThat(command.isMultiplayer()).isEqualTo(request.isMultiplayer());
     }
 
     @Test

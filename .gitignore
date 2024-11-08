@@ -5,6 +5,7 @@ target/
 **/logs/*
 !**/src/test/**/target/
 *.log
+docker.env
 
 ### STS ###
 .apt_generated
