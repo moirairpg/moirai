@@ -103,6 +103,11 @@ public class PersonaQueryRepositoryImpl implements PersonaQueryRepository {
                         "%" + query.getName().toUpperCase() + "%"));
             }
 
+            if (StringUtils.isNotBlank(query.getVisibility())) {
+                predicates.add(cb.and(cb.like(cb.upper(root.get("visibility")),
+                        "%" + query.getVisibility().toUpperCase() + "%")));
+            }
+
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
     }
@@ -121,6 +126,11 @@ public class PersonaQueryRepositoryImpl implements PersonaQueryRepository {
             if (StringUtils.isNotBlank(query.getName())) {
                 predicates.add(cb.like(cb.upper(root.get("name")),
                         "%" + query.getName().toUpperCase() + "%"));
+            }
+
+            if (StringUtils.isNotBlank(query.getVisibility())) {
+                predicates.add(cb.and(cb.like(cb.upper(root.get("visibility")),
+                        "%" + query.getVisibility().toUpperCase() + "%")));
             }
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));

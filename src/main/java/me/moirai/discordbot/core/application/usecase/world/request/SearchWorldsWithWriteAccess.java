@@ -11,6 +11,7 @@ public final class SearchWorldsWithWriteAccess extends UseCase<SearchWorldsResul
     private final String direction;
     private final String name;
     private final String requesterDiscordId;
+    private final String visibility;
 
     private SearchWorldsWithWriteAccess(Builder builder) {
 
@@ -20,6 +21,7 @@ public final class SearchWorldsWithWriteAccess extends UseCase<SearchWorldsResul
         this.direction = builder.direction;
         this.name = builder.name;
         this.requesterDiscordId = builder.requesterDiscordId;
+        this.visibility = builder.visibility;
     }
 
     public static Builder builder() {
@@ -50,6 +52,10 @@ public final class SearchWorldsWithWriteAccess extends UseCase<SearchWorldsResul
         return requesterDiscordId;
     }
 
+    public String getVisibility() {
+        return visibility;
+    }
+
     public static final class Builder {
 
         private Integer page;
@@ -58,6 +64,7 @@ public final class SearchWorldsWithWriteAccess extends UseCase<SearchWorldsResul
         private String direction;
         private String name;
         private String requesterDiscordId;
+        private String visibility;
 
         private Builder() {
         }
@@ -89,6 +96,11 @@ public final class SearchWorldsWithWriteAccess extends UseCase<SearchWorldsResul
 
         public Builder requesterDiscordId(String requesterDiscordId) {
             this.requesterDiscordId = requesterDiscordId;
+            return this;
+        }
+
+        public Builder visibility(String visibility) {
+            this.visibility = visibility;
             return this;
         }
 

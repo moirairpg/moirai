@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.common.web.SecurityContextAware;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
@@ -23,14 +25,12 @@ import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorld;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldRequest;
-import me.moirai.discordbot.infrastructure.inbound.api.request.SearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.WorldSearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateWorldResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchWorldsResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateWorldResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.WorldResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -53,7 +53,7 @@ public class WorldController extends SecurityContextAware {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchWorldsResponse> searchWorldsWithReadAccess(SearchParameters searchParameters) {
+    public Mono<SearchWorldsResponse> searchWorldsWithReadAccess(WorldSearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -64,6 +64,7 @@ public class WorldController extends SecurityContextAware {
                     .direction(searchParameters.getDirection())
                     .name(searchParameters.getName())
                     .requesterDiscordId(authenticatedUser.getId())
+                    .visibility(searchParameters.getVisibility())
                     .build();
 
             return responseMapper.toResponse(useCaseRunner.run(query));
@@ -72,7 +73,7 @@ public class WorldController extends SecurityContextAware {
 
     @GetMapping("/search/own")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchWorldsResponse> searchWorldsWithWriteAccess(SearchParameters searchParameters,
+    public Mono<SearchWorldsResponse> searchWorldsWithWriteAccess(WorldSearchParameters searchParameters,
             Authentication authentication) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
@@ -84,6 +85,7 @@ public class WorldController extends SecurityContextAware {
                     .direction(searchParameters.getDirection())
                     .name(searchParameters.getName())
                     .requesterDiscordId(authenticatedUser.getId())
+                    .visibility(searchParameters.getVisibility())
                     .build();
 
             return responseMapper.toResponse(useCaseRunner.run(query));

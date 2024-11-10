@@ -14,6 +14,7 @@ public final class SearchChannelConfigsWithWriteAccess extends UseCase<SearchCha
     private final String name;
     private final String requesterDiscordId;
     private final String gameMode;
+    private final String visibility;
 
     private SearchChannelConfigsWithWriteAccess(Builder builder) {
 
@@ -26,6 +27,7 @@ public final class SearchChannelConfigsWithWriteAccess extends UseCase<SearchCha
         this.name = builder.name;
         this.requesterDiscordId = builder.requesterDiscordId;
         this.gameMode = builder.gameMode;
+        this.visibility = builder.visibility;
     }
 
     public static Builder builder() {
@@ -68,6 +70,10 @@ public final class SearchChannelConfigsWithWriteAccess extends UseCase<SearchCha
         return gameMode;
     }
 
+    public String getVisibility() {
+        return visibility;
+    }
+
     public static final class Builder {
 
         private Integer page;
@@ -79,6 +85,7 @@ public final class SearchChannelConfigsWithWriteAccess extends UseCase<SearchCha
         private String name;
         private String requesterDiscordId;
         private String gameMode;
+        private String visibility;
 
         private Builder() {
         }
@@ -125,6 +132,11 @@ public final class SearchChannelConfigsWithWriteAccess extends UseCase<SearchCha
 
         public Builder requesterDiscordId(String requesterDiscordId) {
             this.requesterDiscordId = requesterDiscordId;
+            return this;
+        }
+
+        public Builder visibility(String visibility) {
+            this.visibility = visibility;
             return this;
         }
 

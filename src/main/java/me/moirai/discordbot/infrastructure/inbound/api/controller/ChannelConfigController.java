@@ -64,6 +64,7 @@ public class ChannelConfigController extends SecurityContextAware {
                     .direction(searchParameters.getDirection())
                     .name(searchParameters.getName())
                     .requesterDiscordId(authenticatedUser.getId())
+                    .visibility(searchParameters.getVisibility())
                     .build();
 
             return responseMapper.toResponse(useCaseRunner.run(query));
@@ -84,6 +85,7 @@ public class ChannelConfigController extends SecurityContextAware {
                     .direction(searchParameters.getDirection())
                     .name(searchParameters.getName())
                     .requesterDiscordId(authenticatedUser.getId())
+                    .visibility(searchParameters.getVisibility())
                     .build();
 
             return responseMapper.toResponse(useCaseRunner.run(query));
