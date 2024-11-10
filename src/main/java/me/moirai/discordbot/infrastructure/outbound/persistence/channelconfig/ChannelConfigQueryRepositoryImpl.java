@@ -125,6 +125,11 @@ public class ChannelConfigQueryRepositoryImpl implements ChannelConfigQueryRepos
                         "%" + query.getGameMode().toUpperCase() + "%"));
             }
 
+            if (StringUtils.isNotBlank(query.getVisibility())) {
+                predicates.add(cb.and(cb.like(cb.upper(root.get("visibility")),
+                        "%" + query.getVisibility().toUpperCase() + "%")));
+            }
+
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
     }
@@ -158,6 +163,11 @@ public class ChannelConfigQueryRepositoryImpl implements ChannelConfigQueryRepos
             if (StringUtils.isNotBlank(query.getGameMode())) {
                 predicates.add(cb.like(cb.upper(root.get("gameMode")),
                         "%" + query.getGameMode().toUpperCase() + "%"));
+            }
+
+            if (StringUtils.isNotBlank(query.getVisibility())) {
+                predicates.add(cb.and(cb.like(cb.upper(root.get("visibility")),
+                        "%" + query.getVisibility().toUpperCase() + "%")));
             }
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));

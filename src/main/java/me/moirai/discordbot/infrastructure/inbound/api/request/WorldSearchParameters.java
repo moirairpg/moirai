@@ -1,16 +1,15 @@
 package me.moirai.discordbot.infrastructure.inbound.api.request;
 
-public class ChannelConfigSearchParameters {
+public class WorldSearchParameters {
 
     private Integer page;
     private Integer items;
     private String sortByField;
     private String direction;
     private String name;
-    private String gameMode;
     private String visibility;
 
-    public ChannelConfigSearchParameters() {
+    public WorldSearchParameters() {
     }
 
     public Integer getPage() {
@@ -53,19 +52,11 @@ public class ChannelConfigSearchParameters {
         this.name = name;
     }
 
-    public String getGameMode() {
-        return gameMode;
-    }
-
-    public void setGameMode(String gameMode) {
-        this.gameMode = gameMode;
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
     }
 
     public String getVisibility() {
         return visibility;
-    }
-
-    public void setVisibility(String visibility) {
-        this.visibility = visibility;
     }
 }
