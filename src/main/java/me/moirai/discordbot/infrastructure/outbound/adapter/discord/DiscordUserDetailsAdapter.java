@@ -64,4 +64,16 @@ public class DiscordUserDetailsAdapter implements DiscordUserDetailsPort {
             return Optional.empty();
         }
     }
+
+    @Override
+    public DiscordUserDetails getBotUser() {
+
+        User bot = jda.getSelfUser();
+
+        return DiscordUserDetails.builder()
+                .id(bot.getId())
+                .username(bot.getName())
+                .nickname(bot.getGlobalName())
+                .build();
+    }
 }

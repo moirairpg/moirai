@@ -23,14 +23,15 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.reactive.resource.NoResourceFoundException;
 
+import io.micrometer.common.util.StringUtils;
 import me.moirai.discordbot.common.exception.AssetAccessDeniedException;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.exception.AuthenticationFailedException;
 import me.moirai.discordbot.common.exception.BusinessRuleViolationException;
 import me.moirai.discordbot.common.exception.DiscordApiException;
+import me.moirai.discordbot.common.exception.ModerationException;
 import me.moirai.discordbot.common.exception.OpenAiApiException;
 import me.moirai.discordbot.infrastructure.inbound.api.response.ErrorResponse;
-import io.micrometer.common.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 @RestControllerAdvice
@@ -38,6 +39,7 @@ public class WebApiExceptionHandler extends AbstractErrorWebExceptionHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(WebApiExceptionHandler.class);
 
+    private static final String TOPIC_FLAGGED_IN_CONTENT = "Topic flagged in content: %s";
     private static final String UNKNOWN_ERROR = "An error has occurred. Please contact support.";
     private static final String ASSET_NOT_FOUND_ERROR = "The asset requested could not be found.";
     private static final String RESOURCE_NOT_FOUND_ERROR = "The endpoint requested could not be found.";
@@ -175,6 +177,23 @@ public class WebApiExceptionHandler extends AbstractErrorWebExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ResponseStatus(code = HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(ModerationException.class)
+    public ResponseEntity<ErrorResponse> moderationFailed(ModerationException exception) {
+
+        List<String> details = exception.getFlaggedTopics().stream()
+                .map(topic -> String.format(TOPIC_FLAGGED_IN_CONTENT, topic))
+                .toList();
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(HttpStatus.UNPROCESSABLE_ENTITY)
+                .message(exception.getMessage())
+                .details(details)
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     private Mono<ServerResponse> handleAuthenticationError(Throwable originalException) {

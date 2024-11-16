@@ -9,4 +9,6 @@ public interface DiscordUserDetailsPort {
     Optional<DiscordUserDetails> getUserById(String userDiscordId);
 
     Optional<DiscordUserDetails> getGuildMemberById(String userId, String guildId);
+
+    DiscordUserDetails getBotUser();
 }
