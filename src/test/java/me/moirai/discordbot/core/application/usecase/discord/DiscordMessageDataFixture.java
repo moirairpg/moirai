@@ -12,14 +12,18 @@ public class DiscordMessageDataFixture {
         return DiscordMessageData.builder()
                 .id("2")
                 .channelId("12345")
-                .content("Message 2")
+                .content("Some message")
                 .author(DiscordUserDetailsFixture.create().build());
     }
 
     public static List<DiscordMessageData> messageList(int amountOfMessages) {
 
+        DiscordUserDetails author = DiscordUserDetailsFixture.create().build();
         return IntStream.range(0, amountOfMessages)
-                .mapToObj(index -> messageData().build())
+                .mapToObj(index -> messageData()
+                        .id(String.valueOf(index + 1))
+                        .content(String.format("%s said: Message %s", author.getNickname(), index + 1))
+                        .build())
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 }

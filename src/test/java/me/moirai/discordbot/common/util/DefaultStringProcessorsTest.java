@@ -135,4 +135,18 @@ public class DefaultStringProcessorsTest {
         assertThat(output).element(0).isEqualTo("4324234");
         assertThat(output).element(1).isEqualTo("4234234235");
     }
+
+    @Test
+    public void processor_whenAuthorFormatRequired_thenFormatInput() {
+
+        // Given
+        String nameToUse = "John";
+        String input = "how are you doing today?";
+
+        // When
+        String output = DefaultStringProcessors.formatAuthorDirective(nameToUse).apply(input);
+
+        // Then
+        assertThat(output).isEqualTo("John said: [ how are you doing today? ]");
+    }
 }
