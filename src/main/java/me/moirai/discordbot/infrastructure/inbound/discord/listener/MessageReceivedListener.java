@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.core.application.helper.ChannelConfigHelper;
+import me.moirai.discordbot.core.application.usecase.discord.messagereceived.AuthorModeRequest;
 import me.moirai.discordbot.core.application.usecase.discord.messagereceived.ChatModeRequest;
 import me.moirai.discordbot.core.application.usecase.discord.messagereceived.RpgModeRequest;
 import net.dv8tion.jda.api.entities.Member;
@@ -65,6 +66,20 @@ public class MessageReceivedListener extends ListenerAdapter {
                 }
                 case "RPG" -> {
                     RpgModeRequest request = RpgModeRequest.builder()
+                            .authordDiscordId(author.getId())
+                            .channelId(channelId)
+                            .messageId(message.getId())
+                            .guildId(guildId)
+                            .isBotMentioned(mentions.contains(bot.getId()))
+                            .mentionedUsersIds(mentions)
+                            .botUsername(botUsername)
+                            .botNickname(botNickname)
+                            .build();
+
+                    useCaseRunner.run(request).subscribe();
+                }
+                case "AUTHOR" -> {
+                    AuthorModeRequest request = AuthorModeRequest.builder()
                             .authordDiscordId(author.getId())
                             .channelId(channelId)
                             .messageId(message.getId())
