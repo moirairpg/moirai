@@ -147,7 +147,7 @@ public class ContextSummarizationAdapterTest {
                 .thenReturn(20)
                 .thenReturn(1000);
 
-        when(tokenizerPort.getTokenCountFrom(eq(longSummary)))
+        when(tokenizerPort.getTokenCountFrom(longSummary))
                 .thenReturn(200000);
 
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
@@ -205,7 +205,7 @@ public class ContextSummarizationAdapterTest {
                 .thenReturn(20)
                 .thenReturn(1000);
 
-        when(tokenizerPort.getTokenCountFrom(eq(longSummary)))
+        when(tokenizerPort.getTokenCountFrom(longSummary))
                 .thenReturn(200000);
 
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))
@@ -263,7 +263,7 @@ public class ContextSummarizationAdapterTest {
                 .thenReturn(20)
                 .thenReturn(1000);
 
-        when(tokenizerPort.getTokenCountFrom(eq(longSummary)))
+        when(tokenizerPort.getTokenCountFrom(longSummary))
                 .thenReturn(200);
 
         when(chatMessageService.addMessagesToContext(anyMap(), anyInt(), anyInt()))

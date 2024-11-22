@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -63,5 +65,8 @@ public class DeleteWorldHandlerTest {
 
         // When
         handler.handle(command);
+
+        // Then
+        verify(domainService, times(1)).deleteWorld(any());
     }
 }

@@ -1,7 +1,10 @@
 package me.moirai.discordbot.core.application.usecase.persona;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
@@ -58,8 +61,11 @@ public class DeletePersonaHandlerTest {
 
         when(domainService.getById(anyString())).thenReturn(persona);
 
-        // Then
+        // When
         handler.handle(command);
+
+        // Then
+        verify(domainService, times(1)).delete(any());
     }
 
     @Test

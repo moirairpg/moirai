@@ -3,6 +3,8 @@ package me.moirai.discordbot.core.application.usecase.world;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,5 +66,8 @@ public class DeleteWorldLorebookEntryHandlerTest {
 
         // When
         handler.handle(command);
+
+        // Then
+        verify(domainService, times(1)).deleteLorebookEntry(any());
     }
 }

@@ -1,7 +1,10 @@
 package me.moirai.discordbot.core.application.usecase.channelconfig;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +47,10 @@ public class DeleteChannelConfigHandlerTest {
 
         doNothing().when(domainService).delete(command);
 
-        // Then
+        // When
         handler.handle(command);
+
+        // Then
+        verify(domainService, times(1)).delete(any());
     }
 }

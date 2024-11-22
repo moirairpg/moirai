@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -201,8 +203,12 @@ public class WorldServiceImplTest {
 
         when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
 
-        // Then
+        // When
         service.deleteWorld(command);
+
+        // Then
+        verify(worldRepository, times(1)).findById(anyString());
+        verify(worldRepository, times(1)).deleteById(anyString());
     }
 
     @Test
@@ -603,8 +609,12 @@ public class WorldServiceImplTest {
         when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
         when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(entry));
 
-        // Then
+        // When
         service.deleteLorebookEntry(query);
+
+        // Then
+        verify(lorebookEntryRepository, times(1)).findById(anyString());
+        verify(lorebookEntryRepository, times(1)).deleteById(anyString());
     }
 
     @Test

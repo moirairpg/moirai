@@ -1,13 +1,18 @@
 package me.moirai.discordbot.core.application.helper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.list;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,8 +25,11 @@ import me.moirai.discordbot.core.domain.world.WorldService;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequestFixture;
 
+@SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 public class LorebookEnrichmentHelperImplTest {
+
+    private static final String LOREBOOK_KEY = "lorebook";
 
     @Mock
     private TokenizerPort tokenizerPort;
@@ -36,12 +44,56 @@ public class LorebookEnrichmentHelperImplTest {
     private LorebookEnrichmentHelperImpl adapter;
 
     @Test
-    void enrichContextWithLorebookForRpg_whenMessagesAreValid_thenReturnContextWithProcessedPlayerEntries() {
+    void enrichContextWithLorebookForRpg_whenMessagesAreValid_andNormalMode_thenReturnContextWithProcessedPlayerEntries() {
 
         // Given
         String worldId = "WRLDID";
         ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
         List<DiscordMessageData> messageList = getMessageListForTesting();
+
+        ArgumentCaptor<Map<String, Object>> contextCaptor = ArgumentCaptor.forClass(Map.class);
+
+        stubLorebookEntriesByWords();
+
+        when(tokenizerPort.getTokenCountFrom(anyString()))
+                .thenReturn(5)
+                .thenReturn(10)
+                .thenReturn(5)
+                .thenReturn(10)
+                .thenReturn(5)
+                .thenReturn(10)
+                .thenReturn(5)
+                .thenReturn(10)
+                .thenReturn(5)
+                .thenReturn(10);
+
+        when(chatMessageService.addMessagesToContext(contextCaptor.capture(), anyInt()))
+                .thenReturn(new HashMap<>());
+
+        // When
+        adapter.enrichContextWithLorebook(messageList, worldId, modelConfiguration);
+
+        // Then
+        Map<String, Object> enrichedContext = contextCaptor.getValue();
+        assertThat(enrichedContext).isNotNull()
+                .isNotEmpty()
+                .containsKey(LOREBOOK_KEY);
+
+        String[] lorebook = ((String) enrichedContext.get(LOREBOOK_KEY)).split("\n");
+        assertThat(lorebook).isNotNull()
+                .isNotEmpty()
+                .hasSize(3);
+    }
+
+    @Test
+    void enrichContextWithLorebookForRpg_whenMessagesAreValid_andRpgMode_thenReturnContextWithProcessedPlayerEntries() {
+
+        // Given
+        String worldId = "WRLDID";
+        ModelConfigurationRequest modelConfiguration = ModelConfigurationRequestFixture.gpt4Mini().build();
+        List<DiscordMessageData> messageList = getMessageListForTesting();
+
+        ArgumentCaptor<Map<String, Object>> contextCaptor = ArgumentCaptor.forClass(Map.class);
 
         stubLorebookEntriesByWords();
         stubLorebookEntriesByMention();
@@ -59,10 +111,22 @@ public class LorebookEnrichmentHelperImplTest {
                 .thenReturn(5)
                 .thenReturn(10);
 
+        when(chatMessageService.addMessagesToContext(contextCaptor.capture(), anyInt()))
+                .thenReturn(new HashMap<>());
+
         // When
         adapter.enrichContextWithLorebookForRpg(messageList, worldId, modelConfiguration);
 
         // Then
+        Map<String, Object> enrichedContext = contextCaptor.getValue();
+        assertThat(enrichedContext).isNotNull()
+                .isNotEmpty()
+                .containsKey(LOREBOOK_KEY);
+
+        String[] lorebook = ((String) enrichedContext.get(LOREBOOK_KEY)).split("\n");
+        assertThat(lorebook).isNotNull()
+                .isNotEmpty()
+                .hasSize(4);
     }
 
     private List<DiscordMessageData> getMessageListForTesting() {
@@ -91,7 +155,7 @@ public class LorebookEnrichmentHelperImplTest {
                 .id("2")
                 .content("JoeJoe says: I deflect Little Marcus's attack and attack back with my Glove of Armageddon.")
                 .author(john)
-                .mentionedUsers(Lists.list(marcus))
+                .mentionedUsers(list(marcus))
                 .build();
 
         DiscordMessageData thirdMessage = DiscordMessageData.builder()
@@ -100,7 +164,7 @@ public class LorebookEnrichmentHelperImplTest {
                 .author(marcus)
                 .build();
 
-        return Lists.list(firstMessage, secondMessage, thirdMessage);
+        return list(firstMessage, secondMessage, thirdMessage);
     }
 
     private void stubLorebookEntriesByAuthor() {
@@ -177,6 +241,6 @@ public class LorebookEnrichmentHelperImplTest {
                 .build();
 
         when(worldService.findAllLorebookEntriesByRegex(anyString(), anyString()))
-                .thenReturn(Lists.list(swordOfFire, gloveOfArmageddon, lordOfDoom));
+                .thenReturn(list(swordOfFire, gloveOfArmageddon, lordOfDoom));
     }
 }

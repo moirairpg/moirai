@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -305,7 +307,11 @@ public class ChannelConfigServiceImplTest {
 
         when(repository.findById(anyString())).thenReturn(Optional.of(persona));
 
-        // Then
+        // When
         service.delete(command);
+
+        // Then
+        verify(repository, times(1)).findById(anyString());
+        verify(repository, times(1)).deleteById(anyString());
     }
 }
