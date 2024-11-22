@@ -1,6 +1,5 @@
 package me.moirai.discordbot.core.application.helper;
 
-import static java.util.Objects.nonNull;
 import static me.moirai.discordbot.common.util.DefaultStringProcessors.replaceTemplateWithValueIgnoreCase;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.LF;
@@ -11,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -135,7 +135,7 @@ public class LorebookEnrichmentHelperImpl implements LorebookEnrichmentHelper {
                         return null;
                     }
                 })
-                .filter(message -> nonNull(message))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
                         WorldLorebookEntry::getId,
                         entry -> entry,

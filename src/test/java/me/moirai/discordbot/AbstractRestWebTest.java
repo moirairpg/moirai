@@ -39,7 +39,7 @@ public abstract class AbstractRestWebTest {
     protected WebTestClient webTestClient;
 
     @BeforeEach
-    public void before() throws Exception {
+    public void before() {
 
         UserDetails userDetails = DiscordPrincipal.builder()
                 .id("USRID")

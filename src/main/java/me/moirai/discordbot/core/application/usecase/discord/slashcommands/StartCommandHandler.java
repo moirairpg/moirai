@@ -49,8 +49,8 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
             return channelConfigRepository.findByDiscordChannelId(useCase.getChannelId())
                     .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(useCase.getChannelId()))
                     .map(channelConfig -> buildGenerationRequest(useCase, channelConfig))
-                    .map(generationRequest -> storyGenerationPort.continueStory(generationRequest))
-                    .orElseGet(() -> Mono.empty());
+                    .map(storyGenerationPort::continueStory)
+                    .orElseGet(Mono::empty);
         } catch (AssetNotFoundException e) {
             return Mono.error(() -> e);
         } catch (Exception e) {

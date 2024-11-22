@@ -21,7 +21,6 @@ import me.moirai.discordbot.core.application.model.request.ChatMessage;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
 import me.moirai.discordbot.core.application.model.result.TextGenerationResult;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
-import me.moirai.discordbot.core.application.port.DiscordUserDetailsPort;
 import me.moirai.discordbot.core.application.port.StorySummarizationPort;
 import me.moirai.discordbot.core.application.port.TextCompletionPort;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
@@ -54,8 +53,7 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
     private final TextCompletionPort textCompletionPort;
     private final TextModerationPort textModerationPort;
 
-    public StoryGenerationHelperImpl(DiscordUserDetailsPort discordUserDetailsPort,
-            StorySummarizationPort summarizationPort,
+    public StoryGenerationHelperImpl(StorySummarizationPort summarizationPort,
             DiscordChannelPort discordChannelPort,
             LorebookEnrichmentHelper lorebookEnrichmentHelper,
             PersonaEnrichmentHelper personaEnrichmentPort,
@@ -99,7 +97,7 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
                 request.getWorldId(), request.getModelConfiguration());
     }
 
-    private Mono<? extends TextGenerationResult> generateAiOutput(StoryGenerationRequest query,
+    private Mono<TextGenerationResult> generateAiOutput(StoryGenerationRequest query,
             List<ChatMessage> processedContext) {
         TextGenerationRequest textGenerationRequest = buildTextGenerationRequest(query,
                 processedContext);
@@ -263,7 +261,7 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
                             .stream()
                             .filter(entry -> isTopicFlagged(entry, moderation))
                             .map(Map.Entry::getKey)
-                            .collect(Collectors.toList());
+                            .toList();
                 });
     }
 

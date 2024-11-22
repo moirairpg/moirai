@@ -3,7 +3,6 @@ package me.moirai.discordbot.infrastructure.outbound.persistence.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
@@ -134,7 +133,7 @@ public class ChannelConfigPersistenceMapperTest {
                 .mapToObj(op -> ChannelConfigEntityFixture.sample()
                         .id(String.valueOf(op + 1))
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         Pageable pageable = Pageable.ofSize(10);
         Page<ChannelConfigEntity> page = new PageImpl<>(channelConfigs, pageable, 20);

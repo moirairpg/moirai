@@ -21,6 +21,8 @@ import reactor.core.publisher.Mono;
 @UseCaseHandler
 public class GenerateOutputHandler extends AbstractUseCaseHandler<GenerateOutput, Mono<Void>> {
 
+    private static final String CHANNEL_HAS_NO_MESSAGES = "Channel has no messages";
+
     private final ChannelConfigQueryRepository channelConfigRepository;
     private final StoryGenerationHelper storyGenerationPort;
     private final DiscordChannelPort discordChannelPort;
@@ -41,8 +43,8 @@ public class GenerateOutputHandler extends AbstractUseCaseHandler<GenerateOutput
             return channelConfigRepository.findByDiscordChannelId(useCase.getChannelId())
                     .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(useCase.getChannelId()))
                     .map(channelConfig -> buildGenerationRequest(useCase, channelConfig))
-                    .map(generationRequest -> storyGenerationPort.continueStory(generationRequest))
-                    .orElseGet(() -> Mono.empty());
+                    .map(storyGenerationPort::continueStory)
+                    .orElseGet(Mono::empty);
         } catch (Exception e) {
             return Mono.error(
                     () -> new IllegalStateException("An error occurred while generating output"));
@@ -89,7 +91,7 @@ public class GenerateOutputHandler extends AbstractUseCaseHandler<GenerateOutput
     private List<DiscordMessageData> getMessageHistory(String channelId) {
 
         DiscordMessageData lastMessageSent = discordChannelPort.getLastMessageIn(channelId)
-                .orElseThrow(() -> new IllegalStateException("Channel has no messages"));
+                .orElseThrow(() -> new IllegalStateException(CHANNEL_HAS_NO_MESSAGES));
 
         List<DiscordMessageData> messageHistory = new ArrayList<>(discordChannelPort
                 .retrieveEntireHistoryBefore(lastMessageSent.getId(), channelId));

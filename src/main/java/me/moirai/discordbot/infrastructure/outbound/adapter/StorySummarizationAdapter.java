@@ -77,7 +77,7 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
         List<DiscordMessageData> rawMessageHistory = (List<DiscordMessageData>) context.get(RETRIEVED_MESSAGES);
         String lorebook = (String) context.get(LOREBOOK);
 
-        TextGenerationRequest request = createSummarizationRequest(rawMessageHistory, lorebook, storyGenerationRequest);
+        TextGenerationRequest request = createSummarizationRequest(lorebook, storyGenerationRequest);
         return openAiPort.generateTextFrom(request)
                 .map(summaryGenerated -> {
                     StringProcessor processor = new StringProcessor();
@@ -117,8 +117,8 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
         return processedContext;
     }
 
-    private TextGenerationRequest createSummarizationRequest(List<DiscordMessageData> messagesExtracted,
-            String lorebook, StoryGenerationRequest storyGenerationRequest) {
+    private TextGenerationRequest createSummarizationRequest(String lorebook,
+            StoryGenerationRequest storyGenerationRequest) {
 
         ModelConfigurationRequest modelConfiguration = storyGenerationRequest.getModelConfiguration();
         List<ChatMessage> chatMessages = new ArrayList<>();

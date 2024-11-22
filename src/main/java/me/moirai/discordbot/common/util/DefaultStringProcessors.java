@@ -11,6 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 
 public class DefaultStringProcessors {
 
+    private DefaultStringProcessors() {
+    }
+
     public static UnaryOperator<String> stripAsNamePrefixForUppercase(String name) {
 
         return input -> Pattern.compile("\\bAs " + name + ", (\\w)")

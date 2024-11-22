@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,7 @@ public class TokenizeInputHandlerTest {
     private TokenizeInputHandler handler;
 
     @Test
-    public void tokenizeCommand_whenInputIsSupplied_thenReturnTokenizedOutput() throws UnsupportedEncodingException {
+    public void tokenizeCommand_whenInputIsSupplied_thenReturnTokenizedOutput() {
 
         // Given
         String textToBeTokenized = "This is some text.";
@@ -55,7 +54,7 @@ public class TokenizeInputHandlerTest {
     }
 
     @Test
-    public void tokenizeCommand_whenEncodingErrorIsThrown_thenReturnErrorOutput() throws UnsupportedEncodingException {
+    public void tokenizeCommand_whenEncodingErrorIsThrown_thenReturnErrorOutput() {
 
         // Given
         String textToBeTokenized = "This is some text.";

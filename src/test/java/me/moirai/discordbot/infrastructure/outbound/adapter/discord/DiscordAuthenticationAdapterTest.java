@@ -67,8 +67,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
     }
 
     @Test
-    public void unauthorizedWhenAuthenticateOnDiscord()
-            throws JsonProcessingException {
+    public void unauthorizedWhenAuthenticateOnDiscord() {
 
         // Given
         DiscordAuthRequest request = DiscordAuthRequest.builder()
@@ -141,7 +140,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
     }
 
     @Test
-    public void logoutOnDiscord() throws JsonProcessingException {
+    public void logoutOnDiscord() {
 
         // Given
         DiscordTokenRevocationRequest request = DiscordTokenRevocationRequest.builder()
@@ -160,8 +159,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
     }
 
     @Test
-    public void unauthorizedWhenLogoutOnDiscord()
-            throws JsonProcessingException {
+    public void unauthorizedWhenLogoutOnDiscord() {
 
         // Given
         DiscordTokenRevocationRequest request = DiscordTokenRevocationRequest.builder()

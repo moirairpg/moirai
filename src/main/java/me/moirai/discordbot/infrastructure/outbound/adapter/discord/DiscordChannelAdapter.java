@@ -205,8 +205,6 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
         TextChannel channel = jda.getTextChannelById(channelId);
         return Optional.of(getMessageById(channelId, channel.getLatestMessageId())
                 .orElseGet(() -> retrieveEntireHistoryBefore(channel.getLatestMessageId(), channelId).getFirst()));
-
-        // return getMessageById(channelId, channel.getLatestMessageId());
     }
 
     private DiscordMessageData buildMessageResult(String channelId, Message message) {

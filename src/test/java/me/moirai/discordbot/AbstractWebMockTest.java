@@ -4,8 +4,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.http.HttpStatus;
@@ -24,7 +22,7 @@ public abstract class AbstractWebMockTest {
     protected static ObjectMapper objectMapper;
 
     @BeforeAll
-    static void setUp() throws IOException {
+    static void setUp() {
 
         objectMapper = new ObjectMapper();
 
@@ -33,7 +31,7 @@ public abstract class AbstractWebMockTest {
     }
 
     @AfterAll
-    static void tearDown() throws IOException {
+    static void tearDown() {
 
         wireMockServer.stop();
     }

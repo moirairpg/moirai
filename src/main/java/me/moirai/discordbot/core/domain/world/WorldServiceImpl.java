@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -55,10 +54,8 @@ public class WorldServiceImpl implements WorldService {
     @Override
     public World getWorldById(String worldId) {
 
-        World world = repository.findById(worldId)
+        return repository.findById(worldId)
                 .orElseThrow(() -> new AssetNotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
-
-        return world;
     }
 
     @Override
@@ -231,7 +228,7 @@ public class WorldServiceImpl implements WorldService {
                         .stream()
                         .filter(this::isTopicFlagged)
                         .map(Map.Entry::getKey)
-                        .collect(Collectors.toList()));
+                        .toList());
     }
 
     private boolean isTopicFlagged(Entry<String, Double> entry) {

@@ -142,7 +142,7 @@ public class CompleteTextHandler extends AbstractUseCaseHandler<CompleteText, Mo
         return ChatMessage.build(SYSTEM, lorebook);
     }
 
-    private Mono<? extends TextGenerationResult> generateAiOutput(
+    private Mono<TextGenerationResult> generateAiOutput(
             CompleteText useCase, List<ChatMessage> messageHistory, ArtificialIntelligenceModel model) {
 
         TextGenerationRequest textGenerationRequest = buildTextGenerationRequest(useCase, messageHistory, model);
@@ -224,7 +224,7 @@ public class CompleteTextHandler extends AbstractUseCaseHandler<CompleteText, Mo
                             .stream()
                             .filter(entry -> isTopicFlagged(entry, moderation))
                             .map(Map.Entry::getKey)
-                            .collect(Collectors.toList());
+                            .toList();
                 });
     }
 

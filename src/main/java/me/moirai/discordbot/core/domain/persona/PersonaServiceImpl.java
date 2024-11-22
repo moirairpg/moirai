@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,10 +37,8 @@ public class PersonaServiceImpl implements PersonaService {
     @Override
     public Persona getById(String id) {
 
-        Persona persona = repository.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> new AssetNotFoundException(PERSONA_NOT_FOUND));
-
-        return persona;
     }
 
     @Override
@@ -116,7 +113,7 @@ public class PersonaServiceImpl implements PersonaService {
                         .stream()
                         .filter(this::isTopicFlagged)
                         .map(Map.Entry::getKey)
-                        .collect(Collectors.toList()));
+                        .toList());
     }
 
     private boolean isTopicFlagged(Entry<String, Double> entry) {

@@ -44,7 +44,7 @@ public class JdaConfig {
         JDABuilder jdaBuilder = JDABuilder.createDefault(discordApiToken);
 
         for (T listener : eventListeners) {
-            LOG.debug("Registering event listener: " + listener.getClass().getSimpleName());
+            LOG.debug("Registering event listener: {}", listener.getClass().getSimpleName());
             jdaBuilder.addEventListeners(listener);
         }
 
@@ -54,7 +54,7 @@ public class JdaConfig {
                 .build();
 
         for (DiscordSlashCommand slashCommand : slashCommands) {
-            LOG.debug("Registering slash command:  " + slashCommand.getClass().getSimpleName());
+            LOG.debug("Registering slash command: {}", slashCommand.getClass().getSimpleName());
             SlashCommandData slashCommandToBeCreated = Commands
                     .slash(slashCommand.getName(), slashCommand.getDescription())
                     .addOptions(slashCommand.getOptions());
@@ -63,7 +63,7 @@ public class JdaConfig {
         }
 
         for (DiscordContextMenuCommand ctxMenuCommand : ctxMenuCommands) {
-            LOG.debug("Registering context menu command:  " + ctxMenuCommand.getClass().getSimpleName());
+            LOG.debug("Registering context menu command: {}", ctxMenuCommand.getClass().getSimpleName());
             CommandData command = Commands.context(ctxMenuCommand.getCommandType(), ctxMenuCommand.getName());
             jda.upsertCommand(command).complete();
         }

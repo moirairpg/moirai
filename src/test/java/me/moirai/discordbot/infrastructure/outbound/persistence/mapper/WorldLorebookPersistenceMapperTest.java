@@ -116,7 +116,7 @@ public class WorldLorebookPersistenceMapperTest {
                 .mapToObj(op -> WorldLorebookEntryEntityFixture.sampleLorebookEntry()
                         .id(String.valueOf(op + 1))
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         Pageable pageable = Pageable.ofSize(10);
         Page<WorldLorebookEntryEntity> page = new PageImpl<>(worldLorebookEntries, pageable, 20);

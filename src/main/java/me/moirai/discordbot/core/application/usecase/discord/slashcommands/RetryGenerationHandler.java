@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 @UseCaseHandler
 public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGeneration, Mono<Void>> {
 
+    private static final String CHANNEL_HAS_NO_MESSAGES = "Channel has no messages";
     private static final String COMMAND_ONLY_WHEN_LAST_MESSAGE_BY_BOT = "This command can only be used if the last message in channel was sent by the bot.";
 
     private final DiscordChannelPort discordChannelPort;
@@ -41,7 +42,7 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
 
         try {
             DiscordMessageData lastMessageSent = discordChannelPort.getLastMessageIn(useCase.getChannelId())
-                    .orElseThrow(() -> new IllegalStateException("Channel has no messages"));
+                    .orElseThrow(() -> new IllegalStateException(CHANNEL_HAS_NO_MESSAGES));
 
             if (!lastMessageSent.getAuthor().getId().equals(useCase.getBotId())) {
                 return Mono.error(() -> new IllegalStateException(COMMAND_ONLY_WHEN_LAST_MESSAGE_BY_BOT));
@@ -49,14 +50,11 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
 
             discordChannelPort.deleteMessageById(useCase.getChannelId(), lastMessageSent.getId());
 
-            DiscordMessageData messageBeforeLast = discordChannelPort.getLastMessageIn(useCase.getChannelId())
-                    .orElseThrow(() -> new IllegalStateException("Channel has no messages"));
-
             return channelConfigRepository.findByDiscordChannelId(useCase.getChannelId())
                     .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(useCase.getChannelId()))
-                    .map(channelConfig -> buildGenerationRequest(useCase, channelConfig, messageBeforeLast))
-                    .map(generationRequest -> storyGenerationPort.continueStory(generationRequest))
-                    .orElseGet(() -> Mono.empty());
+                    .map(channelConfig -> buildGenerationRequest(useCase, channelConfig))
+                    .map(storyGenerationPort::continueStory)
+                    .orElseGet(Mono::empty);
         } catch (IllegalStateException e) {
             return Mono.error(e);
         } catch (Exception e) {
@@ -66,7 +64,7 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
     }
 
     private StoryGenerationRequest buildGenerationRequest(RetryGeneration useCase,
-            ChannelConfig channelConfig, DiscordMessageData message) {
+            ChannelConfig channelConfig) {
 
         ModelConfigurationRequest modelConfigurationRequest = ModelConfigurationRequest.builder()
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
@@ -106,7 +104,7 @@ public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGenerati
     private List<DiscordMessageData> getMessageHistory(String channelId) {
 
         DiscordMessageData lastMessageSent = discordChannelPort.getLastMessageIn(channelId)
-                .orElseThrow(() -> new IllegalStateException("Channel has no messages"));
+                .orElseThrow(() -> new IllegalStateException(CHANNEL_HAS_NO_MESSAGES));
 
         List<DiscordMessageData> messageHistory = new ArrayList<>(discordChannelPort
                 .retrieveEntireHistoryBefore(lastMessageSent.getId(), channelId));

@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -154,7 +153,7 @@ public class UpdatePersonaHandler extends AbstractUseCaseHandler<UpdatePersona, 
                         .stream()
                         .filter(this::isTopicFlagged)
                         .map(Map.Entry::getKey)
-                        .collect(Collectors.toList()));
+                        .toList());
     }
 
     private boolean isTopicFlagged(Entry<String, Double> entry) {

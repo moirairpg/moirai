@@ -67,7 +67,7 @@ public class SlashCommandListener extends ListenerAdapter {
                             .doOnError(error -> updateNotification(interactionHook, error.getMessage()))
                             .subscribe(__ -> updateNotification(interactionHook, OUTPUT_GENERATED));
 
-                    updateNotification(interactionHook, "Output generated.");
+                    updateNotification(interactionHook, OUTPUT_GENERATED);
                 }
                 case "go" -> {
                     InteractionHook interactionHook = sendNotification(event, "Generating output...");
@@ -86,7 +86,7 @@ public class SlashCommandListener extends ListenerAdapter {
                             .doOnError(error -> updateNotification(interactionHook, error.getMessage()))
                             .subscribe(__ -> updateNotification(interactionHook, OUTPUT_GENERATED));
 
-                    updateNotification(interactionHook, "Output generated.");
+                    updateNotification(interactionHook, OUTPUT_GENERATED);
                 }
                 case "start" -> {
                     InteractionHook interactionHook = sendNotification(event, "Starting adventure...");

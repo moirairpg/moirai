@@ -24,6 +24,8 @@ import reactor.core.publisher.Mono;
 @UseCaseHandler
 public class AuthorModeHandler extends AbstractUseCaseHandler<AuthorModeRequest, Mono<Void>> {
 
+    private static final String CHANNEL_HAS_NO_MESSAGES = "Channel has no messages";
+
     private final StoryGenerationHelper storyGenerationPort;
     private final ChannelConfigQueryRepository channelConfigRepository;
     private final DiscordChannelPort discordChannelPort;
@@ -46,7 +48,7 @@ public class AuthorModeHandler extends AbstractUseCaseHandler<AuthorModeRequest,
                     StoryGenerationRequest generationRequest = buildGenerationRequest(query, channelConfig);
                     return storyGenerationPort.continueStory(generationRequest);
                 })
-                .orElseGet(() -> Mono.empty());
+                .orElseGet(Mono::empty);
     }
 
     private StoryGenerationRequest buildGenerationRequest(AuthorModeRequest useCase, ChannelConfig channelConfig) {
@@ -92,7 +94,7 @@ public class AuthorModeHandler extends AbstractUseCaseHandler<AuthorModeRequest,
     private List<DiscordMessageData> getMessageHistory(String channelId) {
 
         DiscordMessageData lastMessageSent = discordChannelPort.getLastMessageIn(channelId)
-                .orElseThrow(() -> new IllegalStateException("Channel has no messages"));
+                .orElseThrow(() -> new IllegalStateException(CHANNEL_HAS_NO_MESSAGES));
 
         List<DiscordMessageData> messageHistory = new ArrayList<>(discordChannelPort
                 .retrieveEntireHistoryBefore(lastMessageSent.getId(), channelId));

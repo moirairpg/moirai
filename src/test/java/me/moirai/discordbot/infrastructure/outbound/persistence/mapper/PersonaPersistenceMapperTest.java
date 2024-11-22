@@ -3,7 +3,6 @@ package me.moirai.discordbot.infrastructure.outbound.persistence.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
@@ -213,7 +212,7 @@ public class PersonaPersistenceMapperTest {
                 .mapToObj(op -> PersonaEntityFixture.privatePersona()
                         .id(String.valueOf(op + 1))
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         Pageable pageable = Pageable.ofSize(10);
         Page<PersonaEntity> page = new PageImpl<>(personas, pageable, 20);

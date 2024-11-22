@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +64,7 @@ public class UpdateWorldHandler extends AbstractUseCaseHandler<UpdateWorld, Mono
                     return world;
                 })
                 .map(world -> updateWorld(command, world))
-                .map(WorldUpdated -> UpdateWorldResult.build(WorldUpdated.getLastUpdateDate()));
+                .map(worldUpdated -> UpdateWorldResult.build(worldUpdated.getLastUpdateDate()));
     }
 
     public World updateWorld(UpdateWorld command, World world) {
@@ -137,7 +136,7 @@ public class UpdateWorldHandler extends AbstractUseCaseHandler<UpdateWorld, Mono
                         .stream()
                         .filter(this::isTopicFlagged)
                         .map(Map.Entry::getKey)
-                        .collect(Collectors.toList()));
+                        .toList());
     }
 
     private boolean isTopicFlagged(Entry<String, Double> entry) {

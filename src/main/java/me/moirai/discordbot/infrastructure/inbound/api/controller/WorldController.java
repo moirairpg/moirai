@@ -111,8 +111,7 @@ public class WorldController extends SecurityContextAware {
 
             CreateWorld command = requestMapper.toCommand(request, authenticatedUser.getId());
             return useCaseRunner.run(command);
-        })
-                .map(result -> responseMapper.toResponse(result));
+        }).map(responseMapper::toResponse);
     }
 
     @PutMapping("/{worldId}")
@@ -124,8 +123,7 @@ public class WorldController extends SecurityContextAware {
 
             UpdateWorld command = requestMapper.toCommand(request, worldId, authenticatedUser.getId());
             return useCaseRunner.run(command);
-        })
-                .map(result -> responseMapper.toResponse(result));
+        }).map(responseMapper::toResponse);
     }
 
     @DeleteMapping("/{worldId}")

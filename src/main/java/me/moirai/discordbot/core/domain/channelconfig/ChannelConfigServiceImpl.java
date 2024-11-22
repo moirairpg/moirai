@@ -27,10 +27,8 @@ public class ChannelConfigServiceImpl implements ChannelConfigService {
     @Override
     public ChannelConfig getById(String channelConfigId) {
 
-        ChannelConfig channelConfig = repository.findById(channelConfigId)
+        return repository.findById(channelConfigId)
                 .orElseThrow(() -> new AssetNotFoundException("Channel config to be viewed was not found"));
-
-        return channelConfig;
     }
 
     @Override

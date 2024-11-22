@@ -109,8 +109,7 @@ public class PersonaController extends SecurityContextAware {
 
             CreatePersona command = requestMapper.toCommand(request, authenticatedUser.getId());
             return useCaseRunner.run(command);
-        })
-                .map(result -> responseMapper.toResponse(result));
+        }).map(responseMapper::toResponse);
     }
 
     @PutMapping("/{personaId}")
@@ -125,8 +124,7 @@ public class PersonaController extends SecurityContextAware {
                     authenticatedUser.getId());
 
             return useCaseRunner.run(command);
-        })
-                .map(result -> responseMapper.toResponse(result));
+        }).map(responseMapper::toResponse);
     }
 
     @DeleteMapping("/{personaId}")

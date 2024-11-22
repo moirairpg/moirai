@@ -32,24 +32,28 @@ public class BotStatusListener extends ListenerAdapter {
 
     }
 
+    @Override
     public void onSessionResume(SessionResumeEvent event) {
 
         String botName = event.getJDA().getSelfUser().getName();
         LOG.info("{}'s session has been reconnected.", botName);
     }
 
+    @Override
     public void onSessionInvalidate(SessionInvalidateEvent event) {
 
         String botName = event.getJDA().getSelfUser().getName();
         LOG.info("{}'s session has been invalidated.", botName);
     }
 
+    @Override
     public void onShutdown(ShutdownEvent event) {
 
         String botName = event.getJDA().getSelfUser().getName();
         LOG.info("{} has shutdown.", botName);
     }
 
+    @Override
     public void onException(ExceptionEvent event) {
 
         String botName = event.getJDA().getSelfUser().getName();

@@ -130,7 +130,7 @@ public class WorldPersistenceMapperTest {
                 .mapToObj(op -> WorldEntityFixture.privateWorld()
                         .id(String.valueOf(op + 1))
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         Pageable pageable = Pageable.ofSize(10);
         Page<WorldEntity> page = new PageImpl<>(worlds, pageable, 20);
