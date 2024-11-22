@@ -3,6 +3,8 @@ moirai:
     alphabet: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
     characters-amount: 10
   discord:
+    bot:
+      status: Writing stories, inspiring adventures.
     oauth:
       client-id: ${DISCORD_BOT_CLIENT_ID}
       client-secret: ${DISCORD_BOT_CLIENT_SECRET}
