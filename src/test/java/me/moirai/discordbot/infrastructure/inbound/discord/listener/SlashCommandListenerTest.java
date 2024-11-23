@@ -1,5 +1,6 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,13 +11,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.test.context.TestPropertySource;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
@@ -42,6 +44,14 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @SuppressWarnings("unchecked")
+@TestPropertySource(properties = {
+        "moirai.discord.bot.commands.go.before-running=Running command",
+        "moirai.discord.bot.commands.go.after-running=Command run",
+        "moirai.discord.bot.commands.retry.before-running=Running command",
+        "moirai.discord.bot.commands.retry.after-running=Command run",
+        "moirai.discord.bot.commands.start.before-running=Running command",
+        "moirai.discord.bot.commands.start.after-running=Command run",
+})
 public class SlashCommandListenerTest extends AbstractDiscordTest {
 
     private static final String GUILD_ID = "GLDID";
@@ -55,11 +65,14 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
     @Mock
     private UseCaseRunner useCaseRunner;
 
-    @InjectMocks
     private SlashCommandListener listener;
 
     @BeforeEach
     public void beforeEach() {
+
+        List<String> commandBefore = singletonList("Running command");
+        List<String> commandAfter = singletonList("Command run");
+        listener = new SlashCommandListener(useCaseRunner, commandBefore, commandAfter, commandBefore, commandAfter, commandBefore, commandAfter);
 
         InteractionHook interactionHook = mock(InteractionHook.class);
         ReplyCallbackAction eventReplyAction = mock(ReplyCallbackAction.class);
@@ -559,7 +572,8 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(useCaseRunner.run(any())).thenReturn(Optional.empty());
 
         // When
-        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> listener.onSlashCommandInteraction(event));
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> listener.onSlashCommandInteraction(event));
 
         // Then
         verify(useCaseRunner, times(1)).run(any());
