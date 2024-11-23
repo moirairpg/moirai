@@ -52,7 +52,8 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .content(messageSent.getContentRaw())
                 .author(DiscordUserDetails.builder()
                         .id(author.getId())
-                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname() : author.getUser().getGlobalName())
+                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname()
+                                : author.getUser().getGlobalName())
                         .username(author.getUser().getName())
                         .mention(author.getAsMention())
                         .build())
@@ -62,13 +63,10 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
     @Override
     public void sendTemporaryMessageTo(String channelId, String messageContent, int deleteAfterSeconds) {
 
-        // FIXME message is not deleted after the specified time
         TextChannel channel = jda.getTextChannelById(channelId);
-        Message messageSent = channel
-                .sendMessage(messageContent + String.format(TEMPORARY_MESSAGE_WARNING, deleteAfterSeconds))
-                .complete();
-
-        channel.deleteMessageById(messageSent.getId())
+        channel.sendMessage(messageContent + String.format(TEMPORARY_MESSAGE_WARNING, deleteAfterSeconds))
+                .complete()
+                .delete()
                 .completeAfter(deleteAfterSeconds, TimeUnit.SECONDS);
     }
 
@@ -139,7 +137,8 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .content(messageContent)
                 .author(DiscordUserDetails.builder()
                         .id(author.getId())
-                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname() : author.getUser().getGlobalName())
+                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname()
+                                : author.getUser().getGlobalName())
                         .username(author.getUser().getName())
                         .mention(author.getAsMention())
                         .build())
@@ -222,7 +221,8 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .content(formattedContent)
                 .author(DiscordUserDetails.builder()
                         .id(author.getId())
-                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname() : author.getUser().getGlobalName())
+                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname()
+                                : author.getUser().getGlobalName())
                         .username(author.getUser().getName())
                         .mention(author.getAsMention())
                         .build())

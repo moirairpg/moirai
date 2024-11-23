@@ -19,52 +19,39 @@ import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerat
 import reactor.core.publisher.Mono;
 
 @UseCaseHandler
-public class RetryGenerationHandler extends AbstractUseCaseHandler<RetryGeneration, Mono<Void>> {
+public class GoCommandHandler extends AbstractUseCaseHandler<GoCommand, Mono<Void>> {
 
     private static final String CHANNEL_HAS_NO_MESSAGES = "Channel has no messages";
-    private static final String COMMAND_ONLY_WHEN_LAST_MESSAGE_BY_BOT = "This command can only be used if the last message in channel was sent by the bot.";
 
-    private final DiscordChannelPort discordChannelPort;
-    private final StoryGenerationHelper storyGenerationPort;
     private final ChannelConfigQueryRepository channelConfigRepository;
+    private final StoryGenerationHelper storyGenerationPort;
+    private final DiscordChannelPort discordChannelPort;
 
-    public RetryGenerationHandler(DiscordChannelPort discordChannelPort,
-            StoryGenerationHelper storyGenerationPort,
-            ChannelConfigQueryRepository channelConfigRepository) {
+    public GoCommandHandler(StoryGenerationHelper storyGenerationPort,
+            ChannelConfigQueryRepository channelConfigRepository,
+            DiscordChannelPort discordChannelPort) {
 
-        this.discordChannelPort = discordChannelPort;
         this.channelConfigRepository = channelConfigRepository;
         this.storyGenerationPort = storyGenerationPort;
+        this.discordChannelPort = discordChannelPort;
     }
 
     @Override
-    public Mono<Void> execute(RetryGeneration useCase) {
+    public Mono<Void> execute(GoCommand useCase) {
 
         try {
-            DiscordMessageData lastMessageSent = discordChannelPort.getLastMessageIn(useCase.getChannelId())
-                    .orElseThrow(() -> new IllegalStateException(CHANNEL_HAS_NO_MESSAGES));
-
-            if (!lastMessageSent.getAuthor().getId().equals(useCase.getBotId())) {
-                return Mono.error(() -> new IllegalStateException(COMMAND_ONLY_WHEN_LAST_MESSAGE_BY_BOT));
-            }
-
-            discordChannelPort.deleteMessageById(useCase.getChannelId(), lastMessageSent.getId());
-
             return channelConfigRepository.findByDiscordChannelId(useCase.getChannelId())
                     .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(useCase.getChannelId()))
                     .map(channelConfig -> buildGenerationRequest(useCase, channelConfig))
                     .map(storyGenerationPort::continueStory)
                     .orElseGet(Mono::empty);
-        } catch (IllegalStateException e) {
-            return Mono.error(e);
         } catch (Exception e) {
             return Mono.error(
-                    () -> new IllegalStateException("An error occurred while retrying generation of output"));
+                    () -> new IllegalStateException("An error occurred while generating output"));
         }
     }
 
-    private StoryGenerationRequest buildGenerationRequest(RetryGeneration useCase,
-            ChannelConfig channelConfig) {
+    private StoryGenerationRequest buildGenerationRequest(GoCommand useCase, ChannelConfig channelConfig) {
 
         ModelConfigurationRequest modelConfigurationRequest = ModelConfigurationRequest.builder()
                 .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())

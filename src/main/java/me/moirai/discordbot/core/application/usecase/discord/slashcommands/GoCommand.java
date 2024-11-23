@@ -3,7 +3,7 @@ package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 import me.moirai.discordbot.common.usecases.UseCase;
 import reactor.core.publisher.Mono;
 
-public final class RetryGeneration extends UseCase<Mono<Void>> {
+public final class GoCommand extends UseCase<Mono<Void>> {
 
     private final String botId;
     private final String channelId;
@@ -11,7 +11,7 @@ public final class RetryGeneration extends UseCase<Mono<Void>> {
     private final String botNickname;
     private final String botUsername;
 
-    private RetryGeneration(Builder builder) {
+    private GoCommand(Builder builder) {
 
         this.channelId = builder.channelId;
         this.guildId = builder.guildId;
@@ -81,8 +81,8 @@ public final class RetryGeneration extends UseCase<Mono<Void>> {
             return this;
         }
 
-        public RetryGeneration build() {
-            return new RetryGeneration(this);
+        public GoCommand build() {
+            return new GoCommand(this);
         }
     }
 }

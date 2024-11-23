@@ -36,7 +36,7 @@ public class GenerateOutputHandlerTest extends AbstractDiscordTest {
     private StoryGenerationHelper storyGenerationPort;
 
     @InjectMocks
-    private GenerateOutputHandler handler;
+    private GoCommandHandler handler;
 
     @Test
     public void goCommand_whenIssued_thenGenerateOutput() {
@@ -48,7 +48,7 @@ public class GenerateOutputHandlerTest extends AbstractDiscordTest {
                 .discordChannelId(channelId)
                 .build();
 
-        GenerateOutput useCase = GenerateOutput.builder()
+        GoCommand useCase = GoCommand.builder()
                 .botId("BOTID")
                 .botNickname("nickname")
                 .botUsername("user.name")
@@ -91,7 +91,7 @@ public class GenerateOutputHandlerTest extends AbstractDiscordTest {
         // Given
         String channelId = "CHID";
 
-        GenerateOutput useCase = GenerateOutput.builder()
+        GoCommand useCase = GoCommand.builder()
                 .botId("BOTID")
                 .botNickname("nickname")
                 .botUsername("user.name")

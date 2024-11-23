@@ -1,5 +1,6 @@
 package me.moirai.discordbot.core.application.usecase.discord.messagereceived;
 
+import static java.util.Objects.nonNull;
 import static me.moirai.discordbot.common.util.DefaultStringProcessors.formatAuthorDirective;
 import static me.moirai.discordbot.core.domain.channelconfig.GameMode.AUTHOR;
 import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
@@ -107,7 +108,7 @@ public class AuthorModeHandler extends AbstractUseCaseHandler<AuthorModeRequest,
     private DiscordMessageData formatHistoryForAuthorDirections(AuthorModeRequest useCase, DiscordMessageData message) {
 
         String botNickname = useCase.getBotUsername();
-        String authorNickname = message.getAuthor().getNickname();
+        String authorNickname = getAuthorNickname(message);
 
         if (!authorNickname.equals(botNickname)) {
             String originalMessageContent = substringAfter(message.getContent(),
@@ -125,5 +126,9 @@ public class AuthorModeHandler extends AbstractUseCaseHandler<AuthorModeRequest,
         }
 
         return message;
+    }
+
+    private String getAuthorNickname(DiscordMessageData message) {
+        return nonNull(message.getAuthor().getNickname()) ? message.getAuthor().getNickname() : message.getAuthor().getUsername();
     }
 }

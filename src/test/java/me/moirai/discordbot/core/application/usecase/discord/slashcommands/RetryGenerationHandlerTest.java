@@ -38,7 +38,7 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
     private StoryGenerationHelper storyGenerationPort;
 
     @InjectMocks
-    private RetryGenerationHandler handler;
+    private RetryCommandHandler handler;
 
     @Test
     public void retryCommand_whenLastMessageElegible_thenShouldDeleteItAndRegenerateOutput() {
@@ -51,7 +51,7 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
                 .discordChannelId(channelId)
                 .build();
 
-        RetryGeneration useCase = RetryGeneration.builder()
+        RetryCommand useCase = RetryCommand.builder()
                 .botId(botId)
                 .botNickname("nickname")
                 .botUsername("user.name")
@@ -98,7 +98,7 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
         String channelId = "CHID";
         String expectedErrorMessage = "This command can only be used if the last message in channel was sent by the bot.";
 
-        RetryGeneration useCase = RetryGeneration.builder()
+        RetryCommand useCase = RetryCommand.builder()
                 .botId(botId)
                 .botNickname("nickname")
                 .botUsername("user.name")
@@ -129,7 +129,7 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
         String channelId = "CHID";
         String expectedErrorMessage = "Channel has no messages";
 
-        RetryGeneration useCase = RetryGeneration.builder()
+        RetryCommand useCase = RetryCommand.builder()
                 .botId(botId)
                 .botNickname("nickname")
                 .botUsername("user.name")
@@ -154,7 +154,7 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
         String channelId = "CHID";
         String expectedErrorMessage = "An error occurred while retrying generation of output";
 
-        RetryGeneration useCase = RetryGeneration.builder()
+        RetryCommand useCase = RetryCommand.builder()
                 .botId(botId)
                 .botNickname("nickname")
                 .botUsername("user.name")
@@ -183,7 +183,7 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
                 .discordChannelId(channelId)
                 .build();
 
-        RetryGeneration useCase = RetryGeneration.builder()
+        RetryCommand useCase = RetryCommand.builder()
                 .botId(botId)
                 .botNickname("nickname")
                 .botUsername("user.name")
@@ -218,7 +218,7 @@ public class RetryGenerationHandlerTest extends AbstractDiscordTest {
         String channelId = "CHID";
         String expectedErrorMessage = "Channel has no messages";
 
-        RetryGeneration useCase = RetryGeneration.builder()
+        RetryCommand useCase = RetryCommand.builder()
                 .botId(botId)
                 .botNickname("nickname")
                 .botUsername("user.name")
