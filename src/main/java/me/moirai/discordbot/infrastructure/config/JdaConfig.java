@@ -29,10 +29,14 @@ public class JdaConfig {
     private static final String REGISTERED_CONTEXT_MENU_COMMANDS = "{} Discord context menu commands have been registered";
 
     private final String discordApiToken;
+    private final String discordBotStatus;
 
-    public JdaConfig(@Value("${moirai.discord.api.token}") String discordApiToken) {
+    public JdaConfig(
+        @Value("${moirai.discord.api.token}") String discordApiToken,
+        @Value("${moirai.discord.bot.status}") String discordBotStatus) {
 
         this.discordApiToken = discordApiToken;
+        this.discordBotStatus = discordBotStatus;
     }
 
     @Bean
@@ -49,7 +53,7 @@ public class JdaConfig {
         }
 
         JDA jda = jdaBuilder
-                .setActivity(Activity.watching("Writing stories, inspiring adventures."))
+                .setActivity(Activity.customStatus(discordBotStatus))
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS)
                 .build();
 

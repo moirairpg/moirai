@@ -1,9 +1,12 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.random.RandomGenerator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
@@ -29,14 +32,33 @@ public class SlashCommandListener extends ListenerAdapter {
 
     private static final String TOKEN_REPLY_MESSAGE = "**Characters:** %s\n**Tokens:** %s\n**Token IDs:** %s (contains %s total tokens).";
     private static final String TOO_MUCH_CONTENT_TO_TOKENIZE = "Could not tokenize content. Too much content. Please use the web UI to tokenize large text";
-    private static final String OUTPUT_GENERATED = "Output generated.";
     private static final int DISCORD_MAX_LENGTH = 2000;
     private static final int EPHEMERAL_MESSAGE_TTL = 10;
 
     private final UseCaseRunner useCaseRunner;
+    private final List<String> goCommandPhrasesBeforeRunning;
+    private final List<String> goCommandPhrasesAfterRunning;
+    private final List<String> retryCommandPhrasesBeforeRunning;
+    private final List<String> retryCommandPhrasesAfterRunning;
+    private final List<String> startCommandPhrasesBeforeRunning;
+    private final List<String> startCommandPhrasesAfterRunning;
 
-    public SlashCommandListener(UseCaseRunner useCaseRunner) {
+    public SlashCommandListener(
+            UseCaseRunner useCaseRunner,
+            @Value("${moirai.discord.bot.commands.go.before-running}") List<String> goCommandPhrasesBeforeRunning,
+            @Value("${moirai.discord.bot.commands.go.after-running}") List<String> goCommandPhrasesAfterRunning,
+            @Value("${moirai.discord.bot.commands.retry.before-running}") List<String> retryCommandPhrasesBeforeRunning,
+            @Value("${moirai.discord.bot.commands.retry.after-running}") List<String> retryCommandPhrasesAfterRunning,
+            @Value("${moirai.discord.bot.commands.start.before-running}") List<String> startCommandPhrasesBeforeRunning,
+            @Value("${moirai.discord.bot.commands.start.after-running}") List<String> startCommandPhrasesAfterRunning) {
+
         this.useCaseRunner = useCaseRunner;
+        this.goCommandPhrasesBeforeRunning = goCommandPhrasesBeforeRunning;
+        this.goCommandPhrasesAfterRunning = goCommandPhrasesAfterRunning;
+        this.retryCommandPhrasesBeforeRunning = retryCommandPhrasesBeforeRunning;
+        this.retryCommandPhrasesAfterRunning = retryCommandPhrasesAfterRunning;
+        this.startCommandPhrasesBeforeRunning = startCommandPhrasesBeforeRunning;
+        this.startCommandPhrasesAfterRunning = startCommandPhrasesAfterRunning;
     }
 
     @Override
@@ -51,7 +73,9 @@ public class SlashCommandListener extends ListenerAdapter {
         if (!author.isBot()) {
             switch (command) {
                 case "retry" -> {
-                    InteractionHook interactionHook = sendNotification(event, "Generating new output...");
+                    InteractionHook interactionHook = sendNotification(event,
+                            getCommandPhrase(retryCommandPhrasesBeforeRunning));
+
                     String botUsername = bot.getUser().getName();
                     String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname() : botUsername;
 
@@ -65,12 +89,15 @@ public class SlashCommandListener extends ListenerAdapter {
 
                     useCaseRunner.run(useCase)
                             .doOnError(error -> updateNotification(interactionHook, error.getMessage()))
-                            .subscribe(__ -> updateNotification(interactionHook, OUTPUT_GENERATED));
+                            .subscribe(__ -> updateNotification(interactionHook,
+                                    getCommandPhrase(retryCommandPhrasesAfterRunning)));
 
-                    updateNotification(interactionHook, OUTPUT_GENERATED);
+                    updateNotification(interactionHook, getCommandPhrase(retryCommandPhrasesAfterRunning));
                 }
                 case "go" -> {
-                    InteractionHook interactionHook = sendNotification(event, "Generating output...");
+                    InteractionHook interactionHook = sendNotification(event,
+                            getCommandPhrase(goCommandPhrasesBeforeRunning));
+
                     String botUsername = bot.getUser().getName();
                     String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname() : botUsername;
 
@@ -84,12 +111,15 @@ public class SlashCommandListener extends ListenerAdapter {
 
                     useCaseRunner.run(useCase)
                             .doOnError(error -> updateNotification(interactionHook, error.getMessage()))
-                            .subscribe(__ -> updateNotification(interactionHook, OUTPUT_GENERATED));
+                            .subscribe(__ -> updateNotification(interactionHook,
+                                    getCommandPhrase(goCommandPhrasesAfterRunning)));
 
-                    updateNotification(interactionHook, OUTPUT_GENERATED);
+                    updateNotification(interactionHook, getCommandPhrase(retryCommandPhrasesAfterRunning));
                 }
                 case "start" -> {
-                    InteractionHook interactionHook = sendNotification(event, "Starting adventure...");
+                    InteractionHook interactionHook = sendNotification(event,
+                            getCommandPhrase(startCommandPhrasesBeforeRunning));
+
                     String botUsername = bot.getUser().getName();
                     String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname() : botUsername;
 
@@ -103,7 +133,10 @@ public class SlashCommandListener extends ListenerAdapter {
 
                     useCaseRunner.run(useCase)
                             .doOnError(error -> updateNotification(interactionHook, error.getMessage()))
-                            .subscribe(__ -> updateNotification(interactionHook, "Adventure started! Enjoy!"));
+                            .subscribe(__ -> updateNotification(interactionHook,
+                                    getCommandPhrase(startCommandPhrasesAfterRunning)));
+
+                    updateNotification(interactionHook, getCommandPhrase(retryCommandPhrasesAfterRunning));
                 }
                 case "say" -> {
                     TextInput content = TextInput.create("content", "Content", TextInputStyle.PARAGRAPH)
@@ -153,5 +186,11 @@ public class SlashCommandListener extends ListenerAdapter {
 
         interactionHook.editOriginal(newContent)
                 .queue(msg -> msg.delete().queueAfter(EPHEMERAL_MESSAGE_TTL, TimeUnit.SECONDS));
+    }
+
+    private String getCommandPhrase(List<String> phraseList) {
+
+        int randomIndex = RandomGenerator.getDefault().nextInt(phraseList.size());
+        return phraseList.get(randomIndex);
     }
 }
