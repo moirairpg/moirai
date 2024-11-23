@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.springframework.test.context.TestPropertySource;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
@@ -44,14 +43,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @SuppressWarnings("unchecked")
-@TestPropertySource(properties = {
-        "moirai.discord.bot.commands.go.before-running=Running command",
-        "moirai.discord.bot.commands.go.after-running=Command run",
-        "moirai.discord.bot.commands.retry.before-running=Running command",
-        "moirai.discord.bot.commands.retry.after-running=Command run",
-        "moirai.discord.bot.commands.start.before-running=Running command",
-        "moirai.discord.bot.commands.start.after-running=Command run",
-})
 public class SlashCommandListenerTest extends AbstractDiscordTest {
 
     private static final String GUILD_ID = "GLDID";
