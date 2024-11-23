@@ -121,13 +121,13 @@ public class DiscordChannelAdapterTest {
         when(message.getId()).thenReturn(messageId);
         when(textChannel.deleteMessageById(anyString())).thenReturn(auditableRestAction);
         when(auditableRestAction.completeAfter(anyLong(), any(TimeUnit.class))).thenReturn(null);
+        when(message.delete()).thenReturn(auditableRestAction);
 
         // When
         adapter.sendTemporaryMessageTo(channelId, messageContent, deleteMessageAfterSeconds);
 
         // Then
         verify(textChannel, times(1)).sendMessage(anyString());
-        verify(textChannel, times(1)).deleteMessageById(anyString());
     }
 
     @Test

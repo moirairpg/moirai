@@ -2,9 +2,9 @@ package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -21,8 +21,8 @@ import org.mockito.Mock;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
-import me.moirai.discordbot.core.application.usecase.discord.slashcommands.GenerateOutput;
-import me.moirai.discordbot.core.application.usecase.discord.slashcommands.RetryGeneration;
+import me.moirai.discordbot.core.application.usecase.discord.slashcommands.GoCommand;
+import me.moirai.discordbot.core.application.usecase.discord.slashcommands.RetryCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.StartCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeResult;
 import net.dv8tion.jda.api.entities.Member;
@@ -35,7 +35,9 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ModalCallbackAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
@@ -137,7 +139,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         Mono<Void> commandResult = Mono.just(mock(Void.class));
 
         when(event.getFullCommandName()).thenReturn(command);
-        when(useCaseRunner.run(any(RetryGeneration.class))).thenReturn(commandResult);
+        when(useCaseRunner.run(any(RetryCommand.class))).thenReturn(commandResult);
         when(event.getChannel()).thenReturn(channelUnion);
         when(event.getMember()).thenReturn(member);
         when(member.getUser()).thenReturn(user);
@@ -150,7 +152,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         listener.onSlashCommandInteraction(event);
 
         // Then
-        verify(useCaseRunner, times(1)).run(any(RetryGeneration.class));
+        verify(useCaseRunner, times(1)).run(any(RetryCommand.class));
 
         StepVerifier.create(commandResult)
                 .assertNext(message -> assertThat(message).isNotNull())
@@ -167,7 +169,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         Mono<Void> commandResult = Mono.just(mock(Void.class));
 
         when(event.getFullCommandName()).thenReturn(command);
-        when(useCaseRunner.run(any(GenerateOutput.class))).thenReturn(commandResult);
+        when(useCaseRunner.run(any(GoCommand.class))).thenReturn(commandResult);
         when(event.getChannel()).thenReturn(channelUnion);
         when(event.getMember()).thenReturn(member);
         when(member.getUser()).thenReturn(user);
@@ -180,7 +182,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         listener.onSlashCommandInteraction(event);
 
         // Then
-        verify(useCaseRunner, times(1)).run(any(GenerateOutput.class));
+        verify(useCaseRunner, times(1)).run(any(GoCommand.class));
 
         StepVerifier.create(commandResult)
                 .assertNext(message -> assertThat(message).isNotNull())
@@ -227,7 +229,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         Mono<Void> commandResult = Mono.just(mock(Void.class));
 
         when(event.getFullCommandName()).thenReturn(command);
-        when(useCaseRunner.run(any(RetryGeneration.class))).thenReturn(commandResult);
+        when(useCaseRunner.run(any(RetryCommand.class))).thenReturn(commandResult);
         when(event.getChannel()).thenReturn(channelUnion);
         when(event.getMember()).thenReturn(member);
         when(member.getUser()).thenReturn(user);
@@ -240,7 +242,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         listener.onSlashCommandInteraction(event);
 
         // Then
-        verify(useCaseRunner, times(1)).run(any(RetryGeneration.class));
+        verify(useCaseRunner, times(1)).run(any(RetryCommand.class));
 
         StepVerifier.create(commandResult)
                 .assertNext(message -> assertThat(message).isNotNull())
@@ -257,7 +259,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         Mono<Void> commandResult = Mono.just(mock(Void.class));
 
         when(event.getFullCommandName()).thenReturn(command);
-        when(useCaseRunner.run(any(GenerateOutput.class))).thenReturn(commandResult);
+        when(useCaseRunner.run(any(GoCommand.class))).thenReturn(commandResult);
         when(event.getChannel()).thenReturn(channelUnion);
         when(event.getMember()).thenReturn(member);
         when(member.getUser()).thenReturn(user);
@@ -270,7 +272,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         listener.onSlashCommandInteraction(event);
 
         // Then
-        verify(useCaseRunner, times(1)).run(any(GenerateOutput.class));
+        verify(useCaseRunner, times(1)).run(any(GoCommand.class));
 
         StepVerifier.create(commandResult)
                 .assertNext(message -> assertThat(message).isNotNull())
@@ -315,7 +317,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         Mono<Void> commandResult = Mono.error(new IllegalStateException("Error"));
 
         when(event.getFullCommandName()).thenReturn(command);
-        when(useCaseRunner.run(any(RetryGeneration.class))).thenReturn(commandResult);
+        when(useCaseRunner.run(any(RetryCommand.class))).thenReturn(commandResult);
         when(event.getChannel()).thenReturn(channelUnion);
         when(event.getMember()).thenReturn(member);
         when(member.getUser()).thenReturn(user);
@@ -326,7 +328,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         listener.onSlashCommandInteraction(event);
 
         // Then
-        verify(useCaseRunner, times(1)).run(any(RetryGeneration.class));
+        verify(useCaseRunner, times(1)).run(any(RetryCommand.class));
 
         StepVerifier.create(commandResult)
                 .verifyErrorMessage("Error");
@@ -340,7 +342,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         Mono<Void> commandResult = Mono.error(new IllegalStateException("Error"));
 
         when(event.getFullCommandName()).thenReturn(command);
-        when(useCaseRunner.run(any(GenerateOutput.class))).thenReturn(commandResult);
+        when(useCaseRunner.run(any(GoCommand.class))).thenReturn(commandResult);
         when(event.getChannel()).thenReturn(channelUnion);
         when(event.getMember()).thenReturn(member);
         when(member.getUser()).thenReturn(user);
@@ -351,7 +353,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         listener.onSlashCommandInteraction(event);
 
         // Then
-        verify(useCaseRunner, times(1)).run(any(GenerateOutput.class));
+        verify(useCaseRunner, times(1)).run(any(GoCommand.class));
 
         StepVerifier.create(commandResult)
                 .verifyErrorMessage("Error");
@@ -539,6 +541,8 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         CacheRestAction<Member> memberRetrievalAction = mock(CacheRestAction.class);
         MessageChannelUnion baseChannel = mock(MessageChannelUnion.class);
         WebhookMessageEditAction<Message> editAction = mock(WebhookMessageEditAction.class);
+        MessageCreateAction messageCreationMock = mock(MessageCreateAction.class);
+        AuditableRestAction<Void> deleteAction = mock(AuditableRestAction.class);
 
         ArgumentCaptor<String> notificationCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -562,11 +566,16 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(commandParameterContent.getAsString()).thenReturn(textToBeTokenized);
         when(useCaseRunner.run(any())).thenReturn(Optional.empty());
 
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(channelUnion.sendMessage(anyString())).thenReturn(messageCreationMock);
+        when(messageCreationMock.complete()).thenReturn(message);
+        when(message.delete()).thenReturn(deleteAction);
+
         // When
-        assertThatExceptionOfType(IllegalStateException.class)
-                .isThrownBy(() -> listener.onSlashCommandInteraction(event));
+        listener.onSlashCommandInteraction(event);
 
         // Then
         verify(useCaseRunner, times(1)).run(any());
+        verify(deleteAction, times(1)).completeAfter(anyLong(), any());
     }
 }

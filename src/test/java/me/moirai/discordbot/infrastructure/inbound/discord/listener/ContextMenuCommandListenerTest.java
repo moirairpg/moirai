@@ -1,9 +1,9 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -25,6 +25,8 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ModalCallbackAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
@@ -291,6 +293,8 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         MessageContextInteractionEvent event = mock(MessageContextInteractionEvent.class);
         ReplyCallbackAction messageReplyAction = mock(ReplyCallbackAction.class);
         InteractionHook interactionHook = mock(InteractionHook.class);
+        MessageCreateAction messageCreationMock = mock(MessageCreateAction.class);
+        AuditableRestAction<Void> deleteAction = mock(AuditableRestAction.class);
 
         when(event.getMember()).thenReturn(member);
         when(event.getName()).thenReturn(eventName);
@@ -303,10 +307,16 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(messageReplyAction.complete()).thenReturn(interactionHook);
         when(useCaseRunner.run(any())).thenReturn(Optional.empty());
 
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(channelUnion.sendMessage(anyString())).thenReturn(messageCreationMock);
+        when(messageCreationMock.complete()).thenReturn(message);
+        when(message.delete()).thenReturn(deleteAction);
+
         // When
-        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> listener.onMessageContextInteraction(event));
+        listener.onMessageContextInteraction(event);
 
         // Then
         verify(useCaseRunner, times(1)).run(any());
+        verify(deleteAction, times(1)).completeAfter(anyLong(), any());
     }
 }
