@@ -207,7 +207,7 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
             outputSize = output.length();
         }
 
-        discordChannelPort.sendMessageTo(messageChannelId, output);
+        discordChannelPort.sendTextMessageTo(messageChannelId, output);
     }
 
     private Mono<List<ChatMessage>> moderateInput(List<ChatMessage> messages,

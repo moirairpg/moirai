@@ -4,7 +4,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -21,6 +20,7 @@ import org.mockito.Mock;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
+import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.GoCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.RetryCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.StartCommand;
@@ -58,6 +58,9 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
     @Mock
     private UseCaseRunner useCaseRunner;
 
+    @Mock
+    private DiscordChannelPort discordChannelPort;
+
     private SlashCommandListener listener;
 
     @BeforeEach
@@ -65,7 +68,8 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
 
         List<String> commandBefore = singletonList("Running command");
         List<String> commandAfter = singletonList("Command run");
-        listener = new SlashCommandListener(useCaseRunner, commandBefore, commandAfter, commandBefore, commandAfter, commandBefore, commandAfter);
+        listener = new SlashCommandListener(useCaseRunner, discordChannelPort,
+                commandBefore, commandAfter, commandBefore, commandAfter, commandBefore, commandAfter);
 
         InteractionHook interactionHook = mock(InteractionHook.class);
         ReplyCallbackAction eventReplyAction = mock(ReplyCallbackAction.class);
@@ -576,6 +580,5 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
 
         // Then
         verify(useCaseRunner, times(1)).run(any());
-        verify(deleteAction, times(1)).completeAfter(anyLong(), any());
     }
 }

@@ -116,7 +116,7 @@ public class StoryGenerationHelperImplTest {
         when(textModerationPort.moderate(anyString()))
                 .thenReturn(Mono.just(moderationResult));
 
-        when(discordChannelOperationsPort.sendMessageTo(eq(channelId), anyString()))
+        when(discordChannelOperationsPort.sendTextMessageTo(eq(channelId), anyString()))
                 .thenReturn(mock(DiscordMessageData.class));
 
         // When
@@ -125,7 +125,7 @@ public class StoryGenerationHelperImplTest {
         // Then
         StepVerifier.create(result).verifyComplete();
         verify(textCompletionPort).generateTextFrom(textGenerationRequestCaptor.capture());
-        verify(discordChannelOperationsPort).sendMessageTo(eq(channelId), anyString());
+        verify(discordChannelOperationsPort).sendTextMessageTo(eq(channelId), anyString());
 
         List<ChatMessage> messagesSentToAi = textGenerationRequestCaptor.getValue().getMessages();
         assertThat(messagesSentToAi).isNotNull().isNotEmpty().hasSize(10);

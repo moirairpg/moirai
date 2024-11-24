@@ -4,12 +4,18 @@ import java.util.List;
 import java.util.Optional;
 
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordEmbeddedMessageRequest;
 
 public interface DiscordChannelPort {
 
-    DiscordMessageData sendMessageTo(String channelId, String messageContent);
+    DiscordMessageData sendTextMessageTo(String channelId, String messageContent);
 
-    void sendTemporaryMessageTo(String channelId, String messageContent, int deleteAfterSeconds);
+    DiscordMessageData sendEmbeddedMessageTo(String channelId, DiscordEmbeddedMessageRequest embedData);
+
+    void sendTemporaryEmbeddedMessageTo(String channelId,
+            DiscordEmbeddedMessageRequest embedData, int deleteAfterSeconds);
+
+    void sendTemporaryTextMessageTo(String channelId, String messageContent, int deleteAfterSeconds);
 
     Optional<DiscordMessageData> getMessageById(String channelId, String messageId);
 

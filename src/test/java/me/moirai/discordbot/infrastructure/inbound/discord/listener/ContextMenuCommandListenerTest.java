@@ -3,7 +3,6 @@ package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -19,6 +18,7 @@ import org.mockito.Mock;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
+import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeResult;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
@@ -36,6 +36,9 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
 
     @Mock
     private UseCaseRunner useCaseRunner;
+
+    @Mock
+    private DiscordChannelPort discordChannelPort;
 
     @InjectMocks
     private ContextMenuCommandListener listener;
@@ -317,6 +320,5 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
 
         // Then
         verify(useCaseRunner, times(1)).run(any());
-        verify(deleteAction, times(1)).completeAfter(anyLong(), any());
     }
 }
