@@ -33,6 +33,7 @@ public class WorldPersistenceMapper {
                 .creationDate(world.getCreationDate())
                 .creatorDiscordId(creatorOrOwnerDiscordId)
                 .lastUpdateDate(world.getLastUpdateDate())
+                .version(world.getVersion())
                 .build();
     }
 
@@ -54,6 +55,7 @@ public class WorldPersistenceMapper {
                 .creationDate(world.getCreationDate())
                 .lastUpdateDate(world.getLastUpdateDate())
                 .creatorDiscordId(world.getCreatorDiscordId())
+                .version(world.getVersion())
                 .build();
     }
 

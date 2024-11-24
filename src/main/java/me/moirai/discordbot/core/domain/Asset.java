@@ -7,11 +7,17 @@ public abstract class Asset {
     private final String creatorDiscordId;
     private final OffsetDateTime creationDate;
     private final OffsetDateTime lastUpdateDate;
+    private final int version;
 
-    protected Asset(String creatorDiscordId, OffsetDateTime creationDate, OffsetDateTime lastUpdateDate) {
+    protected Asset(String creatorDiscordId,
+            OffsetDateTime creationDate,
+            OffsetDateTime lastUpdateDate,
+            int version) {
+
         this.creatorDiscordId = creatorDiscordId;
         this.creationDate = creationDate;
         this.lastUpdateDate = lastUpdateDate;
+        this.version = version;
     }
 
     public String getCreatorDiscordId() {
@@ -24,5 +30,9 @@ public abstract class Asset {
 
     public OffsetDateTime getLastUpdateDate() {
         return lastUpdateDate;
+    }
+
+    public int getVersion() {
+        return version;
     }
 }

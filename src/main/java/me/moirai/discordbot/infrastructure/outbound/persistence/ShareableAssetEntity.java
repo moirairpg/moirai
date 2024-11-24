@@ -35,9 +35,9 @@ public abstract class ShareableAssetEntity extends AssetEntity {
 
     protected ShareableAssetEntity(String creatorDiscordId, OffsetDateTime creationDate,
             OffsetDateTime lastUpdateDate, String ownerDiscordId, List<String> usersAllowedToRead,
-            List<String> usersAllowedToWrite, String visibility) {
+            List<String> usersAllowedToWrite, String visibility, int version) {
 
-        super(creatorDiscordId, creationDate, lastUpdateDate);
+        super(creatorDiscordId, creationDate, lastUpdateDate, version);
 
         this.ownerDiscordId = ownerDiscordId;
         this.usersAllowedToRead = usersAllowedToRead;

@@ -24,6 +24,7 @@ public class WorldLorebookPersistenceMapper {
                 .creatorDiscordId(entry.getCreatorDiscordId())
                 .creationDate(entry.getCreationDate())
                 .lastUpdateDate(entry.getLastUpdateDate())
+                .version(entry.getVersion())
                 .build();
     }
 
@@ -40,6 +41,7 @@ public class WorldLorebookPersistenceMapper {
                 .creatorDiscordId(entry.getCreatorDiscordId())
                 .creationDate(entry.getCreationDate())
                 .lastUpdateDate(entry.getLastUpdateDate())
+                .version(entry.getVersion())
                 .build();
     }
 

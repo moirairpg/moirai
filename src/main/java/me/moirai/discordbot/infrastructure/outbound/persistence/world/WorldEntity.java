@@ -31,7 +31,7 @@ public class WorldEntity extends ShareableAssetEntity {
 
         super(builder.creatorDiscordId, builder.creationDate,
                 builder.lastUpdateDate, builder.ownerDiscordId, builder.usersAllowedToRead, builder.usersAllowedToWrite,
-                builder.visibility);
+                builder.visibility, builder.version);
 
         this.id = builder.id;
         this.name = builder.name;
@@ -77,6 +77,7 @@ public class WorldEntity extends ShareableAssetEntity {
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+        private int version;
 
         private Builder() {
         }
@@ -144,6 +145,12 @@ public class WorldEntity extends ShareableAssetEntity {
         public Builder lastUpdateDate(OffsetDateTime lastUpdateDate) {
 
             this.lastUpdateDate = lastUpdateDate;
+            return this;
+        }
+
+        public Builder version(int version) {
+
+            this.version = version;
             return this;
         }
 

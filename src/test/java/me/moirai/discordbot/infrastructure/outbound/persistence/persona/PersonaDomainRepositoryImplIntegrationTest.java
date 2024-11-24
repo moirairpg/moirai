@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import me.moirai.discordbot.AbstractIntegrationTest;
+import me.moirai.discordbot.core.domain.Visibility;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.core.domain.persona.PersonaDomainRepository;
 import me.moirai.discordbot.core.domain.persona.PersonaFixture;
@@ -88,5 +89,27 @@ public class PersonaDomainRepositoryImplIntegrationTest extends AbstractIntegrat
 
         // Then
         assertThat(jpaRepository.findById(persona.getId())).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void updatePersona() {
+
+        // Given
+        Persona originalPersona = repository.save(PersonaFixture.privatePersona()
+                .id(null)
+                .build());
+
+        Persona worldToUbeUpdated = PersonaFixture.privatePersona()
+                .id(originalPersona.getId())
+                .visibility(Visibility.PUBLIC)
+                .version(originalPersona.getVersion())
+                .build();
+
+        // When
+        Persona updatedPersona = repository.save(worldToUbeUpdated);
+
+        // Then
+        assertThat(originalPersona.getVersion()).isEqualTo(0);
+        assertThat(updatedPersona.getVersion()).isEqualTo(1);
     }
 }

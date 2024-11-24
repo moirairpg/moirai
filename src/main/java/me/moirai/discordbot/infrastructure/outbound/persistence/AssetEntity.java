@@ -2,10 +2,11 @@ package me.moirai.discordbot.infrastructure.outbound.persistence;
 
 import java.time.OffsetDateTime;
 
-import me.moirai.discordbot.common.dbutil.AssetBaseDataAssigner;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Version;
+import me.moirai.discordbot.common.dbutil.AssetBaseDataAssigner;
 
 @MappedSuperclass
 @EntityListeners(AssetBaseDataAssigner.class)
@@ -20,10 +21,14 @@ public abstract class AssetEntity {
     @Column(name = "last_update_date", nullable = false)
     protected OffsetDateTime lastUpdateDate;
 
-    protected AssetEntity(String creatorDiscordId, OffsetDateTime creationDate, OffsetDateTime lastUpdateDate) {
+    @Version
+    private int version;
+
+    protected AssetEntity(String creatorDiscordId, OffsetDateTime creationDate, OffsetDateTime lastUpdateDate, int version) {
         this.creatorDiscordId = creatorDiscordId;
         this.creationDate = creationDate;
         this.lastUpdateDate = lastUpdateDate;
+        this.version = version;
     }
 
     protected AssetEntity() {
@@ -52,5 +57,13 @@ public abstract class AssetEntity {
 
     public void setLastUpdateDate(OffsetDateTime lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

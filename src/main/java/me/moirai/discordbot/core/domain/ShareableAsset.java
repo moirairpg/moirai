@@ -10,9 +10,9 @@ public abstract class ShareableAsset extends Asset {
     private Visibility visibility;
 
     protected ShareableAsset(String creatorDiscordId, OffsetDateTime creationDate,
-            OffsetDateTime lastUpdateDate, Permissions permissions, Visibility visibility) {
+            OffsetDateTime lastUpdateDate, Permissions permissions, Visibility visibility, int version) {
 
-        super(creatorDiscordId, creationDate, lastUpdateDate);
+        super(creatorDiscordId, creationDate, lastUpdateDate, version);
         this.permissions = permissions;
         this.visibility = visibility;
     }
