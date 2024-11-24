@@ -37,7 +37,7 @@ public class SayCommandHandlerTest extends AbstractDiscordTest {
 
         // Then
         verify(discordChannelPort, times(1))
-                .sendMessageTo(channelIdCaptor.capture(), messageContentCaptor.capture());
+                .sendTextMessageTo(channelIdCaptor.capture(), messageContentCaptor.capture());
 
         String channelIdCaptured = channelIdCaptor.getValue();
         String messageContentCaptured = messageContentCaptor.getValue();

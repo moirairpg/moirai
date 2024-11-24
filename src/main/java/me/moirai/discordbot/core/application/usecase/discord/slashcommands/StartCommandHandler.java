@@ -82,7 +82,7 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
                 .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
                         channelConfig.getModeration().getThresholds());
 
-        discordChannelPort.sendMessageTo(useCase.getChannelId(), world.getAdventureStart());
+        discordChannelPort.sendTextMessageTo(useCase.getChannelId(), world.getAdventureStart());
 
         DiscordMessageData adventureStartMessage = DiscordMessageData.builder()
                 .channelId(useCase.getChannelId())

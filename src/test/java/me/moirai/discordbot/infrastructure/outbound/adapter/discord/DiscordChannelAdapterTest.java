@@ -28,11 +28,14 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordEmbeddedMessageRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordEmbeddedMessageRequestFixture;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.MessageHistory.MessageRetrieveAction;
 import net.dv8tion.jda.api.entities.User;
@@ -93,10 +96,49 @@ public class DiscordChannelAdapterTest {
         when(cacheRestActionMemberMock.complete()).thenReturn(member);
 
         // When
-        DiscordMessageData result = adapter.sendMessageTo(channelId, messageContent);
+        DiscordMessageData result = adapter.sendTextMessageTo(channelId, messageContent);
 
         // Then
         verify(textChannel, times(1)).sendMessage(anyString());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).isEqualTo(messageContent);
+        assertThat(result.getAuthor().getId()).isEqualTo(authorId);
+    }
+
+    @Test
+    void sendEmbeddedMessage_whenCalled_thenMessageShouldBeSent() {
+
+        // Given
+        String channelId = "123";
+        String authorId = "123";
+        String messageContent = "Some text";
+
+        DiscordEmbeddedMessageRequest embedRequest = DiscordEmbeddedMessageRequestFixture.create().build();
+        MessageCreateAction messageCreateActionMock = mock(MessageCreateAction.class);
+        CacheRestAction<Member> cacheRestActionMemberMock = mock(CacheRestAction.class);
+        MessageEmbed messageEmbed = mock(MessageEmbed.class);
+
+        when(jda.getTextChannelById(channelId)).thenReturn(textChannel);
+        when(textChannel.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(messageCreateActionMock);
+        when(messageCreateActionMock.complete()).thenReturn(message);
+        when(message.getGuild()).thenReturn(guild);
+        when(message.getAuthor()).thenReturn(user);
+        when(message.getContentRaw()).thenReturn(messageContent);
+        when(member.getUser()).thenReturn(user);
+        when(user.getId()).thenReturn(authorId);
+        when(member.getId()).thenReturn(authorId);
+        when(guild.retrieveMemberById(anyString())).thenReturn(cacheRestActionMemberMock);
+        when(cacheRestActionMemberMock.complete()).thenReturn(member);
+
+        when(message.getEmbeds()).thenReturn(singletonList(messageEmbed));
+        when(messageEmbed.getDescription()).thenReturn(embedRequest.getMessageContent());
+
+        // When
+        DiscordMessageData result = adapter.sendEmbeddedMessageTo(channelId, embedRequest);
+
+        // Then
+        verify(textChannel, times(1)).sendMessageEmbeds(any(MessageEmbed.class));
 
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEqualTo(messageContent);
@@ -124,10 +166,41 @@ public class DiscordChannelAdapterTest {
         when(message.delete()).thenReturn(auditableRestAction);
 
         // When
-        adapter.sendTemporaryMessageTo(channelId, messageContent, deleteMessageAfterSeconds);
+        adapter.sendTemporaryTextMessageTo(channelId, messageContent, deleteMessageAfterSeconds);
 
         // Then
         verify(textChannel, times(1)).sendMessage(anyString());
+    }
+
+    @Test
+    void sendTemporaryEmbeddedMessage_whenCalled_thenMessageShouldBeSent() {
+
+        // Given
+        int deleteMessageAfterSeconds = 5;
+        String channelId = "123";
+        String messageId = "123";
+
+        DiscordEmbeddedMessageRequest embedRequest = DiscordEmbeddedMessageRequestFixture.create().build();
+        MessageCreateAction messageCreateActionMock = mock(MessageCreateAction.class);
+        AuditableRestAction<Void> auditableRestAction = mock(AuditableRestAction.class);
+        MessageEmbed messageEmbed = mock(MessageEmbed.class);
+
+        when(jda.getTextChannelById(channelId)).thenReturn(textChannel);
+        when(textChannel.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(messageCreateActionMock);
+        when(messageCreateActionMock.complete()).thenReturn(message);
+        when(message.getId()).thenReturn(messageId);
+        when(textChannel.deleteMessageById(anyString())).thenReturn(auditableRestAction);
+        when(auditableRestAction.completeAfter(anyLong(), any(TimeUnit.class))).thenReturn(null);
+        when(message.delete()).thenReturn(auditableRestAction);
+
+        when(message.getEmbeds()).thenReturn(singletonList(messageEmbed));
+        when(messageEmbed.getDescription()).thenReturn(embedRequest.getMessageContent());
+
+        // When
+        adapter.sendTemporaryEmbeddedMessageTo(channelId, embedRequest, deleteMessageAfterSeconds);
+
+        // Then
+        verify(textChannel, times(1)).sendMessageEmbeds(any(MessageEmbed.class));
     }
 
     @Test
@@ -162,7 +235,7 @@ public class DiscordChannelAdapterTest {
         when(member.getAsMention()).thenReturn(mention);
         when(message.getContentRaw()).thenReturn(messageContent);
         when(message.getMentions()).thenReturn(mentions);
-        when(mentions.getMembers()).thenReturn(Collections.singletonList(member));
+        when(mentions.getMembers()).thenReturn(singletonList(member));
 
         // When
         Optional<DiscordMessageData> result = adapter.getMessageById(channelId, messageId);
@@ -245,7 +318,7 @@ public class DiscordChannelAdapterTest {
         when(user.getName()).thenReturn(username);
         when(member.getId()).thenReturn(authorId);
         when(message.getMentions()).thenReturn(mentions);
-        when(mentions.getMembers()).thenReturn(Collections.singletonList(member));
+        when(mentions.getMembers()).thenReturn(singletonList(member));
 
         // When
         DiscordMessageData result = adapter.editMessageById(channelId, messageId, newMessageContent);

@@ -17,7 +17,7 @@ public class SayCommandHandler extends AbstractUseCaseHandler<SayCommand, Void> 
     @Override
     public Void execute(SayCommand useCase) {
 
-        discordChannelPort.sendMessageTo(useCase.getChannelId(), useCase.getMessageContent());
+        discordChannelPort.sendTextMessageTo(useCase.getChannelId(), useCase.getMessageContent());
 
         return null;
     }

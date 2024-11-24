@@ -1,7 +1,10 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter.discord;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
+import java.awt.Color;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +17,8 @@ import me.moirai.discordbot.common.util.DefaultStringProcessors;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordEmbeddedMessageRequest;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -35,8 +40,15 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
         this.jda = jda;
     }
 
+    /**
+     * Sends a text message to the specified channel
+     *
+     * @param channelId      ID of the channel where the message has to be sent
+     * @param messageContent Text content of the message to be sent
+     * @return Message's, author's and mentioned users' metadata
+     */
     @Override
-    public DiscordMessageData sendMessageTo(String channelId, String messageContent) {
+    public DiscordMessageData sendTextMessageTo(String channelId, String messageContent) {
 
         Message messageSent = jda.getTextChannelById(channelId)
                 .sendMessage(messageContent)
@@ -60,8 +72,87 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .build();
     }
 
+    /**
+     * Sends an embedded message to the specified channel
+     *
+     * @param channelId      ID of the channel where the message has to be sent
+     * @param messageContent Text content of the message to be sent in the embed
+     * @return Message's, author's and mentioned users' metadata
+     */
     @Override
-    public void sendTemporaryMessageTo(String channelId, String messageContent, int deleteAfterSeconds) {
+    public DiscordMessageData sendEmbeddedMessageTo(String channelId, DiscordEmbeddedMessageRequest embedData) {
+
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setDescription(embedData.getMessageContent());
+        eb.setFooter(embedData.getFooterText());
+        eb.setTitle(embedData.getTitleText());
+        eb.setImage(embedData.getImageUrl());
+        eb.setThumbnail(embedData.getThumbnailUrl());
+        eb.setAuthor(embedData.getAuthorName(), embedData.getAuthorWebsiteUrl(), embedData.getAuthorIconUrl());
+        eb.setColor(new Color(embedData.getEmbedColor().getRed(), embedData.getEmbedColor().getGreen(),
+                embedData.getEmbedColor().getBlue()));
+
+        Message messageSent = jda.getTextChannelById(channelId)
+                .sendMessageEmbeds(eb.build())
+                .complete();
+
+        Member author = messageSent.getGuild()
+                .retrieveMemberById(messageSent.getAuthor().getId())
+                .complete();
+
+        return DiscordMessageData.builder()
+                .id(messageSent.getId())
+                .channelId(channelId)
+                .content(messageSent.getEmbeds().get(0).getDescription())
+                .author(DiscordUserDetails.builder()
+                        .id(author.getId())
+                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname()
+                                : author.getUser().getGlobalName())
+                        .username(author.getUser().getName())
+                        .mention(author.getAsMention())
+                        .build())
+                .build();
+    }
+
+    /**
+     * Sends an embedded message to the specified channel that will be deleted after
+     * specified time
+     *
+     * @param channelId          ID of the channel where the message has to be sent
+     * @param messageContent     Text content of the message to be sent in the embed
+     * @param deleteAfterSeconds TTL in seconds for the message sent
+     */
+    @Override
+    public void sendTemporaryEmbeddedMessageTo(String channelId,
+            DiscordEmbeddedMessageRequest embedData, int deleteAfterSeconds) {
+
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setDescription(embedData.getMessageContent());
+        eb.setFooter(embedData.getFooterText());
+        eb.setTitle(embedData.getTitleText());
+        eb.setImage(embedData.getImageUrl());
+        eb.setThumbnail(embedData.getThumbnailUrl());
+        eb.setAuthor(embedData.getAuthorName(), embedData.getAuthorWebsiteUrl(), embedData.getAuthorIconUrl());
+        eb.setColor(new Color(embedData.getEmbedColor().getRed(), embedData.getEmbedColor().getGreen(),
+                embedData.getEmbedColor().getBlue()));
+
+        TextChannel channel = jda.getTextChannelById(channelId);
+        channel.sendMessageEmbeds(eb.build())
+                .complete()
+                .delete()
+                .completeAfter(deleteAfterSeconds, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Sends a text message to the specified channel that will be deleted after
+     * specified time
+     *
+     * @param channelId          ID of the channel where the message has to be sent
+     * @param messageContent     Text content of the message to be sent
+     * @param deleteAfterSeconds TTL in seconds for the message sent
+     */
+    @Override
+    public void sendTemporaryTextMessageTo(String channelId, String messageContent, int deleteAfterSeconds) {
 
         TextChannel channel = jda.getTextChannelById(channelId);
         channel.sendMessage(messageContent + String.format(TEMPORARY_MESSAGE_WARNING, deleteAfterSeconds))
@@ -76,6 +167,10 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
             Message message = jda.getTextChannelById(channelId)
                     .retrieveMessageById(messageId)
                     .complete();
+
+            if (isBlank(message.getContentRaw())) {
+                return Optional.empty();
+            }
 
             Member author = message.getGuild()
                     .retrieveMemberById(message.getAuthor().getId())
@@ -172,6 +267,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .complete()
                 .getRetrievedHistory()
                 .stream()
+                .filter(message -> isNotBlank(message.getContentRaw()))
                 .map(message -> buildMessageResult(channelId, message))
                 .toList();
     }
@@ -194,6 +290,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .complete()
                 .getRetrievedHistory()
                 .stream()
+                .filter(message -> isNotBlank(message.getContentRaw()))
                 .map(message -> buildMessageResult(channelId, message))
                 .toList();
     }

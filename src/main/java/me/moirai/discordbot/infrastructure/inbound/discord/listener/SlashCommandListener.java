@@ -13,12 +13,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
+import me.moirai.discordbot.common.exception.ModerationException;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
+import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.GoCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.RetryCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.StartCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeInput;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeResult;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordEmbeddedMessageRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordEmbeddedMessageRequest.Color;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -36,13 +40,17 @@ public class SlashCommandListener extends ListenerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SlashCommandListener.class);
 
+    private static final String COMMA_DELIMITER = ", ";
+    private static final String CONTENT_FLAGGED_MESSAGE = "Message content was flagged by moderation. The following topics were blocked: %s";
     private static final String SOMETHING_WENT_WRONG = "Something went wrong. Please try again.";
     private static final String TOKEN_REPLY_MESSAGE = "**Characters:** %s\n**Tokens:** %s\n**Token IDs:** %s (contains %s total tokens).";
     private static final String TOO_MUCH_CONTENT_TO_TOKENIZE = "Could not tokenize content. Too much content. Please use the web UI to tokenize large text";
     private static final int DISCORD_MAX_LENGTH = 2000;
     private static final int EPHEMERAL_MESSAGE_TTL = 10;
+    private static final int ERROR_MESSAGE_TTL = 10;
 
     private final UseCaseRunner useCaseRunner;
+    private final DiscordChannelPort discordChannelPort;
     private final List<String> goCommandPhrasesBeforeRunning;
     private final List<String> goCommandPhrasesAfterRunning;
     private final List<String> retryCommandPhrasesBeforeRunning;
@@ -52,6 +60,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
     public SlashCommandListener(
             UseCaseRunner useCaseRunner,
+            DiscordChannelPort discordChannelPort,
             @Value("${moirai.discord.bot.commands.go.before-running}") List<String> goCommandPhrasesBeforeRunning,
             @Value("${moirai.discord.bot.commands.go.after-running}") List<String> goCommandPhrasesAfterRunning,
             @Value("${moirai.discord.bot.commands.retry.before-running}") List<String> retryCommandPhrasesBeforeRunning,
@@ -60,6 +69,7 @@ public class SlashCommandListener extends ListenerAdapter {
             @Value("${moirai.discord.bot.commands.start.after-running}") List<String> startCommandPhrasesAfterRunning) {
 
         this.useCaseRunner = useCaseRunner;
+        this.discordChannelPort = discordChannelPort;
         this.goCommandPhrasesBeforeRunning = goCommandPhrasesBeforeRunning;
         this.goCommandPhrasesAfterRunning = goCommandPhrasesAfterRunning;
         this.retryCommandPhrasesBeforeRunning = retryCommandPhrasesBeforeRunning;
@@ -178,12 +188,7 @@ public class SlashCommandListener extends ListenerAdapter {
                 }
             }
         } catch (Exception e) {
-            LOG.error("An error occured while processing a slash command", e);
-            event.getChannel()
-                    .sendMessage(SOMETHING_WENT_WRONG)
-                    .complete()
-                    .delete()
-                    .completeAfter(20, SECONDS);
+            errorNotification(event, e);
         }
     }
 
@@ -212,12 +217,58 @@ public class SlashCommandListener extends ListenerAdapter {
 
     private void errorNotification(InteractionHook interactionHook, Throwable error) {
 
-        if (error instanceof AssetNotFoundException) {
-            interactionHook.editOriginal(error.getMessage())
-                    .queue(msg -> msg.delete().queueAfter(EPHEMERAL_MESSAGE_TTL, SECONDS));
+        if (error instanceof ModerationException) {
+            ModerationException moderationException = (ModerationException) error;
+            String flaggedTopics = String.join(COMMA_DELIMITER, moderationException.getFlaggedTopics());
+            String message = String.format(CONTENT_FLAGGED_MESSAGE, flaggedTopics);
+
+            updateNotification(interactionHook, message);
         }
 
-        interactionHook.editOriginal(SOMETHING_WENT_WRONG)
-                .queue(msg -> msg.delete().queueAfter(EPHEMERAL_MESSAGE_TTL, SECONDS));
+        else if (error instanceof AssetNotFoundException) {
+            updateNotification(interactionHook, error.getMessage());
+        }
+
+        updateNotification(interactionHook, SOMETHING_WENT_WRONG);
+    }
+
+    private void errorNotification(SlashCommandInteractionEvent event, Throwable error) {
+
+        LOG.error("An error occured while processing message received from Discord", error);
+        DiscordEmbeddedMessageRequest.Builder embedBuilder = DiscordEmbeddedMessageRequest.builder()
+                .authorName(event.getMember().getAsMention())
+                .authorIconUrl(event.getMember().getAvatarUrl())
+                .embedColor(Color.RED);
+
+        if (error instanceof ModerationException) {
+            ModerationException moderationException = (ModerationException) error;
+            String flaggedTopics = String.join(COMMA_DELIMITER, moderationException.getFlaggedTopics());
+            String message = String.format(CONTENT_FLAGGED_MESSAGE, flaggedTopics);
+
+            DiscordEmbeddedMessageRequest embed = embedBuilder.messageContent(message)
+                    .titleText("Inappropriate content detected")
+                    .footerText("MoirAI content moderation")
+                    .build();
+
+            discordChannelPort.sendTemporaryEmbeddedMessageTo(event.getChannel().getId(), embed, ERROR_MESSAGE_TTL);
+            return;
+        }
+
+        else if (error instanceof AssetNotFoundException) {
+            DiscordEmbeddedMessageRequest embed = embedBuilder.messageContent(error.getMessage())
+                    .titleText("Asset requested was not found")
+                    .footerText("MoirAI asset management")
+                    .build();
+
+            discordChannelPort.sendTemporaryEmbeddedMessageTo(event.getChannel().getId(), embed, ERROR_MESSAGE_TTL);
+            return;
+        }
+
+        DiscordEmbeddedMessageRequest embed = embedBuilder.messageContent(SOMETHING_WENT_WRONG)
+                .titleText("An error occurred")
+                .footerText("MoirAI error handling")
+                .build();
+
+        discordChannelPort.sendTemporaryEmbeddedMessageTo(event.getChannel().getId(), embed, ERROR_MESSAGE_TTL);
     }
 }
