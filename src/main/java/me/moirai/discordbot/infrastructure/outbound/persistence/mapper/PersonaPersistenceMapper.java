@@ -56,6 +56,7 @@ public class PersonaPersistenceMapper {
                 .creatorDiscordId(creatorOrOwnerDiscordId)
                 .creationDate(persona.getCreationDate())
                 .lastUpdateDate(persona.getLastUpdateDate())
+                .version(persona.getVersion())
                 .build();
     }
 
@@ -94,6 +95,7 @@ public class PersonaPersistenceMapper {
                 .creatorDiscordId(persona.getCreatorDiscordId())
                 .bump(bump.build())
                 .nudge(nudge.build())
+                .version(persona.getVersion())
                 .build();
     }
 

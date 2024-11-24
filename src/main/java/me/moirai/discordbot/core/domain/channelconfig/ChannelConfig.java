@@ -24,7 +24,7 @@ public class ChannelConfig extends ShareableAsset {
     private ChannelConfig(Builder builder) {
 
         super(builder.creatorDiscordId, builder.creationDate,
-                builder.lastUpdateDate, builder.permissions, builder.visibility);
+                builder.lastUpdateDate, builder.permissions, builder.visibility, builder.version);
 
         this.id = builder.id;
         this.name = builder.name;
@@ -186,6 +186,7 @@ public class ChannelConfig extends ShareableAsset {
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+        private int version;
 
         private Builder() {
         }
@@ -271,6 +272,12 @@ public class ChannelConfig extends ShareableAsset {
         public Builder lastUpdateDate(OffsetDateTime lastUpdateDate) {
 
             this.lastUpdateDate = lastUpdateDate;
+            return this;
+        }
+
+        public Builder version(int version) {
+
+            this.version = version;
             return this;
         }
 

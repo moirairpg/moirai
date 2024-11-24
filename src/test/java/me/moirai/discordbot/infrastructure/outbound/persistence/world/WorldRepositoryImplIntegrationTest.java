@@ -1,5 +1,6 @@
 package me.moirai.discordbot.infrastructure.outbound.persistence.world;
 
+import static me.moirai.discordbot.core.domain.Visibility.PUBLIC;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
@@ -93,5 +94,27 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
 
         // Then
         assertThat(repository.findById(world.getId())).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void updateWorld() {
+
+        // Given
+        World originalWorld = repository.save(WorldFixture.privateWorld()
+                .id(null)
+                .build());
+
+        World worldToUbeUpdated = WorldFixture.privateWorld()
+                .id(originalWorld.getId())
+                .visibility(PUBLIC)
+                .version(originalWorld.getVersion())
+                .build();
+
+        // When
+        World updatedWorld = repository.save(worldToUbeUpdated);
+
+        // Then
+        assertThat(originalWorld.getVersion()).isEqualTo(0);
+        assertThat(updatedWorld.getVersion()).isEqualTo(1);
     }
 }

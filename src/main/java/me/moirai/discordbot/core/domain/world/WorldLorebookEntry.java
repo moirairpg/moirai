@@ -16,7 +16,7 @@ public class WorldLorebookEntry extends Asset {
 
     private WorldLorebookEntry(Builder builder) {
 
-        super(builder.creatorDiscordId, builder.creationDate, builder.lastUpdateDate);
+        super(builder.creatorDiscordId, builder.creationDate, builder.lastUpdateDate, builder.version);
         this.id = builder.id;
         this.name = builder.name;
         this.regex = builder.regex;
@@ -98,6 +98,7 @@ public class WorldLorebookEntry extends Asset {
         private String worldId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+        private int version;
 
         private Builder() {
         }
@@ -159,6 +160,12 @@ public class WorldLorebookEntry extends Asset {
         public Builder lastUpdateDate(OffsetDateTime lastUpdateDate) {
 
             this.lastUpdateDate = lastUpdateDate;
+            return this;
+        }
+
+        public Builder version(int version) {
+
+            this.version = version;
             return this;
         }
 

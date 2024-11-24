@@ -9,9 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import me.moirai.discordbot.AbstractIntegrationTest;
+import me.moirai.discordbot.core.domain.Visibility;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigDomainRepository;
+import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
 
 public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
@@ -110,5 +111,27 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
         // Then
         assertThat(repository.findById(channelConfig.getId())).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void updateChannelConfig() {
+
+        // Given
+        ChannelConfig originalChannelConfig = repository.save(ChannelConfigFixture.sample()
+                .id(null)
+                .build());
+
+        ChannelConfig worldToUbeUpdated = ChannelConfigFixture.sample()
+                .id(originalChannelConfig.getId())
+                .visibility(Visibility.PUBLIC)
+                .version(originalChannelConfig.getVersion())
+                .build();
+
+        // When
+        ChannelConfig updatedChannelConfig = repository.save(worldToUbeUpdated);
+
+        // Then
+        assertThat(originalChannelConfig.getVersion()).isEqualTo(0);
+        assertThat(updatedChannelConfig.getVersion()).isEqualTo(1);
     }
 }

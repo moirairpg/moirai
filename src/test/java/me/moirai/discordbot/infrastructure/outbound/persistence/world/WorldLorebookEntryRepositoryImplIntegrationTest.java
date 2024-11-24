@@ -385,4 +385,28 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
         assertThat(immunityLowerCaseResult).isNotNull().isNotEmpty().hasSize(1);
         assertThat(allEntries).isNotNull().isNotEmpty().hasSize(3);
     }
+
+    @Test
+    public void updateWorld() {
+
+        // Given
+        WorldLorebookEntry originalEntry = repository.save(WorldLorebookEntryFixture.sampleLorebookEntry()
+                .id(null)
+                .build());
+
+        WorldLorebookEntry entryToBeUpdated = WorldLorebookEntryFixture.sampleLorebookEntry()
+                .id(originalEntry.getId())
+                .name("new name")
+                .version(originalEntry.getVersion())
+                .build();
+
+        // When
+        WorldLorebookEntry updatedWorldLorebookEntry = repository.save(entryToBeUpdated);
+
+        // Then
+
+        // Then
+        assertThat(originalEntry.getVersion()).isEqualTo(0);
+        assertThat(updatedWorldLorebookEntry.getVersion()).isEqualTo(1);
+    }
 }

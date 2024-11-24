@@ -37,7 +37,7 @@ public class WorldLorebookEntryEntity extends AssetEntity {
 
     public WorldLorebookEntryEntity(Builder builder) {
 
-        super(builder.creatorDiscordId, builder.creationDate, builder.lastUpdateDate);
+        super(builder.creatorDiscordId, builder.creationDate, builder.lastUpdateDate, builder.version);
 
         this.id = builder.id;
         this.name = builder.name;
@@ -97,6 +97,7 @@ public class WorldLorebookEntryEntity extends AssetEntity {
         private String creatorDiscordId;
         private OffsetDateTime creationDate;
         private OffsetDateTime lastUpdateDate;
+        private int version;
 
         private Builder() {
         }
@@ -158,6 +159,12 @@ public class WorldLorebookEntryEntity extends AssetEntity {
         public Builder lastUpdateDate(OffsetDateTime lastUpdateDate) {
 
             this.lastUpdateDate = lastUpdateDate;
+            return this;
+        }
+
+        public Builder version(int version) {
+
+            this.version = version;
             return this;
         }
 
