@@ -2,6 +2,7 @@ package me.moirai.discordbot.infrastructure.inbound.api.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,12 @@ import org.springframework.http.HttpHeaders;
 
 import me.moirai.discordbot.AbstractRestWebTest;
 import me.moirai.discordbot.core.application.port.DiscordAuthenticationPort;
+import me.moirai.discordbot.core.application.usecase.discord.userdetails.DiscordUserDetailsResult;
+import me.moirai.discordbot.core.application.usecase.discord.userdetails.GetUserDetailsById;
+import me.moirai.discordbot.infrastructure.inbound.api.mapper.UserDataResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordAuthResponse;
+import me.moirai.discordbot.infrastructure.inbound.api.response.UserDataResponse;
+import me.moirai.discordbot.infrastructure.inbound.api.response.UserDataResponseFixture;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordAuthRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
 import me.moirai.discordbot.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
@@ -32,6 +38,9 @@ public class AuthenticationControllerTest extends AbstractRestWebTest {
 
     @MockBean
     protected DiscordAuthenticationPort discordAuthenticationPort;
+
+    @MockBean
+    private UserDataResponseMapper responseMapper;
 
     @Test
     public void exchangeCodeForToken() {
@@ -80,5 +89,34 @@ public class AuthenticationControllerTest extends AbstractRestWebTest {
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(Void.class);
+    }
+
+    @Test
+    public void http200WhenUserIsFound() {
+
+        // Given
+        UserDataResponse result = UserDataResponseFixture.create().build();
+
+        when(useCaseRunner.run(any(GetUserDetailsById.class)))
+                .thenReturn(mock(DiscordUserDetailsResult.class));
+
+        when(responseMapper.toResponse(any(DiscordUserDetailsResult.class))).thenReturn(result);
+
+        // Then
+        webTestClient.get()
+                .uri("/auth/user")
+                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(UserDataResponse.class)
+                .value(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.getId()).isEqualTo(result.getId());
+                    assertThat(response.getEmail()).isEqualTo(result.getEmail());
+                    assertThat(response.getGlobalNickname()).isEqualTo(result.getGlobalNickname());
+                    assertThat(response.getUsername()).isEqualTo(result.getUsername());
+                    assertThat(response.getAvatar()).isEqualTo(result.getAvatar());
+                });
+
     }
 }

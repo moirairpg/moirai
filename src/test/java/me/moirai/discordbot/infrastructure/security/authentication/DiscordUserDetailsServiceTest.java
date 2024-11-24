@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.core.application.port.DiscordAuthenticationPort;
-import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordUserDataResponse;
+import me.moirai.discordbot.infrastructure.outbound.adapter.response.DiscordUserDataResponse;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -31,7 +31,7 @@ public class DiscordUserDetailsServiceTest {
         String token = "TOKEN";
 
         DiscordUserDataResponse response = DiscordUserDataResponse.builder()
-                .displayName("displayName")
+                .globalNickname("displayName")
                 .username("username")
                 .email("email@email.com")
                 .build();

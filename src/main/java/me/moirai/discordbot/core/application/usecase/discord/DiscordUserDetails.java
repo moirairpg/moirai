@@ -6,6 +6,7 @@ public final class DiscordUserDetails {
     private final String username;
     private final String nickname;
     private final String mention;
+    private final String avatarUrl;
 
     public DiscordUserDetails(Builder builder) {
 
@@ -13,6 +14,7 @@ public final class DiscordUserDetails {
         this.username = builder.username;
         this.nickname = builder.nickname;
         this.mention = builder.mention;
+        this.avatarUrl = builder.avatarUrl;
     }
 
     public static Builder builder() {
@@ -35,12 +37,17 @@ public final class DiscordUserDetails {
         return mention;
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
     public static final class Builder {
 
         private String id;
         private String username;
         private String nickname;
         private String mention;
+        private String avatarUrl;
 
         private Builder() {
         }
@@ -62,6 +69,11 @@ public final class DiscordUserDetails {
 
         public Builder mention(String mention) {
             this.mention = mention;
+            return this;
+        }
+
+        public Builder avatarUrl(String avatarUrl) {
+            this.avatarUrl = avatarUrl;
             return this;
         }
 
