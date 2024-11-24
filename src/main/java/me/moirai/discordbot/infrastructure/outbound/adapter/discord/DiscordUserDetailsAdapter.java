@@ -38,6 +38,8 @@ public class DiscordUserDetailsAdapter implements DiscordUserDetailsPort {
                     .id(user.getId())
                     .username(user.getName())
                     .mention(user.getAsMention())
+                    .nickname(user.getGlobalName())
+                    .avatarUrl(user.getAvatarUrl())
                     .build());
         } catch (Exception e) {
             LOG.warn(ERROR_RETRIEVING_DISCORD_USER, e);
@@ -58,6 +60,7 @@ public class DiscordUserDetailsAdapter implements DiscordUserDetailsPort {
                     .username(member.getUser().getName())
                     .nickname(isNotBlank(member.getNickname()) ? member.getNickname() : member.getUser().getGlobalName())
                     .mention(member.getAsMention())
+                    .avatarUrl(member.getAvatarUrl())
                     .build());
         } catch (Exception e) {
             LOG.warn(ERROR_RETRIEVING_DISCORD_USER, e);
@@ -74,6 +77,7 @@ public class DiscordUserDetailsAdapter implements DiscordUserDetailsPort {
                 .id(bot.getId())
                 .username(bot.getName())
                 .nickname(bot.getGlobalName())
+                .avatarUrl(bot.getAvatarUrl())
                 .build();
     }
 }

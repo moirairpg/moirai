@@ -7,12 +7,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.common.web.SecurityContextAware;
 import me.moirai.discordbot.core.application.port.DiscordAuthenticationPort;
+import me.moirai.discordbot.core.application.usecase.discord.userdetails.GetUserDetailsById;
+import me.moirai.discordbot.infrastructure.inbound.api.mapper.UserDataResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordAuthResponse;
+import me.moirai.discordbot.infrastructure.inbound.api.response.UserDataResponse;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordAuthRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
-import io.swagger.v3.oas.annotations.Hidden;
 import reactor.core.publisher.Mono;
 
 @Hidden
@@ -28,17 +32,23 @@ public class AuthenticationController extends SecurityContextAware {
     private final String clientSecret;
     private final String redirectUrl;
     private final DiscordAuthenticationPort discordAuthenticationPort;
+    private final UseCaseRunner useCaseRunner;
+    private final UserDataResponseMapper responseMapper;
 
     public AuthenticationController(
             @Value("${moirai.discord.oauth.client-id}") String clientId,
             @Value("${moirai.discord.oauth.client-secret}") String clientSecret,
             @Value("${moirai.discord.oauth.redirect-url}") String redirectUrl,
-            DiscordAuthenticationPort discordAuthenticationPort) {
+            DiscordAuthenticationPort discordAuthenticationPort,
+            UseCaseRunner useCaseRunner,
+            UserDataResponseMapper responseMapper) {
 
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUrl = redirectUrl;
         this.discordAuthenticationPort = discordAuthenticationPort;
+        this.useCaseRunner = useCaseRunner;
+        this.responseMapper = responseMapper;
     }
 
     @GetMapping("/code")
@@ -68,6 +78,16 @@ public class AuthenticationController extends SecurityContextAware {
                     .build();
 
             return discordAuthenticationPort.logout(request);
+        });
+    }
+
+    @GetMapping("/user")
+    public Mono<UserDataResponse> getAuthenticatedUserDetails() {
+
+        return mapWithAuthenticatedUser(authenticatedUser -> {
+
+            GetUserDetailsById query = GetUserDetailsById.build(authenticatedUser.getId());
+            return responseMapper.toResponse(useCaseRunner.run(query));
         });
     }
 }

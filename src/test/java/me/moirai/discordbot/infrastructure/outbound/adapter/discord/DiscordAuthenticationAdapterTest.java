@@ -16,9 +16,9 @@ import me.moirai.discordbot.common.exception.AuthenticationFailedException;
 import me.moirai.discordbot.common.exception.DiscordApiException;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordAuthResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordErrorResponse;
-import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordUserDataResponse;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordAuthRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.response.DiscordUserDataResponse;
 import reactor.test.StepVerifier;
 
 public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
@@ -232,7 +232,7 @@ public class DiscordAuthenticationAdapterTest extends AbstractWebMockTest {
         String token = "TOKEN";
 
         DiscordUserDataResponse response = DiscordUserDataResponse.builder()
-                .displayName("displayName")
+                .globalNickname("displayName")
                 .username("username")
                 .email("email@email.com")
                 .build();

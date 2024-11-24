@@ -21,14 +21,14 @@ import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import me.moirai.discordbot.common.exception.DiscordApiException;
 import me.moirai.discordbot.common.exception.AuthenticationFailedException;
+import me.moirai.discordbot.common.exception.DiscordApiException;
 import me.moirai.discordbot.core.application.port.DiscordAuthenticationPort;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordAuthResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordErrorResponse;
-import me.moirai.discordbot.infrastructure.inbound.api.response.DiscordUserDataResponse;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordAuthRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
+import me.moirai.discordbot.infrastructure.outbound.adapter.response.DiscordUserDataResponse;
 import reactor.core.publisher.Mono;
 
 @Component
