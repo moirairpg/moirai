@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
 
 import me.moirai.discordbot.AbstractRestWebTest;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorldLorebookEntry;
@@ -83,7 +82,6 @@ public class WorldLorebookControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri("/world/1234/lorebook/search")
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SearchWorldsResponse.class)
@@ -118,7 +116,6 @@ public class WorldLorebookControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri("/world/1234/lorebook/ID")
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(LorebookEntryResponse.class)
@@ -156,7 +153,6 @@ public class WorldLorebookControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.post()
                 .uri("/world/1234/lorebook")
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -191,7 +187,6 @@ public class WorldLorebookControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.put()
                 .uri("/world/1234/lorebook/1234")
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -214,7 +209,6 @@ public class WorldLorebookControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.delete()
                 .uri("/world/1234/lorebook/1234")
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful();
     }

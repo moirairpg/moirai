@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
 
 import me.moirai.discordbot.AbstractRestWebTest;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateChannelConfig;
@@ -81,7 +80,6 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, "search"))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SearchChannelConfigsResponse.class)
@@ -117,7 +115,6 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, "search/own"))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SearchChannelConfigsResponse.class)
@@ -144,7 +141,6 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, channelConfigId))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(ChannelConfigResponse.class)
@@ -181,7 +177,6 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.post()
                 .uri(CHANNEL_CONFIG_BASE_URL)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -209,7 +204,6 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.put()
                 .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, channelConfigId))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -233,7 +227,6 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.delete()
                 .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, channelConfigId))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful();
     }

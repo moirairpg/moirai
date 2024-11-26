@@ -12,12 +12,16 @@ public final class DiscordPrincipal implements UserDetails {
     private final String username;
     private final String email;
     private final String authorizationToken;
+    private final String refreshToken;
+    private final Long expiresAt;
 
     private DiscordPrincipal(Builder builder) {
         this.id = builder.id;
         this.username = builder.username;
         this.email = builder.email;
         this.authorizationToken = builder.authorizationToken;
+        this.refreshToken = builder.refreshToken;
+        this.expiresAt = builder.expiresAt;
     }
 
     public static Builder builder() {
@@ -34,6 +38,14 @@ public final class DiscordPrincipal implements UserDetails {
 
     public String getAuthorizationToken() {
         return authorizationToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public Long getExpiresAt() {
+        return expiresAt;
     }
 
     @Override
@@ -77,6 +89,8 @@ public final class DiscordPrincipal implements UserDetails {
         private String username;
         private String email;
         private String authorizationToken;
+        private String refreshToken;
+        private Long expiresAt;
 
         private Builder() {
         }
@@ -98,6 +112,16 @@ public final class DiscordPrincipal implements UserDetails {
 
         public Builder authorizationToken(String authorizationToken) {
             this.authorizationToken = authorizationToken;
+            return this;
+        }
+
+        public Builder refreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
+            return this;
+        }
+
+        public Builder expiresAt(Long expiresAt) {
+            this.expiresAt = expiresAt;
             return this;
         }
 

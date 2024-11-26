@@ -10,7 +10,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 import me.moirai.discordbot.AbstractRestWebTest;
@@ -54,7 +53,6 @@ public class CompletionControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.post()
                 .uri(COMPLETIONS_BASE_URL)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -86,7 +84,6 @@ public class CompletionControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.post()
                 .uri(COMPLETIONS_BASE_URL)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().is4xxClientError()
@@ -113,7 +110,6 @@ public class CompletionControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.post()
                 .uri(COMPLETIONS_BASE_URL)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().is4xxClientError()

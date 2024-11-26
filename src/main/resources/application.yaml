@@ -92,6 +92,10 @@ moirai:
       moderation-uri: /v1/moderations
       completions-uri: /v1/chat/completions
   security:
+    redirect-path:
+      success: /success
+      fail: /fail
+      logout: /logged-out
     ignored-paths: >
       /auth/code,
       /webjars/swagger-ui/index.html,
