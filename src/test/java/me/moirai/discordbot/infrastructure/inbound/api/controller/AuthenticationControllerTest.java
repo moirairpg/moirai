@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
 
 import me.moirai.discordbot.AbstractRestWebTest;
 import me.moirai.discordbot.core.application.port.DiscordAuthenticationPort;
@@ -21,6 +20,7 @@ import me.moirai.discordbot.infrastructure.inbound.api.response.UserDataResponse
 import me.moirai.discordbot.infrastructure.inbound.api.response.UserDataResponseFixture;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordAuthRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.DiscordTokenRevocationRequest;
+import me.moirai.discordbot.infrastructure.security.authentication.MoiraiCookie;
 import me.moirai.discordbot.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
 import reactor.core.publisher.Mono;
 
@@ -64,15 +64,7 @@ public class AuthenticationControllerTest extends AbstractRestWebTest {
                         .queryParam("code", code)
                         .build())
                 .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBody(DiscordAuthResponse.class)
-                .value(response -> {
-                    assertThat(response).isNotNull();
-                    assertThat(response.getAccessToken()).isEqualTo(expectedResponse.getAccessToken());
-                    assertThat(response.getRefreshToken()).isEqualTo(expectedResponse.getRefreshToken());
-                    assertThat(response.getScope()).isEqualTo(expectedResponse.getScope());
-                    assertThat(response.getExpiresIn()).isEqualTo(expectedResponse.getExpiresIn());
-                });
+                .expectCookie().valueEquals(MoiraiCookie.SESSION_COOKIE.getName(), "TOKEN");
     }
 
     @Test
@@ -83,12 +75,10 @@ public class AuthenticationControllerTest extends AbstractRestWebTest {
                 .thenReturn(Mono.empty());
 
         // Then
-        webTestClient.post()
+        webTestClient.get()
                 .uri("/auth/logout")
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBody(Void.class);
+                .expectCookie().doesNotExist(MoiraiCookie.SESSION_COOKIE.getName());
     }
 
     @Test
@@ -105,7 +95,6 @@ public class AuthenticationControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri("/auth/user")
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(UserDataResponse.class)

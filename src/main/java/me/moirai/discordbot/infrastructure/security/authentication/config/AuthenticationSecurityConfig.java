@@ -31,7 +31,9 @@ public class AuthenticationSecurityConfig {
     @Bean
     SecurityWebFilterChain configure(ServerHttpSecurity http) {
 
-        return http.addFilterBefore(discordRequestFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+        return http.httpBasic(customizer -> customizer.disable())
+                .formLogin(customizer -> customizer.disable())
+                .addFilterBefore(discordRequestFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .authorizeExchange(exchanges -> exchanges.pathMatchers(ignoredPaths).permitAll())
                 .authorizeExchange(exchanges -> exchanges.anyExchange().authenticated())
                 .oauth2Login(withDefaults())

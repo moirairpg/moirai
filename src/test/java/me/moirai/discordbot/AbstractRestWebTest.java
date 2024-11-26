@@ -3,6 +3,8 @@ package me.moirai.discordbot;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,6 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.infrastructure.security.authentication.DiscordPrincipal;
 import me.moirai.discordbot.infrastructure.security.authentication.DiscordUserDetailsService;
+import me.moirai.discordbot.infrastructure.security.authentication.MoiraiCookie;
 import net.dv8tion.jda.api.JDA;
 import reactor.core.publisher.Mono;
 
@@ -45,6 +48,11 @@ public abstract class AbstractRestWebTest {
                 .id("USRID")
                 .email("user@email.com")
                 .username("username")
+                .build();
+
+        webTestClient = webTestClient.mutate()
+                .responseTimeout(Duration.ofMillis(3000000))
+                .defaultCookie(MoiraiCookie.SESSION_COOKIE.getName(), "COOKIE")
                 .build();
 
         when(discordUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(userDetails));

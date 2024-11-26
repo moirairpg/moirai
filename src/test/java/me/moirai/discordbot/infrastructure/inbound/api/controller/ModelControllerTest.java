@@ -10,7 +10,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.http.HttpHeaders;
 
 import me.moirai.discordbot.AbstractRestWebTest;
 import me.moirai.discordbot.core.application.usecase.model.request.SearchModels;
@@ -42,7 +41,6 @@ public class ModelControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(MODEL_BASE_URL)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBodyList(AiModelResponse.class)
@@ -69,7 +67,6 @@ public class ModelControllerTest extends AbstractRestWebTest {
                 .uri(uriBuilder -> uriBuilder.path(MODEL_BASE_URL)
                         .queryParam("modelName", "gpt-3")
                         .build())
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBodyList(AiModelResponse.class)
@@ -96,7 +93,6 @@ public class ModelControllerTest extends AbstractRestWebTest {
                 .uri(uriBuilder -> uriBuilder.path(MODEL_BASE_URL)
                         .queryParam("tokenLimit", "123")
                         .build())
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBodyList(AiModelResponse.class)

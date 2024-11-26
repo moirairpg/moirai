@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
 
 import me.moirai.discordbot.AbstractRestWebTest;
 import me.moirai.discordbot.core.application.usecase.discord.userdetails.DiscordUserDetailsResult;
@@ -49,7 +48,6 @@ public class UserDetailsControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(String.format(USER_ID_BASE_URL, userId))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(UserDataResponse.class)

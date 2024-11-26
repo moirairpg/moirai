@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
 
 import me.moirai.discordbot.AbstractRestWebTest;
 import me.moirai.discordbot.core.application.usecase.persona.request.CreatePersona;
@@ -79,7 +78,6 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(String.format(PERSONA_ID_BASE_URL, "search"))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SearchPersonasResponse.class)
@@ -113,7 +111,6 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(String.format(PERSONA_ID_BASE_URL, "search/own"))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SearchPersonasResponse.class)
@@ -140,7 +137,6 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(String.format(PERSONA_ID_BASE_URL, personaId))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(PersonaResponse.class)
@@ -177,7 +173,6 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.post()
                 .uri(PERSONA_BASE_URL)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -205,7 +200,6 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.put()
                 .uri(String.format(PERSONA_ID_BASE_URL, personaId))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -228,7 +222,6 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.delete()
                 .uri(String.format(PERSONA_ID_BASE_URL, personaId))
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is2xxSuccessful();
     }

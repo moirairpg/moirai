@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.reactive.resource.NoResourceFoundException;
@@ -24,13 +23,14 @@ import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldRequestMapper
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.response.ErrorResponse;
+import me.moirai.discordbot.infrastructure.security.authentication.MoiraiCookie;
 import me.moirai.discordbot.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
 
 @WebFluxTest(controllers = {
-    WorldController.class
+        WorldController.class
 }, excludeAutoConfiguration = {
-    ReactiveSecurityAutoConfiguration.class,
-    AuthenticationSecurityConfig.class
+        ReactiveSecurityAutoConfiguration.class,
+        AuthenticationSecurityConfig.class
 })
 public class WebExceptionHandlerTest extends AbstractRestWebTest {
 
@@ -51,7 +51,6 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri("/world/" + worldId)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is4xxClientError()
                 .expectBody(ErrorResponse.class)
@@ -61,6 +60,7 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
                     assertThat(response.getMessage()).isEqualTo("The asset requested could not be found.");
                 });
     }
+
     @Test
     public void http404WhenEndpointNotFound() {
 
@@ -72,7 +72,6 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri("/world/" + worldId)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is4xxClientError()
                 .expectBody(ErrorResponse.class)
@@ -94,7 +93,6 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri("/world/" + worldId)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is4xxClientError()
                 .expectBody(ErrorResponse.class)
@@ -115,7 +113,6 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
         // Then
         webTestClient.post()
                 .uri("/world")
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().is4xxClientError()
@@ -137,7 +134,6 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri("/world/" + worldId)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is4xxClientError()
                 .expectBody(ErrorResponse.class)
@@ -158,7 +154,6 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri("/world/" + worldId)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is4xxClientError()
                 .expectBody(ErrorResponse.class)
@@ -177,6 +172,7 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri("/world/" + worldId)
+                .cookie(MoiraiCookie.SESSION_COOKIE.getName(), null)
                 .exchange()
                 .expectStatus()
                 .is4xxClientError();
@@ -193,7 +189,6 @@ public class WebExceptionHandlerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri("/world/" + worldId)
-                .header(HttpHeaders.AUTHORIZATION, "TOKEN")
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectBody(ErrorResponse.class)
