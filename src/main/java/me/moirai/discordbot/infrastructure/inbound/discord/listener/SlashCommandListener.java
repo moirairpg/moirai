@@ -4,7 +4,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.random.RandomGenerator;
+import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -211,7 +211,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
     private String getCommandPhrase(List<String> phraseList) {
 
-        int randomIndex = RandomGenerator.getDefault().nextInt(phraseList.size());
+        int randomIndex = new Random().nextInt(phraseList.size());
         return phraseList.get(randomIndex);
     }
 
