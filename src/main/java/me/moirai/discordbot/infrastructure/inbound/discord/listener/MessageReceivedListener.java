@@ -1,5 +1,7 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +67,7 @@ public class MessageReceivedListener extends ListenerAdapter {
 
             if (StringUtils.isNoneBlank(messageContent, gameMode) && !author.getUser().isBot()) {
                 String botUsername = bot.getUser().getName();
-                String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname() : botUsername;
+                String botNickname = isNotBlank(bot.getNickname()) ? bot.getNickname() : botUsername;
 
                 switch (gameMode) {
                     case "CHAT" -> {
@@ -126,8 +128,11 @@ public class MessageReceivedListener extends ListenerAdapter {
     private void errorNotification(MessageReceivedEvent event, Throwable error) {
 
         LOG.error("An error occured while processing message received from Discord", error);
+        String authorNickname = isNotBlank(event.getMember().getNickname()) ? event.getMember().getNickname()
+                : event.getMember().getUser().getGlobalName();
+
         DiscordEmbeddedMessageRequest.Builder embedBuilder = DiscordEmbeddedMessageRequest.builder()
-                .authorName(event.getAuthor().getAsMention())
+                .authorName(authorNickname)
                 .authorIconUrl(event.getAuthor().getAvatarUrl())
                 .embedColor(Color.RED);
 

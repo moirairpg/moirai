@@ -1,10 +1,10 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -60,7 +60,7 @@ public class ContextMenuCommandListener extends ListenerAdapter {
             if (!author.getUser().isBot()) {
                 switch (commandName) {
                     case "(MoirAI) Edit message" -> {
-                        String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname()
+                        String botNickname = isNotBlank(bot.getNickname()) ? bot.getNickname()
                                 : bot.getUser().getName();
 
                         if (!message.getAuthor().getId().equals(bot.getId())) {
@@ -131,8 +131,11 @@ public class ContextMenuCommandListener extends ListenerAdapter {
     private void errorNotification(MessageContextInteractionEvent event, Throwable error) {
 
         LOG.error("An error occured while processing message received from Discord", error);
+        String authorNickname = isNotBlank(event.getMember().getNickname()) ? event.getMember().getNickname()
+                : event.getMember().getUser().getGlobalName();
+
         DiscordEmbeddedMessageRequest.Builder embedBuilder = DiscordEmbeddedMessageRequest.builder()
-                .authorName(event.getMember().getAsMention())
+                .authorName(authorNickname)
                 .authorIconUrl(event.getMember().getAvatarUrl())
                 .embedColor(Color.RED);
 

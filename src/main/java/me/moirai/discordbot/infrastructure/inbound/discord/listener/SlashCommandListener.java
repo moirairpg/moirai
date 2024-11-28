@@ -1,12 +1,12 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,7 +95,7 @@ public class SlashCommandListener extends ListenerAdapter {
                                 getCommandPhrase(retryCommandPhrasesBeforeRunning));
 
                         String botUsername = bot.getUser().getName();
-                        String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname()
+                        String botNickname = isNotBlank(bot.getNickname()) ? bot.getNickname()
                                 : botUsername;
 
                         RetryCommand useCase = RetryCommand.builder()
@@ -117,7 +117,7 @@ public class SlashCommandListener extends ListenerAdapter {
                                 getCommandPhrase(goCommandPhrasesBeforeRunning));
 
                         String botUsername = bot.getUser().getName();
-                        String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname()
+                        String botNickname = isNotBlank(bot.getNickname()) ? bot.getNickname()
                                 : botUsername;
 
                         GoCommand useCase = GoCommand.builder()
@@ -139,7 +139,7 @@ public class SlashCommandListener extends ListenerAdapter {
                                 getCommandPhrase(startCommandPhrasesBeforeRunning));
 
                         String botUsername = bot.getUser().getName();
-                        String botNickname = StringUtils.isNotBlank(bot.getNickname()) ? bot.getNickname()
+                        String botNickname = isNotBlank(bot.getNickname()) ? bot.getNickname()
                                 : botUsername;
 
                         StartCommand useCase = StartCommand.builder()
@@ -235,8 +235,11 @@ public class SlashCommandListener extends ListenerAdapter {
     private void errorNotification(SlashCommandInteractionEvent event, Throwable error) {
 
         LOG.error("An error occured while processing message received from Discord", error);
+        String authorNickname = isNotBlank(event.getMember().getNickname()) ? event.getMember().getNickname()
+                : event.getMember().getUser().getGlobalName();
+
         DiscordEmbeddedMessageRequest.Builder embedBuilder = DiscordEmbeddedMessageRequest.builder()
-                .authorName(event.getMember().getAsMention())
+                .authorName(authorNickname)
                 .authorIconUrl(event.getMember().getAvatarUrl())
                 .embedColor(Color.RED);
 
