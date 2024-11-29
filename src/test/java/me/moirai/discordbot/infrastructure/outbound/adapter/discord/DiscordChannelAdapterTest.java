@@ -214,7 +214,7 @@ public class DiscordChannelAdapterTest {
         String channelId = "123";
         String messageId = "123";
         String messageContent = "Hello, World!";
-        String expectedMessageContent = "FireDragon said: Hello, World!";
+        String expectedMessageContent = "@john.doe (known as FireDragon) said: Hello, World!";
 
         Mentions mentions = mock(Mentions.class);
         CacheRestAction<Member> cacheRestActionMemberMock = mock(CacheRestAction.class);
@@ -363,11 +363,11 @@ public class DiscordChannelAdapterTest {
 
         // Then
         assertThat(result).isNotNull().hasSize(expectedMessagesInEnd);
-        assertThat(result.get(0).getContent()).isEqualTo("NCKNM said: Message 1");
-        assertThat(result.get(1).getContent()).isEqualTo("NCKNM said: Message 2");
-        assertThat(result.get(2).getContent()).isEqualTo("NCKNM said: Message 3");
-        assertThat(result.get(3).getContent()).isEqualTo("NCKNM said: Message 4");
-        assertThat(result.get(4).getContent()).isEqualTo("NCKNM said: Message 5");
+        assertThat(result.get(0).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 1");
+        assertThat(result.get(1).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 2");
+        assertThat(result.get(2).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 3");
+        assertThat(result.get(3).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 4");
+        assertThat(result.get(4).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 5");
 
         messageHistoryStaticMock.close();
     }
@@ -410,11 +410,11 @@ public class DiscordChannelAdapterTest {
 
         // Then
         assertThat(result).isNotNull().hasSize(expectedMessagesInEnd);
-        assertThat(result.get(0).getContent()).isEqualTo("NCKNM said: Message 1");
-        assertThat(result.get(1).getContent()).isEqualTo("NCKNM said: Message 2");
-        assertThat(result.get(2).getContent()).isEqualTo("NCKNM said: Message 3");
-        assertThat(result.get(3).getContent()).isEqualTo("NCKNM said: Message 4");
-        assertThat(result.get(4).getContent()).isEqualTo("NCKNM said: Message 5");
+        assertThat(result.get(0).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 1");
+        assertThat(result.get(1).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 2");
+        assertThat(result.get(2).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 3");
+        assertThat(result.get(3).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 4");
+        assertThat(result.get(4).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 5");
 
         messageHistoryStaticMock.close();
     }
@@ -457,11 +457,11 @@ public class DiscordChannelAdapterTest {
 
         // Then
         assertThat(result).isNotNull().hasSize(expectedMessagesInEnd);
-        assertThat(result.get(0).getContent()).isEqualTo("NCKNM said: Message 1");
-        assertThat(result.get(1).getContent()).isEqualTo("NCKNM said: Message 2");
-        assertThat(result.get(2).getContent()).isEqualTo("NCKNM said: Message 3");
-        assertThat(result.get(3).getContent()).isEqualTo("NCKNM said: Message 4");
-        assertThat(result.get(4).getContent()).isEqualTo("NCKNM said: Message 5");
+        assertThat(result.get(0).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 1");
+        assertThat(result.get(1).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 2");
+        assertThat(result.get(2).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 3");
+        assertThat(result.get(3).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 4");
+        assertThat(result.get(4).getContent()).isEqualTo("@john.doe (known as NCKNM) said: Message 5");
 
         messageHistoryStaticMock.close();
     }

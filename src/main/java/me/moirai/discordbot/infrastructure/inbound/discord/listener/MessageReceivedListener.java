@@ -69,6 +69,8 @@ public class MessageReceivedListener extends ListenerAdapter {
                 String botUsername = bot.getUser().getName();
                 String botNickname = isNotBlank(bot.getNickname()) ? bot.getNickname() : botUsername;
 
+                event.getChannel().sendTyping().complete();
+
                 switch (gameMode) {
                     case "CHAT" -> {
                         ChatModeRequest request = ChatModeRequest.builder()

@@ -65,10 +65,15 @@ public class DefaultStringProcessors {
                 .replaceAll(r -> newValue);
     }
 
-    public static Function<String, String> formatChatMessage(String nickname) {
+    public static Function<String, String> formatChatMessage(String nickname, String username) {
 
-        return message -> String.format("%s said: %s", nickname, message.trim());
+        return message -> String.format("@%s (known as %s) said: %s", username, nickname, message.trim());
     }
+
+    // public static Function<String, String> formatChatMessage(String nickname) {
+
+    //     return message -> String.format("%s said: %s", nickname, message.trim());
+    // }
 
     public static Function<String, String> formatAuthorDirective(String nickname) {
 

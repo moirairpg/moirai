@@ -141,6 +141,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         String username = "user.name";
         String command = "retry";
         Mono<Void> commandResult = Mono.just(mock(Void.class));
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(RetryCommand.class))).thenReturn(commandResult);
@@ -151,6 +152,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(channelUnion.asTextChannel()).thenReturn(textChannel);
         when(user.getName()).thenReturn(username);
         when(member.getNickname()).thenReturn(nickname);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -171,6 +173,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         String username = "user.name";
         String command = "go";
         Mono<Void> commandResult = Mono.just(mock(Void.class));
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(GoCommand.class))).thenReturn(commandResult);
@@ -181,6 +184,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(channelUnion.asTextChannel()).thenReturn(textChannel);
         when(user.getName()).thenReturn(username);
         when(member.getNickname()).thenReturn(nickname);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -201,6 +205,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         String username = "user.name";
         String command = "start";
         Mono<Void> commandResult = Mono.just(mock(Void.class));
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(StartCommand.class))).thenReturn(commandResult);
@@ -211,6 +216,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(channelUnion.asTextChannel()).thenReturn(textChannel);
         when(user.getName()).thenReturn(username);
         when(member.getNickname()).thenReturn(nickname);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -231,6 +237,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         String username = "user.name";
         String command = "retry";
         Mono<Void> commandResult = Mono.just(mock(Void.class));
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(RetryCommand.class))).thenReturn(commandResult);
@@ -241,6 +248,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(channelUnion.asTextChannel()).thenReturn(textChannel);
         when(user.getName()).thenReturn(username);
         when(member.getNickname()).thenReturn(nickname);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -261,6 +269,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         String username = "user.name";
         String command = "go";
         Mono<Void> commandResult = Mono.just(mock(Void.class));
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(GoCommand.class))).thenReturn(commandResult);
@@ -271,6 +280,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(channelUnion.asTextChannel()).thenReturn(textChannel);
         when(user.getName()).thenReturn(username);
         when(member.getNickname()).thenReturn(nickname);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -291,6 +301,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         String username = "user.name";
         String command = "start";
         Mono<Void> commandResult = Mono.just(mock(Void.class));
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(StartCommand.class))).thenReturn(commandResult);
@@ -301,6 +312,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(channelUnion.asTextChannel()).thenReturn(textChannel);
         when(user.getName()).thenReturn(username);
         when(member.getNickname()).thenReturn(nickname);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -319,6 +331,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         // Given
         String command = "retry";
         Mono<Void> commandResult = Mono.error(new IllegalStateException("Error"));
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(RetryCommand.class))).thenReturn(commandResult);
@@ -327,6 +340,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(member.getUser()).thenReturn(user);
         when(user.isBot()).thenReturn(false);
         when(channelUnion.asTextChannel()).thenReturn(textChannel);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -344,6 +358,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         // Given
         String command = "go";
         Mono<Void> commandResult = Mono.error(new IllegalStateException("Error"));
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(GoCommand.class))).thenReturn(commandResult);
@@ -352,6 +367,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(member.getUser()).thenReturn(user);
         when(user.isBot()).thenReturn(false);
         when(channelUnion.asTextChannel()).thenReturn(textChannel);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -369,6 +385,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         // Given
         String command = "start";
         Mono<Void> commandResult = Mono.error(new IllegalStateException("Error"));
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getFullCommandName()).thenReturn(command);
         when(useCaseRunner.run(any(StartCommand.class))).thenReturn(commandResult);
@@ -377,6 +394,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(member.getUser()).thenReturn(user);
         when(user.isBot()).thenReturn(false);
         when(channelUnion.asTextChannel()).thenReturn(textChannel);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -396,6 +414,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         String modalId = "sayAsBot";
 
         ModalCallbackAction replyModalAction = mock(ModalCallbackAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         ArgumentCaptor<Modal> modalCaptor = ArgumentCaptor.forClass(Modal.class);
 
@@ -406,6 +425,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(user.isBot()).thenReturn(false);
         when(channelUnion.asTextChannel()).thenReturn(textChannel);
         when(event.replyModal(modalCaptor.capture())).thenReturn(replyModalAction);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -434,6 +454,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         MessageChannelUnion baseChannel = mock(MessageChannelUnion.class);
         WebhookMessageEditAction<Message> editAction = mock(WebhookMessageEditAction.class);
         RestAction<Void> deleteOriginalAction = mock(RestAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         TokenizeResult expectedAdapterResult = TokenizeResult.builder()
                 .tokens(tokens)
@@ -462,6 +483,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(event.getOption(anyString())).thenReturn(commandParameterContent);
         when(commandParameterContent.getAsString()).thenReturn(textToBeTokenized);
         when(useCaseRunner.run(any())).thenReturn(Optional.of(expectedAdapterResult));
+        when(baseChannel.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -489,6 +511,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         MessageChannelUnion baseChannel = mock(MessageChannelUnion.class);
         WebhookMessageEditAction<Message> editAction = mock(WebhookMessageEditAction.class);
         RestAction<Void> deleteOriginalAction = mock(RestAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         TokenizeResult expectedAdapterResult = TokenizeResult.builder()
                 .tokens(tokens)
@@ -519,6 +542,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(event.getOption(anyString())).thenReturn(commandParameterContent);
         when(commandParameterContent.getAsString()).thenReturn(textToBeTokenized);
         when(useCaseRunner.run(any())).thenReturn(Optional.of(expectedAdapterResult));
+        when(baseChannel.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);
@@ -547,6 +571,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         WebhookMessageEditAction<Message> editAction = mock(WebhookMessageEditAction.class);
         MessageCreateAction messageCreationMock = mock(MessageCreateAction.class);
         AuditableRestAction<Void> deleteAction = mock(AuditableRestAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         ArgumentCaptor<String> notificationCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -574,6 +599,7 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
         when(channelUnion.sendMessage(anyString())).thenReturn(messageCreationMock);
         when(messageCreationMock.complete()).thenReturn(message);
         when(message.delete()).thenReturn(deleteAction);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onSlashCommandInteraction(event);

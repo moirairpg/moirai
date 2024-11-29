@@ -108,14 +108,15 @@ public class DefaultStringProcessorsTest {
     public void processor_whenChatMessageFormatRequired_thenFormatInput() {
 
         // Given
-        String nameToUse = "John";
+        String nickname = "John";
+        String username = "JohnSmith";
         String input = "how are you doing today?";
 
         // When
-        String output = DefaultStringProcessors.formatChatMessage(nameToUse).apply(input);
+        String output = DefaultStringProcessors.formatChatMessage(nickname, username).apply(input);
 
         // Then
-        assertThat(output).isEqualTo("John said: how are you doing today?");
+        assertThat(output).isEqualTo("@JohnSmith (known as John) said: how are you doing today?");
     }
 
     @Test

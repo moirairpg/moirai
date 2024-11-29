@@ -58,6 +58,8 @@ public class ContextMenuCommandListener extends ListenerAdapter {
             Message message = event.getTarget();
 
             if (!author.getUser().isBot()) {
+                event.getChannel().sendTyping().complete();
+
                 switch (commandName) {
                     case "(MoirAI) Edit message" -> {
                         String botNickname = isNotBlank(bot.getNickname()) ? bot.getNickname()

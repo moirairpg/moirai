@@ -56,6 +56,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(event.getGuild()).thenReturn(guild);
         when(event.getJDA()).thenReturn(jda);
         when(event.getTarget()).thenReturn(message);
+        when(event.getChannel()).thenReturn(channelUnion);
         when(user.isBot()).thenReturn(true);
 
         // When
@@ -78,6 +79,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(event.getGuild()).thenReturn(guild);
         when(event.getJDA()).thenReturn(jda);
         when(event.getTarget()).thenReturn(message);
+        when(event.getChannel()).thenReturn(channelUnion);
 
         // When
         listener.onMessageContextInteraction(event);
@@ -99,17 +101,20 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         MessageContextInteractionEvent event = mock(MessageContextInteractionEvent.class);
 
         ArgumentCaptor<String> contentCaptor = ArgumentCaptor.forClass(String.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getMember()).thenReturn(member);
         when(event.getName()).thenReturn(eventName);
         when(event.getGuild()).thenReturn(guild);
         when(event.getJDA()).thenReturn(jda);
         when(event.getTarget()).thenReturn(message);
+        when(event.getChannel()).thenReturn(channelUnion);
 
         when(member.getId()).thenReturn(botId);
         when(event.reply(contentCaptor.capture())).thenReturn(messageReplyAction);
         when(messageReplyAction.setEphemeral(anyBoolean())).thenReturn(messageReplyAction);
         when(messageReplyAction.complete()).thenReturn(interactionHook);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onMessageContextInteraction(event);
@@ -134,18 +139,21 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         MessageContextInteractionEvent event = mock(MessageContextInteractionEvent.class);
 
         ArgumentCaptor<String> contentCaptor = ArgumentCaptor.forClass(String.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getMember()).thenReturn(member);
         when(event.getName()).thenReturn(eventName);
         when(event.getGuild()).thenReturn(guild);
         when(event.getJDA()).thenReturn(jda);
         when(event.getTarget()).thenReturn(message);
+        when(event.getChannel()).thenReturn(channelUnion);
 
         when(member.getId()).thenReturn(botId);
         when(event.reply(contentCaptor.capture())).thenReturn(messageReplyAction);
         when(messageReplyAction.setEphemeral(anyBoolean())).thenReturn(messageReplyAction);
         when(messageReplyAction.complete()).thenReturn(interactionHook);
         when(member.getNickname()).thenReturn(null);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onMessageContextInteraction(event);
@@ -171,12 +179,14 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         MessageContextInteractionEvent event = mock(MessageContextInteractionEvent.class);
 
         ArgumentCaptor<Modal> modalCaptor = ArgumentCaptor.forClass(Modal.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getMember()).thenReturn(member);
         when(event.getName()).thenReturn(eventName);
         when(event.getGuild()).thenReturn(guild);
         when(event.getJDA()).thenReturn(jda);
         when(event.getTarget()).thenReturn(message);
+        when(event.getChannel()).thenReturn(channelUnion);
 
         when(user.getId()).thenReturn(botId);
         when(member.getId()).thenReturn(botId);
@@ -185,6 +195,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(messageReplyAction.complete()).thenReturn(interactionHook);
         when(event.replyModal(modalCaptor.capture())).thenReturn(modalAction);
         when(message.getContentRaw()).thenReturn(messageContent);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onMessageContextInteraction(event);
@@ -211,7 +222,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         ReplyCallbackAction messageReplyAction = mock(ReplyCallbackAction.class);
         InteractionHook interactionHook = mock(InteractionHook.class);
         WebhookMessageEditAction<Message> messageEditAction = mock(WebhookMessageEditAction.class);
-        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         TokenizeResult expectedAdapterResult = TokenizeResult.builder()
                 .tokens(tokens)
@@ -225,6 +236,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(event.getGuild()).thenReturn(guild);
         when(event.getJDA()).thenReturn(jda);
         when(event.getTarget()).thenReturn(message);
+        when(event.getChannel()).thenReturn(channelUnion);
 
         when(event.reply(anyString())).thenReturn(messageReplyAction);
         when(messageReplyAction.setEphemeral(anyBoolean())).thenReturn(messageReplyAction);
@@ -232,8 +244,9 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(useCaseRunner.run(any())).thenReturn(Optional.of(expectedAdapterResult));
 
         when(interactionHook.editOriginal(anyString())).thenReturn(messageEditAction);
-        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
+        when(interactionHook.deleteOriginal()).thenReturn(restAction);
         when(messageEditAction.complete()).thenReturn(message);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onMessageContextInteraction(event);
@@ -256,7 +269,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         ReplyCallbackAction messageReplyAction = mock(ReplyCallbackAction.class);
         InteractionHook interactionHook = mock(InteractionHook.class);
         WebhookMessageEditAction<Message> messageEditAction = mock(WebhookMessageEditAction.class);
-        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         TokenizeResult expectedAdapterResult = TokenizeResult.builder()
                 .tokens(tokens)
@@ -270,6 +283,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(event.getGuild()).thenReturn(guild);
         when(event.getJDA()).thenReturn(jda);
         when(event.getTarget()).thenReturn(message);
+        when(event.getChannel()).thenReturn(channelUnion);
 
         when(event.reply(anyString())).thenReturn(messageReplyAction);
         when(messageReplyAction.setEphemeral(anyBoolean())).thenReturn(messageReplyAction);
@@ -277,8 +291,9 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(useCaseRunner.run(any())).thenReturn(Optional.of(expectedAdapterResult));
 
         when(interactionHook.editOriginal(anyString())).thenReturn(messageEditAction);
-        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
+        when(interactionHook.deleteOriginal()).thenReturn(restAction);
         when(messageEditAction.complete()).thenReturn(message);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onMessageContextInteraction(event);
@@ -298,12 +313,14 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         InteractionHook interactionHook = mock(InteractionHook.class);
         MessageCreateAction messageCreationMock = mock(MessageCreateAction.class);
         AuditableRestAction<Void> deleteAction = mock(AuditableRestAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getMember()).thenReturn(member);
         when(event.getName()).thenReturn(eventName);
         when(event.getGuild()).thenReturn(guild);
         when(event.getJDA()).thenReturn(jda);
         when(event.getTarget()).thenReturn(message);
+        when(event.getChannel()).thenReturn(channelUnion);
 
         when(event.reply(anyString())).thenReturn(messageReplyAction);
         when(messageReplyAction.setEphemeral(anyBoolean())).thenReturn(messageReplyAction);
@@ -314,6 +331,7 @@ public class ContextMenuCommandListenerTest extends AbstractDiscordTest {
         when(channelUnion.sendMessage(anyString())).thenReturn(messageCreationMock);
         when(messageCreationMock.complete()).thenReturn(message);
         when(message.delete()).thenReturn(deleteAction);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         // When
         listener.onMessageContextInteraction(event);

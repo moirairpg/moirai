@@ -23,9 +23,11 @@ import me.moirai.discordbot.core.application.usecase.discord.messagereceived.Cha
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.requests.RestAction;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+@SuppressWarnings("unchecked")
 public class MessageReceivedListenerTest extends AbstractDiscordTest {
 
     @Mock
@@ -52,6 +54,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
 
         MessageReceivedEvent event = mock(MessageReceivedEvent.class);
         Mentions mentions = mock(Mentions.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getMessage()).thenReturn(message);
         when(event.getMember()).thenReturn(member);
@@ -72,6 +75,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
         when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));
 
@@ -101,6 +105,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
 
         MessageReceivedEvent event = mock(MessageReceivedEvent.class);
         Mentions mentions = mock(Mentions.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getMessage()).thenReturn(message);
         when(event.getMember()).thenReturn(member);
@@ -121,6 +126,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
         when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));
 
@@ -219,6 +225,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
 
         MessageReceivedEvent event = mock(MessageReceivedEvent.class);
         Mentions mentions = mock(Mentions.class);
+        RestAction<Void> restAction = mock(RestAction.class);
 
         when(event.getMessage()).thenReturn(message);
         when(event.getMember()).thenReturn(member);
@@ -239,6 +246,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
         when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));
 

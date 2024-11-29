@@ -89,6 +89,8 @@ public class SlashCommandListener extends ListenerAdapter {
             User author = event.getMember().getUser();
 
             if (!author.isBot()) {
+                event.getChannel().sendTyping().complete();
+
                 switch (command) {
                     case "retry" -> {
                         InteractionHook interactionHook = sendNotification(event,

@@ -1,5 +1,6 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter.discord;
 
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.formatChatMessage;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -9,11 +10,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import me.moirai.discordbot.common.util.DefaultStringProcessors;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
@@ -176,7 +175,11 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                     .retrieveMemberById(message.getAuthor().getId())
                     .complete();
 
-            String formattedContent = formatMessageWithMentions(message.getMentions().getMembers(), message, author);
+            String authorNickname = isNotEmpty(author.getNickname()) ? author.getNickname()
+                    : author.getUser().getGlobalName();
+
+            String formattedContent = formatMessageWithMentions(message.getMentions().getMembers(), message,
+                    authorNickname, author.getUser().getName());
 
             return Optional.of(DiscordMessageData.builder()
                     .id(message.getId())
@@ -184,8 +187,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                     .content(formattedContent)
                     .author(DiscordUserDetails.builder()
                             .id(author.getId())
-                            .nickname(isNotEmpty(author.getNickname()) ? author.getNickname()
-                                    : author.getUser().getGlobalName())
+                            .nickname(authorNickname)
                             .username(author.getUser().getName())
                             .mention(author.getAsMention())
                             .build())
@@ -310,7 +312,11 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .complete();
 
         List<Member> mentionedUsers = message.getMentions().getMembers();
-        String formattedContent = formatMessageWithMentions(mentionedUsers, message, author);
+        String authorNickname = isNotEmpty(author.getNickname()) ? author.getNickname()
+                : author.getUser().getGlobalName();
+
+        String formattedContent = formatMessageWithMentions(mentionedUsers, message,
+                authorNickname, author.getUser().getName());
 
         return DiscordMessageData.builder()
                 .id(message.getId())
@@ -318,8 +324,7 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .content(formattedContent)
                 .author(DiscordUserDetails.builder()
                         .id(author.getId())
-                        .nickname(isNotEmpty(author.getNickname()) ? author.getNickname()
-                                : author.getUser().getGlobalName())
+                        .nickname(authorNickname)
                         .username(author.getUser().getName())
                         .mention(author.getAsMention())
                         .build())
@@ -335,18 +340,15 @@ public class DiscordChannelAdapter implements DiscordChannelPort {
                 .build();
     }
 
-    private String formatMessageWithMentions(List<Member> mentionedUsers, Message message, Member author) {
-
-        String authorNickname = StringUtils.isNotBlank(author.getNickname()) ? author.getNickname()
-                : author.getUser().getName();
+    private String formatMessageWithMentions(List<Member> mentionedUsers,
+            Message message, String authorNickname, String authorUsername) {
 
         String messageContent = message.getContentRaw();
         for (Member user : mentionedUsers) {
             messageContent = formatContent(user, messageContent);
         }
 
-        return DefaultStringProcessors.formatChatMessage(authorNickname)
-                .apply(messageContent);
+        return formatChatMessage(authorNickname, authorUsername).apply(messageContent);
     }
 
     private String formatContent(Member user, String formattedContent) {
