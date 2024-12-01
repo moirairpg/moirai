@@ -5,12 +5,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity.CorsSpec;
 import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpec;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 
 import me.moirai.discordbot.infrastructure.security.authentication.filter.DiscordAuthenticationFilter;
 
@@ -31,14 +33,19 @@ public class AuthenticationSecurityConfig {
     @Bean
     SecurityWebFilterChain configure(ServerHttpSecurity http) {
 
-        return http.httpBasic(customizer -> customizer.disable())
+        HttpStatusServerEntryPoint unauthorizedEntryPoint = new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED);
+
+        return http
+                .httpBasic(customizer -> customizer.disable())
                 .formLogin(customizer -> customizer.disable())
+                .logout(customizer -> customizer.disable())
                 .addFilterBefore(discordRequestFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .authorizeExchange(exchanges -> exchanges.pathMatchers(ignoredPaths).permitAll())
                 .authorizeExchange(exchanges -> exchanges.anyExchange().authenticated())
                 .oauth2Login(withDefaults())
                 .csrf(CsrfSpec::disable)
                 .cors(CorsSpec::disable)
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(unauthorizedEntryPoint))
                 .build();
     }
 }
