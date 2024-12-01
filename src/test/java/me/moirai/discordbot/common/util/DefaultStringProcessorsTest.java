@@ -16,7 +16,7 @@ public class DefaultStringProcessorsTest {
         String input = "As John, how are you doing today?";
 
         // When
-        String output = DefaultStringProcessors.stripAsNamePrefixForUppercase(name).apply(input);
+        String output = DefaultStringProcessors.stripAsNamePrefix(name).apply(input);
 
         // Then
         assertThat(output).isEqualTo("How are you doing today?");
@@ -149,5 +149,19 @@ public class DefaultStringProcessorsTest {
 
         // Then
         assertThat(output).isEqualTo("John said: [ how are you doing today? ]");
+    }
+
+    @Test
+    public void processor_whenParagraphTooLong_thenTrimLastPiece() {
+
+        // Given
+        String paragraph = "It was a question of which of the two she preferred. On the one hand, the choice seemed simple. The more expensive one with a brand name would be the choice of most. It was the easy choice. The safe choice. But she wasn't sure she actually preferred it.";
+        String expectedResult = "It was a question of which of the two she preferred. On the one hand, the choice seemed simple. The more expensive one with a brand name would be the choice of most. It was the easy choice. The safe choice.";
+
+        // When
+        String output = DefaultStringProcessors.trimParagraph().apply(paragraph);
+
+        // Then
+        assertThat(output).isNotBlank().isEqualTo(expectedResult);
     }
 }

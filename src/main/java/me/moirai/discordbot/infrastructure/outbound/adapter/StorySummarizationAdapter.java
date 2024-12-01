@@ -1,5 +1,10 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter;
 
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.PERIOD;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.replaceTemplateWithValue;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.stripChatPrefix;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.stripTrailingFragment;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.trimParagraph;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.SYSTEM;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.USER;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -13,7 +18,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import me.moirai.discordbot.common.util.DefaultStringProcessors;
 import me.moirai.discordbot.common.util.StringProcessor;
 import me.moirai.discordbot.core.application.helper.ChatMessageHelper;
 import me.moirai.discordbot.core.application.model.request.ChatMessage;
@@ -30,8 +34,6 @@ import reactor.core.publisher.Mono;
 @SuppressWarnings("unchecked")
 public class StorySummarizationAdapter implements StorySummarizationPort {
 
-    private static final String PERIOD = ".";
-    private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-ZÀ-ÿa-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
     private static final String SUMMARY = "summary";
     private static final Object LOREBOOK = "lorebook";
     private static final String RETRIEVED_MESSAGES = "retrievedMessages";
@@ -83,9 +85,9 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
                     StringProcessor processor = new StringProcessor();
                     String summary = summaryGenerated.getOutputText().trim();
 
-                    processor.addRule(DefaultStringProcessors.stripChatPrefix());
-                    processor.addRule(DefaultStringProcessors.stripTrailingFragment());
-                    processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(EMPTY, LF));
+                    processor.addRule(stripChatPrefix());
+                    processor.addRule(stripTrailingFragment());
+                    processor.addRule(replaceTemplateWithValue(EMPTY, LF));
 
                     summary = processor.process(summary);
 
@@ -107,7 +109,7 @@ public class StorySummarizationAdapter implements StorySummarizationPort {
         int tokensLeftInContext = reservedTokensForStory - tokensInContext;
 
         while (tokensInSummary > tokensLeftInContext) {
-            summary = summary.trim().replaceAll(SENTENCE_EXPRESSION, PERIOD).trim();
+            summary = trimParagraph().apply(summary);
             summary = summary.equals(PERIOD) ? EMPTY : summary;
             tokensInSummary = tokenizerPort.getTokenCountFrom(summary);
         }

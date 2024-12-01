@@ -1,6 +1,15 @@
 package me.moirai.discordbot.core.application.helper;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.joining;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.PERIOD;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.SAID;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.replaceTemplateWithValue;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.stripAsNamePrefix;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.stripAsNamePrefixForLowercase;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.stripChatPrefix;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.stripTrailingFragment;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.trimParagraph;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.ASSISTANT;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.USER;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -9,15 +18,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
 import me.moirai.discordbot.common.annotation.Helper;
 import me.moirai.discordbot.common.exception.ModerationException;
-import me.moirai.discordbot.common.util.DefaultStringProcessors;
 import me.moirai.discordbot.common.util.StringProcessor;
 import me.moirai.discordbot.core.application.model.request.ChatMessage;
+import me.moirai.discordbot.core.application.model.request.ChatMessage.Role;
 import me.moirai.discordbot.core.application.model.request.TextGenerationRequest;
 import me.moirai.discordbot.core.application.model.result.TextGenerationResult;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
@@ -40,9 +48,6 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
     private static final String PERSONA = "persona";
     private static final String PERSONA_NAME = "personaName";
     private static final String MESSAGE_HISTORY = "messageHistory";
-    private static final String SAID = " said: ";
-    private static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-Za-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
-    private static final String PERIOD = ".";
     private static final String RPG = "RPG";
     private static final int DISCORD_MAX_LENGTH = 2000;
 
@@ -132,26 +137,26 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
         String storySummary = (String) unsortedContext.get(STORY_SUMMARY);
         String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
 
-        processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM,
+        processedContext.add(ChatMessage.build(Role.SYSTEM,
                 replacePlaceholders(storySummary, request.getBotUsername(), request.getBotNickname(), personaName)));
 
         processedContext.addAll(buildContextForGeneration(unsortedContext,
                 request.getBotUsername(), request.getBotNickname(), personaName));
 
         if (StringUtils.isNotBlank(lorebookEntries)) {
-            processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, lorebookEntries));
+            processedContext.add(0, ChatMessage.build(Role.SYSTEM, lorebookEntries));
         }
 
-        processedContext.add(0, ChatMessage.build(ChatMessage.Role.SYSTEM, persona));
+        processedContext.add(0, ChatMessage.build(Role.SYSTEM, persona));
 
         if (StringUtils.isNotBlank(nudge)) {
-            processedContext.add(ChatMessage.build(ChatMessage.Role.SYSTEM, nudge));
+            processedContext.add(ChatMessage.build(Role.SYSTEM, nudge));
         }
 
         if (StringUtils.isNotBlank(bump)) {
             int bumpFrequency = 5;
             for (int index = processedContext.size() - 1 - bumpFrequency; index > 0; index = index - bumpFrequency) {
-                processedContext.add(index, ChatMessage.build(ChatMessage.Role.SYSTEM, bump));
+                processedContext.add(index, ChatMessage.build(Role.SYSTEM, bump));
             }
         }
 
@@ -161,10 +166,10 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
     private String replacePlaceholders(String summary, String botName, String botNickname, String personaName) {
 
         StringProcessor processor = new StringProcessor();
-        processor.addRule(DefaultStringProcessors.stripChatPrefix());
-        processor.addRule(DefaultStringProcessors.stripTrailingFragment());
-        processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botName));
-        processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botNickname));
+        processor.addRule(stripChatPrefix());
+        processor.addRule(stripTrailingFragment());
+        processor.addRule(replaceTemplateWithValue(personaName, botName));
+        processor.addRule(replaceTemplateWithValue(personaName, botNickname));
 
         return processor.process(summary);
     }
@@ -176,12 +181,12 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
         return messageHistory.stream()
                 .map(message -> {
                     StringProcessor processor = new StringProcessor();
-                    processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botName));
-                    processor.addRule(DefaultStringProcessors.replaceTemplateWithValue(personaName, botNickname));
+                    processor.addRule(replaceTemplateWithValue(personaName, botName));
+                    processor.addRule(replaceTemplateWithValue(personaName, botNickname));
 
                     String modifiedContent = processor.process(message);
                     String senderName = message.substring(0, message.indexOf(SAID));
-                    ChatMessage.Role senderRole = senderName.equals(botName) ? ASSISTANT : USER;
+                    Role senderRole = senderName.equals(botName) ? ASSISTANT : USER;
 
                     return ChatMessage.build(senderRole, modifiedContent);
                 })
@@ -191,18 +196,18 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
     private void sendOutputTo(String messageChannelId, String botName, String botNickname, String content) {
 
         StringProcessor processor = new StringProcessor();
-        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForLowercase(botName));
-        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForUppercase(botName));
-        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForLowercase(botNickname));
-        processor.addRule(DefaultStringProcessors.stripAsNamePrefixForUppercase(botNickname));
-        processor.addRule(DefaultStringProcessors.stripChatPrefix());
-        processor.addRule(DefaultStringProcessors.stripTrailingFragment());
+        processor.addRule(stripAsNamePrefixForLowercase(botName));
+        processor.addRule(stripAsNamePrefix(botName));
+        processor.addRule(stripAsNamePrefixForLowercase(botNickname));
+        processor.addRule(stripAsNamePrefix(botNickname));
+        processor.addRule(stripChatPrefix());
+        processor.addRule(stripTrailingFragment());
 
         String output = processor.process(content);
         int outputSize = output.length();
 
         while (outputSize > DISCORD_MAX_LENGTH) {
-            output = output.replaceAll(SENTENCE_EXPRESSION, PERIOD).trim();
+            output = trimParagraph().apply(output);
             output = output.equals(PERIOD) ? EMPTY : output;
             outputSize = output.length();
         }
@@ -215,7 +220,7 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
 
         String messageHistory = messages.stream()
                 .map(ChatMessage::getContent)
-                .collect(Collectors.joining("\n"));
+                .collect(joining("\n"));
 
         return getTopicsFlaggedByModeration(messageHistory, moderation)
                 .map(result -> {

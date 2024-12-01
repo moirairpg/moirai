@@ -1,9 +1,10 @@
 package me.moirai.discordbot.core.application.helper;
 
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.replacePersonaNamePlaceholderWith;
+
 import java.util.Map;
 
 import me.moirai.discordbot.common.annotation.Helper;
-import me.moirai.discordbot.common.util.DefaultStringProcessors;
 import me.moirai.discordbot.common.util.StringProcessor;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.core.domain.persona.PersonaService;
@@ -46,7 +47,7 @@ public class PersonaEnrichmentHelperImpl implements PersonaEnrichmentHelper {
             Map<String, Object> context, int reservedTokensForPersona) {
 
         StringProcessor processor = new StringProcessor();
-        processor.addRule(DefaultStringProcessors.replacePersonaNamePlaceholderWith(persona.getName()));
+        processor.addRule(replacePersonaNamePlaceholderWith(persona.getName()));
         String formattedPersona = processor.process(String.format(PERSONA_DESCRIPTION, persona.getPersonality()));
 
         int tokensInPersona = tokenizerPort.getTokenCountFrom(formattedPersona);
