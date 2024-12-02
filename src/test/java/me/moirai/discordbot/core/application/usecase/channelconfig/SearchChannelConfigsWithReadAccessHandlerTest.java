@@ -39,7 +39,7 @@ public class SearchChannelConfigsWithReadAccessHandlerTest {
                 .items(2)
                 .build();
 
-        when(repository.searchChannelConfigsWithReadAccess(any(SearchChannelConfigsWithReadAccess.class)))
+        when(repository.search(any(SearchChannelConfigsWithReadAccess.class)))
                 .thenReturn(expectedResult);
 
         // When

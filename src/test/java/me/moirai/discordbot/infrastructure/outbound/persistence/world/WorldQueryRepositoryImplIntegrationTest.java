@@ -1,28 +1,34 @@
 package me.moirai.discordbot.infrastructure.outbound.persistence.world;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.list;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import me.moirai.discordbot.AbstractIntegrationTest;
+import me.moirai.discordbot.core.application.usecase.world.request.SearchFavoriteWorlds;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.world.result.GetWorldResult;
 import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldsResult;
+import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteEntity;
+import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteRepository;
 
-public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
+public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private WorldQueryRepositoryImpl repository;
 
     @Autowired
     private WorldJpaRepository jpaRepository;
+
+    @Autowired
+    private FavoriteRepository favoriteRepository;
 
     @BeforeEach
     public void before() {
@@ -60,7 +66,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -98,7 +104,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -138,7 +144,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -171,7 +177,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
                 .sortByField("name")
@@ -181,7 +187,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -214,7 +220,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
                 .sortByField("name")
@@ -223,7 +229,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -256,7 +262,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
                 .name("Number 2")
@@ -264,11 +270,97 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithReadAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+
+        List<GetWorldResult> worlds = result.getResults();
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Mini.getName());
+    }
+
+    @Test
+    public void searchWorld_whenReadAccess_andFilterByVisibility_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String visibilityToSearch = "public";
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 1")
+                .visibility("private")
+                .build();
+
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 2")
+                .visibility(visibilityToSearch)
+                .build();
+
+        WorldEntity gpt354k = WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 3")
+                .visibility(visibilityToSearch)
+                .build();
+
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
+
+        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
+                .visibility(visibilityToSearch)
+                .requesterDiscordId(ownerDiscordId)
+                .build();
+
+        // When
+        SearchWorldsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+
+        List<GetWorldResult> worlds = result.getResults();
+        assertThat(worlds.get(0).getName()).isEqualTo(gpt4Mini.getName());
+    }
+
+    @Test
+    public void searchWorld_whenWriteAccess_andFilterByVisibility_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String visibilityToSearch = "public";
+        WorldEntity gpt4Omni = WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 1")
+                .visibility("private")
+                .build();
+
+        WorldEntity gpt4Mini = WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 2")
+                .visibility(visibilityToSearch)
+                .usersAllowedToWrite(list(ownerDiscordId))
+                .build();
+
+        WorldEntity gpt354k = WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 3")
+                .visibility(visibilityToSearch)
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
+
+        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+                .visibility(visibilityToSearch)
+                .requesterDiscordId(ownerDiscordId)
+                .build();
+
+        // When
+        SearchWorldsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
 
         List<GetWorldResult> worlds = result.getResults();
         assertThat(worlds.get(0).getName()).isEqualTo(gpt4Mini.getName());
@@ -305,7 +397,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -345,7 +437,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -386,7 +478,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -420,7 +512,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .sortByField("name")
@@ -430,7 +522,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -464,7 +556,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .sortByField("name")
@@ -473,7 +565,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -506,7 +598,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .name("Number 2")
@@ -514,7 +606,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -546,7 +638,7 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .name("Number 3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
                 .name("Number 2")
@@ -554,10 +646,183 @@ public class WorldQueryRepositoryImplTest extends AbstractIntegrationTest {
                 .build();
 
         // When
-        SearchWorldsResult result = repository.searchWorldsWithWriteAccess(query);
+        SearchWorldsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void searcFavoritehWorlds_whenNoFilter_thenReturnAllResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        WorldEntity gpt4Omni = jpaRepository.save(WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 1")
+                .visibility("private")
+                .ownerDiscordId(ownerDiscordId)
+                .build());
+
+        WorldEntity gpt4Mini = jpaRepository.save(WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 2")
+                .visibility("public")
+                .usersAllowedToWrite(list(ownerDiscordId))
+                .build());
+
+        WorldEntity gpt354k = jpaRepository.save(WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 3")
+                .visibility("public")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("world")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("world")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        FavoriteEntity favorite3 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("world")
+                .assetId(gpt354k.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2, favorite3));
+
+        SearchFavoriteWorlds query = SearchFavoriteWorlds.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
+
+        // When
+        SearchWorldsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
+    }
+
+    @Test
+    public void searcFavoritehWorlds_whenByVisibility_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        WorldEntity gpt4Omni = jpaRepository.save(WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 1")
+                .visibility("private")
+                .ownerDiscordId(ownerDiscordId)
+                .build());
+
+        WorldEntity gpt4Mini = jpaRepository.save(WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 2")
+                .visibility("public")
+                .usersAllowedToWrite(list(ownerDiscordId))
+                .build());
+
+        WorldEntity gpt354k = jpaRepository.save(WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 3")
+                .visibility("public")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("world")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("world")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        FavoriteEntity favorite3 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("world")
+                .assetId(gpt354k.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2, favorite3));
+
+        SearchFavoriteWorlds query = SearchFavoriteWorlds.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .visibility("public")
+                .build();
+
+        // When
+        SearchWorldsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+    }
+
+    @Test
+    public void searcFavoritehWorlds_whenFilterByName_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        WorldEntity gpt4Omni = jpaRepository.save(WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 1")
+                .visibility("private")
+                .ownerDiscordId(ownerDiscordId)
+                .build());
+
+        WorldEntity gpt4Mini = jpaRepository.save(WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 2")
+                .visibility("public")
+                .usersAllowedToWrite(list(ownerDiscordId))
+                .build());
+
+        WorldEntity gpt354k = jpaRepository.save(WorldEntityFixture.privateWorld()
+                .id(null)
+                .name("Number 3")
+                .visibility("public")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("world")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("world")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        FavoriteEntity favorite3 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("world")
+                .assetId(gpt354k.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2, favorite3));
+
+        SearchFavoriteWorlds query = SearchFavoriteWorlds.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .name("Number 3")
+                .build();
+
+        // When
+        SearchWorldsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
     }
 }

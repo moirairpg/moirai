@@ -19,6 +19,7 @@ import me.moirai.discordbot.common.web.SecurityContextAware;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldById;
+import me.moirai.discordbot.core.application.usecase.world.request.SearchFavoriteWorlds;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorld;
@@ -79,6 +80,26 @@ public class WorldController extends SecurityContextAware {
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
             SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+                    .page(searchParameters.getPage())
+                    .items(searchParameters.getItems())
+                    .sortByField(searchParameters.getSortByField())
+                    .direction(searchParameters.getDirection())
+                    .name(searchParameters.getName())
+                    .requesterDiscordId(authenticatedUser.getId())
+                    .visibility(searchParameters.getVisibility())
+                    .build();
+
+            return responseMapper.toResponse(useCaseRunner.run(query));
+        });
+    }
+
+    @GetMapping("/search/favorites")
+    @ResponseStatus(code = HttpStatus.OK)
+    public Mono<SearchWorldsResponse> searchFavoritesWorlds(WorldSearchParameters searchParameters) {
+
+        return mapWithAuthenticatedUser(authenticatedUser -> {
+
+            SearchFavoriteWorlds query = SearchFavoriteWorlds.builder()
                     .page(searchParameters.getPage())
                     .items(searchParameters.getItems())
                     .sortByField(searchParameters.getSortByField())

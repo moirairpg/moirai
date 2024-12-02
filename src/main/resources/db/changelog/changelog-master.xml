@@ -7,4 +7,5 @@
     <include file="db/changelog/migrations/1711197366_create_table_world.sql" />
     <include file="db/changelog/migrations/1711197379_create_table_persona.sql" />
     <include file="db/changelog/migrations/1711197488_create_table_channel_config.sql" />
+    <include file="db/changelog/migrations/1733076841_create_table_favorite.sql" />
 </databaseChangeLog>

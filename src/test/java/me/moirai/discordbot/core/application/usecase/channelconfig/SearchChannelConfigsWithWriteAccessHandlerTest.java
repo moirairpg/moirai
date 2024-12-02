@@ -39,7 +39,7 @@ public class SearchChannelConfigsWithWriteAccessHandlerTest {
                 .items(2)
                 .build();
 
-        when(repository.searchChannelConfigsWithWriteAccess(any(SearchChannelConfigsWithWriteAccess.class)))
+        when(repository.search(any(SearchChannelConfigsWithWriteAccess.class)))
                 .thenReturn(expectedResult);
 
         // When

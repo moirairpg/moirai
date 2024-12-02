@@ -11,23 +11,23 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.core.application.port.PersonaQueryRepository;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
+import me.moirai.discordbot.core.application.usecase.persona.request.SearchFavoritePersonas;
 import me.moirai.discordbot.core.application.usecase.persona.result.SearchPersonasResult;
 
 @ExtendWith(MockitoExtension.class)
-public class SearchPersonasWithReadAccessHandlerTest {
+public class SearchFavoritePersonasHandlerTest {
 
     @Mock
     private PersonaQueryRepository repository;
 
     @InjectMocks
-    private SearchPersonasWithReadAccessHandler handler;
+    private SearchFavoritePersonasHandler handler;
 
     @Test
     public void searchPersonas() {
 
         // Given
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
+        SearchFavoritePersonas query = SearchFavoritePersonas.builder()
                 .direction("ASC")
                 .page(1)
                 .items(2)
@@ -39,7 +39,7 @@ public class SearchPersonasWithReadAccessHandlerTest {
                 .items(2)
                 .build();
 
-        when(repository.search(any(SearchPersonasWithReadAccess.class)))
+        when(repository.search(any(SearchFavoritePersonas.class)))
                 .thenReturn(expectedResult);
 
         // When

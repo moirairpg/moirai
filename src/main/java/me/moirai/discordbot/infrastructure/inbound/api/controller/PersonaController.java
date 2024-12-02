@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.common.web.SecurityContextAware;
 import me.moirai.discordbot.core.application.usecase.persona.request.CreatePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
+import me.moirai.discordbot.core.application.usecase.persona.request.SearchFavoritePersonas;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.persona.request.UpdatePersona;
@@ -28,8 +31,6 @@ import me.moirai.discordbot.infrastructure.inbound.api.response.CreatePersonaRes
 import me.moirai.discordbot.infrastructure.inbound.api.response.PersonaResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchPersonasResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.UpdatePersonaResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -77,6 +78,26 @@ public class PersonaController extends SecurityContextAware {
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
             SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+                    .page(searchParameters.getPage())
+                    .items(searchParameters.getItems())
+                    .sortByField(searchParameters.getSortByField())
+                    .direction(searchParameters.getDirection())
+                    .name(searchParameters.getName())
+                    .requesterDiscordId(authenticatedUser.getId())
+                    .visibility(searchParameters.getVisibility())
+                    .build();
+
+            return responseMapper.toResponse(useCaseRunner.run(query));
+        });
+    }
+
+    @GetMapping("/search/favorites")
+    @ResponseStatus(code = HttpStatus.OK)
+    public Mono<SearchPersonasResponse> searchFavoritePersonas(PersonaSearchParameters searchParameters) {
+
+        return mapWithAuthenticatedUser(authenticatedUser -> {
+
+            SearchFavoritePersonas query = SearchFavoritePersonas.builder()
                     .page(searchParameters.getPage())
                     .items(searchParameters.getItems())
                     .sortByField(searchParameters.getSortByField())

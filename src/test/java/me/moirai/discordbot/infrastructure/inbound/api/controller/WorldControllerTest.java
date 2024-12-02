@@ -19,6 +19,7 @@ import me.moirai.discordbot.AbstractRestWebTest;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldById;
+import me.moirai.discordbot.core.application.usecase.world.request.SearchFavoriteWorlds;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorld;
@@ -111,6 +112,39 @@ public class WorldControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(String.format(WORLD_ID_BASE_URL, "search/own"))
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(SearchWorldsResponse.class)
+                .value(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.getTotalPages()).isEqualTo(2);
+                    assertThat(response.getTotalResults()).isEqualTo(20);
+                    assertThat(response.getResultsInPage()).isEqualTo(10);
+                    assertThat(response.getResults()).hasSameSizeAs(results);
+                });
+    }
+
+    @Test
+    public void http200WhenSearchFavoriteWorlds() {
+
+        // Given
+        List<WorldResponse> results = Lists.list(WorldResponseFixture.publicWorld().build(),
+                WorldResponseFixture.privateWorld().build());
+
+        SearchWorldsResponse expectedResponse = SearchWorldsResponse.builder()
+                .page(1)
+                .totalPages(2)
+                .totalResults(20)
+                .resultsInPage(10)
+                .results(results)
+                .build();
+
+        when(useCaseRunner.run(any(SearchFavoriteWorlds.class))).thenReturn(mock(SearchWorldsResult.class));
+        when(worldResponseMapper.toResponse(any(SearchWorldsResult.class))).thenReturn(expectedResponse);
+
+        // Then
+        webTestClient.get()
+                .uri(String.format(WORLD_ID_BASE_URL, "search/favorites"))
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SearchWorldsResponse.class)

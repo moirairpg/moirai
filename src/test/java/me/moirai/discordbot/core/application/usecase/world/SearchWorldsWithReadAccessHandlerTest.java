@@ -39,7 +39,7 @@ public class SearchWorldsWithReadAccessHandlerTest {
                 .items(2)
                 .build();
 
-        when(repository.searchWorldsWithReadAccess(any(SearchWorldsWithReadAccess.class)))
+        when(repository.search(any(SearchWorldsWithReadAccess.class)))
                 .thenReturn(expectedResult);
 
         // When

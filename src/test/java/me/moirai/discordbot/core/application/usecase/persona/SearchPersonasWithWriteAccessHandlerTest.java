@@ -39,7 +39,7 @@ public class SearchPersonasWithWriteAccessHandlerTest {
                 .items(2)
                 .build();
 
-        when(repository.searchPersonasWithWriteAccess(any(SearchPersonasWithWriteAccess.class)))
+        when(repository.search(any(SearchPersonasWithWriteAccess.class)))
                 .thenReturn(expectedResult);
 
         // When

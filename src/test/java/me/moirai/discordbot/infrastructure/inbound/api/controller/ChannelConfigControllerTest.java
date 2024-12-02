@@ -21,6 +21,7 @@ import me.moirai.discordbot.core.application.usecase.channelconfig.request.Delet
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.GetChannelConfigById;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithWriteAccess;
+import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchFavoriteChannelConfigs;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.CreateChannelConfigResult;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.GetChannelConfigResult;
@@ -115,6 +116,41 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, "search/own"))
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(SearchChannelConfigsResponse.class)
+                .value(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.getTotalPages()).isEqualTo(2);
+                    assertThat(response.getTotalResults()).isEqualTo(20);
+                    assertThat(response.getResultsInPage()).isEqualTo(10);
+                    assertThat(response.getResults()).hasSameSizeAs(results);
+                });
+    }
+
+    @Test
+    public void http200WhenSearchFavoriteChannelConfigs() {
+
+        // Given
+        List<ChannelConfigResponse> results = Lists.list(ChannelConfigResponseFixture.sample().build(),
+                ChannelConfigResponseFixture.sample().build());
+
+        SearchChannelConfigsResponse expectedResponse = SearchChannelConfigsResponse.builder()
+                .page(1)
+                .totalPages(2)
+                .totalResults(20)
+                .resultsInPage(10)
+                .results(results)
+                .build();
+
+        when(useCaseRunner.run(any(SearchFavoriteChannelConfigs.class)))
+                .thenReturn(mock(SearchChannelConfigsResult.class));
+        when(channelConfigResponseMapper.toResponse(any(SearchChannelConfigsResult.class)))
+                .thenReturn(expectedResponse);
+
+        // Then
+        webTestClient.get()
+                .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, "search/favorites"))
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SearchChannelConfigsResponse.class)

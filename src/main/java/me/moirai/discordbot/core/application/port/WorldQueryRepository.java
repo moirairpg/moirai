@@ -2,6 +2,7 @@ package me.moirai.discordbot.core.application.port;
 
 import java.util.Optional;
 
+import me.moirai.discordbot.core.application.usecase.world.request.SearchFavoriteWorlds;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldsResult;
@@ -11,7 +12,9 @@ public interface WorldQueryRepository {
 
     Optional<World> findById(String id);
 
-    SearchWorldsResult searchWorldsWithReadAccess(SearchWorldsWithReadAccess query);
+    SearchWorldsResult search(SearchWorldsWithReadAccess request);
 
-    SearchWorldsResult searchWorldsWithWriteAccess(SearchWorldsWithWriteAccess query);
+    SearchWorldsResult search(SearchWorldsWithWriteAccess request);
+
+    SearchWorldsResult search(SearchFavoriteWorlds request);
 }

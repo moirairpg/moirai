@@ -1,12 +1,12 @@
 package me.moirai.discordbot.infrastructure.outbound.persistence.channelconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.list;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +15,12 @@ import me.moirai.discordbot.AbstractIntegrationTest;
 import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithWriteAccess;
+import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchFavoriteChannelConfigs;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.GetChannelConfigResult;
 import me.moirai.discordbot.core.application.usecase.channelconfig.result.SearchChannelConfigsResult;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
+import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteEntity;
+import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteRepository;
 
 public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTest {
 
@@ -26,6 +29,9 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
 
     @Autowired
     private ChannelConfigJpaRepository jpaRepository;
+
+    @Autowired
+    private FavoriteRepository favoriteRepository;
 
     @BeforeEach
     public void before() {
@@ -99,7 +105,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -145,7 +151,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -193,7 +199,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -234,7 +240,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("name")
@@ -242,7 +248,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -283,7 +289,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("name")
@@ -292,7 +298,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -324,7 +330,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID2")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
@@ -333,7 +339,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -364,7 +370,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID2")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
@@ -373,7 +379,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -413,7 +419,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("moderation")
@@ -424,7 +430,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -456,7 +462,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID2")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
@@ -467,7 +473,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -498,7 +504,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID2")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .aiModel("gpt4-mini")
@@ -506,7 +512,88 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt4Mini.getName());
+    }
+
+    @Test
+    public void searchChannelConfig_whenReadAccess_andFilterByVisibility_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+
+        ChannelConfigEntity gpt4Omni = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .visibility("public")
+                .build();
+
+        ChannelConfigEntity gpt4Mini = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .visibility("private")
+                .build();
+
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
+
+        SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
+                .visibility("private")
+                .requesterDiscordId(ownerDiscordId)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+
+        List<GetChannelConfigResult> channelConfigs = result.getResults();
+        assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt4Mini.getName());
+    }
+
+    @Test
+    public void searchChannelConfig_whenWriteAccess_andFilterByVisibility_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+
+        ChannelConfigEntity gpt4Omni = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .visibility("public")
+                .build();
+
+        ChannelConfigEntity gpt4Mini = ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .visibility("private")
+                .ownerDiscordId(ownerDiscordId)
+                .build();
+
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
+
+        SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                .visibility("private")
+                .requesterDiscordId(ownerDiscordId)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -545,7 +632,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .name("Number 2")
@@ -553,7 +640,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -592,7 +679,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .moderation("PERMISSIVE")
@@ -600,7 +687,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -645,7 +732,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -693,7 +780,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -742,7 +829,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -784,7 +871,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .sortByField("name")
@@ -792,7 +879,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -834,7 +921,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .sortByField("name")
@@ -843,7 +930,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -875,7 +962,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID2")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
@@ -884,7 +971,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -915,7 +1002,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID2")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
@@ -924,7 +1011,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -965,7 +1052,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .sortByField("moderation")
@@ -976,7 +1063,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1008,7 +1095,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID2")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .sortByField("modelConfiguration.aiModel")
@@ -1019,7 +1106,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1059,7 +1146,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .aiModel("gpt35-16k")
@@ -1067,7 +1154,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1107,7 +1194,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .name("Number 2")
@@ -1115,7 +1202,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1156,7 +1243,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .discordChannelId("CHNLID3")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .moderation("PERMISSIVE")
@@ -1164,7 +1251,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1209,7 +1296,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .gameMode("AUTHOR")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithReadAccess query = SearchChannelConfigsWithReadAccess.builder()
                 .gameMode("RPG")
@@ -1217,7 +1304,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithReadAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1262,7 +1349,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .gameMode("RPG")
                 .build();
 
-        jpaRepository.saveAll(Lists.list(gpt4Omni, gpt4Mini, gpt354k));
+        jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
         SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
                 .gameMode("CHAT")
@@ -1270,7 +1357,7 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
                 .build();
 
         // When
-        SearchChannelConfigsResult result = repository.searchChannelConfigsWithWriteAccess(query);
+        SearchChannelConfigsResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -1278,5 +1365,297 @@ public class ChannelConfigQueryRepositoryImplTest extends AbstractIntegrationTes
 
         List<GetChannelConfigResult> channelConfigs = result.getResults();
         assertThat(channelConfigs.get(0).getName()).isEqualTo(gpt4Mini.getName());
+    }
+
+    @Test
+    public void searchFavoriteChannelConfigs_whenNoFilters_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+
+        ChannelConfigEntity gpt4Omni = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .visibility("public")
+                .build());
+
+        ChannelConfigEntity gpt4Mini = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .visibility("public")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchFavoriteChannelConfigs query = SearchFavoriteChannelConfigs.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(2);
+    }
+
+    @Test
+    public void searchFavoriteChannelConfigs_whenFilterByName_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String nameToSearch = "nameToBeSearched";
+        ChannelConfigEntity gpt4Omni = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .visibility("public")
+                .build());
+
+        ChannelConfigEntity gpt4Mini = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name(nameToSearch)
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .visibility("public")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchFavoriteChannelConfigs query = SearchFavoriteChannelConfigs.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .name(nameToSearch)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+    }
+
+    @Test
+    public void searchFavoriteChannelConfigs_whenFilterByVisibility_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String visibility = "public";
+        ChannelConfigEntity gpt4Omni = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .visibility(visibility)
+                .build());
+
+        ChannelConfigEntity gpt4Mini = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .visibility("private")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchFavoriteChannelConfigs query = SearchFavoriteChannelConfigs.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .visibility(visibility)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+    }
+
+    @Test
+    public void searchFavoriteChannelConfigs_whenFilterByGameMode_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String gameMode = "chat";
+        ChannelConfigEntity gpt4Omni = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .gameMode(gameMode)
+                .build());
+
+        ChannelConfigEntity gpt4Mini = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .visibility("private")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchFavoriteChannelConfigs query = SearchFavoriteChannelConfigs.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .gameMode(gameMode)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+    }
+
+    @Test
+    public void searchFavoriteChannelConfigs_whenFilterByAiModel_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String aiModel = "gpt4-omni";
+        ChannelConfigEntity gpt4Omni = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .build());
+
+        ChannelConfigEntity gpt4Mini = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .visibility("private")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchFavoriteChannelConfigs query = SearchFavoriteChannelConfigs.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .aiModel(aiModel)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+    }
+
+    @Test
+    public void searchFavoriteChannelConfigs_whenFilterByModeration_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String moderation = "strict";
+        ChannelConfigEntity gpt4Omni = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .moderation(moderation)
+                .build());
+
+        ChannelConfigEntity gpt4Mini = jpaRepository.save(ChannelConfigEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .moderation("disabled")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("channel_config")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchFavoriteChannelConfigs query = SearchFavoriteChannelConfigs.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .moderation(moderation)
+                .build();
+
+        // When
+        SearchChannelConfigsResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
     }
 }

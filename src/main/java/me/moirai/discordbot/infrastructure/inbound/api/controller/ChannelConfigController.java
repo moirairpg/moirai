@@ -21,6 +21,7 @@ import me.moirai.discordbot.core.application.usecase.channelconfig.request.Delet
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.GetChannelConfigById;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithWriteAccess;
+import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchFavoriteChannelConfigs;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.UpdateChannelConfig;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.ChannelConfigRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.ChannelConfigResponseMapper;
@@ -79,6 +80,27 @@ public class ChannelConfigController extends SecurityContextAware {
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
             SearchChannelConfigsWithWriteAccess query = SearchChannelConfigsWithWriteAccess.builder()
+                    .page(searchParameters.getPage())
+                    .items(searchParameters.getItems())
+                    .sortByField(searchParameters.getSortByField())
+                    .direction(searchParameters.getDirection())
+                    .name(searchParameters.getName())
+                    .requesterDiscordId(authenticatedUser.getId())
+                    .visibility(searchParameters.getVisibility())
+                    .build();
+
+            return responseMapper.toResponse(useCaseRunner.run(query));
+        });
+    }
+
+    @GetMapping("/search/favorites")
+    @ResponseStatus(code = HttpStatus.OK)
+    public Mono<SearchChannelConfigsResponse> searchFavoriteChannelConfigs(ChannelConfigSearchParameters searchParameters,
+            Authentication authentication) {
+
+        return mapWithAuthenticatedUser(authenticatedUser -> {
+
+            SearchFavoriteChannelConfigs query = SearchFavoriteChannelConfigs.builder()
                     .page(searchParameters.getPage())
                     .items(searchParameters.getItems())
                     .sortByField(searchParameters.getSortByField())
