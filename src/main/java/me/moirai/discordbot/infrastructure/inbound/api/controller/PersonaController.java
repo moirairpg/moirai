@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.common.web.SecurityContextAware;
+import me.moirai.discordbot.core.application.usecase.persona.request.AddFavoritePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.CreatePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
@@ -25,6 +26,7 @@ import me.moirai.discordbot.core.application.usecase.persona.request.UpdatePerso
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.PersonaRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.PersonaResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreatePersonaRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.PersonaSearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdatePersonaRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreatePersonaResponse;
@@ -155,6 +157,23 @@ public class PersonaController extends SecurityContextAware {
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
             DeletePersona command = requestMapper.toCommand(personaId, authenticatedUser.getId());
+            useCaseRunner.run(command);
+
+            return Mono.empty();
+        });
+    }
+
+    @PostMapping("/favorite")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Mono<Void> addFavoritePersona(@RequestBody FavoriteRequest request) {
+
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
+
+            AddFavoritePersona command = AddFavoritePersona.builder()
+                    .assetId(request.getAssetId())
+                    .playerDiscordId(authenticatedUser.getId())
+                    .build();
+
             useCaseRunner.run(command);
 
             return Mono.empty();

@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import me.moirai.discordbot.AbstractRestWebTest;
+import me.moirai.discordbot.core.application.usecase.world.request.AddFavoriteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldById;
@@ -31,6 +32,7 @@ import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldRequestMapper
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldRequestFixture;
+import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldRequestFixture;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateWorldResponse;
@@ -256,6 +258,23 @@ public class WorldControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.delete()
                 .uri(String.format(WORLD_ID_BASE_URL, worldId))
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+    }
+
+    @Test
+    public void http201WhenAddFavoriteWorld() {
+
+        // Given
+        FavoriteRequest request = new FavoriteRequest();
+        request.setAssetId("1234");
+
+        when(useCaseRunner.run(any(AddFavoriteWorld.class))).thenReturn(null);
+
+        // Then
+        webTestClient.post()
+                .uri(String.format(WORLD_ID_BASE_URL, "favorite"))
+                .bodyValue(request)
                 .exchange()
                 .expectStatus().is2xxSuccessful();
     }

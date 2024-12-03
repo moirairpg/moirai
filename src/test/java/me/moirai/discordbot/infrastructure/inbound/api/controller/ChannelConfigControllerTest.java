@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import me.moirai.discordbot.AbstractRestWebTest;
+import me.moirai.discordbot.core.application.usecase.channelconfig.request.AddFavoriteChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.DeleteChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.GetChannelConfigById;
@@ -31,6 +32,7 @@ import me.moirai.discordbot.infrastructure.inbound.api.mapper.ChannelConfigReque
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.ChannelConfigResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateChannelConfigRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateChannelConfigRequestFixture;
+import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateChannelConfigRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateChannelConfigRequestFixture;
 import me.moirai.discordbot.infrastructure.inbound.api.response.ChannelConfigResponse;
@@ -263,6 +265,23 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.delete()
                 .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, channelConfigId))
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+    }
+
+    @Test
+    public void http201WhenAddFavoriteChannelConfig() {
+
+        // Given
+        FavoriteRequest request = new FavoriteRequest();
+        request.setAssetId("1234");
+
+        when(useCaseRunner.run(any(AddFavoriteChannelConfig.class))).thenReturn(null);
+
+        // Then
+        webTestClient.post()
+                .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, "favorite"))
+                .bodyValue(request)
                 .exchange()
                 .expectStatus().is2xxSuccessful();
     }

@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.common.web.SecurityContextAware;
+import me.moirai.discordbot.core.application.usecase.world.request.AddFavoriteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldById;
@@ -26,6 +27,7 @@ import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorld;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.WorldSearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateWorldResponse;
@@ -154,6 +156,23 @@ public class WorldController extends SecurityContextAware {
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
             DeleteWorld command = requestMapper.toCommand(worldId, authenticatedUser.getId());
+            useCaseRunner.run(command);
+
+            return Mono.empty();
+        });
+    }
+
+    @PostMapping("/favorite")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Mono<Void> addFavoriteWorld(@RequestBody FavoriteRequest request) {
+
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
+
+            AddFavoriteWorld command = AddFavoriteWorld.builder()
+                    .assetId(request.getAssetId())
+                    .playerDiscordId(authenticatedUser.getId())
+                    .build();
+
             useCaseRunner.run(command);
 
             return Mono.empty();

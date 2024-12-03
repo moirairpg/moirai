@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import me.moirai.discordbot.AbstractRestWebTest;
+import me.moirai.discordbot.core.application.usecase.persona.request.AddFavoritePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.CreatePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
@@ -31,6 +32,7 @@ import me.moirai.discordbot.infrastructure.inbound.api.mapper.PersonaRequestMapp
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.PersonaResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreatePersonaRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreatePersonaRequestFixture;
+import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdatePersonaRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdatePersonaRequestFixture;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreatePersonaResponse;
@@ -256,6 +258,23 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.delete()
                 .uri(String.format(PERSONA_ID_BASE_URL, personaId))
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+    }
+
+    @Test
+    public void http201WhenAddFavoritePersona() {
+
+        // Given
+        FavoriteRequest request = new FavoriteRequest();
+        request.setAssetId("1234");
+
+        when(useCaseRunner.run(any(AddFavoritePersona.class))).thenReturn(null);
+
+        // Then
+        webTestClient.post()
+                .uri(String.format(PERSONA_ID_BASE_URL, "favorite"))
+                .bodyValue(request)
                 .exchange()
                 .expectStatus().is2xxSuccessful();
     }

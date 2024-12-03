@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.common.web.SecurityContextAware;
+import me.moirai.discordbot.core.application.usecase.channelconfig.request.AddFavoriteChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.DeleteChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.GetChannelConfigById;
@@ -27,6 +28,7 @@ import me.moirai.discordbot.infrastructure.inbound.api.mapper.ChannelConfigReque
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.ChannelConfigResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.ChannelConfigSearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateChannelConfigRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateChannelConfigRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.response.ChannelConfigResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateChannelConfigResponse;
@@ -159,6 +161,23 @@ public class ChannelConfigController extends SecurityContextAware {
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
             DeleteChannelConfig command = requestMapper.toCommand(channelConfigId, authenticatedUser.getId());
+            useCaseRunner.run(command);
+
+            return Mono.empty();
+        });
+    }
+
+    @PostMapping("/favorite")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Mono<Void> addFavoriteChannelConfig(@RequestBody FavoriteRequest request) {
+
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
+
+            AddFavoriteChannelConfig command = AddFavoriteChannelConfig.builder()
+                    .assetId(request.getAssetId())
+                    .playerDiscordId(authenticatedUser.getId())
+                    .build();
+
             useCaseRunner.run(command);
 
             return Mono.empty();
