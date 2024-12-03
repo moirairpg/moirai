@@ -16,9 +16,12 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import me.moirai.discordbot.AbstractRestWebTest;
+import me.moirai.discordbot.core.application.usecase.persona.request.AddFavoritePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.CreatePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
+import me.moirai.discordbot.core.application.usecase.persona.request.RemoveFavoritePersona;
+import me.moirai.discordbot.core.application.usecase.persona.request.SearchFavoritePersonas;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.persona.request.UpdatePersona;
@@ -30,6 +33,7 @@ import me.moirai.discordbot.infrastructure.inbound.api.mapper.PersonaRequestMapp
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.PersonaResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreatePersonaRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreatePersonaRequestFixture;
+import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdatePersonaRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdatePersonaRequestFixture;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreatePersonaResponse;
@@ -111,6 +115,39 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.get()
                 .uri(String.format(PERSONA_ID_BASE_URL, "search/own"))
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(SearchPersonasResponse.class)
+                .value(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.getTotalPages()).isEqualTo(2);
+                    assertThat(response.getTotalResults()).isEqualTo(20);
+                    assertThat(response.getResultsInPage()).isEqualTo(10);
+                    assertThat(response.getResults()).hasSameSizeAs(results);
+                });
+    }
+
+    @Test
+    public void http200WhenSearchFavoritePersonas() {
+
+        // Given
+        List<PersonaResponse> results = Lists.list(PersonaResponseFixture.publicPersona().build(),
+                PersonaResponseFixture.privatePersona().build());
+
+        SearchPersonasResponse expectedResponse = SearchPersonasResponse.builder()
+                .page(1)
+                .totalPages(2)
+                .totalResults(20)
+                .resultsInPage(10)
+                .results(results)
+                .build();
+
+        when(useCaseRunner.run(any(SearchFavoritePersonas.class))).thenReturn(mock(SearchPersonasResult.class));
+        when(personaResponseMapper.toResponse(any(SearchPersonasResult.class))).thenReturn(expectedResponse);
+
+        // Then
+        webTestClient.get()
+                .uri(String.format(PERSONA_ID_BASE_URL, "search/favorites"))
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SearchPersonasResponse.class)
@@ -222,6 +259,39 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         // Then
         webTestClient.delete()
                 .uri(String.format(PERSONA_ID_BASE_URL, personaId))
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+    }
+
+    @Test
+    public void http201WhenAddFavoritePersona() {
+
+        // Given
+        FavoriteRequest request = new FavoriteRequest();
+        request.setAssetId("1234");
+
+        when(useCaseRunner.run(any(AddFavoritePersona.class))).thenReturn(null);
+
+        // Then
+        webTestClient.post()
+                .uri(String.format(PERSONA_ID_BASE_URL, "favorite"))
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+    }
+
+    @Test
+    public void http201WhenRemoveFavoritePersona() {
+
+        // Given
+        FavoriteRequest request = new FavoriteRequest();
+        request.setAssetId("1234");
+
+        when(useCaseRunner.run(any(RemoveFavoritePersona.class))).thenReturn(null);
+
+        // Then
+        webTestClient.delete()
+                .uri(String.format(PERSONA_ID_BASE_URL, "favorite/1234"))
                 .exchange()
                 .expectStatus().is2xxSuccessful();
     }

@@ -1,6 +1,8 @@
 package me.moirai.discordbot.infrastructure.outbound.persistence.world;
 
+import static me.moirai.discordbot.infrastructure.outbound.persistence.SearchPredicates.contains;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,19 +16,21 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.criteria.Predicate;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldLorebookEntries;
 import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntry;
 import me.moirai.discordbot.core.domain.world.WorldLorebookEntryRepository;
 import me.moirai.discordbot.infrastructure.outbound.persistence.mapper.WorldLorebookPersistenceMapper;
-import jakarta.persistence.criteria.Predicate;
 
 @Repository
 public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepository {
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_ITEMS = 10;
-    private static final String DEFAULT_SORT_BY_FIELD = "name";
+
+    private static final String NAME = "name";
+    private static final String DEFAULT_SORT_BY_FIELD = NAME;
 
     private final WorldLorebookEntryJpaRepository jpaRepository;
     private final WorldLorebookPersistenceMapper mapper;
@@ -81,17 +85,16 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
         String sortByField = isBlank(query.getSortByField()) ? DEFAULT_SORT_BY_FIELD : query.getSortByField();
-        Direction direction = isBlank(query.getDirection()) ? Direction.ASC
-                : Direction.fromString(query.getDirection());
+        Direction direction = isBlank(query.getDirection()) ? ASC : Direction.fromString(query.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<WorldLorebookEntryEntity> filters = searchLorebookSpecificationFrom(query);
+        Specification<WorldLorebookEntryEntity> filters = buildSearchQuery(query);
         Page<WorldLorebookEntryEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
 
         return mapper.mapToResult(pagedResult);
     }
 
-    private Specification<WorldLorebookEntryEntity> searchLorebookSpecificationFrom(SearchWorldLorebookEntries query) {
+    private Specification<WorldLorebookEntryEntity> buildSearchQuery(SearchWorldLorebookEntries query) {
 
         return (root, cq, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -99,8 +102,7 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
             predicates.add(cb.equal(root.get("worldId"), query.getWorldId()));
 
             if (StringUtils.isNotBlank(query.getName())) {
-                predicates.add(cb.and(cb.like(cb.upper(root.get("name")),
-                        "%" + query.getName().toUpperCase() + "%")));
+                predicates.add(contains(cb, root, NAME, query.getName()));
             }
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));

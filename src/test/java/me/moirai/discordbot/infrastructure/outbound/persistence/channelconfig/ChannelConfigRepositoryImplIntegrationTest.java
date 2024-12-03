@@ -8,11 +8,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import jakarta.transaction.Transactional;
 import me.moirai.discordbot.AbstractIntegrationTest;
 import me.moirai.discordbot.core.domain.Visibility;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigDomainRepository;
 import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
+import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteEntity;
+import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteRepository;
 
 public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
@@ -21,6 +24,9 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
 
     @Autowired
     private ChannelConfigJpaRepository jpaRepository;
+
+    @Autowired
+    private FavoriteRepository favoriteRepository;
 
     @BeforeEach
     public void before() {
@@ -133,5 +139,29 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         // Then
         assertThat(originalChannelConfig.getVersion()).isEqualTo(0);
         assertThat(updatedChannelConfig.getVersion()).isEqualTo(1);
+    }
+
+    @Test
+    @Transactional
+    public void deleteChannelConfig_whenIsFavorite_thenDeleteFavorites() {
+
+        // Given
+        String userId = "1234";
+        ChannelConfig channelConfig = repository.save(ChannelConfigFixture.sample()
+                .id(null)
+                .build());
+
+        FavoriteEntity favorite = favoriteRepository.save(FavoriteEntity.builder()
+                .playerDiscordId(userId)
+                .assetId(channelConfig.getId())
+                .assetType("channel_config")
+                .build());
+
+        // When
+        repository.deleteById(channelConfig.getId());
+
+        // Then
+        assertThat(repository.findById(channelConfig.getId())).isNotNull().isEmpty();
+        assertThat(favoriteRepository.existsById(favorite.getId())).isFalse();
     }
 }

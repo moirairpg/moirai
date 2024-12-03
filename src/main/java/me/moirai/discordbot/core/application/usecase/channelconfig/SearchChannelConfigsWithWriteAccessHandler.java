@@ -18,6 +18,6 @@ public class SearchChannelConfigsWithWriteAccessHandler extends AbstractUseCaseH
     @Override
     public SearchChannelConfigsResult execute(SearchChannelConfigsWithWriteAccess query) {
 
-        return repository.searchChannelConfigsWithWriteAccess(query);
+        return repository.search(query);
     }
 }

@@ -18,6 +18,6 @@ public class SearchWorldsWithWriteAccessHandler extends AbstractUseCaseHandler<S
     @Override
     public SearchWorldsResult execute(SearchWorldsWithWriteAccess query) {
 
-        return repository.searchWorldsWithWriteAccess(query);
+        return repository.search(query);
     }
 }

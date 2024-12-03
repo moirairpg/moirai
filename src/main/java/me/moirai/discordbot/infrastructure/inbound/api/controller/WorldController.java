@@ -16,15 +16,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.common.web.SecurityContextAware;
+import me.moirai.discordbot.core.application.usecase.world.request.AddFavoriteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldById;
+import me.moirai.discordbot.core.application.usecase.world.request.RemoveFavoriteWorld;
+import me.moirai.discordbot.core.application.usecase.world.request.SearchFavoriteWorlds;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorld;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.WorldSearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateWorldResponse;
@@ -92,6 +96,26 @@ public class WorldController extends SecurityContextAware {
         });
     }
 
+    @GetMapping("/search/favorites")
+    @ResponseStatus(code = HttpStatus.OK)
+    public Mono<SearchWorldsResponse> searchFavoritesWorlds(WorldSearchParameters searchParameters) {
+
+        return mapWithAuthenticatedUser(authenticatedUser -> {
+
+            SearchFavoriteWorlds query = SearchFavoriteWorlds.builder()
+                    .page(searchParameters.getPage())
+                    .items(searchParameters.getItems())
+                    .sortByField(searchParameters.getSortByField())
+                    .direction(searchParameters.getDirection())
+                    .name(searchParameters.getName())
+                    .requesterDiscordId(authenticatedUser.getId())
+                    .visibility(searchParameters.getVisibility())
+                    .build();
+
+            return responseMapper.toResponse(useCaseRunner.run(query));
+        });
+    }
+
     @GetMapping("/{worldId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<WorldResponse> getWorldById(@PathVariable(name = "worldId", required = true) String worldId) {
@@ -133,6 +157,40 @@ public class WorldController extends SecurityContextAware {
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
             DeleteWorld command = requestMapper.toCommand(worldId, authenticatedUser.getId());
+            useCaseRunner.run(command);
+
+            return Mono.empty();
+        });
+    }
+
+    @PostMapping("/favorite")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Mono<Void> addFavoriteWorld(@RequestBody FavoriteRequest request) {
+
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
+
+            AddFavoriteWorld command = AddFavoriteWorld.builder()
+                    .assetId(request.getAssetId())
+                    .playerDiscordId(authenticatedUser.getId())
+                    .build();
+
+            useCaseRunner.run(command);
+
+            return Mono.empty();
+        });
+    }
+
+    @DeleteMapping("/favorite/{assetId}")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Mono<Void> removeFavoriteChannelConfig(@PathVariable(required = true) String assetId) {
+
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
+
+            RemoveFavoriteWorld command = RemoveFavoriteWorld.builder()
+                    .assetId(assetId)
+                    .playerDiscordId(authenticatedUser.getId())
+                    .build();
+
             useCaseRunner.run(command);
 
             return Mono.empty();

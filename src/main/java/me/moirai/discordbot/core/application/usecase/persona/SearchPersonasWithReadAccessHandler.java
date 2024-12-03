@@ -18,6 +18,6 @@ public class SearchPersonasWithReadAccessHandler extends AbstractUseCaseHandler<
     @Override
     public SearchPersonasResult execute(SearchPersonasWithReadAccess query) {
 
-        return repository.searchPersonasWithReadAccess(query);
+        return repository.search(query);
     }
 }
