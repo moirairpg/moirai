@@ -11,6 +11,9 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity.CorsSpec;
 import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpec;
+import org.springframework.security.config.web.server.ServerHttpSecurity.FormLoginSpec;
+import org.springframework.security.config.web.server.ServerHttpSecurity.HttpBasicSpec;
+import org.springframework.security.config.web.server.ServerHttpSecurity.LogoutSpec;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 
@@ -36,9 +39,9 @@ public class AuthenticationSecurityConfig {
         HttpStatusServerEntryPoint unauthorizedEntryPoint = new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED);
 
         return http
-                .httpBasic(customizer -> customizer.disable())
-                .formLogin(customizer -> customizer.disable())
-                .logout(customizer -> customizer.disable())
+                .httpBasic(HttpBasicSpec::disable)
+                .formLogin(FormLoginSpec::disable)
+                .logout(LogoutSpec::disable)
                 .addFilterBefore(discordRequestFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .authorizeExchange(exchanges -> exchanges.pathMatchers(ignoredPaths).permitAll())
                 .authorizeExchange(exchanges -> exchanges.anyExchange().authenticated())

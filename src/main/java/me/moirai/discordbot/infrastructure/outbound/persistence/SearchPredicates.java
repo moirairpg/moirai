@@ -11,6 +11,9 @@ public class SearchPredicates {
     private static final String OWNER_DISCORD_ID = "ownerDiscordId";
     private static final String VISIBILITY = "visibility";
 
+    private SearchPredicates() {
+    }
+
     public static <T> Predicate contains(CriteriaBuilder cb, Root<T> root, String fieldName, String fieldValue) {
 
         return cb.like(cb.upper(root.get(fieldName)),

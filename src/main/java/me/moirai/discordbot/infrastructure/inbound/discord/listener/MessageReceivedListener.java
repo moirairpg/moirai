@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 @Component
 public class MessageReceivedListener extends ListenerAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SlashCommandListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MessageReceivedListener.class);
 
     private static final String COMMA_DELIMITER = ", ";
     private static final String CONTENT_FLAGGED_MESSAGE = "Message content was flagged by moderation. The following topics were blocked: %s";
@@ -138,8 +138,7 @@ public class MessageReceivedListener extends ListenerAdapter {
                 .authorIconUrl(event.getAuthor().getAvatarUrl())
                 .embedColor(Color.RED);
 
-        if (error instanceof ModerationException) {
-            ModerationException moderationException = (ModerationException) error;
+        if (error instanceof ModerationException moderationException) {
             String flaggedTopics = String.join(COMMA_DELIMITER, moderationException.getFlaggedTopics());
             String message = String.format(CONTENT_FLAGGED_MESSAGE, flaggedTopics);
 
@@ -152,8 +151,8 @@ public class MessageReceivedListener extends ListenerAdapter {
             return;
         }
 
-        else if (error instanceof AssetNotFoundException) {
-            DiscordEmbeddedMessageRequest embed = embedBuilder.messageContent(error.getMessage())
+        else if (error instanceof AssetNotFoundException assetNotFoundException) {
+            DiscordEmbeddedMessageRequest embed = embedBuilder.messageContent(assetNotFoundException.getMessage())
                     .titleText("Asset requested was not found")
                     .footerText("MoirAI asset management")
                     .build();

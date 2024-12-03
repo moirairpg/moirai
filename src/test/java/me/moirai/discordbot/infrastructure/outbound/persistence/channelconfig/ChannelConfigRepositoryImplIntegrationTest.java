@@ -137,8 +137,8 @@ public class ChannelConfigRepositoryImplIntegrationTest extends AbstractIntegrat
         ChannelConfig updatedChannelConfig = repository.save(worldToUbeUpdated);
 
         // Then
-        assertThat(originalChannelConfig.getVersion()).isEqualTo(0);
-        assertThat(updatedChannelConfig.getVersion()).isEqualTo(1);
+        assertThat(originalChannelConfig.getVersion()).isZero();
+        assertThat(updatedChannelConfig.getVersion()).isOne();
     }
 
     @Test

@@ -120,8 +120,8 @@ public class WorldDomainRepositoryImplIntegrationTest extends AbstractIntegratio
         World updatedWorld = repository.save(worldToUbeUpdated);
 
         // Then
-        assertThat(originalWorld.getVersion()).isEqualTo(0);
-        assertThat(updatedWorld.getVersion()).isEqualTo(1);
+        assertThat(originalWorld.getVersion()).isZero();
+        assertThat(updatedWorld.getVersion()).isOne();
     }
 
     @Test

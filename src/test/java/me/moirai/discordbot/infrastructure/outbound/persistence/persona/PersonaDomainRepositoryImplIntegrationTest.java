@@ -115,8 +115,8 @@ public class PersonaDomainRepositoryImplIntegrationTest extends AbstractIntegrat
         Persona updatedPersona = repository.save(worldToUbeUpdated);
 
         // Then
-        assertThat(originalPersona.getVersion()).isEqualTo(0);
-        assertThat(updatedPersona.getVersion()).isEqualTo(1);
+        assertThat(originalPersona.getVersion()).isZero();
+        assertThat(updatedPersona.getVersion()).isOne();
     }
 
     @Test

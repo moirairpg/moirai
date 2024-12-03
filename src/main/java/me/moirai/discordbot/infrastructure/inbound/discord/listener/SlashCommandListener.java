@@ -219,16 +219,15 @@ public class SlashCommandListener extends ListenerAdapter {
 
     private void errorNotification(InteractionHook interactionHook, Throwable error) {
 
-        if (error instanceof ModerationException) {
-            ModerationException moderationException = (ModerationException) error;
+        if (error instanceof ModerationException moderationException) {
             String flaggedTopics = String.join(COMMA_DELIMITER, moderationException.getFlaggedTopics());
             String message = String.format(CONTENT_FLAGGED_MESSAGE, flaggedTopics);
 
             updateNotification(interactionHook, message);
         }
 
-        else if (error instanceof AssetNotFoundException) {
-            updateNotification(interactionHook, error.getMessage());
+        else if (error instanceof AssetNotFoundException assetNotFoundException) {
+            updateNotification(interactionHook, assetNotFoundException.getMessage());
         }
 
         updateNotification(interactionHook, SOMETHING_WENT_WRONG);

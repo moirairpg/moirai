@@ -404,9 +404,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
         WorldLorebookEntry updatedWorldLorebookEntry = repository.save(entryToBeUpdated);
 
         // Then
-
-        // Then
-        assertThat(originalEntry.getVersion()).isEqualTo(0);
-        assertThat(updatedWorldLorebookEntry.getVersion()).isEqualTo(1);
+        assertThat(originalEntry.getVersion()).isZero();
+        assertThat(updatedWorldLorebookEntry.getVersion()).isOne();
     }
 }

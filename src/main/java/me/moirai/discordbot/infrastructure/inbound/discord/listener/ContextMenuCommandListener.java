@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 @Component
 public class ContextMenuCommandListener extends ListenerAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SlashCommandListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ContextMenuCommandListener.class);
 
     private static final String COMMA_DELIMITER = ", ";
     private static final String CONTENT_FLAGGED_MESSAGE = "Message content was flagged by moderation. The following topics were blocked: %s";
@@ -141,8 +141,7 @@ public class ContextMenuCommandListener extends ListenerAdapter {
                 .authorIconUrl(event.getMember().getAvatarUrl())
                 .embedColor(Color.RED);
 
-        if (error instanceof ModerationException) {
-            ModerationException moderationException = (ModerationException) error;
+        if (error instanceof ModerationException moderationException) {
             String flaggedTopics = String.join(COMMA_DELIMITER, moderationException.getFlaggedTopics());
             String message = String.format(CONTENT_FLAGGED_MESSAGE, flaggedTopics);
 

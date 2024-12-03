@@ -558,7 +558,7 @@ public class ChannelConfigTest {
                 .discordChannelId(null);
 
         // Then
-        assertThrows(BusinessRuleViolationException.class, () -> channelConfigBuilder.build());
+        assertThrows(BusinessRuleViolationException.class, channelConfigBuilder::build);
     }
 
     @Test
