@@ -20,6 +20,7 @@ import me.moirai.discordbot.core.application.usecase.channelconfig.request.AddFa
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.DeleteChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.GetChannelConfigById;
+import me.moirai.discordbot.core.application.usecase.channelconfig.request.RemoveFavoriteChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchFavoriteChannelConfigs;
@@ -282,6 +283,22 @@ public class ChannelConfigControllerTest extends AbstractRestWebTest {
         webTestClient.post()
                 .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, "favorite"))
                 .bodyValue(request)
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+    }
+
+    @Test
+    public void http201WhenRemoveFavoriteChannelConfig() {
+
+        // Given
+        FavoriteRequest request = new FavoriteRequest();
+        request.setAssetId("1234");
+
+        when(useCaseRunner.run(any(RemoveFavoriteChannelConfig.class))).thenReturn(null);
+
+        // Then
+        webTestClient.delete()
+                .uri(String.format(CHANNEL_CONFIG_ID_BASE_URL, "favorite/1234"))
                 .exchange()
                 .expectStatus().is2xxSuccessful();
     }

@@ -20,6 +20,7 @@ import me.moirai.discordbot.core.application.usecase.channelconfig.request.AddFa
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.DeleteChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.GetChannelConfigById;
+import me.moirai.discordbot.core.application.usecase.channelconfig.request.RemoveFavoriteChannelConfig;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchChannelConfigsWithWriteAccess;
 import me.moirai.discordbot.core.application.usecase.channelconfig.request.SearchFavoriteChannelConfigs;
@@ -56,7 +57,8 @@ public class ChannelConfigController extends SecurityContextAware {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchChannelConfigsResponse> searchChannelConfigsWithReadAccess(ChannelConfigSearchParameters searchParameters) {
+    public Mono<SearchChannelConfigsResponse> searchChannelConfigsWithReadAccess(
+            ChannelConfigSearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -76,7 +78,8 @@ public class ChannelConfigController extends SecurityContextAware {
 
     @GetMapping("/search/own")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchChannelConfigsResponse> searchChannelConfigsWithWriteAccess(ChannelConfigSearchParameters searchParameters,
+    public Mono<SearchChannelConfigsResponse> searchChannelConfigsWithWriteAccess(
+            ChannelConfigSearchParameters searchParameters,
             Authentication authentication) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
@@ -97,7 +100,8 @@ public class ChannelConfigController extends SecurityContextAware {
 
     @GetMapping("/search/favorites")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchChannelConfigsResponse> searchFavoriteChannelConfigs(ChannelConfigSearchParameters searchParameters,
+    public Mono<SearchChannelConfigsResponse> searchFavoriteChannelConfigs(
+            ChannelConfigSearchParameters searchParameters,
             Authentication authentication) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
@@ -175,6 +179,23 @@ public class ChannelConfigController extends SecurityContextAware {
 
             AddFavoriteChannelConfig command = AddFavoriteChannelConfig.builder()
                     .assetId(request.getAssetId())
+                    .playerDiscordId(authenticatedUser.getId())
+                    .build();
+
+            useCaseRunner.run(command);
+
+            return Mono.empty();
+        });
+    }
+
+    @DeleteMapping("/favorite/{assetId}")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Mono<Void> removeFavoriteChannelConfig(@PathVariable(required = true) String assetId) {
+
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
+
+            RemoveFavoriteChannelConfig command = RemoveFavoriteChannelConfig.builder()
+                    .assetId(assetId)
                     .playerDiscordId(authenticatedUser.getId())
                     .build();
 

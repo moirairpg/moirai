@@ -20,6 +20,7 @@ import me.moirai.discordbot.core.application.usecase.world.request.AddFavoriteWo
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldById;
+import me.moirai.discordbot.core.application.usecase.world.request.RemoveFavoriteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchFavoriteWorlds;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
@@ -275,6 +276,22 @@ public class WorldControllerTest extends AbstractRestWebTest {
         webTestClient.post()
                 .uri(String.format(WORLD_ID_BASE_URL, "favorite"))
                 .bodyValue(request)
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+    }
+
+    @Test
+    public void http201WhenRemoveFavoriteWorld() {
+
+        // Given
+        FavoriteRequest request = new FavoriteRequest();
+        request.setAssetId("1234");
+
+        when(useCaseRunner.run(any(RemoveFavoriteWorld.class))).thenReturn(null);
+
+        // Then
+        webTestClient.delete()
+                .uri(String.format(WORLD_ID_BASE_URL, "favorite/1234"))
                 .exchange()
                 .expectStatus().is2xxSuccessful();
     }

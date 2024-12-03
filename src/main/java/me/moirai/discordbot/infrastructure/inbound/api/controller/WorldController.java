@@ -20,6 +20,7 @@ import me.moirai.discordbot.core.application.usecase.world.request.AddFavoriteWo
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldById;
+import me.moirai.discordbot.core.application.usecase.world.request.RemoveFavoriteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchFavoriteWorlds;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
@@ -170,6 +171,23 @@ public class WorldController extends SecurityContextAware {
 
             AddFavoriteWorld command = AddFavoriteWorld.builder()
                     .assetId(request.getAssetId())
+                    .playerDiscordId(authenticatedUser.getId())
+                    .build();
+
+            useCaseRunner.run(command);
+
+            return Mono.empty();
+        });
+    }
+
+    @DeleteMapping("/favorite/{assetId}")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Mono<Void> removeFavoriteChannelConfig(@PathVariable(required = true) String assetId) {
+
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
+
+            RemoveFavoriteWorld command = RemoveFavoriteWorld.builder()
+                    .assetId(assetId)
                     .playerDiscordId(authenticatedUser.getId())
                     .build();
 

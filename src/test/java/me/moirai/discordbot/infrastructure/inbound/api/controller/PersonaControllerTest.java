@@ -20,6 +20,7 @@ import me.moirai.discordbot.core.application.usecase.persona.request.AddFavorite
 import me.moirai.discordbot.core.application.usecase.persona.request.CreatePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
+import me.moirai.discordbot.core.application.usecase.persona.request.RemoveFavoritePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchFavoritePersonas;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
@@ -275,6 +276,22 @@ public class PersonaControllerTest extends AbstractRestWebTest {
         webTestClient.post()
                 .uri(String.format(PERSONA_ID_BASE_URL, "favorite"))
                 .bodyValue(request)
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+    }
+
+    @Test
+    public void http201WhenRemoveFavoritePersona() {
+
+        // Given
+        FavoriteRequest request = new FavoriteRequest();
+        request.setAssetId("1234");
+
+        when(useCaseRunner.run(any(RemoveFavoritePersona.class))).thenReturn(null);
+
+        // Then
+        webTestClient.delete()
+                .uri(String.format(PERSONA_ID_BASE_URL, "favorite/1234"))
                 .exchange()
                 .expectStatus().is2xxSuccessful();
     }

@@ -19,6 +19,7 @@ import me.moirai.discordbot.core.application.usecase.persona.request.AddFavorite
 import me.moirai.discordbot.core.application.usecase.persona.request.CreatePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
+import me.moirai.discordbot.core.application.usecase.persona.request.RemoveFavoritePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchFavoritePersonas;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
 import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
@@ -171,6 +172,23 @@ public class PersonaController extends SecurityContextAware {
 
             AddFavoritePersona command = AddFavoritePersona.builder()
                     .assetId(request.getAssetId())
+                    .playerDiscordId(authenticatedUser.getId())
+                    .build();
+
+            useCaseRunner.run(command);
+
+            return Mono.empty();
+        });
+    }
+
+    @DeleteMapping("/favorite/{assetId}")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Mono<Void> removeFavoriteChannelConfig(@PathVariable(required = true) String assetId) {
+
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
+
+            RemoveFavoritePersona command = RemoveFavoritePersona.builder()
+                    .assetId(assetId)
                     .playerDiscordId(authenticatedUser.getId())
                     .build();
 
