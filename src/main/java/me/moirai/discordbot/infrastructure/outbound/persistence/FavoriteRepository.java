@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FavoriteRepository extends JpaRepository<FavoriteEntity, String> {
 
     void deleteByPlayerDiscordIdAndAssetIdAndAssetType(String playerDiscordId, String assetId, String assetType);
+
+    void deleteAllByAssetId(String assetId);
 }

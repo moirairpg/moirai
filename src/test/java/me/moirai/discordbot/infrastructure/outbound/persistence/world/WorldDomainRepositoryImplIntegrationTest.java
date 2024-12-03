@@ -9,18 +9,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import jakarta.transaction.Transactional;
 import me.moirai.discordbot.AbstractIntegrationTest;
 import me.moirai.discordbot.core.domain.world.World;
 import me.moirai.discordbot.core.domain.world.WorldDomainRepository;
 import me.moirai.discordbot.core.domain.world.WorldFixture;
+import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteEntity;
+import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteRepository;
 
-public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest {
+public class WorldDomainRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private WorldDomainRepository repository;
 
     @Autowired
     private WorldJpaRepository jpaRepository;
+
+    @Autowired
+    private FavoriteRepository favoriteRepository;
 
     @BeforeEach
     public void before() {
@@ -116,5 +122,29 @@ public class WorldRepositoryImplIntegrationTest extends AbstractIntegrationTest 
         // Then
         assertThat(originalWorld.getVersion()).isEqualTo(0);
         assertThat(updatedWorld.getVersion()).isEqualTo(1);
+    }
+
+    @Test
+    @Transactional
+    public void deleteChannelConfig_whenIsFavorite_thenDeleteFavorites() {
+
+        // Given
+        String userId = "1234";
+        World originalWorld = repository.save(WorldFixture.privateWorld()
+                .id(null)
+                .build());
+
+        FavoriteEntity favorite = favoriteRepository.save(FavoriteEntity.builder()
+                .playerDiscordId(userId)
+                .assetId(originalWorld.getId())
+                .assetType("channel_config")
+                .build());
+
+        // When
+        repository.deleteById(originalWorld.getId());
+
+        // Then
+        assertThat(repository.findById(originalWorld.getId())).isNotNull().isEmpty();
+        assertThat(favoriteRepository.existsById(favorite.getId())).isFalse();
     }
 }
