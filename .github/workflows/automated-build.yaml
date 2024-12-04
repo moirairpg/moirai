@@ -1,5 +1,9 @@
 name: Java CI
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
 jobs:
   MoirAI:
     runs-on: ubuntu-latest
