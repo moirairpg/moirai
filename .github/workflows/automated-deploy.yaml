@@ -1,0 +1,28 @@
+name: Deploy to Digital Ocean
+on:
+  push:
+    tags:
+      - '**'
+  workflow_dispatch:
+jobs:
+  MoirAI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: "21"
+          distribution: "temurin"
+      - name: Build
+        run: |
+            mvn package -DskipTests -e
+            echo "CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+      - name: Build and push image to GitLab Container Registry
+        run: |
+          echo ${{ secrets.GITLAB_ACCESS_TOKEN }} | docker login registry.gitlab.com -u thaalesalves --password-stdin
+          docker build -t registry.gitlab.com/thaalesalves/moirai-be:$(git symbolic-ref --short HEAD) .
+          docker push registry.gitlab.com/thaalesalves/moirai-be:$(git symbolic-ref --short HEAD)
