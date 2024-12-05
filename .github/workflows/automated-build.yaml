@@ -1,4 +1,4 @@
-name: Java CI
+name: Build MoirAI on push
 on:
   push:
     branches:
