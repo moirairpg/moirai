@@ -144,7 +144,7 @@ spring:
 
 logging:
   level:
-    me.moirai: ${CHATRPG_LOG_LEVEL:INFO}
+    me.moirai: ${MOIRAI_LOG_LEVEL:INFO}
     root: ERROR
     org.hibernate: ERROR
     com.zaxxer.hikari: ERROR

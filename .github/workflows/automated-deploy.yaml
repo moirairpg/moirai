@@ -21,16 +21,35 @@ jobs:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3.3.0
         with:
-          registry: ghcr.io
-          username: ${{github.actor}}
-          password: ${{secrets.GITHUB_TOKEN}}
+          registry: ${{ vars.DOCKER_REPO_ADDR }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push image to GitHub Container Registry
         run: |
-          docker build -t ghcr.io/thaalesalves/moirai-be:${{ env.LATEST_VERSION_TAG }} .
-          docker push ghcr.io/thaalesalves/moirai-be:${{ env.LATEST_VERSION_TAG }}
+          docker build -t ${{ vars.DOCKER_REPO_ADDR }}/${{ vars.DOCKER_REPO }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ env.LATEST_VERSION_TAG }} .
+          docker push ${{ vars.DOCKER_REPO_ADDR }}/${{ vars.DOCKER_REPO }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ env.LATEST_VERSION_TAG }}
       - name: Deploy to Digital Ocean
-        uses: digitalocean/app_action/deploy@v2.0.6
-        env:
-          SAMPLE_DIGEST: ${{ steps.push.outputs.digest }}
+        if: github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@v1.2.0
         with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+              sudo docker run -d \
+                --name chatrpg-be \
+                --hostname chatrpg-be \
+                --network moirai_network \
+                -e DISCORD_BOT_REDIRECT_URL=${{ vars.DISCORD_BOT_REDIRECT_URL }} \
+                -e DISCORD_BOT_CLIENT_ID=${{ secrets.DISCORD_BOT_CLIENT_ID }} \
+                -e DISCORD_BOT_CLIENT_SECRET=${{ secrets.DISCORD_BOT_CLIENT_SECRET }} \
+                -e DISCORD_BOT_API_TOKEN=${{ secrets.DISCORD_BOT_API_TOKEN }} \
+                -e OPENAI_API_TOKEN=${{ secrets.OPENAI_API_TOKEN }} \
+                -e SPRING_APPLICATION_PROFILES=${{ vars.SPRING_APPLICATION_PROFILES }} \
+                -e POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} \
+                -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+                -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+                -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+                -e MOIRAI_LOG_LEVEL=${{ vars.MOIRAI_LOG_LEVEL }} \
+                -p 8080:8080 \
+                ${{ vars.DOCKER_REPO_ADDR }}/${{ vars.DOCKER_REPO }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ env.LATEST_VERSION_TAG }}
