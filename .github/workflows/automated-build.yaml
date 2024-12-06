@@ -51,7 +51,7 @@ jobs:
           registry: ghcr.io
           username: ${{github.actor}}
           password: ${{secrets.GITHUB_TOKEN}}
-      - name: Build and push image to GitLab Container Registry
+      - name: Build and push image to GitHub Container Registry
         if: github.ref == 'refs/heads/develop'
         run: |
           docker build -t ghcr.io/moirairpg/moirai:bleeding-edge .
