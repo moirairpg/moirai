@@ -15,8 +15,13 @@ jobs:
       - name: Extract MoirAI tag version
         run: |
             echo "LATEST_VERSION_TAG=$(git describe --tags --exact-match)" >> $GITHUB_ENV
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
       - name: Build and push image to GitLab Container Registry
         run: |
-          echo ${{ secrets.GITLAB_ACCESS_TOKEN }} | docker login registry.gitlab.com -u thaalesalves --password-stdin
-          docker build -t registry.gitlab.com/thaalesalves/moirai-be:${{ env.LATEST_VERSION_TAG }} .
-          docker push registry.gitlab.com/thaalesalves/moirai-be:${{ env.LATEST_VERSION_TAG }}
+          docker build -t ghcr.io/thaalesalves/moirai-be:${{ env.LATEST_VERSION_TAG }} .
+          docker push ghcr.io/thaalesalves/moirai-be:${{ env.LATEST_VERSION_TAG }}
