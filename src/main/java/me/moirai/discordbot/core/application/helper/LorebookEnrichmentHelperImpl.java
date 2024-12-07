@@ -1,5 +1,6 @@
 package me.moirai.discordbot.core.application.helper;
 
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.formatRpgDirective;
 import static me.moirai.discordbot.common.util.DefaultStringProcessors.replaceTemplateWithValueIgnoreCase;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.LF;
@@ -219,10 +220,12 @@ public class LorebookEnrichmentHelperImpl implements LorebookEnrichmentHelper {
                             processor.addRule(replaceTemplateWithValueIgnoreCase(
                                     entry.getName(), message.getAuthor().getUsername()));
 
+                            String messageContent = processor.process(message.getContent());
+
                             return DiscordMessageData.builder()
                                     .id(message.getId())
                                     .author(author)
-                                    .content(processor.process(message.getContent()))
+                                    .content(formatRpgDirective(entry.getName()).apply(messageContent))
                                     .build();
                         })
                         .orElse(message))
