@@ -35,6 +35,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+              echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ${{ vars.DOCKER_REPO_ADDR }} -u ${{ github.actor }} --password-stdin
               sudo docker run -d \
                 --name chatrpg-be \
                 --hostname chatrpg-be \
