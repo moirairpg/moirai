@@ -27,9 +27,9 @@ ENV CHATRPG_LOG_LEVEL=
 
 WORKDIR /opt/moirai
 
-COPY --from=builder /opt/moirai/target/discordbot-2.0.1-SNAPSHOT.jar discordbot-2.0.1-SNAPSHOT.jar
+COPY --from=builder /opt/moirai/target/discordbot-2.1.0-SNAPSHOT.jar discordbot-2.1.0-SNAPSHOT.jar
 
 EXPOSE 8080
 EXPOSE 8000
 
-CMD ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000", "-jar", "/opt/moirai/discordbot-2.0.1-SNAPSHOT.jar"]
+CMD ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000", "-jar", "/opt/moirai/discordbot-2.1.0-SNAPSHOT.jar"]
