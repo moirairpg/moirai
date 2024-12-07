@@ -127,7 +127,8 @@ public class ContextMenuCommandListener extends ListenerAdapter {
     private void updateNotification(InteractionHook interactionHook, String newContent) {
 
         interactionHook.editOriginal(newContent)
-                .queue(msg -> msg.delete().queueAfter(EPHEMERAL_MESSAGE_TTL, SECONDS));
+                .onSuccess(msg -> msg.delete().completeAfter(EPHEMERAL_MESSAGE_TTL, SECONDS))
+                .complete();
     }
 
     private void errorNotification(MessageContextInteractionEvent event, Throwable error) {
