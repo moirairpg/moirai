@@ -164,4 +164,19 @@ public class DefaultStringProcessorsTest {
         // Then
         assertThat(output).isNotBlank().isEqualTo(expectedResult);
     }
+
+    @Test
+    public void processor_whenChatFormatted_thenFormatToRpgDirective() {
+
+        // Given
+        String nickname = "Gabler the Great";
+        String messageContent = "@marcus.jones (known as Marcus) said: This is a message.";
+        String expectedFormattedContent = "Gabler the Great said: This is a message.";
+
+        // When
+        String result = DefaultStringProcessors.formatRpgDirective(nickname).apply(messageContent);
+
+        // Then
+        assertThat(result).isEqualTo(expectedFormattedContent);
+    }
 }

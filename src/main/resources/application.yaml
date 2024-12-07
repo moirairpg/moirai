@@ -22,12 +22,12 @@ moirai:
             The tapestry grows richer — your story continues to unfold.,
             A new chapter emerges, woven by the spindle of fate.,
             The loom hums softly — another strand has been added.,
-            Your tale takes shape; the next thread is ready.,
+            Your tale takes shape — the next thread is ready.,
             A new scene unfurls, guided by destiny's hand.,
             The weave tightens, revealing the next piece of the puzzle.,
             The story advances — what wonders lie ahead?,
             A fresh thread in the grand design has been spun.,
-            The wheel has turned; the narrative grows deeper.,
+            The wheel has turned — the narrative grows deeper.,
             The loom whispers softly: your story marches on.
         retry:
           before-running: >
@@ -35,19 +35,19 @@ moirai:
             Let's reshape the pattern — another attempt, another chance.,
             Fate revisited. Let's weave a fresh strand.,
             Not all threads are perfect. A new one begins now.,
-            The spindle turns once more; let's craft a finer moment.,
+            The spindle turns once more — let's craft a finer moment.,
             A tangled thread? Let's unravel and try again.,
             The spindle rewinds — your story deserves another twist.,
             Fate allows second chances — let's craft a better path.,
             Not satisfied? The loom is ready to spin anew.,
             The pattern shifts — another attempt begins.
           after-running: >
-            The thread is re-spun; a new path emerges.,
+            The thread is re-spun — a new path emerges.,
             The spindle rewinds — your story has shifted anew.,
             A fresh pattern appears, untangled and refined.,
-            Destiny has rewritten this chapter; see what unfolds.,
+            Destiny has rewritten this chapter — see what unfolds.,
             The weave adjusts — another chance to shape your fate.,
-            The design evolves; a new attempt takes its place.,
+            The design evolves — a new attempt takes its place.,
             The tangled threads are smoothed — your tale resets.,
             A better thread is woven, rewriting the tale's course.,
             The loom's hum changes — an improved path has begun.,
@@ -65,11 +65,11 @@ moirai:
             Every epic begins with a single spin of the spindle. Let's begin.,
             The pattern emerges — your adventure is about to begin.
           after-running: >
-            The spindle spins; your adventure begins now.,
+            The spindle spins — your adventure begins now.,
             A fresh tale begins, woven just for you.,
             The loom springs to life — your journey is set.,
-            The first thread has been cast; the story awakens.,
-            The foundation is laid; your legend begins.,
+            The first thread has been cast — the story awakens.,
+            The foundation is laid — your legend begins.,
             Destiny beckons—the opening act is ready.,
             The loom sings of beginnings — your saga starts here.,
             A spark ignites the tale — your journey begins!,
