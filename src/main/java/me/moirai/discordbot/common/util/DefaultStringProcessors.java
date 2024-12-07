@@ -17,6 +17,7 @@ public class DefaultStringProcessors {
     public static final String PERIOD = ".";
 
     public static final String AUTHOR_MODE_PLACEHOLDER = "%s said: [ %s ]";
+    public static final String RPG_MODE_PLACEHOLDER = "%s said:";
     public static final String CHAT_FORMAT_PLACEHOLDER = "@%s (known as %s) said: %s";
     public static final String PERSONA_NAME_PLACEHOLDER = "\\{name\\}";
 
@@ -88,6 +89,11 @@ public class DefaultStringProcessors {
     public static Function<String, String> formatAuthorDirective(String nickname) {
 
         return message -> format(AUTHOR_MODE_PLACEHOLDER, nickname, message.trim());
+    }
+
+    public static Function<String, String> formatRpgDirective(String nickname) {
+
+        return message -> message.replaceAll(CHAT_FORMAT_EXPRESSION, format(RPG_MODE_PLACEHOLDER, nickname));
     }
 
     public static Function<String, List<String>> extractDiscordIds() {

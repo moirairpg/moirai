@@ -109,7 +109,7 @@ public class SlashCommandListener extends ListenerAdapter {
                                 .build();
 
                         useCaseRunner.run(useCase)
-                                .doOnNext(__ -> updateNotification(interactionHook,
+                                .doOnSuccess(__ -> updateNotification(interactionHook,
                                         getCommandPhrase(retryCommandPhrasesAfterRunning)))
                                 .doOnError(error -> errorNotification(interactionHook, error))
                                 .subscribe();
@@ -131,7 +131,7 @@ public class SlashCommandListener extends ListenerAdapter {
                                 .build();
 
                         useCaseRunner.run(useCase)
-                                .doOnNext(__ -> updateNotification(interactionHook,
+                                .doOnSuccess(__ -> updateNotification(interactionHook,
                                         getCommandPhrase(goCommandPhrasesAfterRunning)))
                                 .doOnError(error -> errorNotification(interactionHook, error))
                                 .subscribe();
@@ -153,7 +153,7 @@ public class SlashCommandListener extends ListenerAdapter {
                                 .build();
 
                         useCaseRunner.run(useCase)
-                                .doOnNext(__ -> updateNotification(interactionHook,
+                                .doOnSuccess(__ -> updateNotification(interactionHook,
                                         getCommandPhrase(startCommandPhrasesAfterRunning)))
                                 .doOnError(error -> updateNotification(interactionHook, error.getMessage()))
                                 .subscribe();
@@ -208,7 +208,8 @@ public class SlashCommandListener extends ListenerAdapter {
     private void updateNotification(InteractionHook interactionHook, String newContent) {
 
         interactionHook.editOriginal(newContent)
-                .queue(msg -> msg.delete().queueAfter(EPHEMERAL_MESSAGE_TTL, SECONDS));
+                .onSuccess(msg -> msg.delete().completeAfter(EPHEMERAL_MESSAGE_TTL, SECONDS))
+                .complete();
     }
 
     private String getCommandPhrase(List<String> phraseList) {
