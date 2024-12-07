@@ -36,10 +36,12 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
               echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ${{ vars.DOCKER_REPO_ADDR }} -u ${{ github.actor }} --password-stdin
+              sudo docker rm -f ${{ vars.DOCKER_CONTAINER_NAME }}
+              sudo docker rmi $(sudo docker images -q ${{ vars.DOCKER_REPO_ADDR }}/${{ vars.DOCKER_REPO }}/${{ vars.DOCKER_IMAGE_NAME }})
               sudo docker run -d \
-                --name moirai-be \
-                --hostname moirai-be \
-                --network moirai \
+                --name ${{ vars.DOCKER_CONTAINER_NAME }} \
+                --hostname ${{ vars.DOCKER_CONTAINER_HOSTNAME }} \
+                --network ${{ vars.DOCKER_CONTAINER_NETWORK }} \
                 -e DISCORD_BOT_REDIRECT_URL=${{ vars.DISCORD_BOT_REDIRECT_URL }} \
                 -e DISCORD_BOT_CLIENT_ID=${{ secrets.DISCORD_BOT_CLIENT_ID }} \
                 -e DISCORD_BOT_CLIENT_SECRET=${{ secrets.DISCORD_BOT_CLIENT_SECRET }} \
