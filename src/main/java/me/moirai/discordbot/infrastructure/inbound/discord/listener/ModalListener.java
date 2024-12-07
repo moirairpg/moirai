@@ -1,6 +1,6 @@
 package me.moirai.discordbot.infrastructure.inbound.discord.listener;
 
-import java.util.concurrent.TimeUnit;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -89,6 +89,7 @@ public class ModalListener extends ListenerAdapter {
     private void updateNotification(InteractionHook interactionHook, String newContent) {
 
         interactionHook.editOriginal(newContent)
-                .queue(msg -> msg.delete().queueAfter(EPHEMERAL_MESSAGE_TTL, TimeUnit.SECONDS));
+                .onSuccess(msg -> msg.delete().completeAfter(EPHEMERAL_MESSAGE_TTL, SECONDS))
+                .complete();
     }
 }
