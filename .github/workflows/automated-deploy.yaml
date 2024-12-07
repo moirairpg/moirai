@@ -37,9 +37,9 @@ jobs:
           script: |
               echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ${{ vars.DOCKER_REPO_ADDR }} -u ${{ github.actor }} --password-stdin
               sudo docker run -d \
-                --name chatrpg-be \
-                --hostname chatrpg-be \
-                --network moirai_network \
+                --name moirai-be \
+                --hostname moirai-be \
+                --network moirai \
                 -e DISCORD_BOT_REDIRECT_URL=${{ vars.DISCORD_BOT_REDIRECT_URL }} \
                 -e DISCORD_BOT_CLIENT_ID=${{ secrets.DISCORD_BOT_CLIENT_ID }} \
                 -e DISCORD_BOT_CLIENT_SECRET=${{ secrets.DISCORD_BOT_CLIENT_SECRET }} \
