@@ -43,6 +43,8 @@ public class AdventureQueryRepositoryImpl implements AdventureQueryRepository {
     private static final String NAME = "name";
     private static final String GAME_MODE = "gameMode";
     private static final String VISIBILITY = "visibility";
+    private static final String PERSONA_ID = "personaId";
+    private static final String WORLD_ID = "worldId";
     private static final String MODERATION = "moderation";
     private static final String MODEL_CONFIGURATION = "modelConfiguration";
     private static final String DEFAULT_SORT_BY_FIELD = "creationDate";
@@ -151,6 +153,14 @@ public class AdventureQueryRepositoryImpl implements AdventureQueryRepository {
                 predicates.add(contains(cb, root, VISIBILITY, query.getVisibility()));
             }
 
+            if (isNotBlank(query.getWorldId())) {
+                predicates.add(contains(cb, root, WORLD_ID, query.getWorldId()));
+            }
+
+            if (isNotBlank(query.getPersonaId())) {
+                predicates.add(contains(cb, root, PERSONA_ID, query.getPersonaId()));
+            }
+
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
     }
@@ -183,6 +193,14 @@ public class AdventureQueryRepositoryImpl implements AdventureQueryRepository {
                 predicates.add(contains(cb, root, VISIBILITY, query.getVisibility()));
             }
 
+            if (isNotBlank(query.getWorldId())) {
+                predicates.add(contains(cb, root, WORLD_ID, query.getWorldId()));
+            }
+
+            if (isNotBlank(query.getPersonaId())) {
+                predicates.add(contains(cb, root, PERSONA_ID, query.getPersonaId()));
+            }
+
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
     }
@@ -213,6 +231,14 @@ public class AdventureQueryRepositoryImpl implements AdventureQueryRepository {
 
             if (isNotBlank(query.getVisibility())) {
                 predicates.add(contains(cb, root, VISIBILITY, query.getVisibility()));
+            }
+
+            if (isNotBlank(query.getWorldId())) {
+                predicates.add(contains(cb, root, WORLD_ID, query.getWorldId()));
+            }
+
+            if (isNotBlank(query.getPersonaId())) {
+                predicates.add(contains(cb, root, PERSONA_ID, query.getPersonaId()));
             }
 
             Subquery<String> subquery = cq.subquery(String.class);

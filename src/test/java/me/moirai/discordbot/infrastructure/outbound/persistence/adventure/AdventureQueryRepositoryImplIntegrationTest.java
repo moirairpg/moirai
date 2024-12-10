@@ -593,6 +593,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
@@ -633,6 +635,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
@@ -674,6 +678,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
@@ -721,6 +727,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
@@ -772,6 +780,108 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
         assertThat(adventures.get(1).getName()).isEqualTo(gpt354k.getName());
+    }
+
+    @Test
+    public void searchAdventures_whenFilterByWorldId_andReaderOnly_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String worldId = "WRLD";
+        AdventureEntity gpt4Omni = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .worldId(worldId)
+                .build());
+
+        AdventureEntity gpt4Mini = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .worldId("AAAA")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .worldId(worldId)
+                .build();
+
+        // When
+        SearchAdventuresResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
+    }
+
+    @Test
+    public void searchAdventures_whenFilterByPersonaId_andReaderOnly_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String personaId = "strict";
+        AdventureEntity gpt4Omni = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .personaId(personaId)
+                .build());
+
+        AdventureEntity gpt4Mini = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .personaId("AAAA")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .personaId(personaId)
+                .build();
+
+        // When
+        SearchAdventuresResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
     }
 
     @Test
@@ -1052,6 +1162,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
@@ -1092,6 +1204,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
@@ -1187,6 +1301,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
@@ -1235,6 +1351,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt354k.getName());
@@ -1283,6 +1401,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
@@ -1385,6 +1505,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
@@ -1438,9 +1560,113 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Mini.getName());
+    }
+
+    @Test
+    public void searchAdventures_whenFilterByWorldId_andWriterOnly_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String worldId = "WRLD";
+        AdventureEntity gpt4Omni = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .worldId(worldId)
+                .build());
+
+        AdventureEntity gpt4Mini = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .worldId("AAAA")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .worldId(worldId)
+                .build();
+
+        // When
+        SearchAdventuresResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
+    }
+
+    @Test
+    public void searchAdventures_whenFilterByPersonaId_andWriterOnly_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String personaId = "strict";
+        AdventureEntity gpt4Omni = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .personaId(personaId)
+                .build());
+
+        AdventureEntity gpt4Mini = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .personaId("AAAA")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .personaId(personaId)
+                .build();
+
+        // When
+        SearchAdventuresResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
     }
 
     @Test
@@ -1538,6 +1764,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
     }
 
     @Test
@@ -1587,6 +1815,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
     }
 
     @Test
@@ -1636,6 +1866,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
     }
 
     @Test
@@ -1684,6 +1916,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
     }
 
     @Test
@@ -1733,6 +1967,110 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
+    }
+
+    @Test
+    public void searchFavoriteAdventures_whenFilterByWorldId_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String worldId = "WRLD";
+        AdventureEntity gpt4Omni = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .worldId(worldId)
+                .build());
+
+        AdventureEntity gpt4Mini = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .worldId("AAAA")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .worldId(worldId)
+                .build();
+
+        // When
+        SearchAdventuresResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
+    }
+
+    @Test
+    public void searchFavoriteAdventures_whenFilterByPersonaId_thenReturnResults() {
+
+        // Given
+        String ownerDiscordId = "586678721356875";
+        String personaId = "strict";
+        AdventureEntity gpt4Omni = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 1")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Omni().build())
+                .discordChannelId("CHNLID1")
+                .personaId(personaId)
+                .build());
+
+        AdventureEntity gpt4Mini = jpaRepository.save(AdventureEntityFixture.sample()
+                .id(null)
+                .name("Number 2")
+                .modelConfiguration(ModelConfigurationEntityFixture.gpt4Mini().build())
+                .discordChannelId("CHNLID2")
+                .personaId("AAAA")
+                .build());
+
+        FavoriteEntity favorite1 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Omni.getId())
+                .build();
+
+        FavoriteEntity favorite2 = FavoriteEntity.builder()
+                .playerDiscordId(ownerDiscordId)
+                .assetType("adventure")
+                .assetId(gpt4Mini.getId())
+                .build();
+
+        favoriteRepository.saveAll(list(favorite1, favorite2));
+
+        SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
+                .requesterDiscordId(ownerDiscordId)
+                .personaId(personaId)
+                .build();
+
+        // When
+        SearchAdventuresResult result = repository.search(query);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(1);
+        assertThat(result.getTotalItems()).isOne();
+        assertThat(result.getTotalPages()).isOne();
     }
 
     @Test

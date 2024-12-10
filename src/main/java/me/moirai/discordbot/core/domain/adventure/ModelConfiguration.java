@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
+import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -203,8 +204,8 @@ public final class ModelConfiguration {
         private Double temperature;
         private Double frequencyPenalty;
         private Double presencePenalty;
-        private List<String> stopSequences = new ArrayList<>();
-        private Map<String, Double> logitBias = new HashMap<>();
+        private List<String> stopSequences;
+        private Map<String, Double> logitBias;
 
         private Builder() {
         }
@@ -241,19 +242,13 @@ public final class ModelConfiguration {
 
         public Builder stopSequences(List<String> stopSequences) {
 
-            if (stopSequences != null) {
-                this.stopSequences = stopSequences;
-            }
-
+            this.stopSequences = stopSequences;
             return this;
         }
 
         public Builder logitBias(Map<String, Double> logitBias) {
 
-            if (logitBias != null) {
-                this.logitBias = logitBias;
-            }
-
+            this.logitBias = logitBias;
             return this;
         }
 
@@ -272,7 +267,7 @@ public final class ModelConfiguration {
             validatePresencePenalty(presencePenalty);
             validateMaxTokenLimit(maxTokenLimit, aiModel);
 
-            logitBias.entrySet()
+            emptyIfNull(logitBias).entrySet()
                     .stream()
                     .forEach(entry -> validateLogitBias(entry.getValue()));
 

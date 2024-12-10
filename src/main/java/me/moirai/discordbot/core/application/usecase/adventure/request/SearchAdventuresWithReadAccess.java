@@ -15,6 +15,8 @@ public final class SearchAdventuresWithReadAccess extends UseCase<SearchAdventur
     private final String requesterDiscordId;
     private final String gameMode;
     private final String visibility;
+    private final String worldId;
+    private final String personaId;
 
     private SearchAdventuresWithReadAccess(Builder builder) {
 
@@ -28,6 +30,8 @@ public final class SearchAdventuresWithReadAccess extends UseCase<SearchAdventur
         this.requesterDiscordId = builder.requesterDiscordId;
         this.gameMode = builder.gameMode;
         this.visibility = builder.visibility;
+        this.worldId = builder.worldId;
+        this.personaId = builder.personaId;
     }
 
     public static Builder builder() {
@@ -74,6 +78,14 @@ public final class SearchAdventuresWithReadAccess extends UseCase<SearchAdventur
         return visibility;
     }
 
+    public String getWorldId() {
+        return worldId;
+    }
+
+    public String getPersonaId() {
+        return personaId;
+    }
+
     public static final class Builder {
 
         private Integer page;
@@ -86,6 +98,8 @@ public final class SearchAdventuresWithReadAccess extends UseCase<SearchAdventur
         private String requesterDiscordId;
         private String gameMode;
         private String visibility;
+        private String worldId;
+        private String personaId;
 
         private Builder() {
         }
@@ -137,6 +151,16 @@ public final class SearchAdventuresWithReadAccess extends UseCase<SearchAdventur
 
         public Builder visibility(String visibility) {
             this.visibility = visibility;
+            return this;
+        }
+
+        public Builder worldId(String worldId) {
+            this.worldId = worldId;
+            return this;
+        }
+
+        public Builder personaId(String personaId) {
+            this.personaId = personaId;
             return this;
         }
 
