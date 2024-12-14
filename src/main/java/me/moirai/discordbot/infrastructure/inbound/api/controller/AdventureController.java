@@ -123,7 +123,7 @@ public class AdventureController extends SecurityContextAware {
     @GetMapping("/{adventureId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<AdventureResponse> getAdventureById(
-            @PathVariable(name = "adventureId", required = true) String adventureId) {
+            @PathVariable(required = true) String adventureId) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -147,7 +147,7 @@ public class AdventureController extends SecurityContextAware {
     @PutMapping("/{adventureId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<UpdateAdventureResponse> updateAdventure(
-            @PathVariable(name = "adventureId", required = true) String adventureId,
+            @PathVariable(required = true) String adventureId,
             @Valid @RequestBody UpdateAdventureRequest request) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
@@ -160,7 +160,7 @@ public class AdventureController extends SecurityContextAware {
     @DeleteMapping("/{adventureId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<Void> deleteAdventure(
-            @PathVariable(name = "adventureId", required = true) String adventureId) {
+            @PathVariable(required = true) String adventureId) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 

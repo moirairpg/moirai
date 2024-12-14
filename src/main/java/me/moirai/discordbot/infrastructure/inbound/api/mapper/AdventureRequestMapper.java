@@ -71,6 +71,7 @@ public class AdventureRequestMapper {
                 .remember(request.getRemember())
                 .bump(request.getBump())
                 .bumpFrequency(request.getBumpFrequency())
+                .adventureStart(request.getAdventureStart())
                 .build();
     }
 

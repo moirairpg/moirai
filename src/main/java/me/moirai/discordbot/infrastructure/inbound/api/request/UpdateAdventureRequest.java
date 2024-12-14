@@ -66,6 +66,7 @@ public class UpdateAdventureRequest {
     private List<String> usersAllowedToWriteToRemove;
     private List<String> usersAllowedToReadToAdd;
     private List<String> usersAllowedToReadToRemove;
+    private String adventureStart;
     private String nudge;
     private String authorsNote;
     private String remember;
@@ -281,5 +282,13 @@ public class UpdateAdventureRequest {
 
     public void setBumpFrequency(Integer bumpFrequency) {
         this.bumpFrequency = bumpFrequency;
+    }
+
+    public String getAdventureStart() {
+        return adventureStart;
+    }
+
+    public void setAdventureStart(String adventureStart) {
+        this.adventureStart = adventureStart;
     }
 }

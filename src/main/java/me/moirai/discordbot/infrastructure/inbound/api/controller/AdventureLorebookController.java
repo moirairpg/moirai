@@ -52,7 +52,7 @@ public class AdventureLorebookController extends SecurityContextAware {
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<SearchLorebookEntriesResponse> searchLorebook(
-            @PathVariable(name = "adventureId", required = true) String adventureId,
+            @PathVariable(required = true) String adventureId,
             SearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
@@ -74,8 +74,8 @@ public class AdventureLorebookController extends SecurityContextAware {
     @GetMapping("/{entryId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<LorebookEntryResponse> getLorebookEntryById(
-            @PathVariable(name = "adventureId", required = true) String adventureId,
-            @PathVariable(name = "entryId", required = true) String entryId) {
+            @PathVariable(required = true) String adventureId,
+            @PathVariable(required = true) String entryId) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -92,7 +92,7 @@ public class AdventureLorebookController extends SecurityContextAware {
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     public Mono<CreateLorebookEntryResponse> createLorebookEntry(
-            @PathVariable(name = "adventureId", required = true) String adventureId,
+            @PathVariable(required = true) String adventureId,
             @Valid @RequestBody CreateLorebookEntryRequest request) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
@@ -108,8 +108,8 @@ public class AdventureLorebookController extends SecurityContextAware {
     @PutMapping("/{entryId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<UpdateLorebookEntryResponse> updateLorebookEntry(
-            @PathVariable(name = "adventureId", required = true) String adventureId,
-            @PathVariable(name = "entryId", required = true) String entryId,
+            @PathVariable(required = true) String adventureId,
+            @PathVariable(required = true) String entryId,
             @Valid @RequestBody UpdateLorebookEntryRequest request) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
@@ -125,8 +125,8 @@ public class AdventureLorebookController extends SecurityContextAware {
     @DeleteMapping("/{entryId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<Void> deleteLorebookEntry(
-            @PathVariable(name = "adventureId", required = true) String adventureId,
-            @PathVariable(name = "entryId", required = true) String entryId) {
+            @PathVariable(required = true) String adventureId,
+            @PathVariable(required = true) String entryId) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 

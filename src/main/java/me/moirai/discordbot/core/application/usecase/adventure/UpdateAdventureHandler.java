@@ -89,6 +89,27 @@ public class UpdateAdventureHandler extends AbstractUseCaseHandler<UpdateAdventu
             adventure.updateDescription(command.getDescription());
         }
 
+        if (isNotBlank(command.getNudge())) {
+            adventure.updateNudge(command.getNudge());
+        }
+
+        if (isNotBlank(command.getRemember())) {
+            adventure.updateRemember(command.getRemember());
+        }
+
+        if (isNotBlank(command.getAdventureStart())) {
+            adventure.updateAdventureStart(command.getAdventureStart());
+        }
+
+        if (isNotBlank(command.getAuthorsNote())) {
+            adventure.updateAuthorsNote(command.getAuthorsNote());
+        }
+
+        if (isNotBlank(command.getBump())) {
+            adventure.updateBump(command.getBump());
+            adventure.updateBumpFrequency(command.getBumpFrequency());
+        }
+
         if (command.isMultiplayer()) {
             adventure.makeMultiplayer();
         } else {
