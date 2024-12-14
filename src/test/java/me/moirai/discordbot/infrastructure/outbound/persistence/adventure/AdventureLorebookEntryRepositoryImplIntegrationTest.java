@@ -30,11 +30,15 @@ public class AdventureLorebookEntryRepositoryImplIntegrationTest extends Abstrac
     private AdventureLorebookEntryJpaRepository jpaRepository;
 
     @Autowired
+    private AdventureJpaRepository adventureJpaRepository;
+
+    @Autowired
     private AdventureDomainRepository adventureRepository;
 
     @BeforeEach
     public void before() {
         jpaRepository.deleteAllInBatch();
+        adventureJpaRepository.deleteAllInBatch();
     }
 
     @Test

@@ -32,6 +32,7 @@ public class UpdateAdventureRequestFixture {
         request.setTemperature(1.7);
         request.setVisibility(adventure.getVisibility().name());
         request.setMultiplayer(false);
+        request.setAdventureStart(adventure.getAdventureStart());
         request.setNudge(adventure.getContextAttributes().getNudge());
         request.setAuthorsNote(adventure.getContextAttributes().getAuthorsNote());
         request.setRemember(adventure.getContextAttributes().getRemember());
