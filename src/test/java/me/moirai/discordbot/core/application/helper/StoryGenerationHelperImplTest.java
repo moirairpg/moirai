@@ -207,7 +207,7 @@ public class StoryGenerationHelperImplTest {
         StepVerifier.create(result)
                 .verifyErrorSatisfies(error -> {
                     assertThat(error).isInstanceOf(ModerationException.class);
-                    assertThat(((ModerationException) error).getFlaggedTopics()).hasSize(1);
+                    assertThat(((ModerationException) error).getFlaggedTopics()).hasSize(2);
                 });
     }
 
@@ -268,7 +268,7 @@ public class StoryGenerationHelperImplTest {
         StepVerifier.create(result)
                 .verifyErrorSatisfies(error -> {
                     assertThat(error).isInstanceOf(ModerationException.class);
-                    assertThat(((ModerationException) error).getFlaggedTopics()).hasSize(1);
+                    assertThat(((ModerationException) error).getFlaggedTopics()).hasSize(2);
                 });
     }
 }

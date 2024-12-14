@@ -11,9 +11,11 @@ public class TextModerationResultFixture {
 
         List<String> flaggedTopics = new ArrayList<>();
         flaggedTopics.add("violence");
+        flaggedTopics.add("sexual");
 
         Map<String, Double> flaggedTopicScores = new HashMap<>();
-        flaggedTopicScores.put("violence", 10.0);
+        flaggedTopicScores.put("violence", 0.6);
+        flaggedTopicScores.put("sexual", 1.0);
 
         return TextModerationResult.builder()
                 .contentFlagged(true)

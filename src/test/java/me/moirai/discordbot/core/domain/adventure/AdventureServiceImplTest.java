@@ -28,6 +28,8 @@ import me.moirai.discordbot.core.application.usecase.adventure.request.CreateAdv
 import me.moirai.discordbot.core.application.usecase.adventure.request.CreateAdventureLorebookEntryFixture;
 import me.moirai.discordbot.core.application.usecase.adventure.request.DeleteAdventureLorebookEntry;
 import me.moirai.discordbot.core.application.usecase.adventure.request.GetAdventureLorebookEntryById;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureLorebookEntry;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureLorebookEntryFixture;
 import me.moirai.discordbot.core.domain.PermissionsFixture;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -87,7 +89,7 @@ public class AdventureServiceImplTest {
     }
 
     @Test
-    public void createLorebookEntry_whenInappropriateContentFoundInName_thenThrowException() {
+    public void createLorebookEntry_whenInappropriateContentFoundInName_andModerationIsAbsolute_thenThrowException() {
 
         String requesterId = "123123123";
         String expectedError = "Adventure flagged by moderation";
@@ -113,7 +115,7 @@ public class AdventureServiceImplTest {
     }
 
     @Test
-    public void createLorebookEntry_whenInappropriateContentFoundInDescription_thenThrowException() {
+    public void createLorebookEntry_whenInappropriateContentFoundInDescription_andModerationIsAbsolute_thenThrowException() {
 
         String requesterId = "123123123";
         String expectedError = "Adventure flagged by moderation";
@@ -124,6 +126,63 @@ public class AdventureServiceImplTest {
                 .build();
 
         Adventure adventure = AdventureFixture.privateMultiplayerAdventure()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(adventure));
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(safeResult))
+                .thenReturn(Mono.just(flaggedResult));
+
+        // Then
+        StepVerifier.create(service.createLorebookEntry(command))
+                .verifyErrorSatisfies(error -> assertThat(error).isNotNull()
+                        .isInstanceOf(ModerationException.class)
+                        .hasMessage(expectedError));
+    }
+
+    @Test
+    public void createLorebookEntry_whenInappropriateContentFoundInName_andModerationIsPermissive_thenThrowException() {
+
+        String requesterId = "123123123";
+        String expectedError = "Adventure flagged by moderation";
+        TextModerationResult flaggedResult = TextModerationResultFixture.withFlags().build();
+        CreateAdventureLorebookEntry command = CreateAdventureLorebookEntryFixture.sampleLorebookEntry()
+                .requesterDiscordId(requesterId)
+                .build();
+
+        Adventure adventure = AdventureFixture.privateMultiplayerAdventure()
+                .moderation(Moderation.PERMISSIVE)
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(adventure));
+        when(moderationPort.moderate(anyString())).thenReturn(Mono.just(flaggedResult));
+
+        // Then
+        StepVerifier.create(service.createLorebookEntry(command))
+                .verifyErrorSatisfies(error -> assertThat(error).isNotNull()
+                        .isInstanceOf(ModerationException.class)
+                        .hasMessage(expectedError));
+    }
+
+    @Test
+    public void createLorebookEntry_whenInappropriateContentFoundInDescription_andModerationIsPermissive_thenThrowException() {
+
+        String requesterId = "123123123";
+        String expectedError = "Adventure flagged by moderation";
+        TextModerationResult flaggedResult = TextModerationResultFixture.withFlags().build();
+        TextModerationResult safeResult = TextModerationResultFixture.withoutFlags().build();
+        CreateAdventureLorebookEntry command = CreateAdventureLorebookEntryFixture.sampleLorebookEntry()
+                .requesterDiscordId(requesterId)
+                .build();
+
+        Adventure adventure = AdventureFixture.privateMultiplayerAdventure()
+        .moderation(Moderation.PERMISSIVE)
                 .permissions(PermissionsFixture.samplePermissions()
                         .ownerDiscordId(requesterId)
                         .build())
@@ -503,5 +562,238 @@ public class AdventureServiceImplTest {
 
         // Then
         verify(lorebookEntryRepository, times(1)).deleteById(anyString());
+    }
+
+    @Test
+    public void updateEntry_whenAdventureNotFound_thenThrowException() {
+
+        // Given
+        String expectedError = "Adventure to be updated was not found";
+        UpdateAdventureLorebookEntry command = UpdateAdventureLorebookEntryFixture.sampleLorebookEntry()
+                .adventureId("1234")
+                .id("1234")
+                .requesterDiscordId("1234")
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThatThrownBy(() -> service.updateLorebookEntry(command))
+                .hasMessage(expectedError)
+                .isInstanceOf(AssetNotFoundException.class);
+    }
+
+    @Test
+    public void updateEntry_whenInsufficientPermissions_thenThrowException() {
+
+        // Given
+        String expectedError = "User does not have permission to modify this adventure";
+        UpdateAdventureLorebookEntry command = UpdateAdventureLorebookEntryFixture.sampleLorebookEntry()
+                .adventureId("1234")
+                .id("1234")
+                .requesterDiscordId("1234")
+                .build();
+
+        Adventure adventure = AdventureFixture.publicMultiplayerAdventure().build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(adventure));
+
+        // Then
+        assertThatThrownBy(() -> service.updateLorebookEntry(command))
+                .hasMessage(expectedError)
+                .isInstanceOf(AssetAccessDeniedException.class);
+    }
+
+    @Test
+    public void updateEntry_whenInappropriateContentFoundInName_thenThrowException() {
+
+        String requesterId = "123123123";
+        String expectedError = "Adventure flagged by moderation";
+        TextModerationResult flaggedResult = TextModerationResultFixture.withFlags().build();
+
+        Adventure adventure = AdventureFixture.privateMultiplayerAdventure()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        UpdateAdventureLorebookEntry command = UpdateAdventureLorebookEntryFixture.sampleLorebookEntry()
+                .adventureId(adventure.getId())
+                .id("1234")
+                .requesterDiscordId(requesterId)
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(adventure));
+        when(moderationPort.moderate(anyString())).thenReturn(Mono.just(flaggedResult));
+
+        // Then
+        StepVerifier.create(service.updateLorebookEntry(command))
+                .verifyErrorSatisfies(error -> assertThat(error).isNotNull()
+                        .isInstanceOf(ModerationException.class)
+                        .hasMessage(expectedError));
+    }
+
+    @Test
+    public void updateEntry_whenInappropriateContentFoundInDescription_thenThrowException() {
+
+        String requesterId = "123123123";
+        String expectedError = "Adventure flagged by moderation";
+        TextModerationResult flaggedResult = TextModerationResultFixture.withFlags().build();
+        TextModerationResult safeResult = TextModerationResultFixture.withoutFlags().build();
+
+        Adventure adventure = AdventureFixture.privateMultiplayerAdventure()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        UpdateAdventureLorebookEntry command = UpdateAdventureLorebookEntryFixture.sampleLorebookEntry()
+                .adventureId(adventure.getId())
+                .id("1234")
+                .requesterDiscordId(requesterId)
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(adventure));
+        when(moderationPort.moderate(anyString()))
+                .thenReturn(Mono.just(safeResult))
+                .thenReturn(Mono.just(flaggedResult));
+
+        // Then
+        StepVerifier.create(service.updateLorebookEntry(command))
+                .verifyErrorSatisfies(error -> assertThat(error).isNotNull()
+                        .isInstanceOf(ModerationException.class)
+                        .hasMessage(expectedError));
+    }
+
+    @Test
+    public void updateEntry_whenEntryNotFound_thenThrowException() {
+
+        // Given
+        String requesterId = "123123123";
+        String expectedError = "Lorebook entry to be updated was not found";
+        TextModerationResult safeResult = TextModerationResultFixture.withoutFlags().build();
+
+        Adventure adventure = AdventureFixture.privateMultiplayerAdventure()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        UpdateAdventureLorebookEntry command = UpdateAdventureLorebookEntryFixture.sampleLorebookEntry()
+                .adventureId(adventure.getId())
+                .id("1234")
+                .requesterDiscordId(requesterId)
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(adventure));
+        when(moderationPort.moderate(anyString())).thenReturn(Mono.just(safeResult));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        StepVerifier.create(service.updateLorebookEntry(command))
+                .verifyErrorSatisfies(error -> assertThat(error).isNotNull()
+                        .isInstanceOf(AssetNotFoundException.class)
+                        .hasMessage(expectedError));
+    }
+
+    @Test
+    public void updateEntry_whenValidData_thenEntryIsUpdated() {
+
+        String requesterId = "123123123";
+        TextModerationResult moderationResult = TextModerationResultFixture.withoutFlags().build();
+
+        Adventure adventure = AdventureFixture.privateMultiplayerAdventure()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        UpdateAdventureLorebookEntry command = UpdateAdventureLorebookEntryFixture.sampleLorebookEntry()
+                .adventureId(adventure.getId())
+                .id("1234")
+                .requesterDiscordId(requesterId)
+                .build();
+
+        AdventureLorebookEntry entry = AdventureLorebookEntryFixture.sampleLorebookEntry().build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(adventure));
+        when(moderationPort.moderate(anyString())).thenReturn(Mono.just(moderationResult));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(entry));
+        when(lorebookEntryRepository.save(any())).thenReturn(entry);
+
+        // Then
+        StepVerifier.create(service.updateLorebookEntry(command))
+                .assertNext(entryCreated -> {
+                    assertThat(entryCreated).isNotNull();
+                    assertThat(entryCreated.getId()).isSameAs(entry.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void updateEntry_whenValidData_andIsToMakePlayableCharacter_thenEntryIsUpdated() {
+
+        String requesterId = "123123123";
+        TextModerationResult moderationResult = TextModerationResultFixture.withoutFlags().build();
+
+        Adventure adventure = AdventureFixture.privateMultiplayerAdventure()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        UpdateAdventureLorebookEntry command = UpdateAdventureLorebookEntryFixture.sampleLorebookEntry()
+                .adventureId(adventure.getId())
+                .id("1234")
+                .requesterDiscordId(requesterId)
+                .playerDiscordId(requesterId)
+                .isPlayerCharacter(true)
+                .build();
+
+        AdventureLorebookEntry entry = AdventureLorebookEntryFixture.sampleLorebookEntry().build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(adventure));
+        when(moderationPort.moderate(anyString())).thenReturn(Mono.just(moderationResult));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(entry));
+        when(lorebookEntryRepository.save(any())).thenReturn(entry);
+
+        // Then
+        StepVerifier.create(service.updateLorebookEntry(command))
+                .assertNext(entryCreated -> {
+                    assertThat(entryCreated).isNotNull();
+                    assertThat(entryCreated.getId()).isSameAs(entry.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void updateEntry_whenNothingToChange_thenEntryIsUpdated() {
+
+        String requesterId = "123123123";
+        Adventure adventure = AdventureFixture.privateMultiplayerAdventure()
+                .permissions(PermissionsFixture.samplePermissions()
+                        .ownerDiscordId(requesterId)
+                        .build())
+                .build();
+
+        AdventureLorebookEntry entry = AdventureLorebookEntryFixture.samplePlayerCharacterLorebookEntry().build();
+        UpdateAdventureLorebookEntry command = UpdateAdventureLorebookEntry.builder()
+                .adventureId(adventure.getId())
+                .id(entry.getId())
+                .requesterDiscordId(requesterId)
+                .isPlayerCharacter(false)
+                .build();
+
+        when(repository.findById(anyString())).thenReturn(Optional.of(adventure));
+        when(lorebookEntryRepository.findById(anyString())).thenReturn(Optional.of(entry));
+        when(lorebookEntryRepository.save(any())).thenReturn(entry);
+
+        // Then
+        StepVerifier.create(service.updateLorebookEntry(command))
+                .assertNext(entryCreated -> {
+                    assertThat(entryCreated).isNotNull();
+                    assertThat(entryCreated.getId()).isSameAs(entry.getId());
+                })
+                .verifyComplete();
     }
 }
