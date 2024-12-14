@@ -2,32 +2,32 @@ package me.moirai.discordbot.infrastructure.inbound.api.mapper;
 
 import org.springframework.stereotype.Component;
 
-import me.moirai.discordbot.core.application.usecase.world.request.CreateWorldLorebookEntry;
-import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorldLorebookEntry;
-import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorldLorebookEntry;
+import me.moirai.discordbot.core.application.usecase.adventure.request.CreateAdventureLorebookEntry;
+import me.moirai.discordbot.core.application.usecase.adventure.request.DeleteAdventureLorebookEntry;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureLorebookEntry;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateLorebookEntryRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateLorebookEntryRequest;
 
 @Component
-public class WorldLorebookEntryRequestMapper {
+public class AdventureLorebookEntryRequestMapper {
 
-    public CreateWorldLorebookEntry toCommand(CreateLorebookEntryRequest request,
-            String worldId, String requesterDiscordId) {
+    public CreateAdventureLorebookEntry toCommand(CreateLorebookEntryRequest request,
+            String adventureId, String requesterDiscordId) {
 
-        return CreateWorldLorebookEntry.builder()
+        return CreateAdventureLorebookEntry.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .playerDiscordId(request.getPlayerDiscordId())
                 .regex(request.getRegex())
-                .worldId(worldId)
+                .adventureId(adventureId)
                 .requesterDiscordId(requesterDiscordId)
                 .build();
     }
 
-    public UpdateWorldLorebookEntry toCommand(UpdateLorebookEntryRequest request, String entryId,
-            String worldId, String requesterDiscordId) {
+    public UpdateAdventureLorebookEntry toCommand(UpdateLorebookEntryRequest request, String entryId,
+            String adventureId, String requesterDiscordId) {
 
-        return UpdateWorldLorebookEntry.builder()
+        return UpdateAdventureLorebookEntry.builder()
                 .id(entryId)
                 .name(request.getName())
                 .description(request.getDescription())
@@ -35,15 +35,15 @@ public class WorldLorebookEntryRequestMapper {
                 .regex(request.getRegex())
                 .isPlayerCharacter(request.isPlayerCharacter())
                 .requesterDiscordId(requesterDiscordId)
-                .worldId(worldId)
+                .adventureId(adventureId)
                 .build();
     }
 
-    public DeleteWorldLorebookEntry toCommand(String entryId, String worldId, String requesterId) {
+    public DeleteAdventureLorebookEntry toCommand(String entryId, String adventureId, String requesterId) {
 
-        return DeleteWorldLorebookEntry.builder()
+        return DeleteAdventureLorebookEntry.builder()
                 .lorebookEntryId(entryId)
-                .worldId(worldId)
+                .adventureId(adventureId)
                 .requesterDiscordId(requesterId)
                 .build();
     }

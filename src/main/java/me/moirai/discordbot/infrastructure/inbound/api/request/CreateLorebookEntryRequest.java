@@ -3,7 +3,7 @@ package me.moirai.discordbot.infrastructure.inbound.api.request;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-public class CreateWorldLorebookEntryRequest {
+public class CreateLorebookEntryRequest {
 
     @NotEmpty(message = "cannot be empty")
     @NotNull(message = "cannot be null")
@@ -15,7 +15,7 @@ public class CreateWorldLorebookEntryRequest {
     private String description;
     private String playerDiscordId;
 
-    public CreateWorldLorebookEntryRequest() {
+    public CreateLorebookEntryRequest() {
     }
 
     public String getName() {

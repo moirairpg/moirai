@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.common.web.SecurityContextAware;
-import me.moirai.discordbot.core.application.usecase.world.request.CreateWorldLorebookEntry;
-import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorldLorebookEntry;
-import me.moirai.discordbot.core.application.usecase.world.request.GetWorldLorebookEntryById;
-import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldLorebookEntries;
-import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorldLorebookEntry;
-import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldLorebookEntryRequestMapper;
-import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldLorebookEntryResponseMapper;
+import me.moirai.discordbot.core.application.usecase.adventure.request.CreateAdventureLorebookEntry;
+import me.moirai.discordbot.core.application.usecase.adventure.request.DeleteAdventureLorebookEntry;
+import me.moirai.discordbot.core.application.usecase.adventure.request.GetAdventureLorebookEntryById;
+import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventureLorebookEntries;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureLorebookEntry;
+import me.moirai.discordbot.infrastructure.inbound.api.mapper.AdventureLorebookEntryRequestMapper;
+import me.moirai.discordbot.infrastructure.inbound.api.mapper.AdventureLorebookEntryResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateLorebookEntryRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.SearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateLorebookEntryRequest;
@@ -32,17 +32,17 @@ import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/world/{worldId}/lorebook")
-@Tag(name = "World Lorebooks", description = "Endpoints for managing MoirAI World Lorebooks")
-public class WorldLorebookController extends SecurityContextAware {
+@RequestMapping("/adventure/{adventureId}/lorebook")
+@Tag(name = "Adventure Lorebooks", description = "Endpoints for managing MoirAI Adventure Lorebooks")
+public class AdventureLorebookController extends SecurityContextAware {
 
     private final UseCaseRunner useCaseRunner;
-    private final WorldLorebookEntryRequestMapper requestMapper;
-    private final WorldLorebookEntryResponseMapper responseMapper;
+    private final AdventureLorebookEntryRequestMapper requestMapper;
+    private final AdventureLorebookEntryResponseMapper responseMapper;
 
-    public WorldLorebookController(UseCaseRunner useCaseRunner,
-            WorldLorebookEntryRequestMapper requestMapper,
-            WorldLorebookEntryResponseMapper responseMapper) {
+    public AdventureLorebookController(UseCaseRunner useCaseRunner,
+            AdventureLorebookEntryRequestMapper requestMapper,
+            AdventureLorebookEntryResponseMapper responseMapper) {
 
         this.useCaseRunner = useCaseRunner;
         this.requestMapper = requestMapper;
@@ -52,19 +52,19 @@ public class WorldLorebookController extends SecurityContextAware {
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<SearchLorebookEntriesResponse> searchLorebook(
-            @PathVariable(name = "worldId", required = true) String worldId,
+            @PathVariable(name = "adventureId", required = true) String adventureId,
             SearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
-            SearchWorldLorebookEntries query = SearchWorldLorebookEntries.builder()
+            SearchAdventureLorebookEntries query = SearchAdventureLorebookEntries.builder()
                     .page(searchParameters.getPage())
                     .items(searchParameters.getItems())
                     .sortByField(searchParameters.getSortByField())
                     .direction(searchParameters.getDirection())
                     .name(searchParameters.getName())
                     .requesterDiscordId(authenticatedUser.getId())
-                    .worldId(worldId)
+                    .adventureId(adventureId)
                     .build();
 
             return responseMapper.toResponse(useCaseRunner.run(query));
@@ -74,14 +74,14 @@ public class WorldLorebookController extends SecurityContextAware {
     @GetMapping("/{entryId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<LorebookEntryResponse> getLorebookEntryById(
-            @PathVariable(name = "worldId", required = true) String worldId,
+            @PathVariable(name = "adventureId", required = true) String adventureId,
             @PathVariable(name = "entryId", required = true) String entryId) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
-            GetWorldLorebookEntryById query = GetWorldLorebookEntryById.builder()
+            GetAdventureLorebookEntryById query = GetAdventureLorebookEntryById.builder()
                     .entryId(entryId)
-                    .worldId(worldId)
+                    .adventureId(adventureId)
                     .requesterDiscordId(authenticatedUser.getId())
                     .build();
 
@@ -92,41 +92,47 @@ public class WorldLorebookController extends SecurityContextAware {
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     public Mono<CreateLorebookEntryResponse> createLorebookEntry(
-            @PathVariable(name = "worldId", required = true) String worldId,
+            @PathVariable(name = "adventureId", required = true) String adventureId,
             @Valid @RequestBody CreateLorebookEntryRequest request) {
 
-        return mapWithAuthenticatedUser(authenticatedUser -> {
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
-            CreateWorldLorebookEntry command = requestMapper.toCommand(request, worldId, authenticatedUser.getId());
-            return responseMapper.toResponse(useCaseRunner.run(command));
+            CreateAdventureLorebookEntry command = requestMapper.toCommand(request,
+                    adventureId, authenticatedUser.getId());
+
+            return useCaseRunner.run(command)
+                    .map(responseMapper::toResponse);
         });
     }
 
     @PutMapping("/{entryId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<UpdateLorebookEntryResponse> updateLorebookEntry(
-            @PathVariable(name = "worldId", required = true) String worldId,
+            @PathVariable(name = "adventureId", required = true) String adventureId,
             @PathVariable(name = "entryId", required = true) String entryId,
             @Valid @RequestBody UpdateLorebookEntryRequest request) {
 
-        return mapWithAuthenticatedUser(authenticatedUser -> {
+        return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
-            UpdateWorldLorebookEntry command = requestMapper.toCommand(request, entryId,
-                    worldId, authenticatedUser.getId());
+            UpdateAdventureLorebookEntry command = requestMapper.toCommand(request, entryId,
+                    adventureId, authenticatedUser.getId());
 
-            return responseMapper.toResponse(useCaseRunner.run(command));
+            return useCaseRunner.run(command)
+                    .map(responseMapper::toResponse);
         });
     }
 
     @DeleteMapping("/{entryId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<Void> deleteLorebookEntry(
-            @PathVariable(name = "worldId", required = true) String worldId,
+            @PathVariable(name = "adventureId", required = true) String adventureId,
             @PathVariable(name = "entryId", required = true) String entryId) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
-            DeleteWorldLorebookEntry command = requestMapper.toCommand(entryId, worldId, authenticatedUser.getId());
+            DeleteAdventureLorebookEntry command = requestMapper.toCommand(entryId,
+                    adventureId, authenticatedUser.getId());
+
             useCaseRunner.run(command);
 
             return Mono.empty();

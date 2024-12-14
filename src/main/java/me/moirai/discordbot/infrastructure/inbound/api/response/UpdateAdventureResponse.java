@@ -7,20 +7,20 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UpdateWorldLorebookEntryResponse {
+public class UpdateAdventureResponse {
 
     private OffsetDateTime lastUpdateDate;
 
-    public UpdateWorldLorebookEntryResponse() {
+    public UpdateAdventureResponse() {
     }
 
-    private UpdateWorldLorebookEntryResponse(OffsetDateTime lastUpdateDate) {
+    private UpdateAdventureResponse(OffsetDateTime lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public static UpdateWorldLorebookEntryResponse build(OffsetDateTime lastUpdateDate) {
+    public static UpdateAdventureResponse build(OffsetDateTime lastUpdateDate) {
 
-        return new UpdateWorldLorebookEntryResponse(lastUpdateDate);
+        return new UpdateAdventureResponse(lastUpdateDate);
     }
 
     public OffsetDateTime getLastUpdateDate() {

@@ -5,19 +5,19 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import me.moirai.discordbot.core.application.usecase.world.result.CreateWorldLorebookEntryResult;
-import me.moirai.discordbot.core.application.usecase.world.result.GetWorldLorebookEntryResult;
-import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
-import me.moirai.discordbot.core.application.usecase.world.result.UpdateWorldLorebookEntryResult;
+import me.moirai.discordbot.core.application.usecase.adventure.result.CreateAdventureLorebookEntryResult;
+import me.moirai.discordbot.core.application.usecase.adventure.result.GetAdventureLorebookEntryResult;
+import me.moirai.discordbot.core.application.usecase.adventure.result.SearchAdventureLorebookEntriesResult;
+import me.moirai.discordbot.core.application.usecase.adventure.result.UpdateAdventureLorebookEntryResult;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateLorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.LorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchLorebookEntriesResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateLorebookEntryResponse;
 
 @Component
-public class WorldLorebookEntryResponseMapper {
+public class AdventureLorebookEntryResponseMapper {
 
-    public SearchLorebookEntriesResponse toResponse(SearchWorldLorebookEntriesResult result) {
+    public SearchLorebookEntriesResponse toResponse(SearchAdventureLorebookEntriesResult result) {
 
         List<LorebookEntryResponse> lorebook = CollectionUtils.emptyIfNull(result.getResults())
                 .stream()
@@ -33,7 +33,7 @@ public class WorldLorebookEntryResponseMapper {
                 .build();
     }
 
-    public LorebookEntryResponse toResponse(GetWorldLorebookEntryResult result) {
+    public LorebookEntryResponse toResponse(GetAdventureLorebookEntryResult result) {
 
         return LorebookEntryResponse.builder()
                 .id(result.getId())
@@ -47,12 +47,12 @@ public class WorldLorebookEntryResponseMapper {
                 .build();
     }
 
-    public CreateLorebookEntryResponse toResponse(CreateWorldLorebookEntryResult result) {
+    public CreateLorebookEntryResponse toResponse(CreateAdventureLorebookEntryResult result) {
 
         return CreateLorebookEntryResponse.build(result.getId());
     }
 
-    public UpdateLorebookEntryResponse toResponse(UpdateWorldLorebookEntryResult result) {
+    public UpdateLorebookEntryResponse toResponse(UpdateAdventureLorebookEntryResult result) {
 
         return UpdateLorebookEntryResponse.build(result.getLastUpdatedDateTime());
     }

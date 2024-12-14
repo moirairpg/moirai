@@ -1,6 +1,6 @@
 package me.moirai.discordbot.infrastructure.inbound.api.request;
 
-public class UpdateWorldLorebookEntryRequest {
+public class UpdateLorebookEntryRequest {
 
     private String name;
     private String regex;
@@ -8,7 +8,7 @@ public class UpdateWorldLorebookEntryRequest {
     private String playerDiscordId;
     private boolean isPlayerCharacter;
 
-    public UpdateWorldLorebookEntryRequest() {
+    public UpdateLorebookEntryRequest() {
     }
 
     public String getName() {
