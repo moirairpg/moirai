@@ -17,7 +17,7 @@ import me.moirai.discordbot.core.application.usecase.persona.request.UpdatePerso
 import me.moirai.discordbot.core.application.usecase.persona.result.UpdatePersonaResult;
 import me.moirai.discordbot.core.domain.CompletionRole;
 import me.moirai.discordbot.core.domain.Visibility;
-import me.moirai.discordbot.core.domain.channelconfig.Moderation;
+import me.moirai.discordbot.core.domain.adventure.Moderation;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.core.domain.persona.PersonaDomainRepository;
 import me.moirai.discordbot.core.domain.persona.PersonaService;

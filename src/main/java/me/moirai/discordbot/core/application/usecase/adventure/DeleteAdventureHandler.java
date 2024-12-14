@@ -13,7 +13,7 @@ import me.moirai.discordbot.core.domain.adventure.AdventureDomainRepository;
 @UseCaseHandler
 public class DeleteAdventureHandler extends AbstractUseCaseHandler<DeleteAdventure, Void> {
 
-    private static final String ID_CANNOT_BE_NULL_OR_EMPTY = "Channel config ID cannot be null or empty";
+    private static final String ID_CANNOT_BE_NULL_OR_EMPTY = "Adventure ID cannot be null or empty";
 
     private final AdventureDomainRepository repository;
 

@@ -23,9 +23,9 @@ import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.exception.ModerationException;
 import me.moirai.discordbot.core.application.model.result.TextModerationResultFixture;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
-import me.moirai.discordbot.core.application.usecase.channelconfig.request.CreateLorebookEntryFixture;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorldLorebookEntry;
+import me.moirai.discordbot.core.application.usecase.world.request.CreateWorldLorebookEntryFixture;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorldLorebookEntry;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldLorebookEntryById;
@@ -78,7 +78,7 @@ public class WorldServiceImplTest {
                 .requesterDiscordId(permissions.getOwnerDiscordId())
                 .usersAllowedToRead(permissions.getUsersAllowedToRead())
                 .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
-                .lorebookEntries(Collections.singletonList(CreateLorebookEntryFixture.sampleLorebookEntry().build()))
+                .lorebookEntries(Collections.singletonList(CreateWorldLorebookEntryFixture.sampleLorebookEntry().build()))
                 .build();
 
         when(moderationPort.moderate(anyString()))
@@ -737,7 +737,7 @@ public class WorldServiceImplTest {
                 .requesterDiscordId(permissions.getOwnerDiscordId())
                 .usersAllowedToRead(permissions.getUsersAllowedToRead())
                 .usersAllowedToWrite(permissions.getUsersAllowedToWrite())
-                .lorebookEntries(Collections.singletonList(CreateLorebookEntryFixture.sampleLorebookEntry().build()))
+                .lorebookEntries(Collections.singletonList(CreateWorldLorebookEntryFixture.sampleLorebookEntry().build()))
                 .build();
 
         when(moderationPort.moderate(anyString()))

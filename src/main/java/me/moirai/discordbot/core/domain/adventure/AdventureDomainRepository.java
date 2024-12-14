@@ -6,7 +6,7 @@ public interface AdventureDomainRepository {
 
     Optional<Adventure> findById(String id);
 
-    Adventure save(Adventure channelConfig);
+    Adventure save(Adventure adventure);
 
     void deleteById(String id);
 }

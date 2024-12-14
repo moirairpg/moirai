@@ -13,19 +13,19 @@ public class AddFavoriteAdventureHandler extends AbstractUseCaseHandler<AddFavor
 
     private static final String ASSET_TYPE = "adventure";
 
-    private final AdventureQueryRepository channelConfigQueryRepository;
+    private final AdventureQueryRepository adventureQueryRepository;
     private final FavoriteRepository favoriteRepository;
 
-    public AddFavoriteAdventureHandler(AdventureQueryRepository channelConfigQueryRepository,
+    public AddFavoriteAdventureHandler(AdventureQueryRepository adventureQueryRepository,
             FavoriteRepository favoriteRepository) {
-        this.channelConfigQueryRepository = channelConfigQueryRepository;
+        this.adventureQueryRepository = adventureQueryRepository;
         this.favoriteRepository = favoriteRepository;
     }
 
     @Override
     public Void execute(AddFavoriteAdventure command) {
 
-        channelConfigQueryRepository.findById(command.getAssetId())
+        adventureQueryRepository.findById(command.getAssetId())
                 .orElseThrow(() -> new AssetNotFoundException("The adventure to be favorited could not be found"));
 
         favoriteRepository.save(FavoriteEntity.builder()

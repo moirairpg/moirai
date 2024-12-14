@@ -158,7 +158,7 @@ public class AdventureDomainRepositoryImplIntegrationTest extends AbstractIntegr
         FavoriteEntity favorite = favoriteRepository.save(FavoriteEntity.builder()
                 .playerDiscordId(userId)
                 .assetId(adventure.getId())
-                .assetType("channel_config")
+                .assetType("adventure")
                 .build());
 
         // When

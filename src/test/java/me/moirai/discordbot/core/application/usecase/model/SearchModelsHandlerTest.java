@@ -1,8 +1,8 @@
 package me.moirai.discordbot.core.application.usecase.model;
 
-import static me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel.GPT35_TURBO;
-import static me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel.GPT4_MINI;
-import static me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel.GPT4_OMNI;
+import static me.moirai.discordbot.core.domain.adventure.ArtificialIntelligenceModel.GPT35_TURBO;
+import static me.moirai.discordbot.core.domain.adventure.ArtificialIntelligenceModel.GPT4_MINI;
+import static me.moirai.discordbot.core.domain.adventure.ArtificialIntelligenceModel.GPT4_OMNI;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.core.application.usecase.model.request.SearchModels;
 import me.moirai.discordbot.core.application.usecase.model.result.AiModelResult;
-import me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel;
+import me.moirai.discordbot.core.domain.adventure.ArtificialIntelligenceModel;
 
 @ExtendWith(MockitoExtension.class)
 public class SearchModelsHandlerTest {

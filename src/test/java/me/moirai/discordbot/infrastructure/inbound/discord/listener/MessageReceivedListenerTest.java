@@ -17,7 +17,7 @@ import org.mockito.Mock;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
-import me.moirai.discordbot.core.application.helper.ChannelConfigHelper;
+import me.moirai.discordbot.core.application.helper.AdventureHelper;
 import me.moirai.discordbot.core.application.usecase.discord.messagereceived.AuthorModeRequest;
 import me.moirai.discordbot.core.application.usecase.discord.messagereceived.ChatModeRequest;
 import net.dv8tion.jda.api.entities.Mentions;
@@ -34,7 +34,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
     private UseCaseRunner useCaseRunner;
 
     @Mock
-    private ChannelConfigHelper channelConfigHelper;
+    private AdventureHelper adventureHelper;
 
     @InjectMocks
     private MessageReceivedListener listener;
@@ -74,7 +74,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(message.getId()).thenReturn(messageId);
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
-        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
         when(channelUnion.sendTyping()).thenReturn(restAction);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));
@@ -125,7 +125,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(message.getId()).thenReturn(messageId);
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
-        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
         when(channelUnion.sendTyping()).thenReturn(restAction);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));
@@ -167,7 +167,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(mentions.getMembers()).thenReturn(Collections.emptyList());
         when(member.getUser()).thenReturn(user);
         when(user.isBot()).thenReturn(true);
-        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
 
         // When
         listener.onMessageReceived(event);
@@ -201,7 +201,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(mentions.getMembers()).thenReturn(Collections.emptyList());
         when(member.getUser()).thenReturn(user);
         when(user.isBot()).thenReturn(false);
-        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
 
         // When
         listener.onMessageReceived(event);
@@ -245,7 +245,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(message.getId()).thenReturn(messageId);
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
-        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
         when(channelUnion.sendTyping()).thenReturn(restAction);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));

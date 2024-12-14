@@ -1,6 +1,6 @@
 package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
-import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
+import static me.moirai.discordbot.core.domain.adventure.Moderation.DISABLED;
 
 import java.util.Collections;
 
@@ -8,11 +8,11 @@ import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
-import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
+import me.moirai.discordbot.core.application.port.AdventureQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
+import me.moirai.discordbot.core.domain.adventure.Adventure;
 import me.moirai.discordbot.core.domain.world.World;
 import me.moirai.discordbot.core.domain.world.WorldDomainRepository;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
@@ -26,17 +26,17 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
 
     private static final String CHAT_FORMAT = "%s said: %s";
 
-    private final ChannelConfigQueryRepository channelConfigRepository;
+    private final AdventureQueryRepository adventureRepository;
     private final WorldDomainRepository worldRepository;
     private final StoryGenerationHelper storyGenerationPort;
     private final DiscordChannelPort discordChannelPort;
 
     public StartCommandHandler(StoryGenerationHelper storyGenerationPort,
             WorldDomainRepository worldRepository,
-            ChannelConfigQueryRepository channelConfigRepository,
+            AdventureQueryRepository adventureRepository,
             DiscordChannelPort discordChannelPort) {
 
-        this.channelConfigRepository = channelConfigRepository;
+        this.adventureRepository = adventureRepository;
         this.worldRepository = worldRepository;
         this.storyGenerationPort = storyGenerationPort;
         this.discordChannelPort = discordChannelPort;
@@ -46,9 +46,9 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
     public Mono<Void> execute(StartCommand useCase) {
 
         try {
-            return channelConfigRepository.findByDiscordChannelId(useCase.getChannelId())
-                    .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(useCase.getChannelId()))
-                    .map(channelConfig -> buildGenerationRequest(useCase, channelConfig))
+            return adventureRepository.findByDiscordChannelId(useCase.getChannelId())
+                    .filter(adventure -> adventure.getDiscordChannelId().equals(useCase.getChannelId()))
+                    .map(adventure -> buildGenerationRequest(useCase, adventure))
                     .map(storyGenerationPort::continueStory)
                     .orElseGet(Mono::empty);
         } catch (AssetNotFoundException e) {
@@ -59,28 +59,28 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
         }
     }
 
-    private StoryGenerationRequest buildGenerationRequest(StartCommand useCase, ChannelConfig channelConfig) {
+    private StoryGenerationRequest buildGenerationRequest(StartCommand useCase, Adventure adventure) {
 
-        World world = worldRepository.findById(channelConfig.getWorldId())
-                .orElseThrow(() -> new AssetNotFoundException("Channel config has no world linked to it"));
+        World world = worldRepository.findById(adventure.getWorldId())
+                .orElseThrow(() -> new AssetNotFoundException("Adventure has no world linked to it"));
 
         ModelConfigurationRequest modelConfigurationRequest = ModelConfigurationRequest.builder()
-                .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
-                .presencePenalty(channelConfig.getModelConfiguration().getPresencePenalty())
-                .logitBias(channelConfig.getModelConfiguration().getLogitBias())
-                .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
-                .temperature(channelConfig.getModelConfiguration().getTemperature())
+                .frequencyPenalty(adventure.getModelConfiguration().getFrequencyPenalty())
+                .presencePenalty(adventure.getModelConfiguration().getPresencePenalty())
+                .logitBias(adventure.getModelConfiguration().getLogitBias())
+                .maxTokenLimit(adventure.getModelConfiguration().getMaxTokenLimit())
+                .stopSequences(adventure.getModelConfiguration().getStopSequences())
+                .temperature(adventure.getModelConfiguration().getTemperature())
                 .aiModel(AiModelRequest
-                        .build(channelConfig.getModelConfiguration().getAiModel().getInternalModelName(),
-                                channelConfig.getModelConfiguration().getAiModel().getOfficialModelName(),
-                                channelConfig.getModelConfiguration().getAiModel().getHardTokenLimit()))
+                        .build(adventure.getModelConfiguration().getAiModel().getInternalModelName(),
+                                adventure.getModelConfiguration().getAiModel().getOfficialModelName(),
+                                adventure.getModelConfiguration().getAiModel().getHardTokenLimit()))
                 .build();
 
-        boolean isModerationEnabled = !channelConfig.getModeration().equals(DISABLED);
+        boolean isModerationEnabled = !adventure.getModeration().equals(DISABLED);
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
-                .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
-                        channelConfig.getModeration().getThresholds());
+                .build(isModerationEnabled, adventure.getModeration().isAbsolute(),
+                        adventure.getModeration().getThresholds());
 
         discordChannelPort.sendTextMessageTo(useCase.getChannelId(), world.getAdventureStart());
 
@@ -103,10 +103,10 @@ public class StartCommandHandler extends AbstractUseCaseHandler<StartCommand, Mo
                 .guildId(useCase.getGuildId())
                 .moderation(moderation)
                 .modelConfiguration(modelConfigurationRequest)
-                .personaId(channelConfig.getPersonaId())
-                .worldId(channelConfig.getWorldId())
+                .personaId(adventure.getPersonaId())
+                .worldId(adventure.getWorldId())
                 .messageHistory(Collections.singletonList(adventureStartMessage))
-                .gameMode(channelConfig.getGameMode().name())
+                .gameMode(adventure.getGameMode().name())
                 .build();
     }
 }

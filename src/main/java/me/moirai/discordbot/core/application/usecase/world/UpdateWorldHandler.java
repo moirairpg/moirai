@@ -16,7 +16,7 @@ import me.moirai.discordbot.core.application.port.TextModerationPort;
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorld;
 import me.moirai.discordbot.core.application.usecase.world.result.UpdateWorldResult;
 import me.moirai.discordbot.core.domain.Visibility;
-import me.moirai.discordbot.core.domain.channelconfig.Moderation;
+import me.moirai.discordbot.core.domain.adventure.Moderation;
 import me.moirai.discordbot.core.domain.world.World;
 import me.moirai.discordbot.core.domain.world.WorldDomainRepository;
 import me.moirai.discordbot.core.domain.world.WorldService;

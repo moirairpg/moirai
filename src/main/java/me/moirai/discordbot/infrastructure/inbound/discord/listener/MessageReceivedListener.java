@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.exception.ModerationException;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
-import me.moirai.discordbot.core.application.helper.ChannelConfigHelper;
+import me.moirai.discordbot.core.application.helper.AdventureHelper;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.messagereceived.AuthorModeRequest;
 import me.moirai.discordbot.core.application.usecase.discord.messagereceived.ChatModeRequest;
@@ -35,15 +35,15 @@ public class MessageReceivedListener extends ListenerAdapter {
     private static final int ERROR_MESSAGE_TTL = 10;
 
     private final UseCaseRunner useCaseRunner;
-    private final ChannelConfigHelper channelConfigHelper;
+    private final AdventureHelper adventureHelper;
     private final DiscordChannelPort discordChannelPort;
 
     public MessageReceivedListener(UseCaseRunner useCaseRunner,
-            ChannelConfigHelper channelConfigHelper,
+            AdventureHelper adventureHelper,
             DiscordChannelPort discordChannelPort) {
 
         this.useCaseRunner = useCaseRunner;
-        this.channelConfigHelper = channelConfigHelper;
+        this.adventureHelper = adventureHelper;
         this.discordChannelPort = discordChannelPort;
     }
 
@@ -63,7 +63,7 @@ public class MessageReceivedListener extends ListenerAdapter {
             String guildId = event.getGuild().getId();
             String channelId = event.getChannel().getId();
             String messageContent = message.getContentRaw();
-            String gameMode = channelConfigHelper.getGameModeByDiscordChannelId(channelId);
+            String gameMode = adventureHelper.getGameModeByDiscordChannelId(channelId);
 
             if (StringUtils.isNoneBlank(messageContent, gameMode) && !author.getUser().isBot()) {
                 String botUsername = bot.getUser().getName();

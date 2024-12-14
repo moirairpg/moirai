@@ -17,7 +17,7 @@ import me.moirai.discordbot.core.application.usecase.persona.request.DeletePerso
 import me.moirai.discordbot.core.domain.CompletionRole;
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.Visibility;
-import me.moirai.discordbot.core.domain.channelconfig.Moderation;
+import me.moirai.discordbot.core.domain.adventure.Moderation;
 import reactor.core.publisher.Mono;
 
 @DomainService

@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import org.junit.jupiter.api.Test;
 
 import me.moirai.discordbot.common.exception.BusinessRuleViolationException;
-import me.moirai.discordbot.core.domain.channelconfig.GameMode;
+import me.moirai.discordbot.core.domain.adventure.GameMode;
 
 public class GameModeTest {
 

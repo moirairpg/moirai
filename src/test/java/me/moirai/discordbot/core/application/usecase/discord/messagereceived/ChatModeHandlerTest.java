@@ -17,11 +17,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
-import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
+import me.moirai.discordbot.core.application.port.AdventureQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageDataFixture;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
+import me.moirai.discordbot.core.domain.adventure.Adventure;
+import me.moirai.discordbot.core.domain.adventure.AdventureFixture;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.StoryGenerationRequest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -30,7 +30,7 @@ import reactor.test.StepVerifier;
 public class ChatModeHandlerTest {
 
     @Mock
-    private ChannelConfigQueryRepository channelConfigRepository;
+    private AdventureQueryRepository adventureRepository;
 
     @Mock
     private DiscordChannelPort discordChannelPort;
@@ -47,7 +47,7 @@ public class ChatModeHandlerTest {
         // Given
         String channelId = "CHID";
 
-        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+        Adventure adventure = AdventureFixture.publicMultiplayerAdventure()
                 .discordChannelId(channelId)
                 .build();
 
@@ -64,7 +64,7 @@ public class ChatModeHandlerTest {
         ArgumentCaptor<StoryGenerationRequest> generationRequestCaptor = ArgumentCaptor
                 .forClass(StoryGenerationRequest.class);
 
-        when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));
+        when(adventureRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(adventure));
 
         when(discordChannelPort.getLastMessageIn(anyString()))
                 .thenReturn(Optional.of(DiscordMessageDataFixture.messageData().build()));
@@ -86,7 +86,7 @@ public class ChatModeHandlerTest {
         assertThat(generationRequest.getBotUsername()).isEqualTo(useCase.getBotUsername());
         assertThat(generationRequest.getChannelId()).isEqualTo(useCase.getChannelId());
         assertThat(generationRequest.getGuildId()).isEqualTo(useCase.getGuildId());
-        assertThat(generationRequest.getPersonaId()).isEqualTo(channelConfig.getPersonaId());
-        assertThat(generationRequest.getWorldId()).isEqualTo(channelConfig.getWorldId());
+        assertThat(generationRequest.getPersonaId()).isEqualTo(adventure.getPersonaId());
+        assertThat(generationRequest.getWorldId()).isEqualTo(adventure.getWorldId());
     }
 }

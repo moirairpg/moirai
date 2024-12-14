@@ -121,7 +121,7 @@ public class PersonaDomainRepositoryImplIntegrationTest extends AbstractIntegrat
 
     @Test
     @Transactional
-    public void deleteChannelConfig_whenIsFavorite_thenDeleteFavorites() {
+    public void deletePersona_whenIsFavorite_thenDeleteFavorites() {
 
         // Given
         String userId = "1234";
@@ -132,7 +132,7 @@ public class PersonaDomainRepositoryImplIntegrationTest extends AbstractIntegrat
         FavoriteEntity favorite = favoriteRepository.save(FavoriteEntity.builder()
                 .playerDiscordId(userId)
                 .assetId(originalPersona.getId())
-                .assetType("channel_config")
+                .assetType("persona")
                 .build());
 
         // When

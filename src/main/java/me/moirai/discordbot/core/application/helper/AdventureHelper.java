@@ -1,6 +1,6 @@
 package me.moirai.discordbot.core.application.helper;
 
-public interface ChannelConfigHelper {
+public interface AdventureHelper {
 
     String getGameModeByDiscordChannelId(String channelId);
 }

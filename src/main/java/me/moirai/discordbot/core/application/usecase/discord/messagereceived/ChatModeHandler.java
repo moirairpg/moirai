@@ -1,7 +1,7 @@
 package me.moirai.discordbot.core.application.usecase.discord.messagereceived;
 
-import static me.moirai.discordbot.core.domain.channelconfig.GameMode.CHAT;
-import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
+import static me.moirai.discordbot.core.domain.adventure.GameMode.CHAT;
+import static me.moirai.discordbot.core.domain.adventure.Moderation.DISABLED;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +9,10 @@ import java.util.List;
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
-import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
+import me.moirai.discordbot.core.application.port.AdventureQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
+import me.moirai.discordbot.core.domain.adventure.Adventure;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
@@ -25,14 +25,14 @@ public class ChatModeHandler extends AbstractUseCaseHandler<ChatModeRequest, Mon
     private static final String CHANNEL_HAS_NO_MESSAGES = "Channel has no messages";
 
     private final StoryGenerationHelper storyGenerationPort;
-    private final ChannelConfigQueryRepository channelConfigRepository;
+    private final AdventureQueryRepository adventureRepository;
     private final DiscordChannelPort discordChannelPort;
 
     public ChatModeHandler(StoryGenerationHelper storyGenerationPort,
-            ChannelConfigQueryRepository channelConfigRepository,
+            AdventureQueryRepository adventureRepository,
             DiscordChannelPort discordChannelPort) {
 
-        this.channelConfigRepository = channelConfigRepository;
+        this.adventureRepository = adventureRepository;
         this.storyGenerationPort = storyGenerationPort;
         this.discordChannelPort = discordChannelPort;
     }
@@ -40,36 +40,36 @@ public class ChatModeHandler extends AbstractUseCaseHandler<ChatModeRequest, Mon
     @Override
     public Mono<Void> execute(ChatModeRequest query) {
 
-        return channelConfigRepository.findByDiscordChannelId(query.getChannelId())
-                .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(query.getChannelId()))
-                .map(channelConfig -> {
-                    StoryGenerationRequest generationRequest = buildGenerationRequest(query, channelConfig);
+        return adventureRepository.findByDiscordChannelId(query.getChannelId())
+                .filter(adventure -> adventure.getDiscordChannelId().equals(query.getChannelId()))
+                .map(adventure -> {
+                    StoryGenerationRequest generationRequest = buildGenerationRequest(query, adventure);
                     return storyGenerationPort.continueStory(generationRequest);
                 })
                 .orElseGet(Mono::empty);
     }
 
-    private StoryGenerationRequest buildGenerationRequest(ChatModeRequest useCase, ChannelConfig channelConfig) {
+    private StoryGenerationRequest buildGenerationRequest(ChatModeRequest useCase, Adventure adventure) {
 
         AiModelRequest aiModel = AiModelRequest
-                .build(channelConfig.getModelConfiguration().getAiModel().getInternalModelName(),
-                        channelConfig.getModelConfiguration().getAiModel().getOfficialModelName(),
-                        channelConfig.getModelConfiguration().getAiModel().getHardTokenLimit());
+                .build(adventure.getModelConfiguration().getAiModel().getInternalModelName(),
+                        adventure.getModelConfiguration().getAiModel().getOfficialModelName(),
+                        adventure.getModelConfiguration().getAiModel().getHardTokenLimit());
 
         ModelConfigurationRequest modelConfigurationRequest = ModelConfigurationRequest.builder()
-                .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
-                .presencePenalty(channelConfig.getModelConfiguration().getPresencePenalty())
-                .logitBias(channelConfig.getModelConfiguration().getLogitBias())
-                .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
-                .temperature(channelConfig.getModelConfiguration().getTemperature())
+                .frequencyPenalty(adventure.getModelConfiguration().getFrequencyPenalty())
+                .presencePenalty(adventure.getModelConfiguration().getPresencePenalty())
+                .logitBias(adventure.getModelConfiguration().getLogitBias())
+                .maxTokenLimit(adventure.getModelConfiguration().getMaxTokenLimit())
+                .stopSequences(adventure.getModelConfiguration().getStopSequences())
+                .temperature(adventure.getModelConfiguration().getTemperature())
                 .aiModel(aiModel)
                 .build();
 
-        boolean isModerationEnabled = !channelConfig.getModeration().equals(DISABLED);
+        boolean isModerationEnabled = !adventure.getModeration().equals(DISABLED);
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
-                .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
-                        channelConfig.getModeration().getThresholds());
+                .build(isModerationEnabled, adventure.getModeration().isAbsolute(),
+                        adventure.getModeration().getThresholds());
 
         List<DiscordMessageData> messageHistory = getMessageHistory(useCase.getChannelId());
 
@@ -80,8 +80,8 @@ public class ChatModeHandler extends AbstractUseCaseHandler<ChatModeRequest, Mon
                 .guildId(useCase.getGuildId())
                 .moderation(moderation)
                 .modelConfiguration(modelConfigurationRequest)
-                .personaId(channelConfig.getPersonaId())
-                .worldId(channelConfig.getWorldId())
+                .personaId(adventure.getPersonaId())
+                .worldId(adventure.getWorldId())
                 .messageHistory(messageHistory)
                 .gameMode(CHAT.name())
                 .build();
