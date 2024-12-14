@@ -18,9 +18,6 @@ public class ModelConfigurationEntity {
     @Column(name = "max_token_limit", nullable = false)
     private int maxTokenLimit;
 
-    @Column(name = "message_history_size", nullable = false)
-    private int messageHistorySize;
-
     @Column(name = "temperature", nullable = false)
     private Double temperature;
 
@@ -44,7 +41,6 @@ public class ModelConfigurationEntity {
     private ModelConfigurationEntity(Builder builder) {
         this.aiModel = builder.aiModel;
         this.maxTokenLimit = builder.maxTokenLimit;
-        this.messageHistorySize = builder.messageHistorySize;
         this.temperature = builder.temperature;
         this.frequencyPenalty = builder.frequencyPenalty;
         this.presencePenalty = builder.presencePenalty;
@@ -62,10 +58,6 @@ public class ModelConfigurationEntity {
 
     public int getMaxTokenLimit() {
         return maxTokenLimit;
-    }
-
-    public int getMessageHistorySize() {
-        return messageHistorySize;
     }
 
     public Double getTemperature() {
@@ -92,7 +84,6 @@ public class ModelConfigurationEntity {
 
         private String aiModel;
         private int maxTokenLimit;
-        private int messageHistorySize;
         private Double temperature;
         private Double frequencyPenalty;
         private Double presencePenalty;
@@ -109,11 +100,6 @@ public class ModelConfigurationEntity {
 
         public Builder maxTokenLimit(int maxTokenLimit) {
             this.maxTokenLimit = maxTokenLimit;
-            return this;
-        }
-
-        public Builder messageHistorySize(int messageHistorySize) {
-            this.messageHistorySize = messageHistorySize;
             return this;
         }
 

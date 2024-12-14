@@ -15,7 +15,6 @@ CREATE TABLE adventure (
     moderation VARCHAR(20) NOT NULL,
     ai_model VARCHAR(50) NOT NULL,
     max_token_limit SMALLINT NOT NULL,
-    message_history_size SMALLINT NOT NULL,
     temperature NUMERIC NOT NULL,
     frequency_penalty NUMERIC DEFAULT 0 NOT NULL,
     presence_penalty NUMERIC DEFAULT 0 NOT NULL,

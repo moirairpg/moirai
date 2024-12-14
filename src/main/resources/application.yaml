@@ -107,7 +107,18 @@ moirai:
       /webjars/swagger-ui/favicon-32x32.png,
       /webjars/swagger-ui/favicon-16x16.png,
       /v3/api-docs/swagger-config,
-      /v3/api-docs
+      /v3/api-docs,
+      /api/auth/code,
+      /api/webjars/swagger-ui/index.html,
+      /api/webjars/swagger-ui/index.css,
+      /api/webjars/swagger-ui/swagger-ui.css,
+      /api/webjars/swagger-ui/swagger-ui-bundle.js,
+      /api/webjars/swagger-ui/swagger-ui-standalone-preset.js,
+      /api/webjars/swagger-ui/swagger-initializer.js,
+      /api/webjars/swagger-ui/favicon-32x32.png,
+      /api/webjars/swagger-ui/favicon-16x16.png,
+      /api/v3/api-docs/swagger-config,
+      /api/v3/api-docs
 
 spring:
   jpa:

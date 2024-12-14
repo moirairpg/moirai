@@ -4,22 +4,22 @@ public class CreateAdventureLorebookEntryFixture {
 
     public static CreateAdventureLorebookEntry.Builder sampleLorebookEntry() {
 
-        CreateAdventureLorebookEntry.Builder builder = CreateAdventureLorebookEntry.builder();
-        builder.name("White River");
-        builder.description("The White River goes through Falkreath, Whiterun and ends in Eastmarch.");
-        builder.regex("[Ww]hite [Rr]iver");
-
-        return builder;
+        return CreateAdventureLorebookEntry.builder()
+                .name("Volin Habar")
+                .description("Volin Habar is a warrior that fights with a sword.")
+                .regex("[Vv]olin [Hh]abar|[Vv]oha")
+                .adventureId("ADVID")
+                .requesterDiscordId("1234");
     }
 
     public static CreateAdventureLorebookEntry.Builder samplePlayerCharacterLorebookEntry() {
 
-        CreateAdventureLorebookEntry.Builder builder = CreateAdventureLorebookEntry.builder();
-        builder.name("Volin Habar");
-        builder.description("Volin Habar is a warrior that fights with a sword.");
-        builder.regex("[Vv]olin [Hh]abar|[Vv]oha");
-        builder.playerDiscordId("2423423423423");
-
-        return builder;
+        return CreateAdventureLorebookEntry.builder()
+                .name("Volin Habar")
+                .description("Volin Habar is a warrior that fights with a sword.")
+                .regex("[Vv]olin [Hh]abar|[Vv]oha")
+                .playerDiscordId("2423423423423")
+                .adventureId("ADVID")
+                .requesterDiscordId("1234");
     }
 }

@@ -2,8 +2,9 @@ package me.moirai.discordbot.core.application.usecase.adventure.request;
 
 import me.moirai.discordbot.common.usecases.UseCase;
 import me.moirai.discordbot.core.application.usecase.adventure.result.UpdateAdventureLorebookEntryResult;
+import reactor.core.publisher.Mono;
 
-public final class UpdateAdventureLorebookEntry extends UseCase<UpdateAdventureLorebookEntryResult> {
+public final class UpdateAdventureLorebookEntry extends UseCase<Mono<UpdateAdventureLorebookEntryResult>> {
 
     private final String id;
     private final String adventureId;
