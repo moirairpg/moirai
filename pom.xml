@@ -14,7 +14,7 @@
 
     <groupId>me.moirai</groupId>
     <artifactId>discordbot</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.0.4-SNAPSHOT</version>
     <name>MoirAI</name>
     <description>Discord RPG bot</description>
 
