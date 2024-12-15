@@ -9,4 +9,4 @@ CREATE TABLE favorite (
     asset_type VARCHAR(20) NOT NULL
 );
 
---rollback DROP TABLE favorite
+--rollback DROP TABLE favorite CASCADE;

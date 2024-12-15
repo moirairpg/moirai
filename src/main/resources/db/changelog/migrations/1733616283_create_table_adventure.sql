@@ -49,5 +49,5 @@ CREATE TABLE adventure_lorebook (
     last_update_date TIMESTAMP WITH TIME ZONE
 );
 
---rollback DROP TABLE adventure_lorebook
---rollback DROP TABLE adventure
+--rollback DROP TABLE adventure_lorebook CASCADE;
+--rollback DROP TABLE adventure CASCADE;
