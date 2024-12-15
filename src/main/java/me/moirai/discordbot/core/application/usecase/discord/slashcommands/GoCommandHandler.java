@@ -85,6 +85,11 @@ public class GoCommandHandler extends AbstractUseCaseHandler<GoCommand, Mono<Voi
                 .worldId(adventure.getWorldId())
                 .messageHistory(messageHistory)
                 .gameMode(adventure.getGameMode().name())
+                .nudge(adventure.getContextAttributes().getNudge())
+                .authorsNote(adventure.getContextAttributes().getAuthorsNote())
+                .remember(adventure.getContextAttributes().getRemember())
+                .bump(adventure.getContextAttributes().getBump())
+                .bumpFrequency(adventure.getContextAttributes().getBumpFrequency())
                 .build();
     }
 

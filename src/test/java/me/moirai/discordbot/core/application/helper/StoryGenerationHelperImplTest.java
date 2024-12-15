@@ -75,8 +75,6 @@ public class StoryGenerationHelperImplTest {
         String personaDescription = "This is a persona";
         String lorebook = "This is a lorebook";
         String summary = "This is a story summary";
-        String bump = "This is a bump";
-        String nudge = "This is a nudge";
         String channelId = "CHNLID";
 
         StoryGenerationRequest query = StoryGenerationRequestFixture.create()
@@ -93,8 +91,6 @@ public class StoryGenerationHelperImplTest {
         context.put("lorebook", lorebook);
         context.put("persona", personaDescription);
         context.put("summary", summary);
-        context.put("nudge", nudge);
-        context.put("bump", bump);
 
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
         TextModerationResult moderationResult = TextModerationResultFixture.withoutFlags().build();
@@ -128,7 +124,7 @@ public class StoryGenerationHelperImplTest {
         verify(discordChannelOperationsPort).sendTextMessageTo(eq(channelId), anyString());
 
         List<ChatMessage> messagesSentToAi = textGenerationRequestCaptor.getValue().getMessages();
-        assertThat(messagesSentToAi).isNotNull().isNotEmpty().hasSize(10);
+        assertThat(messagesSentToAi).isNotNull().isNotEmpty().hasSize(8);
 
         assertThat(messagesSentToAi)
                 .element(0)
@@ -144,16 +140,6 @@ public class StoryGenerationHelperImplTest {
                 .element(2)
                 .matches(element -> element.getRole().equals(SYSTEM))
                 .matches(element -> element.getContent().equals(summary));
-
-        assertThat(messagesSentToAi)
-                .element(3)
-                .matches(element -> element.getRole().equals(SYSTEM))
-                .matches(element -> element.getContent().equals(bump));
-
-        assertThat(messagesSentToAi)
-                .element(9)
-                .matches(element -> element.getRole().equals(SYSTEM))
-                .matches(element -> element.getContent().equals(nudge));
     }
 
     @Test
@@ -163,8 +149,6 @@ public class StoryGenerationHelperImplTest {
         String personaDescription = "This is a persona";
         String lorebook = "This is a lorebook";
         String summary = "This is a story summary";
-        String bump = "This is a bump";
-        String nudge = "This is a nudge";
         String channelId = "CHNLID";
 
         StoryGenerationRequest query = StoryGenerationRequestFixture.create()
@@ -181,8 +165,6 @@ public class StoryGenerationHelperImplTest {
         context.put("lorebook", lorebook);
         context.put("persona", personaDescription);
         context.put("summary", summary);
-        context.put("nudge", nudge);
-        context.put("bump", bump);
 
         TextModerationResult moderationResult = TextModerationResultFixture.withFlags().build();
 
@@ -218,8 +200,6 @@ public class StoryGenerationHelperImplTest {
         String personaDescription = "This is a persona";
         String lorebook = "This is a lorebook";
         String summary = "This is a story summary";
-        String bump = "This is a bump";
-        String nudge = "This is a nudge";
         String channelId = "CHNLID";
 
         StoryGenerationRequest query = StoryGenerationRequestFixture.create()
@@ -236,8 +216,6 @@ public class StoryGenerationHelperImplTest {
         context.put("lorebook", lorebook);
         context.put("persona", personaDescription);
         context.put("summary", summary);
-        context.put("nudge", nudge);
-        context.put("bump", bump);
 
         TextGenerationResult generationResult = TextGenerationResultFixture.create().build();
         TextModerationResult goodModerationResult = TextModerationResultFixture.withoutFlags().build();

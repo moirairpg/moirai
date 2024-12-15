@@ -84,6 +84,11 @@ public class ChatModeHandler extends AbstractUseCaseHandler<ChatModeRequest, Mon
                 .worldId(adventure.getWorldId())
                 .messageHistory(messageHistory)
                 .gameMode(CHAT.name())
+                .nudge(adventure.getContextAttributes().getNudge())
+                .authorsNote(adventure.getContextAttributes().getAuthorsNote())
+                .remember(adventure.getContextAttributes().getRemember())
+                .bump(adventure.getContextAttributes().getBump())
+                .bumpFrequency(adventure.getContextAttributes().getBumpFrequency())
                 .build();
     }
 
