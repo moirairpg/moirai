@@ -51,4 +51,28 @@ public class AdventureDomainRepositoryImpl implements AdventureDomainRepository 
         favoriteRepository.deleteAllByAssetId(id);
         jpaRepository.deleteById(id);
     }
+
+    @Override
+    public void updateRememberByChannelId(String remember, String channelId) {
+
+        jpaRepository.updateRememberByChannelId(remember, channelId);
+    }
+
+    @Override
+    public void updateAuthorsNoteByChannelId(String authorsNote, String channelId) {
+
+        jpaRepository.updateAuthorsNoteByChannelId(authorsNote, channelId);
+    }
+
+    @Override
+    public void updateNudgeByChannelId(String nudge, String channelId) {
+
+        jpaRepository.updateNudgeByChannelId(nudge, channelId);
+    }
+
+    @Override
+    public void updateBumpByChannelId(String bumpContent, int bumpFrequency, String channelId) {
+
+        jpaRepository.updateBumpByChannelId(bumpContent, bumpFrequency, channelId);
+    }
 }

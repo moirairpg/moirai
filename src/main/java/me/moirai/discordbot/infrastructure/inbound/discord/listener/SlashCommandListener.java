@@ -16,6 +16,8 @@ import me.moirai.discordbot.common.exception.AssetNotFoundException;
 import me.moirai.discordbot.common.exception.ModerationException;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
+import me.moirai.discordbot.core.application.usecase.adventure.request.GetAdventureByChannelId;
+import me.moirai.discordbot.core.application.usecase.adventure.result.GetAdventureResult;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.GoCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.RetryCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.StartCommand;
@@ -40,6 +42,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SlashCommandListener.class);
 
+    private static final String CONTENT = "Content";
     private static final String COMMA_DELIMITER = ", ";
     private static final String CONTENT_FLAGGED_MESSAGE = "Message content was flagged by moderation. The following topics were blocked: %s";
     private static final String SOMETHING_WENT_WRONG = "Something went wrong. Please try again.";
@@ -159,7 +162,7 @@ public class SlashCommandListener extends ListenerAdapter {
                                 .subscribe();
                     }
                     case "say" -> {
-                        TextInput content = TextInput.create("content", "Content", TextInputStyle.PARAGRAPH)
+                        TextInput content = TextInput.create("content", CONTENT, TextInputStyle.PARAGRAPH)
                                 .setPlaceholder("Message to be sent as the bot")
                                 .setMinLength(1)
                                 .setMaxLength(2000)
@@ -186,6 +189,80 @@ public class SlashCommandListener extends ListenerAdapter {
                         }
 
                         updateNotification(interactionHook, finalResult);
+                    }
+                    case "remember" -> {
+                        GetAdventureByChannelId request = GetAdventureByChannelId.build(textChannel.getId());
+                        GetAdventureResult result = useCaseRunner.run(request);
+                        TextInput rememberContent = TextInput
+                                .create("rememberContent", CONTENT, TextInputStyle.PARAGRAPH)
+                                .setPlaceholder("Important piece of information the AI has to remember about")
+                                .setMinLength(1)
+                                .setMaxLength(50)
+                                .setValue(result.getRemember())
+                                .build();
+
+                        Modal modal = Modal.create("remember", "Context modifier: remember")
+                                .addComponents(ActionRow.of(rememberContent))
+                                .build();
+
+                        event.replyModal(modal).complete();
+                    }
+                    case "nudge" -> {
+                        GetAdventureByChannelId request = GetAdventureByChannelId.build(textChannel.getId());
+                        GetAdventureResult result = useCaseRunner.run(request);
+                        TextInput nudgeContent = TextInput.create("nudgeContent", CONTENT, TextInputStyle.PARAGRAPH)
+                                .setPlaceholder("General instructions for the AI to follow")
+                                .setMinLength(1)
+                                .setMaxLength(50)
+                                .setValue(result.getNudge())
+                                .build();
+
+                        Modal modal = Modal.create("nudge", "Context modifier: nudge")
+                                .addComponents(ActionRow.of(nudgeContent))
+                                .build();
+
+                        event.replyModal(modal).complete();
+                    }
+                    case "authorsnote" -> {
+                        GetAdventureByChannelId request = GetAdventureByChannelId.build(textChannel.getId());
+                        GetAdventureResult result = useCaseRunner.run(request);
+                        TextInput authorsNoteContent = TextInput
+                                .create("authorsNoteContent", CONTENT, TextInputStyle.PARAGRAPH)
+                                .setPlaceholder("Instructions from the author on how the story should be told")
+                                .setMinLength(1)
+                                .setMaxLength(50)
+                                .setValue(result.getAuthorsNote())
+                                .build();
+
+                        Modal modal = Modal.create("authorsNote", "Context modifier: author's note")
+                                .addComponents(ActionRow.of(authorsNoteContent))
+                                .build();
+
+                        event.replyModal(modal).complete();
+                    }
+                    case "bump" -> {
+                        GetAdventureByChannelId request = GetAdventureByChannelId.build(textChannel.getId());
+                        GetAdventureResult result = useCaseRunner.run(request);
+                        TextInput bumpContent = TextInput.create("bumpContent", CONTENT, TextInputStyle.PARAGRAPH)
+                                .setPlaceholder("Reminders inserted between messages to keep AI's act on track")
+                                .setMinLength(1)
+                                .setMaxLength(50)
+                                .setValue(result.getBump())
+                                .build();
+
+                        TextInput bumpFrequency = TextInput
+                                .create("bumpFrequency", "Insert bump every # messages", TextInputStyle.SHORT)
+                                .setPlaceholder("3")
+                                .setMinLength(1)
+                                .setMaxLength(2)
+                                .setValue(String.valueOf(result.getBumpFrequency()))
+                                .build();
+
+                        Modal modal = Modal.create("bump", "Context modifier: bump")
+                                .addComponents(ActionRow.of(bumpContent), ActionRow.of(bumpFrequency))
+                                .build();
+
+                        event.replyModal(modal).complete();
                     }
                 }
             }

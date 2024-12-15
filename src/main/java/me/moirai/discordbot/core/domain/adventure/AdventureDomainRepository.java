@@ -9,4 +9,12 @@ public interface AdventureDomainRepository {
     Adventure save(Adventure adventure);
 
     void deleteById(String id);
+
+    void updateRememberByChannelId(String remember, String channelId);
+
+    void updateAuthorsNoteByChannelId(String authorsNote, String channelId);
+
+    void updateNudgeByChannelId(String nudge, String channelId);
+
+    void updateBumpByChannelId(String bumpContent, int bumpFrequency, String channelId);
 }
