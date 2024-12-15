@@ -8,46 +8,26 @@ public class PersonaResponseFixture {
     public static PersonaResponse.Builder publicPersona() {
 
         Persona persona = PersonaFixture.publicPersona().build();
-
-        PersonaResponse.Builder builder = PersonaResponse.builder();
-        builder.id(persona.getId());
-        builder.name(persona.getName());
-        builder.personality(persona.getPersonality());
-        builder.visibility(persona.getVisibility().toString());
-        builder.ownerDiscordId(persona.getOwnerDiscordId());
-        builder.usersAllowedToRead(persona.getUsersAllowedToRead());
-        builder.usersAllowedToWrite(persona.getUsersAllowedToWrite());
-
-        builder.nudgeContent(persona.getNudge().getContent());
-        builder.nudgeRole(persona.getNudge().getRole().toString());
-
-        builder.bumpContent(persona.getBump().getContent());
-        builder.bumpRole(persona.getBump().getRole().toString());
-        builder.bumpFrequency(persona.getBump().getFrequency());
-
-        return builder;
+        return PersonaResponse.builder()
+                .id(persona.getId())
+                .name(persona.getName())
+                .personality(persona.getPersonality())
+                .visibility(persona.getVisibility().toString())
+                .ownerDiscordId(persona.getOwnerDiscordId())
+                .usersAllowedToRead(persona.getUsersAllowedToRead())
+                .usersAllowedToWrite(persona.getUsersAllowedToWrite());
     }
 
     public static PersonaResponse.Builder privatePersona() {
 
         Persona persona = PersonaFixture.privatePersona().build();
-
-        PersonaResponse.Builder builder = PersonaResponse.builder();
-        builder.id(persona.getId());
-        builder.name(persona.getName());
-        builder.personality(persona.getPersonality());
-        builder.visibility(persona.getVisibility().toString());
-        builder.ownerDiscordId(persona.getOwnerDiscordId());
-        builder.usersAllowedToRead(persona.getUsersAllowedToRead());
-        builder.usersAllowedToWrite(persona.getUsersAllowedToWrite());
-
-        builder.nudgeContent(persona.getNudge().getContent());
-        builder.nudgeRole(persona.getNudge().getRole().toString());
-
-        builder.bumpContent(persona.getBump().getContent());
-        builder.bumpRole(persona.getBump().getRole().toString());
-        builder.bumpFrequency(persona.getBump().getFrequency());
-
-        return builder;
+        return PersonaResponse.builder()
+                .id(persona.getId())
+                .name(persona.getName())
+                .personality(persona.getPersonality())
+                .visibility(persona.getVisibility().toString())
+                .ownerDiscordId(persona.getOwnerDiscordId())
+                .usersAllowedToRead(persona.getUsersAllowedToRead())
+                .usersAllowedToWrite(persona.getUsersAllowedToWrite());
     }
 }

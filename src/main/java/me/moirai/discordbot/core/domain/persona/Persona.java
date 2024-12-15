@@ -2,20 +2,17 @@ package me.moirai.discordbot.core.domain.persona;
 
 import java.time.OffsetDateTime;
 
+import io.micrometer.common.util.StringUtils;
 import me.moirai.discordbot.common.exception.BusinessRuleViolationException;
-import me.moirai.discordbot.core.domain.CompletionRole;
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.ShareableAsset;
 import me.moirai.discordbot.core.domain.Visibility;
-import io.micrometer.common.util.StringUtils;
 
 public class Persona extends ShareableAsset {
 
     private String id;
     private String name;
     private String personality;
-    private Nudge nudge;
-    private Bump bump;
 
     private Persona(Builder builder) {
 
@@ -25,8 +22,6 @@ public class Persona extends ShareableAsset {
         this.id = builder.id;
         this.name = builder.name;
         this.personality = builder.personality;
-        this.nudge = builder.nudge;
-        this.bump = builder.bump;
     }
 
     public static Builder builder() {
@@ -46,14 +41,6 @@ public class Persona extends ShareableAsset {
         return personality;
     }
 
-    public Nudge getNudge() {
-        return nudge;
-    }
-
-    public Bump getBump() {
-        return bump;
-    }
-
     public void updateName(String name) {
 
         this.name = name;
@@ -64,43 +51,11 @@ public class Persona extends ShareableAsset {
         this.personality = personality;
     }
 
-    public void updateBumpContent(String content) {
-
-        Bump newBump = this.bump.updateContent(content);
-        this.bump = newBump;
-    }
-
-    public void updateBumpFrequency(int frequency) {
-
-        Bump newBump = this.bump.updateFrequency(frequency);
-        this.bump = newBump;
-    }
-
-    public void updateBumpRole(CompletionRole role) {
-
-        Bump newBump = this.bump.updateRole(role);
-        this.bump = newBump;
-    }
-
-    public void updateNudgeContent(String content) {
-
-        Nudge newNudge = this.nudge.updateContent(content);
-        this.nudge = newNudge;
-    }
-
-    public void updateNudgeRole(CompletionRole role) {
-
-        Nudge newNudge = this.nudge.updateRole(role);
-        this.nudge = newNudge;
-    }
-
     public static final class Builder {
 
         private String id;
         private String name;
         private String personality;
-        private Nudge nudge;
-        private Bump bump;
         private Visibility visibility;
         private Permissions permissions;
         private String creatorDiscordId;
@@ -126,18 +81,6 @@ public class Persona extends ShareableAsset {
         public Builder personality(String personality) {
 
             this.personality = personality;
-            return this;
-        }
-
-        public Builder nudge(Nudge nudge) {
-
-            this.nudge = nudge;
-            return this;
-        }
-
-        public Builder bump(Bump bump) {
-
-            this.bump = bump;
             return this;
         }
 

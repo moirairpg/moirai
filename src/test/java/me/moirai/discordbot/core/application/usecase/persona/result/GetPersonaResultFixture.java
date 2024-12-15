@@ -17,11 +17,6 @@ public class GetPersonaResultFixture {
                 .usersAllowedToWrite(persona.getUsersAllowedToWrite())
                 .creationDate(persona.getCreationDate())
                 .lastUpdateDate(persona.getLastUpdateDate())
-                .ownerDiscordId(persona.getOwnerDiscordId())
-                .nudgeContent(persona.getNudge().getContent())
-                .nudgeRole(persona.getNudge().getRole().toString())
-                .bumpContent(persona.getBump().getContent())
-                .bumpRole(persona.getBump().getRole().toString())
-                .bumpFrequency(persona.getBump().getFrequency());
+                .ownerDiscordId(persona.getOwnerDiscordId());
     }
 }

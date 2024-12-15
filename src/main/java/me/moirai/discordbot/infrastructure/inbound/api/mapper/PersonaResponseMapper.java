@@ -41,11 +41,6 @@ public class PersonaResponseMapper {
                 .personality(result.getPersonality())
                 .creationDate(result.getCreationDate())
                 .lastUpdateDate(result.getLastUpdateDate())
-                .nudgeContent(result.getNudgeContent())
-                .nudgeRole(result.getNudgeRole())
-                .bumpContent(result.getBumpContent())
-                .bumpRole(result.getBumpRole())
-                .bumpFrequency(result.getBumpFrequency())
                 .visibility(result.getVisibility())
                 .ownerDiscordId(result.getOwnerDiscordId())
                 .build();

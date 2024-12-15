@@ -13,12 +13,7 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
 
     private final String name;
     private final String personality;
-    private final String nudgeRole;
-    private final String nudgeContent;
-    private final String bumpRole;
-    private final String bumpContent;
     private final String visibility;
-    private final Integer bumpFrequency;
     private final String requesterDiscordId;
     private final List<String> usersAllowedToWrite;
     private final List<String> usersAllowedToRead;
@@ -26,12 +21,7 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
     public CreatePersona(Builder builder) {
         this.name = builder.name;
         this.personality = builder.personality;
-        this.nudgeRole = builder.nudgeRole;
-        this.nudgeContent = builder.nudgeContent;
-        this.bumpRole = builder.bumpRole;
-        this.bumpContent = builder.bumpContent;
         this.visibility = builder.visibility;
-        this.bumpFrequency = builder.bumpFrequency;
         this.requesterDiscordId = builder.requesterDiscordId;
         this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
         this.usersAllowedToRead = unmodifiableList(builder.usersAllowedToRead);
@@ -49,28 +39,8 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
         return personality;
     }
 
-    public String getNudgeRole() {
-        return nudgeRole;
-    }
-
-    public String getNudgeContent() {
-        return nudgeContent;
-    }
-
-    public String getBumpRole() {
-        return bumpRole;
-    }
-
-    public String getBumpContent() {
-        return bumpContent;
-    }
-
     public String getVisibility() {
         return visibility;
-    }
-
-    public Integer getBumpFrequency() {
-        return bumpFrequency;
     }
 
     public List<String> getUsersAllowedToWrite() {
@@ -89,12 +59,7 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
 
         private String name;
         private String personality;
-        private String nudgeRole;
-        private String nudgeContent;
-        private String bumpRole;
-        private String bumpContent;
         private String visibility;
-        private Integer bumpFrequency;
         private String requesterDiscordId;
         private List<String> usersAllowedToWrite = new ArrayList<>();
         private List<String> usersAllowedToRead = new ArrayList<>();
@@ -112,33 +77,8 @@ public final class CreatePersona extends UseCase<Mono<CreatePersonaResult>> {
             return this;
         }
 
-        public Builder nudgeRole(String nudgeRole) {
-            this.nudgeRole = nudgeRole;
-            return this;
-        }
-
-        public Builder nudgeContent(String nudgeContent) {
-            this.nudgeContent = nudgeContent;
-            return this;
-        }
-
-        public Builder bumpRole(String bumpRole) {
-            this.bumpRole = bumpRole;
-            return this;
-        }
-
-        public Builder bumpContent(String bumpContent) {
-            this.bumpContent = bumpContent;
-            return this;
-        }
-
         public Builder visibility(String visibility) {
             this.visibility = visibility;
-            return this;
-        }
-
-        public Builder bumpFrequency(Integer bumpFrequency) {
-            this.bumpFrequency = bumpFrequency;
             return this;
         }
 

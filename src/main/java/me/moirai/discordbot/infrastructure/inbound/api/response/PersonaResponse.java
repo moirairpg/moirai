@@ -13,11 +13,6 @@ public class PersonaResponse {
     private String id;
     private String name;
     private String personality;
-    private String nudgeContent;
-    private String nudgeRole;
-    private String bumpContent;
-    private String bumpRole;
-    private Integer bumpFrequency;
     private String visibility;
     private String ownerDiscordId;
     private List<String> usersAllowedToWrite;
@@ -32,11 +27,6 @@ public class PersonaResponse {
         this.id = builder.id;
         this.name = builder.name;
         this.personality = builder.personality;
-        this.nudgeContent = builder.nudgeContent;
-        this.nudgeRole = builder.nudgeRole;
-        this.bumpContent = builder.bumpContent;
-        this.bumpRole = builder.bumpRole;
-        this.bumpFrequency = builder.bumpFrequency;
         this.visibility = builder.visibility;
         this.ownerDiscordId = builder.ownerDiscordId;
         this.usersAllowedToWrite = builder.usersAllowedToWrite;
@@ -59,26 +49,6 @@ public class PersonaResponse {
 
     public String getPersonality() {
         return personality;
-    }
-
-    public String getNudgeContent() {
-        return nudgeContent;
-    }
-
-    public String getNudgeRole() {
-        return nudgeRole;
-    }
-
-    public String getBumpContent() {
-        return bumpContent;
-    }
-
-    public String getBumpRole() {
-        return bumpRole;
-    }
-
-    public Integer getBumpFrequency() {
-        return bumpFrequency;
     }
 
     public String getVisibility() {
@@ -109,11 +79,6 @@ public class PersonaResponse {
         private String id;
         private String name;
         private String personality;
-        private String nudgeContent;
-        private String nudgeRole;
-        private String bumpContent;
-        private String bumpRole;
-        private Integer bumpFrequency;
         private String visibility;
         private String ownerDiscordId;
         private List<String> usersAllowedToWrite;
@@ -136,31 +101,6 @@ public class PersonaResponse {
 
         public Builder personality(String personality) {
             this.personality = personality;
-            return this;
-        }
-
-        public Builder nudgeContent(String nudgeContent) {
-            this.nudgeContent = nudgeContent;
-            return this;
-        }
-
-        public Builder nudgeRole(String nudgeRole) {
-            this.nudgeRole = nudgeRole;
-            return this;
-        }
-
-        public Builder bumpContent(String bumpContent) {
-            this.bumpContent = bumpContent;
-            return this;
-        }
-
-        public Builder bumpRole(String bumpRole) {
-            this.bumpRole = bumpRole;
-            return this;
-        }
-
-        public Builder bumpFrequency(Integer bumpFrequency) {
-            this.bumpFrequency = bumpFrequency;
             return this;
         }
 

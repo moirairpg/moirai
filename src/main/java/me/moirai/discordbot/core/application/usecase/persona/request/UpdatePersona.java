@@ -14,12 +14,7 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
     private final String id;
     private final String name;
     private final String personality;
-    private final String nudgeRole;
-    private final String nudgeContent;
-    private final String bumpRole;
-    private final String bumpContent;
     private final String visibility;
-    private final Integer bumpFrequency;
     private final List<String> usersAllowedToWriteToAdd;
     private final List<String> usersAllowedToWriteToRemove;
     private final List<String> usersAllowedToReadToAdd;
@@ -31,12 +26,7 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
         this.id = builder.id;
         this.name = builder.name;
         this.personality = builder.personality;
-        this.nudgeRole = builder.nudgeRole;
-        this.nudgeContent = builder.nudgeContent;
-        this.bumpRole = builder.bumpRole;
-        this.bumpContent = builder.bumpContent;
         this.visibility = builder.visibility;
-        this.bumpFrequency = builder.bumpFrequency;
         this.usersAllowedToWriteToAdd = unmodifiableList(builder.usersAllowedToWriteToAdd);
         this.usersAllowedToWriteToRemove = unmodifiableList(builder.usersAllowedToWriteToRemove);
         this.usersAllowedToReadToAdd = unmodifiableList(builder.usersAllowedToReadToAdd);
@@ -60,28 +50,8 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
         return personality;
     }
 
-    public String getNudgeRole() {
-        return nudgeRole;
-    }
-
-    public String getNudgeContent() {
-        return nudgeContent;
-    }
-
-    public String getBumpRole() {
-        return bumpRole;
-    }
-
-    public String getBumpContent() {
-        return bumpContent;
-    }
-
     public String getVisibility() {
         return visibility;
-    }
-
-    public Integer getBumpFrequency() {
-        return bumpFrequency;
     }
 
     public List<String> getUsersAllowedToWriteToAdd() {
@@ -108,12 +78,7 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
         private String id;
         private String name;
         private String personality;
-        private String nudgeRole;
-        private String nudgeContent;
-        private String bumpRole;
-        private String bumpContent;
         private String visibility;
-        private Integer bumpFrequency;
         private List<String> usersAllowedToWriteToAdd = new ArrayList<>();
         private List<String> usersAllowedToWriteToRemove = new ArrayList<>();
         private List<String> usersAllowedToReadToAdd = new ArrayList<>();
@@ -138,33 +103,8 @@ public final class UpdatePersona extends UseCase<Mono<UpdatePersonaResult>> {
             return this;
         }
 
-        public Builder nudgeRole(String nudgeRole) {
-            this.nudgeRole = nudgeRole;
-            return this;
-        }
-
-        public Builder nudgeContent(String nudgeContent) {
-            this.nudgeContent = nudgeContent;
-            return this;
-        }
-
-        public Builder bumpRole(String bumpRole) {
-            this.bumpRole = bumpRole;
-            return this;
-        }
-
-        public Builder bumpContent(String bumpContent) {
-            this.bumpContent = bumpContent;
-            return this;
-        }
-
         public Builder visibility(String visibility) {
             this.visibility = visibility;
-            return this;
-        }
-
-        public Builder bumpFrequency(Integer bumpFrequency) {
-            this.bumpFrequency = bumpFrequency;
             return this;
         }
 

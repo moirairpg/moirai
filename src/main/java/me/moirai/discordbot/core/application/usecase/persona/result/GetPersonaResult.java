@@ -11,11 +11,6 @@ public final class GetPersonaResult {
     private final String id;
     private final String name;
     private final String personality;
-    private final String nudgeContent;
-    private final String nudgeRole;
-    private final String bumpContent;
-    private final String bumpRole;
-    private final int bumpFrequency;
     private final String visibility;
     private final String ownerDiscordId;
     private final List<String> usersAllowedToWrite;
@@ -28,11 +23,6 @@ public final class GetPersonaResult {
         this.id = builder.id;
         this.name = builder.name;
         this.personality = builder.personality;
-        this.nudgeContent = builder.nudgeContent;
-        this.nudgeRole = builder.nudgeRole;
-        this.bumpContent = builder.bumpContent;
-        this.bumpRole = builder.bumpRole;
-        this.bumpFrequency = builder.bumpFrequency;
         this.visibility = builder.visibility;
         this.ownerDiscordId = builder.ownerDiscordId;
         this.usersAllowedToWrite = unmodifiableList(builder.usersAllowedToWrite);
@@ -55,26 +45,6 @@ public final class GetPersonaResult {
 
     public String getPersonality() {
         return personality;
-    }
-
-    public String getNudgeContent() {
-        return nudgeContent;
-    }
-
-    public String getNudgeRole() {
-        return nudgeRole;
-    }
-
-    public String getBumpContent() {
-        return bumpContent;
-    }
-
-    public String getBumpRole() {
-        return bumpRole;
-    }
-
-    public int getBumpFrequency() {
-        return bumpFrequency;
     }
 
     public String getVisibility() {
@@ -106,11 +76,6 @@ public final class GetPersonaResult {
         private String id;
         private String name;
         private String personality;
-        private String nudgeContent;
-        private String nudgeRole;
-        private String bumpContent;
-        private String bumpRole;
-        private int bumpFrequency;
         private String visibility;
         private String ownerDiscordId;
         private List<String> usersAllowedToWrite = new ArrayList<>();
@@ -133,31 +98,6 @@ public final class GetPersonaResult {
 
         public Builder personality(String personality) {
             this.personality = personality;
-            return this;
-        }
-
-        public Builder nudgeContent(String nudgeContent) {
-            this.nudgeContent = nudgeContent;
-            return this;
-        }
-
-        public Builder nudgeRole(String nudgeRole) {
-            this.nudgeRole = nudgeRole;
-            return this;
-        }
-
-        public Builder bumpContent(String bumpContent) {
-            this.bumpContent = bumpContent;
-            return this;
-        }
-
-        public Builder bumpRole(String bumpRole) {
-            this.bumpRole = bumpRole;
-            return this;
-        }
-
-        public Builder bumpFrequency(int bumpFrequency) {
-            this.bumpFrequency = bumpFrequency;
             return this;
         }
 

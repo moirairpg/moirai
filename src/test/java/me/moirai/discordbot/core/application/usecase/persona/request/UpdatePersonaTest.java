@@ -21,11 +21,6 @@ public class UpdatePersonaTest {
         List<String> usersAllowedToWriteToAdd = Lists.list("123123", "123123");
         List<String> usersAllowedToReadToRemove = Lists.list("123123", "123123");
         List<String> usersAllowedToWriteToRemove = Lists.list("123123", "123123");
-        String nudgeContent = "nudge";
-        String nudgeRole = "SYSTEM";
-        String bumpContent = "bump";
-        String bumpRole = "SYSTEM";
-        int bumpFrequency = 3;
 
         UpdatePersona.Builder updatePersonaBuilder = UpdatePersona.builder()
                 .name(name)
@@ -35,12 +30,7 @@ public class UpdatePersonaTest {
                 .usersAllowedToReadToAdd(usersAllowedToReadToAdd)
                 .usersAllowedToWriteToAdd(usersAllowedToWriteToAdd)
                 .usersAllowedToReadToRemove(usersAllowedToReadToRemove)
-                .usersAllowedToWriteToRemove(usersAllowedToWriteToRemove)
-                .nudgeContent(nudgeContent)
-                .nudgeRole(nudgeRole)
-                .bumpContent(bumpContent)
-                .bumpRole(bumpRole)
-                .bumpFrequency(bumpFrequency);
+                .usersAllowedToWriteToRemove(usersAllowedToWriteToRemove);
 
         // When
         UpdatePersona updatePersona = updatePersonaBuilder.build();
@@ -55,11 +45,6 @@ public class UpdatePersonaTest {
         assertThat(updatePersona.getUsersAllowedToWriteToAdd()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToWriteToAdd);
         assertThat(updatePersona.getUsersAllowedToReadToRemove()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToReadToRemove);
         assertThat(updatePersona.getUsersAllowedToWriteToRemove()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToWriteToRemove);
-        assertThat(updatePersona.getNudgeContent()).isNotNull().isNotEmpty().isEqualTo(nudgeContent);
-        assertThat(updatePersona.getNudgeRole()).isNotNull().isNotEmpty().isEqualTo(nudgeRole);
-        assertThat(updatePersona.getBumpContent()).isNotNull().isNotEmpty().isEqualTo(bumpContent);
-        assertThat(updatePersona.getBumpFrequency()).isNotNull().isEqualTo(bumpFrequency);
-        assertThat(updatePersona.getBumpRole()).isNotNull().isNotEmpty().isEqualTo(bumpRole);
     }
 
     @Test
@@ -74,11 +59,6 @@ public class UpdatePersonaTest {
         List<String> usersAllowedToWriteToAdd = null;
         List<String> usersAllowedToReadToRemove = Lists.list("123123", "123123");
         List<String> usersAllowedToWriteToRemove = Lists.list("123123", "123123");
-        String nudgeContent = "nudge";
-        String nudgeRole = "SYSTEM";
-        String bumpContent = "bump";
-        String bumpRole = "SYSTEM";
-        int bumpFrequency = 3;
 
         UpdatePersona.Builder updatePersonaBuilder = UpdatePersona.builder()
                 .name(name)
@@ -88,12 +68,7 @@ public class UpdatePersonaTest {
                 .usersAllowedToReadToAdd(usersAllowedToReadToAdd)
                 .usersAllowedToWriteToAdd(usersAllowedToWriteToAdd)
                 .usersAllowedToReadToRemove(usersAllowedToReadToRemove)
-                .usersAllowedToWriteToRemove(usersAllowedToWriteToRemove)
-                .nudgeContent(nudgeContent)
-                .nudgeRole(nudgeRole)
-                .bumpContent(bumpContent)
-                .bumpRole(bumpRole)
-                .bumpFrequency(bumpFrequency);
+                .usersAllowedToWriteToRemove(usersAllowedToWriteToRemove);
 
         // When
         UpdatePersona updatePersona = updatePersonaBuilder.build();
@@ -108,11 +83,6 @@ public class UpdatePersonaTest {
         assertThat(updatePersona.getUsersAllowedToWriteToAdd()).isNotNull().isEmpty();
         assertThat(updatePersona.getUsersAllowedToReadToRemove()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToReadToRemove);
         assertThat(updatePersona.getUsersAllowedToWriteToRemove()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToWriteToRemove);
-        assertThat(updatePersona.getNudgeContent()).isNotNull().isNotEmpty().isEqualTo(nudgeContent);
-        assertThat(updatePersona.getNudgeRole()).isNotNull().isNotEmpty().isEqualTo(nudgeRole);
-        assertThat(updatePersona.getBumpContent()).isNotNull().isNotEmpty().isEqualTo(bumpContent);
-        assertThat(updatePersona.getBumpFrequency()).isNotNull().isEqualTo(bumpFrequency);
-        assertThat(updatePersona.getBumpRole()).isNotNull().isNotEmpty().isEqualTo(bumpRole);
     }
 
     @Test
@@ -127,11 +97,6 @@ public class UpdatePersonaTest {
         List<String> usersAllowedToWriteToAdd = Lists.list("123123", "123123");
         List<String> usersAllowedToReadToRemove = Lists.list("123123", "123123");
         List<String> usersAllowedToWriteToRemove = Lists.list("123123", "123123");
-        String nudgeContent = "nudge";
-        String nudgeRole = "SYSTEM";
-        String bumpContent = "bump";
-        String bumpRole = "SYSTEM";
-        int bumpFrequency = 3;
 
         UpdatePersona.Builder updatePersonaBuilder = UpdatePersona.builder()
                 .name(name)
@@ -141,12 +106,7 @@ public class UpdatePersonaTest {
                 .usersAllowedToReadToAdd(usersAllowedToReadToAdd)
                 .usersAllowedToWriteToAdd(usersAllowedToWriteToAdd)
                 .usersAllowedToReadToRemove(usersAllowedToReadToRemove)
-                .usersAllowedToWriteToRemove(usersAllowedToWriteToRemove)
-                .nudgeContent(nudgeContent)
-                .nudgeRole(nudgeRole)
-                .bumpContent(bumpContent)
-                .bumpRole(bumpRole)
-                .bumpFrequency(bumpFrequency);
+                .usersAllowedToWriteToRemove(usersAllowedToWriteToRemove);
 
         // When
         UpdatePersona updatePersona = updatePersonaBuilder.build();
@@ -162,11 +122,6 @@ public class UpdatePersonaTest {
         assertThat(updatePersona.getUsersAllowedToWriteToAdd()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToWriteToAdd);
         assertThat(updatePersona.getUsersAllowedToReadToRemove()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToReadToRemove);
         assertThat(updatePersona.getUsersAllowedToWriteToRemove()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToWriteToRemove);
-        assertThat(updatePersona.getNudgeContent()).isNotNull().isNotEmpty().isEqualTo(nudgeContent);
-        assertThat(updatePersona.getNudgeRole()).isNotNull().isNotEmpty().isEqualTo(nudgeRole);
-        assertThat(updatePersona.getBumpContent()).isNotNull().isNotEmpty().isEqualTo(bumpContent);
-        assertThat(updatePersona.getBumpFrequency()).isNotNull().isEqualTo(bumpFrequency);
-        assertThat(updatePersona.getBumpRole()).isNotNull().isNotEmpty().isEqualTo(bumpRole);
     }
 
     @Test
@@ -181,11 +136,6 @@ public class UpdatePersonaTest {
         List<String> usersAllowedToWriteToAdd = Lists.list("123123", "123123");
         List<String> usersAllowedToReadToRemove = null;
         List<String> usersAllowedToWriteToRemove = Lists.list("123123", "123123");
-        String nudgeContent = "nudge";
-        String nudgeRole = "SYSTEM";
-        String bumpContent = "bump";
-        String bumpRole = "SYSTEM";
-        int bumpFrequency = 3;
 
         UpdatePersona.Builder updatePersonaBuilder = UpdatePersona.builder()
                 .name(name)
@@ -195,12 +145,7 @@ public class UpdatePersonaTest {
                 .usersAllowedToReadToAdd(usersAllowedToReadToAdd)
                 .usersAllowedToWriteToAdd(usersAllowedToWriteToAdd)
                 .usersAllowedToReadToRemove(usersAllowedToReadToRemove)
-                .usersAllowedToWriteToRemove(usersAllowedToWriteToRemove)
-                .nudgeContent(nudgeContent)
-                .nudgeRole(nudgeRole)
-                .bumpContent(bumpContent)
-                .bumpRole(bumpRole)
-                .bumpFrequency(bumpFrequency);
+                .usersAllowedToWriteToRemove(usersAllowedToWriteToRemove);
 
         // When
         UpdatePersona updatePersona = updatePersonaBuilder.build();
@@ -216,11 +161,6 @@ public class UpdatePersonaTest {
         assertThat(updatePersona.getUsersAllowedToWriteToAdd()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToWriteToAdd);
         assertThat(updatePersona.getUsersAllowedToReadToRemove()).isNotNull().isEmpty();
         assertThat(updatePersona.getUsersAllowedToWriteToRemove()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToWriteToRemove);
-        assertThat(updatePersona.getNudgeContent()).isNotNull().isNotEmpty().isEqualTo(nudgeContent);
-        assertThat(updatePersona.getNudgeRole()).isNotNull().isNotEmpty().isEqualTo(nudgeRole);
-        assertThat(updatePersona.getBumpContent()).isNotNull().isNotEmpty().isEqualTo(bumpContent);
-        assertThat(updatePersona.getBumpFrequency()).isNotNull().isEqualTo(bumpFrequency);
-        assertThat(updatePersona.getBumpRole()).isNotNull().isNotEmpty().isEqualTo(bumpRole);
     }
 
     @Test
@@ -235,11 +175,6 @@ public class UpdatePersonaTest {
         List<String> usersAllowedToWriteToAdd = Lists.list("123123", "123123");
         List<String> usersAllowedToReadToRemove = Lists.list("123123", "123123");
         List<String> usersAllowedToWriteToRemove = null;
-        String nudgeContent = "nudge";
-        String nudgeRole = "SYSTEM";
-        String bumpContent = "bump";
-        String bumpRole = "SYSTEM";
-        int bumpFrequency = 3;
 
         UpdatePersona.Builder updatePersonaBuilder = UpdatePersona.builder()
                 .name(name)
@@ -249,12 +184,7 @@ public class UpdatePersonaTest {
                 .usersAllowedToReadToAdd(usersAllowedToReadToAdd)
                 .usersAllowedToWriteToAdd(usersAllowedToWriteToAdd)
                 .usersAllowedToReadToRemove(usersAllowedToReadToRemove)
-                .usersAllowedToWriteToRemove(usersAllowedToWriteToRemove)
-                .nudgeContent(nudgeContent)
-                .nudgeRole(nudgeRole)
-                .bumpContent(bumpContent)
-                .bumpRole(bumpRole)
-                .bumpFrequency(bumpFrequency);
+                .usersAllowedToWriteToRemove(usersAllowedToWriteToRemove);
 
         // When
         UpdatePersona updatePersona = updatePersonaBuilder.build();
@@ -270,10 +200,5 @@ public class UpdatePersonaTest {
         assertThat(updatePersona.getUsersAllowedToWriteToAdd()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToWriteToAdd);
         assertThat(updatePersona.getUsersAllowedToReadToRemove()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToReadToRemove);
         assertThat(updatePersona.getUsersAllowedToWriteToRemove()).isNotNull().isEmpty();
-        assertThat(updatePersona.getNudgeContent()).isNotNull().isNotEmpty().isEqualTo(nudgeContent);
-        assertThat(updatePersona.getNudgeRole()).isNotNull().isNotEmpty().isEqualTo(nudgeRole);
-        assertThat(updatePersona.getBumpContent()).isNotNull().isNotEmpty().isEqualTo(bumpContent);
-        assertThat(updatePersona.getBumpFrequency()).isNotNull().isEqualTo(bumpFrequency);
-        assertThat(updatePersona.getBumpRole()).isNotNull().isNotEmpty().isEqualTo(bumpRole);
     }
 }

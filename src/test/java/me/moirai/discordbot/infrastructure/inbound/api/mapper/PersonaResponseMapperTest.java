@@ -67,11 +67,6 @@ public class PersonaResponseMapperTest {
         assertThat(response.getId()).isEqualTo(result.getId());
         assertThat(response.getName()).isEqualTo(result.getName());
         assertThat(response.getPersonality()).isEqualTo(result.getPersonality());
-        assertThat(response.getBumpContent()).isEqualTo(result.getBumpContent());
-        assertThat(response.getBumpFrequency()).isEqualTo(result.getBumpFrequency());
-        assertThat(response.getBumpRole()).isEqualTo(result.getBumpRole());
-        assertThat(response.getNudgeContent()).isEqualTo(result.getNudgeContent());
-        assertThat(response.getNudgeRole()).isEqualTo(result.getNudgeRole());
         assertThat(response.getVisibility()).isEqualTo(result.getVisibility());
         assertThat(response.getOwnerDiscordId()).isEqualTo(result.getOwnerDiscordId());
         assertThat(response.getCreationDate()).isEqualTo(result.getCreationDate());

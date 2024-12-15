@@ -19,11 +19,6 @@ public class CreatePersonaTest {
         String requesterDiscordId = "123123";
         List<String> usersAllowedToRead = Lists.list("123123", "123123");
         List<String> usersAllowedToWrite = Lists.list("123123", "123123");
-        String nudgeContent = "nudge";
-        String nudgeRole = "SYSTEM";
-        String bumpContent = "bump";
-        String bumpRole = "SYSTEM";
-        int bumpFrequency = 3;
 
         CreatePersona.Builder createPersonaBuilder = CreatePersona.builder()
                 .name(name)
@@ -31,12 +26,7 @@ public class CreatePersonaTest {
                 .visibility(visibility)
                 .requesterDiscordId(requesterDiscordId)
                 .usersAllowedToWrite(usersAllowedToWrite)
-                .usersAllowedToRead(usersAllowedToRead)
-                .nudgeContent(nudgeContent)
-                .nudgeRole(nudgeRole)
-                .bumpContent(bumpContent)
-                .bumpRole(bumpRole)
-                .bumpFrequency(bumpFrequency);
+                .usersAllowedToRead(usersAllowedToRead);
 
         // When
         CreatePersona createPersona = createPersonaBuilder.build();
@@ -49,11 +39,6 @@ public class CreatePersonaTest {
         assertThat(createPersona.getRequesterDiscordId()).isNotNull().isNotEmpty().isEqualTo(requesterDiscordId);
         assertThat(createPersona.getUsersAllowedToRead()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToRead);
         assertThat(createPersona.getUsersAllowedToWrite()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToWrite);
-        assertThat(createPersona.getNudgeContent()).isNotNull().isNotEmpty().isEqualTo(nudgeContent);
-        assertThat(createPersona.getNudgeRole()).isNotNull().isNotEmpty().isEqualTo(nudgeRole);
-        assertThat(createPersona.getBumpContent()).isNotNull().isNotEmpty().isEqualTo(bumpContent);
-        assertThat(createPersona.getBumpFrequency()).isNotNull().isEqualTo(bumpFrequency);
-        assertThat(createPersona.getBumpRole()).isNotNull().isNotEmpty().isEqualTo(bumpRole);
     }
 
     @Test
@@ -66,11 +51,6 @@ public class CreatePersonaTest {
         String requesterDiscordId = "123123";
         List<String> usersAllowedToRead = Lists.list("123123", "123123");
         List<String> usersAllowedToWrite = null;
-        String nudgeContent = "nudge";
-        String nudgeRole = "SYSTEM";
-        String bumpContent = "bump";
-        String bumpRole = "SYSTEM";
-        int bumpFrequency = 3;
 
         CreatePersona.Builder createPersonaBuilder = CreatePersona.builder()
                 .name(name)
@@ -78,12 +58,7 @@ public class CreatePersonaTest {
                 .visibility(visibility)
                 .requesterDiscordId(requesterDiscordId)
                 .usersAllowedToWrite(usersAllowedToWrite)
-                .usersAllowedToRead(usersAllowedToRead)
-                .nudgeContent(nudgeContent)
-                .nudgeRole(nudgeRole)
-                .bumpContent(bumpContent)
-                .bumpRole(bumpRole)
-                .bumpFrequency(bumpFrequency);
+                .usersAllowedToRead(usersAllowedToRead);
 
         // When
         CreatePersona createPersona = createPersonaBuilder.build();
@@ -96,11 +71,6 @@ public class CreatePersonaTest {
         assertThat(createPersona.getRequesterDiscordId()).isNotNull().isNotEmpty().isEqualTo(requesterDiscordId);
         assertThat(createPersona.getUsersAllowedToRead()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToRead);
         assertThat(createPersona.getUsersAllowedToWrite()).isNotNull().isEmpty();
-        assertThat(createPersona.getNudgeContent()).isNotNull().isNotEmpty().isEqualTo(nudgeContent);
-        assertThat(createPersona.getNudgeRole()).isNotNull().isNotEmpty().isEqualTo(nudgeRole);
-        assertThat(createPersona.getBumpContent()).isNotNull().isNotEmpty().isEqualTo(bumpContent);
-        assertThat(createPersona.getBumpFrequency()).isNotNull().isEqualTo(bumpFrequency);
-        assertThat(createPersona.getBumpRole()).isNotNull().isNotEmpty().isEqualTo(bumpRole);
     }
 
     @Test
@@ -113,11 +83,6 @@ public class CreatePersonaTest {
         String requesterDiscordId = "123123";
         List<String> usersAllowedToRead = null;
         List<String> usersAllowedToWrite = Lists.list("123123", "123123");
-        String nudgeContent = "nudge";
-        String nudgeRole = "SYSTEM";
-        String bumpContent = "bump";
-        String bumpRole = "SYSTEM";
-        int bumpFrequency = 3;
 
         CreatePersona.Builder createPersonaBuilder = CreatePersona.builder()
                 .name(name)
@@ -125,12 +90,7 @@ public class CreatePersonaTest {
                 .visibility(visibility)
                 .requesterDiscordId(requesterDiscordId)
                 .usersAllowedToWrite(usersAllowedToWrite)
-                .usersAllowedToRead(usersAllowedToRead)
-                .nudgeContent(nudgeContent)
-                .nudgeRole(nudgeRole)
-                .bumpContent(bumpContent)
-                .bumpRole(bumpRole)
-                .bumpFrequency(bumpFrequency);
+                .usersAllowedToRead(usersAllowedToRead);
 
         // When
         CreatePersona createPersona = createPersonaBuilder.build();
@@ -143,10 +103,5 @@ public class CreatePersonaTest {
         assertThat(createPersona.getRequesterDiscordId()).isNotNull().isNotEmpty().isEqualTo(requesterDiscordId);
         assertThat(createPersona.getUsersAllowedToRead()).isNotNull().isEmpty();
         assertThat(createPersona.getUsersAllowedToWrite()).isNotNull().isNotEmpty().hasSameElementsAs(usersAllowedToWrite);
-        assertThat(createPersona.getNudgeContent()).isNotNull().isNotEmpty().isEqualTo(nudgeContent);
-        assertThat(createPersona.getNudgeRole()).isNotNull().isNotEmpty().isEqualTo(nudgeRole);
-        assertThat(createPersona.getBumpContent()).isNotNull().isNotEmpty().isEqualTo(bumpContent);
-        assertThat(createPersona.getBumpFrequency()).isNotNull().isEqualTo(bumpFrequency);
-        assertThat(createPersona.getBumpRole()).isNotNull().isNotEmpty().isEqualTo(bumpRole);
     }
 }

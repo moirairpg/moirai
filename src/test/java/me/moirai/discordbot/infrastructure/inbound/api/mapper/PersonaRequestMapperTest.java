@@ -35,11 +35,6 @@ public class PersonaRequestMapperTest {
         assertThat(command).isNotNull();
         assertThat(command.getName()).isEqualTo(request.getName());
         assertThat(command.getPersonality()).isEqualTo(request.getPersonality());
-        assertThat(command.getBumpContent()).isEqualTo(request.getBumpContent());
-        assertThat(command.getBumpFrequency()).isEqualTo(request.getBumpFrequency());
-        assertThat(command.getBumpRole()).isEqualTo(request.getBumpRole());
-        assertThat(command.getNudgeContent()).isEqualTo(request.getNudgeContent());
-        assertThat(command.getNudgeRole()).isEqualTo(request.getNudgeRole());
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
         assertThat(command.getRequesterDiscordId()).isEqualTo(requesterId);
         assertThat(command.getUsersAllowedToWrite()).hasSameElementsAs(request.getUsersAllowedToWrite());
@@ -61,11 +56,6 @@ public class PersonaRequestMapperTest {
         assertThat(command).isNotNull();
         assertThat(command.getName()).isEqualTo(request.getName());
         assertThat(command.getPersonality()).isEqualTo(request.getPersonality());
-        assertThat(command.getBumpContent()).isEqualTo(request.getBumpContent());
-        assertThat(command.getBumpFrequency()).isEqualTo(request.getBumpFrequency());
-        assertThat(command.getBumpRole()).isEqualTo(request.getBumpRole());
-        assertThat(command.getNudgeContent()).isEqualTo(request.getNudgeContent());
-        assertThat(command.getNudgeRole()).isEqualTo(request.getNudgeRole());
         assertThat(command.getVisibility()).isEqualTo(request.getVisibility());
         assertThat(command.getRequesterDiscordId()).isEqualTo(requesterId);
         assertThat(command.getUsersAllowedToWriteToAdd()).hasSameElementsAs(request.getUsersAllowedToWriteToAdd());

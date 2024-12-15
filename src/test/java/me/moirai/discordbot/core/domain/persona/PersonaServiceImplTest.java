@@ -43,122 +43,15 @@ public class PersonaServiceImplTest {
         String personality = "I am a chatbot";
         String visibility = "PRIVATE";
 
-        Nudge nudge = NudgeFixture.sample().build();
-        Bump bump = BumpFixture.sample().build();
-
         Persona expectedPersona = PersonaFixture.privatePersona()
                 .name(name)
                 .personality(personality)
                 .visibility(Visibility.fromString(visibility))
-                .nudge(nudge)
-                .bump(bump)
                 .build();
 
         CreatePersona command = CreatePersona.builder()
                 .name(name)
                 .personality(personality)
-                .nudgeContent(nudge.getContent())
-                .nudgeRole(nudge.getRole().toString())
-                .bumpContent(bump.getContent())
-                .bumpRole(bump.getRole().toString())
-                .bumpFrequency(bump.getFrequency())
-                .visibility(visibility)
-                .build();
-
-        when(moderationPort.moderate(anyString()))
-                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
-
-        when(repository.save(any(Persona.class))).thenReturn(expectedPersona);
-
-        // Then
-        StepVerifier.create(service.createFrom(command))
-                .assertNext(createdPersona -> {
-                    assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
-                    assertThat(createdPersona.getName()).isEqualTo(expectedPersona.getName());
-                    assertThat(createdPersona.getOwnerDiscordId()).isEqualTo(expectedPersona.getOwnerDiscordId());
-                    assertThat(createdPersona.getUsersAllowedToWrite())
-                            .isEqualTo(expectedPersona.getUsersAllowedToWrite());
-
-                    assertThat(createdPersona.getUsersAllowedToRead())
-                            .isEqualTo(expectedPersona.getUsersAllowedToRead());
-
-                    assertThat(createdPersona.getPersonality()).isEqualTo(expectedPersona.getPersonality());
-                    assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void createPersona_whenBumpIsNull_thenCreatePersonaSuccessfully() {
-
-        // Given
-        String name = "MoirAI";
-        String personality = "I am a chatbot";
-        String visibility = "PRIVATE";
-
-        Nudge nudge = NudgeFixture.sample().build();
-
-        Persona expectedPersona = PersonaFixture.privatePersona()
-                .name(name)
-                .personality(personality)
-                .visibility(Visibility.fromString(visibility))
-                .nudge(nudge)
-                .build();
-
-        CreatePersona command = CreatePersona.builder()
-                .name(name)
-                .personality(personality)
-                .nudgeContent(nudge.getContent())
-                .nudgeRole(nudge.getRole().toString())
-                .visibility(visibility)
-                .build();
-
-        when(moderationPort.moderate(anyString()))
-                .thenReturn(Mono.just(TextModerationResultFixture.withoutFlags().build()));
-
-        when(repository.save(any(Persona.class))).thenReturn(expectedPersona);
-
-        // Then
-        StepVerifier.create(service.createFrom(command))
-                .assertNext(createdPersona -> {
-                    assertThat(createdPersona).isNotNull().isEqualTo(expectedPersona);
-                    assertThat(createdPersona.getName()).isEqualTo(expectedPersona.getName());
-                    assertThat(createdPersona.getOwnerDiscordId()).isEqualTo(expectedPersona.getOwnerDiscordId());
-                    assertThat(createdPersona.getUsersAllowedToWrite())
-                            .isEqualTo(expectedPersona.getUsersAllowedToWrite());
-
-                    assertThat(createdPersona.getUsersAllowedToRead())
-                            .isEqualTo(expectedPersona.getUsersAllowedToRead());
-
-                    assertThat(createdPersona.getPersonality()).isEqualTo(expectedPersona.getPersonality());
-                    assertThat(createdPersona.getVisibility()).isEqualTo(expectedPersona.getVisibility());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void createPersona_whenNudgeIsNull_thenCreatePersonaSuccessfully() {
-
-        // Given
-        String name = "MoirAI";
-        String personality = "I am a chatbot";
-        String visibility = "PRIVATE";
-
-        Bump bump = BumpFixture.sample().build();
-
-        Persona expectedPersona = PersonaFixture.privatePersona()
-                .name(name)
-                .personality(personality)
-                .visibility(Visibility.fromString(visibility))
-                .bump(bump)
-                .build();
-
-        CreatePersona command = CreatePersona.builder()
-                .name(name)
-                .personality(personality)
-                .bumpContent(bump.getContent())
-                .bumpRole(bump.getRole().toString())
-                .bumpFrequency(bump.getFrequency())
                 .visibility(visibility)
                 .build();
 
@@ -226,13 +119,9 @@ public class PersonaServiceImplTest {
         String personality = "I am a chatbot";
         String visibility = "PRIVATE";
 
-        Nudge nudge = NudgeFixture.sample().build();
-
         CreatePersona command = CreatePersona.builder()
                 .name(name)
                 .personality(personality)
-                .nudgeContent(nudge.getContent())
-                .nudgeRole(nudge.getRole().toString())
                 .visibility(visibility)
                 .build();
 

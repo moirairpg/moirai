@@ -15,11 +15,6 @@ public class CreatePersonaRequestFixture {
         request.setVisibility(persona.getVisibility().toString());
         request.setUsersAllowedToRead(persona.getUsersAllowedToRead());
         request.setUsersAllowedToWrite(persona.getUsersAllowedToWrite());
-        request.setNudgeContent(persona.getNudge().getContent());
-        request.setNudgeRole(persona.getNudge().getRole().toString());
-        request.setBumpContent(persona.getBump().getContent());
-        request.setBumpRole(persona.getBump().getRole().toString());
-        request.setBumpFrequency(persona.getBump().getFrequency());
 
         return request;
     }
