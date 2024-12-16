@@ -93,9 +93,9 @@ moirai:
       completions-uri: /v1/chat/completions
   security:
     redirect-path:
-      success: /success
-      fail: /fail
-      logout: /logged-out
+      success: ${SUCCESS_REDIRECT_URL:/success}
+      fail: ${FAIL_REDIRECT_URL:/fail}
+      logout: ${LOGOUT_REDIRECT_URL:/logged-out}
     ignored-paths: >
       /auth/code,
       /api/swagger/webjars/swagger-ui/index.html,
