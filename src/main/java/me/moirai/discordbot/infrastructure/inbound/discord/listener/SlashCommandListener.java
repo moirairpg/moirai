@@ -193,6 +193,7 @@ public class SlashCommandListener extends ListenerAdapter {
                     case "remember" -> {
                         GetAdventureByChannelId request = GetAdventureByChannelId.build(textChannel.getId());
                         GetAdventureResult result = useCaseRunner.run(request);
+
                         TextInput rememberContent = TextInput
                                 .create("rememberContent", CONTENT, TextInputStyle.PARAGRAPH)
                                 .setPlaceholder("Important piece of information the AI has to remember about")
@@ -210,6 +211,7 @@ public class SlashCommandListener extends ListenerAdapter {
                     case "nudge" -> {
                         GetAdventureByChannelId request = GetAdventureByChannelId.build(textChannel.getId());
                         GetAdventureResult result = useCaseRunner.run(request);
+
                         TextInput nudgeContent = TextInput.create("nudgeContent", CONTENT, TextInputStyle.PARAGRAPH)
                                 .setPlaceholder("General instructions for the AI to follow")
                                 .setMinLength(1)
@@ -226,6 +228,7 @@ public class SlashCommandListener extends ListenerAdapter {
                     case "authorsnote" -> {
                         GetAdventureByChannelId request = GetAdventureByChannelId.build(textChannel.getId());
                         GetAdventureResult result = useCaseRunner.run(request);
+
                         TextInput authorsNoteContent = TextInput
                                 .create("authorsNoteContent", CONTENT, TextInputStyle.PARAGRAPH)
                                 .setPlaceholder("Instructions from the author on how the story should be told")
@@ -243,6 +246,7 @@ public class SlashCommandListener extends ListenerAdapter {
                     case "bump" -> {
                         GetAdventureByChannelId request = GetAdventureByChannelId.build(textChannel.getId());
                         GetAdventureResult result = useCaseRunner.run(request);
+
                         TextInput bumpContent = TextInput.create("bumpContent", CONTENT, TextInputStyle.PARAGRAPH)
                                 .setPlaceholder("Reminders inserted between messages to keep AI's act on track")
                                 .setMinLength(1)

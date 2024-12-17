@@ -208,6 +208,10 @@ public class UpdateAdventureHandlerTest {
                 .adventureStart(null)
                 .description(null)
                 .gameMode(null)
+                .authorsNote(null)
+                .nudge(null)
+                .remember(null)
+                .bump(null)
                 .build();
 
         Adventure unchangedAdventure = AdventureFixture.privateMultiplayerAdventure()

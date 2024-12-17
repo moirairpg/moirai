@@ -13,6 +13,11 @@ public class StoryGenerationRequestFixture {
                 .worldId("WRLDID")
                 .personaId("PRSNID")
                 .gameMode("CHAT")
+                .authorsNote("Author's note")
+                .nudge("Nudge")
+                .remember("Remember")
+                .bump("Bump")
+                .bumpFrequency(4)
                 .modelConfiguration(ModelConfigurationRequestFixture.gpt4Mini().build())
                 .moderation(ModerationConfigurationRequestFixture.absolute());
     }
