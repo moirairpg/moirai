@@ -260,7 +260,7 @@ public class AdventureServiceImplTest {
                 .requesterDiscordId("1234")
                 .build();
 
-        Adventure adventure = AdventureFixture.publicMultiplayerAdventure()
+        Adventure adventure = AdventureFixture.privateMultiplayerAdventure()
                 .permissions(PermissionsFixture.samplePermissions()
                         .usersAllowedToWrite(null)
                         .ownerDiscordId("89790796786")

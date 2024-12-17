@@ -1,4 +1,4 @@
-package me.moirai.discordbot.core.application.usecase.world;
+package me.moirai.discordbot.core.application.usecase.adventure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -16,95 +16,95 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.discordbot.common.exception.AssetAccessDeniedException;
 import me.moirai.discordbot.common.exception.AssetNotFoundException;
-import me.moirai.discordbot.core.application.port.WorldQueryRepository;
-import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldLorebookEntries;
-import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldLorebookEntriesResult;
-import me.moirai.discordbot.core.domain.world.World;
-import me.moirai.discordbot.core.domain.world.WorldFixture;
-import me.moirai.discordbot.core.domain.world.WorldLorebookEntryRepository;
+import me.moirai.discordbot.core.application.port.AdventureQueryRepository;
+import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventureLorebookEntries;
+import me.moirai.discordbot.core.application.usecase.adventure.result.SearchAdventureLorebookEntriesResult;
+import me.moirai.discordbot.core.domain.adventure.Adventure;
+import me.moirai.discordbot.core.domain.adventure.AdventureFixture;
+import me.moirai.discordbot.core.domain.adventure.AdventureLorebookEntryRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class SearchWorldLorebookEntriesHandlerTest {
+public class SearchAdventureLorebookEntriesHandlerTest {
 
     @Mock
-    private WorldQueryRepository worldRepository;
+    private AdventureQueryRepository adventureRepository;
 
     @Mock
-    private WorldLorebookEntryRepository repository;
+    private AdventureLorebookEntryRepository repository;
 
     @InjectMocks
-    private SearchWorldLorebookEntriesHandler handler;
+    private SearchAdventureLorebookEntriesHandler handler;
 
     @Test
-    public void searchEntries_whenWorldNotFound_thenThrowException() {
+    public void searchEntries_whenAdventureNotFound_thenThrowException() {
 
         // Given
-        SearchWorldLorebookEntries query = SearchWorldLorebookEntries.builder()
+        SearchAdventureLorebookEntries query = SearchAdventureLorebookEntries.builder()
                 .direction("ASC")
                 .page(1)
                 .items(2)
                 .sortByField("name")
-                .worldId("1234")
+                .adventureId("1234")
                 .requesterDiscordId("1234")
                 .build();
 
-        when(worldRepository.findById(anyString())).thenReturn(Optional.empty());
+        when(adventureRepository.findById(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThatThrownBy(() -> handler.execute(query))
                 .isInstanceOf(AssetNotFoundException.class)
-                .hasMessage("The world where the entries are being search doesn't exist");
+                .hasMessage("The adventure where the entries are being search doesn't exist");
     }
 
     @Test
     public void searchEntries_whenNoPermissionToView_thenThrowException() {
 
         // Given
-        SearchWorldLorebookEntries query = SearchWorldLorebookEntries.builder()
+        SearchAdventureLorebookEntries query = SearchAdventureLorebookEntries.builder()
                 .direction("ASC")
                 .page(1)
                 .items(2)
                 .sortByField("name")
-                .worldId("1234")
+                .adventureId("1234")
                 .requesterDiscordId("1234")
                 .build();
 
-        World world = WorldFixture.privateWorld().build();
+        Adventure adventure = AdventureFixture.privateMultiplayerAdventure().build();
 
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
+        when(adventureRepository.findById(anyString())).thenReturn(Optional.of(adventure));
 
         // Then
         assertThatThrownBy(() -> handler.execute(query))
                 .isInstanceOf(AssetAccessDeniedException.class)
-                .hasMessage("User does not have permission to view this world");
+                .hasMessage("User does not have permission to view this adventure");
     }
 
     @Test
     public void searchEntries_whenValidRequest_thenReturnEntries() {
 
         // Given
-        SearchWorldLorebookEntries query = SearchWorldLorebookEntries.builder()
+        SearchAdventureLorebookEntries query = SearchAdventureLorebookEntries.builder()
                 .direction("ASC")
                 .page(1)
                 .items(2)
                 .sortByField("name")
-                .worldId("1234")
+                .adventureId("1234")
                 .requesterDiscordId("1234")
                 .build();
 
-        SearchWorldLorebookEntriesResult expectedResult = SearchWorldLorebookEntriesResult.builder()
+        SearchAdventureLorebookEntriesResult expectedResult = SearchAdventureLorebookEntriesResult.builder()
                 .page(1)
                 .items(2)
                 .build();
 
-        World world = WorldFixture.publicWorld().build();
+        Adventure adventure = AdventureFixture.publicMultiplayerAdventure().build();
 
-        when(worldRepository.findById(anyString())).thenReturn(Optional.of(world));
-        when(repository.search(any(SearchWorldLorebookEntries.class)))
+        when(adventureRepository.findById(anyString())).thenReturn(Optional.of(adventure));
+        when(repository.search(any(SearchAdventureLorebookEntries.class)))
                 .thenReturn(expectedResult);
 
         // When
-        SearchWorldLorebookEntriesResult result = handler.handle(query);
+        SearchAdventureLorebookEntriesResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();

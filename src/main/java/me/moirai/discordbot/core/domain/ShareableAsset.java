@@ -53,7 +53,7 @@ public abstract class ShareableAsset extends Asset {
 
         boolean isReader = permissions.getUsersAllowedToRead().contains(discordUserId);
 
-        return canUserWrite(discordUserId) || isReader;
+        return canUserWrite(discordUserId) || isReader || isPublic();
     }
 
     public void addWriterUser(String discordUserId) {

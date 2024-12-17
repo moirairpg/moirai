@@ -15,23 +15,34 @@ import me.moirai.discordbot.core.domain.Visibility;
 import me.moirai.discordbot.core.domain.adventure.Adventure;
 import me.moirai.discordbot.core.domain.adventure.AdventureDomainRepository;
 import me.moirai.discordbot.core.domain.adventure.AdventureLorebookEntry;
+import me.moirai.discordbot.core.domain.adventure.AdventureLorebookEntryRepository;
 import me.moirai.discordbot.core.domain.adventure.ContextAttributes;
 import me.moirai.discordbot.core.domain.adventure.GameMode;
 import me.moirai.discordbot.core.domain.adventure.ModelConfiguration;
 import me.moirai.discordbot.core.domain.adventure.Moderation;
 import me.moirai.discordbot.core.domain.world.World;
+import me.moirai.discordbot.core.domain.world.WorldLorebookEntryRepository;
 
 @UseCaseHandler
 public class CreateAdventureHandler extends AbstractUseCaseHandler<CreateAdventure, CreateAdventureResult> {
 
     private static final String WORLD_DOES_NOT_EXIST = "The world to be linked to this adventure does not exist";
 
+    private final WorldLorebookEntryRepository worldLorebookEntryRepository;
     private final WorldQueryRepository worldQueryRepository;
     private final AdventureDomainRepository repository;
+    private final AdventureLorebookEntryRepository lorebookEntryRepository;
 
-    public CreateAdventureHandler(WorldQueryRepository worldQueryRepository, AdventureDomainRepository repository) {
+    public CreateAdventureHandler(
+            WorldLorebookEntryRepository worldLorebookEntryRepository,
+            WorldQueryRepository worldQueryRepository,
+            AdventureDomainRepository repository,
+            AdventureLorebookEntryRepository lorebookEntryRepository) {
+
+        this.worldLorebookEntryRepository = worldLorebookEntryRepository;
         this.worldQueryRepository = worldQueryRepository;
         this.repository = repository;
+        this.lorebookEntryRepository = lorebookEntryRepository;
     }
 
     @Override
@@ -40,7 +51,6 @@ public class CreateAdventureHandler extends AbstractUseCaseHandler<CreateAdventu
         World world = worldQueryRepository.findById(command.getWorldId())
                 .orElseThrow(() -> new AssetNotFoundException(WORLD_DOES_NOT_EXIST));
 
-        List<AdventureLorebookEntry> lorebook = buildLorebook(world);
         ModelConfiguration modelConfiguration = buildModelConfiguration(command);
         Permissions permissions = buildPermissions(command);
         ContextAttributes contextAttributes = buildContextAttributes(command);
@@ -58,22 +68,26 @@ public class CreateAdventureHandler extends AbstractUseCaseHandler<CreateAdventu
                 .isMultiplayer(command.isMultiplayer())
                 .adventureStart(world.getAdventureStart())
                 .contextAttributes(contextAttributes)
-                .lorebook(lorebook)
                 .description(command.getDescription())
                 .build());
+
+        List<AdventureLorebookEntry> lorebook = buildLorebook(world, adventure);
+        lorebook.stream().forEach(lorebookEntryRepository::save);
 
         return CreateAdventureResult.build(adventure.getId());
     }
 
-    private List<AdventureLorebookEntry> buildLorebook(World world) {
+    private List<AdventureLorebookEntry> buildLorebook(World world, Adventure adventure) {
 
-        return world.getLorebook().stream()
+        return worldLorebookEntryRepository.findAllByWorldId(world.getId()).stream()
                 .map(worldEntry -> AdventureLorebookEntry.builder()
                         .name(worldEntry.getName())
                         .regex(worldEntry.getRegex())
                         .description(worldEntry.getDescription())
                         .playerDiscordId(worldEntry.getPlayerDiscordId())
                         .isPlayerCharacter(worldEntry.isPlayerCharacter())
+                        .adventureId(adventure.getId())
+                        .creatorDiscordId(adventure.getCreatorDiscordId())
                         .build())
                 .toList();
     }

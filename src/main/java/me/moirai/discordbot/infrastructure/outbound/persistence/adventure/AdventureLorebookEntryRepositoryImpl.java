@@ -80,7 +80,7 @@ public class AdventureLorebookEntryRepositoryImpl implements AdventureLorebookEn
     }
 
     @Override
-    public SearchAdventureLorebookEntriesResult searchBy(SearchAdventureLorebookEntries query) {
+    public SearchAdventureLorebookEntriesResult search(SearchAdventureLorebookEntries query) {
 
         int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
         int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();

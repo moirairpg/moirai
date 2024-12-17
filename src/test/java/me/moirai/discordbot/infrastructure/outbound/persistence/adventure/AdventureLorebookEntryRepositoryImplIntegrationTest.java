@@ -154,7 +154,7 @@ public class AdventureLorebookEntryRepositoryImplIntegrationTest extends Abstrac
                 .build();
 
         // When
-        SearchAdventureLorebookEntriesResult result = repository.searchBy(query);
+        SearchAdventureLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -193,7 +193,7 @@ public class AdventureLorebookEntryRepositoryImplIntegrationTest extends Abstrac
                 .build();
 
         // When
-        SearchAdventureLorebookEntriesResult result = repository.searchBy(query);
+        SearchAdventureLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -232,7 +232,7 @@ public class AdventureLorebookEntryRepositoryImplIntegrationTest extends Abstrac
                 .build();
 
         // When
-        SearchAdventureLorebookEntriesResult result = repository.searchBy(query);
+        SearchAdventureLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -274,7 +274,7 @@ public class AdventureLorebookEntryRepositoryImplIntegrationTest extends Abstrac
                 .build();
 
         // When
-        SearchAdventureLorebookEntriesResult result = repository.searchBy(query);
+        SearchAdventureLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -315,7 +315,7 @@ public class AdventureLorebookEntryRepositoryImplIntegrationTest extends Abstrac
                 .build();
 
         // When
-        SearchAdventureLorebookEntriesResult result = repository.searchBy(query);
+        SearchAdventureLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -354,7 +354,7 @@ public class AdventureLorebookEntryRepositoryImplIntegrationTest extends Abstrac
                 .build();
 
         // When
-        SearchAdventureLorebookEntriesResult result = repository.searchBy(query);
+        SearchAdventureLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();

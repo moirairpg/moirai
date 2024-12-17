@@ -12,7 +12,7 @@ public interface AdventureLorebookEntryRepository {
 
     Optional<AdventureLorebookEntry> findById(String lorebookEntryId);
 
-    SearchAdventureLorebookEntriesResult searchBy(SearchAdventureLorebookEntries query);
+    SearchAdventureLorebookEntriesResult search(SearchAdventureLorebookEntries query);
 
     void deleteById(String id);
 

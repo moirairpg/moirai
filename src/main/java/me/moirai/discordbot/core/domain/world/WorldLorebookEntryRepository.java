@@ -12,11 +12,13 @@ public interface WorldLorebookEntryRepository {
 
     Optional<WorldLorebookEntry> findById(String lorebookEntryId);
 
-    SearchWorldLorebookEntriesResult searchBy(SearchWorldLorebookEntries query);
+    SearchWorldLorebookEntriesResult search(SearchWorldLorebookEntries query);
 
     void deleteById(String id);
 
     List<WorldLorebookEntry> findAllByRegex(String regex, String worldId);
+
+    List<WorldLorebookEntry> findAllByWorldId(String worldId);
 
     Optional<WorldLorebookEntry> findByPlayerDiscordId(String playerDiscordId, String worldId);
 }

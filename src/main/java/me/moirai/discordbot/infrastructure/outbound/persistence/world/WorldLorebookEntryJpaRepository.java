@@ -17,4 +17,6 @@ public interface WorldLorebookEntryJpaRepository
 
     @Query(value = "SELECT entry.* FROM world_lorebook entry WHERE entry.player_discord_id = :playerDiscordId AND entry.world_id = :worldId", nativeQuery = true)
     Optional<WorldLorebookEntryEntity> findByPlayerDiscordId(String playerDiscordId, String worldId);
+
+    List<WorldLorebookEntryEntity> findAllByWorldId(String worldId);
 }

@@ -178,7 +178,7 @@ public class PersonaTest {
 
         // Given
         String userId = "1234567890";
-        Persona.Builder personaBuilder = PersonaFixture.publicPersona();
+        Persona.Builder personaBuilder = PersonaFixture.privatePersona();
 
         List<String> usersAllowedToRead = new ArrayList<>();
         usersAllowedToRead.add(userId);
@@ -204,7 +204,7 @@ public class PersonaTest {
 
         // Given
         String userId = "1234567890";
-        Persona.Builder personaBuilder = PersonaFixture.publicPersona();
+        Persona.Builder personaBuilder = PersonaFixture.privatePersona();
 
         List<String> usersAllowedToWrite = new ArrayList<>();
         usersAllowedToWrite.add(userId);
