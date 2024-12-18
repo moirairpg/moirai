@@ -29,4 +29,4 @@ CREATE TABLE channel_config (
     last_update_date TIMESTAMP WITH TIME ZONE
 );
 
---rollback DROP TABLE channel_config
+--rollback DROP TABLE channel_config CASCADE;

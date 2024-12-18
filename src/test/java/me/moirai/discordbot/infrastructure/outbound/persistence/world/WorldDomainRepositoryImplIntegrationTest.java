@@ -126,7 +126,7 @@ public class WorldDomainRepositoryImplIntegrationTest extends AbstractIntegratio
 
     @Test
     @Transactional
-    public void deleteChannelConfig_whenIsFavorite_thenDeleteFavorites() {
+    public void deleteWorld_whenIsFavorite_thenDeleteFavorites() {
 
         // Given
         String userId = "1234";
@@ -137,7 +137,7 @@ public class WorldDomainRepositoryImplIntegrationTest extends AbstractIntegratio
         FavoriteEntity favorite = favoriteRepository.save(FavoriteEntity.builder()
                 .playerDiscordId(userId)
                 .assetId(originalWorld.getId())
-                .assetType("channel_config")
+                .assetType("persona")
                 .build());
 
         // When

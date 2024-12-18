@@ -16,6 +16,11 @@ public class StoryGenerationRequest {
     private final String worldId;
     private final String personaId;
     private final String gameMode;
+    private final String nudge;
+    private final String authorsNote;
+    private final String remember;
+    private final String bump;
+    private final int bumpFrequency;
     private final ModelConfigurationRequest modelConfiguration;
     private final ModerationConfigurationRequest moderation;
     private final List<DiscordMessageData> messageHistory;
@@ -30,6 +35,11 @@ public class StoryGenerationRequest {
         this.worldId = builder.worldId;
         this.personaId = builder.personaId;
         this.gameMode = builder.gameMode;
+        this.nudge = builder.nudge;
+        this.authorsNote = builder.authorsNote;
+        this.remember = builder.remember;
+        this.bump = builder.bump;
+        this.bumpFrequency = builder.bumpFrequency;
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
         this.messageHistory = Collections.unmodifiableList(builder.messageHistory);
@@ -71,6 +81,26 @@ public class StoryGenerationRequest {
         return gameMode;
     }
 
+    public String getNudge() {
+        return nudge;
+    }
+
+    public String getAuthorsNote() {
+        return authorsNote;
+    }
+
+    public String getRemember() {
+        return remember;
+    }
+
+    public String getBump() {
+        return bump;
+    }
+
+    public int getBumpFrequency() {
+        return bumpFrequency;
+    }
+
     public ModelConfigurationRequest getModelConfiguration() {
         return modelConfiguration;
     }
@@ -93,6 +123,11 @@ public class StoryGenerationRequest {
         private String worldId;
         private String personaId;
         private String gameMode;
+        private String nudge;
+        private String authorsNote;
+        private String remember;
+        private String bump;
+        private int bumpFrequency;
         private ModelConfigurationRequest modelConfiguration;
         private ModerationConfigurationRequest moderation;
         private List<DiscordMessageData> messageHistory = new ArrayList<>();
@@ -147,6 +182,31 @@ public class StoryGenerationRequest {
 
         public Builder botNickname(String botNickname) {
             this.botNickname = botNickname;
+            return this;
+        }
+
+        public Builder nudge(String nudge) {
+            this.nudge = nudge;
+            return this;
+        }
+
+        public Builder authorsNote(String authorsNote) {
+            this.authorsNote = authorsNote;
+            return this;
+        }
+
+        public Builder remember(String remember) {
+            this.remember = remember;
+            return this;
+        }
+
+        public Builder bump(String bump) {
+            this.bump = bump;
+            return this;
+        }
+
+        public Builder bumpFrequency(int bumpFrequency) {
+            this.bumpFrequency = bumpFrequency;
             return this;
         }
 

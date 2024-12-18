@@ -6,6 +6,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureAuthorsNoteByChannelId;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureBumpByChannelId;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureNudgeByChannelId;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureRememberByChannelId;
 import me.moirai.discordbot.core.application.usecase.discord.contextmenu.EditMessage;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.SayCommand;
 import net.dv8tion.jda.api.entities.Guild;
@@ -20,6 +24,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 @Component
 public class ModalListener extends ListenerAdapter {
 
+    private static final String UPDATED_ADVENTURE_CONTEXT_MODIFIER = "Updated adventure's context modifier";
     private static final String MESSAGE_EDITED = "Message edited.";
     private static final String WAITING_FOR_INPUT = "Waiting for input...";
     private static final String MESSAGE_ID = "messageId";
@@ -71,6 +76,44 @@ public class ModalListener extends ListenerAdapter {
                     useCaseRunner.run(useCase);
 
                     updateNotification(interactionHook, MESSAGE_EDITED);
+                }
+                case "remember" -> {
+                    InteractionHook interactionHook = sendNotification(event, WAITING_FOR_INPUT);
+                    String rememberContent = event.getValue("rememberContent").getAsString();
+
+                    useCaseRunner.run(UpdateAdventureRememberByChannelId.build(rememberContent, textChannel.getId()));
+
+                    updateNotification(interactionHook, UPDATED_ADVENTURE_CONTEXT_MODIFIER);
+                }
+                case "authorsNote" -> {
+                    InteractionHook interactionHook = sendNotification(event, WAITING_FOR_INPUT);
+                    String authorsNoteContent = event.getValue("authorsNoteContent").getAsString();
+
+                    useCaseRunner
+                            .run(UpdateAdventureAuthorsNoteByChannelId.build(authorsNoteContent, textChannel.getId()));
+
+                    updateNotification(interactionHook, UPDATED_ADVENTURE_CONTEXT_MODIFIER);
+                }
+                case "nudge" -> {
+                    InteractionHook interactionHook = sendNotification(event, WAITING_FOR_INPUT);
+                    String nudgeContent = event.getValue("nudgeContent").getAsString();
+
+                    useCaseRunner.run(UpdateAdventureNudgeByChannelId.build(nudgeContent, textChannel.getId()));
+
+                    updateNotification(interactionHook, UPDATED_ADVENTURE_CONTEXT_MODIFIER);
+                }
+                case "bump" -> {
+                    InteractionHook interactionHook = sendNotification(event, WAITING_FOR_INPUT);
+                    String bumpContent = event.getValue("bumpContent").getAsString();
+                    int bumpFrequency = Integer.valueOf(event.getValue("bumpFrequency").getAsString());
+
+                    useCaseRunner.run(UpdateAdventureBumpByChannelId.builder()
+                            .bump(bumpContent)
+                            .bumpFrequency(bumpFrequency)
+                            .channelId(textChannel.getId())
+                            .build());
+
+                    updateNotification(interactionHook, UPDATED_ADVENTURE_CONTEXT_MODIFIER);
                 }
             }
         }

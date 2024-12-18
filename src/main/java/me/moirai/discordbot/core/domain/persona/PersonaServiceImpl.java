@@ -14,10 +14,9 @@ import me.moirai.discordbot.common.exception.ModerationException;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
 import me.moirai.discordbot.core.application.usecase.persona.request.CreatePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
-import me.moirai.discordbot.core.domain.CompletionRole;
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.Visibility;
-import me.moirai.discordbot.core.domain.channelconfig.Moderation;
+import me.moirai.discordbot.core.domain.adventure.Moderation;
 import reactor.core.publisher.Mono;
 
 @DomainService
@@ -54,25 +53,6 @@ public class PersonaServiceImpl implements PersonaService {
                 .flatMap(__ -> moderateContent(command.getName()))
                 .map(__ -> {
                     Persona.Builder personaBuilder = Persona.builder();
-                    if (StringUtils.isNotBlank(command.getBumpContent())) {
-                        Bump bump = Bump.builder()
-                                .content(command.getBumpContent())
-                                .frequency(command.getBumpFrequency())
-                                .role(CompletionRole.fromString(command.getBumpRole()))
-                                .build();
-
-                        personaBuilder.bump(bump);
-                    }
-
-                    if (StringUtils.isNotBlank(command.getNudgeContent())) {
-                        Nudge nudge = Nudge.builder()
-                                .content(command.getNudgeContent())
-                                .role(CompletionRole.fromString(command.getNudgeRole()))
-                                .build();
-
-                        personaBuilder.nudge(nudge);
-                    }
-
                     Permissions permissions = Permissions.builder()
                             .ownerDiscordId(command.getRequesterDiscordId())
                             .usersAllowedToRead(command.getUsersAllowedToRead())

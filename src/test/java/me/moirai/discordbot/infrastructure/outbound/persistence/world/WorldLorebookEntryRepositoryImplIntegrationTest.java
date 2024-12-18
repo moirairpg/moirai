@@ -128,7 +128,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
+        SearchWorldLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -166,7 +166,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
+        SearchWorldLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -205,7 +205,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
+        SearchWorldLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -247,7 +247,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
+        SearchWorldLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -288,7 +288,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
+        SearchWorldLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();
@@ -327,7 +327,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
                 .build();
 
         // When
-        SearchWorldLorebookEntriesResult result = repository.searchBy(query);
+        SearchWorldLorebookEntriesResult result = repository.search(query);
 
         // Then
         assertThat(result).isNotNull();

@@ -179,4 +179,60 @@ public class DefaultStringProcessorsTest {
         // Then
         assertThat(result).isEqualTo(expectedFormattedContent);
     }
+
+    @Test
+    public void processor_whenBumpReceived_thenReturnFormatted() {
+
+        // Given
+        String bump = "This is a bump";
+        String expectedBump = "[ Bump: This is a bump ]";
+
+        // When
+        String result = DefaultStringProcessors.formatBump().apply(bump);
+
+        // Then
+        assertThat(result).isEqualTo(expectedBump);
+    }
+
+    @Test
+    public void processor_whenNudgeReceived_thenReturnFormatted() {
+
+        // Given
+        String nudge = "This is a nudge";
+        String expectedNudge = "[ Nudge: This is a nudge ]";
+
+        // When
+        String result = DefaultStringProcessors.formatNudge().apply(nudge);
+
+        // Then
+        assertThat(result).isEqualTo(expectedNudge);
+    }
+
+    @Test
+    public void processor_whenRememberReceived_thenReturnFormatted() {
+
+        // Given
+        String remember = "This is a remember";
+        String expectedRemember = "[ Important to remember: This is a remember ]";
+
+        // When
+        String result = DefaultStringProcessors.formatRemember().apply(remember);
+
+        // Then
+        assertThat(result).isEqualTo(expectedRemember);
+    }
+
+    @Test
+    public void processor_whenAuthorsNoteReceived_thenReturnFormatted() {
+
+        // Given
+        String authorsNote = "This is a authorsNote";
+        String expectedAuthorsNote = "[ Author's Note: This is a authorsNote ]";
+
+        // When
+        String result = DefaultStringProcessors.formatAuthorsNote().apply(authorsNote);
+
+        // Then
+        assertThat(result).isEqualTo(expectedAuthorsNote);
+    }
 }

@@ -1,6 +1,6 @@
 package me.moirai.discordbot.infrastructure.outbound.adapter;
 
-import static me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel.GPT4_MINI;
+import static me.moirai.discordbot.core.domain.adventure.ArtificialIntelligenceModel.GPT4_MINI;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;

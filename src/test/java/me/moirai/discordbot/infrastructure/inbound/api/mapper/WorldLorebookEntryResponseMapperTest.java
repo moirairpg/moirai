@@ -17,7 +17,7 @@ import me.moirai.discordbot.core.application.usecase.world.result.UpdateWorldLor
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateLorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.LorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchLorebookEntriesResponse;
-import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateWorldLorebookEntryResponse;
+import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateLorebookEntryResponse;
 
 @ExtendWith(MockitoExtension.class)
 public class WorldLorebookEntryResponseMapperTest {
@@ -87,7 +87,7 @@ public class WorldLorebookEntryResponseMapperTest {
         UpdateWorldLorebookEntryResult entryResult = UpdateWorldLorebookEntryResult.build(OffsetDateTime.now());
 
         // When
-        UpdateWorldLorebookEntryResponse response = mapper.toResponse(entryResult);
+        UpdateLorebookEntryResponse response = mapper.toResponse(entryResult);
 
         // Then
         assertThat(response).isNotNull();

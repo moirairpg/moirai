@@ -4,7 +4,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -25,12 +24,6 @@ public class PersonaEntity extends ShareableAssetEntity {
     @Column(name = "personality", nullable = false)
     private String personality;
 
-    @Embedded
-    private NudgeEntity nudge;
-
-    @Embedded
-    private BumpEntity bump;
-
     private PersonaEntity(Builder builder) {
 
         super(builder.creatorDiscordId, builder.creationDate,
@@ -40,8 +33,6 @@ public class PersonaEntity extends ShareableAssetEntity {
         this.id = builder.id;
         this.name = builder.name;
         this.personality = builder.personality;
-        this.nudge = builder.nudge;
-        this.bump = builder.bump;
     }
 
     protected PersonaEntity() {
@@ -65,21 +56,11 @@ public class PersonaEntity extends ShareableAssetEntity {
         return personality;
     }
 
-    public NudgeEntity getNudge() {
-        return nudge;
-    }
-
-    public BumpEntity getBump() {
-        return bump;
-    }
-
     public static final class Builder {
 
         private String id;
         private String name;
         private String personality;
-        private NudgeEntity nudge;
-        private BumpEntity bump;
         private String ownerDiscordId;
         private List<String> usersAllowedToRead;
         private List<String> usersAllowedToWrite;
@@ -107,18 +88,6 @@ public class PersonaEntity extends ShareableAssetEntity {
         public Builder personality(String personality) {
 
             this.personality = personality;
-            return this;
-        }
-
-        public Builder nudge(NudgeEntity nudge) {
-
-            this.nudge = nudge;
-            return this;
-        }
-
-        public Builder bump(BumpEntity bump) {
-
-            this.bump = bump;
             return this;
         }
 

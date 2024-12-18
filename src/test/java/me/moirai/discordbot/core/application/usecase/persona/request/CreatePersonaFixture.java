@@ -14,11 +14,6 @@ public class CreatePersonaFixture {
                 .visibility(persona.getVisibility().toString())
                 .requesterDiscordId(persona.getOwnerDiscordId())
                 .usersAllowedToWrite(persona.getUsersAllowedToRead())
-                .usersAllowedToRead(persona.getUsersAllowedToWrite())
-                .nudgeContent(persona.getNudge().getContent())
-                .nudgeRole(persona.getNudge().getRole().toString())
-                .bumpContent(persona.getBump().getContent())
-                .bumpRole(persona.getBump().getRole().toString())
-                .bumpFrequency(persona.getBump().getFrequency());
+                .usersAllowedToRead(persona.getUsersAllowedToWrite());
     }
 }

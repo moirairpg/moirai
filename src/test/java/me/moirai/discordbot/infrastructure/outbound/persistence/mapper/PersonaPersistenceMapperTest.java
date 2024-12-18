@@ -48,13 +48,6 @@ public class PersonaPersistenceMapperTest {
         assertThat(entity.getLastUpdateDate()).isEqualTo(persona.getLastUpdateDate());
         assertThat(entity.getUsersAllowedToRead()).hasSameElementsAs(persona.getUsersAllowedToRead());
         assertThat(entity.getUsersAllowedToWrite()).hasSameElementsAs(persona.getUsersAllowedToWrite());
-        assertThat(entity.getNudge().getContent()).isEqualTo(persona.getNudge().getContent());
-        assertThat(entity.getNudge().getRole().toLowerCase())
-                .isEqualTo(persona.getNudge().getRole().name().toLowerCase());
-        assertThat(entity.getBump().getContent()).isEqualTo(persona.getBump().getContent());
-        assertThat(entity.getBump().getFrequency()).isEqualTo(persona.getBump().getFrequency());
-        assertThat(entity.getBump().getRole().toLowerCase())
-                .isEqualTo(persona.getBump().getRole().name().toLowerCase());
     }
 
     @Test
@@ -78,45 +71,6 @@ public class PersonaPersistenceMapperTest {
         assertThat(entity.getLastUpdateDate()).isEqualTo(persona.getLastUpdateDate());
         assertThat(entity.getUsersAllowedToRead()).hasSameElementsAs(persona.getUsersAllowedToRead());
         assertThat(entity.getUsersAllowedToWrite()).hasSameElementsAs(persona.getUsersAllowedToWrite());
-        assertThat(entity.getNudge().getContent()).isEqualTo(persona.getNudge().getContent());
-        assertThat(entity.getNudge().getRole().toLowerCase())
-                .isEqualTo(persona.getNudge().getRole().name().toLowerCase());
-        assertThat(entity.getBump().getContent()).isEqualTo(persona.getBump().getContent());
-        assertThat(entity.getBump().getFrequency()).isEqualTo(persona.getBump().getFrequency());
-        assertThat(entity.getBump().getRole().toLowerCase())
-                .isEqualTo(persona.getBump().getRole().name().toLowerCase());
-    }
-
-    @Test
-    public void mapPersonaDomainToPersistence_whenBumpIsNull_thenPersonaIsCreatedSuccessfully() {
-
-        // Given
-        Persona persona = PersonaFixture.privatePersona()
-                .bump(null)
-                .build();
-
-        // When
-        PersonaEntity entity = mapper.mapToEntity(persona);
-
-        // Then
-        assertThat(entity).isNotNull();
-        assertThat(entity.getBump()).isNull();
-    }
-
-    @Test
-    public void mapPersonaDomainToPersistence_whenNudgeIsNull_thenPersonaIsCreatedSuccessfully() {
-
-        // Given
-        Persona persona = PersonaFixture.privatePersona()
-                .nudge(null)
-                .build();
-
-        // When
-        PersonaEntity entity = mapper.mapToEntity(persona);
-
-        // Then
-        assertThat(entity).isNotNull();
-        assertThat(entity.getNudge()).isNull();
     }
 
     @Test
@@ -141,45 +95,6 @@ public class PersonaPersistenceMapperTest {
         assertThat(entity.getLastUpdateDate()).isEqualTo(persona.getLastUpdateDate());
         assertThat(entity.getUsersAllowedToRead()).hasSameElementsAs(persona.getUsersAllowedToRead());
         assertThat(entity.getUsersAllowedToWrite()).hasSameElementsAs(persona.getUsersAllowedToWrite());
-        assertThat(entity.getNudge().getContent()).isEqualTo(persona.getNudge().getContent());
-        assertThat(entity.getNudge().getRole().name().toLowerCase())
-                .isEqualTo(persona.getNudge().getRole().toLowerCase());
-        assertThat(entity.getBump().getContent()).isEqualTo(persona.getBump().getContent());
-        assertThat(entity.getBump().getFrequency()).isEqualTo(persona.getBump().getFrequency());
-        assertThat(entity.getBump().getRole().name().toLowerCase())
-                .isEqualTo(persona.getBump().getRole().toLowerCase());
-    }
-
-    @Test
-    public void mapPersonaPersistenceToDomain_whenBumpIsNull_thenPersonaIsCreatedSuccessfullyWithEmptyBump() {
-
-        // Given
-        PersonaEntity persona = PersonaEntityFixture.privatePersona()
-                .bump(null)
-                .build();
-
-        // When
-        Persona entity = mapper.mapFromEntity(persona);
-
-        // Then
-        assertThat(entity).isNotNull();
-        assertThat(entity.getBump()).isNotNull();
-    }
-
-    @Test
-    public void mapPersonaPersistenceToDomain_whenNudgeIsNull_thenPersonaIsCreatedSuccessfullyWithEmptyNudge() {
-
-        // Given
-        PersonaEntity persona = PersonaEntityFixture.privatePersona()
-                .nudge(null)
-                .build();
-
-        // When
-        Persona entity = mapper.mapFromEntity(persona);
-
-        // Then
-        assertThat(entity).isNotNull();
-        assertThat(entity.getNudge()).isNotNull();
     }
 
     @Test

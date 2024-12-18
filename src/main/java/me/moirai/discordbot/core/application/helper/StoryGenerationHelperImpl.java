@@ -4,6 +4,10 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static me.moirai.discordbot.common.util.DefaultStringProcessors.PERIOD;
 import static me.moirai.discordbot.common.util.DefaultStringProcessors.SAID;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.formatAuthorsNote;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.formatBump;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.formatNudge;
+import static me.moirai.discordbot.common.util.DefaultStringProcessors.formatRemember;
 import static me.moirai.discordbot.common.util.DefaultStringProcessors.replaceTemplateWithValue;
 import static me.moirai.discordbot.common.util.DefaultStringProcessors.stripAsNamePrefix;
 import static me.moirai.discordbot.common.util.DefaultStringProcessors.stripAsNamePrefixForLowercase;
@@ -13,13 +17,12 @@ import static me.moirai.discordbot.common.util.DefaultStringProcessors.trimParag
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.ASSISTANT;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.USER;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.commons.lang3.StringUtils;
 
 import me.moirai.discordbot.common.annotation.Helper;
 import me.moirai.discordbot.common.exception.ModerationException;
@@ -41,10 +44,8 @@ import reactor.core.publisher.Mono;
 @SuppressWarnings("unchecked")
 public class StoryGenerationHelperImpl implements StoryGenerationHelper {
 
-    private static final String BUMP = "bump";
     private static final String LOREBOOK_ENTRIES = "lorebook";
     private static final String STORY_SUMMARY = "summary";
-    private static final String NUDGE = "nudge";
     private static final String PERSONA = "persona";
     private static final String PERSONA_NAME = "personaName";
     private static final String MESSAGE_HISTORY = "messageHistory";
@@ -132,8 +133,6 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
 
         String persona = (String) unsortedContext.get(PERSONA);
         String personaName = (String) unsortedContext.get(PERSONA_NAME);
-        String nudge = (String) unsortedContext.get(NUDGE);
-        String bump = (String) unsortedContext.get(BUMP);
         String storySummary = (String) unsortedContext.get(STORY_SUMMARY);
         String lorebookEntries = (String) unsortedContext.get(LOREBOOK_ENTRIES);
 
@@ -143,24 +142,53 @@ public class StoryGenerationHelperImpl implements StoryGenerationHelper {
         processedContext.addAll(buildContextForGeneration(unsortedContext,
                 request.getBotUsername(), request.getBotNickname(), personaName));
 
-        if (StringUtils.isNotBlank(lorebookEntries)) {
+        if (isNotBlank(lorebookEntries)) {
             processedContext.add(0, ChatMessage.build(Role.SYSTEM, lorebookEntries));
         }
 
         processedContext.add(0, ChatMessage.build(Role.SYSTEM, persona));
 
-        if (StringUtils.isNotBlank(nudge)) {
-            processedContext.add(ChatMessage.build(Role.SYSTEM, nudge));
-        }
-
-        if (StringUtils.isNotBlank(bump)) {
-            int bumpFrequency = 5;
-            for (int index = processedContext.size() - 1 - bumpFrequency; index > 0; index = index - bumpFrequency) {
-                processedContext.add(index, ChatMessage.build(Role.SYSTEM, bump));
-            }
-        }
+        handleNudge(request, processedContext);
+        handleAuthorsNote(request, processedContext);
+        handleRemember(request, processedContext);
+        handleBump(request, processedContext);
 
         return processedContext;
+    }
+
+    private void handleBump(StoryGenerationRequest request, List<ChatMessage> processedContext) {
+
+        int contextSize = processedContext.size();
+        if (isNotBlank(request.getBump())) {
+            for (int i = contextSize - 1 - request.getBumpFrequency(); i > 0; i = i - request.getBumpFrequency()) {
+                String bump = formatBump().apply(request.getBump());
+                processedContext.add(i, ChatMessage.build(Role.SYSTEM, bump));
+            }
+        }
+    }
+
+    private void handleRemember(StoryGenerationRequest request, List<ChatMessage> processedContext) {
+
+        if (isNotBlank(request.getRemember())) {
+            String remember = formatRemember().apply(request.getRemember());
+            processedContext.addFirst(ChatMessage.build(Role.SYSTEM, remember));
+        }
+    }
+
+    private void handleAuthorsNote(StoryGenerationRequest request, List<ChatMessage> processedContext) {
+
+        if (isNotBlank(request.getAuthorsNote())) {
+            String authorsNote = formatAuthorsNote().apply(request.getAuthorsNote());
+            processedContext.add(ChatMessage.build(Role.SYSTEM, authorsNote));
+        }
+    }
+
+    private void handleNudge(StoryGenerationRequest request, List<ChatMessage> processedContext) {
+
+        if (isNotBlank(request.getNudge())) {
+            String nudge = formatNudge().apply(request.getNudge());
+            processedContext.add(ChatMessage.build(Role.SYSTEM, nudge));
+        }
     }
 
     private String replacePlaceholders(String summary, String botName, String botNickname, String personaName) {

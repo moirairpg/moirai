@@ -12,47 +12,29 @@ public class PersonaFixture {
 
     public static Persona.Builder publicPersona() {
 
-        Persona.Builder builder = Persona.builder();
-        builder.id("857345HAA");
-        builder.name("MoirAI");
-        builder.personality("I am a Discord chatbot");
-        builder.visibility(Visibility.fromString("PUBLIC"));
-        builder.creatorDiscordId(OWNER_DISCORD_ID);
-        builder.creationDate(OffsetDateTime.now());
-        builder.lastUpdateDate(OffsetDateTime.now());
-
         Permissions permissions = PermissionsFixture.samplePermissions().build();
-        builder.permissions(permissions);
-
-        Nudge nudge = NudgeFixture.sample().build();
-        builder.nudge(nudge);
-
-        Bump bump = BumpFixture.sample().build();
-        builder.bump(bump);
-
-        return builder;
+        return Persona.builder()
+                .id("857345HAA")
+                .name("MoirAI")
+                .personality("I am a Discord chatbot")
+                .visibility(Visibility.fromString("PUBLIC"))
+                .creatorDiscordId(OWNER_DISCORD_ID)
+                .creationDate(OffsetDateTime.now())
+                .lastUpdateDate(OffsetDateTime.now())
+                .permissions(permissions);
     }
 
     public static Persona.Builder privatePersona() {
 
-        Persona.Builder builder = Persona.builder();
-        builder.id("857345HAA");
-        builder.name("MoirAI");
-        builder.personality("I am a Discord chatbot");
-        builder.visibility(Visibility.fromString("PRIVATE"));
-        builder.creatorDiscordId(OWNER_DISCORD_ID);
-        builder.creationDate(OffsetDateTime.now());
-        builder.lastUpdateDate(OffsetDateTime.now());
-
         Permissions permissions = PermissionsFixture.samplePermissions().build();
-        builder.permissions(permissions);
-
-        Nudge nudge = NudgeFixture.sample().build();
-        builder.nudge(nudge);
-
-        Bump bump = BumpFixture.sample().build();
-        builder.bump(bump);
-
-        return builder;
+        return Persona.builder()
+                .id("857345HAA")
+                .name("MoirAI")
+                .personality("I am a Discord chatbot")
+                .visibility(Visibility.fromString("PRIVATE"))
+                .creatorDiscordId(OWNER_DISCORD_ID)
+                .creationDate(OffsetDateTime.now())
+                .lastUpdateDate(OffsetDateTime.now())
+                .permissions(permissions);
     }
 }

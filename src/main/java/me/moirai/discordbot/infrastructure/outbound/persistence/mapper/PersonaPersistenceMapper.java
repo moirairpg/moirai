@@ -7,14 +7,9 @@ import org.springframework.stereotype.Component;
 
 import me.moirai.discordbot.core.application.usecase.persona.result.GetPersonaResult;
 import me.moirai.discordbot.core.application.usecase.persona.result.SearchPersonasResult;
-import me.moirai.discordbot.core.domain.CompletionRole;
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.Visibility;
-import me.moirai.discordbot.core.domain.persona.Bump;
-import me.moirai.discordbot.core.domain.persona.Nudge;
 import me.moirai.discordbot.core.domain.persona.Persona;
-import me.moirai.discordbot.infrastructure.outbound.persistence.persona.BumpEntity;
-import me.moirai.discordbot.infrastructure.outbound.persistence.persona.NudgeEntity;
 import me.moirai.discordbot.infrastructure.outbound.persistence.persona.PersonaEntity;
 
 @Component
@@ -26,27 +21,8 @@ public class PersonaPersistenceMapper {
                 ? persona.getOwnerDiscordId()
                 : persona.getCreatorDiscordId();
 
-        PersonaEntity.Builder personaBuilder = PersonaEntity.builder();
-        if (persona.getBump() != null) {
-            BumpEntity bump = BumpEntity.builder()
-                    .content(persona.getBump().getContent())
-                    .role(persona.getBump().getRole().toString())
-                    .frequency(persona.getBump().getFrequency())
-                    .build();
-
-            personaBuilder.bump(bump);
-        }
-
-        if (persona.getNudge() != null) {
-            NudgeEntity nudge = NudgeEntity.builder()
-                    .content(persona.getNudge().getContent())
-                    .role(persona.getNudge().getRole().toString())
-                    .build();
-
-            personaBuilder.nudge(nudge);
-        }
-
-        return personaBuilder.id(persona.getId())
+        return PersonaEntity.builder()
+                .id(persona.getId())
                 .name(persona.getName())
                 .personality(persona.getPersonality())
                 .visibility(persona.getVisibility().toString())
@@ -62,30 +38,13 @@ public class PersonaPersistenceMapper {
 
     public Persona mapFromEntity(PersonaEntity persona) {
 
-        Persona.Builder personaBuilder = Persona.builder();
-
-        Bump.Builder bump = Bump.builder();
-        if (persona.getBump() != null) {
-            bump.content(persona.getBump().getContent())
-                    .role(CompletionRole.fromString(persona.getBump().getRole()))
-                    .frequency(persona.getBump().getFrequency())
-                    .build();
-        }
-
-        Nudge.Builder nudge = Nudge.builder();
-        if (persona.getNudge() != null) {
-            nudge.content(persona.getNudge().getContent())
-                    .role(CompletionRole.fromString(persona.getNudge().getRole()))
-                    .build();
-        }
-
         Permissions permissions = Permissions.builder()
                 .ownerDiscordId(persona.getOwnerDiscordId())
                 .usersAllowedToRead(persona.getUsersAllowedToRead())
                 .usersAllowedToWrite(persona.getUsersAllowedToWrite())
                 .build();
 
-        return personaBuilder.id(persona.getId())
+        return Persona.builder().id(persona.getId())
                 .name(persona.getName())
                 .personality(persona.getPersonality())
                 .visibility(Visibility.fromString(persona.getVisibility()))
@@ -93,8 +52,6 @@ public class PersonaPersistenceMapper {
                 .creationDate(persona.getCreationDate())
                 .lastUpdateDate(persona.getLastUpdateDate())
                 .creatorDiscordId(persona.getCreatorDiscordId())
-                .bump(bump.build())
-                .nudge(nudge.build())
                 .version(persona.getVersion())
                 .build();
     }

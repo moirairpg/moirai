@@ -16,6 +16,10 @@ import org.mockito.Mock;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureAuthorsNoteByChannelId;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureBumpByChannelId;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureNudgeByChannelId;
+import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventureRememberByChannelId;
 import me.moirai.discordbot.core.application.usecase.discord.contextmenu.EditMessage;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.SayCommand;
 import net.dv8tion.jda.api.entities.Message;
@@ -280,5 +284,219 @@ public class ModalListenerTest extends AbstractDiscordTest {
         assertThat(notificationContent).isNotNull()
                 .isNotEmpty()
                 .isEqualTo(notificationContentExpected);
+    }
+
+    @Test
+    public void rememberModal_whenCreated_thenUpdateRemember() {
+
+        // Given
+        String modalName = "remember";
+        String contentToUpdate = "This is the new content";
+
+        InteractionHook interactionHook = mock(InteractionHook.class);
+        ReplyCallbackAction sendMessageCallback = mock(ReplyCallbackAction.class);
+        ModalInteractionEvent event = mock(ModalInteractionEvent.class);
+        ModalMapping modalMapping = mock(ModalMapping.class);
+        WebhookMessageEditAction<Message> editNotificationAction = mock(WebhookMessageEditAction.class);
+        RestAction<Message> getMessageAction = mock(RestAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
+
+        when(event.getModalId()).thenReturn(modalName);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(user.isBot()).thenReturn(false);
+        when(event.getJDA()).thenReturn(jda);
+        when(event.getGuild()).thenReturn(guild);
+
+        when(event.getModalId()).thenReturn(modalName);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.reply(anyString())).thenReturn(sendMessageCallback);
+        when(sendMessageCallback.setEphemeral(anyBoolean())).thenReturn(sendMessageCallback);
+        when(sendMessageCallback.complete()).thenReturn(interactionHook);
+        when(event.getValue(anyString())).thenReturn(modalMapping);
+        when(modalMapping.getAsString()).thenReturn(contentToUpdate);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
+        when(interactionHook.editOriginal(anyString())).thenReturn(editNotificationAction);
+        when(editNotificationAction.onSuccess(any())).thenReturn(getMessageAction);
+        when(editNotificationAction.complete()).thenReturn(message);
+        when(event.getMember()).thenReturn(member);
+        when(user.isBot()).thenReturn(false);
+        when(event.getJDA()).thenReturn(jda);
+        when(event.getGuild()).thenReturn(guild);
+
+        ArgumentCaptor<UpdateAdventureRememberByChannelId> captor = ArgumentCaptor
+                .forClass(UpdateAdventureRememberByChannelId.class);
+
+        when(useCaseRunner.run(captor.capture())).thenReturn(null);
+
+        // When
+        listener.onModalInteraction(event);
+
+        // Then
+        UpdateAdventureRememberByChannelId request = captor.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.getRemember()).isEqualTo(contentToUpdate);
+    }
+
+    @Test
+    public void nudgeModal_whenCreated_thenUpdateRemember() {
+
+        // Given
+        String modalName = "nudge";
+        String contentToUpdate = "This is the new content";
+
+        InteractionHook interactionHook = mock(InteractionHook.class);
+        ReplyCallbackAction sendMessageCallback = mock(ReplyCallbackAction.class);
+        ModalInteractionEvent event = mock(ModalInteractionEvent.class);
+        ModalMapping modalMapping = mock(ModalMapping.class);
+        WebhookMessageEditAction<Message> editNotificationAction = mock(WebhookMessageEditAction.class);
+        RestAction<Message> getMessageAction = mock(RestAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
+
+        when(event.getModalId()).thenReturn(modalName);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(user.isBot()).thenReturn(false);
+        when(event.getJDA()).thenReturn(jda);
+        when(event.getGuild()).thenReturn(guild);
+
+        when(event.getModalId()).thenReturn(modalName);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.reply(anyString())).thenReturn(sendMessageCallback);
+        when(sendMessageCallback.setEphemeral(anyBoolean())).thenReturn(sendMessageCallback);
+        when(sendMessageCallback.complete()).thenReturn(interactionHook);
+        when(event.getValue(anyString())).thenReturn(modalMapping);
+        when(modalMapping.getAsString()).thenReturn(contentToUpdate);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
+        when(interactionHook.editOriginal(anyString())).thenReturn(editNotificationAction);
+        when(editNotificationAction.onSuccess(any())).thenReturn(getMessageAction);
+        when(editNotificationAction.complete()).thenReturn(message);
+        when(event.getMember()).thenReturn(member);
+        when(user.isBot()).thenReturn(false);
+        when(event.getJDA()).thenReturn(jda);
+        when(event.getGuild()).thenReturn(guild);
+
+        ArgumentCaptor<UpdateAdventureNudgeByChannelId> captor = ArgumentCaptor
+                .forClass(UpdateAdventureNudgeByChannelId.class);
+
+        when(useCaseRunner.run(captor.capture())).thenReturn(null);
+
+        // When
+        listener.onModalInteraction(event);
+
+        // Then
+        UpdateAdventureNudgeByChannelId request = captor.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.getNudge()).isEqualTo(contentToUpdate);
+    }
+
+    @Test
+    public void authorsNoteModal_whenCreated_thenUpdateRemember() {
+
+        // Given
+        String modalName = "authorsNote";
+        String contentToUpdate = "This is the new content";
+
+        InteractionHook interactionHook = mock(InteractionHook.class);
+        ReplyCallbackAction sendMessageCallback = mock(ReplyCallbackAction.class);
+        ModalInteractionEvent event = mock(ModalInteractionEvent.class);
+        ModalMapping modalMapping = mock(ModalMapping.class);
+        WebhookMessageEditAction<Message> editNotificationAction = mock(WebhookMessageEditAction.class);
+        RestAction<Message> getMessageAction = mock(RestAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
+
+        when(event.getModalId()).thenReturn(modalName);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(user.isBot()).thenReturn(false);
+        when(event.getJDA()).thenReturn(jda);
+        when(event.getGuild()).thenReturn(guild);
+
+        when(event.getModalId()).thenReturn(modalName);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.reply(anyString())).thenReturn(sendMessageCallback);
+        when(sendMessageCallback.setEphemeral(anyBoolean())).thenReturn(sendMessageCallback);
+        when(sendMessageCallback.complete()).thenReturn(interactionHook);
+        when(event.getValue(anyString())).thenReturn(modalMapping);
+        when(modalMapping.getAsString()).thenReturn(contentToUpdate);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
+        when(interactionHook.editOriginal(anyString())).thenReturn(editNotificationAction);
+        when(editNotificationAction.onSuccess(any())).thenReturn(getMessageAction);
+        when(editNotificationAction.complete()).thenReturn(message);
+        when(event.getMember()).thenReturn(member);
+        when(user.isBot()).thenReturn(false);
+        when(event.getJDA()).thenReturn(jda);
+        when(event.getGuild()).thenReturn(guild);
+
+        ArgumentCaptor<UpdateAdventureAuthorsNoteByChannelId> captor = ArgumentCaptor
+                .forClass(UpdateAdventureAuthorsNoteByChannelId.class);
+
+        when(useCaseRunner.run(captor.capture())).thenReturn(null);
+
+        // When
+        listener.onModalInteraction(event);
+
+        // Then
+        UpdateAdventureAuthorsNoteByChannelId request = captor.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.getAuthorsNote()).isEqualTo(contentToUpdate);
+    }
+
+    @Test
+    public void bumpModal_whenCreated_thenUpdateRemember() {
+
+        // Given
+        String modalName = "bump";
+        String contentToUpdate = "This is the new content";
+        String bumpFrequency = "5";
+
+        InteractionHook interactionHook = mock(InteractionHook.class);
+        ReplyCallbackAction sendMessageCallback = mock(ReplyCallbackAction.class);
+        ModalInteractionEvent event = mock(ModalInteractionEvent.class);
+        ModalMapping modalMapping = mock(ModalMapping.class);
+        WebhookMessageEditAction<Message> editNotificationAction = mock(WebhookMessageEditAction.class);
+        RestAction<Message> getMessageAction = mock(RestAction.class);
+        RestAction<Void> deleteOriginalAction = mock(RestAction.class);
+
+        when(event.getModalId()).thenReturn(modalName);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(user.isBot()).thenReturn(false);
+        when(event.getJDA()).thenReturn(jda);
+        when(event.getGuild()).thenReturn(guild);
+
+        when(event.getModalId()).thenReturn(modalName);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.reply(anyString())).thenReturn(sendMessageCallback);
+        when(sendMessageCallback.setEphemeral(anyBoolean())).thenReturn(sendMessageCallback);
+        when(sendMessageCallback.complete()).thenReturn(interactionHook);
+        when(event.getValue(anyString())).thenReturn(modalMapping);
+        when(modalMapping.getAsString()).thenReturn(contentToUpdate).thenReturn(bumpFrequency);
+        when(interactionHook.deleteOriginal()).thenReturn(deleteOriginalAction);
+        when(interactionHook.editOriginal(anyString())).thenReturn(editNotificationAction);
+        when(editNotificationAction.onSuccess(any())).thenReturn(getMessageAction);
+        when(editNotificationAction.complete()).thenReturn(message);
+        when(event.getMember()).thenReturn(member);
+        when(user.isBot()).thenReturn(false);
+        when(event.getJDA()).thenReturn(jda);
+        when(event.getGuild()).thenReturn(guild);
+
+        ArgumentCaptor<UpdateAdventureBumpByChannelId> captor = ArgumentCaptor
+                .forClass(UpdateAdventureBumpByChannelId.class);
+
+        when(useCaseRunner.run(captor.capture())).thenReturn(null);
+
+        // When
+        listener.onModalInteraction(event);
+
+        // Then
+        UpdateAdventureBumpByChannelId request = captor.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.getBump()).isEqualTo(contentToUpdate);
+        assertThat(request.getBumpFrequency()).isEqualTo(Integer.valueOf(bumpFrequency));
     }
 }

@@ -5,13 +5,13 @@ import org.springframework.stereotype.Component;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorldLorebookEntry;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorldLorebookEntry;
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorldLorebookEntry;
-import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldLorebookEntryRequest;
-import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldLorebookEntryRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.CreateLorebookEntryRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateLorebookEntryRequest;
 
 @Component
 public class WorldLorebookEntryRequestMapper {
 
-    public CreateWorldLorebookEntry toCommand(CreateWorldLorebookEntryRequest request,
+    public CreateWorldLorebookEntry toCommand(CreateLorebookEntryRequest request,
             String worldId, String requesterDiscordId) {
 
         return CreateWorldLorebookEntry.builder()
@@ -24,7 +24,7 @@ public class WorldLorebookEntryRequestMapper {
                 .build();
     }
 
-    public UpdateWorldLorebookEntry toCommand(UpdateWorldLorebookEntryRequest request, String entryId,
+    public UpdateWorldLorebookEntry toCommand(UpdateLorebookEntryRequest request, String entryId,
             String worldId, String requesterDiscordId) {
 
         return UpdateWorldLorebookEntry.builder()

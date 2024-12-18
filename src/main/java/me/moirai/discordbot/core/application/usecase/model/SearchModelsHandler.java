@@ -9,7 +9,7 @@ import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.usecase.model.request.SearchModels;
 import me.moirai.discordbot.core.application.usecase.model.result.AiModelResult;
-import me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel;
+import me.moirai.discordbot.core.domain.adventure.ArtificialIntelligenceModel;
 
 @UseCaseHandler
 public class SearchModelsHandler extends AbstractUseCaseHandler<SearchModels, List<AiModelResult>> {

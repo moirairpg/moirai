@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel;
+import me.moirai.discordbot.core.domain.adventure.ArtificialIntelligenceModel;
 
 public class ModelConfigurationRequestFixture {
 

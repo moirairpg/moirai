@@ -21,6 +21,8 @@ import org.mockito.Mock;
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
+import me.moirai.discordbot.core.application.usecase.adventure.request.GetAdventureByChannelId;
+import me.moirai.discordbot.core.application.usecase.adventure.result.GetAdventureResultFixture;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.GoCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.RetryCommand;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.StartCommand;
@@ -606,5 +608,141 @@ public class SlashCommandListenerTest extends AbstractDiscordTest {
 
         // Then
         verify(useCaseRunner, times(1)).run(any());
+    }
+
+    @Test
+    public void rememberCommand_whenReceived_thenUpdateRemember() {
+
+        // Given
+        String modalId = "remember";
+        String command = "remember";
+
+        ModalCallbackAction replyModalAction = mock(ModalCallbackAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
+
+        ArgumentCaptor<Modal> modalCaptor = ArgumentCaptor.forClass(Modal.class);
+
+        when(useCaseRunner.run(any(GetAdventureByChannelId.class)))
+                .thenReturn(GetAdventureResultFixture.sample().build());
+
+        when(event.getFullCommandName()).thenReturn(command);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
+        when(channelUnion.asTextChannel()).thenReturn(textChannel);
+        when(event.replyModal(modalCaptor.capture())).thenReturn(replyModalAction);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
+
+        // When
+        listener.onSlashCommandInteraction(event);
+
+        // Then
+        Modal createdModal = modalCaptor.getValue();
+
+        assertThat(createdModal).isNotNull();
+        assertThat(createdModal.getId()).isEqualTo(modalId);
+    }
+
+    @Test
+    public void nudgeCommand_whenReceived_thenUpdateRemember() {
+
+        // Given
+        String modalId = "nudge";
+        String command = "nudge";
+
+        ModalCallbackAction replyModalAction = mock(ModalCallbackAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
+
+        ArgumentCaptor<Modal> modalCaptor = ArgumentCaptor.forClass(Modal.class);
+
+        when(useCaseRunner.run(any(GetAdventureByChannelId.class)))
+                .thenReturn(GetAdventureResultFixture.sample().build());
+
+        when(event.getFullCommandName()).thenReturn(command);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
+        when(channelUnion.asTextChannel()).thenReturn(textChannel);
+        when(event.replyModal(modalCaptor.capture())).thenReturn(replyModalAction);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
+
+        // When
+        listener.onSlashCommandInteraction(event);
+
+        // Then
+        Modal createdModal = modalCaptor.getValue();
+
+        assertThat(createdModal).isNotNull();
+        assertThat(createdModal.getId()).isEqualTo(modalId);
+    }
+
+    @Test
+    public void authorsNoteCommand_whenReceived_thenUpdateRemember() {
+
+        // Given
+        String modalId = "authorsNote";
+        String command = "authorsnote";
+
+        ModalCallbackAction replyModalAction = mock(ModalCallbackAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
+
+        ArgumentCaptor<Modal> modalCaptor = ArgumentCaptor.forClass(Modal.class);
+
+        when(useCaseRunner.run(any(GetAdventureByChannelId.class)))
+                .thenReturn(GetAdventureResultFixture.sample().build());
+
+        when(event.getFullCommandName()).thenReturn(command);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
+        when(channelUnion.asTextChannel()).thenReturn(textChannel);
+        when(event.replyModal(modalCaptor.capture())).thenReturn(replyModalAction);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
+
+        // When
+        listener.onSlashCommandInteraction(event);
+
+        // Then
+        Modal createdModal = modalCaptor.getValue();
+
+        assertThat(createdModal).isNotNull();
+        assertThat(createdModal.getId()).isEqualTo(modalId);
+    }
+
+    @Test
+    public void bumpCommand_whenReceived_thenUpdateRemember() {
+
+        // Given
+        String modalId = "bump";
+        String command = "bump";
+
+        ModalCallbackAction replyModalAction = mock(ModalCallbackAction.class);
+        RestAction<Void> restAction = mock(RestAction.class);
+
+        ArgumentCaptor<Modal> modalCaptor = ArgumentCaptor.forClass(Modal.class);
+
+        when(useCaseRunner.run(any(GetAdventureByChannelId.class)))
+                .thenReturn(GetAdventureResultFixture.sample().build());
+
+        when(event.getFullCommandName()).thenReturn(command);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(event.getMember()).thenReturn(member);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
+        when(channelUnion.asTextChannel()).thenReturn(textChannel);
+        when(event.replyModal(modalCaptor.capture())).thenReturn(replyModalAction);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
+
+        // When
+        listener.onSlashCommandInteraction(event);
+
+        // Then
+        Modal createdModal = modalCaptor.getValue();
+
+        assertThat(createdModal).isNotNull();
+        assertThat(createdModal.getId()).isEqualTo(modalId);
     }
 }

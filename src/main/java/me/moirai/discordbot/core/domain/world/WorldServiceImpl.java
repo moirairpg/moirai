@@ -23,7 +23,7 @@ import me.moirai.discordbot.core.application.usecase.world.request.GetWorldLoreb
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorldLorebookEntry;
 import me.moirai.discordbot.core.domain.Permissions;
 import me.moirai.discordbot.core.domain.Visibility;
-import me.moirai.discordbot.core.domain.channelconfig.Moderation;
+import me.moirai.discordbot.core.domain.adventure.Moderation;
 import reactor.core.publisher.Mono;
 
 @DomainService

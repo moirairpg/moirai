@@ -4,8 +4,8 @@ import static java.util.Collections.emptyList;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.ASSISTANT;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.SYSTEM;
 import static me.moirai.discordbot.core.application.model.request.ChatMessage.Role.USER;
-import static me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel.findByInternalModelName;
-import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
+import static me.moirai.discordbot.core.domain.adventure.ArtificialIntelligenceModel.fromInternalName;
+import static me.moirai.discordbot.core.domain.adventure.Moderation.DISABLED;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +31,8 @@ import me.moirai.discordbot.core.application.usecase.completion.result.CompleteT
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordUserDetails;
 import me.moirai.discordbot.core.application.usecase.discord.slashcommands.TokenizeResult;
-import me.moirai.discordbot.core.domain.channelconfig.ArtificialIntelligenceModel;
-import me.moirai.discordbot.core.domain.channelconfig.Moderation;
+import me.moirai.discordbot.core.domain.adventure.ArtificialIntelligenceModel;
+import me.moirai.discordbot.core.domain.adventure.Moderation;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.core.domain.persona.PersonaService;
 import me.moirai.discordbot.core.domain.port.TokenizerPort;
@@ -75,7 +75,7 @@ public class CompleteTextHandler extends AbstractUseCaseHandler<CompleteText, Mo
     @Override
     public Mono<CompleteTextResult> execute(CompleteText useCase) {
 
-        ArtificialIntelligenceModel model = findByInternalModelName(useCase.getAiModel());
+        ArtificialIntelligenceModel model = fromInternalName(useCase.getAiModel());
         Persona persona = personaService.getById(useCase.getPersonaId());
         World world = worldService.getWorldById(useCase.getWorldId());
         DiscordUserDetails author = discordUserDetailsPort.getUserById(useCase.getAuthorDiscordId())

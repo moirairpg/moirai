@@ -31,5 +31,5 @@ CREATE TABLE world_lorebook (
     last_update_date TIMESTAMP WITH TIME ZONE
 );
 
---rollback DROP TABLE world_lorebook
---rollback DROP TABLE world
+--rollback DROP TABLE world_lorebook CASCADE;
+--rollback DROP TABLE world CASCADE;

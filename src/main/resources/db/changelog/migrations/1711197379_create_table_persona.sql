@@ -21,4 +21,4 @@ CREATE TABLE persona (
     last_update_date TIMESTAMP WITH TIME ZONE
 );
 
---rollback DROP TABLE persona
+--rollback DROP TABLE persona CASCADE;

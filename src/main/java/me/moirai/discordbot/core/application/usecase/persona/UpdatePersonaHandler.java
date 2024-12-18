@@ -15,9 +15,8 @@ import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.port.TextModerationPort;
 import me.moirai.discordbot.core.application.usecase.persona.request.UpdatePersona;
 import me.moirai.discordbot.core.application.usecase.persona.result.UpdatePersonaResult;
-import me.moirai.discordbot.core.domain.CompletionRole;
 import me.moirai.discordbot.core.domain.Visibility;
-import me.moirai.discordbot.core.domain.channelconfig.Moderation;
+import me.moirai.discordbot.core.domain.adventure.Moderation;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.core.domain.persona.PersonaDomainRepository;
 import me.moirai.discordbot.core.domain.persona.PersonaService;
@@ -80,26 +79,6 @@ public class UpdatePersonaHandler extends AbstractUseCaseHandler<UpdatePersona, 
 
         if (StringUtils.isNotBlank(command.getPersonality())) {
             persona.updatePersonality(command.getPersonality());
-        }
-
-        if (StringUtils.isNotBlank(command.getNudgeRole())) {
-            persona.updateNudgeRole(CompletionRole.fromString(command.getNudgeRole()));
-        }
-
-        if (StringUtils.isNotBlank(command.getNudgeContent())) {
-            persona.updateNudgeContent(command.getNudgeContent());
-        }
-
-        if (StringUtils.isNotBlank(command.getBumpRole())) {
-            persona.updateBumpRole(CompletionRole.fromString(command.getBumpRole()));
-        }
-
-        if (StringUtils.isNotBlank(command.getBumpContent())) {
-            persona.updateBumpContent(command.getBumpContent());
-        }
-
-        if (command.getBumpFrequency() != null) {
-            persona.updateBumpFrequency(command.getBumpFrequency());
         }
 
         if (StringUtils.isNotBlank(command.getVisibility())) {

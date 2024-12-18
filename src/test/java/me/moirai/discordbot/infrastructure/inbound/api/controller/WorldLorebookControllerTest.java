@@ -27,14 +27,14 @@ import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldLor
 import me.moirai.discordbot.core.application.usecase.world.result.UpdateWorldLorebookEntryResult;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldLorebookEntryRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldLorebookEntryResponseMapper;
-import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldLorebookEntryRequest;
-import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldLorebookEntryRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.CreateLorebookEntryRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateLorebookEntryRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateLorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateWorldResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.LorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchLorebookEntriesResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchWorldsResponse;
-import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateWorldLorebookEntryResponse;
+import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateLorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateWorldResponse;
 import me.moirai.discordbot.infrastructure.security.authentication.config.AuthenticationSecurityConfig;
 
@@ -134,14 +134,14 @@ public class WorldLorebookControllerTest extends AbstractRestWebTest {
     public void http201WhenCreateLorebookEntry() {
 
         // Given
-        CreateWorldLorebookEntryRequest request = new CreateWorldLorebookEntryRequest();
+        CreateLorebookEntryRequest request = new CreateLorebookEntryRequest();
         request.setName("NAME");
         request.setDescription("DESC");
         request.setRegex("regex");
 
         CreateLorebookEntryResponse expectedResponse = CreateLorebookEntryResponse.build("ID");
 
-        when(worldLorebookEntryRequestMapper.toCommand(any(CreateWorldLorebookEntryRequest.class),
+        when(worldLorebookEntryRequestMapper.toCommand(any(CreateLorebookEntryRequest.class),
                 anyString(), anyString())).thenReturn(mock(CreateWorldLorebookEntry.class));
 
         when(useCaseRunner.run(any(CreateWorldLorebookEntry.class)))
@@ -167,15 +167,15 @@ public class WorldLorebookControllerTest extends AbstractRestWebTest {
     public void http200WhenUpdateLorebookEntry() {
 
         // Given
-        UpdateWorldLorebookEntryRequest request = new UpdateWorldLorebookEntryRequest();
+        UpdateLorebookEntryRequest request = new UpdateLorebookEntryRequest();
         request.setName("NAME");
         request.setDescription("DESC");
         request.setRegex("regex");
 
-        UpdateWorldLorebookEntryResponse expectedResponse = UpdateWorldLorebookEntryResponse
+        UpdateLorebookEntryResponse expectedResponse = UpdateLorebookEntryResponse
                 .build(OffsetDateTime.now());
 
-        when(worldLorebookEntryRequestMapper.toCommand(any(UpdateWorldLorebookEntryRequest.class),
+        when(worldLorebookEntryRequestMapper.toCommand(any(UpdateLorebookEntryRequest.class),
                 anyString(), anyString(), anyString())).thenReturn(mock(UpdateWorldLorebookEntry.class));
 
         when(useCaseRunner.run(any(UpdateWorldLorebookEntry.class)))

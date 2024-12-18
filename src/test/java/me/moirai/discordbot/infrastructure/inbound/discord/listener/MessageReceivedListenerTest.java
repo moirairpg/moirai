@@ -17,9 +17,10 @@ import org.mockito.Mock;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
-import me.moirai.discordbot.core.application.helper.ChannelConfigHelper;
+import me.moirai.discordbot.core.application.helper.AdventureHelper;
 import me.moirai.discordbot.core.application.usecase.discord.messagereceived.AuthorModeRequest;
 import me.moirai.discordbot.core.application.usecase.discord.messagereceived.ChatModeRequest;
+import me.moirai.discordbot.core.application.usecase.discord.messagereceived.RpgModeRequest;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -34,7 +35,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
     private UseCaseRunner useCaseRunner;
 
     @Mock
-    private ChannelConfigHelper channelConfigHelper;
+    private AdventureHelper adventureHelper;
 
     @InjectMocks
     private MessageReceivedListener listener;
@@ -74,7 +75,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(message.getId()).thenReturn(messageId);
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
-        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
         when(channelUnion.sendTyping()).thenReturn(restAction);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));
@@ -125,7 +126,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(message.getId()).thenReturn(messageId);
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
-        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
         when(channelUnion.sendTyping()).thenReturn(restAction);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));
@@ -167,7 +168,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(mentions.getMembers()).thenReturn(Collections.emptyList());
         when(member.getUser()).thenReturn(user);
         when(user.isBot()).thenReturn(true);
-        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
 
         // When
         listener.onMessageReceived(event);
@@ -201,7 +202,7 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(mentions.getMembers()).thenReturn(Collections.emptyList());
         when(member.getUser()).thenReturn(user);
         when(user.isBot()).thenReturn(false);
-        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
 
         // When
         listener.onMessageReceived(event);
@@ -245,12 +246,63 @@ public class MessageReceivedListenerTest extends AbstractDiscordTest {
         when(message.getId()).thenReturn(messageId);
         when(event.getJDA()).thenReturn(jda);
         when(jda.getSelfUser()).thenReturn(selfUser);
-        when(channelConfigHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
         when(channelUnion.sendTyping()).thenReturn(restAction);
 
         Mono<Void> useCaseResult = Mono.just(mock(Void.class));
 
         when(useCaseRunner.run(any(AuthorModeRequest.class))).thenReturn(useCaseResult);
+
+        // When
+        listener.onMessageReceived(event);
+
+        // Then
+        StepVerifier.create(useCaseResult)
+                .assertNext(result -> assertThat(result).isNotNull())
+                .verifyComplete();
+    }
+
+    @Test
+    public void messageListener_whenMessageReceived_andIsRpgMode_thenCallUseCase() {
+
+        // Given
+        String guildId = "GDID";
+        String channelId = "CHID";
+        String userId = "USRID";
+        String messageId = "MSGID";
+        String username = "user.name";
+        String nickname = "nickname";
+        String messageContent = "content";
+        String gameMode = "RPG";
+
+        MessageReceivedEvent event = mock(MessageReceivedEvent.class);
+        Mentions mentions = mock(Mentions.class);
+        RestAction<Void> restAction = mock(RestAction.class);
+
+        when(event.getMessage()).thenReturn(message);
+        when(event.getMember()).thenReturn(member);
+        when(event.getGuild()).thenReturn(guild);
+        when(guild.getMember(any(SelfUser.class))).thenReturn(member);
+        when(message.getMentions()).thenReturn(mentions);
+        when(mentions.getMembers()).thenReturn(Collections.emptyList());
+        when(guild.getId()).thenReturn(guildId);
+        when(event.getChannel()).thenReturn(channelUnion);
+        when(channelUnion.getId()).thenReturn(channelId);
+        when(message.getContentRaw()).thenReturn(messageContent);
+        when(member.getUser()).thenReturn(user);
+        when(user.isBot()).thenReturn(false);
+        when(user.getName()).thenReturn(username);
+        when(member.getNickname()).thenReturn(nickname);
+        when(member.getId()).thenReturn(userId);
+        when(message.getId()).thenReturn(messageId);
+        when(event.getJDA()).thenReturn(jda);
+        when(jda.getSelfUser()).thenReturn(selfUser);
+        when(adventureHelper.getGameModeByDiscordChannelId(anyString())).thenReturn(gameMode);
+        when(channelUnion.sendTyping()).thenReturn(restAction);
+
+        Mono<Void> useCaseResult = Mono.just(mock(Void.class));
+
+        when(useCaseRunner.run(any(RpgModeRequest.class))).thenReturn(useCaseResult);
 
         // When
         listener.onMessageReceived(event);

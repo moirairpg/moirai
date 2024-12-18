@@ -15,11 +15,11 @@ import org.mockito.Mock;
 
 import me.moirai.discordbot.AbstractDiscordTest;
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
-import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
+import me.moirai.discordbot.core.application.port.AdventureQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageDataFixture;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfigFixture;
+import me.moirai.discordbot.core.domain.adventure.Adventure;
+import me.moirai.discordbot.core.domain.adventure.AdventureFixture;
 import me.moirai.discordbot.core.domain.world.World;
 import me.moirai.discordbot.core.domain.world.WorldFixture;
 import me.moirai.discordbot.core.domain.world.WorldDomainRepository;
@@ -30,7 +30,7 @@ import reactor.test.StepVerifier;
 public class StartCommandHandlerTest extends AbstractDiscordTest {
 
     @Mock
-    private ChannelConfigQueryRepository channelConfigRepository;
+    private AdventureQueryRepository adventureRepository;
 
     @Mock
     private WorldDomainRepository worldRepository;
@@ -50,7 +50,7 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
         // Given
         String channelId = "CHID";
 
-        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+        Adventure adventure = AdventureFixture.publicMultiplayerAdventure()
                 .discordChannelId(channelId)
                 .build();
 
@@ -67,7 +67,7 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
         ArgumentCaptor<StoryGenerationRequest> generationRequestCaptor = ArgumentCaptor
                 .forClass(StoryGenerationRequest.class);
 
-        when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));
+        when(adventureRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(adventure));
 
         when(discordChannelPort.retrieveEntireHistoryFrom(anyString()))
                 .thenReturn(DiscordMessageDataFixture.messageList(5));
@@ -89,8 +89,8 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
         assertThat(generationRequest.getBotUsername()).isEqualTo(useCase.getBotUsername());
         assertThat(generationRequest.getChannelId()).isEqualTo(useCase.getChannelId());
         assertThat(generationRequest.getGuildId()).isEqualTo(useCase.getGuildId());
-        assertThat(generationRequest.getPersonaId()).isEqualTo(channelConfig.getPersonaId());
-        assertThat(generationRequest.getWorldId()).isEqualTo(channelConfig.getWorldId());
+        assertThat(generationRequest.getPersonaId()).isEqualTo(adventure.getPersonaId());
+        assertThat(generationRequest.getWorldId()).isEqualTo(adventure.getWorldId());
     }
 
     @Test
@@ -107,7 +107,7 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
                 .guildId("GDID")
                 .build();
 
-        when(channelConfigRepository.findByDiscordChannelId(anyString())).thenThrow(RuntimeException.class);
+        when(adventureRepository.findByDiscordChannelId(anyString())).thenThrow(RuntimeException.class);
 
         when(discordChannelPort.retrieveEntireHistoryFrom(anyString()))
                 .thenReturn(DiscordMessageDataFixture.messageList(5));
@@ -120,11 +120,11 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
     }
 
     @Test
-    public void startCommand_whenChannelConfigHasNoWorld_thenThrowException() {
+    public void startCommand_whenAdventureHasNoWorld_thenThrowException() {
 
         // Given
         String channelId = "CHID";
-        String expectedErrorMessage = "Channel config has no world linked to it";
+        String expectedErrorMessage = "Adventure has no world linked to it";
 
         StartCommand useCase = StartCommand.builder()
                 .botId("BOTID")
@@ -134,11 +134,11 @@ public class StartCommandHandlerTest extends AbstractDiscordTest {
                 .guildId("GDID")
                 .build();
 
-        ChannelConfig channelConfig = ChannelConfigFixture.sample()
+        Adventure adventure = AdventureFixture.publicMultiplayerAdventure()
                 .discordChannelId(channelId)
                 .build();
 
-        when(channelConfigRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(channelConfig));
+        when(adventureRepository.findByDiscordChannelId(anyString())).thenReturn(Optional.of(adventure));
 
         when(discordChannelPort.retrieveEntireHistoryFrom(anyString()))
                 .thenReturn(DiscordMessageDataFixture.messageList(5));

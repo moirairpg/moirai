@@ -10,8 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import me.moirai.discordbot.core.application.usecase.world.request.CreateWorldLorebookEntry;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorldLorebookEntry;
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorldLorebookEntry;
-import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldLorebookEntryRequest;
-import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldLorebookEntryRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.CreateLorebookEntryRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateLorebookEntryRequest;
 
 @ExtendWith(MockitoExtension.class)
 public class WorldLorebookEntryRequestMapperTest {
@@ -26,7 +26,7 @@ public class WorldLorebookEntryRequestMapperTest {
         String worldId = "WRLDID";
         String requesterId = "RQSTRID";
 
-        CreateWorldLorebookEntryRequest request = new CreateWorldLorebookEntryRequest();
+        CreateLorebookEntryRequest request = new CreateLorebookEntryRequest();
         request.setName("Volin Habar");
         request.setDescription("Volin Habar is a warrior that fights with a sword.");
         request.setRegex("[Vv]olin [Hh]abar|[Vv]oha");
@@ -53,7 +53,7 @@ public class WorldLorebookEntryRequestMapperTest {
         String worldId = "WRLDID";
         String requesterId = "RQSTRID";
 
-        UpdateWorldLorebookEntryRequest request = new UpdateWorldLorebookEntryRequest();
+        UpdateLorebookEntryRequest request = new UpdateLorebookEntryRequest();
         request.setName("Volin Habar");
         request.setDescription("Volin Habar is a warrior that fights with a sword.");
         request.setRegex("[Vv]olin [Hh]abar|[Vv]oha");

@@ -1,6 +1,6 @@
 package me.moirai.discordbot.core.application.usecase.discord.slashcommands;
 
-import static me.moirai.discordbot.core.domain.channelconfig.Moderation.DISABLED;
+import static me.moirai.discordbot.core.domain.adventure.Moderation.DISABLED;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +8,10 @@ import java.util.List;
 import me.moirai.discordbot.common.annotation.UseCaseHandler;
 import me.moirai.discordbot.common.usecases.AbstractUseCaseHandler;
 import me.moirai.discordbot.core.application.helper.StoryGenerationHelper;
-import me.moirai.discordbot.core.application.port.ChannelConfigQueryRepository;
+import me.moirai.discordbot.core.application.port.AdventureQueryRepository;
 import me.moirai.discordbot.core.application.port.DiscordChannelPort;
 import me.moirai.discordbot.core.application.usecase.discord.DiscordMessageData;
-import me.moirai.discordbot.core.domain.channelconfig.ChannelConfig;
+import me.moirai.discordbot.core.domain.adventure.Adventure;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.AiModelRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModelConfigurationRequest;
 import me.moirai.discordbot.infrastructure.outbound.adapter.request.ModerationConfigurationRequest;
@@ -23,15 +23,15 @@ public class GoCommandHandler extends AbstractUseCaseHandler<GoCommand, Mono<Voi
 
     private static final String CHANNEL_HAS_NO_MESSAGES = "Channel has no messages";
 
-    private final ChannelConfigQueryRepository channelConfigRepository;
+    private final AdventureQueryRepository adventureRepository;
     private final StoryGenerationHelper storyGenerationPort;
     private final DiscordChannelPort discordChannelPort;
 
     public GoCommandHandler(StoryGenerationHelper storyGenerationPort,
-            ChannelConfigQueryRepository channelConfigRepository,
+            AdventureQueryRepository adventureRepository,
             DiscordChannelPort discordChannelPort) {
 
-        this.channelConfigRepository = channelConfigRepository;
+        this.adventureRepository = adventureRepository;
         this.storyGenerationPort = storyGenerationPort;
         this.discordChannelPort = discordChannelPort;
     }
@@ -40,9 +40,9 @@ public class GoCommandHandler extends AbstractUseCaseHandler<GoCommand, Mono<Voi
     public Mono<Void> execute(GoCommand useCase) {
 
         try {
-            return channelConfigRepository.findByDiscordChannelId(useCase.getChannelId())
-                    .filter(channelConfig -> channelConfig.getDiscordChannelId().equals(useCase.getChannelId()))
-                    .map(channelConfig -> buildGenerationRequest(useCase, channelConfig))
+            return adventureRepository.findByDiscordChannelId(useCase.getChannelId())
+                    .filter(adventure -> adventure.getDiscordChannelId().equals(useCase.getChannelId()))
+                    .map(adventure -> buildGenerationRequest(useCase, adventure))
                     .map(storyGenerationPort::continueStory)
                     .orElseGet(Mono::empty);
         } catch (Exception e) {
@@ -51,25 +51,25 @@ public class GoCommandHandler extends AbstractUseCaseHandler<GoCommand, Mono<Voi
         }
     }
 
-    private StoryGenerationRequest buildGenerationRequest(GoCommand useCase, ChannelConfig channelConfig) {
+    private StoryGenerationRequest buildGenerationRequest(GoCommand useCase, Adventure adventure) {
 
         ModelConfigurationRequest modelConfigurationRequest = ModelConfigurationRequest.builder()
-                .frequencyPenalty(channelConfig.getModelConfiguration().getFrequencyPenalty())
-                .presencePenalty(channelConfig.getModelConfiguration().getPresencePenalty())
-                .logitBias(channelConfig.getModelConfiguration().getLogitBias())
-                .maxTokenLimit(channelConfig.getModelConfiguration().getMaxTokenLimit())
-                .stopSequences(channelConfig.getModelConfiguration().getStopSequences())
-                .temperature(channelConfig.getModelConfiguration().getTemperature())
+                .frequencyPenalty(adventure.getModelConfiguration().getFrequencyPenalty())
+                .presencePenalty(adventure.getModelConfiguration().getPresencePenalty())
+                .logitBias(adventure.getModelConfiguration().getLogitBias())
+                .maxTokenLimit(adventure.getModelConfiguration().getMaxTokenLimit())
+                .stopSequences(adventure.getModelConfiguration().getStopSequences())
+                .temperature(adventure.getModelConfiguration().getTemperature())
                 .aiModel(AiModelRequest
-                        .build(channelConfig.getModelConfiguration().getAiModel().getInternalModelName(),
-                                channelConfig.getModelConfiguration().getAiModel().getOfficialModelName(),
-                                channelConfig.getModelConfiguration().getAiModel().getHardTokenLimit()))
+                        .build(adventure.getModelConfiguration().getAiModel().getInternalModelName(),
+                                adventure.getModelConfiguration().getAiModel().getOfficialModelName(),
+                                adventure.getModelConfiguration().getAiModel().getHardTokenLimit()))
                 .build();
 
-        boolean isModerationEnabled = !channelConfig.getModeration().equals(DISABLED);
+        boolean isModerationEnabled = !adventure.getModeration().equals(DISABLED);
         ModerationConfigurationRequest moderation = ModerationConfigurationRequest
-                .build(isModerationEnabled, channelConfig.getModeration().isAbsolute(),
-                        channelConfig.getModeration().getThresholds());
+                .build(isModerationEnabled, adventure.getModeration().isAbsolute(),
+                        adventure.getModeration().getThresholds());
 
         List<DiscordMessageData> messageHistory = getMessageHistory(useCase.getChannelId());
 
@@ -81,10 +81,15 @@ public class GoCommandHandler extends AbstractUseCaseHandler<GoCommand, Mono<Voi
                 .guildId(useCase.getGuildId())
                 .moderation(moderation)
                 .modelConfiguration(modelConfigurationRequest)
-                .personaId(channelConfig.getPersonaId())
-                .worldId(channelConfig.getWorldId())
+                .personaId(adventure.getPersonaId())
+                .worldId(adventure.getWorldId())
                 .messageHistory(messageHistory)
-                .gameMode(channelConfig.getGameMode().name())
+                .gameMode(adventure.getGameMode().name())
+                .nudge(adventure.getContextAttributes().getNudge())
+                .authorsNote(adventure.getContextAttributes().getAuthorsNote())
+                .remember(adventure.getContextAttributes().getRemember())
+                .bump(adventure.getContextAttributes().getBump())
+                .bumpFrequency(adventure.getContextAttributes().getBumpFrequency())
                 .build();
     }
 

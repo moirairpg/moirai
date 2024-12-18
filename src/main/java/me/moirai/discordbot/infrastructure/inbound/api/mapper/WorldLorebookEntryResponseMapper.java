@@ -12,7 +12,7 @@ import me.moirai.discordbot.core.application.usecase.world.result.UpdateWorldLor
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateLorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.LorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchLorebookEntriesResponse;
-import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateWorldLorebookEntryResponse;
+import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateLorebookEntryResponse;
 
 @Component
 public class WorldLorebookEntryResponseMapper {
@@ -52,8 +52,8 @@ public class WorldLorebookEntryResponseMapper {
         return CreateLorebookEntryResponse.build(result.getId());
     }
 
-    public UpdateWorldLorebookEntryResponse toResponse(UpdateWorldLorebookEntryResult result) {
+    public UpdateLorebookEntryResponse toResponse(UpdateWorldLorebookEntryResult result) {
 
-        return UpdateWorldLorebookEntryResponse.build(result.getLastUpdatedDateTime());
+        return UpdateLorebookEntryResponse.build(result.getLastUpdatedDateTime());
     }
 }

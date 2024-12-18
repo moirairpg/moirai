@@ -183,7 +183,7 @@ public class PersonaController extends SecurityContextAware {
 
     @DeleteMapping("/favorite/{assetId}")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Mono<Void> removeFavoriteChannelConfig(@PathVariable(required = true) String assetId) {
+    public Mono<Void> removeFavoritePersona(@PathVariable(required = true) String assetId) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 

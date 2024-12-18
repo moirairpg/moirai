@@ -20,13 +20,13 @@ import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldLo
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorldLorebookEntry;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldLorebookEntryRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldLorebookEntryResponseMapper;
-import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldLorebookEntryRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.CreateLorebookEntryRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.SearchParameters;
-import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldLorebookEntryRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateLorebookEntryRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateLorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.LorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchLorebookEntriesResponse;
-import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateWorldLorebookEntryResponse;
+import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateLorebookEntryResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
@@ -93,7 +93,7 @@ public class WorldLorebookController extends SecurityContextAware {
     @ResponseStatus(code = HttpStatus.CREATED)
     public Mono<CreateLorebookEntryResponse> createLorebookEntry(
             @PathVariable(name = "worldId", required = true) String worldId,
-            @Valid @RequestBody CreateWorldLorebookEntryRequest request) {
+            @Valid @RequestBody CreateLorebookEntryRequest request) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -104,10 +104,10 @@ public class WorldLorebookController extends SecurityContextAware {
 
     @PutMapping("/{entryId}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<UpdateWorldLorebookEntryResponse> updateLorebookEntry(
+    public Mono<UpdateLorebookEntryResponse> updateLorebookEntry(
             @PathVariable(name = "worldId", required = true) String worldId,
             @PathVariable(name = "entryId", required = true) String entryId,
-            @Valid @RequestBody UpdateWorldLorebookEntryRequest request) {
+            @Valid @RequestBody UpdateLorebookEntryRequest request) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
