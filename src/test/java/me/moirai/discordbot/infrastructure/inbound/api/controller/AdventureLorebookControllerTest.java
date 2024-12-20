@@ -96,6 +96,54 @@ public class AdventureLorebookControllerTest extends AbstractRestWebTest {
     }
 
     @Test
+    public void http200WhenSearchLorebookEntriesWithParameters() {
+
+        // Given
+        List<LorebookEntryResponse> results = Lists.list(LorebookEntryResponse.builder()
+                .id("ID")
+                .name("NAME")
+                .description("DESC")
+                .regex("regex")
+                .creationDate(OffsetDateTime.now())
+                .lastUpdateDate(OffsetDateTime.now())
+                .build());
+
+        SearchLorebookEntriesResponse expectedResponse = SearchLorebookEntriesResponse.builder()
+                .page(1)
+                .totalPages(2)
+                .totalResults(20)
+                .resultsInPage(10)
+                .results(results)
+                .build();
+
+        when(useCaseRunner.run(any(SearchAdventureLorebookEntries.class)))
+                .thenReturn(mock(SearchAdventureLorebookEntriesResult.class));
+
+        when(adventureLorebookEntryResponseMapper.toResponse(any(SearchAdventureLorebookEntriesResult.class)))
+                .thenReturn(expectedResponse);
+
+        // Then
+        webTestClient.get()
+                .uri(uri -> uri.path("/adventure/1234/lorebook/search")
+                        .queryParam("name", "someName")
+                        .queryParam("page", 1)
+                        .queryParam("size", 10)
+                        .queryParam("sortingField", "NAME")
+                        .queryParam("direction", "ASC")
+                        .build())
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(SearchAdventuresResponse.class)
+                .value(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.getTotalPages()).isEqualTo(2);
+                    assertThat(response.getTotalResults()).isEqualTo(20);
+                    assertThat(response.getResultsInPage()).isEqualTo(10);
+                    assertThat(response.getResults()).hasSameSizeAs(results);
+                });
+    }
+
+    @Test
     public void http200WhenGetLorebookEntryById() {
 
         // Given

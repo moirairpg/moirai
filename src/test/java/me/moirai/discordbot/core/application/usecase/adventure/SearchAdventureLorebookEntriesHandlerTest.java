@@ -42,8 +42,8 @@ public class SearchAdventureLorebookEntriesHandlerTest {
         SearchAdventureLorebookEntries query = SearchAdventureLorebookEntries.builder()
                 .direction("ASC")
                 .page(1)
-                .items(2)
-                .sortByField("name")
+                .size(2)
+                .sortingField("name")
                 .adventureId("1234")
                 .requesterDiscordId("1234")
                 .build();
@@ -63,8 +63,8 @@ public class SearchAdventureLorebookEntriesHandlerTest {
         SearchAdventureLorebookEntries query = SearchAdventureLorebookEntries.builder()
                 .direction("ASC")
                 .page(1)
-                .items(2)
-                .sortByField("name")
+                .size(2)
+                .sortingField("name")
                 .adventureId("1234")
                 .requesterDiscordId("1234")
                 .build();
@@ -86,8 +86,8 @@ public class SearchAdventureLorebookEntriesHandlerTest {
         SearchAdventureLorebookEntries query = SearchAdventureLorebookEntries.builder()
                 .direction("ASC")
                 .page(1)
-                .items(2)
-                .sortByField("name")
+                .size(2)
+                .sortingField("name")
                 .adventureId("1234")
                 .requesterDiscordId("1234")
                 .build();

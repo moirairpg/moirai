@@ -1,4 +1,4 @@
-package me.moirai.discordbot.core.application.usecase.persona;
+package me.moirai.discordbot.core.application.usecase.world;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,40 +10,40 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import me.moirai.discordbot.core.application.port.PersonaQueryRepository;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchFavoritePersonas;
-import me.moirai.discordbot.core.application.usecase.persona.result.SearchPersonasResult;
+import me.moirai.discordbot.core.application.port.WorldQueryRepository;
+import me.moirai.discordbot.core.application.usecase.world.request.SearchWorlds;
+import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldsResult;
 
 @ExtendWith(MockitoExtension.class)
-public class SearchFavoritePersonasHandlerTest {
+public class SearchWorldsHandlerTest {
 
     @Mock
-    private PersonaQueryRepository repository;
+    private WorldQueryRepository repository;
 
     @InjectMocks
-    private SearchFavoritePersonasHandler handler;
+    private SearchWorldsHandler handler;
 
     @Test
-    public void searchPersonas() {
+    public void searchWorlds() {
 
         // Given
-        SearchFavoritePersonas query = SearchFavoritePersonas.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .direction("ASC")
                 .page(1)
-                .items(2)
-                .sortByField("name")
+                .size(2)
+                .sortingField("name")
                 .build();
 
-        SearchPersonasResult expectedResult = SearchPersonasResult.builder()
+        SearchWorldsResult expectedResult = SearchWorldsResult.builder()
                 .page(1)
                 .items(2)
                 .build();
 
-        when(repository.search(any(SearchFavoritePersonas.class)))
+        when(repository.search(any(SearchWorlds.class)))
                 .thenReturn(expectedResult);
 
         // When
-        SearchPersonasResult result = handler.handle(query);
+        SearchWorldsResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();

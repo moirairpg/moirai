@@ -89,16 +89,16 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
     }
 
     @Override
-    public SearchWorldLorebookEntriesResult search(SearchWorldLorebookEntries query) {
+    public SearchWorldLorebookEntriesResult search(SearchWorldLorebookEntries request) {
 
-        int page = query.getPage() == null ? DEFAULT_PAGE : query.getPage() - 1;
-        int items = query.getItems() == null ? DEFAULT_ITEMS : query.getItems();
-        String sortByField = isBlank(query.getSortByField()) ? DEFAULT_SORT_BY_FIELD : query.getSortByField();
-        Direction direction = isBlank(query.getDirection()) ? ASC : Direction.fromString(query.getDirection());
+        int page = extractPageNumber(request.getPage());
+        int size = extractPageSize(request.getSize());
+        String sortByField = extractSortByField(request.getSortingField());
+        Direction direction = extractDirection(request.getDirection());
 
-        PageRequest pageRequest = PageRequest.of(page, items, Sort.by(direction, sortByField));
-        Specification<WorldLorebookEntryEntity> filters = buildSearchQuery(query);
-        Page<WorldLorebookEntryEntity> pagedResult = jpaRepository.findAll(filters, pageRequest);
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortByField));
+        Specification<WorldLorebookEntryEntity> query = buildSearchQuery(request);
+        Page<WorldLorebookEntryEntity> pagedResult = jpaRepository.findAll(query, pageRequest);
 
         return mapper.mapToResult(pagedResult);
     }
@@ -116,5 +116,21 @@ public class WorldLorebookEntryRepositoryImpl implements WorldLorebookEntryRepos
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
+    }
+
+    private Direction extractDirection(String direction) {
+        return isBlank(direction) ? ASC : Direction.fromString(direction);
+    }
+
+    private String extractSortByField(String sortByField) {
+        return isBlank(sortByField) ? DEFAULT_SORT_BY_FIELD : sortByField;
+    }
+
+    private int extractPageSize(Integer pageSize) {
+        return pageSize == null ? DEFAULT_ITEMS : pageSize;
+    }
+
+    private int extractPageNumber(Integer page) {
+        return page == null ? DEFAULT_PAGE : page - 1;
     }
 }

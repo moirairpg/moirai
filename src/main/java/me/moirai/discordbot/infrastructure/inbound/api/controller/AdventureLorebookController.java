@@ -1,5 +1,8 @@
 package me.moirai.discordbot.infrastructure.inbound.api.controller;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.text.CaseUtils.toCamelCase;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import me.moirai.discordbot.common.usecases.UseCaseRunner;
 import me.moirai.discordbot.common.web.SecurityContextAware;
 import me.moirai.discordbot.core.application.usecase.adventure.request.CreateAdventureLorebookEntry;
@@ -21,14 +26,14 @@ import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdv
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.AdventureLorebookEntryRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.AdventureLorebookEntryResponseMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateLorebookEntryRequest;
-import me.moirai.discordbot.infrastructure.inbound.api.request.SearchParameters;
+import me.moirai.discordbot.infrastructure.inbound.api.request.LorebookSearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateLorebookEntryRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchDirection;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchSortingField;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateLorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.LorebookEntryResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchLorebookEntriesResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateLorebookEntryResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -51,17 +56,17 @@ public class AdventureLorebookController extends SecurityContextAware {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchLorebookEntriesResponse> searchLorebook(
+    public Mono<SearchLorebookEntriesResponse> search(
             @PathVariable(required = true) String adventureId,
-            SearchParameters searchParameters) {
+            LorebookSearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
             SearchAdventureLorebookEntries query = SearchAdventureLorebookEntries.builder()
                     .page(searchParameters.getPage())
-                    .items(searchParameters.getItems())
-                    .sortByField(searchParameters.getSortByField())
-                    .direction(searchParameters.getDirection())
+                    .size(searchParameters.getSize())
+                    .sortingField(getSortingField(searchParameters.getSortingField()))
+                    .direction(getDirection(searchParameters.getDirection()))
                     .name(searchParameters.getName())
                     .requesterDiscordId(authenticatedUser.getId())
                     .adventureId(adventureId)
@@ -137,5 +142,23 @@ public class AdventureLorebookController extends SecurityContextAware {
 
             return Mono.empty();
         });
+    }
+
+    private String getSortingField(SearchSortingField searchSortingField) {
+
+        if (searchSortingField != null) {
+            return toCamelCase(searchSortingField.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getDirection(SearchDirection searchDirection) {
+
+        if (searchDirection != null) {
+            return toCamelCase(searchDirection.name(), false, '_');
+        }
+
+        return EMPTY;
     }
 }

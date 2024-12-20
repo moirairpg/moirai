@@ -21,9 +21,7 @@ import me.moirai.discordbot.core.application.usecase.persona.request.CreatePerso
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
 import me.moirai.discordbot.core.application.usecase.persona.request.RemoveFavoritePersona;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchFavoritePersonas;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
+import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonas;
 import me.moirai.discordbot.core.application.usecase.persona.request.UpdatePersona;
 import me.moirai.discordbot.core.application.usecase.persona.result.CreatePersonaResult;
 import me.moirai.discordbot.core.application.usecase.persona.result.GetPersonaResult;
@@ -76,7 +74,7 @@ public class PersonaControllerTest extends AbstractRestWebTest {
                 .results(results)
                 .build();
 
-        when(useCaseRunner.run(any(SearchPersonasWithReadAccess.class))).thenReturn(mock(SearchPersonasResult.class));
+        when(useCaseRunner.run(any(SearchPersonas.class))).thenReturn(mock(SearchPersonasResult.class));
         when(personaResponseMapper.toResponse(any(SearchPersonasResult.class))).thenReturn(expectedResponse);
 
         // Then
@@ -95,7 +93,7 @@ public class PersonaControllerTest extends AbstractRestWebTest {
     }
 
     @Test
-    public void http200WhenSearchPersonasWithWritePermission() {
+    public void http200WhenSearchPersonasWithParameters() {
 
         // Given
         List<PersonaResponse> results = Lists.list(PersonaResponseFixture.publicPersona().build(),
@@ -109,45 +107,22 @@ public class PersonaControllerTest extends AbstractRestWebTest {
                 .results(results)
                 .build();
 
-        when(useCaseRunner.run(any(SearchPersonasWithWriteAccess.class))).thenReturn(mock(SearchPersonasResult.class));
+        when(useCaseRunner.run(any(SearchPersonas.class))).thenReturn(mock(SearchPersonasResult.class));
         when(personaResponseMapper.toResponse(any(SearchPersonasResult.class))).thenReturn(expectedResponse);
 
         // Then
         webTestClient.get()
-                .uri(String.format(PERSONA_ID_BASE_URL, "search/own"))
-                .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBody(SearchPersonasResponse.class)
-                .value(response -> {
-                    assertThat(response).isNotNull();
-                    assertThat(response.getTotalPages()).isEqualTo(2);
-                    assertThat(response.getTotalResults()).isEqualTo(20);
-                    assertThat(response.getResultsInPage()).isEqualTo(10);
-                    assertThat(response.getResults()).hasSameSizeAs(results);
-                });
-    }
-
-    @Test
-    public void http200WhenSearchFavoritePersonas() {
-
-        // Given
-        List<PersonaResponse> results = Lists.list(PersonaResponseFixture.publicPersona().build(),
-                PersonaResponseFixture.privatePersona().build());
-
-        SearchPersonasResponse expectedResponse = SearchPersonasResponse.builder()
-                .page(1)
-                .totalPages(2)
-                .totalResults(20)
-                .resultsInPage(10)
-                .results(results)
-                .build();
-
-        when(useCaseRunner.run(any(SearchFavoritePersonas.class))).thenReturn(mock(SearchPersonasResult.class));
-        when(personaResponseMapper.toResponse(any(SearchPersonasResult.class))).thenReturn(expectedResponse);
-
-        // Then
-        webTestClient.get()
-                .uri(String.format(PERSONA_ID_BASE_URL, "search/favorites"))
+                .uri(uri -> uri.path(String.format(PERSONA_ID_BASE_URL, "search"))
+                        .queryParam("name", "someName")
+                        .queryParam("ownerDiscordId", "someName")
+                        .queryParam("favorites", true)
+                        .queryParam("page", 1)
+                        .queryParam("size", 10)
+                        .queryParam("sortingField", "NAME")
+                        .queryParam("direction", "ASC")
+                        .queryParam("visibility", "PRIVATE")
+                        .queryParam("operation", "WRITE")
+                        .build())
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SearchPersonasResponse.class)

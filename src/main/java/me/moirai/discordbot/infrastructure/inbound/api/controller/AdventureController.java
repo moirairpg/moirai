@@ -1,7 +1,9 @@
 package me.moirai.discordbot.infrastructure.inbound.api.controller;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.text.CaseUtils.toCamelCase;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,9 +23,7 @@ import me.moirai.discordbot.core.application.usecase.adventure.request.CreateAdv
 import me.moirai.discordbot.core.application.usecase.adventure.request.DeleteAdventure;
 import me.moirai.discordbot.core.application.usecase.adventure.request.GetAdventureById;
 import me.moirai.discordbot.core.application.usecase.adventure.request.RemoveFavoriteAdventure;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventuresWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventuresWithWriteAccess;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchFavoriteAdventures;
+import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventures;
 import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventure;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.AdventureRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.AdventureResponseMapper;
@@ -31,6 +31,13 @@ import me.moirai.discordbot.infrastructure.inbound.api.request.AdventureSearchPa
 import me.moirai.discordbot.infrastructure.inbound.api.request.CreateAdventureRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateAdventureRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchDirection;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchGameMode;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchModel;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchModeration;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchOperation;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchSortingField;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchVisibility;
 import me.moirai.discordbot.infrastructure.inbound.api.response.AdventureResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateAdventureResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchAdventuresResponse;
@@ -57,63 +64,27 @@ public class AdventureController extends SecurityContextAware {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchAdventuresResponse> searchAdventuresWithReadAccess(
-            AdventureSearchParameters searchParameters) {
+    public Mono<SearchAdventuresResponse> search(AdventureSearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
-            SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
-                    .page(searchParameters.getPage())
-                    .items(searchParameters.getItems())
-                    .sortByField(searchParameters.getSortByField())
-                    .direction(searchParameters.getDirection())
+            SearchAdventures query = SearchAdventures.builder()
                     .name(searchParameters.getName())
-                    .requesterDiscordId(authenticatedUser.getId())
-                    .visibility(searchParameters.getVisibility())
-                    .build();
-
-            return responseMapper.toResponse(useCaseRunner.run(query));
-        });
-    }
-
-    @GetMapping("/search/own")
-    @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchAdventuresResponse> searchAdventuresWithWriteAccess(
-            AdventureSearchParameters searchParameters,
-            Authentication authentication) {
-
-        return mapWithAuthenticatedUser(authenticatedUser -> {
-
-            SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+                    .world(searchParameters.getWorld())
+                    .persona(searchParameters.getPersona())
+                    .ownerDiscordId(searchParameters.getOwnerDiscordId())
+                    .favorites(searchParameters.isFavorites())
+                    .multiplayer(searchParameters.isMultiplayer())
                     .page(searchParameters.getPage())
-                    .items(searchParameters.getItems())
-                    .sortByField(searchParameters.getSortByField())
-                    .direction(searchParameters.getDirection())
-                    .name(searchParameters.getName())
+                    .size(searchParameters.getSize())
+                    .model(getModel(searchParameters.getModel()))
+                    .gameMode(getGameMode(searchParameters.getGameMode()))
+                    .moderation(getModeration(searchParameters.getModeration()))
+                    .sortingField(getSortingField(searchParameters.getSortingField()))
+                    .direction(getDirection(searchParameters.getDirection()))
+                    .visibility(getVisibility(searchParameters.getVisibility()))
+                    .operation(getOperation(searchParameters.getOperation()))
                     .requesterDiscordId(authenticatedUser.getId())
-                    .visibility(searchParameters.getVisibility())
-                    .build();
-
-            return responseMapper.toResponse(useCaseRunner.run(query));
-        });
-    }
-
-    @GetMapping("/search/favorites")
-    @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchAdventuresResponse> searchFavoriteAdventures(
-            AdventureSearchParameters searchParameters,
-            Authentication authentication) {
-
-        return mapWithAuthenticatedUser(authenticatedUser -> {
-
-            SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
-                    .page(searchParameters.getPage())
-                    .items(searchParameters.getItems())
-                    .sortByField(searchParameters.getSortByField())
-                    .direction(searchParameters.getDirection())
-                    .name(searchParameters.getName())
-                    .requesterDiscordId(authenticatedUser.getId())
-                    .visibility(searchParameters.getVisibility())
                     .build();
 
             return responseMapper.toResponse(useCaseRunner.run(query));
@@ -203,5 +174,68 @@ public class AdventureController extends SecurityContextAware {
 
             return Mono.empty();
         });
+    }
+
+    private String getModel(SearchModel searchModel) {
+
+        if (searchModel != null) {
+            return toCamelCase(searchModel.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getGameMode(SearchGameMode searchGameMode) {
+
+        if (searchGameMode != null) {
+            return toCamelCase(searchGameMode.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getModeration(SearchModeration searchModeration) {
+
+        if (searchModeration != null) {
+            return toCamelCase(searchModeration.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getSortingField(SearchSortingField searchSortingField) {
+
+        if (searchSortingField != null) {
+            return toCamelCase(searchSortingField.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getDirection(SearchDirection searchDirection) {
+
+        if (searchDirection != null) {
+            return toCamelCase(searchDirection.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getVisibility(SearchVisibility searchVisibility) {
+
+        if (searchVisibility != null) {
+            return toCamelCase(searchVisibility.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getOperation(SearchOperation searchOperation) {
+
+        if (searchOperation != null) {
+            return toCamelCase(searchOperation.name(), false, '_');
+        }
+
+        return EMPTY;
     }
 }

@@ -22,9 +22,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import me.moirai.discordbot.core.application.port.AdventureQueryRepository;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventuresWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventuresWithWriteAccess;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchFavoriteAdventures;
+import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventures;
 import me.moirai.discordbot.core.application.usecase.adventure.result.SearchAdventuresResult;
 import me.moirai.discordbot.core.domain.adventure.Adventure;
 import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteEntity;
@@ -36,6 +34,7 @@ public class AdventureQueryRepositoryImpl implements AdventureQueryRepository {
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_ITEMS = 10;
 
+    private static final String WRITE = "WRITE";
     private static final String ID = "id";
     private static final String ASSET_ID = "assetId";
     private static final String ASSET_TYPE = "assetType";
@@ -46,6 +45,7 @@ public class AdventureQueryRepositoryImpl implements AdventureQueryRepository {
     private static final String PERSONA_ID = "personaId";
     private static final String WORLD_ID = "worldId";
     private static final String MODERATION = "moderation";
+    private static final String OWNER_DISCORD_ID = "ownerDiscordId";
     private static final String MODEL_CONFIGURATION = "modelConfiguration";
     private static final String DEFAULT_SORT_BY_FIELD = "creationDate";
     private static final String AI_MODEL = "aiModel";
@@ -75,41 +75,11 @@ public class AdventureQueryRepositoryImpl implements AdventureQueryRepository {
     }
 
     @Override
-    public SearchAdventuresResult search(SearchAdventuresWithReadAccess request) {
+    public SearchAdventuresResult search(SearchAdventures request) {
 
         int page = extractPageNumber(request.getPage());
-        int size = extractPageSize(request.getItems());
-        String sortByField = extractSortByField(request.getSortByField());
-        Direction direction = extractDirection(request.getDirection());
-
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortByField));
-        Specification<AdventureEntity> query = buildSearchQuery(request);
-        Page<AdventureEntity> pagedResult = jpaRepository.findAll(query, pageRequest);
-
-        return mapper.mapToResult(pagedResult);
-    }
-
-    @Override
-    public SearchAdventuresResult search(SearchAdventuresWithWriteAccess request) {
-
-        int page = extractPageNumber(request.getPage());
-        int size = extractPageSize(request.getItems());
-        String sortByField = extractSortByField(request.getSortByField());
-        Direction direction = extractDirection(request.getDirection());
-
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortByField));
-        Specification<AdventureEntity> query = buildSearchQuery(request);
-        Page<AdventureEntity> pagedResult = jpaRepository.findAll(query, pageRequest);
-
-        return mapper.mapToResult(pagedResult);
-    }
-
-    @Override
-    public SearchAdventuresResult search(SearchFavoriteAdventures request) {
-
-        int page = extractPageNumber(request.getPage());
-        int size = extractPageSize(request.getItems());
-        String sortByField = extractSortByField(request.getSortByField());
+        int size = extractPageSize(request.getSize());
+        String sortByField = extractSortByField(request.getSortingField());
         Direction direction = extractDirection(request.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortByField));
@@ -125,129 +95,59 @@ public class AdventureQueryRepositoryImpl implements AdventureQueryRepository {
         return jpaRepository.getGameModeByDiscordChannelId(discordChannelId);
     }
 
-    private Specification<AdventureEntity> buildSearchQuery(SearchAdventuresWithReadAccess query) {
+    private Specification<AdventureEntity> buildSearchQuery(SearchAdventures request) {
 
         return (root, cq, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(canUserRead(cb, root, query.getRequesterDiscordId()));
+            if (WRITE.equals(request.getOperation())) {
+                predicates.add(canUserWrite(cb, root, request.getRequesterDiscordId()));
+            } else {
+                predicates.add(canUserRead(cb, root, request.getRequesterDiscordId()));
+            }
 
-            if (isNotBlank(query.getAiModel())) {
+            if (request.isFavorites()) {
+                Subquery<String> subquery = cq.subquery(String.class);
+                Root<FavoriteEntity> favoriteRoot = subquery.from(FavoriteEntity.class);
+
+                subquery.select(favoriteRoot.get(ASSET_ID))
+                        .where(cb.equal(favoriteRoot.get(ASSET_TYPE), ADVENTURE));
+
+                predicates.add(root.get(ID).in(subquery));
+            }
+
+            if (isNotBlank(request.getName())) {
+                predicates.add(contains(cb, root, NAME, request.getName()));
+            }
+
+            if (isNotBlank(request.getWorld())) {
+                predicates.add(contains(cb, root, WORLD_ID, request.getWorld()));
+            }
+
+            if (isNotBlank(request.getPersona())) {
+                predicates.add(contains(cb, root, PERSONA_ID, request.getPersona()));
+            }
+
+            if (isNotBlank(request.getOwnerDiscordId())) {
+                predicates.add(contains(cb, root, OWNER_DISCORD_ID, request.getOwnerDiscordId()));
+            }
+
+            if (isNotBlank(request.getModel())) {
                 predicates.add(cb.like(cb.upper(root.get(MODEL_CONFIGURATION)
-                        .get(AI_MODEL)), cb.literal(query.getAiModel().toUpperCase())));
+                        .get(AI_MODEL)), cb.literal(request.getModel().toUpperCase())));
             }
 
-            if (isNotBlank(query.getModeration())) {
-                predicates.add(contains(cb, root, MODERATION, query.getModeration()));
+            if (isNotBlank(request.getGameMode())) {
+                predicates.add(contains(cb, root, GAME_MODE, request.getGameMode()));
             }
 
-            if (isNotBlank(query.getName())) {
-                predicates.add(contains(cb, root, NAME, query.getName()));
+            if (isNotBlank(request.getModeration())) {
+                predicates.add(contains(cb, root, MODERATION, request.getModeration()));
             }
 
-            if (isNotBlank(query.getGameMode())) {
-                predicates.add(contains(cb, root, GAME_MODE, query.getGameMode()));
+            if (isNotBlank(request.getVisibility())) {
+                predicates.add(contains(cb, root, VISIBILITY, request.getVisibility()));
             }
-
-            if (isNotBlank(query.getVisibility())) {
-                predicates.add(contains(cb, root, VISIBILITY, query.getVisibility()));
-            }
-
-            if (isNotBlank(query.getWorldId())) {
-                predicates.add(contains(cb, root, WORLD_ID, query.getWorldId()));
-            }
-
-            if (isNotBlank(query.getPersonaId())) {
-                predicates.add(contains(cb, root, PERSONA_ID, query.getPersonaId()));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-        };
-    }
-
-    private Specification<AdventureEntity> buildSearchQuery(SearchAdventuresWithWriteAccess query) {
-
-        return (root, cq, cb) -> {
-            final List<Predicate> predicates = new ArrayList<>();
-
-            predicates.add(canUserWrite(cb, root, query.getRequesterDiscordId()));
-
-            if (isNotBlank(query.getAiModel())) {
-                predicates.add(cb.like(cb.upper(root.get(MODEL_CONFIGURATION)
-                        .get(AI_MODEL)), cb.literal(query.getAiModel().toUpperCase())));
-            }
-
-            if (isNotBlank(query.getModeration())) {
-                predicates.add(contains(cb, root, MODERATION, query.getModeration()));
-            }
-
-            if (isNotBlank(query.getName())) {
-                predicates.add(contains(cb, root, NAME, query.getName()));
-            }
-
-            if (isNotBlank(query.getGameMode())) {
-                predicates.add(contains(cb, root, GAME_MODE, query.getGameMode()));
-            }
-
-            if (isNotBlank(query.getVisibility())) {
-                predicates.add(contains(cb, root, VISIBILITY, query.getVisibility()));
-            }
-
-            if (isNotBlank(query.getWorldId())) {
-                predicates.add(contains(cb, root, WORLD_ID, query.getWorldId()));
-            }
-
-            if (isNotBlank(query.getPersonaId())) {
-                predicates.add(contains(cb, root, PERSONA_ID, query.getPersonaId()));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-        };
-    }
-
-    private Specification<AdventureEntity> buildSearchQuery(SearchFavoriteAdventures query) {
-
-        return (root, cq, cb) -> {
-            final List<Predicate> predicates = new ArrayList<>();
-
-            predicates.add(canUserWrite(cb, root, query.getRequesterDiscordId()));
-
-            if (isNotBlank(query.getAiModel())) {
-                predicates.add(cb.like(cb.upper(root.get(MODEL_CONFIGURATION)
-                        .get(AI_MODEL)), cb.literal(query.getAiModel().toUpperCase())));
-            }
-
-            if (isNotBlank(query.getModeration())) {
-                predicates.add(contains(cb, root, MODERATION, query.getModeration()));
-            }
-
-            if (isNotBlank(query.getName())) {
-                predicates.add(contains(cb, root, NAME, query.getName()));
-            }
-
-            if (isNotBlank(query.getGameMode())) {
-                predicates.add(contains(cb, root, GAME_MODE, query.getGameMode()));
-            }
-
-            if (isNotBlank(query.getVisibility())) {
-                predicates.add(contains(cb, root, VISIBILITY, query.getVisibility()));
-            }
-
-            if (isNotBlank(query.getWorldId())) {
-                predicates.add(contains(cb, root, WORLD_ID, query.getWorldId()));
-            }
-
-            if (isNotBlank(query.getPersonaId())) {
-                predicates.add(contains(cb, root, PERSONA_ID, query.getPersonaId()));
-            }
-
-            Subquery<String> subquery = cq.subquery(String.class);
-            Root<FavoriteEntity> favoriteRoot = subquery.from(FavoriteEntity.class);
-
-            subquery.select(favoriteRoot.get(ASSET_ID))
-                    .where(cb.equal(favoriteRoot.get(ASSET_TYPE), ADVENTURE));
-
-            predicates.add(root.get(ID).in(subquery));
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };

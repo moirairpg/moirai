@@ -1,7 +1,9 @@
 package me.moirai.discordbot.infrastructure.inbound.api.controller;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.text.CaseUtils.toCamelCase;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,9 +23,7 @@ import me.moirai.discordbot.core.application.usecase.world.request.CreateWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.DeleteWorld;
 import me.moirai.discordbot.core.application.usecase.world.request.GetWorldById;
 import me.moirai.discordbot.core.application.usecase.world.request.RemoveFavoriteWorld;
-import me.moirai.discordbot.core.application.usecase.world.request.SearchFavoriteWorlds;
-import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
+import me.moirai.discordbot.core.application.usecase.world.request.SearchWorlds;
 import me.moirai.discordbot.core.application.usecase.world.request.UpdateWorld;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.WorldResponseMapper;
@@ -31,6 +31,10 @@ import me.moirai.discordbot.infrastructure.inbound.api.request.CreateWorldReques
 import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdateWorldRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.WorldSearchParameters;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchDirection;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchOperation;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchSortingField;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchVisibility;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreateWorldResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchWorldsResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.UpdateWorldResponse;
@@ -57,59 +61,21 @@ public class WorldController extends SecurityContextAware {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchWorldsResponse> searchWorldsWithReadAccess(WorldSearchParameters searchParameters) {
+    public Mono<SearchWorldsResponse> search(WorldSearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
-            SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
-                    .page(searchParameters.getPage())
-                    .items(searchParameters.getItems())
-                    .sortByField(searchParameters.getSortByField())
-                    .direction(searchParameters.getDirection())
+            SearchWorlds query = SearchWorlds.builder()
                     .name(searchParameters.getName())
-                    .requesterDiscordId(authenticatedUser.getId())
-                    .visibility(searchParameters.getVisibility())
-                    .build();
-
-            return responseMapper.toResponse(useCaseRunner.run(query));
-        });
-    }
-
-    @GetMapping("/search/own")
-    @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchWorldsResponse> searchWorldsWithWriteAccess(WorldSearchParameters searchParameters,
-            Authentication authentication) {
-
-        return mapWithAuthenticatedUser(authenticatedUser -> {
-
-            SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+                    .ownerDiscordId(searchParameters.getOwnerDiscordId())
+                    .favorites(searchParameters.isFavorites())
                     .page(searchParameters.getPage())
-                    .items(searchParameters.getItems())
-                    .sortByField(searchParameters.getSortByField())
-                    .direction(searchParameters.getDirection())
-                    .name(searchParameters.getName())
+                    .size(searchParameters.getSize())
+                    .sortingField(getSortingField(searchParameters.getSortingField()))
+                    .direction(getDirection(searchParameters.getDirection()))
+                    .visibility(getVisibility(searchParameters.getVisibility()))
+                    .operation(getOperation(searchParameters.getOperation()))
                     .requesterDiscordId(authenticatedUser.getId())
-                    .visibility(searchParameters.getVisibility())
-                    .build();
-
-            return responseMapper.toResponse(useCaseRunner.run(query));
-        });
-    }
-
-    @GetMapping("/search/favorites")
-    @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchWorldsResponse> searchFavoritesWorlds(WorldSearchParameters searchParameters) {
-
-        return mapWithAuthenticatedUser(authenticatedUser -> {
-
-            SearchFavoriteWorlds query = SearchFavoriteWorlds.builder()
-                    .page(searchParameters.getPage())
-                    .items(searchParameters.getItems())
-                    .sortByField(searchParameters.getSortByField())
-                    .direction(searchParameters.getDirection())
-                    .name(searchParameters.getName())
-                    .requesterDiscordId(authenticatedUser.getId())
-                    .visibility(searchParameters.getVisibility())
                     .build();
 
             return responseMapper.toResponse(useCaseRunner.run(query));
@@ -118,7 +84,7 @@ public class WorldController extends SecurityContextAware {
 
     @GetMapping("/{worldId}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<WorldResponse> getWorldById(@PathVariable(name = "worldId", required = true) String worldId) {
+    public Mono<WorldResponse> getWorldById(@PathVariable(required = true) String worldId) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -140,7 +106,7 @@ public class WorldController extends SecurityContextAware {
 
     @PutMapping("/{worldId}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<UpdateWorldResponse> updateWorld(@PathVariable(name = "worldId", required = true) String worldId,
+    public Mono<UpdateWorldResponse> updateWorld(@PathVariable(required = true) String worldId,
             @Valid @RequestBody UpdateWorldRequest request) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
@@ -152,7 +118,7 @@ public class WorldController extends SecurityContextAware {
 
     @DeleteMapping("/{worldId}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<Void> deleteWorld(@PathVariable(name = "worldId", required = true) String worldId) {
+    public Mono<Void> deleteWorld(@PathVariable(required = true) String worldId) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -195,5 +161,41 @@ public class WorldController extends SecurityContextAware {
 
             return Mono.empty();
         });
+    }
+
+    private String getSortingField(SearchSortingField searchSortingField) {
+
+        if (searchSortingField != null) {
+            return toCamelCase(searchSortingField.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getDirection(SearchDirection searchDirection) {
+
+        if (searchDirection != null) {
+            return toCamelCase(searchDirection.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getVisibility(SearchVisibility searchVisibility) {
+
+        if (searchVisibility != null) {
+            return toCamelCase(searchVisibility.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getOperation(SearchOperation searchOperation) {
+
+        if (searchOperation != null) {
+            return toCamelCase(searchOperation.name(), false, '_');
+        }
+
+        return EMPTY;
     }
 }
