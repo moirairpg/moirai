@@ -21,9 +21,7 @@ import me.moirai.discordbot.core.application.usecase.adventure.request.CreateAdv
 import me.moirai.discordbot.core.application.usecase.adventure.request.DeleteAdventure;
 import me.moirai.discordbot.core.application.usecase.adventure.request.GetAdventureById;
 import me.moirai.discordbot.core.application.usecase.adventure.request.RemoveFavoriteAdventure;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventuresWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventuresWithWriteAccess;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchFavoriteAdventures;
+import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventures;
 import me.moirai.discordbot.core.application.usecase.adventure.request.UpdateAdventure;
 import me.moirai.discordbot.core.application.usecase.adventure.result.CreateAdventureResult;
 import me.moirai.discordbot.core.application.usecase.adventure.result.GetAdventureResult;
@@ -75,7 +73,7 @@ public class AdventureControllerTest extends AbstractRestWebTest {
                 .results(results)
                 .build();
 
-        when(useCaseRunner.run(any(SearchAdventuresWithReadAccess.class)))
+        when(useCaseRunner.run(any(SearchAdventures.class)))
                 .thenReturn(mock(SearchAdventuresResult.class));
 
         when(adventureResponseMapper.toResponse(any(SearchAdventuresResult.class)))
@@ -97,7 +95,7 @@ public class AdventureControllerTest extends AbstractRestWebTest {
     }
 
     @Test
-    public void http200WhenSearchAdventuresWithWritePermission() {
+    public void http200WhenSearchAdventuresWithParameters() {
 
         // Given
         List<AdventureResponse> results = Lists.list(AdventureResponseFixture.sample().build(),
@@ -111,49 +109,31 @@ public class AdventureControllerTest extends AbstractRestWebTest {
                 .results(results)
                 .build();
 
-        when(useCaseRunner.run(any(SearchAdventuresWithWriteAccess.class)))
+        when(useCaseRunner.run(any(SearchAdventures.class)))
                 .thenReturn(mock(SearchAdventuresResult.class));
+
         when(adventureResponseMapper.toResponse(any(SearchAdventuresResult.class)))
                 .thenReturn(expectedResponse);
 
         // Then
         webTestClient.get()
-                .uri(String.format(ADVENTURE_ID_BASE_URL, "search/own"))
-                .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBody(SearchAdventuresResponse.class)
-                .value(response -> {
-                    assertThat(response).isNotNull();
-                    assertThat(response.getTotalPages()).isEqualTo(2);
-                    assertThat(response.getTotalResults()).isEqualTo(20);
-                    assertThat(response.getResultsInPage()).isEqualTo(10);
-                    assertThat(response.getResults()).hasSameSizeAs(results);
-                });
-    }
-
-    @Test
-    public void http200WhenSearchFavoriteAdventures() {
-
-        // Given
-        List<AdventureResponse> results = Lists.list(AdventureResponseFixture.sample().build(),
-                AdventureResponseFixture.sample().build());
-
-        SearchAdventuresResponse expectedResponse = SearchAdventuresResponse.builder()
-                .page(1)
-                .totalPages(2)
-                .totalResults(20)
-                .resultsInPage(10)
-                .results(results)
-                .build();
-
-        when(useCaseRunner.run(any(SearchFavoriteAdventures.class)))
-                .thenReturn(mock(SearchAdventuresResult.class));
-        when(adventureResponseMapper.toResponse(any(SearchAdventuresResult.class)))
-                .thenReturn(expectedResponse);
-
-        // Then
-        webTestClient.get()
-                .uri(String.format(ADVENTURE_ID_BASE_URL, "search/favorites"))
+                .uri(uri -> uri.path(String.format(ADVENTURE_ID_BASE_URL, "search"))
+                        .queryParam("name", "someName")
+                        .queryParam("world", "someName")
+                        .queryParam("persona", "someName")
+                        .queryParam("ownerDiscordId", "someName")
+                        .queryParam("favorites", true)
+                        .queryParam("isMultiplayer", false)
+                        .queryParam("page", 1)
+                        .queryParam("size", 10)
+                        .queryParam("model", "GPT35_TURBO")
+                        .queryParam("gameMode", "RPG")
+                        .queryParam("moderation", "STRICT")
+                        .queryParam("sortingField", "NAME")
+                        .queryParam("direction", "ASC")
+                        .queryParam("visibility", "PRIVATE")
+                        .queryParam("operation", "WRITE")
+                        .build())
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SearchAdventuresResponse.class)

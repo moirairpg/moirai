@@ -1,4 +1,4 @@
-package me.moirai.discordbot.core.application.usecase.persona;
+package me.moirai.discordbot.core.application.usecase.adventure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,40 +10,40 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import me.moirai.discordbot.core.application.port.PersonaQueryRepository;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.persona.result.SearchPersonasResult;
+import me.moirai.discordbot.core.application.port.AdventureQueryRepository;
+import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventures;
+import me.moirai.discordbot.core.application.usecase.adventure.result.SearchAdventuresResult;
 
 @ExtendWith(MockitoExtension.class)
-public class SearchPersonasWithReadAccessHandlerTest {
+public class SearchAdventuresHandlerTest {
 
     @Mock
-    private PersonaQueryRepository repository;
+    private AdventureQueryRepository repository;
 
     @InjectMocks
-    private SearchPersonasWithReadAccessHandler handler;
+    private SearchAdventuresHandler handler;
 
     @Test
-    public void searchPersonas() {
+    public void searchAdventures() {
 
         // Given
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .direction("ASC")
                 .page(1)
-                .items(2)
-                .sortByField("name")
+                .size(2)
+                .sortingField("name")
                 .build();
 
-        SearchPersonasResult expectedResult = SearchPersonasResult.builder()
+        SearchAdventuresResult expectedResult = SearchAdventuresResult.builder()
                 .page(1)
                 .items(2)
                 .build();
 
-        when(repository.search(any(SearchPersonasWithReadAccess.class)))
+        when(repository.search(any(SearchAdventures.class)))
                 .thenReturn(expectedResult);
 
         // When
-        SearchPersonasResult result = handler.handle(query);
+        SearchAdventuresResult result = handler.handle(query);
 
         // Then
         assertThat(result).isNotNull();

@@ -5,19 +5,19 @@ import me.moirai.discordbot.core.application.usecase.adventure.result.SearchAdve
 
 public final class SearchAdventureLorebookEntries extends UseCase<SearchAdventureLorebookEntriesResult> {
 
-    private final Integer page;
-    private final Integer items;
-    private final String sortByField;
-    private final String direction;
     private final String name;
     private final String adventureId;
+    private final Integer page;
+    private final Integer size;
+    private final String sortingField;
+    private final String direction;
     private final String requesterDiscordId;
 
     private SearchAdventureLorebookEntries(Builder builder) {
 
         this.page = builder.page;
-        this.items = builder.items;
-        this.sortByField = builder.sortByField;
+        this.size = builder.size;
+        this.sortingField = builder.sortingField;
         this.direction = builder.direction;
         this.name = builder.name;
         this.adventureId = builder.adventureId;
@@ -32,12 +32,12 @@ public final class SearchAdventureLorebookEntries extends UseCase<SearchAdventur
         return page;
     }
 
-    public Integer getItems() {
-        return items;
+    public Integer getSize() {
+        return size;
     }
 
-    public String getSortByField() {
-        return sortByField;
+    public String getSortingField() {
+        return sortingField;
     }
 
     public String getDirection() {
@@ -59,8 +59,8 @@ public final class SearchAdventureLorebookEntries extends UseCase<SearchAdventur
     public static final class Builder {
 
         private Integer page;
-        private Integer items;
-        private String sortByField;
+        private Integer size;
+        private String sortingField;
         private String direction;
         private String name;
         private String adventureId;
@@ -74,13 +74,13 @@ public final class SearchAdventureLorebookEntries extends UseCase<SearchAdventur
             return this;
         }
 
-        public Builder items(Integer items) {
-            this.items = items;
+        public Builder size(Integer size) {
+            this.size = size;
             return this;
         }
 
-        public Builder sortByField(String sortByField) {
-            this.sortByField = sortByField;
+        public Builder sortingField(String sortingField) {
+            this.sortingField = sortingField;
             return this;
         }
 

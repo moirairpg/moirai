@@ -1,5 +1,8 @@
 package me.moirai.discordbot.infrastructure.inbound.api.controller;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.text.CaseUtils.toCamelCase;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,9 +23,7 @@ import me.moirai.discordbot.core.application.usecase.persona.request.CreatePerso
 import me.moirai.discordbot.core.application.usecase.persona.request.DeletePersona;
 import me.moirai.discordbot.core.application.usecase.persona.request.GetPersonaById;
 import me.moirai.discordbot.core.application.usecase.persona.request.RemoveFavoritePersona;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchFavoritePersonas;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
+import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonas;
 import me.moirai.discordbot.core.application.usecase.persona.request.UpdatePersona;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.PersonaRequestMapper;
 import me.moirai.discordbot.infrastructure.inbound.api.mapper.PersonaResponseMapper;
@@ -30,6 +31,10 @@ import me.moirai.discordbot.infrastructure.inbound.api.request.CreatePersonaRequ
 import me.moirai.discordbot.infrastructure.inbound.api.request.FavoriteRequest;
 import me.moirai.discordbot.infrastructure.inbound.api.request.PersonaSearchParameters;
 import me.moirai.discordbot.infrastructure.inbound.api.request.UpdatePersonaRequest;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchDirection;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchOperation;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchSortingField;
+import me.moirai.discordbot.infrastructure.inbound.api.request.enums.SearchVisibility;
 import me.moirai.discordbot.infrastructure.inbound.api.response.CreatePersonaResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.PersonaResponse;
 import me.moirai.discordbot.infrastructure.inbound.api.response.SearchPersonasResponse;
@@ -56,58 +61,21 @@ public class PersonaController extends SecurityContextAware {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchPersonasResponse> searchPersonaWithReadAccess(PersonaSearchParameters searchParameters) {
+    public Mono<SearchPersonasResponse> search(PersonaSearchParameters searchParameters) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
-            SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
-                    .page(searchParameters.getPage())
-                    .items(searchParameters.getItems())
-                    .sortByField(searchParameters.getSortByField())
-                    .direction(searchParameters.getDirection())
+            SearchPersonas query = SearchPersonas.builder()
                     .name(searchParameters.getName())
-                    .requesterDiscordId(authenticatedUser.getId())
-                    .visibility(searchParameters.getVisibility())
-                    .build();
-
-            return responseMapper.toResponse(useCaseRunner.run(query));
-        });
-    }
-
-    @GetMapping("/search/own")
-    @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchPersonasResponse> searchPersonaWithWriteAccess(PersonaSearchParameters searchParameters) {
-
-        return mapWithAuthenticatedUser(authenticatedUser -> {
-
-            SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+                    .ownerDiscordId(searchParameters.getOwnerDiscordId())
+                    .favorites(searchParameters.isFavorites())
                     .page(searchParameters.getPage())
-                    .items(searchParameters.getItems())
-                    .sortByField(searchParameters.getSortByField())
-                    .direction(searchParameters.getDirection())
-                    .name(searchParameters.getName())
+                    .size(searchParameters.getSize())
+                    .sortingField(getSortingField(searchParameters.getSortingField()))
+                    .direction(getDirection(searchParameters.getDirection()))
+                    .visibility(getVisibility(searchParameters.getVisibility()))
+                    .operation(getOperation(searchParameters.getOperation()))
                     .requesterDiscordId(authenticatedUser.getId())
-                    .visibility(searchParameters.getVisibility())
-                    .build();
-
-            return responseMapper.toResponse(useCaseRunner.run(query));
-        });
-    }
-
-    @GetMapping("/search/favorites")
-    @ResponseStatus(code = HttpStatus.OK)
-    public Mono<SearchPersonasResponse> searchFavoritePersonas(PersonaSearchParameters searchParameters) {
-
-        return mapWithAuthenticatedUser(authenticatedUser -> {
-
-            SearchFavoritePersonas query = SearchFavoritePersonas.builder()
-                    .page(searchParameters.getPage())
-                    .items(searchParameters.getItems())
-                    .sortByField(searchParameters.getSortByField())
-                    .direction(searchParameters.getDirection())
-                    .name(searchParameters.getName())
-                    .requesterDiscordId(authenticatedUser.getId())
-                    .visibility(searchParameters.getVisibility())
                     .build();
 
             return responseMapper.toResponse(useCaseRunner.run(query));
@@ -116,7 +84,7 @@ public class PersonaController extends SecurityContextAware {
 
     @GetMapping("/{personaId}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<PersonaResponse> getPersonaById(@PathVariable(name = "personaId", required = true) String personaId) {
+    public Mono<PersonaResponse> getPersonaById(@PathVariable(required = true) String personaId) {
 
         return mapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -139,7 +107,7 @@ public class PersonaController extends SecurityContextAware {
     @PutMapping("/{personaId}")
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<UpdatePersonaResponse> updatePersona(
-            @PathVariable(name = "personaId", required = true) String personaId,
+            @PathVariable(required = true) String personaId,
             @Valid @RequestBody UpdatePersonaRequest request) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
@@ -153,7 +121,7 @@ public class PersonaController extends SecurityContextAware {
 
     @DeleteMapping("/{personaId}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Mono<Void> deletePersona(@PathVariable(name = "personaId", required = true) String personaId) {
+    public Mono<Void> deletePersona(@PathVariable(required = true) String personaId) {
 
         return flatMapWithAuthenticatedUser(authenticatedUser -> {
 
@@ -196,5 +164,41 @@ public class PersonaController extends SecurityContextAware {
 
             return Mono.empty();
         });
+    }
+
+    private String getSortingField(SearchSortingField searchSortingField) {
+
+        if (searchSortingField != null) {
+            return toCamelCase(searchSortingField.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getDirection(SearchDirection searchDirection) {
+
+        if (searchDirection != null) {
+            return toCamelCase(searchDirection.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getVisibility(SearchVisibility searchVisibility) {
+
+        if (searchVisibility != null) {
+            return toCamelCase(searchVisibility.name(), false, '_');
+        }
+
+        return EMPTY;
+    }
+
+    private String getOperation(SearchOperation searchOperation) {
+
+        if (searchOperation != null) {
+            return toCamelCase(searchOperation.name(), false, '_');
+        }
+
+        return EMPTY;
     }
 }

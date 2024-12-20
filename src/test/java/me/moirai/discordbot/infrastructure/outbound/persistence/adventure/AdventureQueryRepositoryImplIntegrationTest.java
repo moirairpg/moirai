@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import me.moirai.discordbot.AbstractIntegrationTest;
 import me.moirai.discordbot.core.application.port.AdventureQueryRepository;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventuresWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventuresWithWriteAccess;
-import me.moirai.discordbot.core.application.usecase.adventure.request.SearchFavoriteAdventures;
+import me.moirai.discordbot.core.application.usecase.adventure.request.SearchAdventures;
 import me.moirai.discordbot.core.application.usecase.adventure.result.GetAdventureResult;
 import me.moirai.discordbot.core.application.usecase.adventure.result.SearchAdventuresResult;
 import me.moirai.discordbot.core.domain.adventure.Adventure;
@@ -176,7 +174,7 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -222,7 +220,7 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -231,7 +229,7 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getResults()).isNotNull().isNotEmpty();
+        assertThat(result.getResults()).isNotNull().isNotEmpty().hasSize(3);
 
         List<GetAdventureResult> adventures = result.getResults();
         assertThat(adventures.get(0).getName()).isEqualTo(gpt4Omni.getName());
@@ -269,7 +267,7 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -318,8 +316,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
-                .sortByField("name")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("name")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -367,8 +365,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
-                .sortByField("name")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("name")
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -408,8 +406,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
-                .sortByField("modelConfiguration.aiModel")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("modelConfiguration.aiModel")
                 .direction("ASC")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -448,8 +446,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
-                .sortByField("modelConfiguration.aiModel")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("modelConfiguration.aiModel")
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -497,11 +495,11 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
-                .sortByField("moderation")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("moderation")
                 .direction("ASC")
                 .page(1)
-                .items(10)
+                .size(10)
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -540,11 +538,11 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
-                .sortByField("modelConfiguration.aiModel")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("modelConfiguration.aiModel")
                 .direction("DESC")
                 .page(1)
-                .items(10)
+                .size(10)
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -582,8 +580,8 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
-                .aiModel("gpt4-mini")
+        SearchAdventures query = SearchAdventures.builder()
+                .model("gpt4-mini")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -624,7 +622,7 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .visibility("private")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -667,9 +665,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .visibility("private")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -716,7 +715,7 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .name("Number 2")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -765,7 +764,7 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .moderation("PERMISSIVE")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -818,9 +817,9 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
-                .worldId(worldId)
+                .world(worldId)
                 .build();
 
         // When
@@ -869,9 +868,9 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
-                .personaId(personaId)
+                .persona(personaId)
                 .build();
 
         // When
@@ -913,8 +912,9 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -961,8 +961,9 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1009,9 +1010,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1059,9 +1061,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
-                .sortByField("name")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("name")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1109,10 +1112,11 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
-                .sortByField("name")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("name")
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1150,10 +1154,11 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
-                .sortByField("modelConfiguration.aiModel")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("modelConfiguration.aiModel")
                 .direction("ASC")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1192,10 +1197,11 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
-                .sortByField("modelConfiguration.aiModel")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("modelConfiguration.aiModel")
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1244,12 +1250,13 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
-                .sortByField("moderation")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("moderation")
                 .direction("ASC")
                 .page(1)
-                .items(10)
+                .size(10)
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1287,12 +1294,13 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
-                .sortByField("modelConfiguration.aiModel")
+        SearchAdventures query = SearchAdventures.builder()
+                .sortingField("modelConfiguration.aiModel")
                 .direction("DESC")
                 .page(1)
-                .items(10)
+                .size(10)
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1340,9 +1348,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
-                .aiModel("gpt35-16k")
+        SearchAdventures query = SearchAdventures.builder()
+                .model("gpt35-16k")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1390,9 +1399,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .name("Number 2")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1441,9 +1451,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .moderation("PERMISSIVE")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1494,7 +1505,7 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithReadAccess query = SearchAdventuresWithReadAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .gameMode("RPG")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -1549,9 +1560,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .gameMode("CHAT")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1603,9 +1615,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
-                .worldId(worldId)
+                .world(worldId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1654,9 +1667,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchAdventuresWithWriteAccess query = SearchAdventuresWithWriteAccess.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
-                .personaId(personaId)
+                .persona(personaId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -1705,8 +1719,9 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
+                .favorites(true)
                 .build();
 
         // When
@@ -1753,9 +1768,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .name(nameToSearch)
+                .favorites(true)
                 .build();
 
         // When
@@ -1804,9 +1820,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .visibility(visibility)
+                .favorites(true)
                 .build();
 
         // When
@@ -1855,9 +1872,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .gameMode(gameMode)
+                .favorites(true)
                 .build();
 
         // When
@@ -1875,7 +1893,7 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         // Given
         String ownerDiscordId = "586678721356875";
-        String aiModel = "gpt4-omni";
+        String model = "gpt4-omni";
         AdventureEntity gpt4Omni = jpaRepository.save(AdventureEntityFixture.sample()
                 .id(null)
                 .name("Number 1")
@@ -1905,9 +1923,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
-                .aiModel(aiModel)
+                .model(model)
+                .favorites(true)
                 .build();
 
         // When
@@ -1956,9 +1975,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .moderation(moderation)
+                .favorites(true)
                 .build();
 
         // When
@@ -2007,9 +2027,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
-                .worldId(worldId)
+                .world(worldId)
+                .favorites(true)
                 .build();
 
         // When
@@ -2058,9 +2079,10 @@ public class AdventureQueryRepositoryImplIntegrationTest extends AbstractIntegra
 
         favoriteRepository.saveAll(list(favorite1, favorite2));
 
-        SearchFavoriteAdventures query = SearchFavoriteAdventures.builder()
+        SearchAdventures query = SearchAdventures.builder()
                 .requesterDiscordId(ownerDiscordId)
-                .personaId(personaId)
+                .persona(personaId)
+                .favorites(true)
                 .build();
 
         // When

@@ -241,9 +241,9 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
 
         SearchWorldLorebookEntries query = SearchWorldLorebookEntries.builder()
                 .worldId("WRLDID")
-                .sortByField("name")
+                .sortingField("name")
                 .page(1)
-                .items(10)
+                .size(10)
                 .build();
 
         // When
@@ -283,7 +283,7 @@ public class WorldLorebookEntryRepositoryImplIntegrationTest extends AbstractInt
 
         SearchWorldLorebookEntries query = SearchWorldLorebookEntries.builder()
                 .worldId("WRLDID")
-                .sortByField("name")
+                .sortingField("name")
                 .direction("DESC")
                 .build();
 

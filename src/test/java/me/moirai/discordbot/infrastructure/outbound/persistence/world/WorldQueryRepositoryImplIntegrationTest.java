@@ -11,9 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import me.moirai.discordbot.AbstractIntegrationTest;
-import me.moirai.discordbot.core.application.usecase.world.request.SearchFavoriteWorlds;
-import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.world.request.SearchWorldsWithWriteAccess;
+import me.moirai.discordbot.core.application.usecase.world.request.SearchWorlds;
 import me.moirai.discordbot.core.application.usecase.world.result.GetWorldResult;
 import me.moirai.discordbot.core.application.usecase.world.result.SearchWorldsResult;
 import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteEntity;
@@ -61,7 +59,7 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -99,7 +97,7 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -138,7 +136,7 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -179,10 +177,10 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
-                .sortByField("name")
+        SearchWorlds query = SearchWorlds.builder()
+                .sortingField("name")
                 .page(1)
-                .items(10)
+                .size(10)
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -222,8 +220,8 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
-                .sortByField("name")
+        SearchWorlds query = SearchWorlds.builder()
+                .sortingField("name")
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -264,7 +262,7 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .name("Number 2")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -306,7 +304,7 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchWorldsWithReadAccess query = SearchWorldsWithReadAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .visibility(visibilityToSearch)
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -350,9 +348,10 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .visibility(visibilityToSearch)
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -392,8 +391,9 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -432,8 +432,9 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -472,9 +473,10 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -514,11 +516,12 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
-                .sortByField("name")
+        SearchWorlds query = SearchWorlds.builder()
+                .sortingField("name")
                 .page(1)
-                .items(10)
+                .size(10)
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -558,10 +561,11 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
-                .sortByField("name")
+        SearchWorlds query = SearchWorlds.builder()
+                .sortingField("name")
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -600,9 +604,10 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .name("Number 2")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -640,9 +645,10 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchWorldsWithWriteAccess query = SearchWorldsWithWriteAccess.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .name("Number 2")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -698,8 +704,9 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         favoriteRepository.saveAll(list(favorite1, favorite2, favorite3));
 
-        SearchFavoriteWorlds query = SearchFavoriteWorlds.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .requesterDiscordId(ownerDiscordId)
+                .favorites(true)
                 .build();
 
         // When
@@ -755,9 +762,10 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         favoriteRepository.saveAll(list(favorite1, favorite2, favorite3));
 
-        SearchFavoriteWorlds query = SearchFavoriteWorlds.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .visibility("public")
+                .favorites(true)
                 .build();
 
         // When
@@ -813,9 +821,10 @@ public class WorldQueryRepositoryImplIntegrationTest extends AbstractIntegration
 
         favoriteRepository.saveAll(list(favorite1, favorite2, favorite3));
 
-        SearchFavoriteWorlds query = SearchFavoriteWorlds.builder()
+        SearchWorlds query = SearchWorlds.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .name("Number 3")
+                .favorites(true)
                 .build();
 
         // When

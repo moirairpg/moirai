@@ -268,9 +268,9 @@ public class AdventureLorebookEntryRepositoryImplIntegrationTest extends Abstrac
 
         SearchAdventureLorebookEntries query = SearchAdventureLorebookEntries.builder()
                 .adventureId("WRLDID")
-                .sortByField("name")
+                .sortingField("name")
                 .page(1)
-                .items(10)
+                .size(10)
                 .build();
 
         // When
@@ -310,7 +310,7 @@ public class AdventureLorebookEntryRepositoryImplIntegrationTest extends Abstrac
 
         SearchAdventureLorebookEntries query = SearchAdventureLorebookEntries.builder()
                 .adventureId("WRLDID")
-                .sortByField("name")
+                .sortingField("name")
                 .direction("DESC")
                 .build();
 

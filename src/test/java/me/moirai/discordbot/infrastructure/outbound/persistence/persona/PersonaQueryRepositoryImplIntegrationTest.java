@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import me.moirai.discordbot.AbstractIntegrationTest;
 import me.moirai.discordbot.core.application.port.PersonaQueryRepository;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchFavoritePersonas;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
+import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonas;
 import me.moirai.discordbot.core.application.usecase.persona.result.GetPersonaResult;
 import me.moirai.discordbot.core.application.usecase.persona.result.SearchPersonasResult;
 import me.moirai.discordbot.core.domain.persona.Persona;
@@ -95,7 +93,7 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -133,7 +131,7 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -172,10 +170,10 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .direction("DESC")
                 .page(1)
-                .items(10)
+                .size(10)
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -215,8 +213,8 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
-                .sortByField("name")
+        SearchPersonas query = SearchPersonas.builder()
+                .sortingField("name")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
 
@@ -256,8 +254,8 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
-                .sortByField("name")
+        SearchPersonas query = SearchPersonas.builder()
+                .sortingField("name")
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -298,7 +296,7 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .name("Number 2")
                 .requesterDiscordId(ownerDiscordId)
                 .build();
@@ -340,8 +338,9 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -380,8 +379,9 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -420,11 +420,12 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
         jpaRepository.save(gpt4Mini);
         jpaRepository.save(gpt354k);
 
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .direction("DESC")
                 .page(1)
-                .items(10)
+                .size(10)
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -464,9 +465,10 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
-                .sortByField("name")
+        SearchPersonas query = SearchPersonas.builder()
+                .sortingField("name")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -506,10 +508,11 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
-                .sortByField("name")
+        SearchPersonas query = SearchPersonas.builder()
+                .sortingField("name")
                 .direction("DESC")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -548,9 +551,10 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .name("Number 2")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -589,9 +593,10 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .visibility("private")
+                .operation("WRITE")
                 .build();
 
         // When
@@ -630,9 +635,10 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchPersonasWithReadAccess query = SearchPersonasWithReadAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .requesterDiscordId(ownerDiscordId)
                 .visibility("private")
+                .operation("READ")
                 .build();
 
         // When
@@ -669,9 +675,10 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         jpaRepository.saveAll(list(gpt4Omni, gpt4Mini, gpt354k));
 
-        SearchPersonasWithWriteAccess query = SearchPersonasWithWriteAccess.builder()
+        SearchPersonas query = SearchPersonas.builder()
                 .name("Number 2")
                 .requesterDiscordId(ownerDiscordId)
+                .operation("WRITE")
                 .build();
 
         // When
@@ -687,8 +694,9 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         // Given
         String playerDiscordId = "63456456";
-        SearchFavoritePersonas request = SearchFavoritePersonas.builder()
+        SearchPersonas request = SearchPersonas.builder()
                 .requesterDiscordId(playerDiscordId)
+                .favorites(true)
                 .build();
 
         PersonaEntity persona1 = jpaRepository.save(PersonaEntityFixture.publicPersona()
@@ -740,9 +748,10 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
         // Given
         String nameToSearch = "targetName";
         String playerDiscordId = "63456456";
-        SearchFavoritePersonas request = SearchFavoritePersonas.builder()
+        SearchPersonas request = SearchPersonas.builder()
                 .requesterDiscordId(playerDiscordId)
                 .name(nameToSearch)
+                .favorites(true)
                 .build();
 
         PersonaEntity persona1 = jpaRepository.save(PersonaEntityFixture.publicPersona()
@@ -793,9 +802,10 @@ public class PersonaQueryRepositoryImplIntegrationTest extends AbstractIntegrati
 
         // Given
         String playerDiscordId = "63456456";
-        SearchFavoritePersonas request = SearchFavoritePersonas.builder()
+        SearchPersonas request = SearchPersonas.builder()
                 .requesterDiscordId(playerDiscordId)
                 .visibility("public")
+                .favorites(true)
                 .build();
 
         PersonaEntity persona1 = jpaRepository.save(PersonaEntityFixture.publicPersona()

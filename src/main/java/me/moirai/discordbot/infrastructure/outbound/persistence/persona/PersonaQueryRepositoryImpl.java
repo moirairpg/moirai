@@ -22,9 +22,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import me.moirai.discordbot.core.application.port.PersonaQueryRepository;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchFavoritePersonas;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithReadAccess;
-import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonasWithWriteAccess;
+import me.moirai.discordbot.core.application.usecase.persona.request.SearchPersonas;
 import me.moirai.discordbot.core.application.usecase.persona.result.SearchPersonasResult;
 import me.moirai.discordbot.core.domain.persona.Persona;
 import me.moirai.discordbot.infrastructure.outbound.persistence.FavoriteEntity;
@@ -38,9 +36,11 @@ public class PersonaQueryRepositoryImpl implements PersonaQueryRepository {
 
     private static final String ID = "id";
     private static final String NAME = "name";
+    private static final String WRITE = "WRITE";
     private static final String ASSET_ID = "assetId";
     private static final String ASSET_TYPE = "assetType";
     private static final String PERSONA = "persona";
+    private static final String OWNER_DISCORD_ID = "ownerDiscordId";
     private static final String VISIBILITY = "visibility";
     private static final String DEFAULT_SORT_BY_FIELD = NAME;
 
@@ -69,11 +69,11 @@ public class PersonaQueryRepositoryImpl implements PersonaQueryRepository {
     }
 
     @Override
-    public SearchPersonasResult search(SearchPersonasWithReadAccess request) {
+    public SearchPersonasResult search(SearchPersonas request) {
 
         int page = extractPageNumber(request.getPage());
-        int size = extractPageSize(request.getItems());
-        String sortByField = extractSortByField(request.getSortByField());
+        int size = extractPageSize(request.getSize());
+        String sortByField = extractSortByField(request.getSortingField());
         Direction direction = extractDirection(request.getDirection());
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortByField));
@@ -83,96 +83,38 @@ public class PersonaQueryRepositoryImpl implements PersonaQueryRepository {
         return mapper.mapToResult(pagedResult);
     }
 
-    @Override
-    public SearchPersonasResult search(SearchPersonasWithWriteAccess request) {
-
-        int page = extractPageNumber(request.getPage());
-        int size = extractPageSize(request.getItems());
-        String sortByField = extractSortByField(request.getSortByField());
-        Direction direction = extractDirection(request.getDirection());
-
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortByField));
-        Specification<PersonaEntity> query = buildSearchQuery(request);
-        Page<PersonaEntity> pagedResult = jpaRepository.findAll(query, pageRequest);
-
-        return mapper.mapToResult(pagedResult);
-    }
-
-    @Override
-    public SearchPersonasResult search(SearchFavoritePersonas request) {
-
-        int page = extractPageNumber(request.getPage());
-        int size = extractPageSize(request.getItems());
-        String sortByField = extractSortByField(request.getSortByField());
-        Direction direction = extractDirection(request.getDirection());
-
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortByField));
-        Specification<PersonaEntity> query = buildSearchQuery(request);
-        Page<PersonaEntity> pagedResult = jpaRepository.findAll(query, pageRequest);
-
-        return mapper.mapToResult(pagedResult);
-    }
-
-    private Specification<PersonaEntity> buildSearchQuery(SearchPersonasWithReadAccess query) {
+    private Specification<PersonaEntity> buildSearchQuery(SearchPersonas request) {
 
         return (root, cq, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(canUserRead(cb, root, query.getRequesterDiscordId()));
-
-            if (isNotBlank(query.getName())) {
-                predicates.add(contains(cb, root, NAME, query.getName()));
+            if (WRITE.equals(request.getOperation())) {
+                predicates.add(canUserWrite(cb, root, request.getRequesterDiscordId()));
+            } else {
+                predicates.add(canUserRead(cb, root, request.getRequesterDiscordId()));
             }
 
-            if (isNotBlank(query.getVisibility())) {
-                predicates.add(contains(cb, root, VISIBILITY, query.getVisibility()));
+            if (request.isFavorites()) {
+                Subquery<String> subquery = cq.subquery(String.class);
+                Root<FavoriteEntity> favoriteRoot = subquery.from(FavoriteEntity.class);
+
+                subquery.select(favoriteRoot.get(ASSET_ID))
+                        .where(cb.equal(favoriteRoot.get(ASSET_TYPE), PERSONA));
+
+                predicates.add(root.get(ID).in(subquery));
             }
 
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-        };
-    }
-
-    private Specification<PersonaEntity> buildSearchQuery(SearchPersonasWithWriteAccess query) {
-
-        return (root, cq, cb) -> {
-            final List<Predicate> predicates = new ArrayList<>();
-
-            predicates.add(canUserWrite(cb, root, query.getRequesterDiscordId()));
-
-            if (isNotBlank(query.getName())) {
-                predicates.add(contains(cb, root, NAME, query.getName()));
+            if (isNotBlank(request.getName())) {
+                predicates.add(contains(cb, root, NAME, request.getName()));
             }
 
-            if (isNotBlank(query.getVisibility())) {
-                predicates.add(contains(cb, root, VISIBILITY, query.getVisibility()));
+            if (isNotBlank(request.getOwnerDiscordId())) {
+                predicates.add(contains(cb, root, OWNER_DISCORD_ID, request.getOwnerDiscordId()));
             }
 
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-        };
-    }
-
-    private Specification<PersonaEntity> buildSearchQuery(SearchFavoritePersonas query) {
-
-        return (root, cq, cb) -> {
-            final List<Predicate> predicates = new ArrayList<>();
-
-            predicates.add(canUserRead(cb, root, query.getRequesterDiscordId()));
-
-            if (isNotBlank(query.getName())) {
-                predicates.add(contains(cb, root, NAME, query.getName()));
+            if (isNotBlank(request.getVisibility())) {
+                predicates.add(contains(cb, root, VISIBILITY, request.getVisibility()));
             }
-
-            if (isNotBlank(query.getVisibility())) {
-                predicates.add(contains(cb, root, VISIBILITY, query.getVisibility()));
-            }
-
-            Subquery<String> subquery = cq.subquery(String.class);
-            Root<FavoriteEntity> favoriteRoot = subquery.from(FavoriteEntity.class);
-
-            subquery.select(favoriteRoot.get(ASSET_ID))
-                    .where(cb.equal(favoriteRoot.get(ASSET_TYPE), PERSONA));
-
-            predicates.add(root.get(ID).in(subquery));
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };

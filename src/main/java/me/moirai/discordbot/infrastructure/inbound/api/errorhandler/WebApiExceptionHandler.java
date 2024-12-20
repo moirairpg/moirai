@@ -1,5 +1,7 @@
 package me.moirai.discordbot.infrastructure.inbound.api.errorhandler;
 
+import static java.lang.String.format;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -39,6 +41,8 @@ public class WebApiExceptionHandler extends AbstractErrorWebExceptionHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(WebApiExceptionHandler.class);
 
+    private static final String ERROR_PROP_CONVERSION = "Failed to convert property value of type";
+    private static final String INVALID_VALUE_FOR_FIELD = "Invalid value for field %s";
     private static final String TOPIC_FLAGGED_IN_CONTENT = "Topic flagged in content: %s";
     private static final String UNKNOWN_ERROR = "An error has occurred. Please contact support.";
     private static final String ASSET_NOT_FOUND_ERROR = "The asset requested could not be found.";
@@ -126,7 +130,13 @@ public class WebApiExceptionHandler extends AbstractErrorWebExceptionHandler {
         List<String> errorMessages = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(error -> error.getField() + " " + error.getDefaultMessage())
+                .map(error -> {
+                    if (error.getDefaultMessage().contains(ERROR_PROP_CONVERSION)) {
+                        return format(INVALID_VALUE_FOR_FIELD, error.getField());
+                    }
+
+                    return format("%s %s", error.getField(), error.getDefaultMessage());
+                })
                 .toList();
 
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -184,7 +194,7 @@ public class WebApiExceptionHandler extends AbstractErrorWebExceptionHandler {
     public ResponseEntity<ErrorResponse> moderationFailed(ModerationException exception) {
 
         List<String> details = exception.getFlaggedTopics().stream()
-                .map(topic -> String.format(TOPIC_FLAGGED_IN_CONTENT, topic))
+                .map(topic -> format(TOPIC_FLAGGED_IN_CONTENT, topic))
                 .toList();
 
         ErrorResponse errorResponse = ErrorResponse.builder()
