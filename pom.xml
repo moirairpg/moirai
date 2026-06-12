@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version>
+        <version>4.1.0</version>
         <relativePath />
     </parent>
 
@@ -25,17 +25,17 @@
         <skipIntegrationTests>false</skipIntegrationTests>
 
         <testcontainers.version>2.0.5</testcontainers.version>
-        <springdoc.version>3.0.2</springdoc.version>
+        <springdoc.version>3.0.3</springdoc.version>
         <tokenizer.version>1.1.0</tokenizer.version>
         <uuid-generator.version>5.2.0</uuid-generator.version>
         <apache.commons.lang.version>3.20.0</apache.commons.lang.version>
         <apache.commons.collections.version>4.5.0</apache.commons.collections.version>
         <wiremock.version>3.13.2</wiremock.version>
-        <jacoco.version>0.8.14</jacoco.version>
-        <qdrant.version>1.17.0</qdrant.version>
-        <grpc.version>1.80.0</grpc.version>
-        <awssdk.version>2.42.34</awssdk.version>
-        <tika.version>3.3.0</tika.version>
+        <jacoco.version>0.8.15</jacoco.version>
+        <qdrant.version>1.18.1</qdrant.version>
+        <grpc.version>1.81.0</grpc.version>
+        <awssdk.version>2.46.8</awssdk.version>
+        <tika.version>3.3.1</tika.version>
     </properties>
 
     <dependencies>

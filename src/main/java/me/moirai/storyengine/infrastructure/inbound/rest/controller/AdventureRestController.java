@@ -36,6 +36,7 @@ import me.moirai.storyengine.infrastructure.inbound.rest.request.UploadImageRequ
 import me.moirai.storyengine.common.enums.SearchView;
 import me.moirai.storyengine.common.enums.SortDirection;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
+import me.moirai.storyengine.common.util.Functions;
 import me.moirai.storyengine.common.web.SecurityContextAware;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureCatchUp;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureDetails;
@@ -105,13 +106,12 @@ public class AdventureRestController extends SecurityContextAware {
             @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "size", required = false) Integer size) {
 
-        // TODO use proper null mapping here and everywhere else instead of ternaries
         return queryRunner.run(new SearchAdventures(
                 name,
                 worldName,
                 isMultiplayer,
-                model != null ? model.name() : null,
-                moderation != null ? moderation.name() : null,
+                Functions.mapOrNull(model, SearchModel::name),
+                Functions.mapOrNull(moderation, SearchModeration::name),
                 view,
                 sortingField,
                 direction,
@@ -140,7 +140,15 @@ public class AdventureRestController extends SecurityContextAware {
                 .collect(Collectors.toSet());
 
         var lorebookEntries = emptyIfNull(request.lorebook()).stream()
-                .map(e -> new AdventureLorebookEntryDetails(null, null, e.name(), e.description(), e.playerId(), false, null, null))
+                .map(e -> new AdventureLorebookEntryDetails(
+                        null,
+                        null,
+                        e.name(),
+                        e.description(),
+                        e.playerId(),
+                        false,
+                        null,
+                        null))
                 .collect(Collectors.toSet());
 
         var command = new CreateAdventure(

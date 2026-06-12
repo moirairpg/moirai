@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.common.enums.Role;
 import me.moirai.storyengine.core.domain.notification.Notification;
 import me.moirai.storyengine.core.domain.notification.NotificationFixture;
@@ -19,7 +19,7 @@ import me.moirai.storyengine.core.domain.userdetails.User;
 import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.outbound.notification.NotificationReader;
 
-public class NotificationReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class NotificationReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private NotificationReader reader;

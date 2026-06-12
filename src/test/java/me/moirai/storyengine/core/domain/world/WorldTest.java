@@ -243,4 +243,30 @@ public class WorldTest {
         // then
         assertThat(canRead).isFalse();
     }
+
+    @Test
+    public void createWorld_whenNarratorProvided_thenExposeNameAndPersonality() {
+
+        // given
+        var world = WorldFixture.publicWorld()
+                .narrator("Aria", "A helpful guide")
+                .build();
+
+        // when / then
+        assertThat(world.getNarratorName()).isEqualTo("Aria");
+        assertThat(world.getNarratorPersonality()).isEqualTo("A helpful guide");
+    }
+
+    @Test
+    public void createWorld_whenNarratorPersonalitySetButNameNull_thenNameDefaultsToNarrator() {
+
+        // given
+        var world = WorldFixture.publicWorld()
+                .narrator(null, "Some personality")
+                .build();
+
+        // when / then
+        assertThat(world.getNarratorName()).isEqualTo("Narrator");
+        assertThat(world.getNarratorPersonality()).isEqualTo("Some personality");
+    }
 }

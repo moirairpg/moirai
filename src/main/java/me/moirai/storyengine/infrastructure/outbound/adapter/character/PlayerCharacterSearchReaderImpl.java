@@ -77,6 +77,7 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
             case NAME -> "pc.name";
             case CREATION_DATE -> "pc.creation_date";
             case LAST_UPDATE_DATE -> "pc.last_update_date";
+            case null, default -> "pc.creation_date";
         };
     }
 

@@ -1,7 +1,5 @@
 package me.moirai.storyengine.core.application.command.adventure;
 
-import com.fasterxml.uuid.Generators;
-
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -32,11 +30,8 @@ public class UploadAdventureImageHandler extends AbstractCommandHandler<UploadAd
             storagePort.delete(adventure.getImageKey());
         }
 
-        // TODO transfer control over image keys to domain layer in all places that use images
-        var imageId = Generators.timeBasedEpochGenerator().generate();
-        var key = "adventures/" + command.adventureId() + "/" + imageId + "." + command.fileExtension();
+        var key = adventure.generateImageKey(command.fileExtension());
         storagePort.upload(key, command.imageBytes(), command.contentType());
-        adventure.updateImageKey(key);
         repository.save(adventure);
 
         return new ImageResult(storagePort.resolveUrl(key));

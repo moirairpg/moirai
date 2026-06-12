@@ -95,6 +95,7 @@ public class NotificationSearchReaderImpl implements NotificationSearchReader {
         return switch (field) {
             case TYPE -> "n.type";
             case LEVEL -> "n.level";
+            case CREATION_DATE -> "n.creation_date";
             case null, default -> "n.creation_date";
         };
     }

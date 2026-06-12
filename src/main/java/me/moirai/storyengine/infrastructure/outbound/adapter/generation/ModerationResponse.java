@@ -7,6 +7,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import me.moirai.storyengine.common.util.Functions;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ModerationResponse {
 
@@ -27,8 +29,8 @@ public class ModerationResponse {
         this.id = builder.id;
         this.model = builder.model;
 
-        this.results = Collections
-                .unmodifiableList(builder.results != null ? new ArrayList<>(builder.results) : Collections.emptyList());
+        this.results = Collections.unmodifiableList(
+                Functions.mapOrDefault(builder.results, Collections.emptyList(), ArrayList::new));
     }
 
     public static Builder builder() {

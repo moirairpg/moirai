@@ -10,13 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import jakarta.transaction.Transactional;
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.core.domain.notification.Notification;
 import me.moirai.storyengine.core.domain.notification.NotificationFixture;
 import me.moirai.storyengine.core.port.outbound.notification.NotificationRepository;
 
 @Transactional
-public class NotificationRepositoryImplIntegrationTest extends AbstractIntegrationTest {
+public class NotificationRepositoryImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private NotificationRepository repository;

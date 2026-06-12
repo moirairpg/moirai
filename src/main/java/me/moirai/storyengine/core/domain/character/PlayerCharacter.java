@@ -143,7 +143,9 @@ public class PlayerCharacter extends Asset {
     public String generateImageKey() {
 
         var imageId = Generators.timeBasedEpochGenerator().generate();
-        return "characters/" + this.publicId + "/" + imageId + ".png";
+        this.imageKey = "characters/" + this.publicId + "/" + imageId + ".png";
+
+        return this.imageKey;
     }
 
     public static final class Builder {

@@ -6,13 +6,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.inbound.world.SearchWorldLorebookEntries;
 import me.moirai.storyengine.core.port.outbound.world.WorldLorebookSearchReader;
 
-public class WorldLorebookSearchReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class WorldLorebookSearchReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private WorldLorebookSearchReader reader;

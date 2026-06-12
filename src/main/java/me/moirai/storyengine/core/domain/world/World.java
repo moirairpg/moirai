@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,6 +30,7 @@ import me.moirai.storyengine.common.domain.ShareableAsset;
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.common.util.Functions;
 
 @Entity
 @Table(name = "world")
@@ -130,6 +130,14 @@ public class World extends ShareableAsset {
         this.imageKey = imageKey;
     }
 
+    public String generateImageKey(String fileExtension) {
+
+        var imageId = Generators.timeBasedEpochGenerator().generate();
+        this.imageKey = "worlds/" + this.publicId + "/" + imageId + "." + fileExtension;
+
+        return this.imageKey;
+    }
+
     public Double getUiImagePositionX() {
         return uiImagePositionX;
     }
@@ -144,11 +152,11 @@ public class World extends ShareableAsset {
     }
 
     public String getNarratorName() {
-        return Optional.ofNullable(narrator).map(Narrator::narratorName).orElse("Narrator");
+        return Functions.mapOrDefault(narrator, "Narrator", Narrator::narratorName);
     }
 
     public String getNarratorPersonality() {
-        return Optional.ofNullable(narrator).map(Narrator::narratorPersonality).orElse(null);
+        return Functions.mapOrNull(narrator, Narrator::narratorPersonality);
     }
 
     public List<WorldLorebookEntry> getLorebook() {

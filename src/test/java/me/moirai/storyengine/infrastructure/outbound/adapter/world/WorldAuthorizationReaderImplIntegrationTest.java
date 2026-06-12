@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.common.domain.Permission;
 import me.moirai.storyengine.common.enums.PermissionLevel;
 import me.moirai.storyengine.common.enums.Visibility;
@@ -18,7 +18,7 @@ import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.outbound.world.WorldAuthorizationReader;
 
-public class WorldAuthorizationReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class WorldAuthorizationReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private WorldAuthorizationReader reader;

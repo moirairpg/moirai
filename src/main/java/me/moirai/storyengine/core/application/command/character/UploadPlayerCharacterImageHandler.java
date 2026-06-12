@@ -34,7 +34,6 @@ public class UploadPlayerCharacterImageHandler extends AbstractCommandHandler<Up
 
         var key = character.generateImageKey();
         storagePort.upload(key, command.bytes(), command.contentType());
-        character.updateImageKey(key);
         repository.save(character);
 
         return new ImageResult(storagePort.resolveUrl(key));

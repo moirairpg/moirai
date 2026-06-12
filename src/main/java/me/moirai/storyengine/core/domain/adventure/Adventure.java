@@ -37,6 +37,7 @@ import me.moirai.storyengine.common.enums.Moderation;
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.common.util.Functions;
 
 @Entity
 @Table(name = "adventure")
@@ -166,11 +167,11 @@ public class Adventure extends ShareableAsset {
     }
 
     public String getNarratorName() {
-        return Optional.ofNullable(narrator).map(Narrator::narratorName).orElse("Narrator");
+        return Functions.mapOrDefault(narrator, "Narrator", Narrator::narratorName);
     }
 
     public String getNarratorPersonality() {
-        return Optional.ofNullable(narrator).map(Narrator::narratorPersonality).orElse(null);
+        return Functions.mapOrNull(narrator, Narrator::narratorPersonality);
     }
 
     public ModelConfiguration getModelConfiguration() {
@@ -191,6 +192,14 @@ public class Adventure extends ShareableAsset {
 
     public void updateImageKey(String imageKey) {
         this.imageKey = imageKey;
+    }
+
+    public String generateImageKey(String fileExtension) {
+
+        var imageId = Generators.timeBasedEpochGenerator().generate();
+        this.imageKey = "adventures/" + this.publicId + "/" + imageId + "." + fileExtension;
+
+        return this.imageKey;
     }
 
     public Double getUiImagePositionX() {

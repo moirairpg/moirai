@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.world.World;
@@ -18,7 +18,7 @@ import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureLorebookEntryDetails;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureLorebookReader;
 
-public class AdventureLorebookReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class AdventureLorebookReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private AdventureLorebookReader reader;

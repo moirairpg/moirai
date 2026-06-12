@@ -7,6 +7,8 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import me.moirai.storyengine.common.util.Functions;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ModerationResult {
 
@@ -26,14 +28,11 @@ public class ModerationResult {
 
         this.flagged = builder.flagged;
 
-        this.categories = Collections
-                .unmodifiableMap(
-                        builder.categories != null ? new HashMap<>(builder.categories) : Collections.emptyMap());
+        this.categories = Collections.unmodifiableMap(
+                Functions.mapOrDefault(builder.categories, Collections.emptyMap(), HashMap::new));
 
-        this.categoryScores = Collections
-                .unmodifiableMap(
-                        builder.categoryScores != null ? new HashMap<>(builder.categoryScores)
-                                : Collections.emptyMap());
+        this.categoryScores = Collections.unmodifiableMap(
+                Functions.mapOrDefault(builder.categoryScores, Collections.emptyMap(), HashMap::new));
     }
 
     public static Builder builder() {

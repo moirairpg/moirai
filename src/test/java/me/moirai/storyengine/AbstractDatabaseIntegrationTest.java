@@ -29,7 +29,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 @ActiveProfiles({ "test", "prompts" })
 @SpringBootTest(classes = MoiraiApplication.class)
-public abstract class AbstractIntegrationTest {
+public abstract class AbstractDatabaseIntegrationTest {
 
     @Autowired
     private DbTestHelper dbTestHelper;

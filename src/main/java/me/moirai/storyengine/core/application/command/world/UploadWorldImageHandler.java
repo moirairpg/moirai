@@ -1,7 +1,5 @@
 package me.moirai.storyengine.core.application.command.world;
 
-import com.fasterxml.uuid.Generators;
-
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -32,10 +30,8 @@ public class UploadWorldImageHandler extends AbstractCommandHandler<UploadWorldI
             storagePort.delete(world.getImageKey());
         }
 
-        var imageId = Generators.timeBasedEpochGenerator().generate();
-        var key = "worlds/" + command.worldId() + "/" + imageId + "." + command.fileExtension();
+        var key = world.generateImageKey(command.fileExtension());
         storagePort.upload(key, command.imageBytes(), command.contentType());
-        world.updateImageKey(key);
         repository.save(world);
 
         return new ImageResult(storagePort.resolveUrl(key));

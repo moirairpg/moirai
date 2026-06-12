@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.adventure.ChronicleSegment;
@@ -18,7 +18,7 @@ import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.outbound.adventure.ChronicleSegmentReader;
 
-public class ChronicleSegmentReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class ChronicleSegmentReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private ChronicleSegmentReader reader;

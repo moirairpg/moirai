@@ -7,6 +7,7 @@ import me.moirai.storyengine.common.cqs.command.Command;
 import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.enums.Moderation;
 import me.moirai.storyengine.common.enums.Visibility;
+import me.moirai.storyengine.common.util.Functions;
 
 public record CreateAdventure(
         String name,
@@ -27,7 +28,7 @@ public record CreateAdventure(
         implements Command<AdventureDetails> {
 
     public CreateAdventure {
-        permissions = permissions != null ? Set.copyOf(permissions) : Set.of();
-        lorebookEntries = lorebookEntries != null ? Set.copyOf(lorebookEntries) : Set.of();
+        permissions = Functions.mapOrDefault(permissions, Set.of(), Set::copyOf);
+        lorebookEntries = Functions.mapOrDefault(lorebookEntries, Set.of(), Set::copyOf);
     }
 }

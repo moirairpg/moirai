@@ -60,11 +60,11 @@ public class AdventureLorebookSearchReaderImpl implements AdventureLorebookSearc
         return PaginatedResult.of(data, totalItems, pq.page(), pq.size());
     }
 
-    // TODO treat null and add it to the test, do the same in every enum switch
     private String resolveSortingField(AdventureLorebookSortField field) {
         return switch (field) {
             case NAME -> "al.name";
             case LAST_UPDATE_DATE -> "al.last_update_date";
+            case CREATION_DATE -> "al.creation_date";
             case null, default -> "al.creation_date";
         };
     }

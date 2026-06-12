@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.common.enums.CharacterClass;
 import me.moirai.storyengine.common.enums.PlayerCharacterSortField;
 import me.moirai.storyengine.common.enums.SortDirection;
@@ -21,7 +21,7 @@ import me.moirai.storyengine.core.port.inbound.character.SearchPlayerCharacters;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterSearchReader;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterSummaryRow;
 
-public class PlayerCharacterSearchReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class PlayerCharacterSearchReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private PlayerCharacterSearchReader reader;

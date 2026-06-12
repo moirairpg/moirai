@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
 import me.moirai.storyengine.core.domain.userdetails.User;
@@ -16,7 +16,7 @@ import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterDetailsRow;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
 
-public class PlayerCharacterReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private PlayerCharacterReader reader;
