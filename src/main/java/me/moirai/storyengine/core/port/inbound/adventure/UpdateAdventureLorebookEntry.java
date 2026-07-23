@@ -8,7 +8,6 @@ public record UpdateAdventureLorebookEntry(
         UUID entryId,
         UUID adventureId,
         String name,
-        String description,
-        String playerId)
+        String description)
         implements Command<AdventureLorebookEntryDetails> {
 }

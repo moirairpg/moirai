@@ -32,7 +32,7 @@ public class AdventureLorebookSearchReaderImplIntegrationTest extends AbstractDa
         var adventure = AdventureFixture.privateMultiplayerAdventure()
                 .worldId(world.getPublicId())
                 .build();
-        adventure.addLorebookEntry("White River", "A famous river", null);
+        adventure.addLorebookEntry("White River", "A famous river");
         insert(adventure, Adventure.class);
 
         var query = new SearchAdventureLorebookEntries(adventure.getPublicId(), null, null, null, null, null);
@@ -75,8 +75,8 @@ public class AdventureLorebookSearchReaderImplIntegrationTest extends AbstractDa
         var adventure = AdventureFixture.privateMultiplayerAdventure()
                 .worldId(world.getPublicId())
                 .build();
-        adventure.addLorebookEntry("White River", "A famous river", null);
-        adventure.addLorebookEntry("Volin Habar", "A warrior", null);
+        adventure.addLorebookEntry("White River", "A famous river");
+        adventure.addLorebookEntry("Volin Habar", "A warrior");
         insert(adventure, Adventure.class);
 
         var query = new SearchAdventureLorebookEntries(adventure.getPublicId(), "White", null, null, null, null);

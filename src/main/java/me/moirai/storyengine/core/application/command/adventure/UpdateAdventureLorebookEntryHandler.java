@@ -62,8 +62,7 @@ public class UpdateAdventureLorebookEntryHandler
         var lorebookEntry = adventure.updateLorebookEntry(
                 command.entryId(),
                 command.name(),
-                command.description(),
-                command.playerId());
+                command.description());
 
         repository.save(adventure);
 
@@ -80,8 +79,6 @@ public class UpdateAdventureLorebookEntryHandler
                 adventure.getPublicId(),
                 savedEntry.getName(),
                 savedEntry.getDescription(),
-                savedEntry.getPlayerId(),
-                savedEntry.isPlayerCharacter(),
                 savedEntry.getCreationDate(),
                 savedEntry.getLastUpdateDate());
     }

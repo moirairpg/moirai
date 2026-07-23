@@ -254,8 +254,8 @@ public class CreateAdventureHandlerTest {
 
         // given
         var sample = CreateAdventureFixture.sample();
-        var lorebookEntry1 = new AdventureLorebookEntryDetails(null, null, "Mana Shards", "Crystalized ancient magic", null, false, null, null);
-        var lorebookEntry2 = new AdventureLorebookEntryDetails(null, null, "The Silence", "A void that devours magic", null, false, null, null);
+        var lorebookEntry1 = new AdventureLorebookEntryDetails(null, null, "Mana Shards", "Crystalized ancient magic", null, null);
+        var lorebookEntry2 = new AdventureLorebookEntryDetails(null, null, "The Silence", "A void that devours magic", null, null);
         var command = new CreateAdventure(
                 sample.name(),
                 sample.description(),

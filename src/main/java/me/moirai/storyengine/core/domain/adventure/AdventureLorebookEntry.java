@@ -29,12 +29,6 @@ public class AdventureLorebookEntry extends Asset {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "player_id")
-    private String playerId;
-
-    @Column(name = "is_player_character")
-    private boolean isPlayerCharacter;
-
     private AdventureLorebookEntry(Builder builder) {
 
         super();
@@ -42,8 +36,6 @@ public class AdventureLorebookEntry extends Asset {
         this.publicId = Generators.timeBasedEpochGenerator().generate();
         this.name = builder.name;
         this.description = builder.description;
-        this.playerId = builder.playerId;
-        this.isPlayerCharacter = builder.playerId != null;
     }
 
     protected AdventureLorebookEntry() {
@@ -71,14 +63,6 @@ public class AdventureLorebookEntry extends Asset {
         return description;
     }
 
-    public String getPlayerId() {
-        return playerId;
-    }
-
-    public boolean isPlayerCharacter() {
-        return isPlayerCharacter;
-    }
-
     public void updateName(String name) {
 
         this.name = name;
@@ -89,23 +73,10 @@ public class AdventureLorebookEntry extends Asset {
         this.description = description;
     }
 
-    public void assignPlayer(String playerId) {
-
-        this.isPlayerCharacter = true;
-        this.playerId = playerId;
-    }
-
-    public void unassignPlayer() {
-
-        this.isPlayerCharacter = false;
-        this.playerId = null;
-    }
-
     public static final class Builder {
 
         private String name;
         private String description;
-        private String playerId;
 
         private Builder() {
         }
@@ -119,12 +90,6 @@ public class AdventureLorebookEntry extends Asset {
         public Builder description(String description) {
 
             this.description = description;
-            return this;
-        }
-
-        public Builder playerId(String playerId) {
-
-            this.playerId = playerId;
             return this;
         }
 

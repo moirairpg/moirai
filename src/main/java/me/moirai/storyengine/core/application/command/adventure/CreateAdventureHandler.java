@@ -2,6 +2,7 @@ package me.moirai.storyengine.core.application.command.adventure;
 
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -79,7 +80,7 @@ public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventu
         adventure.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
 
         emptyIfNull(command.lorebookEntries()).forEach(entry ->
-                adventure.addLorebookEntry(entry.name(), entry.description(), entry.playerId()));
+                adventure.addLorebookEntry(entry.name(), entry.description()));
 
         adventureRepository.save(adventure);
 
@@ -143,11 +144,10 @@ public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventu
                                 adventure.getPublicId(),
                                 entry.getName(),
                                 entry.getDescription(),
-                                entry.getPlayerId(),
-                                entry.isPlayerCharacter(),
                                 entry.getCreationDate(),
                                 entry.getLastUpdateDate()))
                         .collect(Collectors.toSet()),
+                List.of(),
                 adventure.getUiImagePositionX(),
                 adventure.getUiImagePositionY());
     }

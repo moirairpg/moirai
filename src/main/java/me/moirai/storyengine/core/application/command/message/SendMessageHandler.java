@@ -91,8 +91,8 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
         var adventure = adventureRepository.findByPublicId(command.adventureId())
                 .orElseThrow(() -> new NotFoundException("Adventure not found"));
 
-        var characterName = adventure.getLorebookEntryByPlayerId(command.username())
-                .map(e -> e.getName())
+        var characterName = adventureRepository
+                .findEnrolledCharacterName(adventure.getId(), command.username())
                 .orElse(command.username());
 
         var playerMessage = Message.builder()

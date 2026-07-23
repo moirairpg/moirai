@@ -64,13 +64,17 @@ public class CreatePlayerCharacterHandler
     @Override
     public PlayerCharacterDetails execute(CreatePlayerCharacter command) {
 
-        var character = repository.save(PlayerCharacter.builder()
+        var newCharacter = PlayerCharacter.builder()
                 .name(command.name())
                 .characterClass(command.characterClass())
                 .personality(command.personality())
                 .physicalDescription(command.physicalDescription())
                 .playerId(command.requesterId())
-                .build());
+                .build();
+
+        newCharacter.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
+
+        var character = repository.save(newCharacter);
 
         var vector = embeddingPort.embed(buildEmbeddingText(character));
         vectorSearchPort.upsert(character.getPublicId(), vector);
@@ -99,6 +103,8 @@ public class CreatePlayerCharacterHandler
                 character.getPersonality(),
                 character.getPhysicalDescription(),
                 storagePort.resolveUrl(character.getImageKey()),
+                character.getUiImagePositionX(),
+                character.getUiImagePositionY(),
                 character.getCreationDate(),
                 character.getLastUpdateDate()
         );

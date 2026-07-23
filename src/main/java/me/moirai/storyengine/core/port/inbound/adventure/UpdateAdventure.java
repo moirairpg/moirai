@@ -30,9 +30,9 @@ public record UpdateAdventure(
         List<UUID> lorebookEntriesToDelete)
         implements Command<AdventureDetails> {
 
-    public record LorebookEntryToAdd(String name, String description, String playerId) {}
+    public record LorebookEntryToAdd(String name, String description) {}
 
-    public record LorebookEntryToUpdate(UUID id, String name, String description, String playerId) {}
+    public record LorebookEntryToUpdate(UUID id, String name, String description) {}
 
     public UpdateAdventure {
         permissions = Functions.mapOrDefault(permissions, Set.of(), Set::copyOf);

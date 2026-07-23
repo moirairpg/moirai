@@ -2,6 +2,7 @@ package me.moirai.storyengine.core.application.command.adventure;
 
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import me.moirai.storyengine.common.annotation.CommandHandler;
@@ -93,10 +94,10 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
                 .forEach(adventure::removeLorebookEntry);
 
         command.lorebookEntriesToUpdate()
-                .forEach(e -> adventure.updateLorebookEntry(e.id(), e.name(), e.description(), e.playerId()));
+                .forEach(e -> adventure.updateLorebookEntry(e.id(), e.name(), e.description()));
 
         command.lorebookEntriesToAdd()
-                .forEach(e -> adventure.addLorebookEntry(e.name(), e.description(), e.playerId()));
+                .forEach(e -> adventure.addLorebookEntry(e.name(), e.description()));
 
         var saved = repository.save(adventure);
 
@@ -191,11 +192,10 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
                                 savedAdventure.getPublicId(),
                                 entry.getName(),
                                 entry.getDescription(),
-                                entry.getPlayerId(),
-                                entry.isPlayerCharacter(),
                                 entry.getCreationDate(),
                                 entry.getLastUpdateDate()))
                         .collect(Collectors.toSet()),
+                List.of(),
                 savedAdventure.getUiImagePositionX(),
                 savedAdventure.getUiImagePositionY());
     }

@@ -35,6 +35,8 @@ public class GetPlayerCharacterByIdHandler
                 row.personality(),
                 row.physicalDescription(),
                 storagePort.resolveUrl(row.imageKey()),
+                row.uiImagePositionX(),
+                row.uiImagePositionY(),
                 row.creationDate(),
                 row.lastUpdateDate());
     }

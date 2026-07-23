@@ -278,7 +278,7 @@ public class UpdateAdventureHandlerTest {
                 Set.of(),
                 sample.modelConfiguration(),
                 sample.contextAttributes(),
-                List.of(new UpdateAdventure.LorebookEntryToAdd("Hero", "The main character", null)),
+                List.of(new UpdateAdventure.LorebookEntryToAdd("Hero", "The main character")),
                 List.of(),
                 List.of());
 
@@ -309,7 +309,7 @@ public class UpdateAdventureHandlerTest {
         // given
         var sample = UpdateAdventureFixture.sample();
         var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        var addedEntry = adventure.addLorebookEntry("Old Name", "Old Description", null);
+        var addedEntry = adventure.addLorebookEntry("Old Name", "Old Description");
         var entryId = UUID.randomUUID();
         ReflectionTestUtils.setField(addedEntry, "publicId", entryId);
 
@@ -329,7 +329,7 @@ public class UpdateAdventureHandlerTest {
                 sample.modelConfiguration(),
                 sample.contextAttributes(),
                 List.of(),
-                List.of(new UpdateAdventure.LorebookEntryToUpdate(entryId, "New Name", "New Description", null)),
+                List.of(new UpdateAdventure.LorebookEntryToUpdate(entryId, "New Name", "New Description")),
                 List.of());
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
@@ -376,7 +376,7 @@ public class UpdateAdventureHandlerTest {
                 List.of(entryId));
 
         var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        var addedEntry = adventure.addLorebookEntry("Entry", "Description", null);
+        var addedEntry = adventure.addLorebookEntry("Entry", "Description");
         ReflectionTestUtils.setField(addedEntry, "publicId", entryId);
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));

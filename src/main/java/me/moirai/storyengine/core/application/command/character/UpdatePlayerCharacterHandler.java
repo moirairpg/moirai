@@ -74,6 +74,7 @@ public class UpdatePlayerCharacterHandler
         character.updatePersonality(command.personality());
         character.updatePhysicalDescription(command.physicalDescription());
         character.updateCharacterClass(command.characterClass());
+        character.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
 
         var saved = repository.save(character);
 
@@ -100,6 +101,8 @@ public class UpdatePlayerCharacterHandler
                 character.getPersonality(),
                 character.getPhysicalDescription(),
                 storagePort.resolveUrl(character.getImageKey()),
+                character.getUiImagePositionX(),
+                character.getUiImagePositionY(),
                 character.getCreationDate(),
                 character.getLastUpdateDate());
     }

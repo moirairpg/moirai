@@ -145,8 +145,6 @@ public class AdventureRestController extends SecurityContextAware {
                         null,
                         e.name(),
                         e.description(),
-                        e.playerId(),
-                        false,
                         null,
                         null))
                 .collect(Collectors.toSet());
@@ -191,11 +189,11 @@ public class AdventureRestController extends SecurityContextAware {
                 .collect(Collectors.toSet());
 
         var lorebookEntriesToAdd = emptyIfNull(request.lorebookEntriesToAdd()).stream()
-                .map(e -> new UpdateAdventure.LorebookEntryToAdd(e.name(), e.description(), e.playerId()))
+                .map(e -> new UpdateAdventure.LorebookEntryToAdd(e.name(), e.description()))
                 .toList();
 
         var lorebookEntriesToUpdate = emptyIfNull(request.lorebookEntriesToUpdate()).stream()
-                .map(e -> new UpdateAdventure.LorebookEntryToUpdate(e.id(), e.name(), e.description(), e.playerId()))
+                .map(e -> new UpdateAdventure.LorebookEntryToUpdate(e.id(), e.name(), e.description()))
                 .toList();
 
         var command = new UpdateAdventure(

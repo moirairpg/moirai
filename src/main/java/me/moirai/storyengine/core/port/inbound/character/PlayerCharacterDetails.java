@@ -13,6 +13,8 @@ public record PlayerCharacterDetails(
         String personality,
         String physicalDescription,
         String imageUrl,
+        Double uiImagePositionX,
+        Double uiImagePositionY,
         Instant creationDate,
         Instant lastUpdateDate) {
 }

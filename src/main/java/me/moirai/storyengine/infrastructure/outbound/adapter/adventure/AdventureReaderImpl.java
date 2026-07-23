@@ -58,8 +58,6 @@ public class AdventureReaderImpl implements AdventureReader {
           SELECT al.public_id,
                  al.name,
                  al.description,
-                 al.player_id,
-                 al.is_player_character,
                  al.creation_date,
                  al.last_update_date
             FROM adventure_lorebook al
@@ -118,8 +116,6 @@ public class AdventureReaderImpl implements AdventureReader {
                             UUID.fromString(rs.getString("public_id")),
                             r.getString("name"),
                             r.getString("description"),
-                            r.getString("player_id"),
-                            r.getBoolean("is_player_character"),
                             r.getTimestamp("creation_date").toInstant(),
                             r.getTimestamp("last_update_date").toInstant()))
                     .list());

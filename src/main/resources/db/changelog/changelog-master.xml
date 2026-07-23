@@ -93,4 +93,7 @@
   <include file="db/changelog/migrations/1776979935_create_table_notification_recipient.sql" />
   <include file="db/changelog/migrations/1777229540_alter_table_chronicle_segment_add_adventure_fk.sql" />
   <include file="db/changelog/migrations/1778008769_create_table_player_character.sql" />
+  <include file="db/changelog/migrations/1784466008_create_table_adventure_roster.sql" />
+  <include file="db/changelog/migrations/1784466009_migrate_adventure_lorebook_player_characters.sql" />
+  <include file="db/changelog/migrations/1784470829_alter_table_adventure_lorebook_delete_player_columns.sql" />
 </databaseChangeLog>

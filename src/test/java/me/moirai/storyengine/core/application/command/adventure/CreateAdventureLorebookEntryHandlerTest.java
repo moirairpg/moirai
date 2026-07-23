@@ -47,8 +47,7 @@ public class CreateAdventureLorebookEntryHandlerTest {
         var command = new CreateAdventureLorebookEntry(
                 null,
                 "Volin Habar",
-                "Volin Habar is a warrior that fights with a sword.",
-                null);
+                "Volin Habar is a warrior that fights with a sword.");
 
         // then
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -62,8 +61,7 @@ public class CreateAdventureLorebookEntryHandlerTest {
         var command = new CreateAdventureLorebookEntry(
                 AdventureFixture.PUBLIC_ID,
                 null,
-                "Volin Habar is a warrior that fights with a sword.",
-                null);
+                "Volin Habar is a warrior that fights with a sword.");
 
         // then
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -77,7 +75,6 @@ public class CreateAdventureLorebookEntryHandlerTest {
         var command = new CreateAdventureLorebookEntry(
                 AdventureFixture.PUBLIC_ID,
                 "Volin Habar",
-                null,
                 null);
 
         // then
@@ -89,7 +86,7 @@ public class CreateAdventureLorebookEntryHandlerTest {
     public void shouldUpsertVectorAfterSavingEntryWhenCreateSucceeds() {
 
         // given
-        var command = CreateAdventureLorebookEntryFixture.samplePlayerCharacterLorebookEntry();
+        var command = CreateAdventureLorebookEntryFixture.sampleLorebookEntry();
         var adventure = AdventureFixture.privateMultiplayerAdventure().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
@@ -111,7 +108,7 @@ public class CreateAdventureLorebookEntryHandlerTest {
     public void shouldThrowWhenAdventureNotFoundOnCreate() {
 
         // given
-        var command = CreateAdventureLorebookEntryFixture.samplePlayerCharacterLorebookEntry();
+        var command = CreateAdventureLorebookEntryFixture.sampleLorebookEntry();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.empty());
 

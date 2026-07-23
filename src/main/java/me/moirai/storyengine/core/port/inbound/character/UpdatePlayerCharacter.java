@@ -10,6 +10,8 @@ public record UpdatePlayerCharacter(
         String name,
         CharacterClass characterClass,
         String personality,
-        String physicalDescription)
+        String physicalDescription,
+        Double uiImagePositionX,
+        Double uiImagePositionY)
         implements Command<PlayerCharacterDetails> {
 }

@@ -179,4 +179,36 @@ public class PlayerCharacterTest {
         // then
         assertThrows(BusinessRuleViolationException.class, () -> builder.characterClass(null));
     }
+
+    @Test
+    public void shouldRecordDeletedEventWhenCharacterIsDeleted() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+
+        // when
+        character.communicateCharacterDeleted();
+
+        // then
+        var events = character.drainEvents();
+
+        assertThat(events).hasSize(1);
+        assertThat(events.getFirst()).isInstanceOf(PlayerCharacterDeletedEvent.class);
+        assertThat(((PlayerCharacterDeletedEvent) events.getFirst()).getPlayerCharacterId())
+                .isEqualTo(PlayerCharacterFixture.NUMERIC_ID);
+    }
+
+    @Test
+    public void shouldEmptyRecordedEventsWhenDrained() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        character.communicateCharacterDeleted();
+
+        // when
+        character.drainEvents();
+
+        // then
+        assertThat(character.drainEvents()).isEmpty();
+    }
 }

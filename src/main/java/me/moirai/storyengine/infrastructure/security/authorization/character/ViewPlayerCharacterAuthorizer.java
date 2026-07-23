@@ -1,11 +1,17 @@
 package me.moirai.storyengine.infrastructure.security.authorization.character;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Component;
 
+import me.moirai.storyengine.common.enums.Visibility;
+import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.common.security.authorization.OperationAuthorizer;
+import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVisibilityData;
 
 @Component
 public class ViewPlayerCharacterAuthorizer implements OperationAuthorizer {
@@ -31,8 +37,28 @@ public class ViewPlayerCharacterAuthorizer implements OperationAuthorizer {
             return true;
         }
 
-        return reader.getOwnerUsername(characterId)
-                .map(ownerUsername -> ownerUsername.equals(principal.username()))
+        return reader.getVisibilityData(characterId)
+                .map(data -> isOwnerOrAdventureMember(data, principal))
                 .orElse(false);
+    }
+
+    private boolean isOwnerOrAdventureMember(
+            PlayerCharacterVisibilityData data,
+            MoiraiPrincipal principal) {
+
+        if (data.ownerUsername().equals(principal.username())) {
+            return true;
+        }
+
+        return data.registeredAdventurePermissions().stream()
+                .anyMatch(permissions -> admitsCaller(permissions, principal.publicId()));
+    }
+
+    private boolean admitsCaller(AssetPermissionsData permissions, UUID callerPublicId) {
+
+        return permissions.visibility() == Visibility.PUBLIC
+                || permissions.ownerId().equals(callerPublicId)
+                || permissions.writers().contains(callerPublicId)
+                || permissions.readers().contains(callerPublicId);
     }
 }

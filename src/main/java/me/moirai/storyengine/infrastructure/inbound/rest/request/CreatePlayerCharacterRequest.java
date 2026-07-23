@@ -9,5 +9,7 @@ public record CreatePlayerCharacterRequest(
         @NotEmpty(message = "cannot be null") @Moderated String name,
         @NotNull(message = "cannot be null") CharacterClass characterClass,
         @NotEmpty(message = "cannot be null") @Moderated String personality,
-        @NotEmpty(message = "cannot be null") @Moderated String physicalDescription) {
+        @NotEmpty(message = "cannot be null") @Moderated String physicalDescription,
+        Double uiImagePositionX,
+        Double uiImagePositionY) {
 }

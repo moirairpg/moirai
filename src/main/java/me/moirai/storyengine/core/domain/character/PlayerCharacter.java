@@ -2,6 +2,8 @@ package me.moirai.storyengine.core.domain.character;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.uuid.Generators;
@@ -14,7 +16,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import me.moirai.storyengine.common.domain.Asset;
+import me.moirai.storyengine.common.domain.DomainEvent;
 import me.moirai.storyengine.common.enums.CharacterClass;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 
@@ -48,6 +52,15 @@ public class PlayerCharacter extends Asset {
     @Column(name = "image_key")
     private String imageKey;
 
+    @Column(name = "ui_image_position_x")
+    private Double uiImagePositionX;
+
+    @Column(name = "ui_image_position_y")
+    private Double uiImagePositionY;
+
+    @Transient
+    private List<DomainEvent> domainEvents = new ArrayList<>();
+
     protected PlayerCharacter() {
         super();
     }
@@ -66,6 +79,16 @@ public class PlayerCharacter extends Asset {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public List<DomainEvent> drainEvents() {
+        var snapshot = List.copyOf(domainEvents);
+        domainEvents.clear();
+        return snapshot;
+    }
+
+    public void communicateCharacterDeleted() {
+        domainEvents.add(new PlayerCharacterDeletedEvent(this.id));
     }
 
     public Long getId() {
@@ -98,6 +121,14 @@ public class PlayerCharacter extends Asset {
 
     public String getImageKey() {
         return imageKey;
+    }
+
+    public Double getUiImagePositionX() {
+        return uiImagePositionX;
+    }
+
+    public Double getUiImagePositionY() {
+        return uiImagePositionY;
     }
 
     public void updateName(String name) {
@@ -138,6 +169,11 @@ public class PlayerCharacter extends Asset {
 
     public void updateImageKey(String imageKey) {
         this.imageKey = imageKey;
+    }
+
+    public void updateUiImagePosition(Double uiImagePositionX, Double uiImagePositionY) {
+        this.uiImagePositionX = uiImagePositionX;
+        this.uiImagePositionY = uiImagePositionY;
     }
 
     public String generateImageKey() {

@@ -1,5 +1,6 @@
 package me.moirai.storyengine.core.port.inbound;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -54,6 +55,7 @@ public class GetAdventureResultFixture {
                 contextAttributes,
                 permissions,
                 Set.of(),
+                List.of(),
                 null,
                 null);
     }
@@ -98,6 +100,7 @@ public class GetAdventureResultFixture {
                 contextAttributes,
                 permissions,
                 Set.of(),
+                List.of(),
                 null,
                 null);
     }

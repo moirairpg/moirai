@@ -37,10 +37,11 @@ public class EditMessageHandler extends AbstractCommandHandler<EditMessage, Void
 
     @Override
     public Void execute(EditMessage command) {
-        var characterName = adventureRepository.findByPublicId(command.adventureId())
-                .orElseThrow(() -> new NotFoundException("Adventure not found"))
-                .getLorebookEntryByPlayerId(command.username())
-                .map(e -> e.getName())
+        var adventure = adventureRepository.findByPublicId(command.adventureId())
+                .orElseThrow(() -> new NotFoundException("Adventure not found"));
+
+        var characterName = adventureRepository
+                .findEnrolledCharacterName(adventure.getId(), command.username())
                 .orElse(command.username());
 
         var prefixedContent = addChatPrefix(characterName).apply(command.content());

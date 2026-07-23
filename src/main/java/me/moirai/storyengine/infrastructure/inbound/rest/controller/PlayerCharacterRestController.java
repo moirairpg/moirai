@@ -1,6 +1,7 @@
 package me.moirai.storyengine.infrastructure.inbound.rest.controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,10 @@ import me.moirai.storyengine.common.enums.SortDirection;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.common.web.SecurityContextAware;
 import me.moirai.storyengine.core.port.inbound.ImageResult;
+import me.moirai.storyengine.core.port.inbound.adventure.CharacterAdventureSummary;
 import me.moirai.storyengine.core.port.inbound.character.CreatePlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.DeletePlayerCharacter;
+import me.moirai.storyengine.core.port.inbound.character.GetPlayerCharacterAdventures;
 import me.moirai.storyengine.core.port.inbound.character.GetPlayerCharacterById;
 import me.moirai.storyengine.core.port.inbound.character.PlayerCharacterDetails;
 import me.moirai.storyengine.core.port.inbound.character.PlayerCharacterSummary;
@@ -65,6 +68,13 @@ public class PlayerCharacterRestController extends SecurityContextAware {
         return queryRunner.run(new GetPlayerCharacterById(characterId));
     }
 
+    @GetMapping("/{characterId}/adventures")
+    @ResponseStatus(HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.VIEW_PLAYER_CHARACTER_ADVENTURES, fields = "#characterId")
+    public List<CharacterAdventureSummary> getAdventures(@PathVariable UUID characterId) {
+        return queryRunner.run(new GetPlayerCharacterAdventures(characterId));
+    }
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PaginatedResult<PlayerCharacterSummary> search(
@@ -95,6 +105,8 @@ public class PlayerCharacterRestController extends SecurityContextAware {
                 request.characterClass(),
                 request.personality(),
                 request.physicalDescription(),
+                request.uiImagePositionX(),
+                request.uiImagePositionY(),
                 getAuthenticatedUser().id()));
     }
 
@@ -110,7 +122,9 @@ public class PlayerCharacterRestController extends SecurityContextAware {
                 request.name(),
                 request.characterClass(),
                 request.personality(),
-                request.physicalDescription()));
+                request.physicalDescription(),
+                request.uiImagePositionX(),
+                request.uiImagePositionY()));
     }
 
     @DeleteMapping("/{characterId}")

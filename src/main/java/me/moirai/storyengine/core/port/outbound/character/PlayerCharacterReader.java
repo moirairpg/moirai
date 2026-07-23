@@ -8,4 +8,6 @@ public interface PlayerCharacterReader {
     Optional<PlayerCharacterDetailsRow> getById(UUID characterId);
 
     Optional<String> getOwnerUsername(UUID characterId);
+
+    Optional<PlayerCharacterVisibilityData> getVisibilityData(UUID characterId);
 }

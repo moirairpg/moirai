@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -42,6 +41,8 @@ import me.moirai.storyengine.common.util.Functions;
 @Entity
 @Table(name = "adventure")
 public class Adventure extends ShareableAsset {
+
+    public static final int MAX_ROSTER_SIZE = 5;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -96,8 +97,12 @@ public class Adventure extends ShareableAsset {
     private List<AdventureLorebookEntry> lorebook = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "adventure_id")
+    @JoinColumn(name = "adventure_id", nullable = false, insertable = false, updatable = false)
     private List<ChronicleSegment> chronicleSegments = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "adventure_id", nullable = false, insertable = false, updatable = false)
+    private List<AdventureMembership> roster = new ArrayList<>();
 
     @Transient
     private List<DomainEvent> domainEvents = new ArrayList<>();
@@ -227,6 +232,43 @@ public class Adventure extends ShareableAsset {
         return Collections.unmodifiableList(chronicleSegments);
     }
 
+    public List<AdventureMembership> getRoster() {
+        return Collections.unmodifiableList(roster);
+    }
+
+    public void enrollPlayerCharacter(Long playerCharacterId, Long playerId) {
+
+        if (roster.size() >= MAX_ROSTER_SIZE) {
+            throw new BusinessRuleViolationException("Adventure roster is full");
+        }
+
+        if (hasCharacter(playerCharacterId)) {
+            throw new BusinessRuleViolationException("Character is already registered in this adventure");
+        }
+
+        if (hasPlayer(playerId)) {
+            throw new BusinessRuleViolationException("Player already registered in this adventure");
+        }
+
+        roster.add(AdventureMembership.of(this.id, playerCharacterId, playerId));
+    }
+
+    public void unenrollPlayerCharacter(Long playerCharacterId) {
+        roster.removeIf(membership -> membership.getPlayerCharacterId().equals(playerCharacterId));
+    }
+
+    public boolean hasCharacter(Long playerCharacterId) {
+
+        return roster.stream()
+                .anyMatch(membership -> membership.getPlayerCharacterId().equals(playerCharacterId));
+    }
+
+    public boolean hasPlayer(Long playerId) {
+
+        return roster.stream()
+                .anyMatch(membership -> membership.getPlayerId().equals(playerId));
+    }
+
     public static Builder builder() {
 
         return new Builder();
@@ -313,34 +355,23 @@ public class Adventure extends ShareableAsset {
         this.contextAttributes = newContextAttributes;
     }
 
-    public AdventureLorebookEntry addLorebookEntry(String name, String description, String playerId) {
+    public AdventureLorebookEntry addLorebookEntry(String name, String description) {
 
         var entry = AdventureLorebookEntry.builder()
                 .name(name)
                 .description(description)
-                .playerId(playerId)
                 .build();
 
         lorebook.add(entry);
         return entry;
     }
 
-    public AdventureLorebookEntry updateLorebookEntry(
-            UUID entryId,
-            String name,
-            String description,
-            String playerId) {
+    public AdventureLorebookEntry updateLorebookEntry(UUID entryId, String name, String description) {
 
-        AdventureLorebookEntry entry = getLorebookEntryById(entryId);
+        var entry = getLorebookEntryById(entryId);
 
         entry.updateName(name);
         entry.updateDescription(description);
-
-        if (isBlank(playerId)) {
-            entry.unassignPlayer();
-        } else {
-            entry.assignPlayer(playerId);
-        }
 
         return entry;
     }
@@ -357,13 +388,6 @@ public class Adventure extends ShareableAsset {
                 .filter(e -> entryId.equals(e.getPublicId()))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Lorebook entry not found"));
-    }
-
-    public Optional<AdventureLorebookEntry> getLorebookEntryByPlayerId(String playerId) {
-
-        return lorebook.stream()
-                .filter(e -> playerId.equals(e.getPlayerId()))
-                .findFirst();
     }
 
     public ChronicleSegment addChronicleSegment(String content) {

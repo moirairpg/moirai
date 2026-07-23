@@ -1,5 +1,7 @@
 package me.moirai.storyengine.core.application.command.character;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -14,15 +16,18 @@ public class DeletePlayerCharacterHandler extends AbstractCommandHandler<DeleteP
     private final PlayerCharacterRepository repository;
     private final PlayerCharacterVectorSearchPort vectorSearchPort;
     private final StoragePort storagePort;
+    private final ApplicationEventPublisher eventPublisher;
 
     public DeletePlayerCharacterHandler(
             PlayerCharacterRepository repository,
             PlayerCharacterVectorSearchPort vectorSearchPort,
-            StoragePort storagePort) {
+            StoragePort storagePort,
+            ApplicationEventPublisher eventPublisher) {
 
         this.repository = repository;
         this.vectorSearchPort = vectorSearchPort;
         this.storagePort = storagePort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -33,6 +38,10 @@ public class DeletePlayerCharacterHandler extends AbstractCommandHandler<DeleteP
 
         storagePort.delete(character.getImageKey());
         vectorSearchPort.delete(character.getPublicId());
+
+        character.communicateCharacterDeleted();
+        character.drainEvents().forEach(eventPublisher::publishEvent);
+
         repository.deleteByPublicId(command.characterId());
 
         return null;

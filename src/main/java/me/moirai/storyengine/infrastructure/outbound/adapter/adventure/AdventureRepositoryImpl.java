@@ -1,5 +1,6 @@
 package me.moirai.storyengine.infrastructure.outbound.adapter.adventure;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -62,5 +63,23 @@ public class AdventureRepositoryImpl implements AdventureRepository {
     @Override
     public Optional<Adventure> findById(Long id) {
         return jpaRepository.findById(id);
+    }
+
+    @Override
+    public void removeCharacterFromAllRosters(Long playerCharacterId) {
+
+        jpaRepository.removeCharacterFromAllRosters(playerCharacterId);
+    }
+
+    @Override
+    public List<Long> findManagerUserIdsByAdventureId(Long adventureId) {
+
+        return jpaRepository.findManagerUserIdsByAdventureId(adventureId);
+    }
+
+    @Override
+    public Optional<String> findEnrolledCharacterName(Long adventureId, String username) {
+
+        return jpaRepository.findEnrolledCharacterName(adventureId, username);
     }
 }

@@ -8,8 +8,6 @@ public record AdventureLorebookEntryDetails(
         UUID adventureId,
         String name,
         String description,
-        String playerId,
-        boolean isPlayerCharacter,
         Instant creationDate,
         Instant lastUpdateDate) {
 }

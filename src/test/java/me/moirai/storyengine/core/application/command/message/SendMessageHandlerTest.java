@@ -174,7 +174,7 @@ public class SendMessageHandlerTest {
                 .build();
 
         var entryId = UUID.randomUUID();
-        var lorebookEntry = adventure.addLorebookEntry("Dragon", "A fearsome dragon", null);
+        var lorebookEntry = adventure.addLorebookEntry("Dragon", "A fearsome dragon");
         ReflectionTestUtils.setField(lorebookEntry, "publicId", entryId);
 
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
@@ -290,8 +290,6 @@ public class SendMessageHandlerTest {
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
-        adventure.addLorebookEntry("Aldric", "A brave warrior", "user");
-
         var savedMessage = MessageFixture.assistantMessage().build();
         ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
 
@@ -302,6 +300,7 @@ public class SendMessageHandlerTest {
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
 
         when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
+        when(adventureRepository.findEnrolledCharacterName(anyLong(), anyString())).thenReturn(Optional.of("Aldric"));
         when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
         when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
         when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());

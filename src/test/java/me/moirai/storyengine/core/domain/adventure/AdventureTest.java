@@ -454,4 +454,142 @@ public class AdventureTest {
         assertThat(adventure.getContextAttributes()).isNotEqualTo(originalContextAttributes);
         assertThat(adventure.getContextAttributes().authorsNote()).isEqualTo(newAuthorsNote);
     }
+
+    @Test
+    public void shouldEnrollPlayerCharacterWhenRosterHasSpace() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+
+        // when
+        adventure.enrollPlayerCharacter(1L, 10L);
+
+        // then
+        assertThat(adventure.getRoster())
+                .extracting(AdventureMembership::getPlayerCharacterId)
+                .containsExactly(1L);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenRosterIsFull() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+
+        for (var playerCharacterId = 1L; playerCharacterId <= Adventure.MAX_ROSTER_SIZE; playerCharacterId++) {
+            adventure.enrollPlayerCharacter(playerCharacterId, playerCharacterId + 100L);
+        }
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> adventure.enrollPlayerCharacter(99L, 999L));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenCharacterIsAlreadyEnrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> adventure.enrollPlayerCharacter(1L, 20L));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenPlayerAlreadyHasACharacterEnrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> adventure.enrollPlayerCharacter(2L, 10L));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenEnrollingIntoAnUnpersistedAdventure() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> adventure.enrollPlayerCharacter(1L, 10L));
+    }
+
+    @Test
+    public void shouldUnenrollPlayerCharacterWhenEnrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+        adventure.enrollPlayerCharacter(2L, 20L);
+
+        // when
+        adventure.unenrollPlayerCharacter(1L);
+
+        // then
+        assertThat(adventure.getRoster())
+                .extracting(AdventureMembership::getPlayerCharacterId)
+                .containsExactly(2L);
+    }
+
+    @Test
+    public void shouldLeaveRosterUntouchedWhenUnenrollingCharacterThatIsNotEnrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+
+        // when
+        adventure.unenrollPlayerCharacter(2L);
+
+        // then
+        assertThat(adventure.getRoster())
+                .extracting(AdventureMembership::getPlayerCharacterId)
+                .containsExactly(1L);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenCharacterIsEnrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+
+        // then
+        assertThat(adventure.hasCharacter(1L)).isTrue();
+    }
+
+    @Test
+    public void shouldReturnFalseWhenCharacterIsNotEnrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+
+        // then
+        assertThat(adventure.hasCharacter(2L)).isFalse();
+    }
+
+    @Test
+    public void shouldReturnTrueWhenPlayerHasACharacterEnrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+
+        // then
+        assertThat(adventure.hasPlayer(10L)).isTrue();
+    }
+
+    @Test
+    public void shouldReturnFalseWhenPlayerHasNoCharacterEnrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+
+        // then
+        assertThat(adventure.hasPlayer(20L)).isFalse();
+    }
 }

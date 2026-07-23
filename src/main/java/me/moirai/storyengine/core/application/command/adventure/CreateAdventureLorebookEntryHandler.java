@@ -59,8 +59,7 @@ public class CreateAdventureLorebookEntryHandler
 
         var lorebookEntry = adventure.addLorebookEntry(
                 command.name(),
-                command.description(),
-                command.playerId());
+                command.description());
 
         var savedAdventure = repository.save(adventure);
 
@@ -81,8 +80,6 @@ public class CreateAdventureLorebookEntryHandler
                 adventure.getPublicId(),
                 entry.getName(),
                 entry.getDescription(),
-                entry.getPlayerId(),
-                entry.isPlayerCharacter(),
                 entry.getCreationDate(),
                 entry.getLastUpdateDate());
     }

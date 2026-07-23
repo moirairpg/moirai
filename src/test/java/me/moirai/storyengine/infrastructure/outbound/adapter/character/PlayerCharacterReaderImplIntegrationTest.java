@@ -2,6 +2,8 @@ package me.moirai.storyengine.infrastructure.outbound.adapter.character;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -9,10 +11,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
+import me.moirai.storyengine.common.domain.Permission;
+import me.moirai.storyengine.common.enums.PermissionLevel;
+import me.moirai.storyengine.common.enums.Visibility;
+import me.moirai.storyengine.core.domain.adventure.Adventure;
+import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
 import me.moirai.storyengine.core.domain.userdetails.User;
 import me.moirai.storyengine.core.domain.userdetails.UserFixture;
+import me.moirai.storyengine.core.domain.world.World;
+import me.moirai.storyengine.core.domain.world.WorldFixture;
+import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterDetailsRow;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
 
@@ -21,9 +31,13 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
     @Autowired
     private PlayerCharacterReader reader;
 
+    private World world;
+
     @BeforeEach
     public void before() {
+
         clearDatabase();
+        world = insert(WorldFixture.publicWorld().build(), World.class);
     }
 
     @Test
@@ -44,6 +58,50 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
         assertThat(result).isPresent()
                 .get()
                 .extracting(PlayerCharacterDetailsRow::id).isEqualTo(character.getPublicId());
+    }
+
+    @Test
+    void shouldReturnImagePositionWhenCharacterExists() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var character = PlayerCharacterFixture.samplePlayerCharacter()
+                .playerId(owner.getId())
+                .build();
+
+        character.updateUiImagePosition(0.25, 0.75);
+
+        insert(character, PlayerCharacter.class);
+
+        // when
+        var result = reader.getById(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent().get().satisfies(row -> {
+            assertThat(row.uiImagePositionX()).isEqualTo(0.25);
+            assertThat(row.uiImagePositionY()).isEqualTo(0.75);
+        });
+    }
+
+    @Test
+    void shouldReturnNullImagePositionWhenCharacterHasNone() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var character = PlayerCharacterFixture.samplePlayerCharacter()
+                .playerId(owner.getId())
+                .build();
+
+        insert(character, PlayerCharacter.class);
+
+        // when
+        var result = reader.getById(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent().get().satisfies(row -> {
+            assertThat(row.uiImagePositionX()).isNull();
+            assertThat(row.uiImagePositionY()).isNull();
+        });
     }
 
     @Test
@@ -112,5 +170,188 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
 
         // then
         assertThat(result).isNotPresent();
+    }
+
+    @Test
+    void shouldReturnEmptyVisibilityDataWhenCharacterDoesNotExist() {
+
+        // when
+        var result = reader.getVisibilityData(UUID.randomUUID());
+
+        // then
+        assertThat(result).isNotPresent();
+    }
+
+    @Test
+    void shouldReturnOwnerWithoutPermissionsWhenCharacterIsRegisteredNowhere() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var character = insertCharacter(owner);
+
+        // when
+        var result = reader.getVisibilityData(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().ownerUsername()).isEqualTo(owner.getUsername());
+        assertThat(result.get().registeredAdventurePermissions()).isEmpty();
+    }
+
+    @Test
+    void shouldReturnAdventurePermissionsWhenRegisteredAdventureIsPublic() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var writer = insertUser("writer", "22222");
+        var readerUser = insertUser("reader", "33333");
+        var character = insertCharacter(owner);
+
+        insertAdventure(Visibility.PUBLIC, owner, writer, readerUser, character);
+
+        // when
+        var result = reader.getVisibilityData(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().registeredAdventurePermissions()).hasSize(1);
+
+        var permissions = result.get().registeredAdventurePermissions().getFirst();
+
+        assertThat(permissions.visibility()).isEqualTo(Visibility.PUBLIC);
+        assertThat(permissions.ownerId()).isEqualTo(owner.getPublicId());
+        assertThat(permissions.writers()).containsExactly(writer.getPublicId());
+        assertThat(permissions.readers()).containsExactly(readerUser.getPublicId());
+    }
+
+    @Test
+    void shouldReturnAdventurePermissionsWhenRegisteredAdventureIsPrivate() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var writer = insertUser("writer", "22222");
+        var readerUser = insertUser("reader", "33333");
+        var character = insertCharacter(owner);
+
+        insertAdventure(Visibility.PRIVATE, owner, writer, readerUser, character);
+
+        // when
+        var result = reader.getVisibilityData(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().registeredAdventurePermissions()).hasSize(1);
+
+        var permissions = result.get().registeredAdventurePermissions().getFirst();
+
+        assertThat(permissions.visibility()).isEqualTo(Visibility.PRIVATE);
+        assertThat(permissions.ownerId()).isEqualTo(owner.getPublicId());
+        assertThat(permissions.writers()).containsExactly(writer.getPublicId());
+        assertThat(permissions.readers()).containsExactly(readerUser.getPublicId());
+    }
+
+    @Test
+    void shouldReturnSeparateEntriesWhenCharacterIsRegisteredInSeveralAdventures() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var writer = insertUser("writer", "22222");
+        var readerUser = insertUser("reader", "33333");
+        var character = insertCharacter(owner);
+
+        insertAdventure(Visibility.PUBLIC, owner, writer, null, character);
+        insertAdventure(Visibility.PRIVATE, owner, null, readerUser, character);
+
+        // when
+        var result = reader.getVisibilityData(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().registeredAdventurePermissions()).hasSize(2);
+
+        var publicAdventure = permissionsWith(result.get().registeredAdventurePermissions(), Visibility.PUBLIC);
+        var privateAdventure = permissionsWith(result.get().registeredAdventurePermissions(), Visibility.PRIVATE);
+
+        assertThat(publicAdventure.writers()).containsExactly(writer.getPublicId());
+        assertThat(publicAdventure.readers()).isEmpty();
+        assertThat(privateAdventure.writers()).isEmpty();
+        assertThat(privateAdventure.readers()).containsExactly(readerUser.getPublicId());
+    }
+
+    @Test
+    void shouldReturnEmptyWriterAndReaderListsWhenAdventureOnlyHasAnOwner() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var character = insertCharacter(owner);
+
+        insertAdventure(Visibility.PRIVATE, owner, null, null, character);
+
+        // when
+        var result = reader.getVisibilityData(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().registeredAdventurePermissions()).hasSize(1);
+
+        var permissions = result.get().registeredAdventurePermissions().getFirst();
+
+        assertThat(permissions.ownerId()).isEqualTo(owner.getPublicId());
+        assertThat(permissions.writers()).isNotNull().isEmpty();
+        assertThat(permissions.readers()).isNotNull().isEmpty();
+    }
+
+    private AssetPermissionsData permissionsWith(List<AssetPermissionsData> permissions, Visibility visibility) {
+
+        return permissions.stream()
+                .filter(entry -> entry.visibility() == visibility)
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private User insertUser(String username, String discordId) {
+
+        return insert(UserFixture.player()
+                .username(username)
+                .discordId(discordId)
+                .build(), User.class);
+    }
+
+    private PlayerCharacter insertCharacter(User owner) {
+
+        return insert(PlayerCharacterFixture.samplePlayerCharacter()
+                .playerId(owner.getId())
+                .build(), PlayerCharacter.class);
+    }
+
+    private Adventure insertAdventure(
+            Visibility visibility,
+            User owner,
+            User writer,
+            User reader,
+            PlayerCharacter character) {
+
+        var permissions = new ArrayList<Permission>();
+        permissions.add(new Permission(owner.getId(), PermissionLevel.OWNER));
+
+        if (writer != null) {
+            permissions.add(new Permission(writer.getId(), PermissionLevel.WRITE));
+        }
+
+        if (reader != null) {
+            permissions.add(new Permission(reader.getId(), PermissionLevel.READ));
+        }
+
+        var adventure = insert(AdventureFixture.publicSingleplayerAdventure()
+                .worldId(world.getPublicId())
+                .visibility(visibility)
+                .permissions(permissions.toArray(Permission[]::new))
+                .build(), Adventure.class);
+
+        adventure.enrollPlayerCharacter(character.getId(), character.getPlayerId());
+
+        update(adventure, adventure.getId(), Adventure.class);
+
+        return adventure;
     }
 }

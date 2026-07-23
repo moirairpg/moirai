@@ -8,6 +8,8 @@ public record CreatePlayerCharacter(
         CharacterClass characterClass,
         String personality,
         String physicalDescription,
+        Double uiImagePositionX,
+        Double uiImagePositionY,
         Long requesterId)
         implements Command<PlayerCharacterDetails> {
 }

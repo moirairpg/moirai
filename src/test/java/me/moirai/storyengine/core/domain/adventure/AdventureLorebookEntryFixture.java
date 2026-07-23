@@ -18,16 +18,6 @@ public class AdventureLorebookEntryFixture {
         return builder;
     }
 
-    public static AdventureLorebookEntry.Builder samplePlayerCharacterLorebookEntry() {
-
-        AdventureLorebookEntry.Builder builder = AdventureLorebookEntry.builder();
-        builder.name("Volin Habar");
-        builder.description("Volin Habar is a warrior that fights with a sword.");
-        builder.playerId("2423423423423");
-
-        return builder;
-    }
-
     public static AdventureLorebookEntry sampleLorebookEntryWithId() {
 
         AdventureLorebookEntry entry = sampleLorebookEntry().build();
