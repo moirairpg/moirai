@@ -55,4 +55,6 @@ public interface AdventureJpaRepository
                AND u.username      = :username
             """, nativeQuery = true)
     Optional<String> findEnrolledCharacterName(Long adventureId, String username);
+
+    Optional<Adventure> findByInvitationsPublicId(UUID publicId);
 }

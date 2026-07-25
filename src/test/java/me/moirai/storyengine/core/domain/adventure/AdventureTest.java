@@ -15,7 +15,9 @@ import me.moirai.storyengine.common.enums.ArtificialIntelligenceModel;
 import me.moirai.storyengine.common.enums.Moderation;
 import me.moirai.storyengine.common.enums.PermissionLevel;
 import me.moirai.storyengine.common.enums.Visibility;
+import me.moirai.storyengine.common.enums.InvitationStatus;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
+import me.moirai.storyengine.common.exception.NotFoundException;
 
 public class AdventureTest {
 
@@ -591,5 +593,113 @@ public class AdventureTest {
 
         // then
         assertThat(adventure.hasPlayer(20L)).isFalse();
+    }
+
+    @Test
+    public void shouldInviteUserAndRaiseEvent() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+
+        // when
+        var invitation = adventure.invite(10L);
+
+        // then
+        assertThat(adventure.getInvitations()).hasSize(1);
+        assertThat(invitation.getUserId()).isEqualTo(10L);
+        assertThat(invitation.isPending()).isTrue();
+        assertThat(adventure.drainEvents())
+                .anyMatch(UserInvitedToAdventureEvent.class::isInstance);
+    }
+
+    @Test
+    public void shouldThrowWhenInvitingAUserWithAPendingInvitation() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.invite(10L);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> adventure.invite(10L));
+    }
+
+    @Test
+    public void shouldAllowReinvitingAfterDecline() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var invitation = adventure.invite(10L);
+        adventure.declineInvitation(invitation.getPublicId());
+
+        // when
+        var reinvitation = adventure.invite(10L);
+
+        // then
+        assertThat(reinvitation.isPending()).isTrue();
+    }
+
+    @Test
+    public void shouldAcceptInvitationEnrollTheCharacterAndRaiseAnsweredEvent() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var invitation = adventure.invite(10L);
+        adventure.drainEvents();
+
+        // when
+        adventure.acceptInvitation(invitation.getPublicId(), 1L, 10L);
+
+        // then
+        assertThat(invitation.getStatus()).isEqualTo(InvitationStatus.ACCEPTED);
+        assertThat(adventure.hasCharacter(1L)).isTrue();
+        assertThat(adventure.drainEvents())
+                .anyMatch(AdventureInvitationAnsweredEvent.class::isInstance);
+    }
+
+    @Test
+    public void shouldDeclineInvitationWithoutEnrollingAndRaiseAnsweredEvent() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var invitation = adventure.invite(10L);
+        adventure.drainEvents();
+
+        // when
+        adventure.declineInvitation(invitation.getPublicId());
+
+        // then
+        assertThat(invitation.getStatus()).isEqualTo(InvitationStatus.DECLINED);
+        assertThat(adventure.getRoster()).isEmpty();
+        assertThat(adventure.drainEvents())
+                .anyMatch(AdventureInvitationAnsweredEvent.class::isInstance);
+    }
+
+    @Test
+    public void shouldThrowWhenAnsweringAnUnknownInvitation() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+
+        // then
+        assertThrows(NotFoundException.class,
+                () -> adventure.declineInvitation(java.util.UUID.randomUUID()));
+    }
+
+    @Test
+    public void shouldNotTouchInvitationWhenRosterIsFullOnAccept() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        for (var i = 1L; i <= Adventure.MAX_ROSTER_SIZE; i++) {
+            adventure.enrollPlayerCharacter(i, i + 100L);
+        }
+        var invitation = adventure.invite(10L);
+        adventure.drainEvents();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> adventure.acceptInvitation(invitation.getPublicId(), 99L, 10L));
+        assertThat(invitation.isPending()).isTrue();
+        assertThat(adventure.drainEvents()).isEmpty();
     }
 }

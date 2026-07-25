@@ -82,4 +82,10 @@ public class AdventureRepositoryImpl implements AdventureRepository {
 
         return jpaRepository.findEnrolledCharacterName(adventureId, username);
     }
+
+    @Override
+    public Optional<Adventure> findByInvitationPublicId(UUID invitationPublicId) {
+
+        return jpaRepository.findByInvitationsPublicId(invitationPublicId);
+    }
 }

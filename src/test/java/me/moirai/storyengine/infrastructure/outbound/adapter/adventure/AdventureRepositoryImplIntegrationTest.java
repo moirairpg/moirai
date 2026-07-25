@@ -294,6 +294,36 @@ public class AdventureRepositoryImplIntegrationTest extends AbstractDatabaseInte
         return insert(adventure, Adventure.class);
     }
 
+    @Test
+    public void shouldFindAdventureByInvitationPublicId() {
+
+        // given
+        var recipient = insertUser("55555", "invitee");
+        var adventure = insert(AdventureFixture.publicSingleplayerAdventure()
+                .worldId(world.getPublicId())
+                .build(), Adventure.class);
+        var invitation = adventure.invite(recipient.getId());
+        invitation.setCreationDate(java.time.Instant.now());
+        update(adventure, adventure.getId(), Adventure.class);
+
+        // when
+        var result = repository.findByInvitationPublicId(invitation.getPublicId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().getPublicId()).isEqualTo(adventure.getPublicId());
+    }
+
+    @Test
+    public void shouldReturnEmptyWhenInvitationPublicIdIsUnknown() {
+
+        // when
+        var result = repository.findByInvitationPublicId(java.util.UUID.randomUUID());
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
     private List<String> chronicleSegmentsOf(Adventure adventure) {
 
         return jdbcClient.sql("SELECT content FROM chronicle_segment WHERE adventure_id = :adventureId")

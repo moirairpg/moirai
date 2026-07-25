@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,14 +22,19 @@ import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.common.util.Functions;
 import me.moirai.storyengine.common.util.StringProcessor;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
+import me.moirai.storyengine.core.domain.adventure.AdventureMembership;
+import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.port.inbound.message.MessageResult;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.adventure.ChronicleVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.adventure.LorebookVectorSearchPort;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterRepository;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.generation.ChatMessage;
 import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
@@ -44,10 +50,13 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
     private final EmbeddingPort embeddingPort;
     private final LorebookVectorSearchPort vectorSearchPort;
     private final ChronicleVectorSearchPort chronicleVectorSearchPort;
+    private final PlayerCharacterRepository playerCharacterRepository;
+    private final PlayerCharacterVectorSearchPort playerCharacterVectorSearchPort;
     private final ApplicationEventPublisher eventPublisher;
     private final int messageWindowSize;
     private final int lorebookTopK;
     private final int chronicleTopK;
+    private final int playerCharacterTopK;
 
     public SendMessageHandler(
             AdventureRepository adventureRepository,
@@ -56,10 +65,13 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
             EmbeddingPort embeddingPort,
             LorebookVectorSearchPort vectorSearchPort,
             ChronicleVectorSearchPort chronicleVectorSearchPort,
+            PlayerCharacterRepository playerCharacterRepository,
+            PlayerCharacterVectorSearchPort playerCharacterVectorSearchPort,
             ApplicationEventPublisher eventPublisher,
             @Value("${moirai.adventure.message-window-size}") int messageWindowSize,
             @Value("${moirai.rag.lorebook.top-k}") int lorebookTopK,
-            @Value("${moirai.rag.chronicle.top-k}") int chronicleTopK) {
+            @Value("${moirai.rag.chronicle.top-k}") int chronicleTopK,
+            @Value("${moirai.rag.player-character.top-k}") int playerCharacterTopK) {
 
         this.adventureRepository = adventureRepository;
         this.messageRepository = messageRepository;
@@ -67,10 +79,13 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
         this.embeddingPort = embeddingPort;
         this.vectorSearchPort = vectorSearchPort;
         this.chronicleVectorSearchPort = chronicleVectorSearchPort;
+        this.playerCharacterRepository = playerCharacterRepository;
+        this.playerCharacterVectorSearchPort = playerCharacterVectorSearchPort;
         this.eventPublisher = eventPublisher;
         this.messageWindowSize = messageWindowSize;
         this.lorebookTopK = lorebookTopK;
         this.chronicleTopK = chronicleTopK;
+        this.playerCharacterTopK = playerCharacterTopK;
     }
 
     @Override
@@ -173,6 +188,7 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
 
         context.addAll(retrieveLorebookContext(adventure, queryVector));
         context.addAll(retrieveChronicleContext(adventure, queryVector));
+        context.addAll(retrievePlayerCharacterContext(adventure, queryVector));
 
         context.addAll(interleaveBumps(
                 history.stream().map(this::toChatMessage).toList(),
@@ -235,6 +251,43 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
                 .filter(s -> segmentIds.contains(s.getPublicId()))
                 .map(s -> ChatMessage.asSystem(s.getContent()))
                 .toList();
+    }
+
+    private List<ChatMessage> retrievePlayerCharacterContext(Adventure adventure, float[] queryVector) {
+
+        var rosterCharacterIds = adventure.getRoster().stream()
+                .map(AdventureMembership::getPlayerCharacterId)
+                .toList();
+
+        if (rosterCharacterIds.isEmpty()) {
+            return List.of();
+        }
+
+        var candidates = playerCharacterRepository.findAllByIdIn(rosterCharacterIds);
+
+        if (candidates.isEmpty()) {
+            return List.of();
+        }
+
+        var candidatePublicIds = candidates.stream()
+                .map(PlayerCharacter::getPublicId)
+                .toList();
+
+        var matched = playerCharacterVectorSearchPort.search(candidatePublicIds, queryVector, playerCharacterTopK);
+        var matchedSet = Set.copyOf(matched);
+
+        return candidates.stream()
+                .filter(character -> matchedSet.contains(character.getPublicId()))
+                .map(character -> ChatMessage.asSystem(buildCharacterSystemMessage(character)))
+                .toList();
+    }
+
+    private String buildCharacterSystemMessage(PlayerCharacter character) {
+
+        var characterClass = Functions.mapOrDefault(character.getCharacterClass(), "", c -> c.name() + "; ");
+
+        return character.getName() + ": " + characterClass
+                + character.getPersonality() + "; " + character.getPhysicalDescription();
     }
 
     private List<ChatMessage> interleaveBumps(

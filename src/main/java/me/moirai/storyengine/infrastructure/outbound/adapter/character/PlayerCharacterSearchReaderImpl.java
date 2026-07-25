@@ -1,5 +1,6 @@
 package me.moirai.storyengine.infrastructure.outbound.adapter.character;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.jdbc.core.RowMapper;
@@ -27,6 +28,20 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
                     pc.image_key
                FROM player_character pc
                JOIN moirai_user owner ON owner.id = pc.player_id
+            """;
+
+    private static final String LIST_BY_NAME_SQL = """
+            SELECT  pc.public_id,
+                    owner.username AS owner_username,
+                    pc.name,
+                    pc.character_class,
+                    pc.image_key
+               FROM player_character pc
+               JOIN moirai_user owner
+                 ON owner.id = pc.player_id
+              WHERE pc.player_id = :requesterId
+                AND pc.name ILIKE :namePattern
+              ORDER BY pc.name
             """;
 
     private final JdbcClient jdbcClient;
@@ -65,6 +80,18 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
                 .single();
 
         return PaginatedResult.of(data, totalItems, pq.page(), pq.size());
+    }
+
+    @Override
+    public List<PlayerCharacterSummaryRow> listByName(String name, Long requesterId) {
+
+        var namePattern = "%" + (name == null ? "" : name) + "%";
+
+        return jdbcClient.sql(LIST_BY_NAME_SQL)
+                .param("requesterId", requesterId)
+                .param("namePattern", namePattern)
+                .query(toPlayerCharacterSummaryRow())
+                .list();
     }
 
     private String resolveSortingField(PlayerCharacterSortField field) {

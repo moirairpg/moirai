@@ -36,6 +36,8 @@ import me.moirai.storyengine.core.port.inbound.message.Retry;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.adventure.ChronicleVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.adventure.LorebookVectorSearchPort;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterRepository;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextGenerationRequest;
@@ -64,6 +66,12 @@ public class RetryHandlerTest {
     private ChronicleVectorSearchPort chronicleVectorSearchPort;
 
     @Mock
+    private PlayerCharacterRepository playerCharacterRepository;
+
+    @Mock
+    private PlayerCharacterVectorSearchPort playerCharacterVectorSearchPort;
+
+    @Mock
     private ApplicationEventPublisher eventPublisher;
 
     private RetryHandler handler;
@@ -79,10 +87,13 @@ public class RetryHandlerTest {
                 embeddingPort,
                 vectorSearchPort,
                 chronicleVectorSearchPort,
+                playerCharacterRepository,
+                playerCharacterVectorSearchPort,
                 eventPublisher,
                 10,
                 5,
-                3);
+                3,
+                5);
     }
 
     @Test

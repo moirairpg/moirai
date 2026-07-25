@@ -30,8 +30,16 @@ import me.moirai.storyengine.common.dto.CursorResult;
 import me.moirai.storyengine.common.dto.PaginatedResult;
 import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.core.port.inbound.ImageResult;
+import me.moirai.storyengine.core.port.inbound.adventure.DeclineAdventureInvitation;
+import me.moirai.storyengine.core.port.inbound.adventure.GetPendingAdventureInvitation;
+import me.moirai.storyengine.core.port.inbound.adventure.InviteUserToAdventure;
+import me.moirai.storyengine.core.port.inbound.adventure.InviteUserToAdventureResult;
+import me.moirai.storyengine.core.port.inbound.adventure.JoinAdventureWithCharacter;
+import me.moirai.storyengine.core.port.inbound.adventure.PendingAdventureInvitationDetails;
 import me.moirai.storyengine.core.port.inbound.adventure.RemoveAdventureImage;
 import me.moirai.storyengine.core.port.inbound.adventure.UploadAdventureImage;
+import me.moirai.storyengine.infrastructure.inbound.rest.request.InviteUserToAdventureRequest;
+import me.moirai.storyengine.infrastructure.inbound.rest.request.JoinAdventureWithCharacterRequest;
 import me.moirai.storyengine.infrastructure.inbound.rest.request.UploadImageRequest;
 import me.moirai.storyengine.common.enums.SearchView;
 import me.moirai.storyengine.common.enums.SortDirection;
@@ -381,6 +389,46 @@ public class AdventureRestController extends SecurityContextAware {
     @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
     public void removeAdventureImage(@PathVariable UUID adventureId) {
         commandRunner.run(new RemoveAdventureImage(adventureId));
+    }
+
+    @PostMapping("/{adventureId}/invitations")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.INVITE_TO_ADVENTURE, fields = "#adventureId")
+    public InviteUserToAdventureResult invite(
+            @PathVariable(required = true) UUID adventureId,
+            @Valid @RequestBody InviteUserToAdventureRequest request) {
+
+        return commandRunner.run(new InviteUserToAdventure(adventureId, request.usernames()));
+    }
+
+    @GetMapping("/{adventureId}/invitation")
+    @ResponseStatus(code = HttpStatus.OK)
+    public PendingAdventureInvitationDetails getPendingInvitation(
+            @PathVariable(required = true) UUID adventureId) {
+
+        return queryRunner.run(new GetPendingAdventureInvitation(
+                adventureId,
+                getAuthenticatedUser().username()));
+    }
+
+    @PostMapping("/invitations/{invitationId}/join")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.RESPOND_TO_ADVENTURE_INVITATION, fields = "#invitationId")
+    public void join(
+            @PathVariable(required = true) UUID invitationId,
+            @Valid @RequestBody JoinAdventureWithCharacterRequest request) {
+
+        commandRunner.run(new JoinAdventureWithCharacter(
+                invitationId,
+                request.playerCharacterId(),
+                getAuthenticatedUser().id()));
+    }
+
+    @PostMapping("/invitations/{invitationId}/decline")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.RESPOND_TO_ADVENTURE_INVITATION, fields = "#invitationId")
+    public void decline(@PathVariable(required = true) UUID invitationId) {
+        commandRunner.run(new DeclineAdventureInvitation(invitationId));
     }
 
     private String extractExtension(String filename) {

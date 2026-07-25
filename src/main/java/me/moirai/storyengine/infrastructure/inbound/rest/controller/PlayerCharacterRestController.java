@@ -35,6 +35,7 @@ import me.moirai.storyengine.core.port.inbound.character.CreatePlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.DeletePlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.GetPlayerCharacterAdventures;
 import me.moirai.storyengine.core.port.inbound.character.GetPlayerCharacterById;
+import me.moirai.storyengine.core.port.inbound.character.ListPlayerCharactersByName;
 import me.moirai.storyengine.core.port.inbound.character.PlayerCharacterDetails;
 import me.moirai.storyengine.core.port.inbound.character.PlayerCharacterSummary;
 import me.moirai.storyengine.core.port.inbound.character.RemovePlayerCharacterImage;
@@ -73,6 +74,14 @@ public class PlayerCharacterRestController extends SecurityContextAware {
     @Authorize(operation = AuthorizationOperation.VIEW_PLAYER_CHARACTER_ADVENTURES, fields = "#characterId")
     public List<CharacterAdventureSummary> getAdventures(@PathVariable UUID characterId) {
         return queryRunner.run(new GetPlayerCharacterAdventures(characterId));
+    }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<PlayerCharacterSummary> searchByName(
+            @RequestParam(name = "name", required = false) String name) {
+
+        return queryRunner.run(new ListPlayerCharactersByName(name, getAuthenticatedUser().id()));
     }
 
     @GetMapping

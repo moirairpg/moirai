@@ -29,4 +29,6 @@ public interface AdventureRepository {
     List<Long> findManagerUserIdsByAdventureId(Long adventureId);
 
     Optional<String> findEnrolledCharacterName(Long adventureId, String username);
+
+    Optional<Adventure> findByInvitationPublicId(UUID invitationPublicId);
 }

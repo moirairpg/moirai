@@ -343,6 +343,57 @@ public class PlayerCharacterSearchReaderImplIntegrationTest extends AbstractData
                 .containsExactly("Alpha", "Charlie", "Bravo");
     }
 
+    @Test
+    void shouldListOwnedCharactersMatchingNameIgnoringCaseSortedByName() {
+
+        // given
+        var user = insert(UserFixture.player().build(), User.class);
+        insertNamed("Volin Habar", CharacterClass.PALADIN, null, user);
+        insertNamed("Conan the Barbarian", CharacterClass.BARBARIAN, null, user);
+        insertNamed("Volgar the Mage", CharacterClass.MAGE, null, user);
+
+        // when
+        var result = reader.listByName("VOL", user.getId());
+
+        // then
+        assertThat(result).extracting(PlayerCharacterSummaryRow::name)
+                .containsExactly("Volgar the Mage", "Volin Habar");
+    }
+
+    @Test
+    void shouldListAllOwnedCharactersWhenNameIsNull() {
+
+        // given
+        var user = insert(UserFixture.player().build(), User.class);
+        insertSameNameCharacters(3, user);
+
+        // when
+        var result = reader.listByName(null, user.getId());
+
+        // then
+        assertThat(result).hasSize(3);
+    }
+
+    @Test
+    void shouldExcludeCharactersOwnedByOthersWhenListingByName() {
+
+        // given
+        var user = insert(UserFixture.player()
+                .username("joao.das.couves")
+                .discordId(String.valueOf(123L))
+                .build(), User.class);
+
+        insertSameNameCharacters(2, user);
+        insertSameNameCharacters(3, null);
+
+        // when
+        var result = reader.listByName("Conan", user.getId());
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).ownerUsername()).isEqualTo("joao.das.couves");
+    }
+
     private void insertSameNameCharacters(int amountOfResults, User owner) {
 
         var resolvedOwner = owner != null ? owner : insert(UserFixture.player().build(), User.class);

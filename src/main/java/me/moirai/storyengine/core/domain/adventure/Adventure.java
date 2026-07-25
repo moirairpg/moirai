@@ -32,6 +32,7 @@ import me.moirai.storyengine.common.domain.Narrator;
 import me.moirai.storyengine.common.domain.Permission;
 import me.moirai.storyengine.common.domain.ShareableAsset;
 import me.moirai.storyengine.common.enums.ArtificialIntelligenceModel;
+import me.moirai.storyengine.common.enums.InvitationStatus;
 import me.moirai.storyengine.common.enums.Moderation;
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
@@ -103,6 +104,10 @@ public class Adventure extends ShareableAsset {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "adventure_id", nullable = false, insertable = false, updatable = false)
     private List<AdventureMembership> roster = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "adventure_id", nullable = false, insertable = false, updatable = false)
+    private List<Invitation> invitations = new ArrayList<>();
 
     @Transient
     private List<DomainEvent> domainEvents = new ArrayList<>();
@@ -267,6 +272,59 @@ public class Adventure extends ShareableAsset {
 
         return roster.stream()
                 .anyMatch(membership -> membership.getPlayerId().equals(playerId));
+    }
+
+    public List<Invitation> getInvitations() {
+        return Collections.unmodifiableList(invitations);
+    }
+
+    public Invitation invite(Long userId) {
+
+        var alreadyInvited = invitations.stream()
+                .anyMatch(invitation -> invitation.getUserId().equals(userId) && invitation.isPending());
+
+        if (alreadyInvited) {
+            throw new BusinessRuleViolationException("User already has a pending invitation for this adventure");
+        }
+
+        var invitation = Invitation.builder()
+                .adventureId(this.id)
+                .userId(userId)
+                .build();
+
+        invitations.add(invitation);
+        domainEvents.add(new UserInvitedToAdventureEvent(invitation.getPublicId()));
+
+        return invitation;
+    }
+
+    public void acceptInvitation(UUID invitationPublicId, Long playerCharacterId, Long playerId) {
+
+        var invitation = getInvitationByPublicId(invitationPublicId);
+
+        enrollPlayerCharacter(playerCharacterId, playerId);
+        invitation.accept();
+
+        domainEvents.add(new AdventureInvitationAnsweredEvent(
+                this.id, this.publicId, this.name, invitation.getUserId(), InvitationStatus.ACCEPTED));
+    }
+
+    public void declineInvitation(UUID invitationPublicId) {
+
+        var invitation = getInvitationByPublicId(invitationPublicId);
+
+        invitation.decline();
+
+        domainEvents.add(new AdventureInvitationAnsweredEvent(
+                this.id, this.publicId, this.name, invitation.getUserId(), InvitationStatus.DECLINED));
+    }
+
+    private Invitation getInvitationByPublicId(UUID invitationPublicId) {
+
+        return invitations.stream()
+                .filter(invitation -> invitationPublicId.equals(invitation.getPublicId()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Invitation not found"));
     }
 
     public static Builder builder() {
