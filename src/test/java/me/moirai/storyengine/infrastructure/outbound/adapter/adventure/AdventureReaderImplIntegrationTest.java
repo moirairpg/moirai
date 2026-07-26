@@ -10,8 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
+import me.moirai.storyengine.common.domain.Permission;
+import me.moirai.storyengine.common.dto.PermissionDto;
+import me.moirai.storyengine.common.enums.PermissionLevel;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
+import me.moirai.storyengine.core.domain.userdetails.User;
+import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureDetailsRow;
@@ -78,6 +83,31 @@ public class AdventureReaderImplIntegrationTest extends AbstractDatabaseIntegrat
         assertThat(result.get().contextAttributes().bumpFrequency()).isEqualTo(1);
         assertThat(result.get().uiImagePositionX()).isNull();
         assertThat(result.get().uiImagePositionY()).isNull();
+    }
+
+    @Test
+    public void getAdventureById_returnsPermissionsKeyedByUserPublicId() {
+
+        // Given
+        var user = insert(UserFixture.player().build(), User.class);
+        var world = insert(WorldFixture.publicWorld().build(), World.class);
+        var adventure = AdventureFixture.privateMultiplayerAdventure()
+                .worldId(world.getPublicId())
+                .permissions(new Permission(user.getId(), PermissionLevel.OWNER))
+                .build();
+
+        insert(adventure, Adventure.class);
+
+        // When
+        var result = reader.getAdventureById(adventure.getPublicId());
+
+        // Then
+        assertThat(result).isNotEmpty();
+        assertThat(result.get().permissions())
+                .extracting(PermissionDto::userId)
+                .containsExactly(user.getPublicId());
+        assertThat(result.get().permissions())
+                .noneMatch(permission -> permission.userId().equals(adventure.getPublicId()));
     }
 
     @Test

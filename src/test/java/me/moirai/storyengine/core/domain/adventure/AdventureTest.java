@@ -552,6 +552,70 @@ public class AdventureTest {
     }
 
     @Test
+    public void shouldEmitEventWhenPlayerCharacterIsUnenrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+        adventure.drainEvents();
+
+        // when
+        adventure.unenrollPlayerCharacter(1L);
+
+        // then
+        assertThat(adventure.drainEvents())
+                .anyMatch(PlayerRemovedFromAdventureEvent.class::isInstance);
+    }
+
+    @Test
+    public void shouldNotEmitEventWhenUnenrollingCharacterThatIsNotEnrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+        adventure.drainEvents();
+
+        // when
+        adventure.unenrollPlayerCharacter(2L);
+
+        // then
+        assertThat(adventure.drainEvents())
+                .noneMatch(PlayerRemovedFromAdventureEvent.class::isInstance);
+    }
+
+    @Test
+    public void shouldRevokeReadAccessWhenAnEnrolledReaderIsUnenrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var invitation = adventure.invite(10L);
+        adventure.acceptInvitation(invitation.getPublicId(), 1L, 10L);
+        adventure.drainEvents();
+
+        // when
+        adventure.unenrollPlayerCharacter(1L);
+
+        // then
+        assertThat(adventure.canRead(10L)).isFalse();
+    }
+
+    @Test
+    public void shouldKeepWriteAccessWhenAWriterIsUnenrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.grant(new Permission(10L, PermissionLevel.WRITE));
+        adventure.enrollPlayerCharacter(1L, 10L);
+        adventure.drainEvents();
+
+        // when
+        adventure.unenrollPlayerCharacter(1L);
+
+        // then
+        assertThat(adventure.canWrite(10L)).isTrue();
+    }
+
+    @Test
     public void shouldReturnTrueWhenCharacterIsEnrolled() {
 
         // given
@@ -652,8 +716,25 @@ public class AdventureTest {
         // then
         assertThat(invitation.getStatus()).isEqualTo(InvitationStatus.ACCEPTED);
         assertThat(adventure.hasCharacter(1L)).isTrue();
+        assertThat(adventure.canRead(10L)).isTrue();
         assertThat(adventure.drainEvents())
                 .anyMatch(AdventureInvitationAnsweredEvent.class::isInstance);
+    }
+
+    @Test
+    public void shouldNotDowngradeAnExistingWriterWhenAcceptingAnInvitation() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.grant(new Permission(10L, PermissionLevel.WRITE));
+        var invitation = adventure.invite(10L);
+        adventure.drainEvents();
+
+        // when
+        adventure.acceptInvitation(invitation.getPublicId(), 1L, 10L);
+
+        // then
+        assertThat(adventure.canWrite(10L)).isTrue();
     }
 
     @Test

@@ -65,10 +65,10 @@ public class AdventureReaderImpl implements AdventureReader {
           """;
 
     private static final String SELECT_PERMISSIONS = """
-            SELECT a.public_id,
+            SELECT mu.public_id,
                    ap.permission
               FROM adventure_permissions ap
-                   INNER JOIN adventure a ON ap.adventure_id = a.id
+                   INNER JOIN moirai_user mu ON mu.id = ap.user_id
              WHERE ap.adventure_id = :adventureId
             """;
     //@formatter:on

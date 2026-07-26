@@ -22,15 +22,15 @@ import org.springframework.test.util.ReflectionTestUtils;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
-import me.moirai.storyengine.core.domain.adventure.AdventureInvitationAnsweredEvent;
+import me.moirai.storyengine.core.domain.adventure.PlayerRemovedFromAdventureEvent;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
-import me.moirai.storyengine.core.port.inbound.adventure.JoinAdventureWithCharacter;
+import me.moirai.storyengine.core.port.inbound.adventure.RemoveCharacterFromAdventure;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class JoinAdventureWithCharacterHandlerTest {
+public class RemoveCharacterFromAdventureHandlerTest {
 
     private static final Long REQUESTER_ID = 10L;
 
@@ -44,7 +44,7 @@ public class JoinAdventureWithCharacterHandlerTest {
     private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
-    private JoinAdventureWithCharacterHandler handler;
+    private RemoveCharacterFromAdventureHandler handler;
 
     private PlayerCharacter characterOwnedBy(Long playerId, Long id) {
         var character = PlayerCharacterFixture.samplePlayerCharacter().playerId(playerId).build();
@@ -53,17 +53,18 @@ public class JoinAdventureWithCharacterHandlerTest {
     }
 
     @Test
-    public void shouldAcceptSaveAndPublishInOrder() {
+    public void shouldRemoveSaveAndPublishInOrder() {
 
         // given
         var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var invitation = adventure.invite(REQUESTER_ID);
+        var character = characterOwnedBy(REQUESTER_ID, 1L);
+        adventure.enrollPlayerCharacter(character.getId(), REQUESTER_ID);
         adventure.drainEvents();
 
-        var character = characterOwnedBy(REQUESTER_ID, 1L);
-        var command = new JoinAdventureWithCharacter(invitation.getPublicId(), character.getPublicId(), REQUESTER_ID);
+        var command = new RemoveCharacterFromAdventure(
+                adventure.getPublicId(), character.getPublicId(), REQUESTER_ID);
 
-        when(adventureRepository.findByInvitationPublicId(any())).thenReturn(Optional.of(adventure));
+        when(adventureRepository.findByPublicId(any())).thenReturn(Optional.of(adventure));
         when(playerCharacterRepository.findByPublicId(any())).thenReturn(Optional.of(character));
 
         // when
@@ -72,16 +73,32 @@ public class JoinAdventureWithCharacterHandlerTest {
         // then
         InOrder inOrder = inOrder(adventureRepository, eventPublisher);
         inOrder.verify(adventureRepository).save(adventure);
-        inOrder.verify(eventPublisher).publishEvent(any(AdventureInvitationAnsweredEvent.class));
+        inOrder.verify(eventPublisher).publishEvent(any(PlayerRemovedFromAdventureEvent.class));
     }
 
     @Test
-    public void shouldThrowWhenInvitationIsMissing() {
+    public void shouldThrowWhenAdventureIsMissing() {
 
         // given
-        var command = new JoinAdventureWithCharacter(UUID.randomUUID(), UUID.randomUUID(), REQUESTER_ID);
+        var command = new RemoveCharacterFromAdventure(UUID.randomUUID(), UUID.randomUUID(), REQUESTER_ID);
 
-        when(adventureRepository.findByInvitationPublicId(any())).thenReturn(Optional.empty());
+        when(adventureRepository.findByPublicId(any())).thenReturn(Optional.empty());
+
+        // then
+        assertThatThrownBy(() -> handler.execute(command)).isInstanceOf(NotFoundException.class);
+        verify(adventureRepository, never()).save(any(Adventure.class));
+    }
+
+    @Test
+    public void shouldThrowWhenCharacterIsMissing() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var command = new RemoveCharacterFromAdventure(
+                adventure.getPublicId(), UUID.randomUUID(), REQUESTER_ID);
+
+        when(adventureRepository.findByPublicId(any())).thenReturn(Optional.of(adventure));
+        when(playerCharacterRepository.findByPublicId(any())).thenReturn(Optional.empty());
 
         // then
         assertThatThrownBy(() -> handler.execute(command)).isInstanceOf(NotFoundException.class);

@@ -31,6 +31,7 @@ import me.moirai.storyengine.common.domain.DomainEvent;
 import me.moirai.storyengine.common.domain.Narrator;
 import me.moirai.storyengine.common.domain.Permission;
 import me.moirai.storyengine.common.domain.ShareableAsset;
+import me.moirai.storyengine.common.enums.PermissionLevel;
 import me.moirai.storyengine.common.enums.ArtificialIntelligenceModel;
 import me.moirai.storyengine.common.enums.InvitationStatus;
 import me.moirai.storyengine.common.enums.Moderation;
@@ -259,7 +260,25 @@ public class Adventure extends ShareableAsset {
     }
 
     public void unenrollPlayerCharacter(Long playerCharacterId) {
-        roster.removeIf(membership -> membership.getPlayerCharacterId().equals(playerCharacterId));
+
+        var membership = roster.stream()
+                .filter(entry -> entry.getPlayerCharacterId().equals(playerCharacterId))
+                .findFirst()
+                .orElse(null);
+
+        if (membership == null) {
+            return;
+        }
+
+        roster.remove(membership);
+
+        var playerId = membership.getPlayerId();
+        if (canRead(playerId) && !canWrite(playerId)) {
+            revoke(playerId);
+        }
+
+        domainEvents.add(new PlayerRemovedFromAdventureEvent(
+                this.id, this.publicId, this.name, playerId));
     }
 
     public boolean hasCharacter(Long playerCharacterId) {
@@ -304,6 +323,10 @@ public class Adventure extends ShareableAsset {
 
         enrollPlayerCharacter(playerCharacterId, playerId);
         invitation.accept();
+
+        if (!canRead(playerId)) {
+            grant(new Permission(playerId, PermissionLevel.READ));
+        }
 
         domainEvents.add(new AdventureInvitationAnsweredEvent(
                 this.id, this.publicId, this.name, invitation.getUserId(), InvitationStatus.ACCEPTED));

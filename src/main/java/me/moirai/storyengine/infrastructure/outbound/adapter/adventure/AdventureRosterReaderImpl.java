@@ -19,7 +19,8 @@ public class AdventureRosterReaderImpl implements AdventureRosterReader {
     //@formatter:off
     private static final String SELECT_ADVENTURES_BY_CHARACTER = """
             SELECT a.public_id AS adventure_public_id,
-                   a.name      AS adventure_name
+                   a.name      AS adventure_name,
+                   a.image_key AS adventure_image_key
               FROM adventure_membership am
                    JOIN adventure a         ON a.id  = am.adventure_id
                    JOIN player_character pc ON pc.id = am.player_character_id
@@ -69,7 +70,8 @@ public class AdventureRosterReaderImpl implements AdventureRosterReader {
 
         return (rs, _) -> new CharacterAdventureSummaryRow(
                 rs.getObject("adventure_public_id", UUID.class),
-                rs.getString("adventure_name"));
+                rs.getString("adventure_name"),
+                rs.getString("adventure_image_key"));
     }
 
     private RowMapper<AdventureRosterSummaryRow> toAdventureRosterSummaryRow() {

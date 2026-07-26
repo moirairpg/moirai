@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,29 +19,37 @@ import me.moirai.storyengine.common.enums.InvitationStatus;
 import me.moirai.storyengine.common.enums.Role;
 import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
-import me.moirai.storyengine.core.port.outbound.adventure.InvitationRecipientRow;
 import me.moirai.storyengine.core.port.outbound.adventure.InvitationReader;
+import me.moirai.storyengine.core.port.outbound.adventure.InvitationRecipientRow;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVisibilityData;
 
 @ExtendWith(MockitoExtension.class)
-public class RespondToAdventureInvitationAuthorizerTest {
+public class JoinAdventureWithCharacterAuthorizerTest {
 
     private static final UUID INVITATION_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID CHARACTER_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     @Mock
     private InvitationReader invitationReader;
 
+    @Mock
+    private PlayerCharacterReader playerCharacterReader;
+
     @InjectMocks
-    private RespondToAdventureInvitationAuthorizer authorizer;
+    private JoinAdventureWithCharacterAuthorizer authorizer;
 
     @Test
-    void shouldAuthorizeTheRecipientOfAPendingInvitation() {
+    void shouldAuthorizePendingRecipientJoiningWithTheirOwnCharacter() {
 
         // given
         when(invitationReader.getByPublicId(any()))
                 .thenReturn(Optional.of(new InvitationRecipientRow("caller", InvitationStatus.PENDING)));
+        when(playerCharacterReader.getVisibilityData(any()))
+                .thenReturn(Optional.of(new PlayerCharacterVisibilityData("caller", List.of())));
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER, "caller")));
+        var isAuthorized = authorizer.authorize(contextWith(principal("caller")));
 
         // then
         assertThat(isAuthorized).isTrue();
@@ -54,7 +63,7 @@ public class RespondToAdventureInvitationAuthorizerTest {
                 .thenReturn(Optional.of(new InvitationRecipientRow("someone.else", InvitationStatus.PENDING)));
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER, "caller")));
+        var isAuthorized = authorizer.authorize(contextWith(principal("caller")));
 
         // then
         assertThat(isAuthorized).isFalse();
@@ -68,7 +77,7 @@ public class RespondToAdventureInvitationAuthorizerTest {
                 .thenReturn(Optional.of(new InvitationRecipientRow("caller", InvitationStatus.ACCEPTED)));
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER, "caller")));
+        var isAuthorized = authorizer.authorize(contextWith(principal("caller")));
 
         // then
         assertThat(isAuthorized).isFalse();
@@ -81,32 +90,49 @@ public class RespondToAdventureInvitationAuthorizerTest {
         when(invitationReader.getByPublicId(any())).thenReturn(Optional.empty());
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER, "caller")));
+        var isAuthorized = authorizer.authorize(contextWith(principal("caller")));
 
         // then
         assertThat(isAuthorized).isFalse();
     }
 
     @Test
-    void shouldNotAuthorizeAnAdminWhoIsNotTheRecipient() {
+    void shouldNotAuthorizeJoiningWithACharacterTheCallerDoesNotOwn() {
 
         // given
         when(invitationReader.getByPublicId(any()))
-                .thenReturn(Optional.of(new InvitationRecipientRow("someone.else", InvitationStatus.PENDING)));
+                .thenReturn(Optional.of(new InvitationRecipientRow("caller", InvitationStatus.PENDING)));
+        when(playerCharacterReader.getVisibilityData(any()))
+                .thenReturn(Optional.of(new PlayerCharacterVisibilityData("someone.else", List.of())));
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.ADMIN, "caller")));
+        var isAuthorized = authorizer.authorize(contextWith(principal("caller")));
 
         // then
         assertThat(isAuthorized).isFalse();
     }
 
-    private MoiraiPrincipal principal(Role role, String username) {
+    @Test
+    void shouldNotAuthorizeWhenCharacterIsMissing() {
+
+        // given
+        when(invitationReader.getByPublicId(any()))
+                .thenReturn(Optional.of(new InvitationRecipientRow("caller", InvitationStatus.PENDING)));
+        when(playerCharacterReader.getVisibilityData(any())).thenReturn(Optional.empty());
+
+        // when
+        var isAuthorized = authorizer.authorize(contextWith(principal("caller")));
+
+        // then
+        assertThat(isAuthorized).isFalse();
+    }
+
+    private MoiraiPrincipal principal(String username) {
         return new MoiraiPrincipal(
-                UUID.randomUUID(), 1L, "discordId", username, "caller@test.com", "token", "refresh", role, null);
+                UUID.randomUUID(), 1L, "discordId", username, "caller@test.com", "token", "refresh", Role.PLAYER, null);
     }
 
     private AuthorizationContext contextWith(MoiraiPrincipal principal) {
-        return new AuthorizationContext(principal, Map.of("invitationId", INVITATION_ID));
+        return new AuthorizationContext(principal, Map.of("invitationId", INVITATION_ID, "playerCharacterId", CHARACTER_ID));
     }
 }

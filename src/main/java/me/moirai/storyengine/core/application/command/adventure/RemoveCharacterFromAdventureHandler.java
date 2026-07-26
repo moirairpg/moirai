@@ -5,18 +5,18 @@ import org.springframework.context.ApplicationEventPublisher;
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.core.port.inbound.adventure.JoinAdventureWithCharacter;
+import me.moirai.storyengine.core.port.inbound.adventure.RemoveCharacterFromAdventure;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterRepository;
 
 @CommandHandler
-public class JoinAdventureWithCharacterHandler extends AbstractCommandHandler<JoinAdventureWithCharacter, Void> {
+public class RemoveCharacterFromAdventureHandler extends AbstractCommandHandler<RemoveCharacterFromAdventure, Void> {
 
     private final AdventureRepository adventureRepository;
     private final PlayerCharacterRepository playerCharacterRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public JoinAdventureWithCharacterHandler(
+    public RemoveCharacterFromAdventureHandler(
             AdventureRepository adventureRepository,
             PlayerCharacterRepository playerCharacterRepository,
             ApplicationEventPublisher eventPublisher) {
@@ -27,15 +27,15 @@ public class JoinAdventureWithCharacterHandler extends AbstractCommandHandler<Jo
     }
 
     @Override
-    public Void execute(JoinAdventureWithCharacter command) {
+    public Void execute(RemoveCharacterFromAdventure command) {
 
-        var adventure = adventureRepository.findByInvitationPublicId(command.invitationId())
-                .orElseThrow(() -> new NotFoundException("Invitation not found"));
+        var adventure = adventureRepository.findByPublicId(command.adventureId())
+                .orElseThrow(() -> new NotFoundException("Adventure not found"));
 
         var character = playerCharacterRepository.findByPublicId(command.playerCharacterId())
                 .orElseThrow(() -> new NotFoundException("Player character not found"));
 
-        adventure.acceptInvitation(command.invitationId(), character.getId(), command.requesterId());
+        adventure.unenrollPlayerCharacter(character.getId());
         adventureRepository.save(adventure);
         adventure.drainEvents().forEach(eventPublisher::publishEvent);
 

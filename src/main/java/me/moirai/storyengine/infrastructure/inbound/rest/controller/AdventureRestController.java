@@ -35,6 +35,7 @@ import me.moirai.storyengine.core.port.inbound.adventure.GetPendingAdventureInvi
 import me.moirai.storyengine.core.port.inbound.adventure.InviteUserToAdventure;
 import me.moirai.storyengine.core.port.inbound.adventure.InviteUserToAdventureResult;
 import me.moirai.storyengine.core.port.inbound.adventure.JoinAdventureWithCharacter;
+import me.moirai.storyengine.core.port.inbound.adventure.RemoveCharacterFromAdventure;
 import me.moirai.storyengine.core.port.inbound.adventure.PendingAdventureInvitationDetails;
 import me.moirai.storyengine.core.port.inbound.adventure.RemoveAdventureImage;
 import me.moirai.storyengine.core.port.inbound.adventure.UploadAdventureImage;
@@ -413,7 +414,7 @@ public class AdventureRestController extends SecurityContextAware {
 
     @PostMapping("/invitations/{invitationId}/join")
     @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.RESPOND_TO_ADVENTURE_INVITATION, fields = "#invitationId")
+    @Authorize(operation = AuthorizationOperation.JOIN_ADVENTURE_WITH_CHARACTER, fields = { "#invitationId", "#request.playerCharacterId" })
     public void join(
             @PathVariable(required = true) UUID invitationId,
             @Valid @RequestBody JoinAdventureWithCharacterRequest request) {
@@ -426,9 +427,22 @@ public class AdventureRestController extends SecurityContextAware {
 
     @PostMapping("/invitations/{invitationId}/decline")
     @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.RESPOND_TO_ADVENTURE_INVITATION, fields = "#invitationId")
+    @Authorize(operation = AuthorizationOperation.DECLINE_ADVENTURE_INVITATION, fields = "#invitationId")
     public void decline(@PathVariable(required = true) UUID invitationId) {
         commandRunner.run(new DeclineAdventureInvitation(invitationId));
+    }
+
+    @DeleteMapping("/{adventureId}/characters/{playerCharacterId}")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.REMOVE_CHARACTER_FROM_ADVENTURE, fields = "#adventureId")
+    public void removeCharacter(
+            @PathVariable(required = true) UUID adventureId,
+            @PathVariable(required = true) UUID playerCharacterId) {
+
+        commandRunner.run(new RemoveCharacterFromAdventure(
+                adventureId,
+                playerCharacterId,
+                getAuthenticatedUser().id()));
     }
 
     private String extractExtension(String filename) {

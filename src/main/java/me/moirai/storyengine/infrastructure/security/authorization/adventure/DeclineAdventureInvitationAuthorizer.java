@@ -9,17 +9,17 @@ import me.moirai.storyengine.common.security.authorization.OperationAuthorizer;
 import me.moirai.storyengine.core.port.outbound.adventure.InvitationReader;
 
 @Component
-public class RespondToAdventureInvitationAuthorizer implements OperationAuthorizer {
+public class DeclineAdventureInvitationAuthorizer implements OperationAuthorizer {
 
     private final InvitationReader invitationReader;
 
-    public RespondToAdventureInvitationAuthorizer(InvitationReader invitationReader) {
+    public DeclineAdventureInvitationAuthorizer(InvitationReader invitationReader) {
         this.invitationReader = invitationReader;
     }
 
     @Override
     public AuthorizationOperation getOperation() {
-        return AuthorizationOperation.RESPOND_TO_ADVENTURE_INVITATION;
+        return AuthorizationOperation.DECLINE_ADVENTURE_INVITATION;
     }
 
     @Override
