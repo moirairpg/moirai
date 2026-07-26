@@ -1,5 +1,7 @@
 package me.moirai.storyengine.infrastructure.security.authorization.adventure;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Component;
 
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -9,14 +11,20 @@ import me.moirai.storyengine.common.security.authorization.AuthorizationOperatio
 import me.moirai.storyengine.common.security.authorization.OperationAuthorizer;
 import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureAuthorizationReader;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
 
 @Component
 public class RemoveCharacterFromAdventureAuthorizer implements OperationAuthorizer {
 
     private final AdventureAuthorizationReader reader;
+    private final PlayerCharacterReader playerCharacterReader;
 
-    public RemoveCharacterFromAdventureAuthorizer(AdventureAuthorizationReader reader) {
+    public RemoveCharacterFromAdventureAuthorizer(
+            AdventureAuthorizationReader reader,
+            PlayerCharacterReader playerCharacterReader) {
+
         this.reader = reader;
+        this.playerCharacterReader = playerCharacterReader;
     }
 
     @Override
@@ -38,11 +46,21 @@ public class RemoveCharacterFromAdventureAuthorizer implements OperationAuthoriz
         var authData = reader.getAuthorizationData(adventureId)
                 .orElseThrow(() -> new NotFoundException("Adventure not found"));
 
-        return canManage(authData, principal);
+        if (canManage(authData, principal)) {
+            return true;
+        }
+
+        return ownsCharacter(context.getFieldAsUuid("playerCharacterId"), principal);
     }
 
     private boolean canManage(AssetPermissionsData authData, MoiraiPrincipal principal) {
         return authData.ownerId().equals(principal.publicId())
                 || authData.writers().contains(principal.publicId());
+    }
+
+    private boolean ownsCharacter(UUID playerCharacterId, MoiraiPrincipal principal) {
+        return playerCharacterReader.getVisibilityData(playerCharacterId)
+                .map(data -> data.ownerUsername().equals(principal.username()))
+                .orElse(false);
     }
 }

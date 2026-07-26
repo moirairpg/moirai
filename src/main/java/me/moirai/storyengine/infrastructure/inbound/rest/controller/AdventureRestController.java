@@ -434,7 +434,7 @@ public class AdventureRestController extends SecurityContextAware {
 
     @DeleteMapping("/{adventureId}/characters/{playerCharacterId}")
     @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.REMOVE_CHARACTER_FROM_ADVENTURE, fields = "#adventureId")
+    @Authorize(operation = AuthorizationOperation.REMOVE_CHARACTER_FROM_ADVENTURE, fields = { "#adventureId", "#playerCharacterId" })
     public void removeCharacter(
             @PathVariable(required = true) UUID adventureId,
             @PathVariable(required = true) UUID playerCharacterId) {

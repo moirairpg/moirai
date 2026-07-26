@@ -22,6 +22,8 @@ import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureAuthorizationReader;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVisibilityData;
 
 @ExtendWith(MockitoExtension.class)
 public class RemoveCharacterFromAdventureAuthorizerTest {
@@ -29,9 +31,13 @@ public class RemoveCharacterFromAdventureAuthorizerTest {
     private static final UUID ADVENTURE_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID CALLER_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
     private static final UUID STRANGER_ID = UUID.fromString("00000000-0000-0000-0000-000000000003");
+    private static final UUID CHARACTER_ID = UUID.fromString("00000000-0000-0000-0000-000000000004");
 
     @Mock
     private AdventureAuthorizationReader reader;
+
+    @Mock
+    private PlayerCharacterReader playerCharacterReader;
 
     @InjectMocks
     private RemoveCharacterFromAdventureAuthorizer authorizer;
@@ -103,12 +109,28 @@ public class RemoveCharacterFromAdventureAuthorizerTest {
         assertThat(isAuthorized).isFalse();
     }
 
+    @Test
+    void shouldAuthorizeTheCharactersOwnerRemovingTheirOwnCharacter() {
+
+        // given
+        when(reader.getAuthorizationData(any()))
+                .thenReturn(Optional.of(new AssetPermissionsData(STRANGER_ID, List.of(), List.of(), Visibility.PRIVATE)));
+        when(playerCharacterReader.getVisibilityData(any()))
+                .thenReturn(Optional.of(new PlayerCharacterVisibilityData("caller", List.of())));
+
+        // when
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
+
+        // then
+        assertThat(isAuthorized).isTrue();
+    }
+
     private MoiraiPrincipal principal(Role role) {
         return new MoiraiPrincipal(
                 CALLER_ID, 1L, "discordId", "caller", "caller@test.com", "token", "refresh", role, null);
     }
 
     private AuthorizationContext contextWith(MoiraiPrincipal principal) {
-        return new AuthorizationContext(principal, Map.of("adventureId", ADVENTURE_ID));
+        return new AuthorizationContext(principal, Map.of("adventureId", ADVENTURE_ID, "playerCharacterId", CHARACTER_ID));
     }
 }

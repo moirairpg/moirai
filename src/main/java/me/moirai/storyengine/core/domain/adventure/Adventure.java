@@ -259,10 +259,10 @@ public class Adventure extends ShareableAsset {
         roster.add(AdventureMembership.of(this.id, playerCharacterId, playerId));
     }
 
-    public void unenrollPlayerCharacter(Long playerCharacterId) {
+    public void unenrollPlayerCharacter(Long playerId, Long requesterId) {
 
         var membership = roster.stream()
-                .filter(entry -> entry.getPlayerCharacterId().equals(playerCharacterId))
+                .filter(entry -> entry.getPlayerId().equals(playerId))
                 .findFirst()
                 .orElse(null);
 
@@ -272,13 +272,12 @@ public class Adventure extends ShareableAsset {
 
         roster.remove(membership);
 
-        var playerId = membership.getPlayerId();
         if (canRead(playerId) && !canWrite(playerId)) {
             revoke(playerId);
         }
 
         domainEvents.add(new PlayerRemovedFromAdventureEvent(
-                this.id, this.publicId, this.name, playerId));
+                this.id, this.publicId, this.name, playerId, playerId.equals(requesterId)));
     }
 
     public boolean hasCharacter(Long playerCharacterId) {

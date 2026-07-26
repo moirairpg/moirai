@@ -527,7 +527,7 @@ public class AdventureTest {
         adventure.enrollPlayerCharacter(2L, 20L);
 
         // when
-        adventure.unenrollPlayerCharacter(1L);
+        adventure.unenrollPlayerCharacter(10L, 10L);
 
         // then
         assertThat(adventure.getRoster())
@@ -543,7 +543,7 @@ public class AdventureTest {
         adventure.enrollPlayerCharacter(1L, 10L);
 
         // when
-        adventure.unenrollPlayerCharacter(2L);
+        adventure.unenrollPlayerCharacter(99L, 99L);
 
         // then
         assertThat(adventure.getRoster())
@@ -560,7 +560,7 @@ public class AdventureTest {
         adventure.drainEvents();
 
         // when
-        adventure.unenrollPlayerCharacter(1L);
+        adventure.unenrollPlayerCharacter(10L, 10L);
 
         // then
         assertThat(adventure.drainEvents())
@@ -576,7 +576,7 @@ public class AdventureTest {
         adventure.drainEvents();
 
         // when
-        adventure.unenrollPlayerCharacter(2L);
+        adventure.unenrollPlayerCharacter(99L, 99L);
 
         // then
         assertThat(adventure.drainEvents())
@@ -593,7 +593,7 @@ public class AdventureTest {
         adventure.drainEvents();
 
         // when
-        adventure.unenrollPlayerCharacter(1L);
+        adventure.unenrollPlayerCharacter(10L, 10L);
 
         // then
         assertThat(adventure.canRead(10L)).isFalse();
@@ -609,10 +609,50 @@ public class AdventureTest {
         adventure.drainEvents();
 
         // when
-        adventure.unenrollPlayerCharacter(1L);
+        adventure.unenrollPlayerCharacter(10L, 10L);
 
         // then
         assertThat(adventure.canWrite(10L)).isTrue();
+    }
+
+    @Test
+    public void shouldMarkRemovalVoluntaryWhenRequesterIsTheRemovedPlayer() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+        adventure.drainEvents();
+
+        // when
+        adventure.unenrollPlayerCharacter(10L, 10L);
+
+        // then
+        var event = drainRemovalEvent(adventure);
+        assertThat(event.isVoluntary()).isTrue();
+    }
+
+    @Test
+    public void shouldMarkRemovalInvoluntaryWhenRequesterIsNotTheRemovedPlayer() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+        adventure.drainEvents();
+
+        // when
+        adventure.unenrollPlayerCharacter(10L, 99L);
+
+        // then
+        var event = drainRemovalEvent(adventure);
+        assertThat(event.isVoluntary()).isFalse();
+    }
+
+    private PlayerRemovedFromAdventureEvent drainRemovalEvent(Adventure adventure) {
+
+        return (PlayerRemovedFromAdventureEvent) adventure.drainEvents().stream()
+                .filter(PlayerRemovedFromAdventureEvent.class::isInstance)
+                .findFirst()
+                .orElseThrow();
     }
 
     @Test

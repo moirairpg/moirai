@@ -10,17 +10,20 @@ public final class PlayerRemovedFromAdventureEvent implements DomainEvent {
     private final UUID adventurePublicId;
     private final String adventureName;
     private final Long removedUserId;
+    private final boolean voluntary;
 
     PlayerRemovedFromAdventureEvent(
             Long adventureId,
             UUID adventurePublicId,
             String adventureName,
-            Long removedUserId) {
+            Long removedUserId,
+            boolean voluntary) {
 
         this.adventureId = adventureId;
         this.adventurePublicId = adventurePublicId;
         this.adventureName = adventureName;
         this.removedUserId = removedUserId;
+        this.voluntary = voluntary;
     }
 
     public Long getAdventureId() {
@@ -37,5 +40,9 @@ public final class PlayerRemovedFromAdventureEvent implements DomainEvent {
 
     public Long getRemovedUserId() {
         return removedUserId;
+    }
+
+    public boolean isVoluntary() {
+        return voluntary;
     }
 }

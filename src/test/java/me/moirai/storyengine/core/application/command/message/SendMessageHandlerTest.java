@@ -21,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
@@ -71,6 +72,9 @@ public class SendMessageHandlerTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @Mock
+    private SimpMessagingTemplate messagingTemplate;
+
     private SendMessageHandler handler;
 
     @BeforeEach
@@ -86,6 +90,7 @@ public class SendMessageHandlerTest {
                 playerCharacterRepository,
                 playerCharacterVectorSearchPort,
                 eventPublisher,
+                messagingTemplate,
                 10,
                 5,
                 3,

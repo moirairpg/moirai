@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
@@ -53,6 +54,7 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
     private final PlayerCharacterRepository playerCharacterRepository;
     private final PlayerCharacterVectorSearchPort playerCharacterVectorSearchPort;
     private final ApplicationEventPublisher eventPublisher;
+    private final SimpMessagingTemplate messagingTemplate;
     private final int messageWindowSize;
     private final int lorebookTopK;
     private final int chronicleTopK;
@@ -68,6 +70,7 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
             PlayerCharacterRepository playerCharacterRepository,
             PlayerCharacterVectorSearchPort playerCharacterVectorSearchPort,
             ApplicationEventPublisher eventPublisher,
+            SimpMessagingTemplate messagingTemplate,
             @Value("${moirai.adventure.message-window-size}") int messageWindowSize,
             @Value("${moirai.rag.lorebook.top-k}") int lorebookTopK,
             @Value("${moirai.rag.chronicle.top-k}") int chronicleTopK,
@@ -82,6 +85,7 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
         this.playerCharacterRepository = playerCharacterRepository;
         this.playerCharacterVectorSearchPort = playerCharacterVectorSearchPort;
         this.eventPublisher = eventPublisher;
+        this.messagingTemplate = messagingTemplate;
         this.messageWindowSize = messageWindowSize;
         this.lorebookTopK = lorebookTopK;
         this.chronicleTopK = chronicleTopK;
@@ -117,6 +121,14 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
                 .build();
 
         messageRepository.save(playerMessage);
+
+        messagingTemplate.convertAndSend(
+                "/topic/adventures/" + adventure.getPublicId(),
+                new MessageResult(
+                        playerMessage.getPublicId(),
+                        playerMessage.getContent(),
+                        MessageAuthorRole.USER,
+                        playerMessage.getCreationDate()));
 
         var history = messageRepository.findAllActiveByAdventureId(adventure.getId());
 
