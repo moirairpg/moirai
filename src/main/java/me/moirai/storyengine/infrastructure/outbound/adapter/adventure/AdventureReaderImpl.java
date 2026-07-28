@@ -2,6 +2,7 @@ package me.moirai.storyengine.infrastructure.outbound.adapter.adventure;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,6 +72,14 @@ public class AdventureReaderImpl implements AdventureReader {
                    INNER JOIN moirai_user mu ON mu.id = ap.user_id
              WHERE ap.adventure_id = :adventureId
             """;
+
+    private static final String SELECT_ENROLLED_PLAYERS = """
+            SELECT u.public_id
+              FROM adventure_membership am
+                   JOIN adventure a ON a.id = am.adventure_id
+                   JOIN moirai_user u ON u.id = am.player_id
+             WHERE a.public_id = :adventurePublicId
+            """;
     //@formatter:on
 
     private final JdbcClient jdbcClient;
@@ -85,6 +94,14 @@ public class AdventureReaderImpl implements AdventureReader {
                 .param("publicId", publicId)
                 .query(toAdventureDetails())
                 .optional();
+    }
+
+    @Override
+    public List<UUID> getEnrolledPlayerIds(UUID publicId) {
+        return jdbcClient.sql(SELECT_ENROLLED_PLAYERS)
+                .param("adventurePublicId", publicId)
+                .query((rs, _) -> rs.getObject("public_id", UUID.class))
+                .list();
     }
 
     private RowMapper<AdventureDetailsRow> toAdventureDetails() {

@@ -10,9 +10,11 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 
+import me.moirai.storyengine.common.annotation.Authorize;
 import me.moirai.storyengine.common.cqs.command.CommandRunner;
 import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authentication.MoiraiSecurityContext;
+import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
 import me.moirai.storyengine.infrastructure.inbound.websocket.request.WebSocketMessageRequest;
 
@@ -31,6 +33,7 @@ public class AdventureWebSocketController {
     }
 
     @MessageMapping("/adventures/{adventureId}")
+    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
     public void handleMessage(
             @DestinationVariable UUID adventureId,
             @Payload WebSocketMessageRequest request,

@@ -306,7 +306,7 @@ public class AdventureRestController extends SecurityContextAware {
 
     @PostMapping("/{adventureId}/start")
     @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.VIEW_ADVENTURE, fields = "#adventureId")
+    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
     public MessageResult start(@PathVariable UUID adventureId) {
 
         return commandRunner.run(new StartAdventure(adventureId));
@@ -314,7 +314,7 @@ public class AdventureRestController extends SecurityContextAware {
 
     @PostMapping("/{adventureId}/go")
     @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.VIEW_ADVENTURE, fields = "#adventureId")
+    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
     public MessageResult go(@PathVariable UUID adventureId) {
 
         return commandRunner.run(new Go(adventureId));
@@ -322,7 +322,7 @@ public class AdventureRestController extends SecurityContextAware {
 
     @PostMapping("/{adventureId}/retry")
     @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.VIEW_ADVENTURE, fields = "#adventureId")
+    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
     public MessageResult retry(@PathVariable UUID adventureId) {
 
         return commandRunner.run(new Retry(adventureId));
@@ -330,7 +330,7 @@ public class AdventureRestController extends SecurityContextAware {
 
     @PostMapping("/{adventureId}/say")
     @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.VIEW_ADVENTURE, fields = "#adventureId")
+    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
     public MessageResult say(
             @PathVariable UUID adventureId,
             @RequestBody SayRequest request) {
@@ -350,7 +350,7 @@ public class AdventureRestController extends SecurityContextAware {
 
     @PostMapping("/{adventureId}/messages/{messageId}/retry")
     @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
+    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
     public MessageResult retryFromMessage(
             @PathVariable UUID adventureId,
             @PathVariable UUID messageId) {
