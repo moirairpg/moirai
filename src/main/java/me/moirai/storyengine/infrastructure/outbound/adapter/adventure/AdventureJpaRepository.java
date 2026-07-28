@@ -34,9 +34,8 @@ public interface AdventureJpaRepository
     @Query("UPDATE Adventure a SET a.contextAttributes.bump = :bump, a.contextAttributes.bumpFrequency = :bumpFrequency WHERE a.publicId = :publicId")
     void updateBumpByPublicId(String bump, int bumpFrequency, UUID publicId);
 
-    @Modifying
-    @Query("DELETE FROM AdventureMembership m WHERE m.playerCharacterId = :playerCharacterId")
-    void removeCharacterFromAllRosters(Long playerCharacterId);
+    @Query("SELECT a FROM Adventure a JOIN a.roster m WHERE m.playerCharacterId = :playerCharacterId")
+    List<Adventure> findAllContainingCharacter(Long playerCharacterId);
 
     @Query(value = """
             SELECT ap.user_id

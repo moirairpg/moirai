@@ -66,9 +66,9 @@ public class AdventureRepositoryImpl implements AdventureRepository {
     }
 
     @Override
-    public void removeCharacterFromAllRosters(Long playerCharacterId) {
+    public List<Adventure> findAllContainingCharacter(Long playerCharacterId) {
 
-        jpaRepository.removeCharacterFromAllRosters(playerCharacterId);
+        return jpaRepository.findAllContainingCharacter(playerCharacterId);
     }
 
     @Override

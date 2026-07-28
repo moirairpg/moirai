@@ -48,23 +48,25 @@ public class AdventureRepositoryImplIntegrationTest extends AbstractDatabaseInte
     }
 
     @Test
-    public void shouldRemoveEveryRosterRowReferencingTheCharacter() {
+    public void shouldFindEveryAdventureContainingTheCharacter() {
 
         // given
         var owner = insertUser("11111", "player.one");
         var otherOwner = insertUser("44444", "player.two");
-        var characterToDelete = insertCharacter(owner, "To Delete");
-        var characterToKeep = insertCharacter(otherOwner, "To Keep");
+        var enrolledCharacter = insertCharacter(owner, "Enrolled");
+        var otherCharacter = insertCharacter(otherOwner, "Other");
 
-        var firstAdventure = insertAdventureWithRoster(characterToDelete, characterToKeep);
-        var secondAdventure = insertAdventureWithRoster(characterToDelete);
+        var firstAdventure = insertAdventureWithRoster(enrolledCharacter, otherCharacter);
+        var secondAdventure = insertAdventureWithRoster(enrolledCharacter);
+        insertAdventureWithRoster(otherCharacter);
 
         // when
-        repository.removeCharacterFromAllRosters(characterToDelete.getId());
+        var result = repository.findAllContainingCharacter(enrolledCharacter.getId());
 
         // then
-        assertThat(rosterOf(firstAdventure)).containsExactly(characterToKeep.getId());
-        assertThat(rosterOf(secondAdventure)).isEmpty();
+        assertThat(result)
+                .extracting(Adventure::getId)
+                .containsExactlyInAnyOrder(firstAdventure.getId(), secondAdventure.getId());
     }
 
     @Test

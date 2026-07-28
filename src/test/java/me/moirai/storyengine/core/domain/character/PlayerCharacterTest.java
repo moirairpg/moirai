@@ -194,8 +194,11 @@ public class PlayerCharacterTest {
 
         assertThat(events).hasSize(1);
         assertThat(events.getFirst()).isInstanceOf(PlayerCharacterDeletedEvent.class);
-        assertThat(((PlayerCharacterDeletedEvent) events.getFirst()).getPlayerCharacterId())
-                .isEqualTo(PlayerCharacterFixture.NUMERIC_ID);
+
+        var event = (PlayerCharacterDeletedEvent) events.getFirst();
+
+        assertThat(event.getPlayerCharacterId()).isEqualTo(PlayerCharacterFixture.NUMERIC_ID);
+        assertThat(event.getPlayerId()).isEqualTo(PlayerCharacterFixture.PLAYER_ID);
     }
 
     @Test

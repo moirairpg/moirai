@@ -24,7 +24,7 @@ public interface AdventureRepository {
 
     Optional<Adventure> findById(Long id);
 
-    void removeCharacterFromAllRosters(Long playerCharacterId);
+    List<Adventure> findAllContainingCharacter(Long playerCharacterId);
 
     List<Long> findManagerUserIdsByAdventureId(Long adventureId);
 

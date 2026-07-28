@@ -88,7 +88,7 @@ public class PlayerCharacter extends Asset {
     }
 
     public void communicateCharacterDeleted() {
-        domainEvents.add(new PlayerCharacterDeletedEvent(this.id));
+        domainEvents.add(new PlayerCharacterDeletedEvent(this.id, this.playerId));
     }
 
     public Long getId() {
