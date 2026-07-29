@@ -1,4 +1,4 @@
-package me.moirai.storyengine.core.domain.notification;
+package me.moirai.storyengine.core.application.event.message;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -7,21 +7,21 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import me.moirai.storyengine.core.domain.adventure.AdventureDeletedEvent;
-import me.moirai.storyengine.core.port.outbound.notification.NotificationRepository;
+import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
 
 @Component
-public class NotificationDomainEventListener {
+public class MessageDomainEventListener {
 
-    private final NotificationRepository notificationRepository;
+    private final MessageRepository messageRepository;
 
-    public NotificationDomainEventListener(NotificationRepository notificationRepository) {
-        this.notificationRepository = notificationRepository;
+    public MessageDomainEventListener(MessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onAdventureDeleted(AdventureDeletedEvent event) {
 
-        notificationRepository.deleteAllGameNotificationsByAdventureId(event.getAdventureId());
+        messageRepository.deleteAllByAdventureId(event.getAdventureId());
     }
 }

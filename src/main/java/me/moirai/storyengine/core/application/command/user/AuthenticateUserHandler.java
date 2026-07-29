@@ -1,4 +1,4 @@
-package me.moirai.storyengine.core.application.query.user;
+package me.moirai.storyengine.core.application.command.user;
 
 import static io.micrometer.common.util.StringUtils.isBlank;
 import static me.moirai.storyengine.common.enums.Role.PLAYER;

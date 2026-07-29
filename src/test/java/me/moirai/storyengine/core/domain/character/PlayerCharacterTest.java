@@ -75,6 +75,37 @@ public class PlayerCharacterTest {
     }
 
     @Test
+    public void shouldThrowExceptionWhenNameIsUpdatedToBlank() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateName(EMPTY));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenPersonalityIsUpdatedToBlank() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updatePersonality(EMPTY));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenPhysicalDescriptionIsUpdatedToBlank() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> character.updatePhysicalDescription(EMPTY));
+    }
+
+    @Test
     public void shouldUpdateCharacterClassWhenNewValueIsProvided() {
 
         // given

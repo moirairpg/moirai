@@ -63,19 +63,13 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
                 .page(query.page(), query.size())
                 .build();
 
-        var params = pq.parameters();
-        params.put("requesterId", query.requesterId());
-
-        var countParams = pq.countParameters();
-        countParams.put("requesterId", query.requesterId());
-
         var data = jdbcClient.sql(pq.sql())
-                .params(params)
+                .params(pq.parameters())
                 .query(toPlayerCharacterSummaryRow())
                 .list();
 
         var totalItems = jdbcClient.sql(pq.countSql())
-                .params(countParams)
+                .params(pq.countParameters())
                 .query(Long.class)
                 .single();
 
@@ -104,7 +98,6 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
             case NAME -> "pc.name";
             case CREATION_DATE -> "pc.creation_date";
             case LAST_UPDATE_DATE -> "pc.last_update_date";
-            case null, default -> "pc.creation_date";
         };
     }
 

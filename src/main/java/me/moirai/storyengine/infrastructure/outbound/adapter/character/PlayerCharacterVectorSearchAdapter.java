@@ -59,8 +59,7 @@ public class PlayerCharacterVectorSearchAdapter implements PlayerCharacterVector
         try {
             qdrantClient.upsert(upsertRequest);
         } catch (StatusRuntimeException e) {
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Failed to upsert vector for character " + characterId);
+            throw new TechnicalException("Failed to upsert vector for character " + characterId, e);
         }
     }
 
@@ -79,8 +78,7 @@ public class PlayerCharacterVectorSearchAdapter implements PlayerCharacterVector
         try {
             qdrantClient.delete(deleteRequest);
         } catch (StatusRuntimeException e) {
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Failed to delete vector for character " + characterId);
+            throw new TechnicalException("Failed to delete vector for character " + characterId, e);
         }
     }
 
@@ -110,8 +108,7 @@ public class PlayerCharacterVectorSearchAdapter implements PlayerCharacterVector
                     .map(r -> UUID.fromString(r.getPayloadMap().get("characterId").getStringValue()))
                     .toList();
         } catch (StatusRuntimeException e) {
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Failed to search vectors for character candidates");
+            throw new TechnicalException("Failed to search vectors for character candidates", e);
         }
     }
 }

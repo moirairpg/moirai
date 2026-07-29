@@ -1,4 +1,4 @@
-package me.moirai.storyengine.core.application.query.user;
+package me.moirai.storyengine.core.application.command.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

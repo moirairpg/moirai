@@ -1,5 +1,6 @@
 package me.moirai.storyengine.core.application.event.adventure;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -9,6 +10,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -49,7 +51,14 @@ public class PlayerCharacterDeletedEventListenerTest {
 
         // then
         verify(adventureRepository).save(adventure);
-        verify(eventPublisher).publishEvent(any(PlayerRemovedFromAdventureEvent.class));
+
+        var publishedEvent = ArgumentCaptor.forClass(PlayerRemovedFromAdventureEvent.class);
+        verify(eventPublisher).publishEvent(publishedEvent.capture());
+
+        assertThat(publishedEvent.getValue().getRemovedUserId()).isEqualTo(character.getPlayerId());
+        assertThat(publishedEvent.getValue().getAdventureId()).isEqualTo(adventure.getId());
+        assertThat(publishedEvent.getValue().getAdventurePublicId()).isEqualTo(adventure.getPublicId());
+        assertThat(adventure.hasCharacter(character.getId())).isFalse();
     }
 
     @Test

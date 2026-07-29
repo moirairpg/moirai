@@ -23,7 +23,7 @@ public class PlayerCharacterDeletedEventListener {
         this.eventPublisher = eventPublisher;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.MANDATORY)
     @EventListener
     public void onPlayerCharacterDeleted(PlayerCharacterDeletedEvent event) {
 

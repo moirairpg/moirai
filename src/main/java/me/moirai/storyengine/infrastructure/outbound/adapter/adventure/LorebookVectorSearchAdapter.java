@@ -62,8 +62,7 @@ public class LorebookVectorSearchAdapter implements LorebookVectorSearchPort {
         try {
             qdrantClient.upsert(upsertRequest);
         } catch (StatusRuntimeException e) {
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Failed to upsert vector for entry " + entryId);
+            throw new TechnicalException("Failed to upsert vector for entry " + entryId, e);
         }
     }
 
@@ -82,8 +81,7 @@ public class LorebookVectorSearchAdapter implements LorebookVectorSearchPort {
         try {
             qdrantClient.delete(deleteRequest);
         } catch (StatusRuntimeException e) {
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Failed to delete vector for entry " + entryId);
+            throw new TechnicalException("Failed to delete vector for entry " + entryId, e);
         }
     }
 
@@ -110,8 +108,7 @@ public class LorebookVectorSearchAdapter implements LorebookVectorSearchPort {
                     .map(r -> UUID.fromString(r.getPayloadMap().get("entryId").getStringValue()))
                     .toList();
         } catch (StatusRuntimeException e) {
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Failed to search vectors for adventure " + adventureId);
+            throw new TechnicalException("Failed to search vectors for adventure " + adventureId, e);
         }
     }
 
@@ -132,8 +129,7 @@ public class LorebookVectorSearchAdapter implements LorebookVectorSearchPort {
         try {
             qdrantClient.delete(deleteRequest);
         } catch (StatusRuntimeException e) {
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Failed to delete vectors for adventure " + adventureId);
+            throw new TechnicalException("Failed to delete vectors for adventure " + adventureId, e);
         }
     }
 }

@@ -133,8 +133,8 @@ public class PlayerCharacter extends Asset {
 
     public void updateName(String name) {
 
-        if (name == null) {
-            throw new BusinessRuleViolationException("Character must have a name");
+        if (isBlank(name)) {
+            throw new BusinessRuleViolationException("Character name cannot be null or empty");
         }
 
         this.name = name;
@@ -142,8 +142,8 @@ public class PlayerCharacter extends Asset {
 
     public void updatePersonality(String personality) {
 
-        if (personality == null) {
-            throw new BusinessRuleViolationException("Character must have a personality");
+        if (isBlank(personality)) {
+            throw new BusinessRuleViolationException("Character personality cannot be null or empty");
         }
 
         this.personality = personality;
@@ -151,8 +151,8 @@ public class PlayerCharacter extends Asset {
 
     public void updatePhysicalDescription(String physicalDescription) {
 
-        if (physicalDescription == null) {
-            throw new BusinessRuleViolationException("Character must have a physical description");
+        if (isBlank(physicalDescription)) {
+            throw new BusinessRuleViolationException("Character physical description cannot be null or empty");
         }
 
         this.physicalDescription = physicalDescription;

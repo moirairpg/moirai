@@ -61,8 +61,7 @@ public class ChronicleVectorSearchAdapter implements ChronicleVectorSearchPort {
         try {
             qdrantClient.upsert(upsertRequest);
         } catch (StatusRuntimeException e) {
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Failed to upsert vector for segment " + segmentId);
+            throw new TechnicalException("Failed to upsert vector for segment " + segmentId, e);
         }
     }
 
@@ -89,8 +88,7 @@ public class ChronicleVectorSearchAdapter implements ChronicleVectorSearchPort {
                     .map(r -> UUID.fromString(r.getPayloadMap().get("segmentId").getStringValue()))
                     .toList();
         } catch (StatusRuntimeException e) {
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Failed to search vectors for adventure " + adventureId);
+            throw new TechnicalException("Failed to search vectors for adventure " + adventureId, e);
         }
     }
 
@@ -111,8 +109,7 @@ public class ChronicleVectorSearchAdapter implements ChronicleVectorSearchPort {
         try {
             qdrantClient.delete(deleteRequest);
         } catch (StatusRuntimeException e) {
-            Thread.currentThread().interrupt();
-            throw new TechnicalException("Failed to delete vectors for adventure " + adventureId);
+            throw new TechnicalException("Failed to delete vectors for adventure " + adventureId, e);
         }
     }
 }
