@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,7 +22,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import me.moirai.storyengine.core.port.inbound.message.MessageResult;
+import me.moirai.storyengine.core.port.outbound.message.MessageBroadcastPort;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
@@ -73,7 +75,7 @@ public class SendMessageHandlerTest {
     private ApplicationEventPublisher eventPublisher;
 
     @Mock
-    private SimpMessagingTemplate messagingTemplate;
+    private MessageBroadcastPort messageBroadcastPort;
 
     private SendMessageHandler handler;
 
@@ -90,7 +92,7 @@ public class SendMessageHandlerTest {
                 playerCharacterRepository,
                 playerCharacterVectorSearchPort,
                 eventPublisher,
-                messagingTemplate,
+                messageBroadcastPort,
                 10,
                 5,
                 3,
@@ -172,6 +174,8 @@ public class SendMessageHandlerTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.role()).isEqualTo(savedMessage.getRole());
+
+        verify(messageBroadcastPort, times(2)).broadcast(eq(AdventureFixture.PUBLIC_ID), any(MessageResult.class));
     }
 
     @Test

@@ -28,7 +28,7 @@ import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.message.Message;
-import me.moirai.storyengine.core.domain.message.MessageStatus;
+import me.moirai.storyengine.common.enums.MessageStatus;
 import me.moirai.storyengine.core.port.inbound.chronicle.UpdateChronicle;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.adventure.ChronicleVectorSearchPort;

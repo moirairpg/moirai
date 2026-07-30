@@ -1,4 +1,4 @@
-package me.moirai.storyengine.core.domain.message;
+package me.moirai.storyengine.common.enums;
 
 public enum MessageStatus {
     ACTIVE,

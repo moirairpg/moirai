@@ -14,7 +14,7 @@ import me.moirai.storyengine.common.dbutil.QueryBuilder;
 import me.moirai.storyengine.common.dto.CursorResult;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.enums.SortDirection;
-import me.moirai.storyengine.core.domain.message.MessageStatus;
+import me.moirai.storyengine.common.enums.MessageStatus;
 import me.moirai.storyengine.core.port.inbound.adventure.MessageSummary;
 import me.moirai.storyengine.core.port.inbound.adventure.SearchAdventureMessages;
 import me.moirai.storyengine.core.port.outbound.message.MessageSearchReader;

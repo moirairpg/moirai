@@ -6,15 +6,12 @@ import java.util.UUID;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 
-import me.moirai.storyengine.common.annotation.Authorize;
 import me.moirai.storyengine.common.cqs.command.CommandRunner;
 import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authentication.MoiraiSecurityContext;
-import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
 import me.moirai.storyengine.infrastructure.inbound.websocket.request.WebSocketMessageRequest;
 
@@ -22,18 +19,12 @@ import me.moirai.storyengine.infrastructure.inbound.websocket.request.WebSocketM
 public class AdventureWebSocketController {
 
     private final CommandRunner commandRunner;
-    private final SimpMessagingTemplate messagingTemplate;
 
-    public AdventureWebSocketController(
-            CommandRunner commandRunner,
-            SimpMessagingTemplate messagingTemplate) {
-
+    public AdventureWebSocketController(CommandRunner commandRunner) {
         this.commandRunner = commandRunner;
-        this.messagingTemplate = messagingTemplate;
     }
 
     @MessageMapping("/adventures/{adventureId}")
-    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
     public void handleMessage(
             @DestinationVariable UUID adventureId,
             @Payload WebSocketMessageRequest request,
@@ -44,8 +35,7 @@ public class AdventureWebSocketController {
 
         try {
             MoiraiSecurityContext.set(moiraiPrincipal);
-            var result = commandRunner.run(new SendMessage(adventureId, request.content(), moiraiPrincipal.username()));
-            messagingTemplate.convertAndSend("/topic/adventures/" + adventureId, result);
+            commandRunner.run(new SendMessage(adventureId, request.content(), moiraiPrincipal.username()));
         } finally {
             MoiraiSecurityContext.clear();
         }

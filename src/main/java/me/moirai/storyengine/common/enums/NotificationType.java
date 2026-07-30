@@ -1,4 +1,4 @@
-package me.moirai.storyengine.core.domain.notification;
+package me.moirai.storyengine.common.enums;
 
 public enum NotificationType {
     BROADCAST,

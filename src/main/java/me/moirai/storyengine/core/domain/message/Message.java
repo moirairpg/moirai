@@ -18,6 +18,7 @@ import jakarta.persistence.Transient;
 import me.moirai.storyengine.common.domain.Asset;
 import me.moirai.storyengine.common.domain.DomainEvent;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
+import me.moirai.storyengine.common.enums.MessageStatus;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 
 @Entity

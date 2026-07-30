@@ -15,7 +15,7 @@ public interface MessageJpaRepository extends JpaRepository<Message, Long> {
     @Query("""
             SELECT m FROM Message m
              WHERE m.adventureId = :adventureId
-               AND m.status = me.moirai.storyengine.core.domain.message.MessageStatus.ACTIVE
+               AND m.status = me.moirai.storyengine.common.enums.MessageStatus.ACTIVE
              ORDER BY m.creationDate DESC
              LIMIT 1
             """)
@@ -29,7 +29,7 @@ public interface MessageJpaRepository extends JpaRepository<Message, Long> {
                      FROM Message m2
                     WHERE m2.adventureId = :adventureId
                       AND m2.role = me.moirai.storyengine.common.enums.MessageAuthorRole.ASSISTANT
-                      AND m2.status = me.moirai.storyengine.core.domain.message.MessageStatus.ACTIVE
+                      AND m2.status = me.moirai.storyengine.common.enums.MessageStatus.ACTIVE
                    )
             """)
     void deleteLastAssistantMessage(Long adventureId);
@@ -77,7 +77,7 @@ public interface MessageJpaRepository extends JpaRepository<Message, Long> {
     @Query("""
             SELECT m FROM Message m
              WHERE m.adventureId = :adventureId
-               AND m.status = me.moirai.storyengine.core.domain.message.MessageStatus.ACTIVE
+               AND m.status = me.moirai.storyengine.common.enums.MessageStatus.ACTIVE
              ORDER BY m.creationDate ASC, m.id ASC
             """)
     List<Message> findAllActiveByAdventureId(Long adventureId);
@@ -85,7 +85,7 @@ public interface MessageJpaRepository extends JpaRepository<Message, Long> {
     @Query("""
             SELECT m FROM Message m
              WHERE m.adventureId = :adventureId
-               AND m.status = me.moirai.storyengine.core.domain.message.MessageStatus.CHRONICLED
+               AND m.status = me.moirai.storyengine.common.enums.MessageStatus.CHRONICLED
              ORDER BY m.creationDate DESC, m.id DESC
              LIMIT :limit
             """)

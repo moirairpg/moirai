@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
-import me.moirai.storyengine.core.domain.message.MessageStatus;
+import me.moirai.storyengine.common.enums.MessageStatus;
 
 public record MessageSummary(
         UUID id,

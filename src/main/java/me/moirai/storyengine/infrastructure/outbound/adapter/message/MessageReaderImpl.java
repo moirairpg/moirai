@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
-import me.moirai.storyengine.core.domain.message.MessageStatus;
+import me.moirai.storyengine.common.enums.MessageStatus;
 import me.moirai.storyengine.core.port.outbound.message.MessageData;
 import me.moirai.storyengine.core.port.outbound.message.MessageReader;
 

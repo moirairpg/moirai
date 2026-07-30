@@ -1,10 +1,7 @@
 package me.moirai.storyengine.core.application.command.character;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
-import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.CreatePlayerCharacter;
@@ -39,26 +36,6 @@ public class CreatePlayerCharacterHandler
         this.vectorSearchPort = vectorSearchPort;
         this.embeddingPort = embeddingPort;
         this.storagePort = storagePort;
-    }
-
-    @Override
-    public void validate(CreatePlayerCharacter command) {
-
-        if (isBlank(command.name())) {
-            throw new BusinessRuleViolationException("Character name cannot be null or empty");
-        }
-
-        if (isBlank(command.personality())) {
-            throw new BusinessRuleViolationException("Character personality cannot be null or empty");
-        }
-
-        if (isBlank(command.physicalDescription())) {
-            throw new BusinessRuleViolationException("Character physical description cannot be null or empty");
-        }
-
-        if (command.characterClass() == null) {
-            throw new BusinessRuleViolationException("Character class cannot be null");
-        }
     }
 
     @Override

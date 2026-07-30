@@ -10,8 +10,8 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import me.moirai.storyengine.core.domain.adventure.UserInvitedToAdventureEvent;
-import me.moirai.storyengine.core.domain.notification.NotificationLevel;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
+import me.moirai.storyengine.common.enums.NotificationLevel;
+import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationDetails;
 import me.moirai.storyengine.core.port.outbound.adventure.InvitationReader;
 import me.moirai.storyengine.core.port.outbound.adventure.PendingInvitationRow;

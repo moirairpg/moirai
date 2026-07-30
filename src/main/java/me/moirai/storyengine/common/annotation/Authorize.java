@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Authorize {
 

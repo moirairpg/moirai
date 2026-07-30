@@ -350,7 +350,7 @@ public class AdventureRestController extends SecurityContextAware {
 
     @PostMapping("/{adventureId}/messages/{messageId}/retry")
     @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
+    @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
     public MessageResult retryFromMessage(
             @PathVariable UUID adventureId,
             @PathVariable UUID messageId) {

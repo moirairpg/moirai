@@ -23,7 +23,7 @@ import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.enums.Moderation;
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.core.domain.message.MessageStatus;
+import me.moirai.storyengine.common.enums.MessageStatus;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureCatchUp;
 import me.moirai.storyengine.core.port.inbound.adventure.ContextAttributesDto;
 import me.moirai.storyengine.core.port.inbound.adventure.ModelConfigurationDto;

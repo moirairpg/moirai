@@ -4,6 +4,9 @@ import java.util.UUID;
 
 import org.springframework.test.util.ReflectionTestUtils;
 
+import me.moirai.storyengine.common.enums.NotificationLevel;
+import me.moirai.storyengine.common.enums.NotificationType;
+
 public class NotificationFixture {
 
     public static final UUID PUBLIC_ID = UUID.fromString("857345aa-6666-0000-0000-000000000000");

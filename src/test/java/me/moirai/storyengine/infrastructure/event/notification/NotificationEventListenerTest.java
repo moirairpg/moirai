@@ -27,8 +27,8 @@ import me.moirai.storyengine.core.application.event.notification.NotificationCre
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.notification.Notification;
 import me.moirai.storyengine.core.domain.notification.NotificationFixture;
-import me.moirai.storyengine.core.domain.notification.NotificationLevel;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
+import me.moirai.storyengine.common.enums.NotificationLevel;
+import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.core.domain.userdetails.User;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationDetails;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;

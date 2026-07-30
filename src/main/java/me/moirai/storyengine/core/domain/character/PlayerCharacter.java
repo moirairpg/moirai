@@ -88,7 +88,7 @@ public class PlayerCharacter extends Asset {
     }
 
     public void communicateCharacterDeleted() {
-        domainEvents.add(new PlayerCharacterDeletedEvent(this.id, this.playerId));
+        domainEvents.add(new PlayerCharacterDeletedEvent(this.id, this.playerId, this.publicId, this.imageKey));
     }
 
     public Long getId() {
@@ -197,19 +197,11 @@ public class PlayerCharacter extends Asset {
 
         public Builder name(String name) {
 
-            if (isBlank(name)) {
-                throw new BusinessRuleViolationException("Character name cannot be null or empty");
-            }
-
             this.name = name;
             return this;
         }
 
         public Builder playerId(Long playerId) {
-
-            if (playerId == null) {
-                throw new BusinessRuleViolationException("Character must have an owner");
-            }
 
             this.playerId = playerId;
             return this;
@@ -217,19 +209,11 @@ public class PlayerCharacter extends Asset {
 
         public Builder personality(String personality) {
 
-            if (isBlank(personality)) {
-                throw new BusinessRuleViolationException("Character personality cannot be null or empty");
-            }
-
             this.personality = personality;
             return this;
         }
 
         public Builder physicalDescription(String physicalDescription) {
-
-            if (isBlank(physicalDescription)) {
-                throw new BusinessRuleViolationException("Character physical description cannot be null or empty");
-            }
 
             this.physicalDescription = physicalDescription;
             return this;
@@ -237,15 +221,31 @@ public class PlayerCharacter extends Asset {
 
         public Builder characterClass(CharacterClass characterClass) {
 
-            if (characterClass == null) {
-                throw new BusinessRuleViolationException("Character class cannot be null");
-            }
-
             this.characterClass = characterClass;
             return this;
         }
 
         public PlayerCharacter build() {
+
+            if (isBlank(name)) {
+                throw new BusinessRuleViolationException("Character name cannot be null or empty");
+            }
+
+            if (playerId == null) {
+                throw new BusinessRuleViolationException("Character must have an owner");
+            }
+
+            if (isBlank(personality)) {
+                throw new BusinessRuleViolationException("Character personality cannot be null or empty");
+            }
+
+            if (isBlank(physicalDescription)) {
+                throw new BusinessRuleViolationException("Character physical description cannot be null or empty");
+            }
+
+            if (characterClass == null) {
+                throw new BusinessRuleViolationException("Character class cannot be null");
+            }
 
             return new PlayerCharacter(this);
         }

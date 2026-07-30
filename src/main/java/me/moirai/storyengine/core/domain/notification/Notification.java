@@ -24,7 +24,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import me.moirai.storyengine.common.domain.Asset;
+import me.moirai.storyengine.common.enums.NotificationLevel;
 import me.moirai.storyengine.common.enums.NotificationStatus;
+import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 
 @Entity

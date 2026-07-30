@@ -9,16 +9,25 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.core.DefaultParameterNameDiscoverer;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import me.moirai.storyengine.common.annotation.Authorize;
-import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
+import me.moirai.storyengine.common.exception.AuthenticationFailedException;
+import me.moirai.storyengine.common.security.authentication.MoiraiSecurityContext;
 
 @Aspect
 @Component
+@Order(AuthorizationAspect.ORDER)
 public class AuthorizationAspect {
+
+    static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
+
+    private static final String NO_PRINCIPAL = "No authenticated principal available for authorization";
 
     private final AuthorizationService authorizationService;
     private final DefaultParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
@@ -27,12 +36,40 @@ public class AuthorizationAspect {
         this.authorizationService = authorizationService;
     }
 
-    @Around("@annotation(authorize)")
-    public Object intercept(ProceedingJoinPoint joinPoint, Authorize authorize) throws Throwable {
+    @Around("within(me.moirai.storyengine..*)"
+            + " && (@annotation(me.moirai.storyengine.common.annotation.Authorize)"
+            + " || @target(me.moirai.storyengine.common.annotation.Authorize))")
+    public Object intercept(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        var authorize = resolveAuthorize(joinPoint);
+
+        if (authorize == null) {
+            return joinPoint.proceed();
+        }
+
+        var principal = MoiraiSecurityContext.getAuthenticatedUser();
+
+        if (principal == null) {
+            throw new AuthenticationFailedException(NO_PRINCIPAL);
+        }
+
         var fields = resolveFields(authorize.fields(), joinPoint);
-        var principal = (MoiraiPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         authorizationService.authorize(authorize.operation(), fields, principal);
+
         return joinPoint.proceed();
+    }
+
+    private Authorize resolveAuthorize(ProceedingJoinPoint joinPoint) {
+
+        var targetClass = AopUtils.getTargetClass(joinPoint.getTarget());
+        var method = AopUtils.getMostSpecificMethod(
+                ((MethodSignature) joinPoint.getSignature()).getMethod(), targetClass);
+
+        var onMethod = AnnotatedElementUtils.findMergedAnnotation(method, Authorize.class);
+
+        return onMethod != null
+                ? onMethod
+                : AnnotatedElementUtils.findMergedAnnotation(targetClass, Authorize.class);
     }
 
     private Map<String, Object> resolveFields(String[] expressions, ProceedingJoinPoint joinPoint) {

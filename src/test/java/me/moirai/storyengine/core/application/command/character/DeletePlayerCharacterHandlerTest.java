@@ -22,20 +22,12 @@ import me.moirai.storyengine.core.domain.character.PlayerCharacterDeletedEvent;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
 import me.moirai.storyengine.core.port.inbound.character.DeletePlayerCharacter;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterRepository;
-import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVectorSearchPort;
-import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 
 @ExtendWith(MockitoExtension.class)
 public class DeletePlayerCharacterHandlerTest {
 
     @Mock
     private PlayerCharacterRepository repository;
-
-    @Mock
-    private PlayerCharacterVectorSearchPort vectorSearchPort;
-
-    @Mock
-    private StoragePort storagePort;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -75,7 +67,5 @@ public class DeletePlayerCharacterHandlerTest {
 
         verify(repository, never()).deleteByPublicId(any());
         verify(eventPublisher, never()).publishEvent(any());
-        verify(storagePort, never()).delete(any());
-        verify(vectorSearchPort, never()).delete(any());
     }
 }

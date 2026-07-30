@@ -135,80 +135,90 @@ public class PlayerCharacterTest {
     public void shouldThrowExceptionWhenNameIsNull() {
 
         // given
-        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().name(null);
 
         // then
-        assertThrows(BusinessRuleViolationException.class, () -> builder.name(null));
+        assertThrows(BusinessRuleViolationException.class, builder::build);
     }
 
     @Test
     public void shouldThrowExceptionWhenNameIsEmpty() {
 
         // given
-        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().name(EMPTY);
 
         // then
-        assertThrows(BusinessRuleViolationException.class, () -> builder.name(EMPTY));
+        assertThrows(BusinessRuleViolationException.class, builder::build);
     }
 
     @Test
     public void shouldThrowExceptionWhenPlayerIdIsNull() {
 
         // given
-        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().playerId(null);
 
         // then
-        assertThrows(BusinessRuleViolationException.class, () -> builder.playerId(null));
+        assertThrows(BusinessRuleViolationException.class, builder::build);
     }
 
     @Test
     public void shouldThrowExceptionWhenPersonalityIsNull() {
 
         // given
-        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().personality(null);
 
         // then
-        assertThrows(BusinessRuleViolationException.class, () -> builder.personality(null));
+        assertThrows(BusinessRuleViolationException.class, builder::build);
     }
 
     @Test
     public void shouldThrowExceptionWhenPersonalityIsEmpty() {
 
         // given
-        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().personality(EMPTY);
 
         // then
-        assertThrows(BusinessRuleViolationException.class, () -> builder.personality(EMPTY));
+        assertThrows(BusinessRuleViolationException.class, builder::build);
     }
 
     @Test
     public void shouldThrowExceptionWhenPhysicalDescriptionIsNull() {
 
         // given
-        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().physicalDescription(null);
 
         // then
-        assertThrows(BusinessRuleViolationException.class, () -> builder.physicalDescription(null));
+        assertThrows(BusinessRuleViolationException.class, builder::build);
     }
 
     @Test
     public void shouldThrowExceptionWhenPhysicalDescriptionIsEmpty() {
 
         // given
-        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().physicalDescription(EMPTY);
 
         // then
-        assertThrows(BusinessRuleViolationException.class, () -> builder.physicalDescription(EMPTY));
+        assertThrows(BusinessRuleViolationException.class, builder::build);
     }
 
     @Test
     public void shouldThrowExceptionWhenCharacterClassIsNull() {
 
         // given
-        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().characterClass(null);
 
         // then
-        assertThrows(BusinessRuleViolationException.class, () -> builder.characterClass(null));
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenNoFieldIsProvided() {
+
+        // given
+        var builder = PlayerCharacter.builder();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
     }
 
     @Test

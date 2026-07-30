@@ -5,8 +5,8 @@ import java.util.UUID;
 import me.moirai.storyengine.common.cqs.query.Query;
 import me.moirai.storyengine.common.dto.PaginatedResult;
 import me.moirai.storyengine.common.enums.SortDirection;
-import me.moirai.storyengine.core.domain.notification.NotificationLevel;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
+import me.moirai.storyengine.common.enums.NotificationLevel;
+import me.moirai.storyengine.common.enums.NotificationType;
 
 public record SearchNotifications(
         NotificationType type,

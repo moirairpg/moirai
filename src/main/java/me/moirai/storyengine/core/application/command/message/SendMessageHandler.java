@@ -16,11 +16,12 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import me.moirai.storyengine.common.annotation.Authorize;
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
+import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.common.util.Functions;
@@ -40,9 +41,11 @@ import me.moirai.storyengine.core.port.outbound.generation.ChatMessage;
 import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextGenerationRequest;
+import me.moirai.storyengine.core.port.outbound.message.MessageBroadcastPort;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
 
 @CommandHandler
+@Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#request.adventureId")
 public class SendMessageHandler extends AbstractCommandHandler<SendMessage, MessageResult> {
 
     private final AdventureRepository adventureRepository;
@@ -54,7 +57,7 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
     private final PlayerCharacterRepository playerCharacterRepository;
     private final PlayerCharacterVectorSearchPort playerCharacterVectorSearchPort;
     private final ApplicationEventPublisher eventPublisher;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final MessageBroadcastPort messageBroadcastPort;
     private final int messageWindowSize;
     private final int lorebookTopK;
     private final int chronicleTopK;
@@ -70,7 +73,7 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
             PlayerCharacterRepository playerCharacterRepository,
             PlayerCharacterVectorSearchPort playerCharacterVectorSearchPort,
             ApplicationEventPublisher eventPublisher,
-            SimpMessagingTemplate messagingTemplate,
+            MessageBroadcastPort messageBroadcastPort,
             @Value("${moirai.adventure.message-window-size}") int messageWindowSize,
             @Value("${moirai.rag.lorebook.top-k}") int lorebookTopK,
             @Value("${moirai.rag.chronicle.top-k}") int chronicleTopK,
@@ -85,7 +88,7 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
         this.playerCharacterRepository = playerCharacterRepository;
         this.playerCharacterVectorSearchPort = playerCharacterVectorSearchPort;
         this.eventPublisher = eventPublisher;
-        this.messagingTemplate = messagingTemplate;
+        this.messageBroadcastPort = messageBroadcastPort;
         this.messageWindowSize = messageWindowSize;
         this.lorebookTopK = lorebookTopK;
         this.chronicleTopK = chronicleTopK;
@@ -122,8 +125,8 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
 
         messageRepository.save(playerMessage);
 
-        messagingTemplate.convertAndSend(
-                "/topic/adventures/" + adventure.getPublicId(),
+        messageBroadcastPort.broadcast(
+                adventure.getPublicId(),
                 new MessageResult(
                         playerMessage.getPublicId(),
                         playerMessage.getContent(),
@@ -173,11 +176,15 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Mess
             aiMessage.drainEvents().forEach(eventPublisher::publishEvent);
         }
 
-        return new MessageResult(
+        var narratorMessage = new MessageResult(
                 aiMessage.getPublicId(),
                 cleanedResponse,
                 aiMessage.getRole(),
                 aiMessage.getCreationDate());
+
+        messageBroadcastPort.broadcast(adventure.getPublicId(), narratorMessage);
+
+        return narratorMessage;
     }
 
     private List<ChatMessage> assembleContext(

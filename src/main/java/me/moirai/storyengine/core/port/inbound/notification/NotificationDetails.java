@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import me.moirai.storyengine.common.util.Functions;
-import me.moirai.storyengine.core.domain.notification.NotificationLevel;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
+import me.moirai.storyengine.common.enums.NotificationLevel;
+import me.moirai.storyengine.common.enums.NotificationType;
 
 public record NotificationDetails(
         UUID publicId,
