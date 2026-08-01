@@ -24,7 +24,6 @@ public class UpdateAdventureFixture {
                 "A helpful guide",
                 adventure.getVisibility(),
                 adventure.getModeration(),
-                adventure.isMultiplayer(),
                 null,
                 null,
                 Set.of(),
@@ -55,7 +54,6 @@ public class UpdateAdventureFixture {
                 "A helpful guide",
                 adventure.getVisibility(),
                 adventure.getModeration(),
-                adventure.isMultiplayer(),
                 null,
                 null,
                 Set.of(),
@@ -86,7 +84,6 @@ public class UpdateAdventureFixture {
                 "A helpful guide",
                 visibility,
                 adventure.getModeration(),
-                adventure.isMultiplayer(),
                 null,
                 null,
                 Set.of(),
@@ -105,34 +102,4 @@ public class UpdateAdventureFixture {
                 List.of());
     }
 
-    public static UpdateAdventure sampleWithMultiplayer(String requesterId, boolean isMultiplayer) {
-
-        Adventure adventure = AdventureFixture.privateMultiplayerAdventure().build();
-        return new UpdateAdventure(
-                AdventureFixture.PUBLIC_ID,
-                adventure.getName(),
-                adventure.getDescription(),
-                adventure.getAdventureStart(),
-                "Aria",
-                "A helpful guide",
-                adventure.getVisibility(),
-                adventure.getModeration(),
-                isMultiplayer,
-                null,
-                null,
-                Set.of(),
-                new ModelConfigurationDto(
-                        adventure.getModelConfiguration().getAiModel(),
-                        adventure.getModelConfiguration().getMaxTokenLimit(),
-                        adventure.getModelConfiguration().getTemperature()),
-                new ContextAttributesDto(
-                        adventure.getContextAttributes().nudge(),
-                        adventure.getContextAttributes().authorsNote(),
-                        adventure.getContextAttributes().scene(),
-                        adventure.getContextAttributes().bump(),
-                        adventure.getContextAttributes().bumpFrequency()),
-                List.of(),
-                List.of(),
-                List.of());
-    }
 }

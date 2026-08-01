@@ -53,7 +53,6 @@ public class AdventureSearchReaderImpl implements AdventureSearchReader {
                 .filter(Filters.containsIgnoreCase("w.name", "worldName", query.worldName()))
                 .filter(Filters.equals("a.ai_model", "model", query.model()))
                 .filter(Filters.equals("a.moderation", "moderation", query.moderation()))
-                .filter(Filters.equals("a.is_multiplayer", "isMultiplayer", query.isMultiplayer()))
                 .sortBy(resolveSortingField(query.sortingField()), query.direction())
                 .page(query.page(), query.size())
                 .build();

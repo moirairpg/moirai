@@ -19,7 +19,6 @@ public record AdventureDetails(
         String narratorPersonality,
         Visibility visibility,
         Moderation moderation,
-        boolean isMultiplayer,
         String imageUrl,
         Instant creationDate,
         Instant lastUpdateDate,

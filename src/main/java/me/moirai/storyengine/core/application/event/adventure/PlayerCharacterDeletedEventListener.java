@@ -29,7 +29,7 @@ public class PlayerCharacterDeletedEventListener {
 
         adventureRepository.findAllContainingCharacter(event.getPlayerCharacterId())
                 .forEach(adventure -> {
-                    adventure.unenrollPlayerCharacter(event.getPlayerId(), event.getPlayerId());
+                    adventure.withdrawDeletedCharacter(event.getPlayerCharacterId());
                     adventureRepository.save(adventure);
                     adventure.drainEvents().forEach(eventPublisher::publishEvent);
                 });

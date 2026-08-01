@@ -97,4 +97,5 @@
   <include file="db/changelog/migrations/1784466009_migrate_adventure_lorebook_player_characters.sql" />
   <include file="db/changelog/migrations/1784470829_alter_table_adventure_lorebook_delete_player_columns.sql" />
   <include file="db/changelog/migrations/1784988893_create_table_adventure_invitation.sql" />
+  <include file="db/changelog/migrations/1785594426_alter_table_adventure_drop_is_multiplayer.sql" />
 </databaseChangeLog>

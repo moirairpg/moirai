@@ -65,7 +65,7 @@ public class UpdateAdventureHandlerTest {
         // given
         var command = new UpdateAdventure(
                 null,
-                null, null, null, null, null, null, null, false,
+                null, null, null, null, null, null, null,
                 null, null, null, null, null, List.of(), List.of(), List.of());
 
         // then
@@ -136,52 +136,6 @@ public class UpdateAdventureHandlerTest {
     }
 
     @Test
-    public void updateAdventure_whenAdventureIsSingleplayer_thenUpdateToMultiplayer() {
-
-        // given
-        var requesterId = "RQSTRID";
-        var command = UpdateAdventureFixture.sampleWithMultiplayer(requesterId, true);
-
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
-
-        var adventureCaptor = ArgumentCaptor.forClass(Adventure.class);
-
-        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(repository.save(adventureCaptor.capture())).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
-
-        // when
-        handler.execute(command);
-
-        // then
-        var capturedAdventure = adventureCaptor.getValue();
-        assertThat(capturedAdventure.isMultiplayer()).isTrue();
-    }
-
-    @Test
-    public void updateAdventure_whenAdventureIsMultiplayer_thenUpdateToSingleplayer() {
-
-        // given
-        var requesterId = "RQSTRID";
-        var command = UpdateAdventureFixture.sampleWithMultiplayer(requesterId, false);
-
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
-
-        var adventureCaptor = ArgumentCaptor.forClass(Adventure.class);
-
-        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(repository.save(adventureCaptor.capture())).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
-
-        // when
-        handler.execute(command);
-
-        // then
-        var capturedAdventure = adventureCaptor.getValue();
-        assertThat(capturedAdventure.isMultiplayer()).isFalse();
-    }
-
-    @Test
     public void shouldOverwritePermissionsWhenUpdateAdventure() {
 
         // given
@@ -196,7 +150,6 @@ public class UpdateAdventureHandlerTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
-                sample.isMultiplayer(),
                 null,
                 null,
                 Set.of(permissionDto),
@@ -235,7 +188,6 @@ public class UpdateAdventureHandlerTest {
                 "A wise elder narrator",
                 sample.visibility(),
                 sample.moderation(),
-                sample.isMultiplayer(),
                 null,
                 null,
                 Set.of(),
@@ -272,7 +224,6 @@ public class UpdateAdventureHandlerTest {
                 null,
                 Visibility.PUBLIC,
                 Moderation.PERMISSIVE,
-                false,
                 null,
                 null,
                 Set.of(),
@@ -322,7 +273,6 @@ public class UpdateAdventureHandlerTest {
                 null,
                 Visibility.PUBLIC,
                 Moderation.PERMISSIVE,
-                false,
                 null,
                 null,
                 Set.of(),
@@ -365,7 +315,6 @@ public class UpdateAdventureHandlerTest {
                 null,
                 Visibility.PUBLIC,
                 Moderation.PERMISSIVE,
-                false,
                 null,
                 null,
                 Set.of(),
@@ -405,7 +354,6 @@ public class UpdateAdventureHandlerTest {
                 null,
                 Visibility.PUBLIC,
                 Moderation.PERMISSIVE,
-                false,
                 0.3,
                 0.7,
                 Set.of(),

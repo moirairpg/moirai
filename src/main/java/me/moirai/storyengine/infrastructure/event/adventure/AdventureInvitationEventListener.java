@@ -10,6 +10,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import me.moirai.storyengine.core.domain.adventure.UserInvitedToAdventureEvent;
+import me.moirai.storyengine.common.enums.NotificationKind;
 import me.moirai.storyengine.common.enums.NotificationLevel;
 import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationDetails;
@@ -18,8 +19,6 @@ import me.moirai.storyengine.core.port.outbound.adventure.PendingInvitationRow;
 
 @Component
 public class AdventureInvitationEventListener {
-
-    private static final String ADVENTURE_INVITE_KIND = "ADVENTURE_INVITE";
 
     private final InvitationReader invitationReader;
     private final SimpMessagingTemplate messagingTemplate;
@@ -54,7 +53,7 @@ public class AdventureInvitationEventListener {
                 null,
                 true,
                 Map.of(
-                        "kind", ADVENTURE_INVITE_KIND,
+                        "kind", NotificationKind.ADVENTURE_INVITE.name(),
                         "adventureId", row.adventureId().toString(),
                         "adventureName", row.adventureName(),
                         "inviterUsername", row.inviterUsername()),

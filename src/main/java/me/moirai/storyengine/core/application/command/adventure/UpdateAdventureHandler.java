@@ -78,12 +78,6 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
 
         adventure.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
 
-        if (command.isMultiplayer()) {
-            adventure.makeMultiplayer();
-        } else {
-            adventure.makeSinglePlayer();
-        }
-
         updatePermissions(command, adventure);
 
         var originalIds = adventure.getLorebook().stream()
@@ -172,7 +166,6 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
                 savedAdventure.getNarratorPersonality(),
                 savedAdventure.getVisibility(),
                 savedAdventure.getModeration(),
-                savedAdventure.isMultiplayer(),
                 storagePort.resolveUrl(savedAdventure.getImageKey()),
                 savedAdventure.getCreationDate(),
                 savedAdventure.getLastUpdateDate(),

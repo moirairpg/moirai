@@ -18,7 +18,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
-import me.moirai.storyengine.core.domain.adventure.PlayerRemovedFromAdventureEvent;
+import me.moirai.storyengine.core.domain.adventure.EnrolledCharacterDeletedEvent;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterDeletedEvent;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
@@ -37,7 +37,7 @@ public class PlayerCharacterDeletedEventListenerTest {
     private PlayerCharacterDeletedEventListener listener;
 
     @Test
-    void shouldUnenrollTheCharacterAndPublishRemovalWhenTheCharacterIsDeleted() {
+    void shouldUnenrollTheCharacterAndPublishDeletionWhenTheCharacterIsDeleted() {
 
         // given
         var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
@@ -52,10 +52,11 @@ public class PlayerCharacterDeletedEventListenerTest {
         // then
         verify(adventureRepository).save(adventure);
 
-        var publishedEvent = ArgumentCaptor.forClass(PlayerRemovedFromAdventureEvent.class);
+        var publishedEvent = ArgumentCaptor.forClass(EnrolledCharacterDeletedEvent.class);
         verify(eventPublisher).publishEvent(publishedEvent.capture());
 
-        assertThat(publishedEvent.getValue().getRemovedUserId()).isEqualTo(character.getPlayerId());
+        assertThat(publishedEvent.getValue().getPlayerId()).isEqualTo(character.getPlayerId());
+        assertThat(publishedEvent.getValue().getPlayerCharacterId()).isEqualTo(character.getId());
         assertThat(publishedEvent.getValue().getAdventureId()).isEqualTo(adventure.getId());
         assertThat(publishedEvent.getValue().getAdventurePublicId()).isEqualTo(adventure.getPublicId());
         assertThat(adventure.hasCharacter(character.getId())).isFalse();

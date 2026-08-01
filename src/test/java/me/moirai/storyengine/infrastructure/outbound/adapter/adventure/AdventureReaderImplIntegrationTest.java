@@ -70,7 +70,6 @@ public class AdventureReaderImplIntegrationTest extends AbstractDatabaseIntegrat
         assertThat(result.get().narratorName()).isEqualTo(adventure.getNarratorName());
         assertThat(result.get().narratorPersonality()).isEqualTo(adventure.getNarratorPersonality());
         assertThat(result.get().visibility()).isEqualTo(adventure.getVisibility());
-        assertThat(result.get().isMultiplayer()).isTrue();
         assertThat(result.get().creationDate()).isNotNull();
         assertThat(result.get().lastUpdateDate()).isNotNull();
 

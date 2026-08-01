@@ -35,7 +35,12 @@ public class RemoveCharacterFromAdventureHandler extends AbstractCommandHandler<
         var character = playerCharacterRepository.findByPublicId(command.playerCharacterId())
                 .orElseThrow(() -> new NotFoundException("Player character not found"));
 
-        adventure.unenrollPlayerCharacter(character.getPlayerId(), command.requesterId());
+        if (character.getPlayerId().equals(command.requesterId())) {
+            adventure.leave(character.getId());
+        } else {
+            adventure.expel(character.getId());
+        }
+
         adventureRepository.save(adventure);
         adventure.drainEvents().forEach(eventPublisher::publishEvent);
 

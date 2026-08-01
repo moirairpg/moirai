@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import me.moirai.storyengine.common.annotation.QueryHandler;
 import me.moirai.storyengine.common.cqs.query.AbstractQueryHandler;
+import me.moirai.storyengine.common.enums.NotificationKind;
 import me.moirai.storyengine.common.enums.NotificationLevel;
 import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.core.port.inbound.notification.GetActiveSystemNotifications;
@@ -18,8 +19,6 @@ import me.moirai.storyengine.core.port.outbound.notification.ActiveSystemNotific
 @QueryHandler
 public class GetActiveSystemNotificationsHandler
         extends AbstractQueryHandler<GetActiveSystemNotifications, List<NotificationDetails>> {
-
-    private static final String ADVENTURE_INVITE_KIND = "ADVENTURE_INVITE";
 
     private final ActiveSystemNotificationReader reader;
     private final InvitationReader invitationReader;
@@ -57,7 +56,7 @@ public class GetActiveSystemNotificationsHandler
                 null,
                 true,
                 Map.of(
-                        "kind", ADVENTURE_INVITE_KIND,
+                        "kind", NotificationKind.ADVENTURE_INVITE.name(),
                         "adventureId", row.adventureId().toString(),
                         "adventureName", row.adventureName(),
                         "inviterUsername", row.inviterUsername()),

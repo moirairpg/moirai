@@ -1,5 +1,6 @@
 package me.moirai.storyengine.core.application.command.adventure;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
@@ -22,7 +23,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
-import me.moirai.storyengine.core.domain.adventure.PlayerRemovedFromAdventureEvent;
+import me.moirai.storyengine.core.domain.adventure.PlayerExpelledFromAdventureEvent;
+import me.moirai.storyengine.core.domain.adventure.PlayerLeftAdventureEvent;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
 import me.moirai.storyengine.core.port.inbound.adventure.RemoveCharacterFromAdventure;
@@ -73,7 +75,51 @@ public class RemoveCharacterFromAdventureHandlerTest {
         // then
         InOrder inOrder = inOrder(adventureRepository, eventPublisher);
         inOrder.verify(adventureRepository).save(adventure);
-        inOrder.verify(eventPublisher).publishEvent(any(PlayerRemovedFromAdventureEvent.class));
+        inOrder.verify(eventPublisher).publishEvent(any(PlayerLeftAdventureEvent.class));
+    }
+
+    @Test
+    public void shouldPublishExpelledEventWhenRequesterIsNotTheCharacterOwner() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var character = characterOwnedBy(99L, 1L);
+        adventure.enrollPlayerCharacter(character.getId(), 99L);
+        adventure.drainEvents();
+
+        var command = new RemoveCharacterFromAdventure(
+                adventure.getPublicId(), character.getPublicId(), REQUESTER_ID);
+
+        when(adventureRepository.findByPublicId(any())).thenReturn(Optional.of(adventure));
+        when(playerCharacterRepository.findByPublicId(any())).thenReturn(Optional.of(character));
+
+        // when
+        handler.execute(command);
+
+        // then
+        verify(eventPublisher).publishEvent(any(PlayerExpelledFromAdventureEvent.class));
+    }
+
+    @Test
+    public void shouldThrowWhenCharacterIsNotEnrolledInThisAdventure() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var enrolled = characterOwnedBy(REQUESTER_ID, 1L);
+        var notEnrolled = characterOwnedBy(REQUESTER_ID, 2L);
+        adventure.enrollPlayerCharacter(enrolled.getId(), REQUESTER_ID);
+        adventure.drainEvents();
+
+        var command = new RemoveCharacterFromAdventure(
+                adventure.getPublicId(), notEnrolled.getPublicId(), REQUESTER_ID);
+
+        when(adventureRepository.findByPublicId(any())).thenReturn(Optional.of(adventure));
+        when(playerCharacterRepository.findByPublicId(any())).thenReturn(Optional.of(notEnrolled));
+
+        // then
+        assertThatThrownBy(() -> handler.execute(command)).isInstanceOf(NotFoundException.class);
+        verify(adventureRepository, never()).save(any(Adventure.class));
+        assertThat(adventure.getRoster()).hasSize(1);
     }
 
     @Test

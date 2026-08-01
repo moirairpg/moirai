@@ -4,26 +4,26 @@ import java.util.UUID;
 
 import me.moirai.storyengine.common.domain.DomainEvent;
 
-public final class PlayerRemovedFromAdventureEvent implements DomainEvent {
+public final class EnrolledCharacterDeletedEvent implements DomainEvent {
 
     private final Long adventureId;
     private final UUID adventurePublicId;
     private final String adventureName;
-    private final Long removedUserId;
-    private final boolean voluntary;
+    private final Long playerId;
+    private final Long playerCharacterId;
 
-    PlayerRemovedFromAdventureEvent(
+    EnrolledCharacterDeletedEvent(
             Long adventureId,
             UUID adventurePublicId,
             String adventureName,
-            Long removedUserId,
-            boolean voluntary) {
+            Long playerId,
+            Long playerCharacterId) {
 
         this.adventureId = adventureId;
         this.adventurePublicId = adventurePublicId;
         this.adventureName = adventureName;
-        this.removedUserId = removedUserId;
-        this.voluntary = voluntary;
+        this.playerId = playerId;
+        this.playerCharacterId = playerCharacterId;
     }
 
     public Long getAdventureId() {
@@ -38,11 +38,11 @@ public final class PlayerRemovedFromAdventureEvent implements DomainEvent {
         return adventureName;
     }
 
-    public Long getRemovedUserId() {
-        return removedUserId;
+    public Long getPlayerId() {
+        return playerId;
     }
 
-    public boolean isVoluntary() {
-        return voluntary;
+    public Long getPlayerCharacterId() {
+        return playerCharacterId;
     }
 }

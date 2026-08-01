@@ -19,7 +19,6 @@ public record UpdateAdventure(
         String narratorPersonality,
         Visibility visibility,
         Moderation moderation,
-        boolean isMultiplayer,
         Double uiImagePositionX,
         Double uiImagePositionY,
         Set<PermissionDto> permissions,

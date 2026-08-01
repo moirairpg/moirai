@@ -106,7 +106,6 @@ public class AdventureRestController extends SecurityContextAware {
     public PaginatedResult<AdventureSummary> search(
             @RequestParam(name = "name", required = false) String name,
             @RequestParam(name = "world_name", required = false) String worldName,
-            @RequestParam(name = "is_multiplayer", required = false) Boolean isMultiplayer,
             @RequestParam(name = "model", required = false) SearchModel model,
             @RequestParam(name = "moderation", required = false) SearchModeration moderation,
             @RequestParam(name = "view", required = true) SearchView view,
@@ -118,7 +117,6 @@ public class AdventureRestController extends SecurityContextAware {
         return queryRunner.run(new SearchAdventures(
                 name,
                 worldName,
-                isMultiplayer,
                 Functions.mapOrNull(model, SearchModel::name),
                 Functions.mapOrNull(moderation, SearchModeration::name),
                 view,
@@ -166,7 +164,6 @@ public class AdventureRestController extends SecurityContextAware {
                 request.narratorPersonality(),
                 request.visibility(),
                 request.moderation(),
-                request.isMultiplayer(),
                 request.adventureStart(),
                 lorebookEntries,
                 request.uiImagePositionX(),
@@ -214,7 +211,6 @@ public class AdventureRestController extends SecurityContextAware {
                 request.narratorPersonality(),
                 request.visibility(),
                 request.moderation(),
-                request.isMultiplayer(),
                 request.uiImagePositionX(),
                 request.uiImagePositionY(),
                 updatePermissions,

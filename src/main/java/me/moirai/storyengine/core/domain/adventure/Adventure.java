@@ -71,9 +71,6 @@ public class Adventure extends ShareableAsset {
     @Column(name = "image_key")
     private String imageKey;
 
-    @Column(name = "is_multiplayer")
-    private boolean isMultiplayer;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "moderation")
     private Moderation moderation;
@@ -131,7 +128,6 @@ public class Adventure extends ShareableAsset {
         this.contextAttributes = builder.contextAttributes;
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
-        this.isMultiplayer = builder.isMultiplayer;
         this.permissions.addAll(builder.permissions);
     }
 
@@ -226,10 +222,6 @@ public class Adventure extends ShareableAsset {
         this.uiImagePositionY = uiImagePositionY;
     }
 
-    public boolean isMultiplayer() {
-        return isMultiplayer;
-    }
-
     public List<AdventureLorebookEntry> getLorebook() {
         return Collections.unmodifiableList(lorebook);
     }
@@ -259,25 +251,46 @@ public class Adventure extends ShareableAsset {
         roster.add(AdventureMembership.of(this.id, playerCharacterId, playerId));
     }
 
-    public void unenrollPlayerCharacter(Long playerId, Long requesterId) {
+    public void leave(Long playerCharacterId) {
+
+        var membership = removeMembership(playerCharacterId);
+
+        domainEvents.add(new PlayerLeftAdventureEvent(
+                this.id, this.publicId, this.name, membership.getPlayerId(), playerCharacterId));
+    }
+
+    public void expel(Long playerCharacterId) {
+
+        var membership = removeMembership(playerCharacterId);
+
+        domainEvents.add(new PlayerExpelledFromAdventureEvent(
+                this.id, this.publicId, this.name, membership.getPlayerId(), playerCharacterId));
+    }
+
+    public void withdrawDeletedCharacter(Long playerCharacterId) {
+
+        var membership = removeMembership(playerCharacterId);
+
+        domainEvents.add(new EnrolledCharacterDeletedEvent(
+                this.id, this.publicId, this.name, membership.getPlayerId(), playerCharacterId));
+    }
+
+    private AdventureMembership removeMembership(Long playerCharacterId) {
 
         var membership = roster.stream()
-                .filter(entry -> entry.getPlayerId().equals(playerId))
+                .filter(entry -> entry.getPlayerCharacterId().equals(playerCharacterId))
                 .findFirst()
-                .orElse(null);
-
-        if (membership == null) {
-            return;
-        }
+                .orElseThrow(() -> new NotFoundException("Character is not enrolled in this adventure"));
 
         roster.remove(membership);
+
+        var playerId = membership.getPlayerId();
 
         if (canRead(playerId) && !canWrite(playerId)) {
             revoke(playerId);
         }
 
-        domainEvents.add(new PlayerRemovedFromAdventureEvent(
-                this.id, this.publicId, this.name, playerId, playerId.equals(requesterId)));
+        return membership;
     }
 
     public boolean hasCharacter(Long playerCharacterId) {
@@ -397,14 +410,6 @@ public class Adventure extends ShareableAsset {
         this.modelConfiguration = newModelConfiguration;
     }
 
-    public void makeMultiplayer() {
-        this.isMultiplayer = true;
-    }
-
-    public void makeSinglePlayer() {
-        this.isMultiplayer = false;
-    }
-
     public void updateNudge(String nudge) {
 
         ContextAttributes newContextAttributes = this.contextAttributes.updateNudge(nudge);
@@ -488,7 +493,6 @@ public class Adventure extends ShareableAsset {
         private UUID worldId;
         private String narratorName;
         private String narratorPersonality;
-        private boolean isMultiplayer;
         private ContextAttributes contextAttributes;
         private ModelConfiguration modelConfiguration;
         private Moderation moderation;
@@ -526,12 +530,6 @@ public class Adventure extends ShareableAsset {
 
             this.narratorName = narratorName;
             this.narratorPersonality = narratorPersonality;
-            return this;
-        }
-
-        public Builder isMultiplayer(boolean isMultiplayer) {
-
-            this.isMultiplayer = isMultiplayer;
             return this;
         }
 

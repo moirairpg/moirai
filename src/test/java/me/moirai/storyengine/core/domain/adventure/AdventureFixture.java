@@ -28,7 +28,6 @@ public class AdventureFixture {
         builder.moderation(Moderation.STRICT);
         builder.visibility(Visibility.fromString("PRIVATE"));
         builder.modelConfiguration(ModelConfigurationFixture.gpt4Mini());
-        builder.isMultiplayer(false);
         builder.contextAttributes(ContextAttributesFixture.sample());
         builder.permissions(new Permission(OWNER_ID, PermissionLevel.OWNER));
 
@@ -46,7 +45,6 @@ public class AdventureFixture {
         builder.moderation(Moderation.STRICT);
         builder.visibility(Visibility.fromString("PRIVATE"));
         builder.modelConfiguration(ModelConfigurationFixture.gpt4Mini());
-        builder.isMultiplayer(true);
         builder.contextAttributes(ContextAttributesFixture.sample());
         builder.permissions(new Permission(OWNER_ID, PermissionLevel.OWNER));
 
@@ -64,7 +62,6 @@ public class AdventureFixture {
         builder.moderation(Moderation.STRICT);
         builder.visibility(Visibility.fromString("PUBLIC"));
         builder.modelConfiguration(ModelConfigurationFixture.gpt4Mini());
-        builder.isMultiplayer(false);
         builder.contextAttributes(ContextAttributesFixture.sample());
         builder.permissions(new Permission(OWNER_ID, PermissionLevel.OWNER));
 
@@ -82,7 +79,6 @@ public class AdventureFixture {
         builder.moderation(Moderation.STRICT);
         builder.visibility(Visibility.fromString("PUBLIC"));
         builder.modelConfiguration(ModelConfigurationFixture.gpt4Mini());
-        builder.isMultiplayer(true);
         builder.contextAttributes(ContextAttributesFixture.sample());
         builder.permissions(new Permission(OWNER_ID, PermissionLevel.OWNER));
 

@@ -352,32 +352,6 @@ public class AdventureTest {
     }
 
     @Test
-    public void adventure_whenMultiplayerAdventure_thenChangeToSingleplayer() {
-
-        // given
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
-
-        // when
-        adventure.makeSinglePlayer();
-
-        // then
-        assertThat(adventure.isMultiplayer()).isFalse();
-    }
-
-    @Test
-    public void adventure_whenSingleplayerAdventure_thenChangeToMultiplayer() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-
-        // when
-        adventure.makeMultiplayer();
-
-        // then
-        assertThat(adventure.isMultiplayer()).isTrue();
-    }
-
-    @Test
     public void adventure_whenUpdateNudge_thenNudgeIsUpdated() {
 
         // given
@@ -519,7 +493,7 @@ public class AdventureTest {
     }
 
     @Test
-    public void shouldUnenrollPlayerCharacterWhenEnrolled() {
+    public void shouldRemoveOnlyTheGivenCharacterWhenLeaving() {
 
         // given
         var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
@@ -527,7 +501,7 @@ public class AdventureTest {
         adventure.enrollPlayerCharacter(2L, 20L);
 
         // when
-        adventure.unenrollPlayerCharacter(10L, 10L);
+        adventure.leave(1L);
 
         // then
         assertThat(adventure.getRoster())
@@ -536,14 +510,31 @@ public class AdventureTest {
     }
 
     @Test
-    public void shouldLeaveRosterUntouchedWhenUnenrollingCharacterThatIsNotEnrolled() {
+    public void shouldThrowWhenLeavingWithACharacterThatIsNotEnrolled() {
 
         // given
         var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
 
         // when
-        adventure.unenrollPlayerCharacter(99L, 99L);
+        var exception = assertThrows(NotFoundException.class, () -> adventure.leave(99L));
+
+        // then
+        assertThat(exception.getMessage()).isEqualTo("Character is not enrolled in this adventure");
+        assertThat(adventure.getRoster())
+                .extracting(AdventureMembership::getPlayerCharacterId)
+                .containsExactly(1L);
+    }
+
+    @Test
+    public void shouldNotRemoveAnotherCharacterOwnedByTheSamePlayer() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+
+        // when
+        assertThrows(NotFoundException.class, () -> adventure.leave(2L));
 
         // then
         assertThat(adventure.getRoster())
@@ -552,7 +543,7 @@ public class AdventureTest {
     }
 
     @Test
-    public void shouldEmitEventWhenPlayerCharacterIsUnenrolled() {
+    public void shouldEmitPlayerLeftEventWhenLeaving() {
 
         // given
         var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
@@ -560,15 +551,16 @@ public class AdventureTest {
         adventure.drainEvents();
 
         // when
-        adventure.unenrollPlayerCharacter(10L, 10L);
+        adventure.leave(1L);
 
         // then
-        assertThat(adventure.drainEvents())
-                .anyMatch(PlayerRemovedFromAdventureEvent.class::isInstance);
+        var event = drainEvent(adventure, PlayerLeftAdventureEvent.class);
+        assertThat(event.getPlayerId()).isEqualTo(10L);
+        assertThat(event.getPlayerCharacterId()).isEqualTo(1L);
     }
 
     @Test
-    public void shouldNotEmitEventWhenUnenrollingCharacterThatIsNotEnrolled() {
+    public void shouldEmitPlayerExpelledEventWhenExpelling() {
 
         // given
         var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
@@ -576,15 +568,48 @@ public class AdventureTest {
         adventure.drainEvents();
 
         // when
-        adventure.unenrollPlayerCharacter(99L, 99L);
+        adventure.expel(1L);
 
         // then
-        assertThat(adventure.drainEvents())
-                .noneMatch(PlayerRemovedFromAdventureEvent.class::isInstance);
+        var event = drainEvent(adventure, PlayerExpelledFromAdventureEvent.class);
+        assertThat(event.getPlayerId()).isEqualTo(10L);
+        assertThat(event.getPlayerCharacterId()).isEqualTo(1L);
     }
 
     @Test
-    public void shouldRevokeReadAccessWhenAnEnrolledReaderIsUnenrolled() {
+    public void shouldEmitEnrolledCharacterDeletedEventWhenWithdrawingADeletedCharacter() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+        adventure.drainEvents();
+
+        // when
+        adventure.withdrawDeletedCharacter(1L);
+
+        // then
+        var event = drainEvent(adventure, EnrolledCharacterDeletedEvent.class);
+        assertThat(event.getPlayerId()).isEqualTo(10L);
+        assertThat(event.getPlayerCharacterId()).isEqualTo(1L);
+    }
+
+    @Test
+    public void shouldNotEmitEventWhenTheCharacterIsNotEnrolled() {
+
+        // given
+        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        adventure.enrollPlayerCharacter(1L, 10L);
+        adventure.drainEvents();
+
+        // when
+        assertThrows(NotFoundException.class, () -> adventure.leave(99L));
+
+        // then
+        assertThat(adventure.drainEvents()).isEmpty();
+    }
+
+    @Test
+    public void shouldRevokeReadAccessWhenAnEnrolledReaderLeaves() {
 
         // given
         var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
@@ -593,14 +618,14 @@ public class AdventureTest {
         adventure.drainEvents();
 
         // when
-        adventure.unenrollPlayerCharacter(10L, 10L);
+        adventure.leave(1L);
 
         // then
         assertThat(adventure.canRead(10L)).isFalse();
     }
 
     @Test
-    public void shouldKeepWriteAccessWhenAWriterIsUnenrolled() {
+    public void shouldKeepWriteAccessWhenAWriterLeaves() {
 
         // given
         var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
@@ -609,48 +634,17 @@ public class AdventureTest {
         adventure.drainEvents();
 
         // when
-        adventure.unenrollPlayerCharacter(10L, 10L);
+        adventure.leave(1L);
 
         // then
         assertThat(adventure.canWrite(10L)).isTrue();
     }
 
-    @Test
-    public void shouldMarkRemovalVoluntaryWhenRequesterIsTheRemovedPlayer() {
+    private <T> T drainEvent(Adventure adventure, Class<T> eventType) {
 
-        // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        adventure.enrollPlayerCharacter(1L, 10L);
-        adventure.drainEvents();
-
-        // when
-        adventure.unenrollPlayerCharacter(10L, 10L);
-
-        // then
-        var event = drainRemovalEvent(adventure);
-        assertThat(event.isVoluntary()).isTrue();
-    }
-
-    @Test
-    public void shouldMarkRemovalInvoluntaryWhenRequesterIsNotTheRemovedPlayer() {
-
-        // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        adventure.enrollPlayerCharacter(1L, 10L);
-        adventure.drainEvents();
-
-        // when
-        adventure.unenrollPlayerCharacter(10L, 99L);
-
-        // then
-        var event = drainRemovalEvent(adventure);
-        assertThat(event.isVoluntary()).isFalse();
-    }
-
-    private PlayerRemovedFromAdventureEvent drainRemovalEvent(Adventure adventure) {
-
-        return (PlayerRemovedFromAdventureEvent) adventure.drainEvents().stream()
-                .filter(PlayerRemovedFromAdventureEvent.class::isInstance)
+        return adventure.drainEvents().stream()
+                .filter(eventType::isInstance)
+                .map(eventType::cast)
                 .findFirst()
                 .orElseThrow();
     }

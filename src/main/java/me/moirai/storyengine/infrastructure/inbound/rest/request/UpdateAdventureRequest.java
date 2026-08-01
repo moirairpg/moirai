@@ -19,7 +19,6 @@ public record UpdateAdventureRequest(
         @Moderated String narratorPersonality,
         @NotNull(message = "cannot be empty") Visibility visibility,
         @NotNull(message = "cannot be empty") Moderation moderation,
-        boolean isMultiplayer,
         Double uiImagePositionX,
         Double uiImagePositionY,
         Set<PermissionRequest> permissions,

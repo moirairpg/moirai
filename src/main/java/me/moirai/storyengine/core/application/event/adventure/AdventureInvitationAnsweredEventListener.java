@@ -14,6 +14,7 @@ import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.application.event.notification.NotificationCreated;
 import me.moirai.storyengine.core.domain.adventure.AdventureInvitationAnsweredEvent;
 import me.moirai.storyengine.core.domain.notification.Notification;
+import me.moirai.storyengine.common.enums.NotificationKind;
 import me.moirai.storyengine.common.enums.NotificationLevel;
 import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
@@ -50,7 +51,7 @@ public class AdventureInvitationAnsweredEventListener {
         var action = event.getResponse() == InvitationStatus.ACCEPTED ? "accepted" : "declined";
 
         var responseMetadata = Map.<String, Object>of(
-                "kind", "ADVENTURE_INVITE_RESPONSE",
+                "kind", NotificationKind.ADVENTURE_INVITE_RESPONSE.name(),
                 "adventureId", event.getAdventurePublicId().toString(),
                 "respondingUsername", responder.getUsername(),
                 "response", event.getResponse().name());
