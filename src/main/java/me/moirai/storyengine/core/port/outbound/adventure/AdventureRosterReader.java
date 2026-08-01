@@ -7,5 +7,5 @@ public interface AdventureRosterReader {
 
     List<CharacterAdventureSummaryRow> getAdventuresByPlayerCharacterPublicId(UUID characterPublicId);
 
-    List<AdventureRosterSummaryRow> getAllByAdventurePublicId(UUID adventurePublicId);
+    List<AdventureMembershipSummaryRow> getAllByAdventurePublicId(UUID adventurePublicId);
 }

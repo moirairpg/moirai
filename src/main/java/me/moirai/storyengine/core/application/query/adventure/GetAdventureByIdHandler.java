@@ -4,7 +4,7 @@ import me.moirai.storyengine.common.annotation.QueryHandler;
 import me.moirai.storyengine.common.cqs.query.AbstractQueryHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureDetails;
-import me.moirai.storyengine.core.port.inbound.adventure.AdventureRosterSummary;
+import me.moirai.storyengine.core.port.inbound.adventure.AdventureMembershipSummary;
 import me.moirai.storyengine.core.port.inbound.adventure.GetAdventureById;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureReader;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRosterReader;
@@ -44,8 +44,8 @@ public class GetAdventureByIdHandler extends AbstractQueryHandler<GetAdventureBy
         var adventure = reader.getAdventureById(query.adventureId())
                 .orElseThrow(() -> new NotFoundException(ADVENTURE_NOT_FOUND));
 
-        var registeredCharacters = adventureRosterReader.getAllByAdventurePublicId(query.adventureId()).stream()
-                .map(row -> new AdventureRosterSummary(
+        var roster = adventureRosterReader.getAllByAdventurePublicId(query.adventureId()).stream()
+                .map(row -> new AdventureMembershipSummary(
                         row.playerCharacterId(),
                         row.playerId(),
                         row.playerUsername(),
@@ -71,7 +71,7 @@ public class GetAdventureByIdHandler extends AbstractQueryHandler<GetAdventureBy
                 adventure.contextAttributes(),
                 adventure.permissions(),
                 adventure.lorebook(),
-                registeredCharacters,
+                roster,
                 adventure.uiImagePositionX(),
                 adventure.uiImagePositionY());
     }

@@ -1,14 +1,14 @@
-package me.moirai.storyengine.core.port.outbound.adventure;
+package me.moirai.storyengine.core.port.inbound.adventure;
 
 import java.util.UUID;
 
 import me.moirai.storyengine.common.enums.CharacterClass;
 
-public record AdventureRosterSummaryRow(
+public record AdventureMembershipSummary(
         UUID playerCharacterId,
         UUID playerId,
         String playerUsername,
         String name,
         CharacterClass characterClass,
-        String imageKey) {
+        String imageUrl) {
 }

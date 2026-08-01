@@ -21,12 +21,13 @@ public class InvitationReaderImpl implements InvitationReader {
             SELECT ai.public_id     AS invitation_id,
                    a.public_id      AS adventure_id,
                    a.name           AS adventure_name,
-                   ai.created_by    AS inviter_username,
+                   inviter.username AS inviter_username,
                    u.username       AS recipient_username,
                    ai.creation_date AS creation_date
               FROM adventure_invitation ai
-                   JOIN adventure a   ON a.id = ai.adventure_id
-                   JOIN moirai_user u ON u.id = ai.user_id
+                   JOIN adventure a         ON a.id       = ai.adventure_id
+                   JOIN moirai_user u       ON u.id       = ai.user_id
+                   JOIN moirai_user inviter ON inviter.id = ai.inviter_id
              WHERE a.public_id = :adventurePublicId
                AND u.username  = :recipientUsername
                AND ai.status   = 'PENDING'
@@ -36,12 +37,13 @@ public class InvitationReaderImpl implements InvitationReader {
             SELECT ai.public_id     AS invitation_id,
                    a.public_id      AS adventure_id,
                    a.name           AS adventure_name,
-                   ai.created_by    AS inviter_username,
+                   inviter.username AS inviter_username,
                    u.username       AS recipient_username,
                    ai.creation_date AS creation_date
               FROM adventure_invitation ai
-                   JOIN adventure a   ON a.id = ai.adventure_id
-                   JOIN moirai_user u ON u.id = ai.user_id
+                   JOIN adventure a         ON a.id       = ai.adventure_id
+                   JOIN moirai_user u       ON u.id       = ai.user_id
+                   JOIN moirai_user inviter ON inviter.id = ai.inviter_id
              WHERE ai.public_id = :invitationId
                AND ai.status    = 'PENDING'
             """;
@@ -58,12 +60,13 @@ public class InvitationReaderImpl implements InvitationReader {
             SELECT ai.public_id     AS invitation_id,
                    a.public_id      AS adventure_id,
                    a.name           AS adventure_name,
-                   ai.created_by    AS inviter_username,
+                   inviter.username AS inviter_username,
                    u.username       AS recipient_username,
                    ai.creation_date AS creation_date
               FROM adventure_invitation ai
-                   JOIN adventure a   ON a.id = ai.adventure_id
-                   JOIN moirai_user u ON u.id = ai.user_id
+                   JOIN adventure a         ON a.id       = ai.adventure_id
+                   JOIN moirai_user u       ON u.id       = ai.user_id
+                   JOIN moirai_user inviter ON inviter.id = ai.inviter_id
              WHERE u.username = :recipientUsername
                AND ai.status  = 'PENDING'
             """;

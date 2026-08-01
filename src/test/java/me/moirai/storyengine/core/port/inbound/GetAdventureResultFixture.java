@@ -15,9 +15,9 @@ import me.moirai.storyengine.core.port.inbound.adventure.ModelConfigurationDto;
 
 public class GetAdventureResultFixture {
 
-    public static AdventureDetails privateMultiplayerAdventure() {
+    public static AdventureDetails privateAdventure() {
 
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithIdAndPermissions();
+        var adventure = AdventureFixture.privateAdventureWithIdAndPermissions();
 
         var modelConfiguration = new ModelConfigurationDto(
                 adventure.getModelConfiguration().getAiModel(),
@@ -59,9 +59,9 @@ public class GetAdventureResultFixture {
                 null);
     }
 
-    public static AdventureDetails publicMultiplayerAdventure() {
+    public static AdventureDetails publicAdventure() {
 
-        var adventure = AdventureFixture.publicMultiplayerAdventureWithIdAndPermissions();
+        var adventure = AdventureFixture.publicAdventureWithIdAndPermissions();
 
         var modelConfiguration = new ModelConfigurationDto(
                 adventure.getModelConfiguration().getAiModel(),

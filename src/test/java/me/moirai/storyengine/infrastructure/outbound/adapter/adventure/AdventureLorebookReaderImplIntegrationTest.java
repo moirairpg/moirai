@@ -47,7 +47,7 @@ public class AdventureLorebookReaderImplIntegrationTest extends AbstractDatabase
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
@@ -89,7 +89,7 @@ public class AdventureLorebookReaderImplIntegrationTest extends AbstractDatabase
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
@@ -115,7 +115,7 @@ public class AdventureLorebookReaderImplIntegrationTest extends AbstractDatabase
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
 

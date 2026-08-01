@@ -30,7 +30,7 @@ import me.moirai.storyengine.core.port.inbound.adventure.ModelConfigurationDto;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureDetailsRow;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureReader;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRosterReader;
-import me.moirai.storyengine.core.port.outbound.adventure.AdventureRosterSummaryRow;
+import me.moirai.storyengine.core.port.outbound.adventure.AdventureMembershipSummaryRow;
 import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 
 @ExtendWith(MockitoExtension.class)
@@ -157,7 +157,7 @@ public class GetAdventureByIdHandlerTest {
         var characterId = UUID.randomUUID();
         var playerId = UUID.randomUUID();
 
-        var rosterRow = new AdventureRosterSummaryRow(
+        var rosterRow = new AdventureMembershipSummaryRow(
                 characterId,
                 playerId,
                 "john.doe",
@@ -175,10 +175,10 @@ public class GetAdventureByIdHandlerTest {
         AdventureDetails result = handler.handle(query);
 
         // Then
-        assertThat(result.registeredCharacters()).hasSize(1);
-        assertThat(result.registeredCharacters().getFirst().playerCharacterId()).isEqualTo(characterId);
-        assertThat(result.registeredCharacters().getFirst().playerUsername()).isEqualTo("john.doe");
-        assertThat(result.registeredCharacters().getFirst().characterClass()).isEqualTo(CharacterClass.PALADIN);
-        assertThat(result.registeredCharacters().getFirst().imageUrl()).isEqualTo("http://image.url");
+        assertThat(result.roster()).hasSize(1);
+        assertThat(result.roster().getFirst().playerCharacterId()).isEqualTo(characterId);
+        assertThat(result.roster().getFirst().playerUsername()).isEqualTo("john.doe");
+        assertThat(result.roster().getFirst().characterClass()).isEqualTo(CharacterClass.PALADIN);
+        assertThat(result.roster().getFirst().imageUrl()).isEqualTo("http://image.url");
     }
 }

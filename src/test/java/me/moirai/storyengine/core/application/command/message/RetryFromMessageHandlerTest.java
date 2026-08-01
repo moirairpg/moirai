@@ -125,7 +125,7 @@ public class RetryFromMessageHandlerTest {
     public void shouldThrowWhenNoMessagesExistAfterDeletion() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -142,7 +142,7 @@ public class RetryFromMessageHandlerTest {
     public void shouldDeleteForwardThenGenerateAiResponse() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -179,7 +179,7 @@ public class RetryFromMessageHandlerTest {
     public void shouldPublishOverflowEvent() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 

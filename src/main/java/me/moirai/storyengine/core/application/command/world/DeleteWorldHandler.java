@@ -7,6 +7,11 @@ import me.moirai.storyengine.core.port.inbound.world.DeleteWorld;
 import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 import me.moirai.storyengine.core.port.outbound.world.WorldRepository;
 
+// TODO: world is the one aggregate left out of the user-deletion cleanup (T5-007). It raises no domain
+// events, so deleting a user leaves its world_permissions rows behind and never deletes the worlds it
+// owns. Needs a WorldDeletedEvent raised here, a WorldDomainEventListener reacting to UserDeletedEvent,
+// and this inline storage delete moved to an AFTER_COMMIT cleanup listener — same shape as
+// DeleteAdventureHandler + AdventureDeletedCleanupListener.
 @CommandHandler
 public class DeleteWorldHandler extends AbstractCommandHandler<DeleteWorld, Void> {
 

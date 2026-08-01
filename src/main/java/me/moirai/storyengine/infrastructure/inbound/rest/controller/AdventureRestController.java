@@ -395,7 +395,8 @@ public class AdventureRestController extends SecurityContextAware {
             @PathVariable(required = true) UUID adventureId,
             @Valid @RequestBody InviteUserToAdventureRequest request) {
 
-        return commandRunner.run(new InviteUserToAdventure(adventureId, request.usernames()));
+        return commandRunner.run(new InviteUserToAdventure(
+                adventureId, request.usernames(), getAuthenticatedUser().id()));
     }
 
     @GetMapping("/{adventureId}/invitation")

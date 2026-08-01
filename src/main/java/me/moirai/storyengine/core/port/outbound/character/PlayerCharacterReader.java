@@ -9,5 +9,5 @@ public interface PlayerCharacterReader {
 
     Optional<String> getOwnerUsername(UUID characterId);
 
-    Optional<PlayerCharacterVisibilityData> getVisibilityData(UUID characterId);
+    Optional<PlayerCharacterPermissionsData> getPermissions(UUID characterId);
 }

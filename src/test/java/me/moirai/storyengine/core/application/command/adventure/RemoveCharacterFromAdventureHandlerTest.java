@@ -58,7 +58,7 @@ public class RemoveCharacterFromAdventureHandlerTest {
     public void shouldRemoveSaveAndPublishInOrder() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         var character = characterOwnedBy(REQUESTER_ID, 1L);
         adventure.enrollPlayerCharacter(character.getId(), REQUESTER_ID);
         adventure.drainEvents();
@@ -82,7 +82,7 @@ public class RemoveCharacterFromAdventureHandlerTest {
     public void shouldPublishExpelledEventWhenRequesterIsNotTheCharacterOwner() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         var character = characterOwnedBy(99L, 1L);
         adventure.enrollPlayerCharacter(character.getId(), 99L);
         adventure.drainEvents();
@@ -104,7 +104,7 @@ public class RemoveCharacterFromAdventureHandlerTest {
     public void shouldThrowWhenCharacterIsNotEnrolledInThisAdventure() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         var enrolled = characterOwnedBy(REQUESTER_ID, 1L);
         var notEnrolled = characterOwnedBy(REQUESTER_ID, 2L);
         adventure.enrollPlayerCharacter(enrolled.getId(), REQUESTER_ID);
@@ -139,7 +139,7 @@ public class RemoveCharacterFromAdventureHandlerTest {
     public void shouldThrowWhenCharacterIsMissing() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         var command = new RemoveCharacterFromAdventure(
                 adventure.getPublicId(), UUID.randomUUID(), REQUESTER_ID);
 

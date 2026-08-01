@@ -14,5 +14,7 @@ public interface PlayerCharacterJpaRepository extends JpaRepository<PlayerCharac
 
     List<PlayerCharacter> findAllByIdIn(List<Long> ids);
 
+    List<PlayerCharacter> findAllByPlayerId(Long playerId);
+
     void deleteByPublicId(UUID publicId);
 }

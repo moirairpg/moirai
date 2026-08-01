@@ -19,7 +19,7 @@ public class UpdateAdventureTest {
     public void updateAdventure_whenValidDate_thenInstanceIsCreated() {
 
         // given
-        Adventure adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        Adventure adventure = AdventureFixture.privateAdventure().build();
 
         // when
         var updateAdventure = new UpdateAdventure(

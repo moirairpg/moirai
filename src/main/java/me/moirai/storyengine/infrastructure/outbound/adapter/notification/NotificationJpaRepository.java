@@ -16,6 +16,16 @@ public interface NotificationJpaRepository extends JpaRepository<Notification, L
 
     void deleteByPublicId(UUID publicId);
 
+    @Query("""
+            SELECT DISTINCT n
+              FROM Notification n
+              LEFT JOIN n.recipients rcp
+              LEFT JOIN n.reads rd
+             WHERE rcp.id.userId = :userId
+                OR rd.id.userId = :userId
+            """)
+    List<Notification> findAllInvolving(Long userId);
+
     @Modifying
     @Query("DELETE FROM Notification n WHERE n.type = 'GAME' AND n.adventureId = :adventureId")
     void deleteAllGameNotificationsByAdventureId(Long adventureId);

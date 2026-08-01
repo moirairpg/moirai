@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import me.moirai.storyengine.common.enums.CharacterClass;
 import me.moirai.storyengine.common.util.Functions;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRosterReader;
-import me.moirai.storyengine.core.port.outbound.adventure.AdventureRosterSummaryRow;
+import me.moirai.storyengine.core.port.outbound.adventure.AdventureMembershipSummaryRow;
 import me.moirai.storyengine.core.port.outbound.adventure.CharacterAdventureSummaryRow;
 
 @Repository
@@ -58,11 +58,11 @@ public class AdventureRosterReaderImpl implements AdventureRosterReader {
     }
 
     @Override
-    public List<AdventureRosterSummaryRow> getAllByAdventurePublicId(UUID adventurePublicId) {
+    public List<AdventureMembershipSummaryRow> getAllByAdventurePublicId(UUID adventurePublicId) {
 
         return jdbcClient.sql(SELECT_BY_ADVENTURE)
                 .param("adventurePublicId", adventurePublicId)
-                .query(toAdventureRosterSummaryRow())
+                .query(toAdventureMembershipSummaryRow())
                 .list();
     }
 
@@ -74,9 +74,9 @@ public class AdventureRosterReaderImpl implements AdventureRosterReader {
                 rs.getString("adventure_image_key"));
     }
 
-    private RowMapper<AdventureRosterSummaryRow> toAdventureRosterSummaryRow() {
+    private RowMapper<AdventureMembershipSummaryRow> toAdventureMembershipSummaryRow() {
 
-        return (rs, _) -> new AdventureRosterSummaryRow(
+        return (rs, _) -> new AdventureMembershipSummaryRow(
                 rs.getObject("player_character_public_id", UUID.class),
                 rs.getObject("player_public_id", UUID.class),
                 rs.getString("player_username"),

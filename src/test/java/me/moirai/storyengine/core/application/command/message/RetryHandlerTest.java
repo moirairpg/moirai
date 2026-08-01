@@ -121,7 +121,7 @@ public class RetryHandlerTest {
     public void shouldThrowWhenNoMessagesExist() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -138,7 +138,7 @@ public class RetryHandlerTest {
     public void shouldThrowWhenLastMessageIsNotAssistant() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -156,7 +156,7 @@ public class RetryHandlerTest {
     public void shouldDeleteLastAssistantMessageBeforeGenerating() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -192,7 +192,7 @@ public class RetryHandlerTest {
     public void shouldReturnAiMessageResult() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -227,7 +227,7 @@ public class RetryHandlerTest {
     public void shouldPublishOverflowEvent() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -265,7 +265,7 @@ public class RetryHandlerTest {
     public void shouldOmitPersonalityInGenerationRequestWhenNarratorIsNull() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 

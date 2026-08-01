@@ -93,7 +93,7 @@ public class UpdateChronicleHandlerTest {
     public void shouldGenerateAndSaveChronicleSegmentFromChronicledMessages() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
 
         var command = new UpdateChronicle(UUID.randomUUID());
@@ -117,7 +117,7 @@ public class UpdateChronicleHandlerTest {
     public void shouldUpsertVectorForGeneratedSegment() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -145,7 +145,7 @@ public class UpdateChronicleHandlerTest {
     public void shouldRequestChronicledMessagesUsingWindowPlusOne() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
 
         var command = new UpdateChronicle(UUID.randomUUID());

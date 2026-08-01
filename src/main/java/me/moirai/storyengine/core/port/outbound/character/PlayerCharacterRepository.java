@@ -16,5 +16,7 @@ public interface PlayerCharacterRepository {
 
     List<PlayerCharacter> findAllByIdIn(List<Long> ids);
 
+    List<PlayerCharacter> findAllByPlayerId(Long playerId);
+
     void deleteByPublicId(UUID publicId);
 }

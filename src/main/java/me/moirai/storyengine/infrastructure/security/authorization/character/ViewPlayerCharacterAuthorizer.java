@@ -11,7 +11,7 @@ import me.moirai.storyengine.common.security.authorization.AuthorizationOperatio
 import me.moirai.storyengine.common.security.authorization.OperationAuthorizer;
 import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
-import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVisibilityData;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterPermissionsData;
 
 @Component
 public class ViewPlayerCharacterAuthorizer implements OperationAuthorizer {
@@ -37,20 +37,20 @@ public class ViewPlayerCharacterAuthorizer implements OperationAuthorizer {
             return true;
         }
 
-        return reader.getVisibilityData(characterId)
-                .map(data -> isOwnerOrAdventureMember(data, principal))
+        return reader.getPermissions(characterId)
+                .map(data -> isOwnerOrEnrolledAdventureMember(data, principal))
                 .orElse(false);
     }
 
-    private boolean isOwnerOrAdventureMember(
-            PlayerCharacterVisibilityData data,
+    private boolean isOwnerOrEnrolledAdventureMember(
+            PlayerCharacterPermissionsData data,
             MoiraiPrincipal principal) {
 
         if (data.ownerUsername().equals(principal.username())) {
             return true;
         }
 
-        return data.registeredAdventurePermissions().stream()
+        return data.enrolledAdventurePermissions().stream()
                 .anyMatch(permissions -> admitsCaller(permissions, principal.publicId()));
     }
 

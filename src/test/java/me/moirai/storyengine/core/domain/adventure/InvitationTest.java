@@ -14,7 +14,7 @@ public class InvitationTest {
     public void shouldCreateInvitationAsPendingWithAPublicId() {
 
         // when
-        var invitation = Invitation.builder().adventureId(1L).userId(1L).build();
+        var invitation = Invitation.builder().adventureId(1L).userId(1L).inviterId(2L).build();
 
         // then
         assertThat(invitation.getStatus()).isEqualTo(InvitationStatus.PENDING);
@@ -27,7 +27,7 @@ public class InvitationTest {
     public void shouldThrowWhenBuildingWithoutRecipient() {
 
         // then
-        assertThatThrownBy(() -> Invitation.builder().adventureId(1L).build())
+        assertThatThrownBy(() -> Invitation.builder().adventureId(1L).inviterId(2L).build())
                 .isInstanceOf(BusinessRuleViolationException.class);
     }
 
@@ -35,7 +35,15 @@ public class InvitationTest {
     public void shouldThrowWhenBuildingWithoutAdventure() {
 
         // then
-        assertThatThrownBy(() -> Invitation.builder().userId(1L).build())
+        assertThatThrownBy(() -> Invitation.builder().userId(1L).inviterId(2L).build())
+                .isInstanceOf(BusinessRuleViolationException.class);
+    }
+
+    @Test
+    public void shouldThrowWhenBuildingWithoutInviter() {
+
+        // then
+        assertThatThrownBy(() -> Invitation.builder().adventureId(1L).userId(1L).build())
                 .isInstanceOf(BusinessRuleViolationException.class);
     }
 
@@ -43,7 +51,7 @@ public class InvitationTest {
     public void shouldTransitionToAcceptedFromPending() {
 
         // given
-        var invitation = Invitation.builder().adventureId(1L).userId(1L).build();
+        var invitation = Invitation.builder().adventureId(1L).userId(1L).inviterId(2L).build();
 
         // when
         invitation.accept();
@@ -56,7 +64,7 @@ public class InvitationTest {
     public void shouldTransitionToDeclinedFromPending() {
 
         // given
-        var invitation = Invitation.builder().adventureId(1L).userId(1L).build();
+        var invitation = Invitation.builder().adventureId(1L).userId(1L).inviterId(2L).build();
 
         // when
         invitation.decline();
@@ -69,7 +77,7 @@ public class InvitationTest {
     public void shouldThrowWhenAcceptingAnAlreadyAnsweredInvitation() {
 
         // given
-        var invitation = Invitation.builder().adventureId(1L).userId(1L).build();
+        var invitation = Invitation.builder().adventureId(1L).userId(1L).inviterId(2L).build();
         invitation.accept();
 
         // then
@@ -80,7 +88,7 @@ public class InvitationTest {
     public void shouldThrowWhenDecliningAnAlreadyAnsweredInvitation() {
 
         // given
-        var invitation = Invitation.builder().adventureId(1L).userId(1L).build();
+        var invitation = Invitation.builder().adventureId(1L).userId(1L).inviterId(2L).build();
         invitation.decline();
 
         // then

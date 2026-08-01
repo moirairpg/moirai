@@ -1,5 +1,6 @@
 package me.moirai.storyengine.core.application.command.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -11,12 +12,16 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.userdetails.User;
+import me.moirai.storyengine.core.domain.userdetails.UserDeletedEvent;
 import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.inbound.userdetails.DeleteUserById;
 import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
@@ -26,6 +31,9 @@ public class DeleteUserByIdHandlerTest {
 
     @Mock
     private UserRepository repository;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private DeleteUserByIdHandler handler;
@@ -68,5 +76,30 @@ public class DeleteUserByIdHandlerTest {
 
         // Then
         verify(repository, times(1)).delete(user);
+    }
+
+    @Test
+    public void shouldPublishUserDeletedEventCarryingTheUserIdentityWhenTheUserIsDeleted() {
+
+        // given
+        var command = new DeleteUserById(UUID.randomUUID());
+        var user = UserFixture.player().build();
+        var publicId = UUID.randomUUID();
+
+        ReflectionTestUtils.setField(user, "id", 42L);
+        ReflectionTestUtils.setField(user, "publicId", publicId);
+
+        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(user));
+
+        // when
+        handler.handle(command);
+
+        // then
+        var captor = ArgumentCaptor.forClass(UserDeletedEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+
+        assertThat(captor.getValue().getUserId()).isEqualTo(42L);
+        assertThat(captor.getValue().getUserPublicId()).isEqualTo(publicId);
+        assertThat(captor.getValue().getUsername()).isEqualTo(user.getUsername());
     }
 }

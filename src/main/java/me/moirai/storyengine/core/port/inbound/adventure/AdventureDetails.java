@@ -26,13 +26,13 @@ public record AdventureDetails(
         ContextAttributesDto contextAttributes,
         Set<PermissionDto> permissions,
         Set<AdventureLorebookEntryDetails> lorebook,
-        List<AdventureRosterSummary> registeredCharacters,
+        List<AdventureMembershipSummary> roster,
         Double uiImagePositionX,
         Double uiImagePositionY) {
 
     public AdventureDetails {
         permissions = Set.copyOf(permissions);
         lorebook = Set.copyOf(lorebook);
-        registeredCharacters = List.copyOf(registeredCharacters);
+        roster = List.copyOf(roster);
     }
 }

@@ -176,7 +176,7 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
     void shouldReturnEmptyVisibilityDataWhenCharacterDoesNotExist() {
 
         // when
-        var result = reader.getVisibilityData(UUID.randomUUID());
+        var result = reader.getPermissions(UUID.randomUUID());
 
         // then
         assertThat(result).isNotPresent();
@@ -190,12 +190,12 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
         var character = insertCharacter(owner);
 
         // when
-        var result = reader.getVisibilityData(character.getPublicId());
+        var result = reader.getPermissions(character.getPublicId());
 
         // then
         assertThat(result).isPresent();
         assertThat(result.get().ownerUsername()).isEqualTo(owner.getUsername());
-        assertThat(result.get().registeredAdventurePermissions()).isEmpty();
+        assertThat(result.get().enrolledAdventurePermissions()).isEmpty();
     }
 
     @Test
@@ -210,13 +210,13 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
         insertAdventure(Visibility.PUBLIC, owner, writer, readerUser, character);
 
         // when
-        var result = reader.getVisibilityData(character.getPublicId());
+        var result = reader.getPermissions(character.getPublicId());
 
         // then
         assertThat(result).isPresent();
-        assertThat(result.get().registeredAdventurePermissions()).hasSize(1);
+        assertThat(result.get().enrolledAdventurePermissions()).hasSize(1);
 
-        var permissions = result.get().registeredAdventurePermissions().getFirst();
+        var permissions = result.get().enrolledAdventurePermissions().getFirst();
 
         assertThat(permissions.visibility()).isEqualTo(Visibility.PUBLIC);
         assertThat(permissions.ownerId()).isEqualTo(owner.getPublicId());
@@ -236,13 +236,13 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
         insertAdventure(Visibility.PRIVATE, owner, writer, readerUser, character);
 
         // when
-        var result = reader.getVisibilityData(character.getPublicId());
+        var result = reader.getPermissions(character.getPublicId());
 
         // then
         assertThat(result).isPresent();
-        assertThat(result.get().registeredAdventurePermissions()).hasSize(1);
+        assertThat(result.get().enrolledAdventurePermissions()).hasSize(1);
 
-        var permissions = result.get().registeredAdventurePermissions().getFirst();
+        var permissions = result.get().enrolledAdventurePermissions().getFirst();
 
         assertThat(permissions.visibility()).isEqualTo(Visibility.PRIVATE);
         assertThat(permissions.ownerId()).isEqualTo(owner.getPublicId());
@@ -263,14 +263,14 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
         insertAdventure(Visibility.PRIVATE, owner, null, readerUser, character);
 
         // when
-        var result = reader.getVisibilityData(character.getPublicId());
+        var result = reader.getPermissions(character.getPublicId());
 
         // then
         assertThat(result).isPresent();
-        assertThat(result.get().registeredAdventurePermissions()).hasSize(2);
+        assertThat(result.get().enrolledAdventurePermissions()).hasSize(2);
 
-        var publicAdventure = permissionsWith(result.get().registeredAdventurePermissions(), Visibility.PUBLIC);
-        var privateAdventure = permissionsWith(result.get().registeredAdventurePermissions(), Visibility.PRIVATE);
+        var publicAdventure = permissionsWith(result.get().enrolledAdventurePermissions(), Visibility.PUBLIC);
+        var privateAdventure = permissionsWith(result.get().enrolledAdventurePermissions(), Visibility.PRIVATE);
 
         assertThat(publicAdventure.writers()).containsExactly(writer.getPublicId());
         assertThat(publicAdventure.readers()).isEmpty();
@@ -288,13 +288,13 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
         insertAdventure(Visibility.PRIVATE, owner, null, null, character);
 
         // when
-        var result = reader.getVisibilityData(character.getPublicId());
+        var result = reader.getPermissions(character.getPublicId());
 
         // then
         assertThat(result).isPresent();
-        assertThat(result.get().registeredAdventurePermissions()).hasSize(1);
+        assertThat(result.get().enrolledAdventurePermissions()).hasSize(1);
 
-        var permissions = result.get().registeredAdventurePermissions().getFirst();
+        var permissions = result.get().enrolledAdventurePermissions().getFirst();
 
         assertThat(permissions.ownerId()).isEqualTo(owner.getPublicId());
         assertThat(permissions.writers()).isNotNull().isEmpty();
@@ -342,7 +342,7 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
             permissions.add(new Permission(reader.getId(), PermissionLevel.READ));
         }
 
-        var adventure = insert(AdventureFixture.publicSingleplayerAdventure()
+        var adventure = insert(AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .visibility(visibility)
                 .permissions(permissions.toArray(Permission[]::new))

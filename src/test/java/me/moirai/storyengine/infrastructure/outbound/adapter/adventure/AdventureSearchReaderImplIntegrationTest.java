@@ -32,7 +32,7 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractDatabaseIn
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
@@ -55,7 +55,7 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractDatabaseIn
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
         insert(adventure, Adventure.class);
@@ -93,7 +93,7 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractDatabaseIn
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
@@ -116,7 +116,7 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractDatabaseIn
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
@@ -138,7 +138,7 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractDatabaseIn
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
 

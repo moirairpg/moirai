@@ -38,7 +38,7 @@ public class UploadAdventureImageHandlerTest {
     private UploadAdventureImageHandler handler;
 
     private Adventure adventureWithId() {
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
         return adventure;

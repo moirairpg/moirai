@@ -33,6 +33,9 @@ public class Invitation extends Asset {
     @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "inviter_id")
+    private Long inviterId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private InvitationStatus status;
@@ -44,6 +47,7 @@ public class Invitation extends Asset {
         this.publicId = Generators.timeBasedEpochGenerator().generate();
         this.adventureId = builder.adventureId;
         this.userId = builder.userId;
+        this.inviterId = builder.inviterId;
         this.status = InvitationStatus.PENDING;
     }
 
@@ -66,6 +70,10 @@ public class Invitation extends Asset {
 
     public Long getUserId() {
         return userId;
+    }
+
+    public Long getInviterId() {
+        return inviterId;
     }
 
     public InvitationStatus getStatus() {
@@ -98,6 +106,7 @@ public class Invitation extends Asset {
 
         private Long adventureId;
         private Long userId;
+        private Long inviterId;
 
         private Builder() {
         }
@@ -114,6 +123,12 @@ public class Invitation extends Asset {
             return this;
         }
 
+        public Builder inviterId(Long inviterId) {
+
+            this.inviterId = inviterId;
+            return this;
+        }
+
         public Invitation build() {
 
             if (adventureId == null) {
@@ -122,6 +137,10 @@ public class Invitation extends Asset {
 
             if (userId == null) {
                 throw new BusinessRuleViolationException("Invitation must have a recipient");
+            }
+
+            if (inviterId == null) {
+                throw new BusinessRuleViolationException("Invitation must have an inviter");
             }
 
             return new Invitation(this);

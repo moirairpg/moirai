@@ -58,7 +58,7 @@ public class AdventureRosterEventListenerTest {
 
     private Adventure adventureWithEnrolledCharacter() {
 
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(CHARACTER_ID, PLAYER_ID);
         adventure.drainEvents();
 
@@ -116,7 +116,7 @@ public class AdventureRosterEventListenerTest {
     }
 
     @Test
-    public void shouldNotifyTheExpelledPlayerOnly() {
+    public void shouldNotifyOnlyTheExpelledPlayerWhenAManagerRemovesThem() {
 
         // given
         var adventure = adventureWithEnrolledCharacter();
@@ -158,33 +158,12 @@ public class AdventureRosterEventListenerTest {
         verify(notificationRepository).save(captor.capture());
 
         assertThat(captor.getValue().getMessage()).contains("bob deleted their character");
-        assertThat(captor.getValue().getMetadata())
-                .containsEntry("kind", NotificationKind.ADVENTURE_CHARACTER_DELETED.name());
-        assertThat(captor.getValue().getRecipientUserIds()).containsExactly(MANAGER_ID);
-        verify(eventPublisher).publishEvent(any(NotificationCreated.class));
-    }
-
-    @Test
-    public void shouldNotReportACharacterDeletionAsADeparture() {
-
-        // given
-        var adventure = adventureWithEnrolledCharacter();
-        adventure.withdrawDeletedCharacter(CHARACTER_ID);
-
-        when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.of(UserFixture.player().username("bob").build()));
-        when(adventureRepository.findManagerUserIdsByAdventureId(anyLong())).thenReturn(List.of(MANAGER_ID));
-        when(notificationRepository.save(any())).thenReturn(savedNotification());
-
-        // when
-        listener.onEnrolledCharacterDeleted(drain(adventure, EnrolledCharacterDeletedEvent.class));
-
-        // then
-        var captor = ArgumentCaptor.forClass(Notification.class);
-        verify(notificationRepository).save(captor.capture());
-
         assertThat(captor.getValue().getMessage()).doesNotContain("left");
         assertThat(captor.getValue().getMetadata())
+                .containsEntry("kind", NotificationKind.ADVENTURE_CHARACTER_DELETED.name());
+        assertThat(captor.getValue().getMetadata())
                 .doesNotContainEntry("kind", NotificationKind.ADVENTURE_MEMBER_LEFT.name());
+        assertThat(captor.getValue().getRecipientUserIds()).containsExactly(MANAGER_ID);
+        verify(eventPublisher).publishEvent(any(NotificationCreated.class));
     }
 }

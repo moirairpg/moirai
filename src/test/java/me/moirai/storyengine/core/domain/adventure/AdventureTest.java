@@ -50,7 +50,7 @@ public class AdventureTest {
     public void createAdventure_whenNameIsNull_thenThrowException() {
 
         // given
-        var adventureBuilder = AdventureFixture.privateSingleplayerAdventure().name(null);
+        var adventureBuilder = AdventureFixture.privateAdventureWithoutNarrator().name(null);
 
         // then
         assertThrows(BusinessRuleViolationException.class, adventureBuilder::build);
@@ -60,7 +60,7 @@ public class AdventureTest {
     public void createAdventure_whenNameIsEmpty_thenThrowException() {
 
         // given
-        var adventureBuilder = AdventureFixture.privateSingleplayerAdventure().name(StringUtils.EMPTY);
+        var adventureBuilder = AdventureFixture.privateAdventureWithoutNarrator().name(StringUtils.EMPTY);
 
         // then
         assertThrows(BusinessRuleViolationException.class, adventureBuilder::build);
@@ -70,7 +70,7 @@ public class AdventureTest {
     public void createAdventure_whenModelConfigurationIsNull_thenThrowException() {
 
         // given
-        var adventureBuilder = AdventureFixture.privateSingleplayerAdventure().modelConfiguration(null);
+        var adventureBuilder = AdventureFixture.privateAdventureWithoutNarrator().modelConfiguration(null);
 
         // then
         assertThrows(BusinessRuleViolationException.class, adventureBuilder::build);
@@ -80,7 +80,7 @@ public class AdventureTest {
     public void createAdventure_whenModerationIsNull_thenThrowException() {
 
         // given
-        var adventureBuilder = AdventureFixture.privateSingleplayerAdventure().moderation(null);
+        var adventureBuilder = AdventureFixture.privateAdventureWithoutNarrator().moderation(null);
 
         // then
         assertThrows(BusinessRuleViolationException.class, adventureBuilder::build);
@@ -90,7 +90,7 @@ public class AdventureTest {
     public void createAdventure_whenVisibilityIsNull_thenThrowException() {
 
         // given
-        var adventureBuilder = AdventureFixture.privateSingleplayerAdventure().visibility(null);
+        var adventureBuilder = AdventureFixture.privateAdventureWithoutNarrator().visibility(null);
 
         // then
         assertThrows(BusinessRuleViolationException.class, adventureBuilder::build);
@@ -101,7 +101,7 @@ public class AdventureTest {
 
         // given
         var userId = 1234567890L;
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         adventure.permissions().add(new Permission(9999L, PermissionLevel.OWNER));
 
         // when
@@ -117,7 +117,7 @@ public class AdventureTest {
 
         // given
         var userId = 1234567890L;
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         adventure.permissions().add(new Permission(9999L, PermissionLevel.OWNER));
 
         // when
@@ -133,7 +133,7 @@ public class AdventureTest {
 
         // given
         var userId = 1234567890L;
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         adventure.permissions().add(new Permission(9999L, PermissionLevel.OWNER));
         adventure.grant(new Permission(userId, PermissionLevel.READ));
 
@@ -150,7 +150,7 @@ public class AdventureTest {
 
         // given
         var userId = 1234567890L;
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         adventure.permissions().add(new Permission(9999L, PermissionLevel.OWNER));
         adventure.grant(new Permission(userId, PermissionLevel.WRITE));
 
@@ -166,7 +166,7 @@ public class AdventureTest {
     public void updateAdventure_whenTurningPrivateIntoPublic_thenPermissionShouldBeChangedToPublic() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         // when
         adventure.updateVisibility(PUBLIC);
@@ -179,7 +179,7 @@ public class AdventureTest {
     public void updateAdventure_whenTurningPublicIntoPrivate_thenPermissionShouldBeChangedToPrivate() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         // when
         adventure.updateVisibility(PRIVATE);
@@ -193,7 +193,7 @@ public class AdventureTest {
 
         // given
         var name = "New Name";
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         // when
         adventure.updateName(name);
@@ -206,7 +206,7 @@ public class AdventureTest {
     public void updateAdventure_whenNarratorPersonalitySetButNameNull_thenNameDefaultsToNarrator() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
                 .narrator(null, "Some personality")
                 .build();
 
@@ -220,7 +220,7 @@ public class AdventureTest {
 
         // given
         var moderation = Moderation.DISABLED;
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         // when
         adventure.updateModeration(moderation);
@@ -234,7 +234,7 @@ public class AdventureTest {
 
         // given
         var aiModel = ArtificialIntelligenceModel.GPT54;
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         // when
         adventure.updateAiModel(aiModel);
@@ -248,7 +248,7 @@ public class AdventureTest {
 
         // given
         var maxTokenLimit = 100;
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
                 .modelConfiguration(ModelConfigurationFixture.gpt4Mini())
                 .build();
 
@@ -264,7 +264,7 @@ public class AdventureTest {
 
         // given
         var maxTokenLimit = 500000;
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
                 .modelConfiguration(ModelConfigurationFixture.gpt4Mini())
                 .build();
 
@@ -278,7 +278,7 @@ public class AdventureTest {
 
         // given
         var maxTokenLimit = 10;
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
                 .modelConfiguration(ModelConfigurationFixture.gpt4Mini())
                 .build();
 
@@ -292,7 +292,7 @@ public class AdventureTest {
 
         // given
         var temperature = 1.3;
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         // when
         adventure.updateTemperature(temperature);
@@ -306,7 +306,7 @@ public class AdventureTest {
 
         // given
         var temperature = 3.0;
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         // then
         assertThrows(BusinessRuleViolationException.class,
@@ -318,7 +318,7 @@ public class AdventureTest {
 
         // given
         var temperature = 0.0;
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         // then
         assertThrows(BusinessRuleViolationException.class,
@@ -329,7 +329,7 @@ public class AdventureTest {
     public void updateWorldDescription() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         // when
         adventure.updateDescription("New Description");
@@ -342,7 +342,7 @@ public class AdventureTest {
     public void updateWorldInitialPrompt() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         // when
         adventure.updateAdventureStart("New Prompt");
@@ -356,7 +356,7 @@ public class AdventureTest {
 
         // given
         var newNudge = "This is the new value";
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         var originalContextAttributes = adventure.getContextAttributes();
 
         // when
@@ -372,7 +372,7 @@ public class AdventureTest {
 
         // given
         var newScene = "This is the new value";
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         var originalContextAttributes = adventure.getContextAttributes();
 
         // when
@@ -388,7 +388,7 @@ public class AdventureTest {
 
         // given
         var newBump = "This is the new value";
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         var originalContextAttributes = adventure.getContextAttributes();
 
         // when
@@ -404,7 +404,7 @@ public class AdventureTest {
 
         // given
         var newBumpFrequency = 5;
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         var originalContextAttributes = adventure.getContextAttributes();
 
         // when
@@ -420,7 +420,7 @@ public class AdventureTest {
 
         // given
         var newAuthorsNote = "This is the new value";
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         var originalContextAttributes = adventure.getContextAttributes();
 
         // when
@@ -435,7 +435,7 @@ public class AdventureTest {
     public void shouldEnrollPlayerCharacterWhenRosterHasSpace() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
 
         // when
         adventure.enrollPlayerCharacter(1L, 10L);
@@ -450,7 +450,7 @@ public class AdventureTest {
     public void shouldThrowExceptionWhenRosterIsFull() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
 
         for (var playerCharacterId = 1L; playerCharacterId <= Adventure.MAX_ROSTER_SIZE; playerCharacterId++) {
             adventure.enrollPlayerCharacter(playerCharacterId, playerCharacterId + 100L);
@@ -464,7 +464,7 @@ public class AdventureTest {
     public void shouldThrowExceptionWhenCharacterIsAlreadyEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
 
         // then
@@ -475,7 +475,7 @@ public class AdventureTest {
     public void shouldThrowExceptionWhenPlayerAlreadyHasACharacterEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
 
         // then
@@ -486,7 +486,7 @@ public class AdventureTest {
     public void shouldThrowExceptionWhenEnrollingIntoAnUnpersistedAdventure() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
 
         // then
         assertThrows(BusinessRuleViolationException.class, () -> adventure.enrollPlayerCharacter(1L, 10L));
@@ -496,7 +496,7 @@ public class AdventureTest {
     public void shouldRemoveOnlyTheGivenCharacterWhenLeaving() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
         adventure.enrollPlayerCharacter(2L, 20L);
 
@@ -513,7 +513,7 @@ public class AdventureTest {
     public void shouldThrowWhenLeavingWithACharacterThatIsNotEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
 
         // when
@@ -527,10 +527,10 @@ public class AdventureTest {
     }
 
     @Test
-    public void shouldNotRemoveAnotherCharacterOwnedByTheSamePlayer() {
+    public void shouldNotRemoveAnotherCharacterWhenTheGivenOneIsOwnedByTheSamePlayerButNotEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
 
         // when
@@ -546,7 +546,7 @@ public class AdventureTest {
     public void shouldEmitPlayerLeftEventWhenLeaving() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
         adventure.drainEvents();
 
@@ -563,7 +563,7 @@ public class AdventureTest {
     public void shouldEmitPlayerExpelledEventWhenExpelling() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
         adventure.drainEvents();
 
@@ -580,7 +580,7 @@ public class AdventureTest {
     public void shouldEmitEnrolledCharacterDeletedEventWhenWithdrawingADeletedCharacter() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
         adventure.drainEvents();
 
@@ -597,7 +597,7 @@ public class AdventureTest {
     public void shouldNotEmitEventWhenTheCharacterIsNotEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
         adventure.drainEvents();
 
@@ -612,8 +612,8 @@ public class AdventureTest {
     public void shouldRevokeReadAccessWhenAnEnrolledReaderLeaves() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var invitation = adventure.invite(10L);
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var invitation = adventure.invite(10L, AdventureFixture.OWNER_ID);
         adventure.acceptInvitation(invitation.getPublicId(), 1L, 10L);
         adventure.drainEvents();
 
@@ -628,7 +628,7 @@ public class AdventureTest {
     public void shouldKeepWriteAccessWhenAWriterLeaves() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.grant(new Permission(10L, PermissionLevel.WRITE));
         adventure.enrollPlayerCharacter(1L, 10L);
         adventure.drainEvents();
@@ -653,7 +653,7 @@ public class AdventureTest {
     public void shouldReturnTrueWhenCharacterIsEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
 
         // then
@@ -664,7 +664,7 @@ public class AdventureTest {
     public void shouldReturnFalseWhenCharacterIsNotEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
 
         // then
@@ -675,7 +675,7 @@ public class AdventureTest {
     public void shouldReturnTrueWhenPlayerHasACharacterEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
 
         // then
@@ -686,7 +686,7 @@ public class AdventureTest {
     public void shouldReturnFalseWhenPlayerHasNoCharacterEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.enrollPlayerCharacter(1L, 10L);
 
         // then
@@ -697,10 +697,10 @@ public class AdventureTest {
     public void shouldInviteUserAndRaiseEvent() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
 
         // when
-        var invitation = adventure.invite(10L);
+        var invitation = adventure.invite(10L, AdventureFixture.OWNER_ID);
 
         // then
         assertThat(adventure.getInvitations()).hasSize(1);
@@ -714,23 +714,23 @@ public class AdventureTest {
     public void shouldThrowWhenInvitingAUserWithAPendingInvitation() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        adventure.invite(10L);
+        var adventure = AdventureFixture.privateAdventureWithId();
+        adventure.invite(10L, AdventureFixture.OWNER_ID);
 
         // then
-        assertThrows(BusinessRuleViolationException.class, () -> adventure.invite(10L));
+        assertThrows(BusinessRuleViolationException.class, () -> adventure.invite(10L, AdventureFixture.OWNER_ID));
     }
 
     @Test
     public void shouldAllowReinvitingAfterDecline() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var invitation = adventure.invite(10L);
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var invitation = adventure.invite(10L, AdventureFixture.OWNER_ID);
         adventure.declineInvitation(invitation.getPublicId());
 
         // when
-        var reinvitation = adventure.invite(10L);
+        var reinvitation = adventure.invite(10L, AdventureFixture.OWNER_ID);
 
         // then
         assertThat(reinvitation.isPending()).isTrue();
@@ -740,8 +740,8 @@ public class AdventureTest {
     public void shouldAcceptInvitationEnrollTheCharacterAndRaiseAnsweredEvent() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var invitation = adventure.invite(10L);
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var invitation = adventure.invite(10L, AdventureFixture.OWNER_ID);
         adventure.drainEvents();
 
         // when
@@ -759,9 +759,9 @@ public class AdventureTest {
     public void shouldNotDowngradeAnExistingWriterWhenAcceptingAnInvitation() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         adventure.grant(new Permission(10L, PermissionLevel.WRITE));
-        var invitation = adventure.invite(10L);
+        var invitation = adventure.invite(10L, AdventureFixture.OWNER_ID);
         adventure.drainEvents();
 
         // when
@@ -775,8 +775,8 @@ public class AdventureTest {
     public void shouldDeclineInvitationWithoutEnrollingAndRaiseAnsweredEvent() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var invitation = adventure.invite(10L);
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var invitation = adventure.invite(10L, AdventureFixture.OWNER_ID);
         adventure.drainEvents();
 
         // when
@@ -793,7 +793,7 @@ public class AdventureTest {
     public void shouldThrowWhenAnsweringAnUnknownInvitation() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
 
         // then
         assertThrows(NotFoundException.class,
@@ -804,11 +804,11 @@ public class AdventureTest {
     public void shouldNotTouchInvitationWhenRosterIsFullOnAccept() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
+        var adventure = AdventureFixture.privateAdventureWithId();
         for (var i = 1L; i <= Adventure.MAX_ROSTER_SIZE; i++) {
             adventure.enrollPlayerCharacter(i, i + 100L);
         }
-        var invitation = adventure.invite(10L);
+        var invitation = adventure.invite(10L, AdventureFixture.OWNER_ID);
         adventure.drainEvents();
 
         // then

@@ -15,7 +15,7 @@ public class CreateAdventureFixture {
 
     public static CreateAdventure sample() {
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
         return new CreateAdventure(
                 adventure.getName(),
                 adventure.getDescription(),
@@ -43,7 +43,7 @@ public class CreateAdventureFixture {
 
     public static CreateAdventure sampleWithRequesterId(String requesterId) {
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
         return new CreateAdventure(
                 adventure.getName(),
                 adventure.getDescription(),

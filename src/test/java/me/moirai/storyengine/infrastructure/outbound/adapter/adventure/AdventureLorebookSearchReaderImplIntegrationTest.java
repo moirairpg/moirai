@@ -29,7 +29,7 @@ public class AdventureLorebookSearchReaderImplIntegrationTest extends AbstractDa
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
         adventure.addLorebookEntry("White River", "A famous river");
@@ -51,7 +51,7 @@ public class AdventureLorebookSearchReaderImplIntegrationTest extends AbstractDa
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
         insert(adventure, Adventure.class);
@@ -72,7 +72,7 @@ public class AdventureLorebookSearchReaderImplIntegrationTest extends AbstractDa
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
         adventure.addLorebookEntry("White River", "A famous river");

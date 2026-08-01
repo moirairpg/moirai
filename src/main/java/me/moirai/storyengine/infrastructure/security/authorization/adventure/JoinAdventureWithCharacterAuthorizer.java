@@ -51,8 +51,8 @@ public class JoinAdventureWithCharacterAuthorizer implements OperationAuthorizer
 
     private boolean ownsCharacter(UUID playerCharacterId, MoiraiPrincipal principal) {
 
-        return playerCharacterReader.getVisibilityData(playerCharacterId)
-                .map(data -> data.ownerUsername().equals(principal.username()))
+        return playerCharacterReader.getOwnerUsername(playerCharacterId)
+                .map(ownerUsername -> ownerUsername.equals(principal.username()))
                 .orElse(false);
     }
 }

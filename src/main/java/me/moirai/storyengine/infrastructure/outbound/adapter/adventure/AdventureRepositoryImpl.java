@@ -72,6 +72,18 @@ public class AdventureRepositoryImpl implements AdventureRepository {
     }
 
     @Override
+    public List<Adventure> findAllOwnedBy(Long userId) {
+
+        return jpaRepository.findAllOwnedBy(userId);
+    }
+
+    @Override
+    public List<Adventure> findAllInvolving(Long userId) {
+
+        return jpaRepository.findAllInvolving(userId);
+    }
+
+    @Override
     public List<Long> findManagerUserIdsByAdventureId(Long adventureId) {
 
         return jpaRepository.findManagerUserIdsByAdventureId(adventureId);

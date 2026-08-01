@@ -70,7 +70,7 @@ public class DeleteAdventureLorebookEntryHandlerTest {
                 AdventureLorebookEntryFixture.PUBLIC_ID,
                 AdventureFixture.PUBLIC_ID);
 
-        var baseAdventure = AdventureFixture.publicMultiplayerAdventure().build();
+        var baseAdventure = AdventureFixture.publicAdventure().build();
         var adventure = spy(baseAdventure);
 
         doNothing().when(adventure).removeLorebookEntry(any(UUID.class));

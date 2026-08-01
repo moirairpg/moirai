@@ -53,7 +53,7 @@ public class AdventureReaderImplIntegrationTest extends AbstractDatabaseIntegrat
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
@@ -93,7 +93,7 @@ public class AdventureReaderImplIntegrationTest extends AbstractDatabaseIntegrat
         // Given
         var user = insert(UserFixture.player().build(), User.class);
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .permissions(new Permission(user.getId(), PermissionLevel.OWNER))
                 .build();
@@ -117,7 +117,7 @@ public class AdventureReaderImplIntegrationTest extends AbstractDatabaseIntegrat
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
@@ -145,7 +145,7 @@ public class AdventureReaderImplIntegrationTest extends AbstractDatabaseIntegrat
         var firstCharacter = insertCharacter(owner, "Volin Habar");
         var secondCharacter = insertCharacter(otherOwner, "Mira");
 
-        var adventure = insert(AdventureFixture.privateMultiplayerAdventure()
+        var adventure = insert(AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build(), Adventure.class);
 
@@ -165,7 +165,7 @@ public class AdventureReaderImplIntegrationTest extends AbstractDatabaseIntegrat
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = insert(AdventureFixture.privateMultiplayerAdventure()
+        var adventure = insert(AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build(), Adventure.class);
 

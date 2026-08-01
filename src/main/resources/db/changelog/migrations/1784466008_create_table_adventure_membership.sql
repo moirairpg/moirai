@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset moirai:1784466008_create_table_adventure_roster
+--changeset moirai:1784466008_create_table_adventure_membership
 --preconditions onFail:HALT, onError:HALT
 
 CREATE TABLE adventure_membership (

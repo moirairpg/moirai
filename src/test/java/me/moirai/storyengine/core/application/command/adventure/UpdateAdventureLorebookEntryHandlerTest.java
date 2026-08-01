@@ -112,7 +112,7 @@ public class UpdateAdventureLorebookEntryHandlerTest {
                 "Volin Habar is a warrior that fights with a sword.");
 
         var existingEntry = AdventureLorebookEntryFixture.sampleLorebookEntry().build();
-        var baseAdventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var baseAdventure = AdventureFixture.privateAdventure().build();
         var adventure = spy(baseAdventure);
 
         doReturn(existingEntry).when(adventure).updateLorebookEntry(any(UUID.class), anyString(), anyString());

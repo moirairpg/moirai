@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.simple.JdbcClient;
 
 import jakarta.transaction.Transactional;
 import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
@@ -25,6 +26,9 @@ public class InvitationReaderImplIntegrationTest extends AbstractDatabaseIntegra
 
     @Autowired
     private InvitationReader reader;
+
+    @Autowired
+    private JdbcClient jdbcClient;
 
     private World world;
 
@@ -49,6 +53,22 @@ public class InvitationReaderImplIntegrationTest extends AbstractDatabaseIntegra
         assertThat(result).isPresent();
         assertThat(result.get().inviterUsername()).isEqualTo("alice");
         assertThat(result.get().recipientUsername()).isEqualTo("bob");
+    }
+
+    @Test
+    public void shouldNotReturnInvitationWhenTheInviterNoLongerExists() {
+
+        // given
+        var recipient = insertUser("bob", "11111");
+        var adventure = insertAdventureWith(recipient, "alice", InvitationStatus.PENDING);
+
+        jdbcClient.sql("DELETE FROM moirai_user WHERE username = 'alice'").update();
+
+        // when
+        var result = reader.getPendingByAdventureAndRecipient(adventure.getPublicId(), "bob");
+
+        // then
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -162,14 +182,15 @@ public class InvitationReaderImplIntegrationTest extends AbstractDatabaseIntegra
                 .build(), User.class);
     }
 
-    private Adventure insertAdventureWith(User recipient, String inviter, InvitationStatus status) {
+    private Adventure insertAdventureWith(User recipient, String inviterUsername, InvitationStatus status) {
 
-        var adventure = insert(AdventureFixture.publicSingleplayerAdventure()
+        var inviter = insertUser(inviterUsername, "inviter-" + inviterUsername);
+
+        var adventure = insert(AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build(), Adventure.class);
 
-        var invitation = adventure.invite(recipient.getId());
-        invitation.setCreatedBy(inviter);
+        var invitation = adventure.invite(recipient.getId(), inviter.getId());
         invitation.setCreationDate(Instant.now());
 
         if (status == InvitationStatus.ACCEPTED) {

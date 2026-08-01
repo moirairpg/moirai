@@ -15,7 +15,7 @@ import me.moirai.storyengine.common.util.Functions;
 import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterDetailsRow;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
-import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVisibilityData;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterPermissionsData;
 
 @Repository
 public class PlayerCharacterReaderImpl implements PlayerCharacterReader {
@@ -45,7 +45,7 @@ public class PlayerCharacterReaderImpl implements PlayerCharacterReader {
             """;
 
     //@formatter:off
-    private static final String SELECT_REGISTERED_ADVENTURE_PERMISSIONS = """
+    private static final String SELECT_ENROLLED_ADVENTURE_PERMISSIONS = """
             SELECT (SELECT mu2.public_id
                       FROM adventure_permissions ap2
                            JOIN moirai_user mu2 ON mu2.id = ap2.user_id
@@ -90,7 +90,7 @@ public class PlayerCharacterReaderImpl implements PlayerCharacterReader {
     }
 
     @Override
-    public Optional<PlayerCharacterVisibilityData> getVisibilityData(UUID characterId) {
+    public Optional<PlayerCharacterPermissionsData> getPermissions(UUID characterId) {
 
         var ownerUsername = getOwnerUsername(characterId);
 
@@ -98,12 +98,12 @@ public class PlayerCharacterReaderImpl implements PlayerCharacterReader {
             return Optional.empty();
         }
 
-        var permissions = jdbcClient.sql(SELECT_REGISTERED_ADVENTURE_PERMISSIONS)
+        var permissions = jdbcClient.sql(SELECT_ENROLLED_ADVENTURE_PERMISSIONS)
                 .param("characterPublicId", characterId)
                 .query(toAssetPermissionsData())
                 .list();
 
-        return Optional.of(new PlayerCharacterVisibilityData(ownerUsername.get(), permissions));
+        return Optional.of(new PlayerCharacterPermissionsData(ownerUsername.get(), permissions));
     }
 
     private RowMapper<AssetPermissionsData> toAssetPermissionsData() {

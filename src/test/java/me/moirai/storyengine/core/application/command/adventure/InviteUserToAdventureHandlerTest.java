@@ -55,8 +55,9 @@ public class InviteUserToAdventureHandlerTest {
     public void shouldInviteAllResolvedUsersAndPublishOneEventEach() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var command = new InviteUserToAdventure(adventure.getPublicId(), List.of("alice", "bob"));
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var command = new InviteUserToAdventure(
+                adventure.getPublicId(), List.of("alice", "bob"), AdventureFixture.OWNER_ID);
 
         when(adventureRepository.findByPublicId(any())).thenReturn(java.util.Optional.of(adventure));
         when(userRepository.findAllByUsernameIn(anyList()))
@@ -75,8 +76,9 @@ public class InviteUserToAdventureHandlerTest {
     public void shouldInviteOnlyResolvedUsersWhenSomeUsernamesAreUnknown() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var command = new InviteUserToAdventure(adventure.getPublicId(), List.of("alice", "ghost"));
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var command = new InviteUserToAdventure(
+                adventure.getPublicId(), List.of("alice", "ghost"), AdventureFixture.OWNER_ID);
 
         when(adventureRepository.findByPublicId(any())).thenReturn(java.util.Optional.of(adventure));
         when(userRepository.findAllByUsernameIn(anyList()))
@@ -94,7 +96,7 @@ public class InviteUserToAdventureHandlerTest {
     public void shouldThrowWhenNoUsernamesAreProvided() {
 
         // given
-        var command = new InviteUserToAdventure(AdventureFixture.PUBLIC_ID, List.of());
+        var command = new InviteUserToAdventure(AdventureFixture.PUBLIC_ID, List.of(), AdventureFixture.OWNER_ID);
 
         // then
         assertThatThrownBy(() -> handler.validate(command))
@@ -105,7 +107,8 @@ public class InviteUserToAdventureHandlerTest {
     public void shouldThrowWhenAdventureIsNotFound() {
 
         // given
-        var command = new InviteUserToAdventure(AdventureFixture.PUBLIC_ID, List.of("alice"));
+        var command = new InviteUserToAdventure(
+                AdventureFixture.PUBLIC_ID, List.of("alice"), AdventureFixture.OWNER_ID);
 
         when(adventureRepository.findByPublicId(any())).thenReturn(java.util.Optional.empty());
 

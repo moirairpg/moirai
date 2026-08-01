@@ -58,7 +58,7 @@ public class ChronicleSegmentReaderImplIntegrationTest extends AbstractDatabaseI
     public void shouldReturnSegmentsByIds() {
 
         // Given
-        var adventure = AdventureFixture.publicSingleplayerAdventure().build();
+        var adventure = AdventureFixture.publicAdventure().build();
         insert(adventure, Adventure.class);
 
         var segment = insert(ChronicleSegmentFixture.chronicleSegment()
@@ -78,7 +78,7 @@ public class ChronicleSegmentReaderImplIntegrationTest extends AbstractDatabaseI
     public void shouldReturnEmptyListForUnknownIds() {
 
         // Given
-        var adventure = AdventureFixture.publicSingleplayerAdventure().build();
+        var adventure = AdventureFixture.publicAdventure().build();
         insert(adventure, Adventure.class);
 
         var chronicle = ChronicleSegmentFixture.chronicleSegment()
@@ -100,7 +100,7 @@ public class ChronicleSegmentReaderImplIntegrationTest extends AbstractDatabaseI
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
         var insertedAdventure = insert(adventure, Adventure.class);

@@ -52,7 +52,7 @@ public class UpdateAdventureSceneByIdHandlerTest {
                 "Scene",
                 AdventureFixture.PUBLIC_ID);
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
 

@@ -56,15 +56,15 @@ public class AdventureInvitationAnsweredEventListenerTest {
     private AdventureInvitationAnsweredEventListener listener;
 
     private AdventureInvitationAnsweredEvent acceptedEvent() {
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var invitation = adventure.invite(RESPONDER_ID);
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var invitation = adventure.invite(RESPONDER_ID, AdventureFixture.OWNER_ID);
         adventure.acceptInvitation(invitation.getPublicId(), 1L, RESPONDER_ID);
         return drain(adventure);
     }
 
     private AdventureInvitationAnsweredEvent declinedEvent() {
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var invitation = adventure.invite(RESPONDER_ID);
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var invitation = adventure.invite(RESPONDER_ID, AdventureFixture.OWNER_ID);
         adventure.declineInvitation(invitation.getPublicId());
         return drain(adventure);
     }

@@ -56,8 +56,8 @@ public class JoinAdventureWithCharacterHandlerTest {
     public void shouldAcceptSaveAndPublishInOrder() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var invitation = adventure.invite(REQUESTER_ID);
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var invitation = adventure.invite(REQUESTER_ID, AdventureFixture.OWNER_ID);
         adventure.drainEvents();
 
         var character = characterOwnedBy(REQUESTER_ID, 1L);

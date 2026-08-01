@@ -1,5 +1,7 @@
 package me.moirai.storyengine.core.domain.userdetails;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.uuid.Generators;
@@ -12,7 +14,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import me.moirai.storyengine.common.domain.Asset;
+import me.moirai.storyengine.common.domain.DomainEvent;
 import me.moirai.storyengine.common.enums.Role;
 
 @Entity
@@ -36,6 +40,9 @@ public class User extends Asset {
     @Column(name = "role")
     private Role role;
 
+    @Transient
+    private List<DomainEvent> domainEvents = new ArrayList<>();
+
     public User(Builder builder) {
 
         super();
@@ -53,6 +60,18 @@ public class User extends Asset {
     public static Builder builder() {
 
         return new Builder();
+    }
+
+    public List<DomainEvent> drainEvents() {
+
+        var snapshot = List.copyOf(domainEvents);
+        domainEvents.clear();
+
+        return snapshot;
+    }
+
+    public void communicateUserDeleted() {
+        domainEvents.add(new UserDeletedEvent(this.id, this.publicId, this.username));
     }
 
     public Long getId() {

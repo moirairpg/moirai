@@ -12,6 +12,8 @@ public interface NotificationRepository {
 
     Optional<Notification> findByPublicId(UUID publicId);
 
+    List<Notification> findAllInvolving(Long userId);
+
     void deleteByPublicId(UUID publicId);
 
     void deleteAllByPublicId(List<UUID> publicId);

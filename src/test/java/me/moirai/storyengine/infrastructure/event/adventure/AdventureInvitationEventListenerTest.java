@@ -37,8 +37,8 @@ public class AdventureInvitationEventListenerTest {
     private AdventureInvitationEventListener listener;
 
     private UserInvitedToAdventureEvent eventFor(UUID invitationId) {
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var invitation = adventure.invite(1L);
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var invitation = adventure.invite(1L, AdventureFixture.OWNER_ID);
         ReflectionTestUtils.setField(invitation, "publicId", invitationId);
         return (UserInvitedToAdventureEvent) adventure.drainEvents().stream()
                 .filter(UserInvitedToAdventureEvent.class::isInstance)

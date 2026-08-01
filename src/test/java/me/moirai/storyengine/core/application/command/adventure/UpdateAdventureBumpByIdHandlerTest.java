@@ -55,7 +55,7 @@ public class UpdateAdventureBumpByIdHandlerTest {
                 5,
                 AdventureFixture.PUBLIC_ID);
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
 

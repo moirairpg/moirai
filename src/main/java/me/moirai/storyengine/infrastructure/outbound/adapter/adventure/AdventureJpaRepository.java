@@ -37,6 +37,26 @@ public interface AdventureJpaRepository
     @Query("SELECT a FROM Adventure a JOIN a.roster m WHERE m.playerCharacterId = :playerCharacterId")
     List<Adventure> findAllContainingCharacter(Long playerCharacterId);
 
+    @Query("""
+            SELECT a
+              FROM Adventure a
+              JOIN a.permissions p
+             WHERE p.userId = :userId
+               AND p.level = me.moirai.storyengine.common.enums.PermissionLevel.OWNER
+            """)
+    List<Adventure> findAllOwnedBy(Long userId);
+
+    @Query("""
+            SELECT DISTINCT a
+              FROM Adventure a
+              LEFT JOIN a.permissions p
+              LEFT JOIN a.invitations i
+             WHERE p.userId = :userId
+                OR i.userId = :userId
+                OR i.inviterId = :userId
+            """)
+    List<Adventure> findAllInvolving(Long userId);
+
     @Query(value = """
             SELECT ap.user_id
               FROM adventure_permissions ap

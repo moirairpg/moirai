@@ -23,7 +23,6 @@ import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureAuthorizationReader;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
-import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVisibilityData;
 
 @ExtendWith(MockitoExtension.class)
 public class RemoveCharacterFromAdventureAuthorizerTest {
@@ -115,8 +114,7 @@ public class RemoveCharacterFromAdventureAuthorizerTest {
         // given
         when(reader.getAuthorizationData(any()))
                 .thenReturn(Optional.of(new AssetPermissionsData(STRANGER_ID, List.of(), List.of(), Visibility.PRIVATE)));
-        when(playerCharacterReader.getVisibilityData(any()))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData("caller", List.of())));
+        when(playerCharacterReader.getOwnerUsername(any())).thenReturn(Optional.of("caller"));
 
         // when
         var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));

@@ -151,6 +151,17 @@ public class Notification extends Asset {
         return getReadDate(userId).isPresent() ? NotificationStatus.READ : NotificationStatus.UNREAD;
     }
 
+    public void removeUser(Long userId) {
+
+        recipients.removeIf(recipient -> recipient.getUserId().equals(userId));
+        reads.removeIf(read -> read.getUserId().equals(userId));
+    }
+
+    public boolean isUndeliverable() {
+
+        return type == NotificationType.SYSTEM && recipients.isEmpty();
+    }
+
     public void markAsRead(Long userId) {
 
         if (type == NotificationType.BROADCAST && level == NotificationLevel.URGENT) {

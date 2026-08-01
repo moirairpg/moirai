@@ -269,7 +269,7 @@ public class AdventureRepositoryImplIntegrationTest extends AbstractDatabaseInte
 
     private Adventure insertAdventureWithRoster(PlayerCharacter... characters) {
 
-        var adventure = insert(AdventureFixture.publicSingleplayerAdventure()
+        var adventure = insert(AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build(), Adventure.class);
 
@@ -288,7 +288,7 @@ public class AdventureRepositoryImplIntegrationTest extends AbstractDatabaseInte
 
     private Adventure insertAdventureWithPermissions(Permission... permissions) {
 
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .permissions(permissions)
                 .build();
@@ -301,10 +301,10 @@ public class AdventureRepositoryImplIntegrationTest extends AbstractDatabaseInte
 
         // given
         var recipient = insertUser("55555", "invitee");
-        var adventure = insert(AdventureFixture.publicSingleplayerAdventure()
+        var adventure = insert(AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build(), Adventure.class);
-        var invitation = adventure.invite(recipient.getId());
+        var invitation = adventure.invite(recipient.getId(), AdventureFixture.OWNER_ID);
         invitation.setCreationDate(java.time.Instant.now());
         update(adventure, adventure.getId(), Adventure.class);
 

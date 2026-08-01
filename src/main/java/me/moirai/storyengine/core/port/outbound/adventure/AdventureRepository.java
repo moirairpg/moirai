@@ -26,6 +26,10 @@ public interface AdventureRepository {
 
     List<Adventure> findAllContainingCharacter(Long playerCharacterId);
 
+    List<Adventure> findAllOwnedBy(Long userId);
+
+    List<Adventure> findAllInvolving(Long userId);
+
     List<Long> findManagerUserIdsByAdventureId(Long adventureId);
 
     Optional<String> findEnrolledCharacterName(Long adventureId, String username);

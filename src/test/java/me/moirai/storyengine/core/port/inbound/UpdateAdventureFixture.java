@@ -14,7 +14,7 @@ public class UpdateAdventureFixture {
 
     public static UpdateAdventure sample() {
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
         return new UpdateAdventure(
                 AdventureFixture.PUBLIC_ID,
                 adventure.getName(),
@@ -44,7 +44,7 @@ public class UpdateAdventureFixture {
 
     public static UpdateAdventure sampleWithRequesterId(String requesterId) {
 
-        Adventure adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        Adventure adventure = AdventureFixture.privateAdventure().build();
         return new UpdateAdventure(
                 AdventureFixture.PUBLIC_ID,
                 adventure.getName(),
@@ -74,7 +74,7 @@ public class UpdateAdventureFixture {
 
     public static UpdateAdventure sampleWithVisibility(String requesterId, Visibility visibility) {
 
-        Adventure adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        Adventure adventure = AdventureFixture.privateAdventure().build();
         return new UpdateAdventure(
                 AdventureFixture.PUBLIC_ID,
                 adventure.getName(),

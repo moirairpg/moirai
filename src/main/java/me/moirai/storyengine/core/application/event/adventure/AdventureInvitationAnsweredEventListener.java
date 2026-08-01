@@ -3,11 +3,10 @@ package me.moirai.storyengine.core.application.event.adventure;
 import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import me.moirai.storyengine.common.enums.InvitationStatus;
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -41,8 +40,8 @@ public class AdventureInvitationAnsweredEventListener {
         this.eventPublisher = eventPublisher;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @Transactional(propagation = Propagation.MANDATORY)
+    @EventListener
     public void onAdventureInvitationAnswered(AdventureInvitationAnsweredEvent event) {
 
         var responder = userRepository.findById(event.getRespondingUserId())

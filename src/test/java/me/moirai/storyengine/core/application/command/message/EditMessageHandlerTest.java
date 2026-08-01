@@ -74,7 +74,7 @@ public class EditMessageHandlerTest {
         var messageId = UUID.randomUUID();
         var username = "player1";
         var command = new EditMessage(adventureId, messageId, "Updated content", username);
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         var ordered = inOrder(messageRepository);
 
         when(adventureRepository.findByPublicId(adventureId)).thenReturn(Optional.of(adventure));

@@ -48,7 +48,7 @@ public class AdventureAuthorizationReaderImplIntegrationTest extends AbstractDat
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
@@ -71,7 +71,7 @@ public class AdventureAuthorizationReaderImplIntegrationTest extends AbstractDat
         // Given
         var user = insert(UserFixture.player().build(), User.class);
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .permissions(new Permission(user.getId(), PermissionLevel.WRITE))
                 .build();

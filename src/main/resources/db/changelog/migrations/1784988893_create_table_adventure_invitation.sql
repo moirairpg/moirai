@@ -7,6 +7,7 @@ CREATE TABLE adventure_invitation (
     public_id UUID NOT NULL UNIQUE,
     adventure_id BIGINT NOT NULL REFERENCES adventure(id) ON DELETE CASCADE,
     user_id BIGINT NOT NULL,
+    inviter_id BIGINT NOT NULL,
     status VARCHAR(20) NOT NULL,
     version INT DEFAULT 0 NOT NULL,
     created_by VARCHAR(100),

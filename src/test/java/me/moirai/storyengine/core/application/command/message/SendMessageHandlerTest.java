@@ -114,7 +114,7 @@ public class SendMessageHandlerTest {
     public void shouldSavePlayerMessageBeforeGeneratingResponse() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -147,7 +147,7 @@ public class SendMessageHandlerTest {
     public void shouldSaveAiMessageAfterGeneratingResponse() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -182,7 +182,7 @@ public class SendMessageHandlerTest {
     public void shouldPrependLorebookEntriesWhenVectorSearchReturnsResults() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -219,7 +219,7 @@ public class SendMessageHandlerTest {
     public void shouldNotPrependLorebookEntriesWhenVectorSearchReturnsEmptyList() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -252,7 +252,7 @@ public class SendMessageHandlerTest {
     public void shouldNotPrependLorebookEntriesWhenNoMatchingEntryInLorebook() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -306,7 +306,7 @@ public class SendMessageHandlerTest {
     public void shouldSavePlayerMessageWithCharacterNamePrefix() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -342,7 +342,7 @@ public class SendMessageHandlerTest {
     public void shouldFallBackToUsernameWhenNoCharacterEntryFound() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -377,7 +377,7 @@ public class SendMessageHandlerTest {
     public void shouldPassHistoryMessagesAsIsInContext() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -426,7 +426,7 @@ public class SendMessageHandlerTest {
     public void shouldReplaceNamePlaceholderInNarratorPersonality() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
                 .narrator("MoirAI", "I am {name}, a Discord chatbot")
                 .build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
@@ -463,7 +463,7 @@ public class SendMessageHandlerTest {
     public void shouldStripChatPrefixFromAiResponseBeforeSaving() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
                 .narrator("MoirAI", "I am a Discord chatbot")
                 .build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
@@ -500,7 +500,7 @@ public class SendMessageHandlerTest {
     public void shouldStripAsNamePrefixFromAiResponseBeforeSaving() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
                 .narrator("MoirAI", "I am a Discord chatbot")
                 .build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
@@ -537,7 +537,7 @@ public class SendMessageHandlerTest {
     public void shouldInjectChronicleSegmentsIntoContextWhenVectorSearchReturnsResults() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -574,7 +574,7 @@ public class SendMessageHandlerTest {
     public void shouldNotInjectChronicleSegmentsWhenVectorSearchReturnsEmpty() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -608,7 +608,7 @@ public class SendMessageHandlerTest {
     public void shouldStripTrailingFragmentFromAiResponseBeforeSaving() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
                 .narrator("MoirAI", "I am a Discord chatbot")
                 .build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
@@ -645,7 +645,7 @@ public class SendMessageHandlerTest {
     public void shouldOmitPersonalityInGenerationRequestWhenNarratorIsNull() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -680,7 +680,7 @@ public class SendMessageHandlerTest {
     public void shouldPublishOverflowEvent() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 

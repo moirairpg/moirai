@@ -142,7 +142,7 @@ public class Adventure extends ShareableAsset {
     }
 
     public void communicateAdventureDeleted() {
-        domainEvents.add(new AdventureDeletedEvent(this.id));
+        domainEvents.add(new AdventureDeletedEvent(this.id, this.publicId, this.imageKey));
     }
 
     public Long getId() {
@@ -241,11 +241,11 @@ public class Adventure extends ShareableAsset {
         }
 
         if (hasCharacter(playerCharacterId)) {
-            throw new BusinessRuleViolationException("Character is already registered in this adventure");
+            throw new BusinessRuleViolationException("Character is already enrolled in this adventure");
         }
 
         if (hasPlayer(playerId)) {
-            throw new BusinessRuleViolationException("Player already registered in this adventure");
+            throw new BusinessRuleViolationException("Player already enrolled in this adventure");
         }
 
         roster.add(AdventureMembership.of(this.id, playerCharacterId, playerId));
@@ -305,11 +305,17 @@ public class Adventure extends ShareableAsset {
                 .anyMatch(membership -> membership.getPlayerId().equals(playerId));
     }
 
+    public void withdrawInvitationsInvolving(Long userId) {
+
+        invitations.removeIf(invitation -> invitation.getUserId().equals(userId)
+                || invitation.getInviterId().equals(userId));
+    }
+
     public List<Invitation> getInvitations() {
         return Collections.unmodifiableList(invitations);
     }
 
-    public Invitation invite(Long userId) {
+    public Invitation invite(Long userId, Long inviterId) {
 
         var alreadyInvited = invitations.stream()
                 .anyMatch(invitation -> invitation.getUserId().equals(userId) && invitation.isPending());
@@ -321,6 +327,7 @@ public class Adventure extends ShareableAsset {
         var invitation = Invitation.builder()
                 .adventureId(this.id)
                 .userId(userId)
+                .inviterId(inviterId)
                 .build();
 
         invitations.add(invitation);

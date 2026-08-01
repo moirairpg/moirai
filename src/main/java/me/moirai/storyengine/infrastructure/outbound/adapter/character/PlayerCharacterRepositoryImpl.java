@@ -39,6 +39,11 @@ public class PlayerCharacterRepositoryImpl implements PlayerCharacterRepository 
     }
 
     @Override
+    public List<PlayerCharacter> findAllByPlayerId(Long playerId) {
+        return jpaRepository.findAllByPlayerId(playerId);
+    }
+
+    @Override
     public void deleteByPublicId(UUID publicId) {
         jpaRepository.deleteByPublicId(publicId);
     }

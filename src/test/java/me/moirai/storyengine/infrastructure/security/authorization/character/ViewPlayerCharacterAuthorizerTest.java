@@ -22,7 +22,7 @@ import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
-import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVisibilityData;
+import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterPermissionsData;
 
 @ExtendWith(MockitoExtension.class)
 public class ViewPlayerCharacterAuthorizerTest {
@@ -59,8 +59,8 @@ public class ViewPlayerCharacterAuthorizerTest {
         // given
         var context = contextWith(principal(Role.PLAYER));
 
-        when(reader.getVisibilityData(any(UUID.class)))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData(CALLER_USERNAME, List.of())));
+        when(reader.getPermissions(any(UUID.class)))
+                .thenReturn(Optional.of(new PlayerCharacterPermissionsData(CALLER_USERNAME, List.of())));
 
         // when
         var isAuthorized = authorizer.authorize(context);
@@ -75,8 +75,8 @@ public class ViewPlayerCharacterAuthorizerTest {
         // given
         var context = contextWith(principal(Role.PLAYER));
 
-        when(reader.getVisibilityData(any(UUID.class)))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData(
+        when(reader.getPermissions(any(UUID.class)))
+                .thenReturn(Optional.of(new PlayerCharacterPermissionsData(
                         CALLER_USERNAME,
                         List.of(privateAdventureOwnedBy(STRANGER_ID)))));
 
@@ -93,8 +93,8 @@ public class ViewPlayerCharacterAuthorizerTest {
         // given
         var context = contextWith(principal(Role.PLAYER));
 
-        when(reader.getVisibilityData(any(UUID.class)))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData(
+        when(reader.getPermissions(any(UUID.class)))
+                .thenReturn(Optional.of(new PlayerCharacterPermissionsData(
                         OWNER_USERNAME,
                         List.of(new AssetPermissionsData(
                                 STRANGER_ID, List.of(), List.of(), Visibility.PUBLIC)))));
@@ -112,8 +112,8 @@ public class ViewPlayerCharacterAuthorizerTest {
         // given
         var context = contextWith(principal(Role.PLAYER));
 
-        when(reader.getVisibilityData(any(UUID.class)))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData(
+        when(reader.getPermissions(any(UUID.class)))
+                .thenReturn(Optional.of(new PlayerCharacterPermissionsData(
                         OWNER_USERNAME,
                         List.of(new AssetPermissionsData(
                                 STRANGER_ID, List.of(), List.of(CALLER_ID), Visibility.PRIVATE)))));
@@ -131,8 +131,8 @@ public class ViewPlayerCharacterAuthorizerTest {
         // given
         var context = contextWith(principal(Role.PLAYER));
 
-        when(reader.getVisibilityData(any(UUID.class)))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData(
+        when(reader.getPermissions(any(UUID.class)))
+                .thenReturn(Optional.of(new PlayerCharacterPermissionsData(
                         OWNER_USERNAME,
                         List.of(new AssetPermissionsData(
                                 STRANGER_ID, List.of(CALLER_ID), List.of(), Visibility.PRIVATE)))));
@@ -150,8 +150,8 @@ public class ViewPlayerCharacterAuthorizerTest {
         // given
         var context = contextWith(principal(Role.PLAYER));
 
-        when(reader.getVisibilityData(any(UUID.class)))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData(
+        when(reader.getPermissions(any(UUID.class)))
+                .thenReturn(Optional.of(new PlayerCharacterPermissionsData(
                         OWNER_USERNAME,
                         List.of(privateAdventureOwnedBy(CALLER_ID)))));
 
@@ -168,8 +168,8 @@ public class ViewPlayerCharacterAuthorizerTest {
         // given
         var context = contextWith(principal(Role.PLAYER));
 
-        when(reader.getVisibilityData(any(UUID.class)))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData(
+        when(reader.getPermissions(any(UUID.class)))
+                .thenReturn(Optional.of(new PlayerCharacterPermissionsData(
                         OWNER_USERNAME,
                         List.of(
                                 privateAdventureOwnedBy(STRANGER_ID),
@@ -189,8 +189,8 @@ public class ViewPlayerCharacterAuthorizerTest {
         // given
         var context = contextWith(principal(Role.PLAYER));
 
-        when(reader.getVisibilityData(any(UUID.class)))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData(OWNER_USERNAME, List.of())));
+        when(reader.getPermissions(any(UUID.class)))
+                .thenReturn(Optional.of(new PlayerCharacterPermissionsData(OWNER_USERNAME, List.of())));
 
         // when
         var isAuthorized = authorizer.authorize(context);
@@ -205,8 +205,8 @@ public class ViewPlayerCharacterAuthorizerTest {
         // given
         var context = contextWith(principal(Role.PLAYER));
 
-        when(reader.getVisibilityData(any(UUID.class)))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData(
+        when(reader.getPermissions(any(UUID.class)))
+                .thenReturn(Optional.of(new PlayerCharacterPermissionsData(
                         OWNER_USERNAME,
                         List.of(new AssetPermissionsData(
                                 STRANGER_ID, List.of(STRANGER_ID), List.of(STRANGER_ID), Visibility.PRIVATE)))));
@@ -224,7 +224,7 @@ public class ViewPlayerCharacterAuthorizerTest {
         // given
         var context = contextWith(principal(Role.PLAYER));
 
-        when(reader.getVisibilityData(any(UUID.class))).thenReturn(Optional.empty());
+        when(reader.getPermissions(any(UUID.class))).thenReturn(Optional.empty());
 
         // when
         var isAuthorized = authorizer.authorize(context);
@@ -237,9 +237,9 @@ public class ViewPlayerCharacterAuthorizerTest {
     void shouldAdmitOnlyTheOwnerWhenCharacterIsRegisteredNowhere() {
 
         // given
-        var visibilityData = new PlayerCharacterVisibilityData(OWNER_USERNAME, List.of());
+        var permissionsData = new PlayerCharacterPermissionsData(OWNER_USERNAME, List.of());
 
-        when(reader.getVisibilityData(any(UUID.class))).thenReturn(Optional.of(visibilityData));
+        when(reader.getPermissions(any(UUID.class))).thenReturn(Optional.of(permissionsData));
 
         // when
         var ownerIsAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER, OWNER_USERNAME)));

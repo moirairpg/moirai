@@ -79,7 +79,7 @@ public class UpdateAdventureHandlerTest {
         var requesterId = "DASDASD";
         var command = UpdateAdventureFixture.sampleWithRequesterId(requesterId);
 
-        var expectedUpdatedAdventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var expectedUpdatedAdventure = AdventureFixture.privateAdventure().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(expectedUpdatedAdventure));
         when(repository.save(any())).thenReturn(expectedUpdatedAdventure);
@@ -113,11 +113,11 @@ public class UpdateAdventureHandlerTest {
         var requesterId = "RQSTRID";
         var command = UpdateAdventureFixture.sampleWithVisibility(requesterId, PUBLIC);
 
-        var unchangedAdventure = AdventureFixture.privateMultiplayerAdventure()
+        var unchangedAdventure = AdventureFixture.privateAdventure()
                 .visibility(Visibility.PRIVATE)
                 .build();
 
-        var expectedUpdatedAdventure = AdventureFixture.privateMultiplayerAdventure()
+        var expectedUpdatedAdventure = AdventureFixture.privateAdventure()
                 .visibility(Visibility.PUBLIC)
                 .build();
 
@@ -159,7 +159,7 @@ public class UpdateAdventureHandlerTest {
                 List.of(),
                 List.of());
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
         var user = UserFixture.playerWithId();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
@@ -197,7 +197,7 @@ public class UpdateAdventureHandlerTest {
                 List.of(),
                 List.of());
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
@@ -233,7 +233,7 @@ public class UpdateAdventureHandlerTest {
                 List.of(),
                 List.of());
 
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         doAnswer(inv -> {
@@ -259,7 +259,7 @@ public class UpdateAdventureHandlerTest {
 
         // given
         var sample = UpdateAdventureFixture.sample();
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         var addedEntry = adventure.addLorebookEntry("Old Name", "Old Description");
         var entryId = UUID.randomUUID();
         ReflectionTestUtils.setField(addedEntry, "publicId", entryId);
@@ -324,7 +324,7 @@ public class UpdateAdventureHandlerTest {
                 List.of(),
                 List.of(entryId));
 
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         var addedEntry = adventure.addLorebookEntry("Entry", "Description");
         ReflectionTestUtils.setField(addedEntry, "publicId", entryId);
 
@@ -363,7 +363,7 @@ public class UpdateAdventureHandlerTest {
                 List.of(),
                 List.of());
 
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         when(repository.save(any(Adventure.class))).thenReturn(adventure);

@@ -41,8 +41,8 @@ public class DeclineAdventureInvitationHandlerTest {
     public void shouldDeclineSaveAndPublishInOrder() {
 
         // given
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithId();
-        var invitation = adventure.invite(10L);
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var invitation = adventure.invite(10L, AdventureFixture.OWNER_ID);
         adventure.drainEvents();
 
         var command = new DeclineAdventureInvitation(invitation.getPublicId());

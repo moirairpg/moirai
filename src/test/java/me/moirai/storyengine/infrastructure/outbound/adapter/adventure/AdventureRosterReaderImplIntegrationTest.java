@@ -18,7 +18,7 @@ import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRosterReader;
-import me.moirai.storyengine.core.port.outbound.adventure.AdventureRosterSummaryRow;
+import me.moirai.storyengine.core.port.outbound.adventure.AdventureMembershipSummaryRow;
 import me.moirai.storyengine.core.port.outbound.adventure.CharacterAdventureSummaryRow;
 
 public class AdventureRosterReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
@@ -96,11 +96,11 @@ public class AdventureRosterReaderImplIntegrationTest extends AbstractDatabaseIn
 
         // then
         assertThat(result).hasSize(2)
-                .extracting(AdventureRosterSummaryRow::name)
+                .extracting(AdventureMembershipSummaryRow::name)
                 .containsExactlyInAnyOrder("Volin Habar", "Mira");
 
         assertThat(result)
-                .extracting(AdventureRosterSummaryRow::playerUsername)
+                .extracting(AdventureMembershipSummaryRow::playerUsername)
                 .containsExactlyInAnyOrder(owner.getUsername(), otherOwner.getUsername());
     }
 
@@ -158,7 +158,7 @@ public class AdventureRosterReaderImplIntegrationTest extends AbstractDatabaseIn
 
     private Adventure insertAdventure(String name, PlayerCharacter... characters) {
 
-        var adventure = insert(AdventureFixture.publicSingleplayerAdventure()
+        var adventure = insert(AdventureFixture.publicAdventure()
                 .name(name)
                 .worldId(world.getPublicId())
                 .build(), Adventure.class);

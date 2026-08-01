@@ -1,5 +1,7 @@
 package me.moirai.storyengine.core.application.command.user;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -12,10 +14,14 @@ public class DeleteUserByIdHandler extends AbstractCommandHandler<DeleteUserById
     private static final String USER_NOT_REGISTERED_IN_MOIRAI = "The User with the requested ID is not registered in MoirAI";
 
     private final UserRepository repository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public DeleteUserByIdHandler(UserRepository repository) {
+    public DeleteUserByIdHandler(
+            UserRepository repository,
+            ApplicationEventPublisher eventPublisher) {
 
         this.repository = repository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -29,10 +35,13 @@ public class DeleteUserByIdHandler extends AbstractCommandHandler<DeleteUserById
     @Override
     public Void execute(DeleteUserById useCase) {
 
-        var discordUser = repository.findByPublicId(useCase.userId())
+        var user = repository.findByPublicId(useCase.userId())
                 .orElseThrow(() -> new NotFoundException(USER_NOT_REGISTERED_IN_MOIRAI));
 
-        repository.delete(discordUser);
+        user.communicateUserDeleted();
+        user.drainEvents().forEach(eventPublisher::publishEvent);
+
+        repository.delete(user);
 
         return null;
     }

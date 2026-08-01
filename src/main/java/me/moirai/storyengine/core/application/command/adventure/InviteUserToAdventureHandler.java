@@ -51,7 +51,7 @@ public class InviteUserToAdventureHandler
 
         for (var invitee : resolved) {
 
-            adventure.invite(invitee.getId());
+            adventure.invite(invitee.getId(), command.requesterId());
             invited.add(invitee.getUsername());
         }
 

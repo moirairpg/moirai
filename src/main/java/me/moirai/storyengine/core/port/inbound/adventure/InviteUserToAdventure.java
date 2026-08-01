@@ -8,7 +8,8 @@ import me.moirai.storyengine.common.util.Functions;
 
 public record InviteUserToAdventure(
         UUID adventureId,
-        List<String> inviteeUsernames)
+        List<String> inviteeUsernames,
+        Long requesterId)
         implements Command<InviteUserToAdventureResult> {
 
     public InviteUserToAdventure {

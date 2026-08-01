@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,7 +21,6 @@ import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.core.port.outbound.adventure.InvitationReader;
 import me.moirai.storyengine.core.port.outbound.adventure.InvitationRecipientRow;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
-import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVisibilityData;
 
 @ExtendWith(MockitoExtension.class)
 public class JoinAdventureWithCharacterAuthorizerTest {
@@ -45,8 +43,7 @@ public class JoinAdventureWithCharacterAuthorizerTest {
         // given
         when(invitationReader.getByPublicId(any()))
                 .thenReturn(Optional.of(new InvitationRecipientRow("caller", InvitationStatus.PENDING)));
-        when(playerCharacterReader.getVisibilityData(any()))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData("caller", List.of())));
+        when(playerCharacterReader.getOwnerUsername(any())).thenReturn(Optional.of("caller"));
 
         // when
         var isAuthorized = authorizer.authorize(contextWith(principal("caller")));
@@ -102,8 +99,7 @@ public class JoinAdventureWithCharacterAuthorizerTest {
         // given
         when(invitationReader.getByPublicId(any()))
                 .thenReturn(Optional.of(new InvitationRecipientRow("caller", InvitationStatus.PENDING)));
-        when(playerCharacterReader.getVisibilityData(any()))
-                .thenReturn(Optional.of(new PlayerCharacterVisibilityData("someone.else", List.of())));
+        when(playerCharacterReader.getOwnerUsername(any())).thenReturn(Optional.of("someone.else"));
 
         // when
         var isAuthorized = authorizer.authorize(contextWith(principal("caller")));
@@ -118,7 +114,7 @@ public class JoinAdventureWithCharacterAuthorizerTest {
         // given
         when(invitationReader.getByPublicId(any()))
                 .thenReturn(Optional.of(new InvitationRecipientRow("caller", InvitationStatus.PENDING)));
-        when(playerCharacterReader.getVisibilityData(any())).thenReturn(Optional.empty());
+        when(playerCharacterReader.getOwnerUsername(any())).thenReturn(Optional.empty());
 
         // when
         var isAuthorized = authorizer.authorize(contextWith(principal("caller")));

@@ -17,6 +17,7 @@ import me.moirai.storyengine.common.util.Functions;
 import me.moirai.storyengine.common.enums.NotificationLevel;
 import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationDetails;
+import me.moirai.storyengine.core.port.outbound.notification.NotificationDetailsRow;
 import me.moirai.storyengine.core.port.outbound.notification.NotificationReader;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
@@ -45,6 +46,32 @@ public class NotificationReaderImpl implements NotificationReader {
               LEFT JOIN adventure a ON n.adventure_id = a.id
               JOIN moirai_user req ON req.username = :requesterUsername
               """;
+
+    private static final String SELECT_BY_PUBLIC_ID = """
+            SELECT n.public_id,
+                   n.message,
+                   n.type,
+                   n.level,
+                   n.is_interactable,
+                   n.metadata,
+                   n.creation_date,
+                   n.last_update_date,
+                   a.public_id AS adventure_id,
+                   COALESCE((
+                       SELECT array_agg(rcp.user_id)
+                         FROM notification_recipient rcp
+                        WHERE rcp.notification_id = n.id
+                   ), ARRAY[]::bigint[]) AS recipient_user_ids,
+                   COALESCE((
+                       SELECT array_agg(mu.username)
+                         FROM notification_recipient rcp
+                         JOIN moirai_user mu ON mu.id = rcp.user_id
+                        WHERE rcp.notification_id = n.id
+                   ), ARRAY[]::varchar[]) AS recipient_usernames
+              FROM notification n
+              LEFT JOIN adventure a ON n.adventure_id = a.id
+             WHERE n.public_id = :publicId
+            """;
     //@formatter:on
 
     private final JdbcClient jdbcClient;
@@ -59,7 +86,29 @@ public class NotificationReaderImpl implements NotificationReader {
     }
 
     @Override
-    public Optional<NotificationDetails> getNotificationByPublicId(
+    public Optional<NotificationDetailsRow> getNotificationByPublicId(UUID publicId) {
+
+        return jdbcClient.sql(SELECT_BY_PUBLIC_ID)
+                .param("publicId", publicId)
+                .query((rs, _) -> new NotificationDetailsRow(
+                        rs.getObject("public_id", UUID.class),
+                        rs.getString("message"),
+                        NotificationType.valueOf(rs.getString("type")),
+                        Functions.mapOrNull(rs.getString("level"), NotificationLevel::valueOf),
+                        SqlArrays.toList(rs.getArray("recipient_user_ids"), Long.class),
+                        SqlArrays.toList(rs.getArray("recipient_usernames"), String.class),
+                        rs.getObject("adventure_id", UUID.class),
+                        rs.getBoolean("is_interactable"),
+                        Functions.mapOrNull(rs.getString("metadata"),
+                                s -> jsonMapper.readValue(s, new TypeReference<Map<String, Object>>() {
+                                })),
+                        rs.getTimestamp("creation_date").toInstant(),
+                        rs.getTimestamp("last_update_date").toInstant()))
+                .optional();
+    }
+
+    @Override
+    public Optional<NotificationDetails> getNotificationByPublicIdAndRequester(
             UUID publicId,
             String requesterUsername,
             Role requesterRole) {
@@ -84,8 +133,7 @@ public class NotificationReaderImpl implements NotificationReader {
                 .query((rs, _) -> {
 
                     var type = NotificationType.valueOf(rs.getString("type"));
-                    var aggregated = Functions.mapOrDefault(rs.getArray("target_usernames"), List.<String>of(),
-                            arr -> SqlArrays.toList(arr, String.class));
+                    var aggregated = SqlArrays.toList(rs.getArray("target_usernames"), String.class);
 
                     var targetUsernames = requesterRole.equals(Role.ADMIN)
                             ? aggregated
