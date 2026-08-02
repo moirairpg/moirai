@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.domain.Permission;
 import me.moirai.storyengine.common.enums.PermissionLevel;
@@ -268,5 +269,41 @@ public class WorldTest {
         // when / then
         assertThat(world.getNarratorName()).isEqualTo("Narrator");
         assertThat(world.getNarratorPersonality()).isEqualTo("Some personality");
+    }
+
+    @Test
+    public void shouldRaiseADeletionEventCarryingItsIdentityWhenTheDeletionIsCommunicated() {
+
+        // given
+        var world = WorldFixture.privateWorldWithId();
+        ReflectionTestUtils.setField(world, "imageKey", "worlds/keep.png");
+
+        // when
+        world.communicateWorldDeleted();
+
+        // then
+        var events = world.drainEvents();
+
+        assertThat(events).singleElement().isInstanceOf(WorldDeletedEvent.class);
+
+        var event = (WorldDeletedEvent) events.getFirst();
+
+        assertThat(event.getWorldId()).isEqualTo(WorldFixture.NUMERIC_ID);
+        assertThat(event.getPublicId()).isEqualTo(WorldFixture.PUBLIC_ID);
+        assertThat(event.getImageKey()).isEqualTo("worlds/keep.png");
+    }
+
+    @Test
+    public void shouldEmptyTheEventListWhenEventsAreDrained() {
+
+        // given
+        var world = WorldFixture.privateWorldWithId();
+        world.communicateWorldDeleted();
+
+        // when
+        world.drainEvents();
+
+        // then
+        assertThat(world.drainEvents()).isEmpty();
     }
 }

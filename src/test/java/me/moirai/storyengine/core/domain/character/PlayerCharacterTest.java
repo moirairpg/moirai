@@ -255,4 +255,32 @@ public class PlayerCharacterTest {
         // then
         assertThat(character.drainEvents()).isEmpty();
     }
+
+    @Test
+    public void shouldJoinNameClassPersonalityAndDescriptionWhenBuildingTheNarrativeDescription() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // when
+        var description = character.narrativeDescription();
+
+        // then
+        assertThat(description).isEqualTo(
+                "Volin Habar: PALADIN; Brave, honorable and disciplined."
+                        + "; A tall warrior with long black hair and a scar across his left cheek.");
+    }
+
+    @Test
+    public void shouldReflectTheNewValueInTheNarrativeDescriptionWhenAFieldIsUpdated() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // when
+        character.updateName("Volin the Bold");
+
+        // then
+        assertThat(character.narrativeDescription()).startsWith("Volin the Bold: PALADIN;");
+    }
 }

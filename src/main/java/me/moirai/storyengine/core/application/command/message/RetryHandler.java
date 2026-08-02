@@ -22,7 +22,6 @@ import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.common.util.Functions;
 import me.moirai.storyengine.common.util.StringProcessor;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureMembership;
@@ -278,16 +277,8 @@ public class RetryHandler extends AbstractCommandHandler<Retry, MessageResult> {
 
         return candidates.stream()
                 .filter(character -> matchedSet.contains(character.getPublicId()))
-                .map(character -> ChatMessage.asSystem(buildCharacterSystemMessage(character)))
+                .map(character -> ChatMessage.asSystem(character.narrativeDescription()))
                 .toList();
-    }
-
-    private String buildCharacterSystemMessage(PlayerCharacter character) {
-
-        var characterClass = Functions.mapOrDefault(character.getCharacterClass(), "", c -> c.name() + "; ");
-
-        return character.getName() + ": " + characterClass
-                + character.getPersonality() + "; " + character.getPhysicalDescription();
     }
 
     private List<ChatMessage> interleaveBumps(

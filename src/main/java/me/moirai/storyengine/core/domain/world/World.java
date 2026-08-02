@@ -24,6 +24,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import me.moirai.storyengine.common.domain.DomainEvent;
 import me.moirai.storyengine.common.domain.Narrator;
 import me.moirai.storyengine.common.domain.Permission;
 import me.moirai.storyengine.common.domain.ShareableAsset;
@@ -72,6 +74,9 @@ public class World extends ShareableAsset {
     @JoinColumn(name = "world_id")
     private List<WorldLorebookEntry> lorebook = new ArrayList<>();
 
+    @Transient
+    private List<DomainEvent> domainEvents = new ArrayList<>();
+
     @Override
     protected List<Permission> permissions() {
         return permissions;
@@ -96,6 +101,16 @@ public class World extends ShareableAsset {
     public static Builder builder() {
 
         return new Builder();
+    }
+
+    public List<DomainEvent> drainEvents() {
+        var snapshot = List.copyOf(domainEvents);
+        domainEvents.clear();
+        return snapshot;
+    }
+
+    public void communicateWorldDeleted() {
+        domainEvents.add(new WorldDeletedEvent(this.id, this.publicId, this.imageKey));
     }
 
     public Long getId() {

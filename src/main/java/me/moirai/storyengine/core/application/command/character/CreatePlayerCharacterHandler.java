@@ -16,8 +16,6 @@ import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 public class CreatePlayerCharacterHandler
         extends AbstractCommandHandler<CreatePlayerCharacter, PlayerCharacterDetails> {
 
-    private static final String RAG_EMBEDDING_TEXT = "%s: %s; %s; %s";
-
     private final PlayerCharacterRepository repository;
     private final UserRepository userRepository;
     private final PlayerCharacterVectorSearchPort vectorSearchPort;
@@ -53,21 +51,13 @@ public class CreatePlayerCharacterHandler
 
         var character = repository.save(newCharacter);
 
-        var vector = embeddingPort.embed(buildEmbeddingText(character));
-        vectorSearchPort.upsert(character.getPublicId(), vector);
-
         var owner = userRepository.findById(character.getPlayerId())
                 .orElseThrow(() -> new NotFoundException("Character owner not found"));
 
-        return mapResult(character, owner.getUsername());
-    }
+        var vector = embeddingPort.embed(character.narrativeDescription());
+        vectorSearchPort.upsert(character.getPublicId(), vector);
 
-    private String buildEmbeddingText(PlayerCharacter character) {
-        return String.format(RAG_EMBEDDING_TEXT,
-                character.getName(),
-                character.getCharacterClass().name(),
-                character.getPersonality(),
-                character.getPhysicalDescription());
+        return mapResult(character, owner.getUsername());
     }
 
     private PlayerCharacterDetails mapResult(PlayerCharacter character, String ownerUsername) {

@@ -19,8 +19,6 @@ import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 public class UpdatePlayerCharacterHandler
         extends AbstractCommandHandler<UpdatePlayerCharacter, PlayerCharacterDetails> {
 
-    private static final String RAG_EMBEDDING_TEXT = "%s: %s; %s; %s";
-
     private final PlayerCharacterRepository repository;
     private final UserRepository userRepository;
     private final PlayerCharacterVectorSearchPort vectorSearchPort;
@@ -78,17 +76,9 @@ public class UpdatePlayerCharacterHandler
 
         var saved = repository.save(character);
 
-        vectorSearchPort.upsert(saved.getPublicId(), embeddingPort.embed(buildEmbeddingText(saved)));
+        vectorSearchPort.upsert(saved.getPublicId(), embeddingPort.embed(saved.narrativeDescription()));
 
         return mapResult(saved, owner.getUsername());
-    }
-
-    private String buildEmbeddingText(PlayerCharacter character) {
-        return String.format(RAG_EMBEDDING_TEXT,
-                character.getName(),
-                character.getCharacterClass().name(),
-                character.getPersonality(),
-                character.getPhysicalDescription());
     }
 
     private PlayerCharacterDetails mapResult(PlayerCharacter character, String ownerUsername) {

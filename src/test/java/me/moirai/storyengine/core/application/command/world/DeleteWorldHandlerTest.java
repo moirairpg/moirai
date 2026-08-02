@@ -1,5 +1,6 @@
 package me.moirai.storyengine.core.application.command.world;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,45 +15,48 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.core.domain.world.WorldDeletedEvent;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.inbound.world.DeleteWorld;
-import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 import me.moirai.storyengine.core.port.outbound.world.WorldRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class DeleteWorldHandlerTest {
 
+    private static final String IMAGE_KEY = "worlds/test/image.png";
+
     @Mock
     private WorldRepository repository;
 
     @Mock
-    private StoragePort storagePort;
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private DeleteWorldHandler handler;
 
     @Test
-    public void errorWhenIdIsNull() {
+    public void shouldThrowExceptionWhenIdIsNull() {
 
         // given
-        var config = new DeleteWorld(null);
+        var command = new DeleteWorld(null);
 
         // then
-        assertThrows(IllegalArgumentException.class, () -> handler.handle(config));
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
     }
 
     @Test
-    public void deleteWorld() {
+    public void shouldDeleteTheWorldWhenItExists() {
 
         // given
-        var world = WorldFixture.publicWorld().build();
-
+        var world = WorldFixture.publicWorldWithId();
         var command = new DeleteWorld(WorldFixture.PUBLIC_ID);
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(world));
@@ -62,11 +66,11 @@ public class DeleteWorldHandlerTest {
         handler.handle(command);
 
         // then
-        verify(repository, times(1)).deleteByPublicId(any(UUID.class));
+        verify(repository, times(1)).deleteByPublicId(WorldFixture.PUBLIC_ID);
     }
 
     @Test
-    public void updateWorld_whenWorldNotFound_thenExceptionIsThrown() {
+    public void shouldThrowExceptionWhenWorldNotFound() {
 
         // given
         var command = new DeleteWorld(WorldFixture.PUBLIC_ID);
@@ -76,14 +80,17 @@ public class DeleteWorldHandlerTest {
         // then
         assertThatExceptionOfType(NotFoundException.class)
                 .isThrownBy(() -> handler.handle(command));
+
+        verify(eventPublisher, never()).publishEvent(any(Object.class));
     }
 
     @Test
-    public void shouldDeleteImageWhenEntityHasImageKey() {
+    public void shouldAnnounceTheDeletionWithTheImageKeyWhenTheWorldHasOne() {
 
         // given
-        var world = WorldFixture.publicWorld().build();
-        ReflectionTestUtils.setField(world, "imageKey", "worlds/test/image.png");
+        var world = WorldFixture.publicWorldWithId();
+        ReflectionTestUtils.setField(world, "imageKey", IMAGE_KEY);
+
         var command = new DeleteWorld(WorldFixture.PUBLIC_ID);
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(world));
@@ -93,14 +100,19 @@ public class DeleteWorldHandlerTest {
         handler.handle(command);
 
         // then
-        verify(storagePort).delete("worlds/test/image.png");
+        var publishedEvent = ArgumentCaptor.forClass(WorldDeletedEvent.class);
+        verify(eventPublisher).publishEvent(publishedEvent.capture());
+
+        assertThat(publishedEvent.getValue().getImageKey()).isEqualTo(IMAGE_KEY);
+        assertThat(publishedEvent.getValue().getPublicId()).isEqualTo(WorldFixture.PUBLIC_ID);
+        assertThat(publishedEvent.getValue().getWorldId()).isEqualTo(WorldFixture.NUMERIC_ID);
     }
 
     @Test
-    public void shouldNotDeleteImageWhenEntityHasNoImageKey() {
+    public void shouldAnnounceTheDeletionWithoutAnImageKeyWhenTheWorldHasNone() {
 
         // given
-        var world = WorldFixture.publicWorld().build();
+        var world = WorldFixture.publicWorldWithId();
         var command = new DeleteWorld(WorldFixture.PUBLIC_ID);
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(world));
@@ -110,6 +122,9 @@ public class DeleteWorldHandlerTest {
         handler.handle(command);
 
         // then
-        verify(storagePort, never()).delete(any());
+        var publishedEvent = ArgumentCaptor.forClass(WorldDeletedEvent.class);
+        verify(eventPublisher).publishEvent(publishedEvent.capture());
+
+        assertThat(publishedEvent.getValue().getImageKey()).isNull();
     }
 }

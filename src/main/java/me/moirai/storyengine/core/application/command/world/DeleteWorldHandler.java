@@ -1,17 +1,18 @@
 package me.moirai.storyengine.core.application.command.world;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.port.inbound.world.DeleteWorld;
-import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 import me.moirai.storyengine.core.port.outbound.world.WorldRepository;
 
-// TODO: world is the one aggregate left out of the user-deletion cleanup (T5-007). It raises no domain
-// events, so deleting a user leaves its world_permissions rows behind and never deletes the worlds it
-// owns. Needs a WorldDeletedEvent raised here, a WorldDomainEventListener reacting to UserDeletedEvent,
-// and this inline storage delete moved to an AFTER_COMMIT cleanup listener — same shape as
-// DeleteAdventureHandler + AdventureDeletedCleanupListener.
+// TODO: candidate for removal. WorldDeletedEvent has exactly one consumer —
+// WorldDomainEventListener.onWorldDeleted, which deletes the image from storage after commit. Nothing
+// else reacts to it. Inlining storagePort.delete here again would drop the event, the listener method
+// and this indirection; the cost is that a rollback after the delete would destroy an image the
+// database still considers live.
 @CommandHandler
 public class DeleteWorldHandler extends AbstractCommandHandler<DeleteWorld, Void> {
 
@@ -19,11 +20,14 @@ public class DeleteWorldHandler extends AbstractCommandHandler<DeleteWorld, Void
     private static final String ID_CANNOT_BE_NULL_OR_EMPTY = "World ID cannot be null or empty";
 
     private final WorldRepository repository;
-    private final StoragePort storagePort;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public DeleteWorldHandler(WorldRepository repository, StoragePort storagePort) {
+    public DeleteWorldHandler(
+            WorldRepository repository,
+            ApplicationEventPublisher eventPublisher) {
+
         this.repository = repository;
-        this.storagePort = storagePort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -40,9 +44,8 @@ public class DeleteWorldHandler extends AbstractCommandHandler<DeleteWorld, Void
         var world = repository.findByPublicId(command.worldId())
                 .orElseThrow(() -> new NotFoundException(WORLD_TO_BE_VIEWED_WAS_NOT_FOUND));
 
-        if (world.getImageKey() != null) {
-            storagePort.delete(world.getImageKey());
-        }
+        world.communicateWorldDeleted();
+        world.drainEvents().forEach(eventPublisher::publishEvent);
 
         repository.deleteByPublicId(command.worldId());
 

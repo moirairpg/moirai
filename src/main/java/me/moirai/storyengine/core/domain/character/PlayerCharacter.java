@@ -119,6 +119,10 @@ public class PlayerCharacter extends Asset {
         return characterClass;
     }
 
+    public String narrativeDescription() {
+        return name + ": " + characterClass.name() + "; " + personality + "; " + physicalDescription;
+    }
+
     public String getImageKey() {
         return imageKey;
     }

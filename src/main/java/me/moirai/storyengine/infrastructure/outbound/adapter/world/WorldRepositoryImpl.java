@@ -1,5 +1,6 @@
 package me.moirai.storyengine.infrastructure.outbound.adapter.world;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,6 +22,18 @@ public class WorldRepositoryImpl implements WorldRepository {
     public World save(World world) {
 
         return jpaRepository.save(world);
+    }
+
+    @Override
+    public List<World> findAllOwnedBy(Long userId) {
+
+        return jpaRepository.findAllOwnedBy(userId);
+    }
+
+    @Override
+    public List<World> findAllInvolving(Long userId) {
+
+        return jpaRepository.findAllInvolving(userId);
     }
 
     @Override
