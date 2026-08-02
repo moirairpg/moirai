@@ -31,6 +31,7 @@
         <apache.commons.lang.version>3.20.0</apache.commons.lang.version>
         <apache.commons.collections.version>4.5.0</apache.commons.collections.version>
         <wiremock.version>3.13.2</wiremock.version>
+        <archunit.version>1.4.1</archunit.version>
         <jacoco.version>0.8.15</jacoco.version>
         <qdrant.version>1.18.3</qdrant.version>
         <grpc.version>1.83.0</grpc.version>
@@ -103,6 +104,12 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers-junit-jupiter</artifactId>
             <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>${archunit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
