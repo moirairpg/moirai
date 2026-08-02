@@ -110,7 +110,7 @@ public class World extends ShareableAsset {
     }
 
     public void communicateWorldDeleted() {
-        domainEvents.add(new WorldDeletedEvent(this.id, this.publicId, this.imageKey));
+        domainEvents.add(new WorldDeletedEvent(this.publicId, this.imageKey));
     }
 
     public Long getId() {

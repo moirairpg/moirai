@@ -105,7 +105,6 @@ public class DeleteWorldHandlerTest {
 
         assertThat(publishedEvent.getValue().getImageKey()).isEqualTo(IMAGE_KEY);
         assertThat(publishedEvent.getValue().getPublicId()).isEqualTo(WorldFixture.PUBLIC_ID);
-        assertThat(publishedEvent.getValue().getWorldId()).isEqualTo(WorldFixture.NUMERIC_ID);
     }
 
     @Test

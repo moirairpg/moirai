@@ -288,7 +288,6 @@ public class WorldTest {
 
         var event = (WorldDeletedEvent) events.getFirst();
 
-        assertThat(event.getWorldId()).isEqualTo(WorldFixture.NUMERIC_ID);
         assertThat(event.getPublicId()).isEqualTo(WorldFixture.PUBLIC_ID);
         assertThat(event.getImageKey()).isEqualTo("worlds/keep.png");
     }

@@ -130,7 +130,7 @@ public class DeleteUserByIdHandlerIntegrationTest extends AbstractDatabaseIntegr
     }
 
     @Test
-    public void shouldRemoveTheWorldImageFromStorageAfterTheDeletionCommits() {
+    public void shouldRemoveTheWorldImageFromStorageWhenTheDeletionCommits() {
 
         // given
         var ownedWorld = insertWorldOwnedBy(doomedUser);
