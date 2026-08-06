@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import me.moirai.storyengine.core.port.inbound.message.MessageResult;
+import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 import me.moirai.storyengine.core.port.outbound.message.MessageBroadcastPort;
 
 @Component
@@ -20,8 +20,8 @@ public class MessageBroadcastAdapter implements MessageBroadcastPort {
     }
 
     @Override
-    public void broadcast(UUID adventurePublicId, MessageResult message) {
+    public void broadcast(UUID adventurePublicId, AdventureMessageUpdate update) {
 
-        messagingTemplate.convertAndSend(ADVENTURE_TOPIC + adventurePublicId, message);
+        messagingTemplate.convertAndSend(ADVENTURE_TOPIC + adventurePublicId, update);
     }
 }

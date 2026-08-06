@@ -44,6 +44,8 @@ public interface MessageJpaRepository extends JpaRepository<Message, Long> {
             """)
     void deleteByPublicId(UUID adventurePublicId, UUID messagePublicId);
 
+    Optional<Message> findByPublicId(UUID publicId);
+
     @Modifying
     @Query("""
             UPDATE Message m

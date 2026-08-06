@@ -84,7 +84,7 @@ class AdventureWebSocketStompIntegrationTest extends AbstractDatabaseIntegration
         session = connect(SESSION_TOKEN);
 
         // when
-        session.send("/app/adventures/" + ADVENTURE_ID, new WebSocketPayload("hello from the wire"));
+        session.send("/app/adventures/" + ADVENTURE_ID + "/messages", new WebSocketPayload("hello from the wire"));
 
         // then
         var command = received.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -109,7 +109,7 @@ class AdventureWebSocketStompIntegrationTest extends AbstractDatabaseIntegration
         session = connect(SESSION_TOKEN);
 
         // when
-        session.send("/app/adventures/" + ADVENTURE_ID, new WebSocketPayload("hello"));
+        session.send("/app/adventures/" + ADVENTURE_ID + "/messages", new WebSocketPayload("hello"));
 
         // then
         var principalDuringHandling = seen.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);

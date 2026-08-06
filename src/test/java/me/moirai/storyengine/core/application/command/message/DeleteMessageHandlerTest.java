@@ -1,16 +1,21 @@
 package me.moirai.storyengine.core.application.command.message;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
+import me.moirai.storyengine.common.enums.TranscriptChange;
+import me.moirai.storyengine.core.application.event.message.MessageTranscriptChangedEvent;
 import me.moirai.storyengine.core.port.inbound.message.DeleteMessage;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
 
@@ -20,15 +25,14 @@ public class DeleteMessageHandlerTest {
     @Mock
     private MessageRepository messageRepository;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
+    @InjectMocks
     private DeleteMessageHandler handler;
 
-    @BeforeEach
-    void setup() {
-        handler = new DeleteMessageHandler(messageRepository);
-    }
-
     @Test
-    public void shouldThrowWhenAdventureIdIsNull() {
+    public void shouldThrowExceptionWhenAdventureIdIsNull() {
 
         // given
         var command = new DeleteMessage(null, UUID.randomUUID());
@@ -38,7 +42,7 @@ public class DeleteMessageHandlerTest {
     }
 
     @Test
-    public void shouldThrowWhenMessageIdIsNull() {
+    public void shouldThrowExceptionWhenMessageIdIsNull() {
 
         // given
         var command = new DeleteMessage(UUID.randomUUID(), null);
@@ -48,7 +52,7 @@ public class DeleteMessageHandlerTest {
     }
 
     @Test
-    public void shouldDeleteMessageByPublicId() {
+    public void shouldRemoveOnlyThatMessageWhenAMessageIsDeleted() {
 
         // given
         var adventureId = UUID.randomUUID();
@@ -60,5 +64,27 @@ public class DeleteMessageHandlerTest {
 
         // then
         verify(messageRepository).deleteByPublicId(adventureId, messageId);
+
+        var published = ArgumentCaptor.forClass(MessageTranscriptChangedEvent.class);
+        verify(eventPublisher).publishEvent(published.capture());
+
+        assertThat(published.getValue().update().change()).isEqualTo(TranscriptChange.MESSAGE_REMOVED);
+        assertThat(published.getValue().update().messageId()).isEqualTo(messageId);
+    }
+
+    @Test
+    public void shouldNotMarkNarrationAsPendingWhenAMessageIsDeleted() {
+
+        // given
+        var command = new DeleteMessage(UUID.randomUUID(), UUID.randomUUID());
+
+        // when
+        handler.handle(command);
+
+        // then
+        var published = ArgumentCaptor.forClass(MessageTranscriptChangedEvent.class);
+        verify(eventPublisher).publishEvent(published.capture());
+
+        assertThat(published.getValue().update().isNarrationPending()).isFalse();
     }
 }

@@ -1,8 +1,10 @@
 package me.moirai.storyengine.core.domain.adventure;
 
+import static me.moirai.storyengine.common.util.DefaultStringProcessors.replacePersonaNamePlaceholderWith;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -177,8 +179,19 @@ public class Adventure extends ShareableAsset {
         return Functions.mapOrDefault(narrator, "Narrator", Narrator::narratorName);
     }
 
-    public String getNarratorPersonality() {
+    public String getNarratorPersonalityTemplate() {
         return Functions.mapOrNull(narrator, Narrator::narratorPersonality);
+    }
+
+    public String getNarratorPersonality() {
+
+        var template = Functions.mapOrNull(narrator, Narrator::narratorPersonality);
+
+        if (template == null) {
+            return null;
+        }
+
+        return replacePersonaNamePlaceholderWith(getNarratorName()).apply(template);
     }
 
     public ModelConfiguration getModelConfiguration() {
@@ -232,6 +245,27 @@ public class Adventure extends ShareableAsset {
 
     public List<AdventureMembership> getRoster() {
         return Collections.unmodifiableList(roster);
+    }
+
+    public List<AdventureLorebookEntry> getLorebookEntriesByIds(Collection<UUID> entryIds) {
+
+        return lorebook.stream()
+                .filter(entry -> entryIds.contains(entry.getPublicId()))
+                .toList();
+    }
+
+    public List<ChronicleSegment> getChronicleSegmentsByIds(Collection<UUID> segmentIds) {
+
+        return chronicleSegments.stream()
+                .filter(segment -> segmentIds.contains(segment.getPublicId()))
+                .toList();
+    }
+
+    public List<Long> getEnrolledCharacterIds() {
+
+        return roster.stream()
+                .map(AdventureMembership::getPlayerCharacterId)
+                .toList();
     }
 
     public void enrollPlayerCharacter(Long playerCharacterId, Long playerId) {
@@ -399,22 +433,16 @@ public class Adventure extends ShareableAsset {
         this.moderation = moderation;
     }
 
-    public void updateAiModel(ArtificialIntelligenceModel aiModel) {
+    public void updateModelConfiguration(
+            ArtificialIntelligenceModel aiModel,
+            Integer maxTokenLimit,
+            Double temperature) {
 
-        ModelConfiguration newModelConfiguration = this.modelConfiguration.updateAiModel(aiModel);
-        this.modelConfiguration = newModelConfiguration;
-    }
-
-    public void updateMaxTokenLimit(int maxTokenLimit) {
-
-        ModelConfiguration newModelConfiguration = this.modelConfiguration.updateMaxTokenLimit(maxTokenLimit);
-        this.modelConfiguration = newModelConfiguration;
-    }
-
-    public void updateTemperature(double temperature) {
-
-        ModelConfiguration newModelConfiguration = this.modelConfiguration.updateTemperature(temperature);
-        this.modelConfiguration = newModelConfiguration;
+        this.modelConfiguration = ModelConfiguration.builder()
+                .aiModel(aiModel)
+                .maxTokenLimit(maxTokenLimit)
+                .temperature(temperature)
+                .build();
     }
 
     public void updateNudge(String nudge) {

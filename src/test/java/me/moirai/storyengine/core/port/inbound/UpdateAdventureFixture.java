@@ -3,6 +3,7 @@ package me.moirai.storyengine.core.port.inbound;
 import java.util.List;
 import java.util.Set;
 
+import me.moirai.storyengine.common.enums.ArtificialIntelligenceModel;
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
@@ -61,6 +62,36 @@ public class UpdateAdventureFixture {
                         adventure.getModelConfiguration().getAiModel(),
                         adventure.getModelConfiguration().getMaxTokenLimit(),
                         adventure.getModelConfiguration().getTemperature()),
+                new ContextAttributesDto(
+                        adventure.getContextAttributes().nudge(),
+                        adventure.getContextAttributes().authorsNote(),
+                        adventure.getContextAttributes().scene(),
+                        adventure.getContextAttributes().bump(),
+                        adventure.getContextAttributes().bumpFrequency()),
+                List.of(),
+                List.of(),
+                List.of());
+    }
+
+    public static UpdateAdventure sampleWithModelConfiguration(
+            ArtificialIntelligenceModel aiModel,
+            Integer maxTokenLimit,
+            Double temperature) {
+
+        Adventure adventure = AdventureFixture.privateAdventure().build();
+        return new UpdateAdventure(
+                AdventureFixture.PUBLIC_ID,
+                adventure.getName(),
+                adventure.getDescription(),
+                adventure.getAdventureStart(),
+                "Aria",
+                "A helpful guide",
+                adventure.getVisibility(),
+                adventure.getModeration(),
+                null,
+                null,
+                Set.of(),
+                new ModelConfigurationDto(aiModel, maxTokenLimit, temperature),
                 new ContextAttributesDto(
                         adventure.getContextAttributes().nudge(),
                         adventure.getContextAttributes().authorsNote(),

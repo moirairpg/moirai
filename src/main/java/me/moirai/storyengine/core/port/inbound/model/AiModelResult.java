@@ -4,5 +4,6 @@ public record AiModelResult(
         String fullModelName,
         String internalModelName,
         String officialModelName,
-        int hardTokenLimit) {
+        int hardTokenLimit,
+        int responseTokenLimit) {
 }

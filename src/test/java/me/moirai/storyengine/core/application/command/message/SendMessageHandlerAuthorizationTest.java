@@ -37,13 +37,6 @@ import me.moirai.storyengine.common.security.authorization.AuthorizationOperatio
 import me.moirai.storyengine.common.security.authorization.AuthorizationService;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
-import me.moirai.storyengine.core.port.outbound.adventure.ChronicleVectorSearchPort;
-import me.moirai.storyengine.core.port.outbound.adventure.LorebookVectorSearchPort;
-import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterRepository;
-import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVectorSearchPort;
-import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
-import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
-import me.moirai.storyengine.core.port.outbound.message.MessageBroadcastPort;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
 
 @SpringJUnitConfig
@@ -75,15 +68,7 @@ class SendMessageHandlerAuthorizationTest {
             return new SendMessageHandler(
                     adventureRepository,
                     mock(MessageRepository.class),
-                    mock(TextCompletionPort.class),
-                    mock(EmbeddingPort.class),
-                    mock(LorebookVectorSearchPort.class),
-                    mock(ChronicleVectorSearchPort.class),
-                    mock(PlayerCharacterRepository.class),
-                    mock(PlayerCharacterVectorSearchPort.class),
-                    mock(ApplicationEventPublisher.class),
-                    mock(MessageBroadcastPort.class),
-                    10, 3, 3, 3);
+                    mock(ApplicationEventPublisher.class));
         }
     }
 

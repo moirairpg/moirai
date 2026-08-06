@@ -120,7 +120,7 @@ public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventu
                 adventure.getAdventureStart(),
                 worldPublicId,
                 adventure.getNarratorName(),
-                adventure.getNarratorPersonality(),
+                adventure.getNarratorPersonalityTemplate(),
                 adventure.getVisibility(),
                 adventure.getModeration(),
                 storagePort.resolveUrl(adventure.getImageKey()),

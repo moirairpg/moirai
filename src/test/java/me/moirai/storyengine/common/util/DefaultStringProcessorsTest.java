@@ -2,6 +2,8 @@ package me.moirai.storyengine.common.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 public class DefaultStringProcessorsTest {
@@ -185,5 +187,83 @@ public class DefaultStringProcessorsTest {
 
         // Then
         assertThat(result).isEqualTo(expectedAuthorsNote);
+    }
+
+    @Test
+    public void shouldTruncateAtThePlayerCharacterLineWhenTheModelSpeaksAsThem() {
+
+        // given
+        var input = "The door creaks open." + System.lineSeparator()
+                + "Volin Habar: I step inside, blade drawn.";
+
+        // when
+        var result = DefaultStringProcessors
+                .truncateAtPlayerCharacterLine(List.of("Volin Habar"))
+                .apply(input);
+
+        // then
+        assertThat(result).isEqualTo("The door creaks open.");
+    }
+
+    @Test
+    public void shouldLeaveTheTextUnchangedWhenNoPlayerCharacterLineIsPresent() {
+
+        // given
+        var input = "The door creaks open." + System.lineSeparator() + "Dust settles on the floor.";
+
+        // when
+        var result = DefaultStringProcessors
+                .truncateAtPlayerCharacterLine(List.of("Volin Habar"))
+                .apply(input);
+
+        // then
+        assertThat(result).isEqualTo(input);
+    }
+
+    @Test
+    public void shouldTruncateAtTheEarliestPlayerCharacterLineWhenSeveralAppear() {
+
+        // given
+        var input = "The door creaks open." + System.lineSeparator()
+                + "Aria: I hesitate." + System.lineSeparator()
+                + "Volin Habar: I step inside.";
+
+        // when
+        var result = DefaultStringProcessors
+                .truncateAtPlayerCharacterLine(List.of("Volin Habar", "Aria"))
+                .apply(input);
+
+        // then
+        assertThat(result).isEqualTo("The door creaks open.");
+    }
+
+    @Test
+    public void shouldLeaveTheTextUnchangedWhenNoCharactersAreEnrolled() {
+
+        // given
+        var input = "Volin Habar: I step inside.";
+
+        // when
+        var result = DefaultStringProcessors
+                .truncateAtPlayerCharacterLine(List.of())
+                .apply(input);
+
+        // then
+        assertThat(result).isEqualTo(input);
+    }
+
+    @Test
+    public void shouldNotTruncateWhenTheCharacterNameAppearsMidSentence() {
+
+        // given
+        var input = "Volin Habar draws his blade as the door creaks open.";
+
+        // when
+        var result = DefaultStringProcessors
+                .truncateAtPlayerCharacterLine(List.of("Volin Habar"))
+                .apply(input);
+
+        // then
+        assertThat(result).isEqualTo(input);
     }
 }

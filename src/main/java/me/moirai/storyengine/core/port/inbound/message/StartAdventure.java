@@ -5,5 +5,5 @@ import java.util.UUID;
 import me.moirai.storyengine.common.cqs.command.Command;
 
 public record StartAdventure(UUID adventureId)
-        implements Command<MessageResult> {
+        implements Command<Void> {
 }

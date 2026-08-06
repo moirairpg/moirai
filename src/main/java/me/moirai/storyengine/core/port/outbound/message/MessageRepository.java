@@ -14,6 +14,8 @@ public interface MessageRepository {
 
     Optional<Message> getLastActive(Long adventureId);
 
+    Optional<Message> getByPublicId(UUID messagePublicId);
+
     void deleteLastAssistantMessage(Long adventureId);
 
     void deleteByPublicId(UUID adventurePublicId, UUID messagePublicId);

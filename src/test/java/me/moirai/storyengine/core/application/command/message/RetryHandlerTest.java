@@ -3,45 +3,32 @@ package me.moirai.storyengine.core.application.command.message;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import me.moirai.storyengine.common.enums.MessageAuthorRole;
+import me.moirai.storyengine.common.enums.TranscriptChange;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.core.application.event.message.MessageTranscriptChangedEvent;
+import me.moirai.storyengine.core.application.event.message.NarrationRetriedEvent;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
-import me.moirai.storyengine.core.domain.message.ChatMessageWindowOverflowedEvent;
-import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.domain.message.MessageFixture;
 import me.moirai.storyengine.core.port.inbound.message.Retry;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
-import me.moirai.storyengine.core.port.outbound.adventure.ChronicleVectorSearchPort;
-import me.moirai.storyengine.core.port.outbound.adventure.LorebookVectorSearchPort;
-import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterRepository;
-import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVectorSearchPort;
-import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
-import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
-import me.moirai.storyengine.core.port.outbound.generation.TextGenerationRequest;
-import me.moirai.storyengine.core.port.outbound.generation.TextGenerationResult;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,63 +41,17 @@ public class RetryHandlerTest {
     private MessageRepository messageRepository;
 
     @Mock
-    private TextCompletionPort textCompletionPort;
-
-    @Mock
-    private EmbeddingPort embeddingPort;
-
-    @Mock
-    private LorebookVectorSearchPort vectorSearchPort;
-
-    @Mock
-    private ChronicleVectorSearchPort chronicleVectorSearchPort;
-
-    @Mock
-    private PlayerCharacterRepository playerCharacterRepository;
-
-    @Mock
-    private PlayerCharacterVectorSearchPort playerCharacterVectorSearchPort;
-
-    @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @InjectMocks
     private RetryHandler handler;
 
-    private static final String CONTINUE_GENERATION_INSTRUCTION = " Continue the story from the left message, no matter if it's a user or an assistant message. Simply generate the continuation so the story keeps going. Be creative. If it's an assistant message, do not repeat its content. Generate the continuation.";
-
-    @BeforeEach
-    void setup() {
-        handler = new RetryHandler(
-                adventureRepository,
-                messageRepository,
-                textCompletionPort,
-                embeddingPort,
-                vectorSearchPort,
-                chronicleVectorSearchPort,
-                playerCharacterRepository,
-                playerCharacterVectorSearchPort,
-                eventPublisher,
-                10,
-                5,
-                3,
-                5);
-    }
-
     @Test
-    public void shouldThrowWhenAdventureIdIsNull() {
-
-        // given
-        var command = new Retry(null);
-
-        // when / then
-        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
-    }
-
-    @Test
-    public void shouldThrowWhenAdventureNotFound() {
+    public void shouldThrowExceptionWhenAdventureIsNotFound() {
 
         // given
         var command = new Retry(UUID.randomUUID());
+
         when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.empty());
 
         // when / then
@@ -118,16 +59,13 @@ public class RetryHandlerTest {
     }
 
     @Test
-    public void shouldThrowWhenNoMessagesExist() {
+    public void shouldThrowExceptionWhenAdventureHasNoMessages() {
 
         // given
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
         var command = new Retry(UUID.randomUUID());
 
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
+        when(adventureRepository.findByPublicId(any(UUID.class)))
+                .thenReturn(Optional.of(AdventureFixture.privateAdventureWithId()));
         when(messageRepository.getLastActive(anyLong())).thenReturn(Optional.empty());
 
         // when / then
@@ -135,165 +73,48 @@ public class RetryHandlerTest {
     }
 
     @Test
-    public void shouldThrowWhenLastMessageIsNotAssistant() {
+    public void shouldThrowExceptionWhenTheLastMessageIsNotAnAiResponse() {
 
         // given
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var userMessage = MessageFixture.userMessage().build();
         var command = new Retry(UUID.randomUUID());
+        var lastMessage = MessageFixture.userMessage().build();
 
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.getLastActive(anyLong())).thenReturn(Optional.of(userMessage));
+        when(adventureRepository.findByPublicId(any(UUID.class)))
+                .thenReturn(Optional.of(AdventureFixture.privateAdventureWithId()));
+        when(messageRepository.getLastActive(anyLong())).thenReturn(Optional.of(lastMessage));
 
         // when / then
         assertThrows(BusinessRuleViolationException.class, () -> handler.handle(command));
     }
 
     @Test
-    public void shouldDeleteLastAssistantMessageBeforeGenerating() {
+    public void shouldRemoveTheLastNarrationAndMarkNarrationAsPendingWhenRetrying() {
 
         // given
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var lastMessage = MessageFixture.assistantMessage().build();
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder().outputText("New AI response.").build();
         var command = new Retry(UUID.randomUUID());
+        var lastMessage = MessageFixture.assistantMessage().build();
+        var lastMessageId = UUID.randomUUID();
 
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.getLastActive(anyLong()))
-                .thenReturn(Optional.of(lastMessage))
-                .thenReturn(Optional.of(lastMessage));
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
+        ReflectionTestUtils.setField(lastMessage, "publicId", lastMessageId);
 
-        InOrder inOrder = Mockito.inOrder(messageRepository, textCompletionPort);
+        when(adventureRepository.findByPublicId(any(UUID.class)))
+                .thenReturn(Optional.of(AdventureFixture.privateAdventureWithId()));
+        when(messageRepository.getLastActive(anyLong())).thenReturn(Optional.of(lastMessage));
 
         // when
         handler.handle(command);
 
         // then
-        inOrder.verify(messageRepository).deleteLastAssistantMessage(anyLong());
-        inOrder.verify(textCompletionPort, times(2)).generateTextFrom(any());
-    }
+        verify(messageRepository).deleteLastAssistantMessage(anyLong());
 
-    @Test
-    public void shouldReturnAiMessageResult() {
+        var published = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher, times(2)).publishEvent(published.capture());
 
-        // given
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
+        var transcriptChange = (MessageTranscriptChangedEvent) published.getAllValues().get(0);
 
-        var lastMessage = MessageFixture.assistantMessage().build();
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder().outputText("Retried AI response.").build();
-        var command = new Retry(UUID.randomUUID());
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.getLastActive(anyLong()))
-                .thenReturn(Optional.of(lastMessage))
-                .thenReturn(Optional.of(lastMessage));
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.content()).isEqualTo("Retried AI response.");
-        assertThat(result.role()).isEqualTo(MessageAuthorRole.ASSISTANT);
-    }
-
-    @Test
-    public void shouldPublishOverflowEvent() {
-
-        // given
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var lastMessage = MessageFixture.assistantMessage().build();
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder().outputText("Retried AI response.").build();
-        var command = new Retry(UUID.randomUUID());
-
-        var fullHistory = java.util.stream.IntStream.range(0, 10)
-                .mapToObj(i -> MessageFixture.userMessage().build())
-                .toList();
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.getLastActive(anyLong()))
-                .thenReturn(Optional.of(lastMessage))
-                .thenReturn(Optional.of(lastMessage));
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(fullHistory);
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        // when
-        handler.handle(command);
-
-        // then
-        var captor = ArgumentCaptor.forClass(ChatMessageWindowOverflowedEvent.class);
-        verify(eventPublisher).publishEvent(captor.capture());
-        assertThat(captor.getValue().adventurePublicId()).isEqualTo(adventure.getPublicId());
-    }
-
-    @Test
-    public void shouldOmitPersonalityInGenerationRequestWhenNarratorIsNull() {
-
-        // given
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var lastMessage = MessageFixture.assistantMessage().build();
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder().outputText("AI response.").build();
-        var command = new Retry(UUID.randomUUID());
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.getLastActive(anyLong()))
-                .thenReturn(Optional.of(lastMessage))
-                .thenReturn(Optional.of(lastMessage));
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        var captor = ArgumentCaptor.forClass(TextGenerationRequest.class);
-
-        // when
-        handler.handle(command);
-
-        // then
-        verify(textCompletionPort, times(2)).generateTextFrom(captor.capture());
-        assertThat(captor.getAllValues().get(1).instructions()).isEqualTo(CONTINUE_GENERATION_INSTRUCTION);
+        assertThat(transcriptChange.update().change()).isEqualTo(TranscriptChange.MESSAGE_REMOVED);
+        assertThat(transcriptChange.update().messageId()).isEqualTo(lastMessageId);
+        assertThat(transcriptChange.update().isNarrationPending()).isTrue();
+        assertThat(published.getAllValues().get(1)).isInstanceOf(NarrationRetriedEvent.class);
     }
 }

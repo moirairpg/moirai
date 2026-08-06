@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.dto.PermissionDto;
+import me.moirai.storyengine.common.enums.ArtificialIntelligenceModel;
 import me.moirai.storyengine.common.enums.Moderation;
 import me.moirai.storyengine.common.enums.PermissionLevel;
 import me.moirai.storyengine.common.enums.Visibility;
@@ -91,6 +92,60 @@ public class UpdateAdventureHandlerTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.lastUpdateDate()).isEqualTo(expectedUpdatedAdventure.getLastUpdateDate());
+    }
+
+    @Test
+    public void shouldPersistEveryModelConfigurationFieldWhenTheAdventureIsUpdated() {
+
+        // given
+        var command = UpdateAdventureFixture.sampleWithModelConfiguration(
+                ArtificialIntelligenceModel.GPT54, 100000, 1.4);
+
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
+        when(repository.save(any())).thenReturn(adventure);
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        handler.handle(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(Adventure.class);
+        verify(repository).save(saved.capture());
+
+        var modelConfiguration = saved.getValue().getModelConfiguration();
+
+        assertThat(modelConfiguration.getAiModel()).isEqualTo(ArtificialIntelligenceModel.GPT54);
+        assertThat(modelConfiguration.getMaxTokenLimit()).isEqualTo(100000);
+        assertThat(modelConfiguration.getTemperature()).isEqualTo(1.4);
+    }
+
+    @Test
+    public void shouldSwitchToAModelWithASmallerCapWhenTheLimitIsLoweredInTheSameUpdate() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        adventure.updateModelConfiguration(ArtificialIntelligenceModel.GPT54, 100000, 1.0);
+
+        var command = UpdateAdventureFixture.sampleWithModelConfiguration(
+                ArtificialIntelligenceModel.GPT54_MINI, 40000, 1.0);
+
+        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
+        when(repository.save(any())).thenReturn(adventure);
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        handler.handle(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(Adventure.class);
+        verify(repository).save(saved.capture());
+
+        assertThat(saved.getValue().getModelConfiguration().getAiModel())
+                .isEqualTo(ArtificialIntelligenceModel.GPT54_MINI);
+        assertThat(saved.getValue().getModelConfiguration().getMaxTokenLimit()).isEqualTo(40000);
     }
 
     @Test

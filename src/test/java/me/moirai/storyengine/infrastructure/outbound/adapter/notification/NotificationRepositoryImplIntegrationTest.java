@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import jakarta.transaction.Transactional;
@@ -20,6 +21,9 @@ public class NotificationRepositoryImplIntegrationTest extends AbstractDatabaseI
 
     @Autowired
     private NotificationRepository repository;
+
+    @Autowired
+    private JdbcClient jdbcClient;
 
     @BeforeEach
     public void before() {
@@ -53,5 +57,87 @@ public class NotificationRepositoryImplIntegrationTest extends AbstractDatabaseI
 
         // then
         assertThat(repository.findByPublicId(UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    public void shouldReturnTheNotificationWhenTheUserIsOnlyARecipient() {
+
+        // given
+        var userId = 111L;
+        var notification = insert(NotificationFixture.broadcast().build(), Notification.class);
+        addRecipient(notification, userId);
+
+        // when
+        var result = repository.findAllInvolving(userId);
+
+        // then
+        assertThat(result)
+                .extracting(Notification::getPublicId)
+                .containsExactly(notification.getPublicId());
+    }
+
+    @Test
+    public void shouldReturnTheNotificationWhenTheUserOnlyHasAReadMarker() {
+
+        // given
+        var userId = 222L;
+        var notification = insert(NotificationFixture.broadcast().build(), Notification.class);
+        addReadMarker(notification, userId);
+
+        // when
+        var result = repository.findAllInvolving(userId);
+
+        // then
+        assertThat(result)
+                .extracting(Notification::getPublicId)
+                .containsExactly(notification.getPublicId());
+    }
+
+    @Test
+    public void shouldReturnTheNotificationOnceWhenTheUserIsBothRecipientAndReader() {
+
+        // given
+        var userId = 333L;
+        var notification = insert(NotificationFixture.broadcast().build(), Notification.class);
+        addRecipient(notification, userId);
+        addReadMarker(notification, userId);
+
+        // when
+        var result = repository.findAllInvolving(userId);
+
+        // then
+        assertThat(result)
+                .extracting(Notification::getPublicId)
+                .containsExactly(notification.getPublicId());
+    }
+
+    @Test
+    public void shouldReturnNothingWhenTheUserIsUnrelatedToAnyNotification() {
+
+        // given
+        var notification = insert(NotificationFixture.broadcast().build(), Notification.class);
+        addRecipient(notification, 444L);
+
+        // when
+        var result = repository.findAllInvolving(555L);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    private void addRecipient(Notification notification, Long userId) {
+
+        jdbcClient.sql("INSERT INTO notification_recipient (notification_id, user_id) VALUES (:id, :userId)")
+                .param("id", notification.getId())
+                .param("userId", userId)
+                .update();
+    }
+
+    private void addReadMarker(Notification notification, Long userId) {
+
+        jdbcClient.sql("INSERT INTO notification_read (notification_id, user_id, read_date) VALUES (:id, :userId, NOW())")
+                .param("id", notification.getId())
+                .param("userId", userId)
+                .update();
     }
 }

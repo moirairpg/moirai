@@ -16,6 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.core.port.inbound.message.MessageResult;
+import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageBroadcastAdapterTest {
@@ -31,15 +32,15 @@ public class MessageBroadcastAdapterTest {
 
         // given
         var adventureId = UUID.fromString("00000000-0000-0000-0000-0000000000aa");
-        var message = new MessageResult(
-                UUID.randomUUID(), "content", MessageAuthorRole.ASSISTANT, Instant.now());
+        var update = AdventureMessageUpdate.messageAdded(new MessageResult(
+                UUID.randomUUID(), "content", MessageAuthorRole.ASSISTANT, Instant.now()), false);
 
         // when
-        adapter.broadcast(adventureId, message);
+        adapter.broadcast(adventureId, update);
 
         // then
         verify(messagingTemplate).convertAndSend(
-                "/topic/adventures/00000000-0000-0000-0000-0000000000aa", message);
+                "/topic/adventures/00000000-0000-0000-0000-0000000000aa", update);
     }
 
     @Test
@@ -47,11 +48,11 @@ public class MessageBroadcastAdapterTest {
 
         // given
         var adventureId = UUID.randomUUID();
-        var message = new MessageResult(
-                UUID.randomUUID(), "content", MessageAuthorRole.USER, Instant.now());
+        var update = AdventureMessageUpdate.messageAdded(new MessageResult(
+                UUID.randomUUID(), "content", MessageAuthorRole.USER, Instant.now()), true);
 
         // when
-        adapter.broadcast(adventureId, message);
+        adapter.broadcast(adventureId, update);
 
         // then
         var destinationCaptor = ArgumentCaptor.forClass(String.class);
@@ -59,6 +60,6 @@ public class MessageBroadcastAdapterTest {
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), payloadCaptor.capture());
 
         assertThat(destinationCaptor.getValue()).isEqualTo("/topic/adventures/" + adventureId);
-        assertThat(payloadCaptor.getValue()).isSameAs(message);
+        assertThat(payloadCaptor.getValue()).isSameAs(update);
     }
 }

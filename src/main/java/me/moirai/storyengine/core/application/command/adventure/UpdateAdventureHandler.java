@@ -65,9 +65,13 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
 
         adventure.updateName(command.name());
         adventure.updateNarrator(command.narratorName(), command.narratorPersonality());
-        adventure.updateAiModel(command.modelConfiguration().aiModel());
         adventure.updateModeration(command.moderation());
-        adventure.updateTemperature(command.modelConfiguration().temperature());
+
+        adventure.updateModelConfiguration(
+                command.modelConfiguration().aiModel(),
+                command.modelConfiguration().maxTokenLimit(),
+                command.modelConfiguration().temperature());
+
         adventure.updateAdventureStart(command.adventureStart());
         adventure.updateDescription(command.description());
         adventure.updateNudge(command.contextAttributes().nudge());
@@ -163,7 +167,7 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
                 savedAdventure.getAdventureStart(),
                 savedAdventure.getWorldId(),
                 savedAdventure.getNarratorName(),
-                savedAdventure.getNarratorPersonality(),
+                savedAdventure.getNarratorPersonalityTemplate(),
                 savedAdventure.getVisibility(),
                 savedAdventure.getModeration(),
                 storagePort.resolveUrl(savedAdventure.getImageKey()),

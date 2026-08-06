@@ -5,6 +5,7 @@ import static me.moirai.storyengine.common.enums.Visibility.PUBLIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -230,99 +231,101 @@ public class AdventureTest {
     }
 
     @Test
-    public void updateAdventure_whenNewAiModelIsProvided_thenAiModelShouldBeUpdated() {
+    public void shouldReplaceEveryModelFieldWhenTheModelConfigurationIsUpdated() {
 
         // given
-        var aiModel = ArtificialIntelligenceModel.GPT54;
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
-
-        // when
-        adventure.updateAiModel(aiModel);
-
-        // then
-        assertThat(adventure.getModelConfiguration().getAiModel()).isEqualTo(aiModel);
-    }
-
-    @Test
-    public void updateAdventure_whenNewMaxTokenLimit_thenMaxTokenLimitShouldBeUpdated() {
-
-        // given
-        var maxTokenLimit = 100;
         var adventure = AdventureFixture.privateAdventureWithoutNarrator()
                 .modelConfiguration(ModelConfigurationFixture.gpt4Mini())
                 .build();
 
         // when
-        adventure.updateMaxTokenLimit(maxTokenLimit);
+        adventure.updateModelConfiguration(ArtificialIntelligenceModel.GPT54, 100000, 1.3);
 
         // then
-        assertThat(adventure.getModelConfiguration().getMaxTokenLimit()).isEqualTo(maxTokenLimit);
+        assertThat(adventure.getModelConfiguration().getAiModel())
+                .isEqualTo(ArtificialIntelligenceModel.GPT54);
+        assertThat(adventure.getModelConfiguration().getMaxTokenLimit()).isEqualTo(100000);
+        assertThat(adventure.getModelConfiguration().getTemperature()).isEqualTo(1.3);
     }
 
     @Test
-    public void updateAdventure_whenNewMaxTokenLimitGreaterThanAllowed_thenThrowException() {
+    public void shouldAllowSwitchingToAModelWithASmallerCapWhenTheLimitIsLoweredInTheSameUpdate() {
 
         // given
-        var maxTokenLimit = 500000;
         var adventure = AdventureFixture.privateAdventureWithoutNarrator()
                 .modelConfiguration(ModelConfigurationFixture.gpt4Mini())
                 .build();
 
-        // then
-        assertThrows(BusinessRuleViolationException.class,
-                () -> adventure.updateMaxTokenLimit(maxTokenLimit));
-    }
-
-    @Test
-    public void updateAdventure_whenNewMaxTokenLimitLesserThanAllowed_thenThrowException() {
-
-        // given
-        var maxTokenLimit = 10;
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
-                .modelConfiguration(ModelConfigurationFixture.gpt4Mini())
-                .build();
-
-        // then
-        assertThrows(BusinessRuleViolationException.class,
-                () -> adventure.updateMaxTokenLimit(maxTokenLimit));
-    }
-
-    @Test
-    public void updateAdventure_whenNewTemperature_thenTemperatureShouldBeUpdated() {
-
-        // given
-        var temperature = 1.3;
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
+        adventure.updateModelConfiguration(ArtificialIntelligenceModel.GPT54, 100000, 1.0);
 
         // when
-        adventure.updateTemperature(temperature);
+        adventure.updateModelConfiguration(ArtificialIntelligenceModel.GPT54_MINI, 40000, 1.0);
 
         // then
-        assertThat(adventure.getModelConfiguration().getTemperature()).isEqualTo(temperature);
+        assertThat(adventure.getModelConfiguration().getAiModel())
+                .isEqualTo(ArtificialIntelligenceModel.GPT54_MINI);
+        assertThat(adventure.getModelConfiguration().getMaxTokenLimit()).isEqualTo(40000);
     }
 
     @Test
-    public void updateAdventure_whenNewTemperatureGreaterThanAllowed_thenThrowException() {
+    public void shouldAllowSwitchingToAModelWithALargerCapWhenTheLimitIsRaisedInTheSameUpdate() {
 
         // given
-        var temperature = 3.0;
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
+                .modelConfiguration(ModelConfigurationFixture.gpt4Mini())
+                .build();
+
+        adventure.updateModelConfiguration(ArtificialIntelligenceModel.GPT54_MINI, 40000, 1.0);
+
+        // when
+        adventure.updateModelConfiguration(ArtificialIntelligenceModel.GPT54, 100000, 1.0);
 
         // then
-        assertThrows(BusinessRuleViolationException.class,
-                () -> adventure.updateTemperature(temperature));
+        assertThat(adventure.getModelConfiguration().getAiModel())
+                .isEqualTo(ArtificialIntelligenceModel.GPT54);
+        assertThat(adventure.getModelConfiguration().getMaxTokenLimit()).isEqualTo(100000);
     }
 
     @Test
-    public void updateAdventure_whenNewTemperatureLesserThanAllowed_thenThrowException() {
+    public void shouldThrowExceptionWhenTheTokenLimitExceedsTheModelCap() {
 
         // given
-        var temperature = 0.0;
-        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
+                .modelConfiguration(ModelConfigurationFixture.gpt4Mini())
+                .build();
 
         // then
         assertThrows(BusinessRuleViolationException.class,
-                () -> adventure.updateTemperature(temperature));
+                () -> adventure.updateModelConfiguration(ArtificialIntelligenceModel.GPT54_MINI, 500000, 1.0));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenTheTokenLimitIsBelowTheMinimum() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
+                .modelConfiguration(ModelConfigurationFixture.gpt4Mini())
+                .build();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> adventure.updateModelConfiguration(ArtificialIntelligenceModel.GPT54_MINI, 10, 1.0));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenTheTemperatureIsOutOfRange() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator()
+                .modelConfiguration(ModelConfigurationFixture.gpt4Mini())
+                .build();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class,
+                () -> adventure.updateModelConfiguration(ArtificialIntelligenceModel.GPT54_MINI, 1000, 3.0));
+
+        assertThrows(BusinessRuleViolationException.class,
+                () -> adventure.updateModelConfiguration(ArtificialIntelligenceModel.GPT54_MINI, 1000, 0.0));
     }
 
     @Test
@@ -816,5 +819,87 @@ public class AdventureTest {
                 () -> adventure.acceptInvitation(invitation.getPublicId(), 99L, 10L));
         assertThat(invitation.isPending()).isTrue();
         assertThat(adventure.drainEvents()).isEmpty();
+    }
+
+    @Test
+    public void shouldResolveThePersonaNamePlaceholderWhenReadingTheNarratorPersonality() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventure()
+                .narrator("Aria", "{name} guides the story")
+                .build();
+
+        // when
+        var personality = adventure.getNarratorPersonality();
+
+        // then
+        assertThat(personality).isEqualTo("Aria guides the story");
+    }
+
+    @Test
+    public void shouldReturnTheStoredTextWhenReadingTheNarratorPersonalityTemplate() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventure()
+                .narrator("Aria", "{name} guides the story")
+                .build();
+
+        // when
+        var template = adventure.getNarratorPersonalityTemplate();
+
+        // then
+        assertThat(template).isEqualTo("{name} guides the story");
+    }
+
+    @Test
+    public void shouldReturnNullWhenReadingTheNarratorPersonalityOfAnAdventureWithoutANarrator() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
+
+        // when / then
+        assertThat(adventure.getNarratorPersonality()).isNull();
+        assertThat(adventure.getNarratorPersonalityTemplate()).isNull();
+    }
+
+    @Test
+    public void shouldReturnOnlyTheRequestedEntriesWhenSelectingLorebookEntriesByIds() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventure().build();
+        var entry = adventure.addLorebookEntry("Winterhold", "A ruined city");
+
+        adventure.addLorebookEntry("Whiterun", "A walled hold");
+
+        // when
+        var selected = adventure.getLorebookEntriesByIds(List.of(entry.getPublicId()));
+
+        // then
+        assertThat(selected).containsExactly(entry);
+    }
+
+    @Test
+    public void shouldReturnNothingWhenSelectingLorebookEntriesByUnknownIds() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        adventure.addLorebookEntry("Winterhold", "A ruined city");
+
+        // when
+        var selected = adventure.getLorebookEntriesByIds(List.of(UUID.randomUUID()));
+
+        // then
+        assertThat(selected).isEmpty();
+    }
+
+    @Test
+    public void shouldReturnNoCharacterIdsWhenTheRosterIsEmpty() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        // when / then
+        assertThat(adventure.getEnrolledCharacterIds()).isEmpty();
     }
 }

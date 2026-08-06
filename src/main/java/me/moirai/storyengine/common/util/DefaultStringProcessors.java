@@ -2,6 +2,7 @@ package me.moirai.storyengine.common.util;
 
 import static java.lang.String.format;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
@@ -43,6 +44,16 @@ public class DefaultStringProcessors {
         return input -> Pattern.compile(format(AS_NAME_PREFIX_LOWERCASE_EXPRESSION, name))
                 .matcher(input)
                 .replaceAll(r -> r.group(1));
+    }
+
+    public static UnaryOperator<String> truncateAtPlayerCharacterLine(List<String> characterNames) {
+
+        return input -> characterNames.stream()
+                .map(name -> input.indexOf(System.lineSeparator() + name + ":"))
+                .filter(index -> index > -1)
+                .min(Integer::compareTo)
+                .map(index -> input.substring(0, index).trim())
+                .orElse(input);
     }
 
     public static UnaryOperator<String> stripTrailingFragment() {

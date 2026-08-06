@@ -1,5 +1,12 @@
 package me.moirai.storyengine.core.domain.adventure;
 
+import static me.moirai.storyengine.common.util.DefaultStringProcessors.formatScene;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
@@ -34,5 +41,24 @@ public record ContextAttributes(
     public ContextAttributes updateScene(String scene) {
 
         return new ContextAttributes(nudge, authorsNote, scene, bump, bumpFrequency);
+    }
+
+    public List<String> asText() {
+
+        var text = new ArrayList<String>();
+
+        if (isNotBlank(authorsNote)) {
+            text.add(authorsNote);
+        }
+
+        if (isNotBlank(scene)) {
+            text.add(formatScene().apply(scene));
+        }
+
+        if (isNotBlank(nudge)) {
+            text.add(nudge);
+        }
+
+        return Collections.unmodifiableList(text);
     }
 }

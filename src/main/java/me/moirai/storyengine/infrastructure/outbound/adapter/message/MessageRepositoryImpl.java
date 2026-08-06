@@ -34,6 +34,11 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public Optional<Message> getByPublicId(UUID messagePublicId) {
+        return jpaRepository.findByPublicId(messagePublicId);
+    }
+
+    @Override
     public void deleteLastAssistantMessage(Long adventureId) {
         jpaRepository.deleteLastAssistantMessage(adventureId);
     }

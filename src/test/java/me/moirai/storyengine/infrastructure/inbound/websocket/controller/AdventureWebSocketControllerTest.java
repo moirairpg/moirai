@@ -47,7 +47,7 @@ public class AdventureWebSocketControllerTest {
         var principal = new UsernamePasswordAuthenticationToken(moiraiPrincipal, null);
 
         // when
-        controller.handleMessage(adventureId, request, principal);
+        controller.sendMessage(adventureId, request, principal);
 
         // then
         var commandCaptor = ArgumentCaptor.forClass(SendMessage.class);
@@ -75,7 +75,7 @@ public class AdventureWebSocketControllerTest {
         }).when(commandRunner).run(any());
 
         // when
-        controller.handleMessage(
+        controller.sendMessage(
                 UUID.randomUUID(),
                 new WebSocketMessageRequest("hello"),
                 new UsernamePasswordAuthenticationToken(moiraiPrincipal, null));
@@ -88,7 +88,7 @@ public class AdventureWebSocketControllerTest {
     void shouldClearTheSecurityContextAfterTheCommandSucceeds() {
 
         // when
-        controller.handleMessage(
+        controller.sendMessage(
                 UUID.randomUUID(),
                 new WebSocketMessageRequest("hello"),
                 new UsernamePasswordAuthenticationToken(principal(), null));
@@ -105,7 +105,7 @@ public class AdventureWebSocketControllerTest {
 
         // when
         assertThatExceptionOfType(IllegalStateException.class)
-                .isThrownBy(() -> controller.handleMessage(
+                .isThrownBy(() -> controller.sendMessage(
                         UUID.randomUUID(),
                         new WebSocketMessageRequest("hello"),
                         new UsernamePasswordAuthenticationToken(principal(), null)));
@@ -122,7 +122,7 @@ public class AdventureWebSocketControllerTest {
 
         // when
         assertThatExceptionOfType(ClassCastException.class)
-                .isThrownBy(() -> controller.handleMessage(
+                .isThrownBy(() -> controller.sendMessage(
                         UUID.randomUUID(), new WebSocketMessageRequest("hello"), foreignPrincipal));
 
         // then
@@ -137,7 +137,7 @@ public class AdventureWebSocketControllerTest {
 
         // when
         assertThatExceptionOfType(ClassCastException.class)
-                .isThrownBy(() -> controller.handleMessage(
+                .isThrownBy(() -> controller.sendMessage(
                         UUID.randomUUID(),
                         new WebSocketMessageRequest("hello"),
                         tokenWithForeignPrincipal));

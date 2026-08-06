@@ -54,16 +54,6 @@ import me.moirai.storyengine.core.port.inbound.adventure.AdventureSortField;
 import me.moirai.storyengine.core.port.inbound.adventure.CatchUpResult;
 import me.moirai.storyengine.core.port.inbound.adventure.MessageSummary;
 import me.moirai.storyengine.core.port.inbound.adventure.SearchAdventureMessages;
-import me.moirai.storyengine.core.port.inbound.message.DeleteMessage;
-import me.moirai.storyengine.core.port.inbound.message.EditMessage;
-import me.moirai.storyengine.core.port.inbound.message.Go;
-import me.moirai.storyengine.core.port.inbound.message.MessageResult;
-import me.moirai.storyengine.core.port.inbound.message.Retry;
-import me.moirai.storyengine.core.port.inbound.message.RetryFromMessage;
-import me.moirai.storyengine.core.port.inbound.message.Say;
-import me.moirai.storyengine.core.port.inbound.message.StartAdventure;
-import me.moirai.storyengine.infrastructure.inbound.rest.request.EditMessageRequest;
-import me.moirai.storyengine.infrastructure.inbound.rest.request.SayRequest;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureSummary;
 import me.moirai.storyengine.core.port.inbound.adventure.ContextAttributesDto;
 import me.moirai.storyengine.core.port.inbound.adventure.CreateAdventure;
@@ -298,71 +288,6 @@ public class AdventureRestController extends SecurityContextAware {
     public CatchUpResult getCatchUp(@PathVariable UUID adventureId) {
 
         return queryRunner.run(new AdventureCatchUp(adventureId));
-    }
-
-    @PostMapping("/{adventureId}/start")
-    @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
-    public MessageResult start(@PathVariable UUID adventureId) {
-
-        return commandRunner.run(new StartAdventure(adventureId));
-    }
-
-    @PostMapping("/{adventureId}/go")
-    @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
-    public MessageResult go(@PathVariable UUID adventureId) {
-
-        return commandRunner.run(new Go(adventureId));
-    }
-
-    @PostMapping("/{adventureId}/retry")
-    @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
-    public MessageResult retry(@PathVariable UUID adventureId) {
-
-        return commandRunner.run(new Retry(adventureId));
-    }
-
-    @PostMapping("/{adventureId}/say")
-    @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#adventureId")
-    public MessageResult say(
-            @PathVariable UUID adventureId,
-            @RequestBody SayRequest request) {
-
-        return commandRunner.run(new Say(adventureId, request.content()));
-    }
-
-    @DeleteMapping("/{adventureId}/messages/{messageId}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
-    public void deleteMessage(
-            @PathVariable UUID adventureId,
-            @PathVariable UUID messageId) {
-
-        commandRunner.run(new DeleteMessage(adventureId, messageId));
-    }
-
-    @PostMapping("/{adventureId}/messages/{messageId}/retry")
-    @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
-    public MessageResult retryFromMessage(
-            @PathVariable UUID adventureId,
-            @PathVariable UUID messageId) {
-
-        return commandRunner.run(new RetryFromMessage(adventureId, messageId));
-    }
-
-    @PatchMapping("/{adventureId}/messages/{messageId}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
-    public void editMessage(
-            @PathVariable UUID adventureId,
-            @PathVariable UUID messageId,
-            @Valid @RequestBody EditMessageRequest request) {
-
-        commandRunner.run(new EditMessage(adventureId, messageId, request.content(), authenticatedUsername()));
     }
 
     @PutMapping(value = "/{adventureId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

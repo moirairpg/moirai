@@ -4,5 +4,5 @@ import java.util.UUID;
 
 import me.moirai.storyengine.common.cqs.command.Command;
 
-public record RetryFromMessage(UUID adventureId, UUID messageId) implements Command<MessageResult> {
+public record RetryFromMessage(UUID adventureId, UUID messageId) implements Command<Void> {
 }

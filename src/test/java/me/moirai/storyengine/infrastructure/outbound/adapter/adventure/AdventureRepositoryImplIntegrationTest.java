@@ -326,6 +326,139 @@ public class AdventureRepositoryImplIntegrationTest extends AbstractDatabaseInte
         assertThat(result).isEmpty();
     }
 
+    @Test
+    public void shouldReturnOnlyAdventuresWhereTheUserIsOwnerWhenFindingAllOwnedBy() {
+
+        // given
+        var owner = insertUser("11111", "owner");
+        var reader = insertUser("22222", "reader");
+
+        var owned = insertAdventureWithPermissions(new Permission(owner.getId(), PermissionLevel.OWNER));
+        insertAdventureWithPermissions(new Permission(reader.getId(), PermissionLevel.READ));
+        insertAdventureWithPermissions(new Permission(reader.getId(), PermissionLevel.WRITE));
+
+        // when
+        var result = repository.findAllOwnedBy(owner.getId());
+
+        // then
+        assertThat(result)
+                .extracting(Adventure::getPublicId)
+                .containsExactly(owned.getPublicId());
+    }
+
+    @Test
+    public void shouldExcludeAdventuresWhereTheUserOnlyReadsOrWritesWhenFindingAllOwnedBy() {
+
+        // given
+        var reader = insertUser("22222", "reader");
+
+        insertAdventureWithPermissions(new Permission(reader.getId(), PermissionLevel.READ));
+        insertAdventureWithPermissions(new Permission(reader.getId(), PermissionLevel.WRITE));
+
+        // when
+        var result = repository.findAllOwnedBy(reader.getId());
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void shouldReturnTheAdventureWhenTheUserOnlyHoldsAPermission() {
+
+        // given
+        var reader = insertUser("22222", "reader");
+        var adventure = insertAdventureWithPermissions(new Permission(reader.getId(), PermissionLevel.READ));
+
+        // when
+        var result = repository.findAllInvolving(reader.getId());
+
+        // then
+        assertThat(result)
+                .extracting(Adventure::getPublicId)
+                .containsExactly(adventure.getPublicId());
+    }
+
+    @Test
+    public void shouldReturnTheAdventureWhenTheUserIsOnlyTheInvitee() {
+
+        // given
+        var invitee = insertUser("33333", "invitee");
+        var adventure = insertAdventureWithPermissions();
+
+        var invitation = adventure.invite(invitee.getId(), AdventureFixture.OWNER_ID);
+        invitation.setCreationDate(java.time.Instant.now());
+        update(adventure, adventure.getId(), Adventure.class);
+
+        // when
+        var result = repository.findAllInvolving(invitee.getId());
+
+        // then
+        assertThat(result)
+                .extracting(Adventure::getPublicId)
+                .containsExactly(adventure.getPublicId());
+    }
+
+    @Test
+    public void shouldReturnTheAdventureWhenTheUserIsOnlyTheInviter() {
+
+        // given
+        var inviter = insertUser("44444", "inviter");
+        var invitee = insertUser("33333", "invitee");
+        var adventure = insertAdventureWithPermissions();
+
+        var invitation = adventure.invite(invitee.getId(), inviter.getId());
+        invitation.setCreationDate(java.time.Instant.now());
+        update(adventure, adventure.getId(), Adventure.class);
+
+        // when
+        var result = repository.findAllInvolving(inviter.getId());
+
+        // then
+        assertThat(result)
+                .extracting(Adventure::getPublicId)
+                .containsExactly(adventure.getPublicId());
+    }
+
+    @Test
+    public void shouldReturnTheAdventureOnceWhenTheUserMatchesThroughSeveralRows() {
+
+        // given
+        var user = insertUser("55555", "everything");
+        var other = insertUser("66666", "other");
+
+        var adventure = insertAdventureWithPermissions(new Permission(user.getId(), PermissionLevel.READ));
+
+        var received = adventure.invite(user.getId(), other.getId());
+        received.setCreationDate(java.time.Instant.now());
+
+        var sent = adventure.invite(other.getId(), user.getId());
+        sent.setCreationDate(java.time.Instant.now());
+
+        update(adventure, adventure.getId(), Adventure.class);
+
+        // when
+        var result = repository.findAllInvolving(user.getId());
+
+        // then
+        assertThat(result)
+                .extracting(Adventure::getPublicId)
+                .containsExactly(adventure.getPublicId());
+    }
+
+    @Test
+    public void shouldReturnNothingWhenTheUserIsUnrelatedToAnyAdventure() {
+
+        // given
+        var stranger = insertUser("77777", "stranger");
+        insertAdventureWithPermissions();
+
+        // when
+        var result = repository.findAllInvolving(stranger.getId());
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
     private List<String> chronicleSegmentsOf(Adventure adventure) {
 
         return jdbcClient.sql("SELECT content FROM chronicle_segment WHERE adventure_id = :adventureId")
