@@ -54,7 +54,7 @@ public class EditMessageAuthorizerTest {
     }
 
     @Test
-    void shouldAuthorizeAPlayerEditingTheirOwnLatestMessage() {
+    void shouldAuthorizeAPlayerEditingTheLastPlayerMessageWhenItIsTheirs() {
 
         // given
         givenPermissions(OWNER_ID, List.of());
@@ -68,7 +68,7 @@ public class EditMessageAuthorizerTest {
     }
 
     @Test
-    void shouldNotAuthorizeAPlayerEditingAnOlderMessageOfTheirOwn() {
+    void shouldNotAuthorizeAPlayerEditingAMessageThatIsNotTheLastPlayerMessage() {
 
         // given
         givenPermissions(OWNER_ID, List.of());

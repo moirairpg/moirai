@@ -2,8 +2,6 @@ package me.moirai.storyengine.infrastructure.security.authorization.message;
 
 import static me.moirai.storyengine.common.enums.Role.ADMIN;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Component;
 
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -12,7 +10,6 @@ import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.common.security.authorization.OperationAuthorizer;
 import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
-import me.moirai.storyengine.core.port.inbound.message.MessageAuthorship;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureAuthorizationReader;
 import me.moirai.storyengine.core.port.outbound.message.MessageAuthorizationReader;
 
@@ -50,17 +47,9 @@ public class EditMessageAuthorizer implements OperationAuthorizer {
         }
 
         return messageAuthorizationReader.getLastPlayerMessage(adventureId)
-                .map(lastPlayerMessage -> isOwnLatestMessage(lastPlayerMessage, messageId, principal))
+                .filter(lastPlayerMessage -> lastPlayerMessage.messageId().equals(messageId))
+                .map(lastPlayerMessage -> principal.username().equals(lastPlayerMessage.authorUsername()))
                 .orElse(false);
-    }
-
-    private boolean isOwnLatestMessage(
-            MessageAuthorship lastPlayerMessage,
-            UUID messageId,
-            MoiraiPrincipal principal) {
-
-        return lastPlayerMessage.messageId().equals(messageId)
-                && principal.username().equals(lastPlayerMessage.authorUsername());
     }
 
     private boolean canManage(AssetPermissionsData authorizationData, MoiraiPrincipal principal) {
