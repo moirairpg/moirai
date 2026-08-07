@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -31,6 +32,7 @@ import me.moirai.storyengine.common.util.StringProcessor;
 import me.moirai.storyengine.core.application.service.StoryContextService;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureDeletedEvent;
+import me.moirai.storyengine.core.domain.character.PlayerCharacterRenamedEvent;
 import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.port.inbound.message.MessageResult;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
@@ -74,6 +76,13 @@ public class MessageDomainEventListener {
     public void onAdventureDeleted(AdventureDeletedEvent event) {
 
         messageRepository.deleteAllByAdventureId(event.getAdventureId());
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    @EventListener
+    public void onPlayerCharacterRenamed(PlayerCharacterRenamedEvent event) {
+
+        messageRepository.updateAuthorCharacterName(event.getPlayerCharacterId(), event.getName());
     }
 
     @Async
@@ -163,6 +172,7 @@ public class MessageDomainEventListener {
                             narratorMessage.getPublicId(),
                             cleanedResponse,
                             narratorMessage.getRole(),
+                            null,
                             narratorMessage.getCreationDate()), false)));
 
         } catch (RuntimeException e) {

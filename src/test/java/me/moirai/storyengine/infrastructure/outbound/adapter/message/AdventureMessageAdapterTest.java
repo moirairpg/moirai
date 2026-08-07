@@ -33,7 +33,7 @@ public class AdventureMessageAdapterTest {
         // given
         var adventureId = UUID.fromString("00000000-0000-0000-0000-0000000000aa");
         var update = AdventureMessageUpdate.messageAdded(new MessageResult(
-                UUID.randomUUID(), "content", MessageAuthorRole.ASSISTANT, Instant.now()), false);
+                UUID.randomUUID(), "content", MessageAuthorRole.ASSISTANT, null, Instant.now()), false);
 
         // when
         adapter.send(adventureId, update);
@@ -49,7 +49,7 @@ public class AdventureMessageAdapterTest {
         // given
         var adventureId = UUID.randomUUID();
         var update = AdventureMessageUpdate.messageAdded(new MessageResult(
-                UUID.randomUUID(), "content", MessageAuthorRole.USER, Instant.now()), true);
+                UUID.randomUUID(), "content", MessageAuthorRole.USER, "Aria", Instant.now()), true);
 
         // when
         adapter.send(adventureId, update);

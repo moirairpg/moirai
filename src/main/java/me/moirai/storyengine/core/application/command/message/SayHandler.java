@@ -67,6 +67,7 @@ public class SayHandler extends AbstractCommandHandler<Say, Void> {
                         message.getPublicId(),
                         message.getContent(),
                         message.getRole(),
+                        null,
                         message.getCreationDate()), false)));
 
         return null;

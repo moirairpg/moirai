@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -16,11 +17,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import me.moirai.storyengine.common.enums.CharacterClass;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
+import me.moirai.storyengine.core.domain.character.PlayerCharacterRenamedEvent;
 import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.inbound.character.UpdatePlayerCharacter;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterRepository;
@@ -48,6 +51,9 @@ public class UpdatePlayerCharacterHandlerTest {
 
     @Mock
     private StoragePort storagePort;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private UpdatePlayerCharacterHandler handler;
@@ -172,6 +178,46 @@ public class UpdatePlayerCharacterHandlerTest {
 
         verify(repository, never()).save(any());
         verify(vectorSearchPort, never()).upsert(any(), any());
+    }
+
+    @Test
+    void shouldPublishTheRenamedEventWhenTheNameChanges() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var command = updateCommand(character.getPublicId(), "Volin the Bold", "Brave.", "Tall.",
+                CharacterClass.PALADIN);
+
+        when(repository.findByPublicId(character.getPublicId())).thenReturn(Optional.of(character));
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(embeddingPort.embed(any())).thenReturn(VECTOR);
+        when(userRepository.findById(character.getPlayerId())).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        handler.execute(command);
+
+        // then
+        verify(eventPublisher).publishEvent(any(PlayerCharacterRenamedEvent.class));
+    }
+
+    @Test
+    void shouldNotPublishAnyEventWhenTheNameIsUnchanged() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var command = updateCommand(character.getPublicId(), character.getName(), "Brave.", "Tall.",
+                CharacterClass.PALADIN);
+
+        when(repository.findByPublicId(character.getPublicId())).thenReturn(Optional.of(character));
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(embeddingPort.embed(any())).thenReturn(VECTOR);
+        when(userRepository.findById(character.getPlayerId())).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        handler.execute(command);
+
+        // then
+        verifyNoInteractions(eventPublisher);
     }
 
     private UpdatePlayerCharacter updateCommand(

@@ -49,6 +49,14 @@ public interface MessageJpaRepository extends JpaRepository<Message, Long> {
     @Modifying
     @Query("""
             UPDATE Message m
+               SET m.authorCharacterName = :authorCharacterName
+             WHERE m.authorCharacterId = :playerCharacterId
+            """)
+    void updateAuthorCharacterName(Long playerCharacterId, String authorCharacterName);
+
+    @Modifying
+    @Query("""
+            UPDATE Message m
                SET m.content = :content
              WHERE m.publicId = :messagePublicId
                AND m.adventureId = (

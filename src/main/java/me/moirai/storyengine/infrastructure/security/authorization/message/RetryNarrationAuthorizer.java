@@ -54,7 +54,7 @@ public class RetryNarrationAuthorizer implements OperationAuthorizer {
         }
 
         return messageAuthorizationReader.getLastPlayerMessage(adventureId)
-                .map(lastPlayerMessage -> principal.username().equals(lastPlayerMessage.authorUsername()))
+                .map(lastPlayerMessage -> principal.id().equals(lastPlayerMessage.authorId()))
                 .orElse(false);
     }
 

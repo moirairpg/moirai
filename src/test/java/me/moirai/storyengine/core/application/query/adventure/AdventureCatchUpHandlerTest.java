@@ -132,8 +132,8 @@ public class AdventureCatchUpHandlerTest {
         var adventure = buildAdventureDetailsRow(adventureId);
         var query = new AdventureCatchUp(adventureId);
 
-        var message = new MessageData(UUID.randomUUID(), 1L, "user", MessageAuthorRole.USER, "I look around.", null,
-                MessageStatus.ACTIVE);
+        var message = new MessageData(UUID.randomUUID(), 1L, UUID.randomUUID(), "Aria", MessageAuthorRole.USER,
+                "I look around.", null, MessageStatus.ACTIVE);
         var generationResult = TextGenerationResult.builder().outputText("You looked around.").build();
 
         when(adventureReader.getAdventureById(adventureId)).thenReturn(Optional.of(adventure));
@@ -158,8 +158,8 @@ public class AdventureCatchUpHandlerTest {
         var query = new AdventureCatchUp(adventureId);
 
         var segment = new ChronicleSegmentData(UUID.randomUUID(), 1L, "Chronicle: hero began journey.", null);
-        var message = new MessageData(UUID.randomUUID(), 1L, "user", MessageAuthorRole.USER, "I arrive at the city.",
-                null, MessageStatus.ACTIVE);
+        var message = new MessageData(UUID.randomUUID(), 1L, UUID.randomUUID(), "Aria", MessageAuthorRole.USER,
+                "I arrive at the city.", null, MessageStatus.ACTIVE);
         var generationResult = TextGenerationResult.builder().outputText("Combined recap.").build();
 
         when(adventureReader.getAdventureById(adventureId)).thenReturn(Optional.of(adventure));

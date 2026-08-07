@@ -31,6 +31,7 @@ import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.domain.message.MessageFixture;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
+import me.moirai.storyengine.core.port.outbound.adventure.EnrolledCharacterData;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,9 +78,7 @@ public class SendMessageHandlerTest {
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
 
         givenAdventureExists();
-
-        when(adventureRepository.findEnrolledCharacterName(anyLong(), anyString()))
-                .thenReturn(Optional.of("Aria"));
+        givenEnrolledCharacter();
 
         // when
         handler.handle(command);
@@ -93,6 +92,50 @@ public class SendMessageHandlerTest {
     }
 
     @Test
+    public void shouldRecordTheAuthorWhenThePlayerIsEnrolled() {
+
+        // given
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
+
+        givenAdventureExists();
+        givenEnrolledCharacter();
+
+        // when
+        handler.handle(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).save(saved.capture());
+
+        assertThat(saved.getValue().getAuthorId()).isEqualTo(1111L);
+        assertThat(saved.getValue().getAuthorCharacterId()).isEqualTo(4L);
+        assertThat(saved.getValue().getAuthorCharacterName()).isEqualTo("Aria");
+    }
+
+    @Test
+    public void shouldRecordNoAuthorWhenThePlayerIsNotEnrolled() {
+
+        // given
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
+
+        givenAdventureExists();
+
+        when(adventureRepository.findEnrolledCharacter(anyLong(), anyString()))
+                .thenReturn(Optional.empty());
+
+        // when
+        handler.handle(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).save(saved.capture());
+
+        assertThat(saved.getValue().getAuthorId()).isNull();
+        assertThat(saved.getValue().getAuthorCharacterId()).isNull();
+        assertThat(saved.getValue().getAuthorCharacterName()).isNull();
+    }
+
+    @Test
     public void shouldPublishTheAddedMessageBeforeTheFlowEventWhenAMessageIsSent() {
 
         // given
@@ -100,7 +143,7 @@ public class SendMessageHandlerTest {
 
         givenAdventureExists();
 
-        when(adventureRepository.findEnrolledCharacterName(anyLong(), anyString()))
+        when(adventureRepository.findEnrolledCharacter(anyLong(), anyString()))
                 .thenReturn(Optional.empty());
 
         // when
@@ -122,7 +165,7 @@ public class SendMessageHandlerTest {
 
         givenAdventureExists();
 
-        when(adventureRepository.findEnrolledCharacterName(anyLong(), anyString()))
+        when(adventureRepository.findEnrolledCharacter(anyLong(), anyString()))
                 .thenReturn(Optional.empty());
 
         // when
@@ -136,6 +179,12 @@ public class SendMessageHandlerTest {
 
         assertThat(transcriptChange.update().change()).isEqualTo(TranscriptChange.MESSAGE_ADDED);
         assertThat(transcriptChange.update().isNarrationPending()).isTrue();
+    }
+
+    private void givenEnrolledCharacter() {
+
+        when(adventureRepository.findEnrolledCharacter(anyLong(), anyString()))
+                .thenReturn(Optional.of(new EnrolledCharacterData(1111L, 4L, "Aria")));
     }
 
     private void givenAdventureExists() {

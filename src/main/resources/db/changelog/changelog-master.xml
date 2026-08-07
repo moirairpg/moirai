@@ -99,4 +99,6 @@
   <include file="db/changelog/migrations/1784988893_create_table_adventure_invitation.sql" />
   <include file="db/changelog/migrations/1785594426_alter_table_adventure_drop_is_multiplayer.sql" />
   <include file="db/changelog/migrations/1785619798_drop_table_persona_backups.sql" />
+  <include file="db/changelog/migrations/1786139849_alter_table_message_add_author.sql" />
+  <include file="db/changelog/migrations/1786139857_update_table_message_backfill_author.sql" />
 </databaseChangeLog>

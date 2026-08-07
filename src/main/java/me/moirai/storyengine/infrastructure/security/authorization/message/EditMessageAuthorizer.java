@@ -48,7 +48,7 @@ public class EditMessageAuthorizer implements OperationAuthorizer {
 
         return messageAuthorizationReader.getLastPlayerMessage(adventureId)
                 .filter(lastPlayerMessage -> lastPlayerMessage.messageId().equals(messageId))
-                .map(lastPlayerMessage -> principal.username().equals(lastPlayerMessage.authorUsername()))
+                .map(lastPlayerMessage -> principal.id().equals(lastPlayerMessage.authorId()))
                 .orElse(false);
     }
 

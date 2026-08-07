@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
+import me.moirai.storyengine.core.port.outbound.adventure.EnrolledCharacterData;
 
 @Repository
 public class AdventureRepositoryImpl implements AdventureRepository {
@@ -93,6 +94,16 @@ public class AdventureRepositoryImpl implements AdventureRepository {
     public Optional<String> findEnrolledCharacterName(Long adventureId, String username) {
 
         return jpaRepository.findEnrolledCharacterName(adventureId, username);
+    }
+
+    @Override
+    public Optional<EnrolledCharacterData> findEnrolledCharacter(Long adventureId, String username) {
+
+        return jpaRepository.findEnrolledCharacter(adventureId, username)
+                .map(projection -> new EnrolledCharacterData(
+                        projection.getPlayerId(),
+                        projection.getPlayerCharacterId(),
+                        projection.getCharacterName()));
     }
 
     @Override

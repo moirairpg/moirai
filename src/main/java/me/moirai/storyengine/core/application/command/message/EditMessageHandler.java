@@ -77,6 +77,7 @@ public class EditMessageHandler extends AbstractCommandHandler<EditMessage, Void
                         message.getPublicId(),
                         prefixedContent,
                         message.getRole(),
+                        message.getAuthorCharacterName(),
                         message.getCreationDate()), true)));
 
         eventPublisher.publishEvent(new MessageEditedEvent(command.adventureId()));

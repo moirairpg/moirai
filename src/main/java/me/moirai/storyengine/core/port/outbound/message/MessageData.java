@@ -9,7 +9,8 @@ import me.moirai.storyengine.common.enums.MessageStatus;
 public record MessageData(
         UUID publicId,
         Long adventureId,
-        String createdBy,
+        UUID authorId,
+        String authorCharacterName,
         MessageAuthorRole role,
         String content,
         Instant creationDate,

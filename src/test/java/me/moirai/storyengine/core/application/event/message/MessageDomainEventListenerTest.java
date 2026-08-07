@@ -23,6 +23,8 @@ import me.moirai.storyengine.common.enums.TranscriptChange;
 import me.moirai.storyengine.core.application.service.StoryContext;
 import me.moirai.storyengine.core.application.service.StoryContextService;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
+import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
+import me.moirai.storyengine.core.domain.character.PlayerCharacterRenamedEvent;
 import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.domain.message.MessageFixture;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
@@ -192,6 +194,25 @@ public class MessageDomainEventListenerTest {
         verify(eventPublisher).publishEvent(published.capture());
 
         assertThat(published.getValue().update().change()).isEqualTo(TranscriptChange.NARRATION_FAILED);
+    }
+
+    @Test
+    public void shouldUpdateTheRecordedNameOnTheCharactersMessagesWhenItIsRenamed() {
+
+        // given
+        listener = listener();
+
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        character.updateName("Volin the Bold");
+
+        var event = (PlayerCharacterRenamedEvent) character.drainEvents().getFirst();
+
+        // when
+        listener.onPlayerCharacterRenamed(event);
+
+        // then
+        verify(messageRepository).updateAuthorCharacterName(
+                PlayerCharacterFixture.NUMERIC_ID, "Volin the Bold");
     }
 
     private String capturedInstructions() {

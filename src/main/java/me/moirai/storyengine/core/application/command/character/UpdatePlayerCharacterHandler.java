@@ -2,6 +2,8 @@ package me.moirai.storyengine.core.application.command.character;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
@@ -24,19 +26,22 @@ public class UpdatePlayerCharacterHandler
     private final PlayerCharacterVectorSearchPort vectorSearchPort;
     private final EmbeddingPort embeddingPort;
     private final StoragePort storagePort;
+    private final ApplicationEventPublisher eventPublisher;
 
     public UpdatePlayerCharacterHandler(
             PlayerCharacterRepository repository,
             UserRepository userRepository,
             PlayerCharacterVectorSearchPort vectorSearchPort,
             EmbeddingPort embeddingPort,
-            StoragePort storagePort) {
+            StoragePort storagePort,
+            ApplicationEventPublisher eventPublisher) {
 
         this.repository = repository;
         this.userRepository = userRepository;
         this.vectorSearchPort = vectorSearchPort;
         this.embeddingPort = embeddingPort;
         this.storagePort = storagePort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -75,6 +80,8 @@ public class UpdatePlayerCharacterHandler
         character.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
 
         var saved = repository.save(character);
+
+        saved.drainEvents().forEach(eventPublisher::publishEvent);
 
         vectorSearchPort.upsert(saved.getPublicId(), embeddingPort.embed(saved.narrativeDescription()));
 

@@ -15,7 +15,7 @@ public class MessageAuthorizationReaderImpl implements MessageAuthorizationReade
     //@formatter:off
     private static final String GET_LAST_PLAYER_MESSAGE = """
             SELECT m.public_id,
-                   m.created_by
+                   m.author_id
               FROM message m
               JOIN adventure a ON m.adventure_id = a.id
              WHERE a.public_id = :adventurePublicId
@@ -39,7 +39,7 @@ public class MessageAuthorizationReaderImpl implements MessageAuthorizationReade
                 .param("adventurePublicId", adventurePublicId)
                 .query((rs, _) -> new MessageAuthorship(
                         rs.getObject("public_id", UUID.class),
-                        rs.getString("created_by")))
+                        rs.getObject("author_id", Long.class)))
                 .optional();
     }
 }

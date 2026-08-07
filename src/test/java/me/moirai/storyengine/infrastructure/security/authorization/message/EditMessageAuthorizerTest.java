@@ -30,6 +30,7 @@ public class EditMessageAuthorizerTest {
 
     private static final UUID ADVENTURE_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID CALLER_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final Long CALLER_INTERNAL_ID = 1L;
     private static final UUID OWNER_ID = UUID.fromString("00000000-0000-0000-0000-000000000003");
     private static final UUID MESSAGE_ID = UUID.fromString("00000000-0000-0000-0000-000000000004");
     private static final UUID OLDER_MESSAGE_ID = UUID.fromString("00000000-0000-0000-0000-000000000005");
@@ -58,7 +59,7 @@ public class EditMessageAuthorizerTest {
 
         // given
         givenPermissions(OWNER_ID, List.of());
-        givenLastPlayerMessage(MESSAGE_ID, "caller");
+        givenLastPlayerMessage(MESSAGE_ID, CALLER_INTERNAL_ID);
 
         // when
         var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), MESSAGE_ID));
@@ -72,7 +73,7 @@ public class EditMessageAuthorizerTest {
 
         // given
         givenPermissions(OWNER_ID, List.of());
-        givenLastPlayerMessage(MESSAGE_ID, "caller");
+        givenLastPlayerMessage(MESSAGE_ID, CALLER_INTERNAL_ID);
 
         // when
         var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), OLDER_MESSAGE_ID));
@@ -86,7 +87,7 @@ public class EditMessageAuthorizerTest {
 
         // given
         givenPermissions(OWNER_ID, List.of());
-        givenLastPlayerMessage(MESSAGE_ID, "someone-else");
+        givenLastPlayerMessage(MESSAGE_ID, 999L);
 
         // when
         var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), MESSAGE_ID));
@@ -154,9 +155,9 @@ public class EditMessageAuthorizerTest {
                 .thenReturn(Optional.of(new AssetPermissionsData(ownerId, writers, List.of(), Visibility.PRIVATE)));
     }
 
-    private void givenLastPlayerMessage(UUID messageId, String username) {
+    private void givenLastPlayerMessage(UUID messageId, Long authorId) {
         when(messageAuthorizationReader.getLastPlayerMessage(any()))
-                .thenReturn(Optional.of(new MessageAuthorship(messageId, username)));
+                .thenReturn(Optional.of(new MessageAuthorship(messageId, authorId)));
     }
 
     private MoiraiPrincipal principal(Role role) {

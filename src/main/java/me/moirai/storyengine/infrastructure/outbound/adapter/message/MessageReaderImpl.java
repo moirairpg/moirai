@@ -19,13 +19,15 @@ public class MessageReaderImpl implements MessageReader {
     private static final String GET_ALL_ACTIVE_BY_ADVENTURE = """
             SELECT m.public_id,
                    m.adventure_id,
-                   m.created_by,
+                   au.public_id AS author_id,
+                   m.author_character_name,
                    m.role,
                    m.content,
                    m.creation_date,
                    m.status
               FROM message m
               JOIN adventure a ON m.adventure_id = a.id
+              LEFT JOIN moirai_user au ON au.id = m.author_id
              WHERE a.public_id = :adventurePublicId
                AND m.status = 'ACTIVE'
              ORDER BY m.creation_date ASC
@@ -51,7 +53,8 @@ public class MessageReaderImpl implements MessageReader {
         return (rs, _) -> new MessageData(
                 UUID.fromString(rs.getString("public_id")),
                 rs.getLong("adventure_id"),
-                rs.getString("created_by"),
+                rs.getObject("author_id", UUID.class),
+                rs.getString("author_character_name"),
                 MessageAuthorRole.valueOf(rs.getString("role")),
                 rs.getString("content"),
                 rs.getTimestamp("creation_date").toInstant(),

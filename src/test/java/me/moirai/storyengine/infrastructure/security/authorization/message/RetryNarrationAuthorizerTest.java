@@ -31,6 +31,7 @@ public class RetryNarrationAuthorizerTest {
 
     private static final UUID ADVENTURE_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID CALLER_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final Long CALLER_INTERNAL_ID = 1L;
     private static final UUID OWNER_ID = UUID.fromString("00000000-0000-0000-0000-000000000003");
 
     @Mock
@@ -61,7 +62,7 @@ public class RetryNarrationAuthorizerTest {
         // given
         givenCallerIsEnrolled();
         givenPermissions(OWNER_ID, List.of());
-        givenLastPlayerMessageAuthoredBy("caller");
+        givenLastPlayerMessageAuthoredBy(CALLER_INTERNAL_ID);
 
         // when
         var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
@@ -76,7 +77,7 @@ public class RetryNarrationAuthorizerTest {
         // given
         givenCallerIsEnrolled();
         givenPermissions(OWNER_ID, List.of());
-        givenLastPlayerMessageAuthoredBy("someone-else");
+        givenLastPlayerMessageAuthoredBy(999L);
 
         // when
         var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
@@ -151,9 +152,9 @@ public class RetryNarrationAuthorizerTest {
                 .thenReturn(Optional.of(new AssetPermissionsData(ownerId, writers, List.of(), Visibility.PRIVATE)));
     }
 
-    private void givenLastPlayerMessageAuthoredBy(String username) {
+    private void givenLastPlayerMessageAuthoredBy(Long authorId) {
         when(messageAuthorizationReader.getLastPlayerMessage(any()))
-                .thenReturn(Optional.of(new MessageAuthorship(UUID.randomUUID(), username)));
+                .thenReturn(Optional.of(new MessageAuthorship(UUID.randomUUID(), authorId)));
     }
 
     private MoiraiPrincipal principal(Role role) {

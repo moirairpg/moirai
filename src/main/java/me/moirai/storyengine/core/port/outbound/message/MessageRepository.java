@@ -22,6 +22,8 @@ public interface MessageRepository {
 
     void updateContent(UUID adventurePublicId, UUID messagePublicId, String content);
 
+    void updateAuthorCharacterName(Long playerCharacterId, String authorCharacterName);
+
     void deleteNewerThanByPublicId(UUID adventurePublicId, UUID messagePublicId);
 
     void deleteAllByAdventureId(Long adventureId);

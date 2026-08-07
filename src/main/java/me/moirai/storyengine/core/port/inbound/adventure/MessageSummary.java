@@ -11,6 +11,7 @@ public record MessageSummary(
         MessageAuthorRole role,
         String content,
         MessageStatus status,
-        String authorUsername,
+        UUID authorId,
+        String authorCharacterName,
         Instant creationDate) {
 }

@@ -75,5 +75,26 @@ public interface AdventureJpaRepository
             """, nativeQuery = true)
     Optional<String> findEnrolledCharacterName(Long adventureId, String username);
 
+    @Query(value = """
+            SELECT am.player_id           AS playerId,
+                   am.player_character_id AS playerCharacterId,
+                   pc.name                AS characterName
+              FROM adventure_membership am
+                   JOIN player_character pc ON pc.id = am.player_character_id
+                   JOIN moirai_user u       ON u.id = am.player_id
+             WHERE am.adventure_id = :adventureId
+               AND u.username      = :username
+            """, nativeQuery = true)
+    Optional<EnrolledCharacterProjection> findEnrolledCharacter(Long adventureId, String username);
+
+    interface EnrolledCharacterProjection {
+
+        Long getPlayerId();
+
+        Long getPlayerCharacterId();
+
+        String getCharacterName();
+    }
+
     Optional<Adventure> findByInvitationsPublicId(UUID publicId);
 }

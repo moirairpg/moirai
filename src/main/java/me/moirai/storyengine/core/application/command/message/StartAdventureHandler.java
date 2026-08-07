@@ -63,6 +63,7 @@ public class StartAdventureHandler extends AbstractCommandHandler<StartAdventure
                         openingMessage.getPublicId(),
                         openingMessage.getContent(),
                         openingMessage.getRole(),
+                        null,
                         openingMessage.getCreationDate()), true)));
 
         eventPublisher.publishEvent(new AdventureStartedEvent(adventure.getPublicId()));

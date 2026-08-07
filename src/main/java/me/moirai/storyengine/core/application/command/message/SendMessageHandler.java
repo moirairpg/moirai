@@ -17,6 +17,7 @@ import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.port.inbound.message.MessageResult;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
+import me.moirai.storyengine.core.port.outbound.adventure.EnrolledCharacterData;
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
 
@@ -56,14 +57,20 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Void
         var adventure = adventureRepository.findByPublicId(command.adventureId())
                 .orElseThrow(() -> new NotFoundException("Adventure not found"));
 
-        var characterName = adventureRepository
-                .findEnrolledCharacterName(adventure.getId(), command.username())
+        var enrolledCharacter = adventureRepository
+                .findEnrolledCharacter(adventure.getId(), command.username());
+
+        var characterName = enrolledCharacter
+                .map(EnrolledCharacterData::characterName)
                 .orElse(command.username());
 
         var playerMessage = messageRepository.save(Message.builder()
                 .adventureId(adventure.getId())
                 .role(MessageAuthorRole.USER)
                 .content(addChatPrefix(characterName).apply(command.content()))
+                .authorId(enrolledCharacter.map(EnrolledCharacterData::playerId).orElse(null))
+                .authorCharacterId(enrolledCharacter.map(EnrolledCharacterData::playerCharacterId).orElse(null))
+                .authorCharacterName(enrolledCharacter.map(EnrolledCharacterData::characterName).orElse(null))
                 .build());
 
         eventPublisher.publishEvent(new MessageTranscriptChangedEvent(
@@ -72,6 +79,7 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Void
                         playerMessage.getPublicId(),
                         playerMessage.getContent(),
                         playerMessage.getRole(),
+                        playerMessage.getAuthorCharacterName(),
                         playerMessage.getCreationDate()), true)));
 
         eventPublisher.publishEvent(new MessageSentEvent(adventure.getPublicId()));

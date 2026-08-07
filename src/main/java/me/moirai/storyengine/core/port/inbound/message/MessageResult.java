@@ -9,5 +9,6 @@ public record MessageResult(
         UUID id,
         String content,
         MessageAuthorRole role,
+        String authorCharacterName,
         Instant createdAt) {
 }

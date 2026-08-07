@@ -34,5 +34,7 @@ public interface AdventureRepository {
 
     Optional<String> findEnrolledCharacterName(Long adventureId, String username);
 
+    Optional<EnrolledCharacterData> findEnrolledCharacter(Long adventureId, String username);
+
     Optional<Adventure> findByInvitationPublicId(UUID invitationPublicId);
 }
