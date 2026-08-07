@@ -5,22 +5,22 @@ import java.util.UUID;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import me.moirai.storyengine.core.port.outbound.message.AdventureMessagePort;
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
-import me.moirai.storyengine.core.port.outbound.message.MessageBroadcastPort;
 
 @Component
-public class MessageBroadcastAdapter implements MessageBroadcastPort {
+public class AdventureMessageAdapter implements AdventureMessagePort {
 
     private static final String ADVENTURE_TOPIC = "/topic/adventures/";
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    public MessageBroadcastAdapter(SimpMessagingTemplate messagingTemplate) {
+    public AdventureMessageAdapter(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
 
     @Override
-    public void broadcast(UUID adventurePublicId, AdventureMessageUpdate update) {
+    public void send(UUID adventurePublicId, AdventureMessageUpdate update) {
 
         messagingTemplate.convertAndSend(ADVENTURE_TOPIC + adventurePublicId, update);
     }

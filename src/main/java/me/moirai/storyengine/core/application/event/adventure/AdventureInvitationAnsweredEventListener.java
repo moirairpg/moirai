@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import me.moirai.storyengine.common.enums.InvitationStatus;
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.core.application.event.notification.NotificationCreated;
+import me.moirai.storyengine.core.application.event.notification.NotificationCreatedEvent;
 import me.moirai.storyengine.core.domain.adventure.AdventureInvitationAnsweredEvent;
 import me.moirai.storyengine.core.domain.notification.Notification;
 import me.moirai.storyengine.common.enums.NotificationKind;
@@ -67,6 +67,6 @@ public class AdventureInvitationAnsweredEventListener {
                 .recipientUserIds(managerUserIds)
                 .build());
 
-        eventPublisher.publishEvent(new NotificationCreated(responseNotification.getPublicId()));
+        eventPublisher.publishEvent(new NotificationCreatedEvent(responseNotification.getPublicId()));
     }
 }

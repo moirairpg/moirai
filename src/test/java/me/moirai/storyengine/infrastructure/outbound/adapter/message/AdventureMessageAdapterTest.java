@@ -19,16 +19,16 @@ import me.moirai.storyengine.core.port.inbound.message.MessageResult;
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 
 @ExtendWith(MockitoExtension.class)
-public class MessageBroadcastAdapterTest {
+public class AdventureMessageAdapterTest {
 
     @Mock
     private SimpMessagingTemplate messagingTemplate;
 
     @InjectMocks
-    private MessageBroadcastAdapter adapter;
+    private AdventureMessageAdapter adapter;
 
     @Test
-    void shouldSendToTheAdventureTopicWhenBroadcasting() {
+    void shouldSendToTheAdventureTopicWhenAnUpdateIsSent() {
 
         // given
         var adventureId = UUID.fromString("00000000-0000-0000-0000-0000000000aa");
@@ -36,7 +36,7 @@ public class MessageBroadcastAdapterTest {
                 UUID.randomUUID(), "content", MessageAuthorRole.ASSISTANT, Instant.now()), false);
 
         // when
-        adapter.broadcast(adventureId, update);
+        adapter.send(adventureId, update);
 
         // then
         verify(messagingTemplate).convertAndSend(
@@ -44,7 +44,7 @@ public class MessageBroadcastAdapterTest {
     }
 
     @Test
-    void shouldSendThePayloadUnchangedWhenBroadcasting() {
+    void shouldSendThePayloadUnchangedWhenAnUpdateIsSent() {
 
         // given
         var adventureId = UUID.randomUUID();
@@ -52,7 +52,7 @@ public class MessageBroadcastAdapterTest {
                 UUID.randomUUID(), "content", MessageAuthorRole.USER, Instant.now()), true);
 
         // when
-        adapter.broadcast(adventureId, update);
+        adapter.send(adventureId, update);
 
         // then
         var destinationCaptor = ArgumentCaptor.forClass(String.class);

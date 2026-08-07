@@ -89,7 +89,7 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onAdventureStarted(AdventureStartedEvent event) {
 
-        narrate(event.adventurePublicId(), "");
+        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText());
     }
 
     @Async

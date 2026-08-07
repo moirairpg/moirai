@@ -25,7 +25,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import me.moirai.storyengine.common.enums.NotificationLevel;
 import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.core.application.event.notification.NotificationCreated;
+import me.moirai.storyengine.core.application.event.notification.NotificationCreatedEvent;
 import me.moirai.storyengine.core.domain.notification.NotificationFixture;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationDetails;
 import me.moirai.storyengine.core.port.outbound.notification.NotificationDetailsRow;
@@ -50,13 +50,13 @@ class NotificationEventListenerTest {
 
         // given
         var row = rowWith(NotificationType.SYSTEM, List.of(10L, 20L, 30L), List.of("alice", "bob", "charlie"), null);
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
         when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
                 .thenReturn(Optional.of(row));
 
         // when
-        listener.onNotificationCreated(event);
+        listener.onNotificationCreatedEvent(event);
 
         // then
         verify(messagingTemplate, times(3)).convertAndSendToUser(any(String.class),
@@ -68,7 +68,7 @@ class NotificationEventListenerTest {
 
         // given
         var row = rowWith(NotificationType.SYSTEM, List.of(10L, 20L, 30L), List.of("alice", "bob", "charlie"), null);
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
         when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
                 .thenReturn(Optional.of(row));
@@ -77,7 +77,7 @@ class NotificationEventListenerTest {
         var payloadCaptor = ArgumentCaptor.forClass(NotificationDetails.class);
 
         // when
-        listener.onNotificationCreated(event);
+        listener.onNotificationCreatedEvent(event);
 
         // then
         verify(messagingTemplate, times(3)).convertAndSendToUser(
@@ -98,7 +98,7 @@ class NotificationEventListenerTest {
 
         // given
         var row = rowWith(NotificationType.BROADCAST, List.of(), List.of(), null);
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
         when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
                 .thenReturn(Optional.of(row));
@@ -106,7 +106,7 @@ class NotificationEventListenerTest {
         var payloadCaptor = ArgumentCaptor.forClass(NotificationDetails.class);
 
         // when
-        listener.onNotificationCreated(event);
+        listener.onNotificationCreatedEvent(event);
 
         // then
         verify(messagingTemplate, times(1)).convertAndSend(
@@ -121,13 +121,13 @@ class NotificationEventListenerTest {
 
         // given
         var row = rowWith(NotificationType.GAME, List.of(), List.of(), ADVENTURE_PUBLIC_ID);
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
         when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
                 .thenReturn(Optional.of(row));
 
         // when
-        listener.onNotificationCreated(event);
+        listener.onNotificationCreatedEvent(event);
 
         // then
         verify(messagingTemplate, times(1)).convertAndSend(
@@ -140,13 +140,13 @@ class NotificationEventListenerTest {
 
         // given
         var row = rowWith(NotificationType.SYSTEM, List.of(10L, 20L), List.of("alice"), null);
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
         when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
                 .thenReturn(Optional.of(row));
 
         // then
-        assertThatThrownBy(() -> listener.onNotificationCreated(event))
+        assertThatThrownBy(() -> listener.onNotificationCreatedEvent(event))
                 .isInstanceOf(NotFoundException.class);
     }
 
@@ -154,13 +154,13 @@ class NotificationEventListenerTest {
     void shouldThrowNotFoundWhenTheNotificationIsGone() {
 
         // given
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
         when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
                 .thenReturn(Optional.empty());
 
         // then
-        assertThatThrownBy(() -> listener.onNotificationCreated(event))
+        assertThatThrownBy(() -> listener.onNotificationCreatedEvent(event))
                 .isInstanceOf(NotFoundException.class);
     }
 
@@ -169,13 +169,13 @@ class NotificationEventListenerTest {
 
         // given
         var row = rowWith(NotificationType.GAME, List.of(), List.of(), null);
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
         when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
                 .thenReturn(Optional.of(row));
 
         // then
-        assertThatThrownBy(() -> listener.onNotificationCreated(event))
+        assertThatThrownBy(() -> listener.onNotificationCreatedEvent(event))
                 .isInstanceOf(NotFoundException.class);
     }
 

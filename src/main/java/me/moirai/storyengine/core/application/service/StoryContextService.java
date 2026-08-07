@@ -3,6 +3,7 @@ package me.moirai.storyengine.core.application.service;
 import static me.moirai.storyengine.common.enums.ArtificialIntelligenceModel.GPT54_MINI;
 import static me.moirai.storyengine.common.enums.MessagePrompt.PLAYER_CHARACTER_HEADING;
 import static me.moirai.storyengine.common.enums.MessagePrompt.RAG_QUERY_EXTRACTOR;
+import static me.moirai.storyengine.common.util.DefaultStringProcessors.LINE_BREAK;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.ArrayList;
@@ -168,14 +169,14 @@ public class StoryContextService {
         var cast = candidates.stream()
                 .filter(character -> matched.contains(character.getPublicId()))
                 .map(PlayerCharacter::narrativeDescription)
-                .collect(Collectors.joining(System.lineSeparator()));
+                .collect(Collectors.joining(LINE_BREAK));
 
         if (isBlank(cast)) {
             return List.of();
         }
 
         return List.of(ChatMessage.asSystem(
-                PLAYER_CHARACTER_HEADING.getText() + ":" + System.lineSeparator() + cast));
+                PLAYER_CHARACTER_HEADING.getText() + ":" + LINE_BREAK + cast));
     }
 
     private List<ChatMessage> interleaveBumps(List<ChatMessage> messages, ContextAttributes contextAttributes) {

@@ -10,7 +10,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.core.application.event.notification.NotificationCreated;
+import me.moirai.storyengine.core.application.event.notification.NotificationCreatedEvent;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationDetails;
 import me.moirai.storyengine.core.port.outbound.notification.NotificationDetailsRow;
 import me.moirai.storyengine.core.port.outbound.notification.NotificationReader;
@@ -35,7 +35,7 @@ public class NotificationEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onNotificationCreated(NotificationCreated event) {
+    public void onNotificationCreatedEvent(NotificationCreatedEvent event) {
 
         var notification = notificationReader.getNotificationByPublicId(event.publicId())
                 .orElseThrow(() -> new NotFoundException(NOTIFICATION_NOT_FOUND));

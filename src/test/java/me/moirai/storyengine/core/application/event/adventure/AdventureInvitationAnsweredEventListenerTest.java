@@ -22,7 +22,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.core.application.event.notification.NotificationCreated;
+import me.moirai.storyengine.core.application.event.notification.NotificationCreatedEvent;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.adventure.AdventureInvitationAnsweredEvent;
@@ -95,7 +95,7 @@ public class AdventureInvitationAnsweredEventListenerTest {
     }
 
     @Test
-    public void shouldNotifyManagersWithAnAcceptedMessageAndPublishNotificationCreated() {
+    public void shouldNotifyManagersWithAnAcceptedMessageAndPublishNotificationCreatedEvent() {
 
         // given
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(responder()));
@@ -110,7 +110,7 @@ public class AdventureInvitationAnsweredEventListenerTest {
         verify(notificationRepository).save(captor.capture());
         assertThat(captor.getValue().getMessage()).contains("bob accepted");
         assertThat(captor.getValue().getMetadata()).containsEntry("kind", "ADVENTURE_INVITE_RESPONSE");
-        verify(eventPublisher).publishEvent(any(NotificationCreated.class));
+        verify(eventPublisher).publishEvent(any(NotificationCreatedEvent.class));
     }
 
     @Test

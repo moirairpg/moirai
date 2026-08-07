@@ -22,7 +22,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import me.moirai.storyengine.common.enums.NotificationKind;
 import me.moirai.storyengine.common.enums.NotificationLevel;
 import me.moirai.storyengine.common.enums.NotificationType;
-import me.moirai.storyengine.core.application.event.notification.NotificationCreated;
+import me.moirai.storyengine.core.application.event.notification.NotificationCreatedEvent;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.adventure.EnrolledCharacterDeletedEvent;
@@ -112,7 +112,7 @@ public class AdventureRosterEventListenerTest {
         assertThat(captor.getValue().getMetadata())
                 .containsEntry("kind", NotificationKind.ADVENTURE_MEMBER_LEFT.name());
         assertThat(captor.getValue().getRecipientUserIds()).containsExactly(MANAGER_ID);
-        verify(eventPublisher).publishEvent(any(NotificationCreated.class));
+        verify(eventPublisher).publishEvent(any(NotificationCreatedEvent.class));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class AdventureRosterEventListenerTest {
         assertThat(captor.getValue().getMetadata())
                 .containsEntry("kind", NotificationKind.ADVENTURE_MEMBER_REMOVED.name());
         assertThat(captor.getValue().getRecipientUserIds()).containsExactly(PLAYER_ID);
-        verify(eventPublisher).publishEvent(any(NotificationCreated.class));
+        verify(eventPublisher).publishEvent(any(NotificationCreatedEvent.class));
     }
 
     @Test
@@ -164,6 +164,6 @@ public class AdventureRosterEventListenerTest {
         assertThat(captor.getValue().getMetadata())
                 .doesNotContainEntry("kind", NotificationKind.ADVENTURE_MEMBER_LEFT.name());
         assertThat(captor.getValue().getRecipientUserIds()).containsExactly(MANAGER_ID);
-        verify(eventPublisher).publishEvent(any(NotificationCreated.class));
+        verify(eventPublisher).publishEvent(any(NotificationCreatedEvent.class));
     }
 }

@@ -14,7 +14,7 @@ import me.moirai.storyengine.common.enums.NotificationKind;
 import me.moirai.storyengine.common.enums.NotificationLevel;
 import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.core.application.event.notification.NotificationCreated;
+import me.moirai.storyengine.core.application.event.notification.NotificationCreatedEvent;
 import me.moirai.storyengine.core.domain.adventure.EnrolledCharacterDeletedEvent;
 import me.moirai.storyengine.core.domain.adventure.PlayerExpelledFromAdventureEvent;
 import me.moirai.storyengine.core.domain.adventure.PlayerLeftAdventureEvent;
@@ -124,6 +124,6 @@ public class AdventureRosterEventListener {
 
         var saved = notificationRepository.save(notification);
 
-        eventPublisher.publishEvent(new NotificationCreated(saved.getPublicId()));
+        eventPublisher.publishEvent(new NotificationCreatedEvent(saved.getPublicId()));
     }
 }

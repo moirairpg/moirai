@@ -13,6 +13,7 @@ public class DefaultStringProcessors {
 
     public static final String SAID = " said: ";
     public static final String PERIOD = ".";
+    public static final String LINE_BREAK = "\n";
 
     public static final String MESSAGE_PLACEHOLDER = "%s said:";
     public static final String CHAT_MESSAGE_FORMAT = "%s said: %s";
@@ -49,7 +50,7 @@ public class DefaultStringProcessors {
     public static UnaryOperator<String> truncateAtPlayerCharacterLine(List<String> characterNames) {
 
         return input -> characterNames.stream()
-                .map(name -> input.indexOf(System.lineSeparator() + name + ":"))
+                .map(name -> input.indexOf(LINE_BREAK + name + ":"))
                 .filter(index -> index > -1)
                 .min(Integer::compareTo)
                 .map(index -> input.substring(0, index).trim())

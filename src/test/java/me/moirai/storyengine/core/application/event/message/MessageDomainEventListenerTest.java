@@ -80,7 +80,7 @@ public class MessageDomainEventListenerTest {
     }
 
     @Test
-    public void shouldOmitContinueGenerationFromInstructionsWhenTheAdventureWasStarted() {
+    public void shouldIncludeContinueGenerationInInstructionsWhenTheAdventureWasStarted() {
 
         // given
         listener = listener();
@@ -90,7 +90,7 @@ public class MessageDomainEventListenerTest {
         listener.onAdventureStarted(new AdventureStartedEvent(ADVENTURE_ID));
 
         // then
-        assertThat(capturedInstructions()).doesNotContain(MessagePrompt.CONTINUE_GENERATION.getText());
+        assertThat(capturedInstructions()).contains(MessagePrompt.CONTINUE_GENERATION.getText());
     }
 
     @Test
