@@ -16,7 +16,7 @@ moirai:
       client-secret: ${DISCORD_BOT_CLIENT_SECRET}
       redirect-url: ${DISCORD_BOT_REDIRECT_URL}
     api:
-      base-url: https://discord.com/api
+      base-url: ${DISCORD_API_BASE_URL:https://discord.com/api}
       token-uri: /oauth2/token
       token-revoke-uri: /oauth2/token/revoke
       users-uri: /users/%s
@@ -41,6 +41,10 @@ moirai:
     chronicle:
       top-k: 10
       collection-name: chronicle
+      vector-size: 1536
+    player-character:
+      top-k: 5
+      collection-name: player-character
       vector-size: 1536
   adventure:
     message-window-size: ${ADVENTURE_MESSAGE_WINDOW_SIZE:100}

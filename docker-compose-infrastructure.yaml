@@ -58,6 +58,17 @@ services:
       mc anonymous set public minio/moirai;
       exit 0;
       "
+  discord-mock:
+    restart: always
+    container_name: discord-mock
+    hostname: discord-mock
+    image: wiremock/wiremock:3.13.2
+    networks:
+      - moirai_network
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./docker/wiremock:/home/wiremock
 
 volumes:
   minio_data:

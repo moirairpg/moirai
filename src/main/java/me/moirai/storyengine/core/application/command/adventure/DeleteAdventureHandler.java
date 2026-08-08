@@ -7,10 +7,13 @@ import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.port.inbound.adventure.DeleteAdventure;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
-import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.ChronicleVectorSearchPort;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.LorebookVectorSearchPort;
 
+// TODO: the event itself cannot go — AdventureDeletedEvent has three consumers, and two of them are
+// cross-aggregate: MessageDomainEventListener deletes the adventure's messages and
+// NotificationDomainEventListener deletes its game notifications. Only the third,
+// AdventureDeletedCleanupListener (image, lorebook vectors, chronicle vectors, after commit), is the
+// part under review as possible bloat. Removing it means doing those three deletes inline again and
+// accepting that a rollback destroys data the database still considers live.
 @CommandHandler
 public class DeleteAdventureHandler extends AbstractCommandHandler<DeleteAdventure, Void> {
 
@@ -18,22 +21,13 @@ public class DeleteAdventureHandler extends AbstractCommandHandler<DeleteAdventu
     private static final String ID_CANNOT_BE_NULL_OR_EMPTY = "Adventure ID cannot be null or empty";
 
     private final AdventureRepository repository;
-    private final LorebookVectorSearchPort lorebookVectorSearchPort;
-    private final ChronicleVectorSearchPort chronicleVectorSearchPort;
-    private final StoragePort storagePort;
     private final ApplicationEventPublisher eventPublisher;
 
     public DeleteAdventureHandler(
             AdventureRepository repository,
-            LorebookVectorSearchPort lorebookVectorSearchPort,
-            ChronicleVectorSearchPort chronicleVectorSearchPort,
-            StoragePort storagePort,
             ApplicationEventPublisher eventPublisher) {
 
         this.repository = repository;
-        this.lorebookVectorSearchPort = lorebookVectorSearchPort;
-        this.chronicleVectorSearchPort = chronicleVectorSearchPort;
-        this.storagePort = storagePort;
         this.eventPublisher = eventPublisher;
     }
 
@@ -51,15 +45,9 @@ public class DeleteAdventureHandler extends AbstractCommandHandler<DeleteAdventu
         var adventure = repository.findByPublicId(command.adventureId())
                 .orElseThrow(() -> new NotFoundException(ADVENTURE_NOT_FOUND));
 
-        if (adventure.getImageKey() != null) {
-            storagePort.delete(adventure.getImageKey());
-        }
-
         adventure.communicateAdventureDeleted();
         adventure.drainEvents().forEach(eventPublisher::publishEvent);
 
-        lorebookVectorSearchPort.deleteAllByAdventureId(command.adventureId());
-        chronicleVectorSearchPort.deleteAllByAdventureId(command.adventureId());
         repository.deleteByPublicId(command.adventureId());
 
         return null;

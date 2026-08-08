@@ -36,10 +36,10 @@ import me.moirai.storyengine.core.port.inbound.adventure.AdventureDetails;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureLorebookEntryDetails;
 import me.moirai.storyengine.core.port.inbound.adventure.CreateAdventure;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
+import me.moirai.storyengine.core.port.outbound.adventure.LorebookVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
 import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.LorebookVectorSearchPort;
 
 @ExtendWith(MockitoExtension.class)
 public class CreateAdventureHandlerTest {
@@ -91,7 +91,6 @@ public class CreateAdventureHandlerTest {
                 "A helpful guide",
                 sample.visibility(),
                 sample.moderation(),
-                sample.isMultiplayer(),
                 sample.adventureStart(),
                 Set.of(),
                 null,
@@ -100,7 +99,7 @@ public class CreateAdventureHandlerTest {
                 sample.modelConfiguration(),
                 sample.contextAttributes());
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -128,7 +127,6 @@ public class CreateAdventureHandlerTest {
                 null,
                 sample.visibility(),
                 sample.moderation(),
-                sample.isMultiplayer(),
                 sample.adventureStart(),
                 Set.of(),
                 null,
@@ -137,7 +135,7 @@ public class CreateAdventureHandlerTest {
                 sample.modelConfiguration(),
                 sample.contextAttributes());
 
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -165,7 +163,6 @@ public class CreateAdventureHandlerTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
-                sample.isMultiplayer(),
                 sample.adventureStart(),
                 Set.of(),
                 null,
@@ -174,7 +171,7 @@ public class CreateAdventureHandlerTest {
                 sample.modelConfiguration(),
                 sample.contextAttributes());
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -194,7 +191,7 @@ public class CreateAdventureHandlerTest {
 
         // given
         var command = CreateAdventureFixture.sample();
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -223,7 +220,6 @@ public class CreateAdventureHandlerTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
-                sample.isMultiplayer(),
                 sample.adventureStart(),
                 Set.of(),
                 null,
@@ -232,7 +228,7 @@ public class CreateAdventureHandlerTest {
                 sample.modelConfiguration(),
                 sample.contextAttributes());
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -254,8 +250,8 @@ public class CreateAdventureHandlerTest {
 
         // given
         var sample = CreateAdventureFixture.sample();
-        var lorebookEntry1 = new AdventureLorebookEntryDetails(null, null, "Mana Shards", "Crystalized ancient magic", null, false, null, null);
-        var lorebookEntry2 = new AdventureLorebookEntryDetails(null, null, "The Silence", "A void that devours magic", null, false, null, null);
+        var lorebookEntry1 = new AdventureLorebookEntryDetails(null, null, "Mana Shards", "Crystalized ancient magic", null, null);
+        var lorebookEntry2 = new AdventureLorebookEntryDetails(null, null, "The Silence", "A void that devours magic", null, null);
         var command = new CreateAdventure(
                 sample.name(),
                 sample.description(),
@@ -264,7 +260,6 @@ public class CreateAdventureHandlerTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
-                sample.isMultiplayer(),
                 sample.adventureStart(),
                 Set.of(lorebookEntry1, lorebookEntry2),
                 null,
@@ -273,7 +268,7 @@ public class CreateAdventureHandlerTest {
                 sample.modelConfiguration(),
                 sample.contextAttributes());
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -295,7 +290,7 @@ public class CreateAdventureHandlerTest {
         // given
         var command = CreateAdventureFixture.sample();
 
-        var adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventure().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -324,7 +319,6 @@ public class CreateAdventureHandlerTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
-                sample.isMultiplayer(),
                 sample.adventureStart(),
                 Set.of(),
                 null,

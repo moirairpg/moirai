@@ -24,7 +24,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import me.moirai.storyengine.common.domain.Asset;
+import me.moirai.storyengine.common.enums.NotificationLevel;
 import me.moirai.storyengine.common.enums.NotificationStatus;
+import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 
 @Entity
@@ -147,6 +149,17 @@ public class Notification extends Asset {
 
     public NotificationStatus getStatus(Long userId) {
         return getReadDate(userId).isPresent() ? NotificationStatus.READ : NotificationStatus.UNREAD;
+    }
+
+    public void removeUser(Long userId) {
+
+        recipients.removeIf(recipient -> recipient.getUserId().equals(userId));
+        reads.removeIf(read -> read.getUserId().equals(userId));
+    }
+
+    public boolean isUndeliverable() {
+
+        return type == NotificationType.SYSTEM && recipients.isEmpty();
     }
 
     public void markAsRead(Long userId) {

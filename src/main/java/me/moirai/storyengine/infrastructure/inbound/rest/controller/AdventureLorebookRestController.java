@@ -92,8 +92,7 @@ public class AdventureLorebookRestController extends SecurityContextAware {
         var command = new CreateAdventureLorebookEntry(
                 adventureId,
                 request.name(),
-                request.description(),
-                request.playerId());
+                request.description());
 
         return commandRunner.run(command);
     }
@@ -110,8 +109,7 @@ public class AdventureLorebookRestController extends SecurityContextAware {
                 entryId,
                 adventureId,
                 request.name(),
-                request.description(),
-                request.playerId());
+                request.description());
 
         return commandRunner.run(command);
     }

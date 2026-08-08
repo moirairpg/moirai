@@ -1,5 +1,6 @@
 package me.moirai.storyengine.core.port.outbound.adventure;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,4 +23,18 @@ public interface AdventureRepository {
     Optional<Adventure> findByPublicId(UUID publicId);
 
     Optional<Adventure> findById(Long id);
+
+    List<Adventure> findAllContainingCharacter(Long playerCharacterId);
+
+    List<Adventure> findAllOwnedBy(Long userId);
+
+    List<Adventure> findAllInvolving(Long userId);
+
+    List<Long> findManagerUserIdsByAdventureId(Long adventureId);
+
+    Optional<String> findEnrolledCharacterName(Long adventureId, String username);
+
+    Optional<EnrolledCharacterData> findEnrolledCharacter(Long adventureId, String username);
+
+    Optional<Adventure> findByInvitationPublicId(UUID invitationPublicId);
 }

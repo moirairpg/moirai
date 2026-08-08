@@ -28,14 +28,14 @@ import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.message.Message;
-import me.moirai.storyengine.core.domain.message.MessageStatus;
+import me.moirai.storyengine.common.enums.MessageStatus;
 import me.moirai.storyengine.core.port.inbound.chronicle.UpdateChronicle;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
+import me.moirai.storyengine.core.port.outbound.adventure.ChronicleVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextGenerationResult;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.ChronicleVectorSearchPort;
 
 @ExtendWith(MockitoExtension.class)
 public class UpdateChronicleHandlerTest {
@@ -93,7 +93,7 @@ public class UpdateChronicleHandlerTest {
     public void shouldGenerateAndSaveChronicleSegmentFromChronicledMessages() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
 
         var command = new UpdateChronicle(UUID.randomUUID());
@@ -117,7 +117,7 @@ public class UpdateChronicleHandlerTest {
     public void shouldUpsertVectorForGeneratedSegment() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
@@ -145,7 +145,7 @@ public class UpdateChronicleHandlerTest {
     public void shouldRequestChronicledMessagesUsingWindowPlusOne() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
+        var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
 
         var command = new UpdateChronicle(UUID.randomUUID());
@@ -172,6 +172,7 @@ public class UpdateChronicleHandlerTest {
                 .adventureId(1L)
                 .role(role)
                 .content("Some content")
+                .authorCharacterName("Aria")
                 .status(MessageStatus.CHRONICLED)
                 .build();
     }

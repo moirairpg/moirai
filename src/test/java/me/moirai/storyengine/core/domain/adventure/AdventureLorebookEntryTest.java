@@ -13,8 +13,7 @@ public class AdventureLorebookEntryTest {
         // Given
         AdventureLorebookEntry.Builder builder = AdventureLorebookEntry.builder()
                 .name("White River")
-                .description("The White River goes through Falkreath, Whiterun and ends in Eastmarch.")
-                .playerId("2423423423423");
+                .description("The White River goes through Falkreath, Whiterun and ends in Eastmarch.");
 
         // When
         AdventureLorebookEntry entry = builder.build();
@@ -26,8 +25,6 @@ public class AdventureLorebookEntryTest {
         assertThat(entry.getDescription()).isEqualTo("The White River goes through Falkreath, Whiterun and ends in Eastmarch.");
         assertThat(entry.getPublicId()).isEqualTo(AdventureLorebookEntryFixture.PUBLIC_ID);
         assertThat(entry.getName()).isEqualTo("White River");
-        assertThat(entry.getPlayerId()).isEqualTo("2423423423423");
-        assertThat(entry.isPlayerCharacter()).isTrue();
     }
 
     @Test
@@ -54,32 +51,5 @@ public class AdventureLorebookEntryTest {
 
         // Then
         assertThat(entry.getDescription()).isEqualTo("New Description");
-    }
-
-    @Test
-    public void assignUserToLorebookEntry() {
-
-        // Given
-        String expectedPlayerDiscordId = "4234234234";
-        AdventureLorebookEntry entry = AdventureLorebookEntryFixture.sampleLorebookEntry().build();
-
-        // When
-        entry.assignPlayer(expectedPlayerDiscordId);
-
-        // Then
-        assertThat(expectedPlayerDiscordId).isEqualTo(entry.getPlayerId());
-    }
-
-    @Test
-    public void unassignUserToLorebookEntry() {
-
-        // Given
-        AdventureLorebookEntry entry = AdventureLorebookEntryFixture.samplePlayerCharacterLorebookEntry().build();
-
-        // When
-        entry.unassignPlayer();
-
-        // Then
-        assertThat(entry.getPlayerId()).isBlank();
     }
 }

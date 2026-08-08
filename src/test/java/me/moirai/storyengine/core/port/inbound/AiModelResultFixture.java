@@ -10,7 +10,8 @@ public class AiModelResultFixture {
                 "GPT-4 Omni",
                 "gpt4-omni",
                 "gpt-4o",
-                128000);
+                128000,
+                12800);
     }
 
     public static AiModelResult gpt4Mini() {
@@ -19,7 +20,8 @@ public class AiModelResultFixture {
                 "GPT-4 Mini",
                 "gpt4-mini",
                 "gpt-4o-mini",
-                128000);
+                128000,
+                12800);
     }
 
     public static AiModelResult gpt35turbo() {
@@ -28,6 +30,7 @@ public class AiModelResultFixture {
                 "GPT-3.5 Turbo",
                 "gpt35-turbo",
                 "gpt-3.5-turbo",
-                16385);
+                16385,
+                1638);
     }
 }

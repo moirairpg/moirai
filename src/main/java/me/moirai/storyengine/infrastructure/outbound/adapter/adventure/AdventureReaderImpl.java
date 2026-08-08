@@ -2,6 +2,7 @@ package me.moirai.storyengine.infrastructure.outbound.adapter.adventure;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,7 +45,6 @@ public class AdventureReaderImpl implements AdventureReader {
                     a.bump_frequency,
                     a.max_token_limit,
                     a.temperature,
-                    a.is_multiplayer,
                     a.image_key,
                     a.ui_image_position_x,
                     a.ui_image_position_y,
@@ -58,8 +58,6 @@ public class AdventureReaderImpl implements AdventureReader {
           SELECT al.public_id,
                  al.name,
                  al.description,
-                 al.player_id,
-                 al.is_player_character,
                  al.creation_date,
                  al.last_update_date
             FROM adventure_lorebook al
@@ -67,11 +65,19 @@ public class AdventureReaderImpl implements AdventureReader {
           """;
 
     private static final String SELECT_PERMISSIONS = """
-            SELECT a.public_id,
+            SELECT mu.public_id,
                    ap.permission
               FROM adventure_permissions ap
-                   INNER JOIN adventure a ON ap.adventure_id = a.id
+                   INNER JOIN moirai_user mu ON mu.id = ap.user_id
              WHERE ap.adventure_id = :adventureId
+            """;
+
+    private static final String SELECT_ENROLLED_PLAYERS = """
+            SELECT u.public_id
+              FROM adventure_membership am
+                   JOIN adventure a ON a.id = am.adventure_id
+                   JOIN moirai_user u ON u.id = am.player_id
+             WHERE a.public_id = :adventurePublicId
             """;
     //@formatter:on
 
@@ -87,6 +93,14 @@ public class AdventureReaderImpl implements AdventureReader {
                 .param("publicId", publicId)
                 .query(toAdventureDetails())
                 .optional();
+    }
+
+    @Override
+    public List<UUID> getEnrolledPlayerIds(UUID publicId) {
+        return jdbcClient.sql(SELECT_ENROLLED_PLAYERS)
+                .param("adventurePublicId", publicId)
+                .query((rs, _) -> rs.getObject("public_id", UUID.class))
+                .list();
     }
 
     private RowMapper<AdventureDetailsRow> toAdventureDetails() {
@@ -118,8 +132,6 @@ public class AdventureReaderImpl implements AdventureReader {
                             UUID.fromString(rs.getString("public_id")),
                             r.getString("name"),
                             r.getString("description"),
-                            r.getString("player_id"),
-                            r.getBoolean("is_player_character"),
                             r.getTimestamp("creation_date").toInstant(),
                             r.getTimestamp("last_update_date").toInstant()))
                     .list());
@@ -134,7 +146,6 @@ public class AdventureReaderImpl implements AdventureReader {
                     rs.getString("narrator_personality"),
                     Visibility.valueOf(rs.getString("visibility")),
                     Moderation.valueOf(rs.getString("moderation")),
-                    rs.getBoolean("is_multiplayer"),
                     rs.getString("image_key"),
                     rs.getTimestamp("creation_date").toInstant(),
                     rs.getTimestamp("last_update_date").toInstant(),

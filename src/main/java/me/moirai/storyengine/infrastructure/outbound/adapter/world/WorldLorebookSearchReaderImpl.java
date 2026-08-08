@@ -64,6 +64,7 @@ public class WorldLorebookSearchReaderImpl implements WorldLorebookSearchReader 
         return switch (field) {
             case NAME -> "wl.name";
             case LAST_UPDATE_DATE -> "wl.last_update_date";
+            case CREATION_DATE -> "wl.creation_date";
             case null, default -> "wl.creation_date";
         };
     }

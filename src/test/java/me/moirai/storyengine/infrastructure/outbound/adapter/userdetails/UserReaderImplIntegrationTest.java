@@ -8,13 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.core.domain.userdetails.User;
 import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.inbound.userdetails.UserData;
 import me.moirai.storyengine.core.port.outbound.userdetails.UserReader;
 
-public class UserReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class UserReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private UserReader reader;

@@ -3,14 +3,16 @@ package me.moirai.storyengine.infrastructure.event.notification;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,33 +21,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import me.moirai.storyengine.common.enums.Role;
+import me.moirai.storyengine.common.enums.NotificationLevel;
+import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.core.application.event.notification.NotificationCreated;
-import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
-import me.moirai.storyengine.core.domain.notification.Notification;
+import me.moirai.storyengine.core.application.event.notification.NotificationCreatedEvent;
 import me.moirai.storyengine.core.domain.notification.NotificationFixture;
-import me.moirai.storyengine.core.domain.notification.NotificationLevel;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
-import me.moirai.storyengine.core.domain.userdetails.User;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationDetails;
-import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
-import me.moirai.storyengine.core.port.outbound.notification.NotificationRepository;
-import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
+import me.moirai.storyengine.core.port.outbound.notification.NotificationDetailsRow;
+import me.moirai.storyengine.core.port.outbound.notification.NotificationReader;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationEventListenerTest {
 
-    @Mock
-    private NotificationRepository notificationRepository;
+    private static final UUID ADVENTURE_PUBLIC_ID = UUID.randomUUID();
 
     @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private AdventureRepository adventureRepository;
+    private NotificationReader notificationReader;
 
     @Mock
     private SimpMessagingTemplate messagingTemplate;
@@ -57,19 +49,14 @@ class NotificationEventListenerTest {
     void shouldSendSystemNotificationToEachRecipientWhenTypeIsSystem() {
 
         // given
-        var alice = userWith(10L, "alice");
-        var bob = userWith(20L, "bob");
-        var charlie = userWith(30L, "charlie");
+        var row = rowWith(NotificationType.SYSTEM, List.of(10L, 20L, 30L), List.of("alice", "bob", "charlie"), null);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
-        var notification = systemNotificationWith(List.of(10L, 20L, 30L));
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
-
-        when(notificationRepository.findByPublicId(eq(NotificationFixture.PUBLIC_ID)))
-                .thenReturn(Optional.of(notification));
-        when(userRepository.findAllById(anyCollection())).thenReturn(List.of(alice, bob, charlie));
+        when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
+                .thenReturn(Optional.of(row));
 
         // when
-        listener.onNotificationCreated(event);
+        listener.onNotificationCreatedEvent(event);
 
         // then
         verify(messagingTemplate, times(3)).convertAndSendToUser(any(String.class),
@@ -80,22 +67,17 @@ class NotificationEventListenerTest {
     void shouldDeliverOnlyTheRecipientsOwnUsernameInSystemPayload() {
 
         // given
-        var alice = userWith(10L, "alice");
-        var bob = userWith(20L, "bob");
-        var charlie = userWith(30L, "charlie");
+        var row = rowWith(NotificationType.SYSTEM, List.of(10L, 20L, 30L), List.of("alice", "bob", "charlie"), null);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
-        var notification = systemNotificationWith(List.of(10L, 20L, 30L));
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
-
-        when(notificationRepository.findByPublicId(eq(NotificationFixture.PUBLIC_ID)))
-                .thenReturn(Optional.of(notification));
-        when(userRepository.findAllById(anyCollection())).thenReturn(List.of(alice, bob, charlie));
+        when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
+                .thenReturn(Optional.of(row));
 
         var usernameCaptor = ArgumentCaptor.forClass(String.class);
         var payloadCaptor = ArgumentCaptor.forClass(NotificationDetails.class);
 
         // when
-        listener.onNotificationCreated(event);
+        listener.onNotificationCreatedEvent(event);
 
         // then
         verify(messagingTemplate, times(3)).convertAndSendToUser(
@@ -115,16 +97,16 @@ class NotificationEventListenerTest {
     void shouldSendSingleBroadcastWhenTypeIsBroadcast() {
 
         // given
-        var notification = NotificationFixture.broadcastWithId();
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
+        var row = rowWith(NotificationType.BROADCAST, List.of(), List.of(), null);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
-        when(notificationRepository.findByPublicId(eq(NotificationFixture.PUBLIC_ID)))
-                .thenReturn(Optional.of(notification));
+        when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
+                .thenReturn(Optional.of(row));
 
         var payloadCaptor = ArgumentCaptor.forClass(NotificationDetails.class);
 
         // when
-        listener.onNotificationCreated(event);
+        listener.onNotificationCreatedEvent(event);
 
         // then
         verify(messagingTemplate, times(1)).convertAndSend(
@@ -138,24 +120,18 @@ class NotificationEventListenerTest {
     void shouldSendAdventureNotificationWhenTypeIsGame() {
 
         // given
-        var notification = NotificationFixture.gameWithId();
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
+        var row = rowWith(NotificationType.GAME, List.of(), List.of(), ADVENTURE_PUBLIC_ID);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", NotificationFixture.ADVENTURE_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        when(notificationRepository.findByPublicId(eq(NotificationFixture.PUBLIC_ID)))
-                .thenReturn(Optional.of(notification));
-        when(adventureRepository.findById(NotificationFixture.ADVENTURE_ID))
-                .thenReturn(Optional.of(adventure));
+        when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
+                .thenReturn(Optional.of(row));
 
         // when
-        listener.onNotificationCreated(event);
+        listener.onNotificationCreatedEvent(event);
 
         // then
         verify(messagingTemplate, times(1)).convertAndSend(
-                eq("/topic/notifications/adventure/" + AdventureFixture.PUBLIC_ID),
+                eq("/topic/notifications/adventure/" + ADVENTURE_PUBLIC_ID),
                 any(NotificationDetails.class));
     }
 
@@ -163,46 +139,63 @@ class NotificationEventListenerTest {
     void shouldThrowNotFoundWhenAnyRecipientUserMissing() {
 
         // given
-        var alice = userWith(10L, "alice");
+        var row = rowWith(NotificationType.SYSTEM, List.of(10L, 20L), List.of("alice"), null);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
-        var notification = systemNotificationWith(List.of(10L, 20L));
-        var event = new NotificationCreated(NotificationFixture.PUBLIC_ID);
-
-        when(notificationRepository.findByPublicId(eq(NotificationFixture.PUBLIC_ID)))
-                .thenReturn(Optional.of(notification));
-        when(userRepository.findAllById(anyCollection())).thenReturn(List.of(alice));
+        when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
+                .thenReturn(Optional.of(row));
 
         // then
-        assertThatThrownBy(() -> listener.onNotificationCreated(event))
+        assertThatThrownBy(() -> listener.onNotificationCreatedEvent(event))
                 .isInstanceOf(NotFoundException.class);
     }
 
-    private Notification systemNotificationWith(List<Long> recipientIds) {
+    @Test
+    void shouldThrowNotFoundWhenTheNotificationIsGone() {
 
-        var builder = Notification.builder()
-                .message("System message")
-                .type(NotificationType.SYSTEM)
-                .level(NotificationLevel.INFO);
+        // given
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
-        for (var id : recipientIds) {
-            builder.recipientUserId(id);
-        }
+        when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
+                .thenReturn(Optional.empty());
 
-        var notification = builder.build();
-        ReflectionTestUtils.setField(notification, "id", NotificationFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(notification, "publicId", NotificationFixture.PUBLIC_ID);
-        return notification;
+        // then
+        assertThatThrownBy(() -> listener.onNotificationCreatedEvent(event))
+                .isInstanceOf(NotFoundException.class);
     }
 
-    private User userWith(Long id, String username) {
+    @Test
+    void shouldThrowNotFoundWhenAGameNotificationHasNoAdventure() {
 
-        var user = User.builder()
-                .discordId("discord-" + id)
-                .username(username)
-                .role(Role.PLAYER)
-                .build();
+        // given
+        var row = rowWith(NotificationType.GAME, List.of(), List.of(), null);
+        var event = new NotificationCreatedEvent(NotificationFixture.PUBLIC_ID);
 
-        ReflectionTestUtils.setField(user, "id", id);
-        return user;
+        when(notificationReader.getNotificationByPublicId(eq(NotificationFixture.PUBLIC_ID)))
+                .thenReturn(Optional.of(row));
+
+        // then
+        assertThatThrownBy(() -> listener.onNotificationCreatedEvent(event))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    private NotificationDetailsRow rowWith(
+            NotificationType type,
+            List<Long> recipientUserIds,
+            List<String> recipientUsernames,
+            UUID adventureId) {
+
+        return new NotificationDetailsRow(
+                NotificationFixture.PUBLIC_ID,
+                "System message",
+                type,
+                NotificationLevel.INFO,
+                recipientUserIds,
+                recipientUsernames,
+                adventureId,
+                false,
+                Map.of(),
+                Instant.now(),
+                Instant.now());
     }
 }

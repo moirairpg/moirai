@@ -8,6 +8,7 @@ import me.moirai.storyengine.common.cqs.command.Command;
 import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.enums.Moderation;
 import me.moirai.storyengine.common.enums.Visibility;
+import me.moirai.storyengine.common.util.Functions;
 
 public record UpdateAdventure(
         UUID adventureId,
@@ -18,7 +19,6 @@ public record UpdateAdventure(
         String narratorPersonality,
         Visibility visibility,
         Moderation moderation,
-        boolean isMultiplayer,
         Double uiImagePositionX,
         Double uiImagePositionY,
         Set<PermissionDto> permissions,
@@ -29,14 +29,14 @@ public record UpdateAdventure(
         List<UUID> lorebookEntriesToDelete)
         implements Command<AdventureDetails> {
 
-    public record LorebookEntryToAdd(String name, String description, String playerId) {}
+    public record LorebookEntryToAdd(String name, String description) {}
 
-    public record LorebookEntryToUpdate(UUID id, String name, String description, String playerId) {}
+    public record LorebookEntryToUpdate(UUID id, String name, String description) {}
 
     public UpdateAdventure {
-        permissions = permissions != null ? Set.copyOf(permissions) : Set.of();
-        lorebookEntriesToAdd = lorebookEntriesToAdd != null ? List.copyOf(lorebookEntriesToAdd) : List.of();
-        lorebookEntriesToUpdate = lorebookEntriesToUpdate != null ? List.copyOf(lorebookEntriesToUpdate) : List.of();
-        lorebookEntriesToDelete = lorebookEntriesToDelete != null ? List.copyOf(lorebookEntriesToDelete) : List.of();
+        permissions = Functions.mapOrDefault(permissions, Set.of(), Set::copyOf);
+        lorebookEntriesToAdd = Functions.mapOrDefault(lorebookEntriesToAdd, List.of(), List::copyOf);
+        lorebookEntriesToUpdate = Functions.mapOrDefault(lorebookEntriesToUpdate, List.of(), List::copyOf);
+        lorebookEntriesToDelete = Functions.mapOrDefault(lorebookEntriesToDelete, List.of(), List::copyOf);
     }
 }

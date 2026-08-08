@@ -6,10 +6,10 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
+import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.core.application.event.notification.NotificationCreated;
+import me.moirai.storyengine.core.application.event.notification.NotificationCreatedEvent;
 import me.moirai.storyengine.core.domain.notification.Notification;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
 import me.moirai.storyengine.core.domain.userdetails.User;
 import me.moirai.storyengine.core.port.inbound.notification.CreateNotification;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationDetails;
@@ -74,7 +74,7 @@ public class CreateNotificationHandler extends AbstractCommandHandler<CreateNoti
                 .recipientUserIds(recipients.stream().map(User::getId).toList())
                 .build());
 
-        eventPublisher.publishEvent(new NotificationCreated(notification.getPublicId()));
+        eventPublisher.publishEvent(new NotificationCreatedEvent(notification.getPublicId()));
 
         return toResult(recipients, notification);
     }

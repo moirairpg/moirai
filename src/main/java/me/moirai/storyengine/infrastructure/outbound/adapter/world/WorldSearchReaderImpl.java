@@ -88,6 +88,7 @@ public class WorldSearchReaderImpl implements WorldSearchReader {
         return switch (field) {
             case NAME -> "w.name";
             case LAST_UPDATE_DATE -> "w.last_update_date";
+            case CREATION_DATE -> "w.creation_date";
             case null, default -> "w.creation_date";
         };
     }

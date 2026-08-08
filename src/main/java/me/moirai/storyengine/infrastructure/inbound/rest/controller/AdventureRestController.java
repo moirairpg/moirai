@@ -27,33 +27,33 @@ import me.moirai.storyengine.common.annotation.Authorize;
 import me.moirai.storyengine.common.cqs.command.CommandRunner;
 import me.moirai.storyengine.common.cqs.query.QueryRunner;
 import me.moirai.storyengine.common.dto.CursorResult;
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.dto.PaginatedResult;
 import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.core.port.inbound.ImageResult;
+import me.moirai.storyengine.core.port.inbound.adventure.DeclineAdventureInvitation;
+import me.moirai.storyengine.core.port.inbound.adventure.GetPendingAdventureInvitation;
+import me.moirai.storyengine.core.port.inbound.adventure.InviteUserToAdventure;
+import me.moirai.storyengine.core.port.inbound.adventure.InviteUserToAdventureResult;
+import me.moirai.storyengine.core.port.inbound.adventure.JoinAdventureWithCharacter;
+import me.moirai.storyengine.core.port.inbound.adventure.RemoveCharacterFromAdventure;
+import me.moirai.storyengine.core.port.inbound.adventure.PendingAdventureInvitationDetails;
 import me.moirai.storyengine.core.port.inbound.adventure.RemoveAdventureImage;
 import me.moirai.storyengine.core.port.inbound.adventure.UploadAdventureImage;
+import me.moirai.storyengine.infrastructure.inbound.rest.request.InviteUserToAdventureRequest;
+import me.moirai.storyengine.infrastructure.inbound.rest.request.JoinAdventureWithCharacterRequest;
 import me.moirai.storyengine.infrastructure.inbound.rest.request.UploadImageRequest;
 import me.moirai.storyengine.common.enums.SearchView;
 import me.moirai.storyengine.common.enums.SortDirection;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
+import me.moirai.storyengine.common.util.Functions;
 import me.moirai.storyengine.common.web.SecurityContextAware;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureCatchUp;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureDetails;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureLorebookEntryDetails;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureSortField;
 import me.moirai.storyengine.core.port.inbound.adventure.CatchUpResult;
-import me.moirai.storyengine.core.port.inbound.adventure.MessageSummary;
 import me.moirai.storyengine.core.port.inbound.adventure.SearchAdventureMessages;
-import me.moirai.storyengine.core.port.inbound.message.DeleteMessage;
-import me.moirai.storyengine.core.port.inbound.message.EditMessage;
-import me.moirai.storyengine.core.port.inbound.message.Go;
-import me.moirai.storyengine.core.port.inbound.message.MessageResult;
-import me.moirai.storyengine.core.port.inbound.message.Retry;
-import me.moirai.storyengine.core.port.inbound.message.RetryFromMessage;
-import me.moirai.storyengine.core.port.inbound.message.Say;
-import me.moirai.storyengine.core.port.inbound.message.StartAdventure;
-import me.moirai.storyengine.infrastructure.inbound.rest.request.EditMessageRequest;
-import me.moirai.storyengine.infrastructure.inbound.rest.request.SayRequest;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureSummary;
 import me.moirai.storyengine.core.port.inbound.adventure.ContextAttributesDto;
 import me.moirai.storyengine.core.port.inbound.adventure.CreateAdventure;
@@ -96,7 +96,6 @@ public class AdventureRestController extends SecurityContextAware {
     public PaginatedResult<AdventureSummary> search(
             @RequestParam(name = "name", required = false) String name,
             @RequestParam(name = "world_name", required = false) String worldName,
-            @RequestParam(name = "is_multiplayer", required = false) Boolean isMultiplayer,
             @RequestParam(name = "model", required = false) SearchModel model,
             @RequestParam(name = "moderation", required = false) SearchModeration moderation,
             @RequestParam(name = "view", required = true) SearchView view,
@@ -108,9 +107,8 @@ public class AdventureRestController extends SecurityContextAware {
         return queryRunner.run(new SearchAdventures(
                 name,
                 worldName,
-                isMultiplayer,
-                model != null ? model.name() : null,
-                moderation != null ? moderation.name() : null,
+                Functions.mapOrNull(model, SearchModel::name),
+                Functions.mapOrNull(moderation, SearchModeration::name),
                 view,
                 sortingField,
                 direction,
@@ -139,7 +137,13 @@ public class AdventureRestController extends SecurityContextAware {
                 .collect(Collectors.toSet());
 
         var lorebookEntries = emptyIfNull(request.lorebook()).stream()
-                .map(e -> new AdventureLorebookEntryDetails(null, null, e.name(), e.description(), e.playerId(), false, null, null))
+                .map(e -> new AdventureLorebookEntryDetails(
+                        null,
+                        null,
+                        e.name(),
+                        e.description(),
+                        null,
+                        null))
                 .collect(Collectors.toSet());
 
         var command = new CreateAdventure(
@@ -150,7 +154,6 @@ public class AdventureRestController extends SecurityContextAware {
                 request.narratorPersonality(),
                 request.visibility(),
                 request.moderation(),
-                request.isMultiplayer(),
                 request.adventureStart(),
                 lorebookEntries,
                 request.uiImagePositionX(),
@@ -182,11 +185,11 @@ public class AdventureRestController extends SecurityContextAware {
                 .collect(Collectors.toSet());
 
         var lorebookEntriesToAdd = emptyIfNull(request.lorebookEntriesToAdd()).stream()
-                .map(e -> new UpdateAdventure.LorebookEntryToAdd(e.name(), e.description(), e.playerId()))
+                .map(e -> new UpdateAdventure.LorebookEntryToAdd(e.name(), e.description()))
                 .toList();
 
         var lorebookEntriesToUpdate = emptyIfNull(request.lorebookEntriesToUpdate()).stream()
-                .map(e -> new UpdateAdventure.LorebookEntryToUpdate(e.id(), e.name(), e.description(), e.playerId()))
+                .map(e -> new UpdateAdventure.LorebookEntryToUpdate(e.id(), e.name(), e.description()))
                 .toList();
 
         var command = new UpdateAdventure(
@@ -198,7 +201,6 @@ public class AdventureRestController extends SecurityContextAware {
                 request.narratorPersonality(),
                 request.visibility(),
                 request.moderation(),
-                request.isMultiplayer(),
                 request.uiImagePositionX(),
                 request.uiImagePositionY(),
                 updatePermissions,
@@ -288,71 +290,6 @@ public class AdventureRestController extends SecurityContextAware {
         return queryRunner.run(new AdventureCatchUp(adventureId));
     }
 
-    @PostMapping("/{adventureId}/start")
-    @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.VIEW_ADVENTURE, fields = "#adventureId")
-    public MessageResult start(@PathVariable UUID adventureId) {
-
-        return commandRunner.run(new StartAdventure(adventureId));
-    }
-
-    @PostMapping("/{adventureId}/go")
-    @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.VIEW_ADVENTURE, fields = "#adventureId")
-    public MessageResult go(@PathVariable UUID adventureId) {
-
-        return commandRunner.run(new Go(adventureId));
-    }
-
-    @PostMapping("/{adventureId}/retry")
-    @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.VIEW_ADVENTURE, fields = "#adventureId")
-    public MessageResult retry(@PathVariable UUID adventureId) {
-
-        return commandRunner.run(new Retry(adventureId));
-    }
-
-    @PostMapping("/{adventureId}/say")
-    @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.VIEW_ADVENTURE, fields = "#adventureId")
-    public MessageResult say(
-            @PathVariable UUID adventureId,
-            @RequestBody SayRequest request) {
-
-        return commandRunner.run(new Say(adventureId, request.content()));
-    }
-
-    @DeleteMapping("/{adventureId}/messages/{messageId}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
-    public void deleteMessage(
-            @PathVariable UUID adventureId,
-            @PathVariable UUID messageId) {
-
-        commandRunner.run(new DeleteMessage(adventureId, messageId));
-    }
-
-    @PostMapping("/{adventureId}/messages/{messageId}/retry")
-    @ResponseStatus(code = HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
-    public MessageResult retryFromMessage(
-            @PathVariable UUID adventureId,
-            @PathVariable UUID messageId) {
-
-        return commandRunner.run(new RetryFromMessage(adventureId, messageId));
-    }
-
-    @PatchMapping("/{adventureId}/messages/{messageId}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
-    public void editMessage(
-            @PathVariable UUID adventureId,
-            @PathVariable UUID messageId,
-            @Valid @RequestBody EditMessageRequest request) {
-
-        commandRunner.run(new EditMessage(adventureId, messageId, request.content(), authenticatedUsername()));
-    }
-
     @PutMapping(value = "/{adventureId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
@@ -374,6 +311,60 @@ public class AdventureRestController extends SecurityContextAware {
     @Authorize(operation = AuthorizationOperation.UPDATE_ADVENTURE, fields = "#adventureId")
     public void removeAdventureImage(@PathVariable UUID adventureId) {
         commandRunner.run(new RemoveAdventureImage(adventureId));
+    }
+
+    @PostMapping("/{adventureId}/invitations")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.INVITE_TO_ADVENTURE, fields = "#adventureId")
+    public InviteUserToAdventureResult invite(
+            @PathVariable(required = true) UUID adventureId,
+            @Valid @RequestBody InviteUserToAdventureRequest request) {
+
+        return commandRunner.run(new InviteUserToAdventure(
+                adventureId, request.usernames(), getAuthenticatedUser().id()));
+    }
+
+    @GetMapping("/{adventureId}/invitation")
+    @ResponseStatus(code = HttpStatus.OK)
+    public PendingAdventureInvitationDetails getPendingInvitation(
+            @PathVariable(required = true) UUID adventureId) {
+
+        return queryRunner.run(new GetPendingAdventureInvitation(
+                adventureId,
+                getAuthenticatedUser().username()));
+    }
+
+    @PostMapping("/invitations/{invitationId}/join")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.JOIN_ADVENTURE_WITH_CHARACTER, fields = { "#invitationId", "#request.playerCharacterId" })
+    public void join(
+            @PathVariable(required = true) UUID invitationId,
+            @Valid @RequestBody JoinAdventureWithCharacterRequest request) {
+
+        commandRunner.run(new JoinAdventureWithCharacter(
+                invitationId,
+                request.playerCharacterId(),
+                getAuthenticatedUser().id()));
+    }
+
+    @PostMapping("/invitations/{invitationId}/decline")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.DECLINE_ADVENTURE_INVITATION, fields = "#invitationId")
+    public void decline(@PathVariable(required = true) UUID invitationId) {
+        commandRunner.run(new DeclineAdventureInvitation(invitationId));
+    }
+
+    @DeleteMapping("/{adventureId}/characters/{playerCharacterId}")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.REMOVE_CHARACTER_FROM_ADVENTURE, fields = { "#adventureId", "#playerCharacterId" })
+    public void removeCharacter(
+            @PathVariable(required = true) UUID adventureId,
+            @PathVariable(required = true) UUID playerCharacterId) {
+
+        commandRunner.run(new RemoveCharacterFromAdventure(
+                adventureId,
+                playerCharacterId,
+                getAuthenticatedUser().id()));
     }
 
     private String extractExtension(String filename) {

@@ -23,11 +23,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.core.application.event.notification.NotificationCreated;
+import me.moirai.storyengine.core.application.event.notification.NotificationCreatedEvent;
 import me.moirai.storyengine.core.domain.notification.Notification;
 import me.moirai.storyengine.core.domain.notification.NotificationFixture;
-import me.moirai.storyengine.core.domain.notification.NotificationLevel;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
+import me.moirai.storyengine.common.enums.NotificationLevel;
+import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.core.domain.userdetails.User;
 import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.inbound.notification.CreateNotification;
@@ -132,7 +132,7 @@ public class CreateNotificationHandlerTest {
         handler.execute(command);
 
         // then
-        var captor = ArgumentCaptor.forClass(NotificationCreated.class);
+        var captor = ArgumentCaptor.forClass(NotificationCreatedEvent.class);
         verify(eventPublisher, times(1)).publishEvent(captor.capture());
         assertThat(captor.getValue().publicId()).isEqualTo(saved.getPublicId());
     }

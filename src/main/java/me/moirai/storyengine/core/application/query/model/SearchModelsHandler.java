@@ -54,6 +54,7 @@ public class SearchModelsHandler extends AbstractQueryHandler<SearchModels, List
                 model.getFullModelName(),
                 model.toString(),
                 model.getOfficialModelName(),
-                model.getHardTokenLimit());
+                model.getHardTokenLimit(),
+                model.getResponseTokenLimit());
     }
 }

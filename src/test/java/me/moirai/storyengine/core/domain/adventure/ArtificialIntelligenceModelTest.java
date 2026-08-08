@@ -33,6 +33,24 @@ public class ArtificialIntelligenceModelTest {
     }
 
     @Test
+    public void shouldReturnATenthOfTheHardLimitWhenReadingTheResponseTokenLimit() {
+
+        // when / then
+        assertThat(ArtificialIntelligenceModel.GPT54.getResponseTokenLimit()).isEqualTo(105000);
+        assertThat(ArtificialIntelligenceModel.GPT54_MINI.getResponseTokenLimit()).isEqualTo(40000);
+        assertThat(ArtificialIntelligenceModel.GPT54_NANO.getResponseTokenLimit()).isEqualTo(40000);
+    }
+
+    @Test
+    public void shouldNeverExceedATenthOfTheHardLimitForAnyModel() {
+
+        // when / then
+        for (var model : ArtificialIntelligenceModel.values()) {
+            assertThat(model.getResponseTokenLimit() * 10).isLessThanOrEqualTo(model.getHardTokenLimit());
+        }
+    }
+
+    @Test
     public void errorWhenModelNotSupported() {
 
         // Given

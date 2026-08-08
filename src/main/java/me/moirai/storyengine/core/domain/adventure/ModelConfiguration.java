@@ -84,9 +84,9 @@ public final class ModelConfiguration {
 
     private static void validateMaxTokenLimit(int maxTokenLimit, ArtificialIntelligenceModel aiModel) {
 
-        if (maxTokenLimit < 100 || maxTokenLimit > aiModel.getHardTokenLimit()) {
+        if (maxTokenLimit < 100 || maxTokenLimit > aiModel.getResponseTokenLimit()) {
             throw new BusinessRuleViolationException(
-                    String.format("Max token limit has to be between 100 and %s", aiModel.getHardTokenLimit()));
+                    String.format("Max token limit has to be between 100 and %s", aiModel.getResponseTokenLimit()));
         }
     }
 

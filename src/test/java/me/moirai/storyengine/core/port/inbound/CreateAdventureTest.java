@@ -19,7 +19,7 @@ public class CreateAdventureTest {
     public void createAdventure_whenValidDate_thenInstanceIsCreated() {
 
         // given
-        Adventure adventure = AdventureFixture.privateMultiplayerAdventure().build();
+        Adventure adventure = AdventureFixture.privateAdventure().build();
 
         // when
         var createAdventure = new CreateAdventure(
@@ -30,7 +30,6 @@ public class CreateAdventureTest {
                 adventure.getNarratorPersonality(),
                 adventure.getVisibility(),
                 adventure.getModeration(),
-                adventure.isMultiplayer(),
                 adventure.getAdventureStart(),
                 Set.of(),
                 null,
@@ -78,7 +77,6 @@ public class CreateAdventureTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
-                sample.isMultiplayer(),
                 sample.adventureStart(),
                 Set.of(),
                 null,
@@ -106,7 +104,6 @@ public class CreateAdventureTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
-                sample.isMultiplayer(),
                 sample.adventureStart(),
                 Set.of(),
                 null,

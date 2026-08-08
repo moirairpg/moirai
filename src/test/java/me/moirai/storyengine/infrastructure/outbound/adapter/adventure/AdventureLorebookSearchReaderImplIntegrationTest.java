@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.world.World;
@@ -14,7 +14,7 @@ import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.inbound.adventure.SearchAdventureLorebookEntries;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureLorebookSearchReader;
 
-public class AdventureLorebookSearchReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class AdventureLorebookSearchReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private AdventureLorebookSearchReader reader;
@@ -29,10 +29,10 @@ public class AdventureLorebookSearchReaderImplIntegrationTest extends AbstractIn
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
-        adventure.addLorebookEntry("White River", "A famous river", null);
+        adventure.addLorebookEntry("White River", "A famous river");
         insert(adventure, Adventure.class);
 
         var query = new SearchAdventureLorebookEntries(adventure.getPublicId(), null, null, null, null, null);
@@ -51,7 +51,7 @@ public class AdventureLorebookSearchReaderImplIntegrationTest extends AbstractIn
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
         insert(adventure, Adventure.class);
@@ -72,11 +72,11 @@ public class AdventureLorebookSearchReaderImplIntegrationTest extends AbstractIn
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
-        adventure.addLorebookEntry("White River", "A famous river", null);
-        adventure.addLorebookEntry("Volin Habar", "A warrior", null);
+        adventure.addLorebookEntry("White River", "A famous river");
+        adventure.addLorebookEntry("Volin Habar", "A warrior");
         insert(adventure, Adventure.class);
 
         var query = new SearchAdventureLorebookEntries(adventure.getPublicId(), "White", null, null, null, null);

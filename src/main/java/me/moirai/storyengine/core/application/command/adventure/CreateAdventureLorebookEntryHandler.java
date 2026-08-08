@@ -12,8 +12,8 @@ import me.moirai.storyengine.core.domain.adventure.AdventureLorebookEntry;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureLorebookEntryDetails;
 import me.moirai.storyengine.core.port.inbound.adventure.CreateAdventureLorebookEntry;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
+import me.moirai.storyengine.core.port.outbound.adventure.LorebookVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.LorebookVectorSearchPort;
 
 @CommandHandler
 public class CreateAdventureLorebookEntryHandler
@@ -59,8 +59,7 @@ public class CreateAdventureLorebookEntryHandler
 
         var lorebookEntry = adventure.addLorebookEntry(
                 command.name(),
-                command.description(),
-                command.playerId());
+                command.description());
 
         var savedAdventure = repository.save(adventure);
 
@@ -81,8 +80,6 @@ public class CreateAdventureLorebookEntryHandler
                 adventure.getPublicId(),
                 entry.getName(),
                 entry.getDescription(),
-                entry.getPlayerId(),
-                entry.isPlayerCharacter(),
                 entry.getCreationDate(),
                 entry.getLastUpdateDate());
     }

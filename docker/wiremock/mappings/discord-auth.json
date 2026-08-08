@@ -1,0 +1,44 @@
+{
+  "mappings": [
+    {
+      "name": "discord-token-exchange",
+      "request": {
+        "method": "POST",
+        "urlPath": "/oauth2/token"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{{formData request.body 'form' urlDecode=true}}{\"access_token\":\"{{#if form.code}}{{form.code}}{{else}}{{form.refresh_token}}{{/if}}\",\"refresh_token\":\"{{#if form.code}}{{form.code}}{{else}}{{form.refresh_token}}{{/if}}\",\"expires_in\":604800,\"scope\":\"identify email\",\"token_type\":\"Bearer\"}",
+        "transformers": ["response-template"]
+      }
+    },
+    {
+      "name": "discord-users-me",
+      "request": {
+        "method": "GET",
+        "urlPath": "/users/@me"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{{regexExtract request.headers.Authorization 'Bearer (.+)' 'auth'}}{\"id\":\"{{auth.0}}\",\"username\":\"{{auth.0}}\",\"global_name\":\"{{auth.0}}\",\"email\":\"{{auth.0}}@dev.local\"}",
+        "transformers": ["response-template"]
+      }
+    },
+    {
+      "name": "discord-token-revoke",
+      "request": {
+        "method": "POST",
+        "urlPath": "/oauth2/token/revoke"
+      },
+      "response": {
+        "status": 200
+      }
+    }
+  ]
+}

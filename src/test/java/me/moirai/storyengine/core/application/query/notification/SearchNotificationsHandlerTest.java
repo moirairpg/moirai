@@ -16,8 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.storyengine.common.dto.PaginatedResult;
-import me.moirai.storyengine.core.domain.notification.NotificationLevel;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
+import me.moirai.storyengine.common.enums.NotificationLevel;
+import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationSummary;
 import me.moirai.storyengine.core.port.inbound.notification.SearchNotifications;
 import me.moirai.storyengine.core.port.outbound.notification.NotificationSearchReader;

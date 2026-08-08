@@ -7,7 +7,6 @@ import me.moirai.storyengine.common.cqs.command.Command;
 public record CreateAdventureLorebookEntry(
         UUID adventureId,
         String name,
-        String description,
-        String playerId)
+        String description)
         implements Command<AdventureLorebookEntryDetails> {
 }

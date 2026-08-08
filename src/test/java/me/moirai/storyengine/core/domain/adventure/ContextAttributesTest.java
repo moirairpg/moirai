@@ -151,4 +151,60 @@ public class ContextAttributesTest {
         assertThat(updatedContextAttributes.nudge()).isEqualTo("Nudge");
         assertThat(updatedContextAttributes.scene()).isEqualTo(newScene);
     }
+
+    @Test
+    public void shouldReturnAuthorsNoteThenSceneThenNudgeWhenReadingAsText() {
+
+        // given
+        var contextAttributes = new ContextAttributes("Nudge", "Author's note", "Scene", "Bump", 1);
+
+        // when
+        var text = contextAttributes.asText();
+
+        // then
+        assertThat(text).hasSize(3);
+        assertThat(text.get(0)).isEqualTo("Author's note");
+        assertThat(text.get(1)).contains("Scene");
+        assertThat(text.get(2)).isEqualTo("Nudge");
+    }
+
+    @Test
+    public void shouldOmitBlankAttributesWhenReadingAsText() {
+
+        // given
+        var contextAttributes = new ContextAttributes("  ", null, "Scene", "Bump", 1);
+
+        // when
+        var text = contextAttributes.asText();
+
+        // then
+        assertThat(text).hasSize(1);
+        assertThat(text.getFirst()).contains("Scene");
+    }
+
+    @Test
+    public void shouldReturnNothingWhenEveryAttributeIsBlank() {
+
+        // given
+        var contextAttributes = new ContextAttributes(null, null, null, "Bump", 1);
+
+        // when
+        var text = contextAttributes.asText();
+
+        // then
+        assertThat(text).isEmpty();
+    }
+
+    @Test
+    public void shouldNotIncludeBumpWhenReadingAsText() {
+
+        // given
+        var contextAttributes = new ContextAttributes(null, null, null, "Bump", 1);
+
+        // when
+        var text = contextAttributes.asText();
+
+        // then
+        assertThat(text).noneMatch(entry -> entry.contains("Bump"));
+    }
 }

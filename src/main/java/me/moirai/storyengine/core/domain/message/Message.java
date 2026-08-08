@@ -1,5 +1,7 @@
 package me.moirai.storyengine.core.domain.message;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +20,7 @@ import jakarta.persistence.Transient;
 import me.moirai.storyengine.common.domain.Asset;
 import me.moirai.storyengine.common.domain.DomainEvent;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
+import me.moirai.storyengine.common.enums.MessageStatus;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 
 @Entity
@@ -45,6 +48,15 @@ public class Message extends Asset {
     @Column(name = "status")
     private MessageStatus status;
 
+    @Column(name = "author_id")
+    private Long authorId;
+
+    @Column(name = "author_character_id")
+    private Long authorCharacterId;
+
+    @Column(name = "author_character_name")
+    private String authorCharacterName;
+
     @Transient
     private List<DomainEvent> domainEvents = new ArrayList<>();
 
@@ -61,6 +73,9 @@ public class Message extends Asset {
         this.role = builder.role;
         this.content = builder.content;
         this.status = builder.status;
+        this.authorId = builder.authorId;
+        this.authorCharacterId = builder.authorCharacterId;
+        this.authorCharacterName = builder.authorCharacterName;
     }
 
     public List<DomainEvent> drainEvents() {
@@ -101,8 +116,29 @@ public class Message extends Asset {
         return status;
     }
 
+    public Long getAuthorId() {
+        return authorId;
+    }
+
+    public Long getAuthorCharacterId() {
+        return authorCharacterId;
+    }
+
+    public String getAuthorCharacterName() {
+        return authorCharacterName;
+    }
+
     public void markAsChronicled() {
         this.status = MessageStatus.CHRONICLED;
+    }
+
+    public void updateContent(String content) {
+
+        if (isBlank(content)) {
+            throw new BusinessRuleViolationException("Message content cannot be null or empty");
+        }
+
+        this.content = content;
     }
 
     public static final class Builder {
@@ -111,6 +147,9 @@ public class Message extends Asset {
         private MessageAuthorRole role;
         private String content;
         private MessageStatus status = MessageStatus.ACTIVE;
+        private Long authorId;
+        private Long authorCharacterId;
+        private String authorCharacterName;
 
         private Builder() {
         }
@@ -135,6 +174,21 @@ public class Message extends Asset {
             return this;
         }
 
+        public Builder authorId(Long authorId) {
+            this.authorId = authorId;
+            return this;
+        }
+
+        public Builder authorCharacterId(Long authorCharacterId) {
+            this.authorCharacterId = authorCharacterId;
+            return this;
+        }
+
+        public Builder authorCharacterName(String authorCharacterName) {
+            this.authorCharacterName = authorCharacterName;
+            return this;
+        }
+
         public Message build() {
             if (adventureId == null) {
                 throw new BusinessRuleViolationException("Adventure ID is required");
@@ -146,6 +200,10 @@ public class Message extends Asset {
 
             if (content == null || content.isBlank()) {
                 throw new BusinessRuleViolationException("Content is required");
+            }
+
+            if (isBlank(authorCharacterName)) {
+                throw new BusinessRuleViolationException("Author character name is required");
             }
 
             return new Message(this);

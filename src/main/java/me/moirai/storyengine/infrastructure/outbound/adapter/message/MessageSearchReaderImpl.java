@@ -12,10 +12,10 @@ import me.moirai.storyengine.common.dbutil.Filter;
 import me.moirai.storyengine.common.dbutil.Filters;
 import me.moirai.storyengine.common.dbutil.QueryBuilder;
 import me.moirai.storyengine.common.dto.CursorResult;
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.enums.SortDirection;
-import me.moirai.storyengine.core.domain.message.MessageStatus;
-import me.moirai.storyengine.core.port.inbound.adventure.MessageSummary;
+import me.moirai.storyengine.common.enums.MessageStatus;
 import me.moirai.storyengine.core.port.inbound.adventure.SearchAdventureMessages;
 import me.moirai.storyengine.core.port.outbound.message.MessageSearchReader;
 
@@ -28,10 +28,12 @@ public class MessageSearchReaderImpl implements MessageSearchReader {
                    m.role,
                    m.content,
                    m.status,
-                   m.created_by,
+                   au.public_id AS author_id,
+                   m.author_character_name,
                    m.creation_date
               FROM message m
               JOIN adventure a ON m.adventure_id = a.id
+              LEFT JOIN moirai_user au ON au.id = m.author_id
             """;
     //@formatter:on
 
@@ -67,7 +69,8 @@ public class MessageSearchReaderImpl implements MessageSearchReader {
                 MessageAuthorRole.valueOf(rs.getString("role")),
                 rs.getString("content"),
                 MessageStatus.valueOf(rs.getString("status")),
-                rs.getString("created_by"),
+                rs.getObject("author_id", UUID.class),
+                rs.getString("author_character_name"),
                 rs.getTimestamp("creation_date").toInstant());
     }
 

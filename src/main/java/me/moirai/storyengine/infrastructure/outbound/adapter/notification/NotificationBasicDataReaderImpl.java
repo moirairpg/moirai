@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import me.moirai.storyengine.common.dbutil.SqlArrays;
 import me.moirai.storyengine.common.util.Functions;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
+import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationBasicData;
 import me.moirai.storyengine.core.port.outbound.notification.NotificationBasicDataReader;
 

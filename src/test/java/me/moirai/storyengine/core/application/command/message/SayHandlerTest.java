@@ -9,16 +9,19 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
+import me.moirai.storyengine.common.enums.TranscriptChange;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.core.application.event.message.MessageTranscriptChangedEvent;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.domain.message.MessageFixture;
@@ -35,38 +38,18 @@ public class SayHandlerTest {
     @Mock
     private MessageRepository messageRepository;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
+    @InjectMocks
     private SayHandler handler;
 
-    @BeforeEach
-    void setup() {
-        handler = new SayHandler(adventureRepository, messageRepository);
-    }
-
     @Test
-    public void shouldThrowWhenAdventureIdIsNull() {
+    public void shouldThrowExceptionWhenAdventureIsNotFound() {
 
         // given
-        var command = new Say(null, "Some content");
+        var command = new Say(UUID.randomUUID(), "The door creaks open.");
 
-        // when / then
-        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
-    }
-
-    @Test
-    public void shouldThrowWhenContentIsBlank() {
-
-        // given
-        var command = new Say(UUID.randomUUID(), "");
-
-        // when / then
-        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
-    }
-
-    @Test
-    public void shouldThrowWhenAdventureNotFound() {
-
-        // given
-        var command = new Say(UUID.randomUUID(), "Some content");
         when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.empty());
 
         // when / then
@@ -74,53 +57,60 @@ public class SayHandlerTest {
     }
 
     @Test
-    public void shouldPersistContentAsAssistantMessage() {
+    public void shouldThrowExceptionWhenContentIsBlank() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
+        var command = new Say(UUID.randomUUID(), "   ");
 
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
+        // when / then
+        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
+    }
 
-        var command = new Say(UUID.randomUUID(), "Hello world");
+    @Test
+    public void shouldSaveTheDialogueUnderTheNarratorWhenDialogueIsInserted() {
 
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
+        // given
+        var command = new Say(UUID.randomUUID(), "The door creaks open.");
 
-        var captor = ArgumentCaptor.forClass(Message.class);
+        givenAdventureExists();
 
         // when
         handler.handle(command);
 
         // then
-        verify(messageRepository).save(captor.capture());
-        assertThat(captor.getValue().getRole()).isEqualTo(MessageAuthorRole.ASSISTANT);
+        var saved = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).save(saved.capture());
+
+        assertThat(saved.getValue().getRole()).isEqualTo(MessageAuthorRole.ASSISTANT);
     }
 
     @Test
-    public void shouldReturnMessageResult() {
+    public void shouldPublishTheAddedMessageWithoutMarkingNarrationAsPendingWhenDialogueIsInserted() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
+        var command = new Say(UUID.randomUUID(), "The door creaks open.");
 
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var command = new Say(UUID.randomUUID(), "Hello world");
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
+        givenAdventureExists();
 
         // when
-        var result = handler.handle(command);
+        handler.handle(command);
 
         // then
-        assertThat(result).isNotNull();
-        assertThat(result.content()).isEqualTo("Hello world");
-        assertThat(result.role()).isEqualTo(MessageAuthorRole.ASSISTANT);
+        var published = ArgumentCaptor.forClass(MessageTranscriptChangedEvent.class);
+        verify(eventPublisher).publishEvent(published.capture());
+
+        assertThat(published.getValue().update().change()).isEqualTo(TranscriptChange.MESSAGE_ADDED);
+        assertThat(published.getValue().update().isNarrationPending()).isFalse();
+    }
+
+    private void givenAdventureExists() {
+
+        var savedMessage = MessageFixture.assistantMessage().build();
+
+        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
+
+        when(adventureRepository.findByPublicId(any(UUID.class)))
+                .thenReturn(Optional.of(AdventureFixture.privateAdventureWithId()));
+        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
     }
 }

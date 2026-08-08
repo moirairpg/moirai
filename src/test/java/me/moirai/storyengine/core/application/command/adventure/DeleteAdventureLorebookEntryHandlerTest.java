@@ -22,7 +22,7 @@ import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.adventure.AdventureLorebookEntryFixture;
 import me.moirai.storyengine.core.port.inbound.adventure.DeleteAdventureLorebookEntry;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.LorebookVectorSearchPort;
+import me.moirai.storyengine.core.port.outbound.adventure.LorebookVectorSearchPort;
 
 @ExtendWith(MockitoExtension.class)
 public class DeleteAdventureLorebookEntryHandlerTest {
@@ -70,7 +70,7 @@ public class DeleteAdventureLorebookEntryHandlerTest {
                 AdventureLorebookEntryFixture.PUBLIC_ID,
                 AdventureFixture.PUBLIC_ID);
 
-        var baseAdventure = AdventureFixture.publicMultiplayerAdventure().build();
+        var baseAdventure = AdventureFixture.publicAdventure().build();
         var adventure = spy(baseAdventure);
 
         doNothing().when(adventure).removeLorebookEntry(any(UUID.class));

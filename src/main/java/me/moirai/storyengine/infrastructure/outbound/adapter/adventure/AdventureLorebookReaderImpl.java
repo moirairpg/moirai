@@ -20,8 +20,6 @@ public class AdventureLorebookReaderImpl implements AdventureLorebookReader {
                     a.public_id AS adventure_public_id,
                    al.name,
                    al.description,
-                   al.player_id,
-                   al.is_player_character,
                    al.creation_date,
                    al.last_update_date
               FROM adventure_lorebook al
@@ -35,8 +33,6 @@ public class AdventureLorebookReaderImpl implements AdventureLorebookReader {
                     a.public_id AS adventure_public_id,
                    al.name,
                    al.description,
-                   al.player_id,
-                   al.is_player_character,
                    al.creation_date,
                    al.last_update_date
               FROM adventure_lorebook al
@@ -81,8 +77,6 @@ public class AdventureLorebookReaderImpl implements AdventureLorebookReader {
                 UUID.fromString(rs.getString("adventure_public_id")),
                 rs.getString("name"),
                 rs.getString("description"),
-                rs.getString("player_id"),
-                rs.getBoolean("is_player_character"),
                 rs.getTimestamp("creation_date").toInstant(),
                 rs.getTimestamp("last_update_date").toInstant());
     }

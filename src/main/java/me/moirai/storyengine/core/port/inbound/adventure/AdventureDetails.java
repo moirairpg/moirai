@@ -1,6 +1,7 @@
 package me.moirai.storyengine.core.port.inbound.adventure;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,7 +19,6 @@ public record AdventureDetails(
         String narratorPersonality,
         Visibility visibility,
         Moderation moderation,
-        boolean isMultiplayer,
         String imageUrl,
         Instant creationDate,
         Instant lastUpdateDate,
@@ -26,11 +26,13 @@ public record AdventureDetails(
         ContextAttributesDto contextAttributes,
         Set<PermissionDto> permissions,
         Set<AdventureLorebookEntryDetails> lorebook,
+        List<AdventureMembershipSummary> roster,
         Double uiImagePositionX,
         Double uiImagePositionY) {
 
     public AdventureDetails {
         permissions = Set.copyOf(permissions);
         lorebook = Set.copyOf(lorebook);
+        roster = List.copyOf(roster);
     }
 }

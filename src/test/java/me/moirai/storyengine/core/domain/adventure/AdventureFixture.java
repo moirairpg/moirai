@@ -18,104 +18,74 @@ public class AdventureFixture {
     public static final UUID PUBLIC_ID = UUID.fromString("857345aa-2222-0000-0000-000000000000");
     public static final Long NUMERIC_ID = 2L;
 
-    public static Adventure.Builder privateSingleplayerAdventure() {
+    public static Adventure.Builder privateAdventureWithoutNarrator() {
 
-        var builder = Adventure.builder();
-        builder.name("Name");
-        builder.description("This is an RPG world");
-        builder.adventureStart("As you enter the city, people around you start looking at you.");
-        builder.worldId(Generators.timeBasedEpochGenerator().generate());
-        builder.moderation(Moderation.STRICT);
+        var builder = baseAdventure();
         builder.visibility(Visibility.fromString("PRIVATE"));
-        builder.modelConfiguration(ModelConfigurationFixture.gpt4Mini());
-        builder.isMultiplayer(false);
-        builder.contextAttributes(ContextAttributesFixture.sample());
-        builder.permissions(new Permission(OWNER_ID, PermissionLevel.OWNER));
 
         return builder;
     }
 
-    public static Adventure.Builder privateMultiplayerAdventure() {
+    public static Adventure.Builder privateAdventure() {
 
-        var builder = Adventure.builder();
-        builder.name("Name");
-        builder.description("This is an RPG world");
-        builder.adventureStart("As you enter the city, people around you start looking at you.");
-        builder.worldId(Generators.timeBasedEpochGenerator().generate());
+        var builder = baseAdventure();
         builder.narrator("Aria", "A helpful guide");
-        builder.moderation(Moderation.STRICT);
         builder.visibility(Visibility.fromString("PRIVATE"));
-        builder.modelConfiguration(ModelConfigurationFixture.gpt4Mini());
-        builder.isMultiplayer(true);
-        builder.contextAttributes(ContextAttributesFixture.sample());
-        builder.permissions(new Permission(OWNER_ID, PermissionLevel.OWNER));
 
         return builder;
     }
 
-    public static Adventure.Builder publicSingleplayerAdventure() {
+    public static Adventure.Builder publicAdventure() {
 
-        var builder = Adventure.builder();
-        builder.name("Name");
-        builder.description("This is an RPG world");
-        builder.adventureStart("As you enter the city, people around you start looking at you.");
-        builder.worldId(Generators.timeBasedEpochGenerator().generate());
+        var builder = baseAdventure();
         builder.narrator("Aria", "A helpful guide");
-        builder.moderation(Moderation.STRICT);
         builder.visibility(Visibility.fromString("PUBLIC"));
-        builder.modelConfiguration(ModelConfigurationFixture.gpt4Mini());
-        builder.isMultiplayer(false);
-        builder.contextAttributes(ContextAttributesFixture.sample());
-        builder.permissions(new Permission(OWNER_ID, PermissionLevel.OWNER));
 
         return builder;
     }
 
-    public static Adventure.Builder publicMultiplayerAdventure() {
+    public static Adventure privateAdventureWithId() {
 
-        var builder = Adventure.builder();
-        builder.name("Name");
-        builder.description("This is an RPG world");
-        builder.adventureStart("As you enter the city, people around you start looking at you.");
-        builder.worldId(Generators.timeBasedEpochGenerator().generate());
-        builder.narrator("Aria", "A helpful guide");
-        builder.moderation(Moderation.STRICT);
-        builder.visibility(Visibility.fromString("PUBLIC"));
-        builder.modelConfiguration(ModelConfigurationFixture.gpt4Mini());
-        builder.isMultiplayer(true);
-        builder.contextAttributes(ContextAttributesFixture.sample());
-        builder.permissions(new Permission(OWNER_ID, PermissionLevel.OWNER));
-
-        return builder;
-    }
-
-    public static Adventure privateMultiplayerAdventureWithId() {
-
-        var adventure = privateMultiplayerAdventure().build();
+        var adventure = privateAdventure().build();
         ReflectionTestUtils.setField(adventure, "id", NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", PUBLIC_ID);
         return adventure;
     }
 
-    public static Adventure publicMultiplayerAdventureWithId() {
+    public static Adventure publicAdventureWithId() {
 
-        var adventure = publicMultiplayerAdventure().build();
+        var adventure = publicAdventure().build();
         ReflectionTestUtils.setField(adventure, "id", NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", PUBLIC_ID);
         return adventure;
     }
 
-    public static Adventure publicMultiplayerAdventureWithIdAndPermissions() {
+    public static Adventure publicAdventureWithIdAndPermissions() {
 
-        var adventure = publicMultiplayerAdventureWithId();
+        var adventure = publicAdventureWithId();
         adventure.permissions().addAll(PermissionFixture.samplePermissions());
         return adventure;
     }
 
-    public static Adventure privateMultiplayerAdventureWithIdAndPermissions() {
+    public static Adventure privateAdventureWithIdAndPermissions() {
 
-        var adventure = privateMultiplayerAdventureWithId();
+        var adventure = privateAdventureWithId();
         adventure.permissions().addAll(PermissionFixture.samplePermissions());
         return adventure;
+    }
+
+    private static Adventure.Builder baseAdventure() {
+
+        var builder = Adventure.builder();
+        builder.name("Name");
+        builder.description("This is an RPG world");
+        builder.adventureStart("As you enter the city, people around you start looking at you.");
+        builder.worldId(Generators.timeBasedEpochGenerator().generate());
+        builder.moderation(Moderation.STRICT);
+        builder.modelConfiguration(ModelConfigurationFixture.gpt4Mini());
+        builder.contextAttributes(ContextAttributesFixture.sample());
+        builder.permissions(new Permission(OWNER_ID, PermissionLevel.OWNER));
+
+        return builder;
     }
 }

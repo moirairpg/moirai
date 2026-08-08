@@ -1,5 +1,6 @@
 package me.moirai.storyengine.infrastructure.outbound.adapter.adventure;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
+import me.moirai.storyengine.core.port.outbound.adventure.EnrolledCharacterData;
 
 @Repository
 public class AdventureRepositoryImpl implements AdventureRepository {
@@ -62,5 +64,51 @@ public class AdventureRepositoryImpl implements AdventureRepository {
     @Override
     public Optional<Adventure> findById(Long id) {
         return jpaRepository.findById(id);
+    }
+
+    @Override
+    public List<Adventure> findAllContainingCharacter(Long playerCharacterId) {
+
+        return jpaRepository.findAllContainingCharacter(playerCharacterId);
+    }
+
+    @Override
+    public List<Adventure> findAllOwnedBy(Long userId) {
+
+        return jpaRepository.findAllOwnedBy(userId);
+    }
+
+    @Override
+    public List<Adventure> findAllInvolving(Long userId) {
+
+        return jpaRepository.findAllInvolving(userId);
+    }
+
+    @Override
+    public List<Long> findManagerUserIdsByAdventureId(Long adventureId) {
+
+        return jpaRepository.findManagerUserIdsByAdventureId(adventureId);
+    }
+
+    @Override
+    public Optional<String> findEnrolledCharacterName(Long adventureId, String username) {
+
+        return jpaRepository.findEnrolledCharacterName(adventureId, username);
+    }
+
+    @Override
+    public Optional<EnrolledCharacterData> findEnrolledCharacter(Long adventureId, String username) {
+
+        return jpaRepository.findEnrolledCharacter(adventureId, username)
+                .map(projection -> new EnrolledCharacterData(
+                        projection.getPlayerId(),
+                        projection.getPlayerCharacterId(),
+                        projection.getCharacterName()));
+    }
+
+    @Override
+    public Optional<Adventure> findByInvitationPublicId(UUID invitationPublicId) {
+
+        return jpaRepository.findByInvitationsPublicId(invitationPublicId);
     }
 }

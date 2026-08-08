@@ -29,6 +29,11 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     }
 
     @Override
+    public List<Notification> findAllInvolving(Long userId) {
+        return jpaRepository.findAllInvolving(userId);
+    }
+
+    @Override
     public void deleteByPublicId(UUID publicId) {
         jpaRepository.deleteByPublicId(publicId);
     }

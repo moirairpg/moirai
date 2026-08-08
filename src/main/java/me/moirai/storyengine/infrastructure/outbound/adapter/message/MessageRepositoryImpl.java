@@ -34,6 +34,11 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public Optional<Message> getByPublicId(UUID messagePublicId) {
+        return jpaRepository.findByPublicId(messagePublicId);
+    }
+
+    @Override
     public void deleteLastAssistantMessage(Long adventureId) {
         jpaRepository.deleteLastAssistantMessage(adventureId);
     }
@@ -41,11 +46,6 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public void deleteByPublicId(UUID adventurePublicId, UUID messagePublicId) {
         jpaRepository.deleteByPublicId(adventurePublicId, messagePublicId);
-    }
-
-    @Override
-    public void updateContent(UUID adventurePublicId, UUID messagePublicId, String content) {
-        jpaRepository.updateContent(adventurePublicId, messagePublicId, content);
     }
 
     @Override

@@ -53,7 +53,6 @@ public class AdventureSearchReaderImpl implements AdventureSearchReader {
                 .filter(Filters.containsIgnoreCase("w.name", "worldName", query.worldName()))
                 .filter(Filters.equals("a.ai_model", "model", query.model()))
                 .filter(Filters.equals("a.moderation", "moderation", query.moderation()))
-                .filter(Filters.equals("a.is_multiplayer", "isMultiplayer", query.isMultiplayer()))
                 .sortBy(resolveSortingField(query.sortingField()), query.direction())
                 .page(query.page(), query.size())
                 .build();
@@ -97,6 +96,7 @@ public class AdventureSearchReaderImpl implements AdventureSearchReader {
             case MODEL -> "a.ai_model";
             case MODERATION -> "a.moderation";
             case LAST_UPDATE_DATE -> "a.last_update_date";
+            case CREATION_DATE -> "a.creation_date";
             case null, default -> "a.creation_date";
         };
     }

@@ -2,16 +2,13 @@ package me.moirai.storyengine.common.web;
 
 import java.util.UUID;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
+import me.moirai.storyengine.common.security.authentication.MoiraiSecurityContext;
 
 public abstract class SecurityContextAware {
 
     protected MoiraiPrincipal getAuthenticatedUser() {
-        return (MoiraiPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
+        return MoiraiSecurityContext.getAuthenticatedUser();
     }
 
     protected UUID authenticatedUserId() {

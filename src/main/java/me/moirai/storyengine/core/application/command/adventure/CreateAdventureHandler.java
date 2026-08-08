@@ -2,6 +2,7 @@ package me.moirai.storyengine.core.application.command.adventure;
 
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -19,10 +20,10 @@ import me.moirai.storyengine.core.port.inbound.adventure.ContextAttributesDto;
 import me.moirai.storyengine.core.port.inbound.adventure.CreateAdventure;
 import me.moirai.storyengine.core.port.inbound.adventure.ModelConfigurationDto;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
+import me.moirai.storyengine.core.port.outbound.adventure.LorebookVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
 import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.LorebookVectorSearchPort;
 
 @CommandHandler
 public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventure, AdventureDetails> {
@@ -69,7 +70,6 @@ public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventu
                 .worldId(command.worldId())
                 .visibility(command.visibility())
                 .moderation(command.moderation())
-                .isMultiplayer(command.isMultiplayer())
                 .adventureStart(command.adventureStart())
                 .contextAttributes(contextAttributes)
                 .description(command.description())
@@ -79,7 +79,7 @@ public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventu
         adventure.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
 
         emptyIfNull(command.lorebookEntries()).forEach(entry ->
-                adventure.addLorebookEntry(entry.name(), entry.description(), entry.playerId()));
+                adventure.addLorebookEntry(entry.name(), entry.description()));
 
         adventureRepository.save(adventure);
 
@@ -120,10 +120,9 @@ public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventu
                 adventure.getAdventureStart(),
                 worldPublicId,
                 adventure.getNarratorName(),
-                adventure.getNarratorPersonality(),
+                adventure.getNarratorPersonalityTemplate(),
                 adventure.getVisibility(),
                 adventure.getModeration(),
-                adventure.isMultiplayer(),
                 storagePort.resolveUrl(adventure.getImageKey()),
                 adventure.getCreationDate(),
                 adventure.getLastUpdateDate(),
@@ -143,11 +142,10 @@ public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventu
                                 adventure.getPublicId(),
                                 entry.getName(),
                                 entry.getDescription(),
-                                entry.getPlayerId(),
-                                entry.isPlayerCharacter(),
                                 entry.getCreationDate(),
                                 entry.getLastUpdateDate()))
                         .collect(Collectors.toSet()),
+                List.of(),
                 adventure.getUiImagePositionX(),
                 adventure.getUiImagePositionY());
     }

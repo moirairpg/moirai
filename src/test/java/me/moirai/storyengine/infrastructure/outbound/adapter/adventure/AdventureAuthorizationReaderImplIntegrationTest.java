@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.common.domain.Permission;
 import me.moirai.storyengine.common.enums.PermissionLevel;
 import me.moirai.storyengine.common.enums.Visibility;
@@ -20,7 +20,7 @@ import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureAuthorizationReader;
 
-public class AdventureAuthorizationReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class AdventureAuthorizationReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private AdventureAuthorizationReader reader;
@@ -48,7 +48,7 @@ public class AdventureAuthorizationReaderImplIntegrationTest extends AbstractInt
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
@@ -71,7 +71,7 @@ public class AdventureAuthorizationReaderImplIntegrationTest extends AbstractInt
         // Given
         var user = insert(UserFixture.player().build(), User.class);
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .permissions(new Permission(user.getId(), PermissionLevel.WRITE))
                 .build();

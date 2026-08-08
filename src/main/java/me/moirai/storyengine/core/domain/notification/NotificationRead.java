@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
+import me.moirai.storyengine.common.util.Functions;
 
 @Entity
 @Table(name = "notification_read")
@@ -47,7 +48,7 @@ public class NotificationRead {
     }
 
     public Long getNotificationId() {
-        return notification != null ? notification.getId() : null;
+        return Functions.mapOrNull(notification, Notification::getId);
     }
 
     public Long getUserId() {

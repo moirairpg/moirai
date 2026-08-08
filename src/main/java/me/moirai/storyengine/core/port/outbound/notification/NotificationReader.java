@@ -8,5 +8,8 @@ import me.moirai.storyengine.core.port.inbound.notification.NotificationDetails;
 
 public interface NotificationReader {
 
-    Optional<NotificationDetails> getNotificationByPublicId(UUID publicId, String requesterUsername, Role requesterRole);
+    Optional<NotificationDetailsRow> getNotificationByPublicId(UUID publicId);
+
+    Optional<NotificationDetails> getNotificationByPublicIdAndRequester(
+            UUID publicId, String requesterUsername, Role requesterRole);
 }

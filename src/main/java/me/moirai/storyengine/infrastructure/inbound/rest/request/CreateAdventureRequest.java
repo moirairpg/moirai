@@ -19,7 +19,6 @@ public record CreateAdventureRequest(
         @Moderated String narratorPersonality,
         @NotNull(message = "cannot be empty") Visibility visibility,
         @NotNull(message = "cannot be empty") Moderation moderation,
-        boolean isMultiplayer,
         @Moderated @NotEmpty(message = "cannot be empty") String adventureStart,
         @ModeratedLorebook Set<AdventureLorebookEntryRequest> lorebook,
         Double uiImagePositionX,

@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import me.moirai.storyengine.core.domain.notification.NotificationLevel;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
+import me.moirai.storyengine.common.enums.NotificationLevel;
+import me.moirai.storyengine.common.enums.NotificationType;
 
 public class NotificationDetailsFixture {
 

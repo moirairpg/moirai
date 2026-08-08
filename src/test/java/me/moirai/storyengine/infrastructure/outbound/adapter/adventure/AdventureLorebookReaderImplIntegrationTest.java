@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.world.World;
@@ -18,7 +18,7 @@ import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureLorebookEntryDetails;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureLorebookReader;
 
-public class AdventureLorebookReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class AdventureLorebookReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private AdventureLorebookReader reader;
@@ -47,11 +47,11 @@ public class AdventureLorebookReaderImplIntegrationTest extends AbstractIntegrat
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
-        adventure.addLorebookEntry("Lorebook", "Lorebook", null);
+        adventure.addLorebookEntry("Lorebook", "Lorebook");
 
         insert(adventure, Adventure.class);
 
@@ -67,7 +67,6 @@ public class AdventureLorebookReaderImplIntegrationTest extends AbstractIntegrat
         assertThat(result.get().adventureId()).isEqualTo(adventure.getPublicId());
         assertThat(result.get().name()).isEqualTo(entry.getName());
         assertThat(result.get().description()).isEqualTo(entry.getDescription());
-        assertThat(result.get().isPlayerCharacter()).isFalse();
         assertThat(result.get().creationDate()).isNotNull();
         assertThat(result.get().lastUpdateDate()).isNotNull();
     }
@@ -90,12 +89,12 @@ public class AdventureLorebookReaderImplIntegrationTest extends AbstractIntegrat
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
-        adventure.addLorebookEntry("Entry One", "Description One", null);
-        adventure.addLorebookEntry("Entry Two", "Description Two", null);
+        adventure.addLorebookEntry("Entry One", "Description One");
+        adventure.addLorebookEntry("Entry Two", "Description Two");
 
         insert(adventure, Adventure.class);
 
@@ -116,11 +115,11 @@ public class AdventureLorebookReaderImplIntegrationTest extends AbstractIntegrat
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
-        adventure.addLorebookEntry("Existing Entry", "Description", null);
+        adventure.addLorebookEntry("Existing Entry", "Description");
 
         insert(adventure, Adventure.class);
 

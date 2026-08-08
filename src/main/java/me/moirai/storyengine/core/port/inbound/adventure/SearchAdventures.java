@@ -8,7 +8,6 @@ import me.moirai.storyengine.common.enums.SortDirection;
 public record SearchAdventures(
         String name,
         String worldName,
-        Boolean isMultiplayer,
         String model,
         String moderation,
         SearchView view,

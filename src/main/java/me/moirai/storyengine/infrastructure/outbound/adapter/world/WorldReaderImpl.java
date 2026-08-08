@@ -49,10 +49,10 @@ public class WorldReaderImpl implements WorldReader {
           """;
 
     private static final String SELECT_PERMISSIONS = """
-            SELECT w.public_id,
+            SELECT mu.public_id,
                    wp.permission
               FROM world_permissions wp
-                   INNER JOIN world w ON wp.world_id = w.id
+                   INNER JOIN moirai_user mu ON mu.id = wp.user_id
              WHERE wp.world_id = :worldId
             """;
     //@formatter:on

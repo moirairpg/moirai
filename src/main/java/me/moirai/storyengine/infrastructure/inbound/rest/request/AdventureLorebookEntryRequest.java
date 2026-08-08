@@ -4,6 +4,5 @@ import jakarta.validation.constraints.NotEmpty;
 
 public record AdventureLorebookEntryRequest(
         @NotEmpty(message = "cannot be empty") String name,
-        @NotEmpty(message = "cannot be empty") String description,
-        String playerId) implements LorebookEntryModerationSource {
+        @NotEmpty(message = "cannot be empty") String description) implements LorebookEntryModerationSource {
 }

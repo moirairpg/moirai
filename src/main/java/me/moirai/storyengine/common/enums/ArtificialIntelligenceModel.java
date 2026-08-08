@@ -10,6 +10,8 @@ public enum ArtificialIntelligenceModel {
     GPT54_MINI("GPT-5.4 Mini", "gpt-5.4-mini", 400000),
     GPT54_NANO("GPT-5.4 Nano", "gpt-5.4-nano", 400000);
 
+    private static final int RESPONSE_TOKEN_LIMIT_RATIO = 10;
+
     private final String fullModelName;
     private final String officialModelName;
     private final int hardTokenLimit;
@@ -34,6 +36,10 @@ public enum ArtificialIntelligenceModel {
 
     public int getHardTokenLimit() {
         return hardTokenLimit;
+    }
+
+    public int getResponseTokenLimit() {
+        return hardTokenLimit / RESPONSE_TOKEN_LIMIT_RATIO;
     }
 
     @Override

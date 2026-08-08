@@ -9,7 +9,8 @@ public class MessageFixture {
         return Message.builder()
                 .adventureId(1L)
                 .role(MessageAuthorRole.USER)
-                .content("Hello, adventurer!");
+                .content("Hello, adventurer!")
+                .authorCharacterName("Aria");
     }
 
     public static Message.Builder assistantMessage() {
@@ -17,6 +18,7 @@ public class MessageFixture {
         return Message.builder()
                 .adventureId(1L)
                 .role(MessageAuthorRole.ASSISTANT)
-                .content("Greetings, brave hero!");
+                .content("Greetings, brave hero!")
+                .authorCharacterName("Narrator");
     }
 }

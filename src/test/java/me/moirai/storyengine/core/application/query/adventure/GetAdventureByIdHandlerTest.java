@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.storyengine.common.enums.ArtificialIntelligenceModel;
+import me.moirai.storyengine.common.enums.CharacterClass;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
@@ -27,6 +29,8 @@ import me.moirai.storyengine.core.port.inbound.adventure.GetAdventureById;
 import me.moirai.storyengine.core.port.inbound.adventure.ModelConfigurationDto;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureDetailsRow;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureReader;
+import me.moirai.storyengine.core.port.outbound.adventure.AdventureRosterReader;
+import me.moirai.storyengine.core.port.outbound.adventure.AdventureMembershipSummaryRow;
 import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,13 +40,16 @@ public class GetAdventureByIdHandlerTest {
     private AdventureReader reader;
 
     @Mock
+    private AdventureRosterReader adventureRosterReader;
+
+    @Mock
     private StoragePort storagePort;
 
     @InjectMocks
     private GetAdventureByIdHandler handler;
 
     @Test
-    public void errorWhenIdIsNull() {
+    public void shouldThrowExceptionWhenIdIsNull() {
 
         // Given
         var query = new GetAdventureById(null);
@@ -52,7 +59,7 @@ public class GetAdventureByIdHandlerTest {
     }
 
     @Test
-    public void errorWhenQueryIsNull() {
+    public void shouldThrowExceptionWhenQueryIsNull() {
 
         // Given
         GetAdventureById query = null;
@@ -62,7 +69,7 @@ public class GetAdventureByIdHandlerTest {
     }
 
     @Test
-    public void findAdventure_whenAdventureNotFound_thenThrowException() {
+    public void shouldThrowExceptionWhenAdventureIsNotFound() {
 
         // Given
         var query = new GetAdventureById(AdventureFixture.PUBLIC_ID);
@@ -74,7 +81,7 @@ public class GetAdventureByIdHandlerTest {
     }
 
     @Test
-    public void getAdventureById_whenFound_thenReturnDetails() {
+    public void shouldReturnAdventureDetailsWhenAdventureIsFound() {
 
         // Given
         var modelConfiguration = new ModelConfigurationDto(
@@ -92,7 +99,6 @@ public class GetAdventureByIdHandlerTest {
                 "A helpful guide",
                 PRIVATE,
                 STRICT,
-                true,
                 null,
                 null,
                 null,
@@ -106,6 +112,7 @@ public class GetAdventureByIdHandlerTest {
         var query = new GetAdventureById(AdventureFixture.PUBLIC_ID);
 
         when(reader.getAdventureById(any(UUID.class))).thenReturn(Optional.of(expectedDetails));
+        when(adventureRosterReader.getAllByAdventurePublicId(any(UUID.class))).thenReturn(List.of());
 
         // When
         AdventureDetails result = handler.handle(query);
@@ -116,5 +123,62 @@ public class GetAdventureByIdHandlerTest {
         assertThat(result.worldId()).isEqualTo(WorldFixture.PUBLIC_ID);
         assertThat(result.narratorName()).isEqualTo("Aria");
         assertThat(result.narratorPersonality()).isEqualTo("A helpful guide");
+    }
+
+    @Test
+    public void shouldResolveCharacterImageUrlsWhenRosterHasCharacters() {
+
+        // Given
+        var modelConfiguration = new ModelConfigurationDto(
+                ArtificialIntelligenceModel.GPT54_MINI, 2048, 1.0);
+
+        var contextAttributes = new ContextAttributesDto(null, null, null, null, 0);
+
+        var expectedDetails = new AdventureDetailsRow(
+                AdventureFixture.PUBLIC_ID,
+                "Name",
+                "desc",
+                "start",
+                WorldFixture.PUBLIC_ID,
+                "Aria",
+                "A helpful guide",
+                PRIVATE,
+                STRICT,
+                null,
+                null,
+                null,
+                modelConfiguration,
+                contextAttributes,
+                Set.of(),
+                Set.of(),
+                null,
+                null);
+
+        var characterId = UUID.randomUUID();
+        var playerId = UUID.randomUUID();
+
+        var rosterRow = new AdventureMembershipSummaryRow(
+                characterId,
+                playerId,
+                "john.doe",
+                "Volin Habar",
+                CharacterClass.PALADIN,
+                "characters/image-key.png");
+
+        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID);
+
+        when(reader.getAdventureById(any(UUID.class))).thenReturn(Optional.of(expectedDetails));
+        when(adventureRosterReader.getAllByAdventurePublicId(any(UUID.class))).thenReturn(List.of(rosterRow));
+        when(storagePort.resolveUrl("characters/image-key.png")).thenReturn("http://image.url");
+
+        // When
+        AdventureDetails result = handler.handle(query);
+
+        // Then
+        assertThat(result.roster()).hasSize(1);
+        assertThat(result.roster().getFirst().playerCharacterId()).isEqualTo(characterId);
+        assertThat(result.roster().getFirst().playerUsername()).isEqualTo("john.doe");
+        assertThat(result.roster().getFirst().characterClass()).isEqualTo(CharacterClass.PALADIN);
+        assertThat(result.roster().getFirst().imageUrl()).isEqualTo("http://image.url");
     }
 }

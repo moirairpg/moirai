@@ -39,7 +39,7 @@ public class GetNotificationHandlerTest {
                 "user1",
                 Role.ADMIN);
 
-        when(reader.getNotificationByPublicId(any(UUID.class), any(String.class), any(Role.class)))
+        when(reader.getNotificationByPublicIdAndRequester(any(UUID.class), any(String.class), any(Role.class)))
                 .thenReturn(Optional.of(details));
 
         // when
@@ -55,7 +55,7 @@ public class GetNotificationHandlerTest {
         // given
         var query = new GetNotification(UUID.randomUUID(), "user1", Role.ADMIN);
 
-        when(reader.getNotificationByPublicId(any(UUID.class), any(String.class), any(Role.class)))
+        when(reader.getNotificationByPublicIdAndRequester(any(UUID.class), any(String.class), any(Role.class)))
                 .thenReturn(Optional.empty());
 
         // then

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
+import me.moirai.storyengine.common.util.Functions;
 
 public class AuthorizationContext {
 
@@ -24,8 +25,8 @@ public class AuthorizationContext {
     }
 
     public String getFieldAsString(String name) {
-        Object value = fields.get(name);
-        return value != null ? value.toString() : null;
+        var value = fields.get(name);
+        return Functions.mapOrNull(value, Object::toString);
     }
 
     public UUID getFieldAsUuid(String name) {

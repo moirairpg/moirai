@@ -1,255 +1,74 @@
 package me.moirai.storyengine.core.application.command.message;
 
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.addChatPrefix;
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.formatScene;
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.replacePersonaNamePlaceholderWith;
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.stripAsNamePrefix;
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.stripAsNamePrefixForLowercase;
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.stripChatPrefix;
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.stripTrailingFragment;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 
+import me.moirai.storyengine.common.annotation.Authorize;
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
-import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.common.util.StringProcessor;
-import me.moirai.storyengine.core.domain.adventure.Adventure;
+import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
+import me.moirai.storyengine.core.application.event.message.AdventureStartedEvent;
+import me.moirai.storyengine.core.application.event.message.MessageTranscriptChangedEvent;
 import me.moirai.storyengine.core.domain.message.Message;
-import me.moirai.storyengine.core.port.inbound.message.MessageResult;
 import me.moirai.storyengine.core.port.inbound.message.StartAdventure;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
-import me.moirai.storyengine.core.port.outbound.generation.ChatMessage;
-import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
-import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
-import me.moirai.storyengine.core.port.outbound.generation.TextGenerationRequest;
+import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.ChronicleVectorSearchPort;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.LorebookVectorSearchPort;
 
 @CommandHandler
-public class StartAdventureHandler extends AbstractCommandHandler<StartAdventure, MessageResult> {
+@Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#request.adventureId")
+public class StartAdventureHandler extends AbstractCommandHandler<StartAdventure, Void> {
 
     private final AdventureRepository adventureRepository;
     private final MessageRepository messageRepository;
-    private final TextCompletionPort textCompletionPort;
-    private final EmbeddingPort embeddingPort;
-    private final LorebookVectorSearchPort vectorSearchPort;
-    private final ChronicleVectorSearchPort chronicleVectorSearchPort;
     private final ApplicationEventPublisher eventPublisher;
-    private final int messageWindowSize;
-    private final int lorebookTopK;
-    private final int chronicleTopK;
 
     public StartAdventureHandler(
             AdventureRepository adventureRepository,
             MessageRepository messageRepository,
-            TextCompletionPort textCompletionPort,
-            EmbeddingPort embeddingPort,
-            LorebookVectorSearchPort vectorSearchPort,
-            ChronicleVectorSearchPort chronicleVectorSearchPort,
-            ApplicationEventPublisher eventPublisher,
-            @Value("${moirai.adventure.message-window-size}") int messageWindowSize,
-            @Value("${moirai.rag.lorebook.top-k}") int lorebookTopK,
-            @Value("${moirai.rag.chronicle.top-k}") int chronicleTopK) {
+            ApplicationEventPublisher eventPublisher) {
 
         this.adventureRepository = adventureRepository;
         this.messageRepository = messageRepository;
-        this.textCompletionPort = textCompletionPort;
-        this.embeddingPort = embeddingPort;
-        this.vectorSearchPort = vectorSearchPort;
-        this.chronicleVectorSearchPort = chronicleVectorSearchPort;
         this.eventPublisher = eventPublisher;
-        this.messageWindowSize = messageWindowSize;
-        this.lorebookTopK = lorebookTopK;
-        this.chronicleTopK = chronicleTopK;
     }
 
     @Override
     public void validate(StartAdventure command) {
+
         if (command.adventureId() == null) {
             throw new IllegalArgumentException("Adventure ID cannot be null");
         }
     }
 
     @Override
-    public MessageResult execute(StartAdventure command) {
+    public Void execute(StartAdventure command) {
 
         var adventure = adventureRepository.findByPublicId(command.adventureId())
                 .orElseThrow(() -> new NotFoundException("Adventure not found"));
 
-        var startMessage = Message.builder()
+        var openingMessage = messageRepository.save(Message.builder()
                 .adventureId(adventure.getId())
                 .role(MessageAuthorRole.ASSISTANT)
-                .content(addChatPrefix(adventure.getNarratorName()).apply(adventure.getAdventureStart()))
-                .build();
-
-        messageRepository.save(startMessage);
-
-        var history = messageRepository.findAllActiveByAdventureId(adventure.getId());
-
-        var personality = Optional.ofNullable(adventure.getNarratorPersonality())
-                .map(p -> replacePersonaNamePlaceholderWith(adventure.getNarratorName()).apply(p))
-                .orElse(null);
-
-        var context = assembleContext(adventure, history, adventure.getAdventureStart());
-        var modelConfig = adventure.getModelConfiguration();
-
-        var generationRequest = new TextGenerationRequest(
-                modelConfig.getAiModel().getOfficialModelName(),
-                personality,
-                context,
-                modelConfig.getMaxTokenLimit(),
-                modelConfig.getTemperature());
-
-        var generationResult = textCompletionPort.generateTextFrom(generationRequest);
-
-        var responseProcessor = new StringProcessor();
-        responseProcessor.addRule(stripChatPrefix());
-        responseProcessor.addRule(stripAsNamePrefix(adventure.getNarratorName()));
-        responseProcessor.addRule(stripAsNamePrefixForLowercase(adventure.getNarratorName()));
-        responseProcessor.addRule(stripTrailingFragment());
-
-        var cleanedResponse = responseProcessor.process(generationResult.getOutputText());
-
-        var aiMessage = messageRepository.save(Message.builder()
-                .adventureId(adventure.getId())
-                .role(MessageAuthorRole.ASSISTANT)
-                .content(addChatPrefix(adventure.getNarratorName()).apply(cleanedResponse))
+                .content(adventure.getAdventureStart())
+                .authorCharacterName(adventure.getNarratorName())
                 .build());
 
-        if (history.size() >= messageWindowSize) {
-            history.forEach(Message::markAsChronicled);
-            messageRepository.saveAll(history);
+        eventPublisher.publishEvent(new MessageTranscriptChangedEvent(
+                adventure.getPublicId(),
+                AdventureMessageUpdate.messageAdded(new MessageSummary(
+                        openingMessage.getPublicId(),
+                        openingMessage.getRole(),
+                        openingMessage.getContent(),
+                        openingMessage.getStatus(),
+                        null,
+                        openingMessage.getAuthorCharacterName(),
+                        openingMessage.getCreationDate()), true)));
 
-            aiMessage.markAsChronicled();
-            messageRepository.save(aiMessage);
+        eventPublisher.publishEvent(new AdventureStartedEvent(adventure.getPublicId()));
 
-            aiMessage.communicateChatWindowOverflow(adventure.getPublicId());
-            aiMessage.drainEvents().forEach(eventPublisher::publishEvent);
-        }
-
-        return new MessageResult(
-                aiMessage.getPublicId(),
-                cleanedResponse,
-                aiMessage.getRole(),
-                aiMessage.getCreationDate());
-    }
-
-    private List<ChatMessage> assembleContext(
-            Adventure adventure,
-            List<Message> history,
-            String currentMessage) {
-
-        var context = new ArrayList<ChatMessage>();
-        var contextAttributes = adventure.getContextAttributes();
-
-        history = topUpHistory(adventure.getId(), history);
-
-        var queryVector = embeddingPort.embed(currentMessage);
-
-        context.addAll(retrieveLorebookContext(adventure, queryVector));
-        context.addAll(retrieveChronicleContext(adventure, queryVector));
-
-        context.addAll(interleaveBumps(
-                history.stream().map(this::toChatMessage).toList(),
-                contextAttributes.bump(),
-                contextAttributes.bumpFrequency()));
-
-        if (contextAttributes.authorsNote() != null && !contextAttributes.authorsNote().isBlank()) {
-            context.add(ChatMessage.asSystem(contextAttributes.authorsNote()));
-        }
-
-        if (contextAttributes.scene() != null && !contextAttributes.scene().isBlank()) {
-            context.add(ChatMessage.asSystem(formatScene().apply(contextAttributes.scene())));
-        }
-
-        if (contextAttributes.nudge() != null && !contextAttributes.nudge().isBlank()) {
-            context.add(ChatMessage.asSystem(contextAttributes.nudge()));
-        }
-
-        return Collections.unmodifiableList(context);
-    }
-
-    private List<Message> topUpHistory(Long adventureId, List<Message> active) {
-
-        var deficit = messageWindowSize - active.size();
-        if (deficit <= 0) {
-            return active;
-        }
-
-        var backfill = messageRepository.findLatestChronicledByAdventureId(adventureId, deficit).reversed();
-        var combined = new ArrayList<Message>(backfill.size() + active.size());
-        combined.addAll(backfill);
-        combined.addAll(active);
-        return Collections.unmodifiableList(combined);
-    }
-
-    private List<ChatMessage> retrieveLorebookContext(Adventure adventure, float[] queryVector) {
-
-        var entryIds = vectorSearchPort.search(adventure.getPublicId(), queryVector, lorebookTopK);
-
-        if (entryIds.isEmpty()) {
-            return List.of();
-        }
-
-        return adventure.getLorebook().stream()
-                .filter(e -> entryIds.contains(e.getPublicId()))
-                .map(e -> ChatMessage.asSystem(e.getName() + ": " + e.getDescription()))
-                .toList();
-    }
-
-    private List<ChatMessage> retrieveChronicleContext(Adventure adventure, float[] queryVector) {
-
-        var segmentIds = chronicleVectorSearchPort.search(adventure.getPublicId(), queryVector, chronicleTopK);
-
-        if (segmentIds.isEmpty()) {
-            return List.of();
-        }
-
-        return adventure.getChronicleSegments().stream()
-                .filter(s -> segmentIds.contains(s.getPublicId()))
-                .map(s -> ChatMessage.asSystem(s.getContent()))
-                .toList();
-    }
-
-    private List<ChatMessage> interleaveBumps(
-            List<ChatMessage> messages,
-            String bump,
-            int bumpFrequency) {
-
-        if (bump == null || bump.isBlank() || bumpFrequency <= 0) {
-            return messages;
-        }
-
-        var result = new ArrayList<ChatMessage>();
-        var size = messages.size();
-
-        for (var i = 0; i < size; i++) {
-            result.add(messages.get(i));
-
-            if ((size - i) % bumpFrequency == 0) {
-                result.add(ChatMessage.asSystem(bump));
-            }
-        }
-
-        return Collections.unmodifiableList(result);
-    }
-
-    private ChatMessage toChatMessage(Message message) {
-        return switch (message.getRole()) {
-            case USER -> ChatMessage.asUser(message.getContent());
-            case ASSISTANT -> ChatMessage.asAssistant(message.getContent());
-            default ->
-                throw new BusinessRuleViolationException("Unexpected role in message history: " + message.getRole());
-        };
+        return null;
     }
 }

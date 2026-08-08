@@ -1,5 +1,6 @@
 package me.moirai.storyengine.infrastructure.outbound.adapter.adventure;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,4 +33,68 @@ public interface AdventureJpaRepository
     @Modifying
     @Query("UPDATE Adventure a SET a.contextAttributes.bump = :bump, a.contextAttributes.bumpFrequency = :bumpFrequency WHERE a.publicId = :publicId")
     void updateBumpByPublicId(String bump, int bumpFrequency, UUID publicId);
+
+    @Query("SELECT a FROM Adventure a JOIN a.roster m WHERE m.playerCharacterId = :playerCharacterId")
+    List<Adventure> findAllContainingCharacter(Long playerCharacterId);
+
+    @Query("""
+            SELECT a
+              FROM Adventure a
+              JOIN a.permissions p
+             WHERE p.userId = :userId
+               AND p.level = me.moirai.storyengine.common.enums.PermissionLevel.OWNER
+            """)
+    List<Adventure> findAllOwnedBy(Long userId);
+
+    @Query("""
+            SELECT DISTINCT a
+              FROM Adventure a
+              LEFT JOIN a.permissions p
+              LEFT JOIN a.invitations i
+             WHERE p.userId = :userId
+                OR i.userId = :userId
+                OR i.inviterId = :userId
+            """)
+    List<Adventure> findAllInvolving(Long userId);
+
+    @Query(value = """
+            SELECT ap.user_id
+              FROM adventure_permissions ap
+             WHERE ap.adventure_id = :adventureId
+               AND ap.permission IN ('OWNER', 'WRITE')
+            """, nativeQuery = true)
+    List<Long> findManagerUserIdsByAdventureId(Long adventureId);
+
+    @Query(value = """
+            SELECT pc.name
+              FROM adventure_membership am
+                   JOIN player_character pc ON pc.id = am.player_character_id
+                   JOIN moirai_user u       ON u.id = pc.player_id
+             WHERE am.adventure_id = :adventureId
+               AND u.username      = :username
+            """, nativeQuery = true)
+    Optional<String> findEnrolledCharacterName(Long adventureId, String username);
+
+    @Query(value = """
+            SELECT am.player_id           AS playerId,
+                   am.player_character_id AS playerCharacterId,
+                   pc.name                AS characterName
+              FROM adventure_membership am
+                   JOIN player_character pc ON pc.id = am.player_character_id
+                   JOIN moirai_user u       ON u.id = am.player_id
+             WHERE am.adventure_id = :adventureId
+               AND u.username      = :username
+            """, nativeQuery = true)
+    Optional<EnrolledCharacterProjection> findEnrolledCharacter(Long adventureId, String username);
+
+    interface EnrolledCharacterProjection {
+
+        Long getPlayerId();
+
+        Long getPlayerCharacterId();
+
+        String getCharacterName();
+    }
+
+    Optional<Adventure> findByInvitationsPublicId(UUID publicId);
 }

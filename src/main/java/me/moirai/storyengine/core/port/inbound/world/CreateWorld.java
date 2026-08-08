@@ -6,6 +6,7 @@ import java.util.Set;
 import me.moirai.storyengine.common.cqs.command.Command;
 import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.enums.Visibility;
+import me.moirai.storyengine.common.util.Functions;
 
 public record CreateWorld(
         String name,
@@ -21,7 +22,7 @@ public record CreateWorld(
         implements Command<WorldDetails> {
 
     public CreateWorld {
-        permissions = permissions != null ? Set.copyOf(permissions) : Set.of();
+        permissions = Functions.mapOrDefault(permissions, Set.of(), Set::copyOf);
     }
 
     public record LorebookEntry(

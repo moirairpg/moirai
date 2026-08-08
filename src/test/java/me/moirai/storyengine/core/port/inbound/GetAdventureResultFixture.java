@@ -1,5 +1,6 @@
 package me.moirai.storyengine.core.port.inbound;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -14,9 +15,9 @@ import me.moirai.storyengine.core.port.inbound.adventure.ModelConfigurationDto;
 
 public class GetAdventureResultFixture {
 
-    public static AdventureDetails privateMultiplayerAdventure() {
+    public static AdventureDetails privateAdventure() {
 
-        var adventure = AdventureFixture.privateMultiplayerAdventureWithIdAndPermissions();
+        var adventure = AdventureFixture.privateAdventureWithIdAndPermissions();
 
         var modelConfiguration = new ModelConfigurationDto(
                 adventure.getModelConfiguration().getAiModel(),
@@ -46,7 +47,6 @@ public class GetAdventureResultFixture {
                 adventure.getNarratorPersonality(),
                 adventure.getVisibility(),
                 adventure.getModeration(),
-                adventure.isMultiplayer(),
                 null,
                 adventure.getCreationDate(),
                 adventure.getLastUpdateDate(),
@@ -54,13 +54,14 @@ public class GetAdventureResultFixture {
                 contextAttributes,
                 permissions,
                 Set.of(),
+                List.of(),
                 null,
                 null);
     }
 
-    public static AdventureDetails publicMultiplayerAdventure() {
+    public static AdventureDetails publicAdventure() {
 
-        var adventure = AdventureFixture.publicMultiplayerAdventureWithIdAndPermissions();
+        var adventure = AdventureFixture.publicAdventureWithIdAndPermissions();
 
         var modelConfiguration = new ModelConfigurationDto(
                 adventure.getModelConfiguration().getAiModel(),
@@ -90,7 +91,6 @@ public class GetAdventureResultFixture {
                 adventure.getNarratorPersonality(),
                 adventure.getVisibility(),
                 adventure.getModeration(),
-                adventure.isMultiplayer(),
                 null,
                 adventure.getCreationDate(),
                 adventure.getLastUpdateDate(),
@@ -98,6 +98,7 @@ public class GetAdventureResultFixture {
                 contextAttributes,
                 permissions,
                 Set.of(),
+                List.of(),
                 null,
                 null);
     }

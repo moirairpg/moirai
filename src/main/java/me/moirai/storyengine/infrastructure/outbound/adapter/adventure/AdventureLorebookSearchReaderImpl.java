@@ -64,6 +64,7 @@ public class AdventureLorebookSearchReaderImpl implements AdventureLorebookSearc
         return switch (field) {
             case NAME -> "al.name";
             case LAST_UPDATE_DATE -> "al.last_update_date";
+            case CREATION_DATE -> "al.creation_date";
             case null, default -> "al.creation_date";
         };
     }

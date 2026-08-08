@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.adventure.ChronicleSegment;
@@ -18,7 +18,7 @@ import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.outbound.adventure.ChronicleSegmentReader;
 
-public class ChronicleSegmentReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class ChronicleSegmentReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private ChronicleSegmentReader reader;
@@ -58,7 +58,7 @@ public class ChronicleSegmentReaderImplIntegrationTest extends AbstractIntegrati
     public void shouldReturnSegmentsByIds() {
 
         // Given
-        var adventure = AdventureFixture.publicSingleplayerAdventure().build();
+        var adventure = AdventureFixture.publicAdventure().build();
         insert(adventure, Adventure.class);
 
         var segment = insert(ChronicleSegmentFixture.chronicleSegment()
@@ -78,7 +78,7 @@ public class ChronicleSegmentReaderImplIntegrationTest extends AbstractIntegrati
     public void shouldReturnEmptyListForUnknownIds() {
 
         // Given
-        var adventure = AdventureFixture.publicSingleplayerAdventure().build();
+        var adventure = AdventureFixture.publicAdventure().build();
         insert(adventure, Adventure.class);
 
         var chronicle = ChronicleSegmentFixture.chronicleSegment()
@@ -100,7 +100,7 @@ public class ChronicleSegmentReaderImplIntegrationTest extends AbstractIntegrati
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.privateMultiplayerAdventure()
+        var adventure = AdventureFixture.privateAdventure()
                 .worldId(world.getPublicId())
                 .build();
         var insertedAdventure = insert(adventure, Adventure.class);

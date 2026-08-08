@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import me.moirai.storyengine.common.util.Functions;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
+import me.moirai.storyengine.common.enums.NotificationType;
 
 public record NotificationBasicData(
         List<String> targetUsernames,

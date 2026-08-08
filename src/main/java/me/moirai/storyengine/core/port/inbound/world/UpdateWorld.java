@@ -7,6 +7,7 @@ import java.util.UUID;
 import me.moirai.storyengine.common.cqs.command.Command;
 import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.enums.Visibility;
+import me.moirai.storyengine.common.util.Functions;
 
 public record UpdateWorld(
         UUID worldId,
@@ -29,9 +30,9 @@ public record UpdateWorld(
     public record LorebookEntryToUpdate(UUID id, String name, String description) {}
 
     public UpdateWorld {
-        permissions = permissions != null ? Set.copyOf(permissions) : Set.of();
-        lorebookEntriesToAdd = lorebookEntriesToAdd != null ? List.copyOf(lorebookEntriesToAdd) : List.of();
-        lorebookEntriesToUpdate = lorebookEntriesToUpdate != null ? List.copyOf(lorebookEntriesToUpdate) : List.of();
-        lorebookEntriesToDelete = lorebookEntriesToDelete != null ? List.copyOf(lorebookEntriesToDelete) : List.of();
+        permissions = Functions.mapOrDefault(permissions, Set.of(), Set::copyOf);
+        lorebookEntriesToAdd = Functions.mapOrDefault(lorebookEntriesToAdd, List.of(), List::copyOf);
+        lorebookEntriesToUpdate = Functions.mapOrDefault(lorebookEntriesToUpdate, List.of(), List::copyOf);
+        lorebookEntriesToDelete = Functions.mapOrDefault(lorebookEntriesToDelete, List.of(), List::copyOf);
     }
 }

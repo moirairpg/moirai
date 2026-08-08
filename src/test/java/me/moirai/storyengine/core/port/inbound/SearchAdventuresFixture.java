@@ -10,7 +10,6 @@ public class SearchAdventuresFixture {
         return new SearchAdventures(
                 "Adventure",
                 "1234",
-                null,
                 "GPT54_NANO",
                 "PERMISSIVE",
                 SearchView.MY_STUFF,
@@ -26,7 +25,6 @@ public class SearchAdventuresFixture {
         return new SearchAdventures(
                 "Adventure",
                 "1234",
-                null,
                 "GPT54_NANO",
                 "PERMISSIVE",
                 SearchView.MY_STUFF,

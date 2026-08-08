@@ -6,14 +6,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.common.enums.SearchView;
 import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.inbound.world.SearchWorlds;
 import me.moirai.storyengine.core.port.outbound.world.WorldSearchReader;
 
-public class WorldSearchReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class WorldSearchReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     private static final Long OWNER_ID = WorldFixture.OWNER_ID;
 

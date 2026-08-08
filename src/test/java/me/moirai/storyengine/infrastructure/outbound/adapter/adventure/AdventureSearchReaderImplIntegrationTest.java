@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.common.enums.SearchView;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
@@ -15,7 +15,7 @@ import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.inbound.adventure.SearchAdventures;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureSearchReader;
 
-public class AdventureSearchReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class AdventureSearchReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     private static final Long OWNER_ID = AdventureFixture.OWNER_ID;
 
@@ -32,13 +32,13 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractIntegratio
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
         insert(adventure, Adventure.class);
 
-        var query = new SearchAdventures(null, null, null, null, null,
+        var query = new SearchAdventures(null, null, null, null,
                 SearchView.MY_STUFF, null, null, null, null, OWNER_ID);
 
         // When
@@ -55,12 +55,12 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractIntegratio
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
         insert(adventure, Adventure.class);
 
-        var query = new SearchAdventures(null, null, null, null, null,
+        var query = new SearchAdventures(null, null, null, null,
                 SearchView.EXPLORE, null, null, null, null, OWNER_ID);
 
         // When
@@ -76,7 +76,7 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractIntegratio
     public void search_whenNoResults_thenReturnEmpty() {
 
         // Given
-        var query = new SearchAdventures(null, null, null, null, null,
+        var query = new SearchAdventures(null, null, null, null,
                 SearchView.EXPLORE, null, null, null, null, OWNER_ID);
 
         // When
@@ -93,13 +93,13 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractIntegratio
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
         insert(adventure, Adventure.class);
 
-        var query = new SearchAdventures("Name", null, null, null, null,
+        var query = new SearchAdventures("Name", null, null, null,
                 SearchView.MY_STUFF, null, null, null, null, OWNER_ID);
 
         // When
@@ -116,13 +116,13 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractIntegratio
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
         insert(adventure, Adventure.class);
 
-        var query = new SearchAdventures(null, null, null, null, null,
+        var query = new SearchAdventures(null, null, null, null,
                 SearchView.EXPLORE, null, null, null, null, OWNER_ID);
 
         // When
@@ -138,13 +138,13 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractIntegratio
 
         // Given
         var world = insert(WorldFixture.publicWorld().build(), World.class);
-        var adventure = AdventureFixture.publicSingleplayerAdventure()
+        var adventure = AdventureFixture.publicAdventure()
                 .worldId(world.getPublicId())
                 .build();
 
         insert(adventure, Adventure.class);
 
-        var query = new SearchAdventures(null, null, null, null, null,
+        var query = new SearchAdventures(null, null, null, null,
                 SearchView.EXPLORE, null, null, null, null, 999999L);
 
         // When

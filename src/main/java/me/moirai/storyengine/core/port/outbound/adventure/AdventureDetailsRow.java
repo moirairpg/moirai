@@ -21,7 +21,6 @@ public record AdventureDetailsRow(
         String narratorPersonality,
         Visibility visibility,
         Moderation moderation,
-        boolean isMultiplayer,
         String imageKey,
         Instant creationDate,
         Instant lastUpdateDate,

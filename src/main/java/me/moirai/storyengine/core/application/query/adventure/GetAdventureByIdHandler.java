@@ -4,8 +4,10 @@ import me.moirai.storyengine.common.annotation.QueryHandler;
 import me.moirai.storyengine.common.cqs.query.AbstractQueryHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureDetails;
+import me.moirai.storyengine.core.port.inbound.adventure.AdventureMembershipSummary;
 import me.moirai.storyengine.core.port.inbound.adventure.GetAdventureById;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureReader;
+import me.moirai.storyengine.core.port.outbound.adventure.AdventureRosterReader;
 import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 
 @QueryHandler
@@ -15,13 +17,16 @@ public class GetAdventureByIdHandler extends AbstractQueryHandler<GetAdventureBy
     private static final String ID_CANNOT_BE_NULL_OR_EMPTY = "Adventure ID cannot be null or empty";
 
     private final AdventureReader reader;
+    private final AdventureRosterReader adventureRosterReader;
     private final StoragePort storagePort;
 
     public GetAdventureByIdHandler(
             AdventureReader reader,
+            AdventureRosterReader adventureRosterReader,
             StoragePort storagePort) {
 
         this.reader = reader;
+        this.adventureRosterReader = adventureRosterReader;
         this.storagePort = storagePort;
     }
 
@@ -39,6 +44,16 @@ public class GetAdventureByIdHandler extends AbstractQueryHandler<GetAdventureBy
         var adventure = reader.getAdventureById(query.adventureId())
                 .orElseThrow(() -> new NotFoundException(ADVENTURE_NOT_FOUND));
 
+        var roster = adventureRosterReader.getAllByAdventurePublicId(query.adventureId()).stream()
+                .map(row -> new AdventureMembershipSummary(
+                        row.playerCharacterId(),
+                        row.playerId(),
+                        row.playerUsername(),
+                        row.name(),
+                        row.characterClass(),
+                        storagePort.resolveUrl(row.imageKey())))
+                .toList();
+
         return new AdventureDetails(
                 adventure.id(),
                 adventure.name(),
@@ -49,7 +64,6 @@ public class GetAdventureByIdHandler extends AbstractQueryHandler<GetAdventureBy
                 adventure.narratorPersonality(),
                 adventure.visibility(),
                 adventure.moderation(),
-                adventure.isMultiplayer(),
                 storagePort.resolveUrl(adventure.imageKey()),
                 adventure.creationDate(),
                 adventure.lastUpdateDate(),
@@ -57,6 +71,7 @@ public class GetAdventureByIdHandler extends AbstractQueryHandler<GetAdventureBy
                 adventure.contextAttributes(),
                 adventure.permissions(),
                 adventure.lorebook(),
+                roster,
                 adventure.uiImagePositionX(),
                 adventure.uiImagePositionY());
     }

@@ -1,25 +1,24 @@
 package me.moirai.storyengine.infrastructure.security.authorization.notification;
 
+import static me.moirai.storyengine.common.enums.NotificationType.BROADCAST;
 import static me.moirai.storyengine.common.enums.Role.ADMIN;
-import static me.moirai.storyengine.core.domain.notification.NotificationType.BROADCAST;
 
 import org.springframework.stereotype.Component;
 
-import me.moirai.storyengine.common.cqs.query.QueryRunner;
 import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.common.security.authorization.OperationAuthorizer;
-import me.moirai.storyengine.core.port.inbound.notification.GetNotificationBasicData;
 import me.moirai.storyengine.core.port.inbound.notification.NotificationBasicData;
+import me.moirai.storyengine.core.port.outbound.notification.NotificationBasicDataReader;
 
 @Component
 public class ViewNotificationAuthorizer implements OperationAuthorizer {
 
-    private final QueryRunner queryRunner;
+    private final NotificationBasicDataReader reader;
 
-    public ViewNotificationAuthorizer(QueryRunner queryRunner) {
-        this.queryRunner = queryRunner;
+    public ViewNotificationAuthorizer(NotificationBasicDataReader reader) {
+        this.reader = reader;
     }
 
     @Override
@@ -33,9 +32,9 @@ public class ViewNotificationAuthorizer implements OperationAuthorizer {
         var notificationId = context.getFieldAsUuid("notificationId");
         var principal = context.getPrincipal();
 
-        var basicData = queryRunner.run(new GetNotificationBasicData(notificationId));
-
-        return canView(basicData, principal);
+        return reader.getByPublicId(notificationId)
+                .map(basicData -> canView(basicData, principal))
+                .orElse(false);
     }
 
     private boolean canView(NotificationBasicData basicData, MoiraiPrincipal principal) {

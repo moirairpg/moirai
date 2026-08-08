@@ -3,41 +3,38 @@ package me.moirai.storyengine.core.application.command.message;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
+import me.moirai.storyengine.common.enums.TranscriptChange;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.core.application.event.message.MessageSentEvent;
+import me.moirai.storyengine.core.application.event.message.MessageTranscriptChangedEvent;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
-import me.moirai.storyengine.core.domain.message.ChatMessageWindowOverflowedEvent;
 import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.domain.message.MessageFixture;
+import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
-import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
-import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
-import me.moirai.storyengine.core.port.outbound.generation.TextGenerationRequest;
-import me.moirai.storyengine.core.port.outbound.generation.TextGenerationResult;
+import me.moirai.storyengine.core.port.outbound.adventure.EnrolledCharacterData;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.ChronicleVectorSearchPort;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.LorebookVectorSearchPort;
+import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class SendMessageHandlerTest {
@@ -49,43 +46,20 @@ public class SendMessageHandlerTest {
     private MessageRepository messageRepository;
 
     @Mock
-    private TextCompletionPort textCompletionPort;
-
-    @Mock
-    private EmbeddingPort embeddingPort;
-
-    @Mock
-    private LorebookVectorSearchPort vectorSearchPort;
-
-    @Mock
-    private ChronicleVectorSearchPort chronicleVectorSearchPort;
+    private UserRepository userRepository;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @InjectMocks
     private SendMessageHandler handler;
 
-    @BeforeEach
-    void setUp() {
-
-        handler = new SendMessageHandler(
-                adventureRepository,
-                messageRepository,
-                textCompletionPort,
-                embeddingPort,
-                vectorSearchPort,
-                chronicleVectorSearchPort,
-                eventPublisher,
-                10,
-                5,
-                3);
-    }
-
     @Test
-    public void shouldThrowWhenAdventureNotFound() {
+    public void shouldThrowExceptionWhenAdventureIsNotFound() {
 
         // given
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
+
         when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.empty());
 
         // when / then
@@ -93,604 +67,140 @@ public class SendMessageHandlerTest {
     }
 
     @Test
-    public void shouldSavePlayerMessageBeforeGeneratingResponse() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.content()).isEqualTo("AI response");
-    }
-
-    @Test
-    public void shouldSaveAiMessageAfterGeneratingResponse() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.role()).isEqualTo(savedMessage.getRole());
-    }
-
-    @Test
-    public void shouldPrependLorebookEntriesWhenVectorSearchReturnsResults() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
-        var entryId = UUID.randomUUID();
-        var lorebookEntry = adventure.addLorebookEntry("Dragon", "A fearsome dragon", null);
-        ReflectionTestUtils.setField(lorebookEntry, "publicId", entryId);
-
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of(entryId));
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.content()).isEqualTo("AI response");
-    }
-
-    @Test
-    public void shouldNotPrependLorebookEntriesWhenVectorSearchReturnsEmptyList() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.content()).isEqualTo("AI response");
-    }
-
-    @Test
-    public void shouldNotPrependLorebookEntriesWhenNoMatchingEntryInLorebook() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
-        var entryId = UUID.randomUUID();
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of(entryId));
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.content()).isEqualTo("AI response");
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenAdventureIdIsNull() {
-
-        // given
-        var command = new SendMessage(null, "Hello!", "user");
-
-        // when / then
-        assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
-    }
-
-    @Test
     public void shouldThrowExceptionWhenContentIsBlank() {
 
         // given
-        var command = new SendMessage(UUID.randomUUID(), "", "user");
+        var command = new SendMessage(UUID.randomUUID(), "   ", "user");
 
         // when / then
         assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
     }
 
     @Test
-    public void shouldSavePlayerMessageWithCharacterNamePrefix() {
+    public void shouldStoreContentWithoutASpeakerPrefixWhenAMessageIsSent() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        adventure.addLorebookEntry("Aldric", "A brave warrior", "user");
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
 
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        var captor = ArgumentCaptor.forClass(Message.class);
+        givenAdventureExists();
+        givenEnrolledCharacter();
 
         // when
         handler.handle(command);
 
         // then
-        verify(messageRepository, times(2)).save(captor.capture());
-        assertThat(captor.getAllValues().get(0).getContent()).isEqualTo("Aldric said: Hello!");
+        var saved = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).save(saved.capture());
+
+        assertThat(saved.getValue().getContent()).isEqualTo("Hello!");
+        assertThat(saved.getValue().getRole()).isEqualTo(MessageAuthorRole.USER);
     }
 
     @Test
-    public void shouldFallBackToUsernameWhenNoCharacterEntryFound() {
+    public void shouldRecordTheAuthorWhenThePlayerIsEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
 
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        var captor = ArgumentCaptor.forClass(Message.class);
+        givenAdventureExists();
+        givenEnrolledCharacter();
 
         // when
         handler.handle(command);
 
         // then
-        verify(messageRepository, times(2)).save(captor.capture());
-        assertThat(captor.getAllValues().get(0).getContent()).isEqualTo("user said: Hello!");
+        var saved = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).save(saved.capture());
+
+        assertThat(saved.getValue().getAuthorId()).isEqualTo(UserFixture.playerWithId().getId());
+        assertThat(saved.getValue().getAuthorCharacterId()).isEqualTo(4L);
+        assertThat(saved.getValue().getAuthorCharacterName()).isEqualTo("Aria");
     }
 
     @Test
-    public void shouldPassHistoryMessagesAsIsInContext() {
+    public void shouldRecordTheUsernameAsSpeakerWhenThePlayerIsNotEnrolled() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
-        var userMessage = Message.builder()
-                .adventureId(AdventureFixture.NUMERIC_ID)
-                .role(MessageAuthorRole.USER)
-                .content("Aldric said: I look around.")
-                .build();
-        var assistantMessage = Message.builder()
-                .adventureId(AdventureFixture.NUMERIC_ID)
-                .role(MessageAuthorRole.ASSISTANT)
-                .content("MoirAI said: You see a tavern.")
-                .build();
-
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
 
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong()))
-                .thenReturn(List.of(userMessage, assistantMessage));
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
+        givenAdventureExists();
 
-        var captor = ArgumentCaptor.forClass(TextGenerationRequest.class);
+        when(adventureRepository.findEnrolledCharacter(anyLong(), anyString()))
+                .thenReturn(Optional.empty());
 
         // when
         handler.handle(command);
 
         // then
-        verify(textCompletionPort, times(2)).generateTextFrom(captor.capture());
-        var messages = captor.getAllValues().get(1).messages();
-        assertThat(messages).anySatisfy(m -> assertThat(m.content()).isEqualTo("Aldric said: I look around."));
-        assertThat(messages).anySatisfy(m -> assertThat(m.content()).isEqualTo("MoirAI said: You see a tavern."));
+        var saved = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).save(saved.capture());
+
+        assertThat(saved.getValue().getAuthorId()).isEqualTo(UserFixture.playerWithId().getId());
+        assertThat(saved.getValue().getAuthorCharacterId()).isNull();
+        assertThat(saved.getValue().getAuthorCharacterName()).isEqualTo("user");
     }
 
     @Test
-    public void shouldReplaceNamePlaceholderInNarratorPersonality() {
+    public void shouldPublishTheAddedMessageBeforeTheFlowEventWhenAMessageIsSent() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
-                .narrator("MoirAI", "I am {name}, a Discord chatbot")
-                .build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
 
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
+        givenAdventureExists();
 
-        var captor = ArgumentCaptor.forClass(TextGenerationRequest.class);
+        when(adventureRepository.findEnrolledCharacter(anyLong(), anyString()))
+                .thenReturn(Optional.empty());
 
         // when
         handler.handle(command);
 
         // then
-        verify(textCompletionPort, times(2)).generateTextFrom(captor.capture());
-        assertThat(captor.getAllValues().get(1).instructions()).isEqualTo("I am MoirAI, a Discord chatbot");
+        var published = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher, times(2)).publishEvent(published.capture());
+
+        assertThat(published.getAllValues().get(0)).isInstanceOf(MessageTranscriptChangedEvent.class);
+        assertThat(published.getAllValues().get(1)).isInstanceOf(MessageSentEvent.class);
     }
 
     @Test
-    public void shouldStripChatPrefixFromAiResponseBeforeSaving() {
+    public void shouldMarkNarrationAsPendingWhenAMessageIsSent() {
 
         // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
-                .narrator("MoirAI", "I am a Discord chatbot")
-                .build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("MoirAI said: some text.")
-                .build();
-
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
 
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
+        givenAdventureExists();
 
-        var captor = ArgumentCaptor.forClass(Message.class);
+        when(adventureRepository.findEnrolledCharacter(anyLong(), anyString()))
+                .thenReturn(Optional.empty());
 
         // when
         handler.handle(command);
 
         // then
-        verify(messageRepository, times(2)).save(captor.capture());
-        assertThat(captor.getAllValues().get(1).getContent()).isEqualTo("MoirAI said: some text.");
+        var published = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher, times(2)).publishEvent(published.capture());
+
+        var transcriptChange = (MessageTranscriptChangedEvent) published.getAllValues().get(0);
+
+        assertThat(transcriptChange.update().change()).isEqualTo(TranscriptChange.MESSAGE_ADDED);
+        assertThat(transcriptChange.update().isNarrationPending()).isTrue();
     }
 
-    @Test
-    public void shouldStripAsNamePrefixFromAiResponseBeforeSaving() {
+    private void givenEnrolledCharacter() {
 
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
-                .narrator("MoirAI", "I am a Discord chatbot")
-                .build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
+        when(adventureRepository.findEnrolledCharacter(anyLong(), anyString()))
+                .thenReturn(Optional.of(new EnrolledCharacterData(1111L, 4L, "Aria")));
+    }
 
-        var savedMessage = MessageFixture.assistantMessage().build();
+    private void givenAdventureExists() {
+
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var savedMessage = MessageFixture.userMessage().build();
+
         ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("As MoirAI, She walks forward.")
-                .build();
-
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
 
         when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        var captor = ArgumentCaptor.forClass(Message.class);
-
-        // when
-        handler.handle(command);
-
-        // then
-        verify(messageRepository, times(2)).save(captor.capture());
-        assertThat(captor.getAllValues().get(1).getContent()).isEqualTo("MoirAI said: She walks forward.");
-    }
-
-    @Test
-    public void shouldInjectChronicleSegmentsIntoContextWhenVectorSearchReturnsResults() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
-        var segment = adventure.addChronicleSegment("The dragon was defeated.");
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(chronicleVectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of(segment.getPublicId()));
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        var captor = ArgumentCaptor.forClass(TextGenerationRequest.class);
-
-        // when
-        handler.handle(command);
-
-        // then
-        verify(textCompletionPort, times(2)).generateTextFrom(captor.capture());
-        assertThat(captor.getAllValues().get(1).messages()).anySatisfy(m -> assertThat(m.content()).isEqualTo("The dragon was defeated."));
-    }
-
-    @Test
-    public void shouldNotInjectChronicleSegmentsWhenVectorSearchReturnsEmpty() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(chronicleVectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.content()).isEqualTo("AI response");
-    }
-
-    @Test
-    public void shouldStripTrailingFragmentFromAiResponseBeforeSaving() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure()
-                .narrator("MoirAI", "I am a Discord chatbot")
-                .build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("She walks forward. And then she")
-                .build();
-
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        var captor = ArgumentCaptor.forClass(Message.class);
-
-        // when
-        handler.handle(command);
-
-        // then
-        verify(messageRepository, times(2)).save(captor.capture());
-        assertThat(captor.getAllValues().get(1).getContent()).isEqualTo("MoirAI said: She walks forward.");
-    }
-
-    @Test
-    public void shouldOmitPersonalityInGenerationRequestWhenNarratorIsNull() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(List.of());
-        when(messageRepository.findLatestChronicledByAdventureId(anyLong(), anyInt())).thenReturn(List.of());
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        var captor = ArgumentCaptor.forClass(TextGenerationRequest.class);
-
-        // when
-        handler.handle(command);
-
-        // then
-        verify(textCompletionPort, times(2)).generateTextFrom(captor.capture());
-        assertThat(captor.getAllValues().get(1).instructions()).isNull();
-    }
-
-    @Test
-    public void shouldPublishOverflowEvent() {
-
-        // given
-        var adventure = AdventureFixture.privateSingleplayerAdventure().build();
-        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
-        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
-
-        var savedMessage = MessageFixture.assistantMessage().build();
-        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
-
-        var generationResult = TextGenerationResult.builder()
-                .outputText("AI response")
-                .build();
-
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
-
-        var fullHistory = java.util.stream.IntStream.range(0, 10)
-                .mapToObj(i -> MessageFixture.userMessage().build())
-                .toList();
-
-        when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
-        when(messageRepository.findAllActiveByAdventureId(anyLong())).thenReturn(fullHistory);
-        when(embeddingPort.embed(anyString())).thenReturn(new float[] { 0.1f, 0.2f });
-        when(vectorSearchPort.search(any(UUID.class), any(float[].class), anyInt())).thenReturn(List.of());
-        when(textCompletionPort.generateTextFrom(any())).thenReturn(generationResult);
-
-        // when
-        handler.handle(command);
-
-        // then
-        var captor = ArgumentCaptor.forClass(ChatMessageWindowOverflowedEvent.class);
-        verify(eventPublisher).publishEvent(captor.capture());
-        assertThat(captor.getValue().adventurePublicId()).isEqualTo(adventure.getPublicId());
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(UserFixture.playerWithId()));
     }
 }

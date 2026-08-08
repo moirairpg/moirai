@@ -2,6 +2,7 @@ package me.moirai.storyengine.core.application.command.adventure;
 
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import me.moirai.storyengine.common.annotation.CommandHandler;
@@ -17,10 +18,10 @@ import me.moirai.storyengine.core.port.inbound.adventure.ContextAttributesDto;
 import me.moirai.storyengine.core.port.inbound.adventure.ModelConfigurationDto;
 import me.moirai.storyengine.core.port.inbound.adventure.UpdateAdventure;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
+import me.moirai.storyengine.core.port.outbound.adventure.LorebookVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
 import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
-import me.moirai.storyengine.core.port.outbound.vectorsearch.LorebookVectorSearchPort;
 
 @CommandHandler
 public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventure, AdventureDetails> {
@@ -64,9 +65,13 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
 
         adventure.updateName(command.name());
         adventure.updateNarrator(command.narratorName(), command.narratorPersonality());
-        adventure.updateAiModel(command.modelConfiguration().aiModel());
         adventure.updateModeration(command.moderation());
-        adventure.updateTemperature(command.modelConfiguration().temperature());
+
+        adventure.updateModelConfiguration(
+                command.modelConfiguration().aiModel(),
+                command.modelConfiguration().maxTokenLimit(),
+                command.modelConfiguration().temperature());
+
         adventure.updateAdventureStart(command.adventureStart());
         adventure.updateDescription(command.description());
         adventure.updateNudge(command.contextAttributes().nudge());
@@ -76,12 +81,6 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
         adventure.updateBumpFrequency(command.contextAttributes().bumpFrequency());
 
         adventure.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
-
-        if (command.isMultiplayer()) {
-            adventure.makeMultiplayer();
-        } else {
-            adventure.makeSinglePlayer();
-        }
 
         updatePermissions(command, adventure);
 
@@ -93,10 +92,10 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
                 .forEach(adventure::removeLorebookEntry);
 
         command.lorebookEntriesToUpdate()
-                .forEach(e -> adventure.updateLorebookEntry(e.id(), e.name(), e.description(), e.playerId()));
+                .forEach(e -> adventure.updateLorebookEntry(e.id(), e.name(), e.description()));
 
         command.lorebookEntriesToAdd()
-                .forEach(e -> adventure.addLorebookEntry(e.name(), e.description(), e.playerId()));
+                .forEach(e -> adventure.addLorebookEntry(e.name(), e.description()));
 
         var saved = repository.save(adventure);
 
@@ -168,10 +167,9 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
                 savedAdventure.getAdventureStart(),
                 savedAdventure.getWorldId(),
                 savedAdventure.getNarratorName(),
-                savedAdventure.getNarratorPersonality(),
+                savedAdventure.getNarratorPersonalityTemplate(),
                 savedAdventure.getVisibility(),
                 savedAdventure.getModeration(),
-                savedAdventure.isMultiplayer(),
                 storagePort.resolveUrl(savedAdventure.getImageKey()),
                 savedAdventure.getCreationDate(),
                 savedAdventure.getLastUpdateDate(),
@@ -191,11 +189,10 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
                                 savedAdventure.getPublicId(),
                                 entry.getName(),
                                 entry.getDescription(),
-                                entry.getPlayerId(),
-                                entry.isPlayerCharacter(),
                                 entry.getCreationDate(),
                                 entry.getLastUpdateDate()))
                         .collect(Collectors.toSet()),
+                List.of(),
                 savedAdventure.getUiImagePositionX(),
                 savedAdventure.getUiImagePositionY());
     }

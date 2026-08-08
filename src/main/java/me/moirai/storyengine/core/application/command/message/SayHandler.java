@@ -1,60 +1,77 @@
 package me.moirai.storyengine.core.application.command.message;
 
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.addChatPrefix;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import org.springframework.context.ApplicationEventPublisher;
+
+import me.moirai.storyengine.common.annotation.Authorize;
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
+import me.moirai.storyengine.core.application.event.message.MessageTranscriptChangedEvent;
 import me.moirai.storyengine.core.domain.message.Message;
-import me.moirai.storyengine.core.port.inbound.message.MessageResult;
 import me.moirai.storyengine.core.port.inbound.message.Say;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
+import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
 
 @CommandHandler
-public class SayHandler extends AbstractCommandHandler<Say, MessageResult> {
+@Authorize(operation = AuthorizationOperation.PLAY_ADVENTURE, fields = "#request.adventureId")
+public class SayHandler extends AbstractCommandHandler<Say, Void> {
 
     private final AdventureRepository adventureRepository;
     private final MessageRepository messageRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public SayHandler(
             AdventureRepository adventureRepository,
-            MessageRepository messageRepository) {
+            MessageRepository messageRepository,
+            ApplicationEventPublisher eventPublisher) {
 
         this.adventureRepository = adventureRepository;
         this.messageRepository = messageRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
     public void validate(Say command) {
+
         if (command.adventureId() == null) {
             throw new IllegalArgumentException("Adventure ID cannot be null");
         }
 
-        if (command.content() == null || command.content().isBlank()) {
+        if (isBlank(command.content())) {
             throw new IllegalArgumentException("Message content cannot be blank");
         }
     }
 
     @Override
-    public MessageResult execute(Say command) {
+    public Void execute(Say command) {
 
         var adventure = adventureRepository.findByPublicId(command.adventureId())
                 .orElseThrow(() -> new NotFoundException("Adventure not found"));
 
-        var message = Message.builder()
+        var message = messageRepository.save(Message.builder()
                 .adventureId(adventure.getId())
                 .role(MessageAuthorRole.ASSISTANT)
-                .content(addChatPrefix(adventure.getNarratorName()).apply(command.content()))
-                .build();
+                .content(command.content())
+                .authorCharacterName(adventure.getNarratorName())
+                .build());
 
-        var saved = messageRepository.save(message);
+        eventPublisher.publishEvent(new MessageTranscriptChangedEvent(
+                adventure.getPublicId(),
+                AdventureMessageUpdate.messageAdded(new MessageSummary(
+                        message.getPublicId(),
+                        message.getRole(),
+                        message.getContent(),
+                        message.getStatus(),
+                        null,
+                        message.getAuthorCharacterName(),
+                        message.getCreationDate()), false)));
 
-        return new MessageResult(
-                saved.getPublicId(),
-                command.content(),
-                saved.getRole(),
-                saved.getCreationDate());
+        return null;
     }
 }

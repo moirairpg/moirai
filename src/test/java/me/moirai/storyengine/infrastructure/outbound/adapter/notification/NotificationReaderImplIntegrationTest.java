@@ -9,17 +9,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-import me.moirai.storyengine.AbstractIntegrationTest;
+import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.common.enums.Role;
 import me.moirai.storyengine.core.domain.notification.Notification;
 import me.moirai.storyengine.core.domain.notification.NotificationFixture;
-import me.moirai.storyengine.core.domain.notification.NotificationLevel;
-import me.moirai.storyengine.core.domain.notification.NotificationType;
+import me.moirai.storyengine.common.enums.NotificationLevel;
+import me.moirai.storyengine.common.enums.NotificationType;
 import me.moirai.storyengine.core.domain.userdetails.User;
 import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.outbound.notification.NotificationReader;
 
-public class NotificationReaderImplIntegrationTest extends AbstractIntegrationTest {
+public class NotificationReaderImplIntegrationTest extends AbstractDatabaseIntegrationTest {
 
     @Autowired
     private NotificationReader reader;
@@ -40,10 +40,76 @@ public class NotificationReaderImplIntegrationTest extends AbstractIntegrationTe
         insert(UserFixture.admin().build(), User.class);
 
         // when
-        var result = reader.getNotificationByPublicId(publicId, "john.doe", Role.ADMIN);
+        var result = reader.getNotificationByPublicIdAndRequester(publicId, "john.doe", Role.ADMIN);
 
         // then
         assertThat(result).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void shouldReturnEmptyWhenNoNotificationMatchesThePublicId() {
+
+        // given
+        var publicId = UUID.randomUUID();
+
+        // when
+        var result = reader.getNotificationByPublicId(publicId);
+
+        // then
+        assertThat(result).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void shouldReturnRecipientIdsAndUsernamesWhenNotificationHasRecipients() {
+
+        // given
+        var alice = insert(userWith("alice"), User.class);
+        var bob = insert(userWith("bob"), User.class);
+
+        var notification = insert(systemWith(alice.getId(), bob.getId()), Notification.class);
+        addRecipient(notification.getId(), alice.getId());
+        addRecipient(notification.getId(), bob.getId());
+
+        // when
+        var result = reader.getNotificationByPublicId(notification.getPublicId());
+
+        // then
+        assertThat(result).isNotEmpty();
+        assertThat(result.get().recipientUserIds()).containsExactlyInAnyOrder(alice.getId(), bob.getId());
+        assertThat(result.get().recipientUsernames()).containsExactlyInAnyOrder("alice", "bob");
+    }
+
+    @Test
+    public void shouldReturnFewerUsernamesThanRecipientIdsWhenARecipientUserIsMissing() {
+
+        // given
+        var alice = insert(userWith("alice"), User.class);
+
+        var notification = insert(systemWith(alice.getId()), Notification.class);
+        addRecipient(notification.getId(), alice.getId());
+        addRecipient(notification.getId(), 999999L);
+
+        // when
+        var result = reader.getNotificationByPublicId(notification.getPublicId());
+
+        // then
+        assertThat(result).isNotEmpty();
+        assertThat(result.get().recipientUserIds()).hasSize(2);
+        assertThat(result.get().recipientUsernames()).containsExactly("alice");
+    }
+
+    @Test
+    public void shouldReturnGameNotificationRegardlessOfRequesterWhenReadByPublicId() {
+
+        // given
+        var notification = insert(NotificationFixture.game().build(), Notification.class);
+
+        // when
+        var result = reader.getNotificationByPublicId(notification.getPublicId());
+
+        // then
+        assertThat(result).isNotEmpty();
+        assertThat(result.get().type()).isEqualTo(NotificationType.GAME);
     }
 
     @Test
@@ -60,7 +126,7 @@ public class NotificationReaderImplIntegrationTest extends AbstractIntegrationTe
         addRecipient(notification.getId(), bob.getId());
 
         // when
-        var result = reader.getNotificationByPublicId(notification.getPublicId(), admin.getUsername(), Role.ADMIN);
+        var result = reader.getNotificationByPublicIdAndRequester(notification.getPublicId(),admin.getUsername(), Role.ADMIN);
 
         // then
         assertThat(result).isNotEmpty();
@@ -80,7 +146,7 @@ public class NotificationReaderImplIntegrationTest extends AbstractIntegrationTe
         addRecipient(notification.getId(), bob.getId());
 
         // when
-        var result = reader.getNotificationByPublicId(notification.getPublicId(), "alice", Role.PLAYER);
+        var result = reader.getNotificationByPublicIdAndRequester(notification.getPublicId(),"alice", Role.PLAYER);
 
         // then
         assertThat(result).isNotEmpty();
@@ -99,7 +165,7 @@ public class NotificationReaderImplIntegrationTest extends AbstractIntegrationTe
         addRecipient(notification.getId(), alice.getId());
 
         // when
-        var result = reader.getNotificationByPublicId(notification.getPublicId(), "bob", Role.PLAYER);
+        var result = reader.getNotificationByPublicIdAndRequester(notification.getPublicId(),"bob", Role.PLAYER);
 
         // then
         assertThat(result).isEmpty();
@@ -114,7 +180,7 @@ public class NotificationReaderImplIntegrationTest extends AbstractIntegrationTe
         var notification = insert(NotificationFixture.broadcast().build(), Notification.class);
 
         // when
-        var result = reader.getNotificationByPublicId(notification.getPublicId(), "alice", Role.PLAYER);
+        var result = reader.getNotificationByPublicIdAndRequester(notification.getPublicId(),"alice", Role.PLAYER);
 
         // then
         assertThat(result).isNotEmpty();
@@ -130,7 +196,7 @@ public class NotificationReaderImplIntegrationTest extends AbstractIntegrationTe
         var notification = insert(NotificationFixture.game().build(), Notification.class);
 
         // when
-        var result = reader.getNotificationByPublicId(notification.getPublicId(), "alice", Role.PLAYER);
+        var result = reader.getNotificationByPublicIdAndRequester(notification.getPublicId(),"alice", Role.PLAYER);
 
         // then
         assertThat(result).isEmpty();

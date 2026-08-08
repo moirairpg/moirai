@@ -2,6 +2,7 @@ package me.moirai.storyengine.common.util;
 
 import static java.lang.String.format;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
@@ -12,6 +13,7 @@ public class DefaultStringProcessors {
 
     public static final String SAID = " said: ";
     public static final String PERIOD = ".";
+    public static final String LINE_BREAK = "\n";
 
     public static final String MESSAGE_PLACEHOLDER = "%s said:";
     public static final String CHAT_MESSAGE_FORMAT = "%s said: %s";
@@ -24,7 +26,7 @@ public class DefaultStringProcessors {
 
     public static final String AS_NAME_PREFIX_EXPRESSION = "\\bAs %s, (\\w)";
     public static final String AS_NAME_PREFIX_LOWERCASE_EXPRESSION = "\\bas %s, (\\w)";
-    public static final String CHAT_FORMAT_EXPRESSION = "^.* said:";
+    public static final String CHAT_FORMAT_EXPRESSION = "^.+? said:";
     public static final String TRAILING_FRAGMENT_EXPRESSION = "(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$";
     public static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-ZÀ-ÿa-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
 
@@ -43,6 +45,16 @@ public class DefaultStringProcessors {
         return input -> Pattern.compile(format(AS_NAME_PREFIX_LOWERCASE_EXPRESSION, name))
                 .matcher(input)
                 .replaceAll(r -> r.group(1));
+    }
+
+    public static UnaryOperator<String> truncateAtPlayerCharacterLine(List<String> characterNames) {
+
+        return input -> characterNames.stream()
+                .map(name -> input.indexOf(LINE_BREAK + name + ":"))
+                .filter(index -> index > -1)
+                .min(Integer::compareTo)
+                .map(index -> input.substring(0, index).trim())
+                .orElse(input);
     }
 
     public static UnaryOperator<String> stripTrailingFragment() {

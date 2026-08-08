@@ -8,5 +8,5 @@ public record SendMessage(
         UUID adventureId,
         String content,
         String username)
-        implements Command<MessageResult> {
+        implements Command<Void> {
 }
