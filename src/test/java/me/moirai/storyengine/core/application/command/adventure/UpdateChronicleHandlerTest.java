@@ -172,6 +172,7 @@ public class UpdateChronicleHandlerTest {
                 .adventureId(1L)
                 .role(role)
                 .content("Some content")
+                .authorCharacterName("Aria")
                 .status(MessageStatus.CHRONICLED)
                 .build();
     }

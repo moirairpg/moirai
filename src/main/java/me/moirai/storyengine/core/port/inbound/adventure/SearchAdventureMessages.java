@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import me.moirai.storyengine.common.cqs.query.Query;
 import me.moirai.storyengine.common.dto.CursorResult;
+import me.moirai.storyengine.common.dto.MessageSummary;
 
 public record SearchAdventureMessages(
         UUID adventureId,

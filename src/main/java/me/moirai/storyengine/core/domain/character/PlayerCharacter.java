@@ -141,12 +141,7 @@ public class PlayerCharacter extends Asset {
             throw new BusinessRuleViolationException("Character name cannot be null or empty");
         }
 
-        if (name.equals(this.name)) {
-            return;
-        }
-
         this.name = name;
-        this.domainEvents.add(new PlayerCharacterRenamedEvent(this.id, name));
     }
 
     public void updatePersonality(String personality) {

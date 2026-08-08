@@ -132,13 +132,13 @@ public class Message extends Asset {
         this.status = MessageStatus.CHRONICLED;
     }
 
-    public void renameAuthorCharacter(String authorCharacterName) {
+    public void updateContent(String content) {
 
-        if (isBlank(authorCharacterName)) {
-            throw new BusinessRuleViolationException("Author character name cannot be null or empty");
+        if (isBlank(content)) {
+            throw new BusinessRuleViolationException("Message content cannot be null or empty");
         }
 
-        this.authorCharacterName = authorCharacterName;
+        this.content = content;
     }
 
     public static final class Builder {
@@ -200,6 +200,10 @@ public class Message extends Asset {
 
             if (content == null || content.isBlank()) {
                 throw new BusinessRuleViolationException("Content is required");
+            }
+
+            if (isBlank(authorCharacterName)) {
+                throw new BusinessRuleViolationException("Author character name is required");
             }
 
             return new Message(this);

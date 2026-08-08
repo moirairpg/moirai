@@ -1,15 +1,11 @@
 package me.moirai.storyengine.infrastructure.security.authorization.message;
 
-import static me.moirai.storyengine.common.enums.Role.ADMIN;
-
 import org.springframework.stereotype.Component;
 
 import me.moirai.storyengine.common.exception.NotFoundException;
-import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.common.security.authorization.OperationAuthorizer;
-import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureAuthorizationReader;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureReader;
 import me.moirai.storyengine.core.port.outbound.message.MessageAuthorizationReader;
@@ -54,13 +50,7 @@ public class RetryNarrationAuthorizer implements OperationAuthorizer {
         }
 
         return messageAuthorizationReader.getLastPlayerMessage(adventureId)
-                .map(lastPlayerMessage -> principal.id().equals(lastPlayerMessage.authorId()))
+                .map(lastPlayerMessage -> principal.publicId().equals(lastPlayerMessage.authorId()))
                 .orElse(false);
-    }
-
-    private boolean canManage(AssetPermissionsData authorizationData, MoiraiPrincipal principal) {
-        return authorizationData.ownerId().equals(principal.publicId())
-                || authorizationData.writers().contains(principal.publicId())
-                || principal.role() == ADMIN;
     }
 }

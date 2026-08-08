@@ -8,4 +8,6 @@ import me.moirai.storyengine.core.port.inbound.message.MessageAuthorship;
 public interface MessageAuthorizationReader {
 
     Optional<MessageAuthorship> getLastPlayerMessage(UUID adventurePublicId);
+
+    Optional<MessageAuthorship> getMessageAuthor(UUID messagePublicId);
 }

@@ -6,17 +6,16 @@ import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.common.security.authorization.OperationAuthorizer;
-import me.moirai.storyengine.core.port.inbound.message.MessageAuthorship;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureAuthorizationReader;
 import me.moirai.storyengine.core.port.outbound.message.MessageAuthorizationReader;
 
 @Component
-public class EditMessageAuthorizer implements OperationAuthorizer {
+public class EditMessageAndGenerateOutputAuthorizer implements OperationAuthorizer {
 
     private final AdventureAuthorizationReader adventureAuthorizationReader;
     private final MessageAuthorizationReader messageAuthorizationReader;
 
-    public EditMessageAuthorizer(
+    public EditMessageAndGenerateOutputAuthorizer(
             AdventureAuthorizationReader adventureAuthorizationReader,
             MessageAuthorizationReader messageAuthorizationReader) {
 
@@ -26,7 +25,7 @@ public class EditMessageAuthorizer implements OperationAuthorizer {
 
     @Override
     public AuthorizationOperation getOperation() {
-        return AuthorizationOperation.EDIT_MESSAGE;
+        return AuthorizationOperation.EDIT_MESSAGE_AND_GENERATE_OUTPUT;
     }
 
     @Override
@@ -43,9 +42,9 @@ public class EditMessageAuthorizer implements OperationAuthorizer {
             return true;
         }
 
-        return messageAuthorizationReader.getMessageAuthor(messageId)
-                .map(MessageAuthorship::authorId)
-                .map(principal.publicId()::equals)
+        return messageAuthorizationReader.getLastPlayerMessage(adventureId)
+                .filter(lastPlayerMessage -> lastPlayerMessage.messageId().equals(messageId))
+                .map(lastPlayerMessage -> principal.publicId().equals(lastPlayerMessage.authorId()))
                 .orElse(false);
     }
 }

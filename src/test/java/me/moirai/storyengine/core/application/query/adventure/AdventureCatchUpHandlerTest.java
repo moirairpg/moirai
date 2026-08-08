@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.ArtificialIntelligenceModel;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.enums.Moderation;
@@ -33,7 +34,6 @@ import me.moirai.storyengine.core.port.outbound.adventure.ChronicleSegmentData;
 import me.moirai.storyengine.core.port.outbound.adventure.ChronicleSegmentReader;
 import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextGenerationResult;
-import me.moirai.storyengine.core.port.outbound.message.MessageData;
 import me.moirai.storyengine.core.port.outbound.message.MessageReader;
 
 @ExtendWith(MockitoExtension.class)
@@ -132,8 +132,8 @@ public class AdventureCatchUpHandlerTest {
         var adventure = buildAdventureDetailsRow(adventureId);
         var query = new AdventureCatchUp(adventureId);
 
-        var message = new MessageData(UUID.randomUUID(), 1L, UUID.randomUUID(), "Aria", MessageAuthorRole.USER,
-                "I look around.", null, MessageStatus.ACTIVE);
+        var message = new MessageSummary(UUID.randomUUID(), MessageAuthorRole.USER, "I look around.",
+                MessageStatus.ACTIVE, UUID.randomUUID(), "Aria", null);
         var generationResult = TextGenerationResult.builder().outputText("You looked around.").build();
 
         when(adventureReader.getAdventureById(adventureId)).thenReturn(Optional.of(adventure));
@@ -158,8 +158,8 @@ public class AdventureCatchUpHandlerTest {
         var query = new AdventureCatchUp(adventureId);
 
         var segment = new ChronicleSegmentData(UUID.randomUUID(), 1L, "Chronicle: hero began journey.", null);
-        var message = new MessageData(UUID.randomUUID(), 1L, UUID.randomUUID(), "Aria", MessageAuthorRole.USER,
-                "I arrive at the city.", null, MessageStatus.ACTIVE);
+        var message = new MessageSummary(UUID.randomUUID(), MessageAuthorRole.USER, "I arrive at the city.",
+                MessageStatus.ACTIVE, UUID.randomUUID(), "Aria", null);
         var generationResult = TextGenerationResult.builder().outputText("Combined recap.").build();
 
         when(adventureReader.getAdventureById(adventureId)).thenReturn(Optional.of(adventure));

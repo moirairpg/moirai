@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.storyengine.common.dto.CursorResult;
-import me.moirai.storyengine.core.port.inbound.adventure.MessageSummary;
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.core.port.inbound.adventure.SearchAdventureMessages;
 import me.moirai.storyengine.core.port.outbound.message.MessageSearchReader;
 

@@ -29,10 +29,12 @@ import me.moirai.storyengine.core.application.event.message.MessageTranscriptCha
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.domain.message.MessageFixture;
+import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.adventure.EnrolledCharacterData;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
+import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class SendMessageHandlerTest {
@@ -42,6 +44,9 @@ public class SendMessageHandlerTest {
 
     @Mock
     private MessageRepository messageRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -72,7 +77,7 @@ public class SendMessageHandlerTest {
     }
 
     @Test
-    public void shouldSaveThePlayerMessageUnderTheirCharacterNameWhenTheyAreEnrolled() {
+    public void shouldStoreContentWithoutASpeakerPrefixWhenAMessageIsSent() {
 
         // given
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
@@ -87,7 +92,7 @@ public class SendMessageHandlerTest {
         var saved = ArgumentCaptor.forClass(Message.class);
         verify(messageRepository).save(saved.capture());
 
-        assertThat(saved.getValue().getContent()).startsWith("Aria said");
+        assertThat(saved.getValue().getContent()).isEqualTo("Hello!");
         assertThat(saved.getValue().getRole()).isEqualTo(MessageAuthorRole.USER);
     }
 
@@ -107,13 +112,13 @@ public class SendMessageHandlerTest {
         var saved = ArgumentCaptor.forClass(Message.class);
         verify(messageRepository).save(saved.capture());
 
-        assertThat(saved.getValue().getAuthorId()).isEqualTo(1111L);
+        assertThat(saved.getValue().getAuthorId()).isEqualTo(UserFixture.playerWithId().getId());
         assertThat(saved.getValue().getAuthorCharacterId()).isEqualTo(4L);
         assertThat(saved.getValue().getAuthorCharacterName()).isEqualTo("Aria");
     }
 
     @Test
-    public void shouldRecordNoAuthorWhenThePlayerIsNotEnrolled() {
+    public void shouldRecordTheUsernameAsSpeakerWhenThePlayerIsNotEnrolled() {
 
         // given
         var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
@@ -130,9 +135,9 @@ public class SendMessageHandlerTest {
         var saved = ArgumentCaptor.forClass(Message.class);
         verify(messageRepository).save(saved.capture());
 
-        assertThat(saved.getValue().getAuthorId()).isNull();
+        assertThat(saved.getValue().getAuthorId()).isEqualTo(UserFixture.playerWithId().getId());
         assertThat(saved.getValue().getAuthorCharacterId()).isNull();
-        assertThat(saved.getValue().getAuthorCharacterName()).isNull();
+        assertThat(saved.getValue().getAuthorCharacterName()).isEqualTo("user");
     }
 
     @Test
@@ -196,5 +201,6 @@ public class SendMessageHandlerTest {
 
         when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(UserFixture.playerWithId()));
     }
 }

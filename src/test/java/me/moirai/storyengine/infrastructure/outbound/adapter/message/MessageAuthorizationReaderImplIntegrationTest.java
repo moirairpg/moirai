@@ -2,6 +2,8 @@ package me.moirai.storyengine.infrastructure.outbound.adapter.message;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,8 @@ import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.domain.message.MessageFixture;
+import me.moirai.storyengine.core.domain.userdetails.User;
+import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.outbound.message.MessageAuthorizationReader;
@@ -39,14 +43,15 @@ public class MessageAuthorizationReaderImplIntegrationTest extends AbstractDatab
     }
 
     @Test
-    public void shouldReturnTheAuthorIdOfTheLastPlayerMessage() {
+    public void shouldReturnTheAuthorPublicIdOfTheLastPlayerMessage() {
 
         // given
         var adventure = insertAdventure();
+        var author = insertUser();
 
         insert(MessageFixture.userMessage()
                 .adventureId(adventure.getId())
-                .authorId(1111L)
+                .authorId(author.getId())
                 .authorCharacterId(4L)
                 .authorCharacterName("Aria")
                 .build(), Message.class);
@@ -56,7 +61,7 @@ public class MessageAuthorizationReaderImplIntegrationTest extends AbstractDatab
 
         // then
         assertThat(result).isPresent();
-        assertThat(result.get().authorId()).isEqualTo(1111L);
+        assertThat(result.get().authorId()).isEqualTo(author.getPublicId());
     }
 
     @Test
@@ -64,10 +69,11 @@ public class MessageAuthorizationReaderImplIntegrationTest extends AbstractDatab
 
         // given
         var adventure = insertAdventure();
+        var author = insertUser();
 
         var playerMessage = insert(MessageFixture.userMessage()
                 .adventureId(adventure.getId())
-                .authorId(1111L)
+                .authorId(author.getId())
                 .build(), Message.class);
 
         insert(MessageFixture.assistantMessage()
@@ -80,7 +86,7 @@ public class MessageAuthorizationReaderImplIntegrationTest extends AbstractDatab
         // then
         assertThat(result).isPresent();
         assertThat(result.get().messageId()).isEqualTo(playerMessage.getPublicId());
-        assertThat(result.get().authorId()).isEqualTo(1111L);
+        assertThat(result.get().authorId()).isEqualTo(author.getPublicId());
     }
 
     @Test
@@ -88,15 +94,16 @@ public class MessageAuthorizationReaderImplIntegrationTest extends AbstractDatab
 
         // given
         var adventure = insertAdventure();
+        var author = insertUser();
 
         insert(MessageFixture.userMessage()
                 .adventureId(adventure.getId())
-                .authorId(1111L)
+                .authorId(author.getId())
                 .build(), Message.class);
 
         var latest = insert(MessageFixture.userMessage()
                 .adventureId(adventure.getId())
-                .authorId(2222L)
+                .authorId(author.getId())
                 .build(), Message.class);
 
         // when
@@ -105,16 +112,15 @@ public class MessageAuthorizationReaderImplIntegrationTest extends AbstractDatab
         // then
         assertThat(result).isPresent();
         assertThat(result.get().messageId()).isEqualTo(latest.getPublicId());
-        assertThat(result.get().authorId()).isEqualTo(2222L);
     }
 
     @Test
-    public void shouldReturnNoAuthorWhenTheMessageWasNotBackfilled() {
+    public void shouldReturnTheLastPlayerMessageWhenItsAuthorWasNeverRecorded() {
 
         // given
         var adventure = insertAdventure();
 
-        insert(MessageFixture.userMessage()
+        var message = insert(MessageFixture.userMessage()
                 .adventureId(adventure.getId())
                 .build(), Message.class);
 
@@ -123,7 +129,62 @@ public class MessageAuthorizationReaderImplIntegrationTest extends AbstractDatab
 
         // then
         assertThat(result).isPresent();
+        assertThat(result.get().messageId()).isEqualTo(message.getPublicId());
         assertThat(result.get().authorId()).isNull();
+    }
+
+    @Test
+    public void shouldReturnTheAuthorPublicIdOfTheMessage() {
+
+        // given
+        var adventure = insertAdventure();
+        var author = insertUser();
+
+        var message = insert(MessageFixture.userMessage()
+                .adventureId(adventure.getId())
+                .authorId(author.getId())
+                .build(), Message.class);
+
+        // when
+        var result = reader.getMessageAuthor(message.getPublicId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().messageId()).isEqualTo(message.getPublicId());
+        assertThat(result.get().authorId()).isEqualTo(author.getPublicId());
+    }
+
+    @Test
+    public void shouldReturnNoAuthorWhenTheMessageIsANarratorMessage() {
+
+        // given
+        var adventure = insertAdventure();
+
+        var message = insert(MessageFixture.assistantMessage()
+                .adventureId(adventure.getId())
+                .build(), Message.class);
+
+        // when
+        var result = reader.getMessageAuthor(message.getPublicId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().authorId()).isNull();
+    }
+
+    @Test
+    public void shouldReturnNothingWhenTheMessageDoesNotExist() {
+
+        // when
+        var result = reader.getMessageAuthor(UUID.randomUUID());
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    private User insertUser() {
+
+        return insert(UserFixture.player().build(), User.class);
     }
 
     private Adventure insertAdventure() {

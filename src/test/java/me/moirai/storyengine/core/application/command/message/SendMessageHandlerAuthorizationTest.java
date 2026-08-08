@@ -38,6 +38,7 @@ import me.moirai.storyengine.common.security.authorization.AuthorizationService;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
+import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 
 @SpringJUnitConfig
 class SendMessageHandlerAuthorizationTest {
@@ -68,6 +69,7 @@ class SendMessageHandlerAuthorizationTest {
             return new SendMessageHandler(
                     adventureRepository,
                     mock(MessageRepository.class),
+                    mock(UserRepository.class),
                     mock(ApplicationEventPublisher.class));
         }
     }

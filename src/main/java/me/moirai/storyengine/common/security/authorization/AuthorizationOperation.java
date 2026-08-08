@@ -20,6 +20,7 @@ public enum AuthorizationOperation {
 
     RETRY_NARRATION,
     EDIT_MESSAGE,
+    EDIT_MESSAGE_AND_GENERATE_OUTPUT,
 
     MANAGE_USER,
     UPDATE_USER_USERNAME,

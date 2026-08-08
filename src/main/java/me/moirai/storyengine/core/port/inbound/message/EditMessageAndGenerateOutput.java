@@ -4,5 +4,5 @@ import java.util.UUID;
 
 import me.moirai.storyengine.common.cqs.command.Command;
 
-public record EditMessage(UUID adventureId, UUID messageId, String content) implements Command<Void> {
+public record EditMessageAndGenerateOutput(UUID adventureId, UUID messageId, String content) implements Command<Void> {
 }

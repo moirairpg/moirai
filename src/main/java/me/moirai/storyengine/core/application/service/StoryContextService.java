@@ -4,6 +4,7 @@ import static me.moirai.storyengine.common.enums.ArtificialIntelligenceModel.GPT
 import static me.moirai.storyengine.common.enums.MessagePrompt.PLAYER_CHARACTER_HEADING;
 import static me.moirai.storyengine.common.enums.MessagePrompt.RAG_QUERY_EXTRACTOR;
 import static me.moirai.storyengine.common.util.DefaultStringProcessors.LINE_BREAK;
+import static me.moirai.storyengine.common.util.DefaultStringProcessors.addChatPrefix;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.ArrayList;
@@ -204,9 +205,11 @@ public class StoryContextService {
 
     private ChatMessage toChatMessage(Message message) {
 
+        var prefixedContent = addChatPrefix(message.getAuthorCharacterName()).apply(message.getContent());
+
         return switch (message.getRole()) {
-            case USER -> ChatMessage.asUser(message.getContent());
-            case ASSISTANT -> ChatMessage.asAssistant(message.getContent());
+            case USER -> ChatMessage.asUser(prefixedContent);
+            case ASSISTANT -> ChatMessage.asAssistant(prefixedContent);
             default ->
                 throw new BusinessRuleViolationException("Unexpected role in message history: " + message.getRole());
         };
@@ -224,8 +227,11 @@ public class StoryContextService {
                 .toList();
 
         var primedMessages = new ArrayList<>(recentHistory);
+        var lastMessage = history.getLast();
 
-        primedMessages.add(ChatMessage.asUser(history.getLast().getContent()));
+        primedMessages.add(ChatMessage.asUser(
+                addChatPrefix(lastMessage.getAuthorCharacterName()).apply(lastMessage.getContent())));
+
         primedMessages.add(ChatMessage.asAssistant("Location:"));
 
         var ragQueryRequest = new TextGenerationRequest(

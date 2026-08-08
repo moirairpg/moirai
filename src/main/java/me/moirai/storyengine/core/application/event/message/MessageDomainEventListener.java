@@ -3,7 +3,6 @@ package me.moirai.storyengine.core.application.event.message;
 import static me.moirai.storyengine.common.enums.MessagePrompt.CONTINUE_GENERATION;
 import static me.moirai.storyengine.common.enums.MessagePrompt.NARRATION_SCOPE;
 import static me.moirai.storyengine.common.enums.MessagePrompt.PLAYER_CHARACTER_HEADING;
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.addChatPrefix;
 import static me.moirai.storyengine.common.util.DefaultStringProcessors.stripAsNamePrefix;
 import static me.moirai.storyengine.common.util.DefaultStringProcessors.stripAsNamePrefixForLowercase;
 import static me.moirai.storyengine.common.util.DefaultStringProcessors.stripChatPrefix;
@@ -26,15 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.common.util.StringProcessor;
 import me.moirai.storyengine.core.application.service.StoryContextService;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureDeletedEvent;
-import me.moirai.storyengine.core.domain.character.PlayerCharacterRenamedEvent;
 import me.moirai.storyengine.core.domain.message.Message;
-import me.moirai.storyengine.core.port.inbound.message.MessageResult;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextGenerationRequest;
@@ -76,13 +74,6 @@ public class MessageDomainEventListener {
     public void onAdventureDeleted(AdventureDeletedEvent event) {
 
         messageRepository.deleteAllByAdventureId(event.getAdventureId());
-    }
-
-    @Transactional(propagation = Propagation.MANDATORY)
-    @EventListener
-    public void onPlayerCharacterRenamed(PlayerCharacterRenamedEvent event) {
-
-        messageRepository.updateAuthorCharacterName(event.getPlayerCharacterId(), event.getName());
     }
 
     @Async
@@ -161,18 +152,21 @@ public class MessageDomainEventListener {
             var narratorMessage = messageRepository.save(Message.builder()
                     .adventureId(adventure.getId())
                     .role(MessageAuthorRole.ASSISTANT)
-                    .content(addChatPrefix(adventure.getNarratorName()).apply(cleanedResponse))
+                    .content(cleanedResponse)
+                    .authorCharacterName(adventure.getNarratorName())
                     .build());
 
             chronicleIfWindowOverflowed(adventure, storyContext.activeHistory(), narratorMessage);
 
             eventPublisher.publishEvent(new MessageTranscriptChangedEvent(
                     adventurePublicId,
-                    AdventureMessageUpdate.messageAdded(new MessageResult(
+                    AdventureMessageUpdate.messageAdded(new MessageSummary(
                             narratorMessage.getPublicId(),
-                            cleanedResponse,
                             narratorMessage.getRole(),
+                            narratorMessage.getContent(),
+                            narratorMessage.getStatus(),
                             null,
+                            narratorMessage.getAuthorCharacterName(),
                             narratorMessage.getCreationDate()), false)));
 
         } catch (RuntimeException e) {

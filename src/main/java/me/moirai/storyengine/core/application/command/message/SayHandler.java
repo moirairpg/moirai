@@ -1,6 +1,5 @@
 package me.moirai.storyengine.core.application.command.message;
 
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.addChatPrefix;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -8,12 +7,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import me.moirai.storyengine.common.annotation.Authorize;
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.core.application.event.message.MessageTranscriptChangedEvent;
 import me.moirai.storyengine.core.domain.message.Message;
-import me.moirai.storyengine.core.port.inbound.message.MessageResult;
 import me.moirai.storyengine.core.port.inbound.message.Say;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
@@ -58,16 +57,19 @@ public class SayHandler extends AbstractCommandHandler<Say, Void> {
         var message = messageRepository.save(Message.builder()
                 .adventureId(adventure.getId())
                 .role(MessageAuthorRole.ASSISTANT)
-                .content(addChatPrefix(adventure.getNarratorName()).apply(command.content()))
+                .content(command.content())
+                .authorCharacterName(adventure.getNarratorName())
                 .build());
 
         eventPublisher.publishEvent(new MessageTranscriptChangedEvent(
                 adventure.getPublicId(),
-                AdventureMessageUpdate.messageAdded(new MessageResult(
+                AdventureMessageUpdate.messageAdded(new MessageSummary(
                         message.getPublicId(),
-                        message.getContent(),
                         message.getRole(),
+                        message.getContent(),
+                        message.getStatus(),
                         null,
+                        message.getAuthorCharacterName(),
                         message.getCreationDate()), false)));
 
         return null;

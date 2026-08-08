@@ -23,8 +23,6 @@ import me.moirai.storyengine.common.enums.TranscriptChange;
 import me.moirai.storyengine.core.application.service.StoryContext;
 import me.moirai.storyengine.core.application.service.StoryContextService;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
-import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
-import me.moirai.storyengine.core.domain.character.PlayerCharacterRenamedEvent;
 import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.domain.message.MessageFixture;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
@@ -197,22 +195,40 @@ public class MessageDomainEventListenerTest {
     }
 
     @Test
-    public void shouldUpdateTheRecordedNameOnTheCharactersMessagesWhenItIsRenamed() {
+    public void shouldRecordTheNarratorAsSpeakerWhenNarrationIsSaved() {
 
         // given
         listener = listener();
-
-        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
-        character.updateName("Volin the Bold");
-
-        var event = (PlayerCharacterRenamedEvent) character.drainEvents().getFirst();
+        givenNarrationSucceeds();
 
         // when
-        listener.onPlayerCharacterRenamed(event);
+        listener.onMessageSent(new MessageSentEvent(ADVENTURE_ID));
 
         // then
-        verify(messageRepository).updateAuthorCharacterName(
-                PlayerCharacterFixture.NUMERIC_ID, "Volin the Bold");
+        var saved = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).save(saved.capture());
+
+        assertThat(saved.getValue().getAuthorCharacterName())
+                .isEqualTo(AdventureFixture.privateAdventureWithId().getNarratorName());
+
+        assertThat(saved.getValue().getAuthorId()).isNull();
+    }
+
+    @Test
+    public void shouldStoreContentWithoutASpeakerPrefixWhenNarrationIsSaved() {
+
+        // given
+        listener = listener();
+        givenNarrationSucceeds();
+
+        // when
+        listener.onMessageSent(new MessageSentEvent(ADVENTURE_ID));
+
+        // then
+        var saved = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).save(saved.capture());
+
+        assertThat(saved.getValue().getContent()).doesNotContain("said:");
     }
 
     private String capturedInstructions() {

@@ -14,8 +14,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
-import me.moirai.storyengine.core.port.inbound.message.MessageResult;
+import me.moirai.storyengine.common.enums.MessageStatus;
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,8 +33,9 @@ public class AdventureMessageAdapterTest {
 
         // given
         var adventureId = UUID.fromString("00000000-0000-0000-0000-0000000000aa");
-        var update = AdventureMessageUpdate.messageAdded(new MessageResult(
-                UUID.randomUUID(), "content", MessageAuthorRole.ASSISTANT, null, Instant.now()), false);
+        var update = AdventureMessageUpdate.messageAdded(new MessageSummary(
+                UUID.randomUUID(), MessageAuthorRole.ASSISTANT, "content", MessageStatus.ACTIVE,
+                null, "Narrator", Instant.now()), false);
 
         // when
         adapter.send(adventureId, update);
@@ -48,8 +50,9 @@ public class AdventureMessageAdapterTest {
 
         // given
         var adventureId = UUID.randomUUID();
-        var update = AdventureMessageUpdate.messageAdded(new MessageResult(
-                UUID.randomUUID(), "content", MessageAuthorRole.USER, "Aria", Instant.now()), true);
+        var update = AdventureMessageUpdate.messageAdded(new MessageSummary(
+                UUID.randomUUID(), MessageAuthorRole.USER, "content", MessageStatus.ACTIVE,
+                UUID.randomUUID(), "Aria", Instant.now()), true);
 
         // when
         adapter.send(adventureId, update);

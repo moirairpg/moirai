@@ -1,19 +1,17 @@
 package me.moirai.storyengine.core.application.command.message;
 
-import static me.moirai.storyengine.common.util.DefaultStringProcessors.addChatPrefix;
-
 import org.springframework.context.ApplicationEventPublisher;
 
 import me.moirai.storyengine.common.annotation.Authorize;
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.core.application.event.message.AdventureStartedEvent;
 import me.moirai.storyengine.core.application.event.message.MessageTranscriptChangedEvent;
 import me.moirai.storyengine.core.domain.message.Message;
-import me.moirai.storyengine.core.port.inbound.message.MessageResult;
 import me.moirai.storyengine.core.port.inbound.message.StartAdventure;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
@@ -54,16 +52,19 @@ public class StartAdventureHandler extends AbstractCommandHandler<StartAdventure
         var openingMessage = messageRepository.save(Message.builder()
                 .adventureId(adventure.getId())
                 .role(MessageAuthorRole.ASSISTANT)
-                .content(addChatPrefix(adventure.getNarratorName()).apply(adventure.getAdventureStart()))
+                .content(adventure.getAdventureStart())
+                .authorCharacterName(adventure.getNarratorName())
                 .build());
 
         eventPublisher.publishEvent(new MessageTranscriptChangedEvent(
                 adventure.getPublicId(),
-                AdventureMessageUpdate.messageAdded(new MessageResult(
+                AdventureMessageUpdate.messageAdded(new MessageSummary(
                         openingMessage.getPublicId(),
-                        openingMessage.getContent(),
                         openingMessage.getRole(),
+                        openingMessage.getContent(),
+                        openingMessage.getStatus(),
                         null,
+                        openingMessage.getAuthorCharacterName(),
                         openingMessage.getCreationDate()), true)));
 
         eventPublisher.publishEvent(new AdventureStartedEvent(adventure.getPublicId()));

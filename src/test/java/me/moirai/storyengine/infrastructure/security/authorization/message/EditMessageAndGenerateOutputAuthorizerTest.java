@@ -23,64 +23,74 @@ import me.moirai.storyengine.common.security.authorization.AuthorizationOperatio
 import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.inbound.message.MessageAuthorship;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureAuthorizationReader;
-import me.moirai.storyengine.core.port.outbound.adventure.AdventureReader;
 import me.moirai.storyengine.core.port.outbound.message.MessageAuthorizationReader;
 
 @ExtendWith(MockitoExtension.class)
-public class RetryNarrationAuthorizerTest {
+public class EditMessageAndGenerateOutputAuthorizerTest {
 
     private static final UUID ADVENTURE_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID CALLER_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
     private static final UUID OTHER_AUTHOR_ID = UUID.fromString("00000000-0000-0000-0000-000000000009");
     private static final UUID OWNER_ID = UUID.fromString("00000000-0000-0000-0000-000000000003");
+    private static final UUID MESSAGE_ID = UUID.fromString("00000000-0000-0000-0000-000000000004");
+    private static final UUID OLDER_MESSAGE_ID = UUID.fromString("00000000-0000-0000-0000-000000000005");
 
     @Mock
     private AdventureAuthorizationReader adventureAuthorizationReader;
 
     @Mock
-    private AdventureReader adventureReader;
-
-    @Mock
     private MessageAuthorizationReader messageAuthorizationReader;
 
     @InjectMocks
-    private RetryNarrationAuthorizer authorizer;
+    private EditMessageAndGenerateOutputAuthorizer authorizer;
 
     @Test
-    void shouldExposeTheRetryNarrationOperation() {
+    void shouldExposeTheEditMessageAndGenerateOutputOperation() {
 
         // when
         var operation = authorizer.getOperation();
 
         // then
-        assertThat(operation).isEqualTo(AuthorizationOperation.RETRY_NARRATION);
+        assertThat(operation).isEqualTo(AuthorizationOperation.EDIT_MESSAGE_AND_GENERATE_OUTPUT);
     }
 
     @Test
-    void shouldAuthorizeTheAuthorOfTheLastPlayerMessage() {
+    void shouldAuthorizeAPlayerEditingTheLastPlayerMessageWhenItIsTheirs() {
 
         // given
-        givenCallerIsEnrolled();
         givenPermissions(OWNER_ID, List.of());
-        givenLastPlayerMessageAuthoredBy(CALLER_ID);
+        givenLastPlayerMessage(MESSAGE_ID, CALLER_ID);
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), MESSAGE_ID));
 
         // then
         assertThat(isAuthorized).isTrue();
     }
 
     @Test
-    void shouldNotAuthorizeWhenTheLastPlayerMessageBelongsToSomeoneElse() {
+    void shouldNotAuthorizeAPlayerEditingAMessageThatIsNotTheLastPlayerMessage() {
 
         // given
-        givenCallerIsEnrolled();
         givenPermissions(OWNER_ID, List.of());
-        givenLastPlayerMessageAuthoredBy(OTHER_AUTHOR_ID);
+        givenLastPlayerMessage(MESSAGE_ID, CALLER_ID);
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), OLDER_MESSAGE_ID));
+
+        // then
+        assertThat(isAuthorized).isFalse();
+    }
+
+    @Test
+    void shouldNotAuthorizeAPlayerEditingAMessageBelongingToSomeoneElse() {
+
+        // given
+        givenPermissions(OWNER_ID, List.of());
+        givenLastPlayerMessage(MESSAGE_ID, OTHER_AUTHOR_ID);
+
+        // when
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), MESSAGE_ID));
 
         // then
         assertThat(isAuthorized).isFalse();
@@ -90,61 +100,54 @@ public class RetryNarrationAuthorizerTest {
     void shouldNotAuthorizeWhenThereAreNoPlayerMessages() {
 
         // given
-        givenCallerIsEnrolled();
         givenPermissions(OWNER_ID, List.of());
 
         when(messageAuthorizationReader.getLastPlayerMessage(any())).thenReturn(Optional.empty());
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), MESSAGE_ID));
 
         // then
         assertThat(isAuthorized).isFalse();
     }
 
     @Test
-    void shouldAuthorizeTheOwnerRegardlessOfWhoSentTheLastPlayerMessage() {
+    void shouldAuthorizeTheOwnerEditingAnyMessage() {
 
         // given
-        givenCallerIsEnrolled();
         givenPermissions(CALLER_ID, List.of());
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), OLDER_MESSAGE_ID));
 
         // then
         assertThat(isAuthorized).isTrue();
     }
 
     @Test
-    void shouldAuthorizeAWriterRegardlessOfWhoSentTheLastPlayerMessage() {
+    void shouldAuthorizeAWriterEditingAnyMessage() {
 
         // given
-        givenCallerIsEnrolled();
         givenPermissions(OWNER_ID, List.of(CALLER_ID));
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), OLDER_MESSAGE_ID));
 
         // then
         assertThat(isAuthorized).isTrue();
     }
 
     @Test
-    void shouldNotAuthorizeAUserWithoutAnEnrolledCharacter() {
+    void shouldAuthorizeAnAdminEditingAnyMessage() {
 
         // given
-        when(adventureReader.getEnrolledPlayerIds(any())).thenReturn(List.of(OWNER_ID));
+        givenPermissions(OWNER_ID, List.of());
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.ADMIN)));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.ADMIN), OLDER_MESSAGE_ID));
 
         // then
-        assertThat(isAuthorized).isFalse();
-    }
-
-    private void givenCallerIsEnrolled() {
-        when(adventureReader.getEnrolledPlayerIds(any())).thenReturn(List.of(CALLER_ID));
+        assertThat(isAuthorized).isTrue();
     }
 
     private void givenPermissions(UUID ownerId, List<UUID> writers) {
@@ -152,9 +155,9 @@ public class RetryNarrationAuthorizerTest {
                 .thenReturn(Optional.of(new AssetPermissionsData(ownerId, writers, List.of(), Visibility.PRIVATE)));
     }
 
-    private void givenLastPlayerMessageAuthoredBy(UUID authorId) {
+    private void givenLastPlayerMessage(UUID messageId, UUID authorId) {
         when(messageAuthorizationReader.getLastPlayerMessage(any()))
-                .thenReturn(Optional.of(new MessageAuthorship(UUID.randomUUID(), authorId)));
+                .thenReturn(Optional.of(new MessageAuthorship(messageId, authorId)));
     }
 
     private MoiraiPrincipal principal(Role role) {
@@ -162,7 +165,7 @@ public class RetryNarrationAuthorizerTest {
                 CALLER_ID, 1L, "discordId", "caller", "caller@test.com", "token", "refresh", role, null);
     }
 
-    private AuthorizationContext contextWith(MoiraiPrincipal principal) {
-        return new AuthorizationContext(principal, Map.of("adventureId", ADVENTURE_ID));
+    private AuthorizationContext contextWith(MoiraiPrincipal principal, UUID messageId) {
+        return new AuthorizationContext(principal, Map.of("adventureId", ADVENTURE_ID, "messageId", messageId));
     }
 }

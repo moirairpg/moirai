@@ -285,7 +285,7 @@ public class PlayerCharacterTest {
     }
 
     @Test
-    public void shouldRaiseRenamedEventWhenTheNameChanges() {
+    public void shouldNotRaiseAnyEventWhenTheNameChanges() {
 
         // given
         var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
@@ -294,27 +294,7 @@ public class PlayerCharacterTest {
         character.updateName("Volin the Bold");
 
         // then
-        var events = character.drainEvents();
-
-        assertThat(events).hasSize(1);
-        assertThat(events.getFirst()).isInstanceOf(PlayerCharacterRenamedEvent.class);
-
-        var renamed = (PlayerCharacterRenamedEvent) events.getFirst();
-
-        assertThat(renamed.getPlayerCharacterId()).isEqualTo(PlayerCharacterFixture.NUMERIC_ID);
-        assertThat(renamed.getName()).isEqualTo("Volin the Bold");
-    }
-
-    @Test
-    public void shouldNotRaiseRenamedEventWhenTheNameIsUnchanged() {
-
-        // given
-        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
-
-        // when
-        character.updateName(character.getName());
-
-        // then
+        assertThat(character.getName()).isEqualTo("Volin the Bold");
         assertThat(character.drainEvents()).isEmpty();
     }
 

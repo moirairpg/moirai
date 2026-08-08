@@ -26,7 +26,7 @@ public class DefaultStringProcessors {
 
     public static final String AS_NAME_PREFIX_EXPRESSION = "\\bAs %s, (\\w)";
     public static final String AS_NAME_PREFIX_LOWERCASE_EXPRESSION = "\\bas %s, (\\w)";
-    public static final String CHAT_FORMAT_EXPRESSION = "^.* said:";
+    public static final String CHAT_FORMAT_EXPRESSION = "^.+? said:";
     public static final String TRAILING_FRAGMENT_EXPRESSION = "(?<=[.!?\\n])\"?[^.!?\\n]*(?![.!?\\n])$";
     public static final String SENTENCE_EXPRESSION = "((\\. |))(?:[ A-ZÀ-ÿa-z0-9-\"'&(),:;<>\\/\\\\]|\\.(?! ))+[\\?\\.\\!\\;'\"]$";
 

@@ -10,26 +10,29 @@ import me.moirai.storyengine.common.annotation.Authorize;
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.dto.MessageSummary;
+import me.moirai.storyengine.common.enums.MessageAuthorRole;
+import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
 import me.moirai.storyengine.common.util.Functions;
+import me.moirai.storyengine.core.application.event.message.MessageEditedEvent;
 import me.moirai.storyengine.core.application.event.message.MessageTranscriptChangedEvent;
 import me.moirai.storyengine.core.domain.userdetails.User;
-import me.moirai.storyengine.core.port.inbound.message.EditMessage;
+import me.moirai.storyengine.core.port.inbound.message.EditMessageAndGenerateOutput;
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
 import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 
 @CommandHandler
-@Authorize(operation = AuthorizationOperation.EDIT_MESSAGE, fields = { "#request.adventureId",
+@Authorize(operation = AuthorizationOperation.EDIT_MESSAGE_AND_GENERATE_OUTPUT, fields = { "#request.adventureId",
         "#request.messageId" })
-public class EditMessageHandler extends AbstractCommandHandler<EditMessage, Void> {
+public class EditMessageAndGenerateOutputHandler extends AbstractCommandHandler<EditMessageAndGenerateOutput, Void> {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public EditMessageHandler(
+    public EditMessageAndGenerateOutputHandler(
             MessageRepository messageRepository,
             UserRepository userRepository,
             ApplicationEventPublisher eventPublisher) {
@@ -40,7 +43,7 @@ public class EditMessageHandler extends AbstractCommandHandler<EditMessage, Void
     }
 
     @Override
-    public void validate(EditMessage command) {
+    public void validate(EditMessageAndGenerateOutput command) {
 
         if (command.adventureId() == null) {
             throw new IllegalArgumentException("Adventure ID cannot be null");
@@ -56,14 +59,21 @@ public class EditMessageHandler extends AbstractCommandHandler<EditMessage, Void
     }
 
     @Override
-    public Void execute(EditMessage command) {
+    public Void execute(EditMessageAndGenerateOutput command) {
 
         var message = messageRepository.getByPublicId(command.messageId())
                 .orElseThrow(() -> new NotFoundException("Message not found"));
 
+        if (message.getRole() != MessageAuthorRole.USER) {
+            throw new BusinessRuleViolationException(
+                    "Cannot edit and generate output: the message is not a player message");
+        }
+
         message.updateContent(command.content());
 
         var savedMessage = messageRepository.save(message);
+
+        messageRepository.deleteNewerThanByPublicId(command.adventureId(), command.messageId());
 
         eventPublisher.publishEvent(new MessageTranscriptChangedEvent(
                 command.adventureId(),
@@ -74,7 +84,13 @@ public class EditMessageHandler extends AbstractCommandHandler<EditMessage, Void
                         savedMessage.getStatus(),
                         resolveAuthorPublicId(savedMessage.getAuthorId()),
                         savedMessage.getAuthorCharacterName(),
-                        savedMessage.getCreationDate()), false)));
+                        savedMessage.getCreationDate()), true)));
+
+        eventPublisher.publishEvent(new MessageTranscriptChangedEvent(
+                command.adventureId(),
+                AdventureMessageUpdate.messagesRemovedAfter(command.messageId(), true)));
+
+        eventPublisher.publishEvent(new MessageEditedEvent(command.adventureId()));
 
         return null;
     }

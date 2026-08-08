@@ -7,9 +7,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.enums.MessageStatus;
-import me.moirai.storyengine.core.port.outbound.message.MessageData;
 import me.moirai.storyengine.core.port.outbound.message.MessageReader;
 
 @Repository
@@ -18,7 +18,6 @@ public class MessageReaderImpl implements MessageReader {
     //@formatter:off
     private static final String GET_ALL_ACTIVE_BY_ADVENTURE = """
             SELECT m.public_id,
-                   m.adventure_id,
                    au.public_id AS author_id,
                    m.author_character_name,
                    m.role,
@@ -41,23 +40,22 @@ public class MessageReaderImpl implements MessageReader {
     }
 
     @Override
-    public List<MessageData> getAllActiveByAdventureId(UUID adventurePublicId) {
+    public List<MessageSummary> getAllActiveByAdventureId(UUID adventurePublicId) {
 
         return jdbcClient.sql(GET_ALL_ACTIVE_BY_ADVENTURE)
                 .param("adventurePublicId", adventurePublicId)
-                .query(toMessageData())
+                .query(toMessageSummary())
                 .list();
     }
 
-    private RowMapper<MessageData> toMessageData() {
-        return (rs, _) -> new MessageData(
+    private RowMapper<MessageSummary> toMessageSummary() {
+        return (rs, _) -> new MessageSummary(
                 UUID.fromString(rs.getString("public_id")),
-                rs.getLong("adventure_id"),
-                rs.getObject("author_id", UUID.class),
-                rs.getString("author_character_name"),
                 MessageAuthorRole.valueOf(rs.getString("role")),
                 rs.getString("content"),
-                rs.getTimestamp("creation_date").toInstant(),
-                MessageStatus.valueOf(rs.getString("status")));
+                MessageStatus.valueOf(rs.getString("status")),
+                rs.getObject("author_id", UUID.class),
+                rs.getString("author_character_name"),
+                rs.getTimestamp("creation_date").toInstant());
     }
 }

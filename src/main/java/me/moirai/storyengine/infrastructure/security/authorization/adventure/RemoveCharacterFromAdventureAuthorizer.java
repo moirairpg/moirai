@@ -53,11 +53,6 @@ public class RemoveCharacterFromAdventureAuthorizer implements OperationAuthoriz
         return ownsCharacter(context.getFieldAsUuid("playerCharacterId"), principal);
     }
 
-    private boolean canManage(AssetPermissionsData authData, MoiraiPrincipal principal) {
-        return authData.ownerId().equals(principal.publicId())
-                || authData.writers().contains(principal.publicId());
-    }
-
     private boolean ownsCharacter(UUID playerCharacterId, MoiraiPrincipal principal) {
         return playerCharacterReader.getOwnerUsername(playerCharacterId)
                 .map(ownerUsername -> ownerUsername.equals(principal.username()))

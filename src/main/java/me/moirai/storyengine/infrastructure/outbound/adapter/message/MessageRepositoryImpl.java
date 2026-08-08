@@ -49,16 +49,6 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public void updateContent(UUID adventurePublicId, UUID messagePublicId, String content) {
-        jpaRepository.updateContent(adventurePublicId, messagePublicId, content);
-    }
-
-    @Override
-    public void updateAuthorCharacterName(Long playerCharacterId, String authorCharacterName) {
-        jpaRepository.updateAuthorCharacterName(playerCharacterId, authorCharacterName);
-    }
-
-    @Override
     public void deleteNewerThanByPublicId(UUID adventurePublicId, UUID messagePublicId) {
         jpaRepository.deleteNewerThanByPublicId(adventurePublicId, messagePublicId);
     }

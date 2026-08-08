@@ -30,10 +30,9 @@ public class EditMessageAuthorizerTest {
 
     private static final UUID ADVENTURE_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID CALLER_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
-    private static final Long CALLER_INTERNAL_ID = 1L;
     private static final UUID OWNER_ID = UUID.fromString("00000000-0000-0000-0000-000000000003");
     private static final UUID MESSAGE_ID = UUID.fromString("00000000-0000-0000-0000-000000000004");
-    private static final UUID OLDER_MESSAGE_ID = UUID.fromString("00000000-0000-0000-0000-000000000005");
+    private static final UUID OTHER_AUTHOR_ID = UUID.fromString("00000000-0000-0000-0000-000000000009");
 
     @Mock
     private AdventureAuthorizationReader adventureAuthorizationReader;
@@ -55,70 +54,70 @@ public class EditMessageAuthorizerTest {
     }
 
     @Test
-    void shouldAuthorizeAPlayerEditingTheLastPlayerMessageWhenItIsTheirs() {
+    void shouldAuthorizeAPlayerEditingAnyMessageTheyAuthored() {
 
         // given
         givenPermissions(OWNER_ID, List.of());
-        givenLastPlayerMessage(MESSAGE_ID, CALLER_INTERNAL_ID);
+        givenMessageAuthoredBy(CALLER_ID);
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), MESSAGE_ID));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
 
         // then
         assertThat(isAuthorized).isTrue();
     }
 
     @Test
-    void shouldNotAuthorizeAPlayerEditingAMessageThatIsNotTheLastPlayerMessage() {
+    void shouldNotAuthorizeAPlayerEditingAMessageAuthoredBySomeoneElse() {
 
         // given
         givenPermissions(OWNER_ID, List.of());
-        givenLastPlayerMessage(MESSAGE_ID, CALLER_INTERNAL_ID);
+        givenMessageAuthoredBy(OTHER_AUTHOR_ID);
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), OLDER_MESSAGE_ID));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
 
         // then
         assertThat(isAuthorized).isFalse();
     }
 
     @Test
-    void shouldNotAuthorizeAPlayerEditingAMessageBelongingToSomeoneElse() {
+    void shouldNotAuthorizeAPlayerEditingANarratorMessage() {
 
         // given
         givenPermissions(OWNER_ID, List.of());
-        givenLastPlayerMessage(MESSAGE_ID, 999L);
+        givenMessageAuthoredBy(null);
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), MESSAGE_ID));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
 
         // then
         assertThat(isAuthorized).isFalse();
     }
 
     @Test
-    void shouldNotAuthorizeWhenThereAreNoPlayerMessages() {
+    void shouldNotAuthorizeAPlayerEditingAMessageThatDoesNotExist() {
 
         // given
         givenPermissions(OWNER_ID, List.of());
 
-        when(messageAuthorizationReader.getLastPlayerMessage(any())).thenReturn(Optional.empty());
+        when(messageAuthorizationReader.getMessageAuthor(any())).thenReturn(Optional.empty());
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), MESSAGE_ID));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
 
         // then
         assertThat(isAuthorized).isFalse();
     }
 
     @Test
-    void shouldAuthorizeTheOwnerEditingAnyMessage() {
+    void shouldAuthorizeAManagerEditingANarratorMessage() {
 
         // given
         givenPermissions(CALLER_ID, List.of());
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), OLDER_MESSAGE_ID));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
 
         // then
         assertThat(isAuthorized).isTrue();
@@ -131,7 +130,7 @@ public class EditMessageAuthorizerTest {
         givenPermissions(OWNER_ID, List.of(CALLER_ID));
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER), OLDER_MESSAGE_ID));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.PLAYER)));
 
         // then
         assertThat(isAuthorized).isTrue();
@@ -144,7 +143,7 @@ public class EditMessageAuthorizerTest {
         givenPermissions(OWNER_ID, List.of());
 
         // when
-        var isAuthorized = authorizer.authorize(contextWith(principal(Role.ADMIN), OLDER_MESSAGE_ID));
+        var isAuthorized = authorizer.authorize(contextWith(principal(Role.ADMIN)));
 
         // then
         assertThat(isAuthorized).isTrue();
@@ -155,9 +154,9 @@ public class EditMessageAuthorizerTest {
                 .thenReturn(Optional.of(new AssetPermissionsData(ownerId, writers, List.of(), Visibility.PRIVATE)));
     }
 
-    private void givenLastPlayerMessage(UUID messageId, Long authorId) {
-        when(messageAuthorizationReader.getLastPlayerMessage(any()))
-                .thenReturn(Optional.of(new MessageAuthorship(messageId, authorId)));
+    private void givenMessageAuthoredBy(UUID authorId) {
+        when(messageAuthorizationReader.getMessageAuthor(any()))
+                .thenReturn(Optional.of(new MessageAuthorship(MESSAGE_ID, authorId)));
     }
 
     private MoiraiPrincipal principal(Role role) {
@@ -165,7 +164,7 @@ public class EditMessageAuthorizerTest {
                 CALLER_ID, 1L, "discordId", "caller", "caller@test.com", "token", "refresh", role, null);
     }
 
-    private AuthorizationContext contextWith(MoiraiPrincipal principal, UUID messageId) {
-        return new AuthorizationContext(principal, Map.of("adventureId", ADVENTURE_ID, "messageId", messageId));
+    private AuthorizationContext contextWith(MoiraiPrincipal principal) {
+        return new AuthorizationContext(principal, Map.of("adventureId", ADVENTURE_ID, "messageId", MESSAGE_ID));
     }
 }

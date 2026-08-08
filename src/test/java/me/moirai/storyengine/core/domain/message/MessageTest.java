@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
+import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 
 public class MessageTest {
@@ -27,7 +28,7 @@ public class MessageTest {
     }
 
     @Test
-    public void shouldRecordNoAuthorWhenANarratorMessageIsBuilt() {
+    public void shouldRecordNoPlayerWhenANarratorMessageIsBuilt() {
 
         // when
         var message = MessageFixture.assistantMessage().build();
@@ -35,31 +36,44 @@ public class MessageTest {
         // then
         assertThat(message.getAuthorId()).isNull();
         assertThat(message.getAuthorCharacterId()).isNull();
-        assertThat(message.getAuthorCharacterName()).isNull();
+        assertThat(message.getAuthorCharacterName()).isEqualTo("Narrator");
     }
 
     @Test
-    public void shouldReplaceTheRecordedNameWhenTheAuthorCharacterIsRenamed() {
+    public void shouldThrowExceptionWhenNoSpeakerIsRecorded() {
+
+        // when
+        var builder = Message.builder()
+                .adventureId(1L)
+                .role(MessageAuthorRole.ASSISTANT)
+                .content("A door opens.");
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldReplaceTheContentWhenTheMessageIsEdited() {
 
         // given
         var message = MessageFixture.userMessage()
-                .authorCharacterName("Volin Habar")
+                .content("Hello")
                 .build();
 
         // when
-        message.renameAuthorCharacter("Volin the Bold");
+        message.updateContent("Hello there");
 
         // then
-        assertThat(message.getAuthorCharacterName()).isEqualTo("Volin the Bold");
+        assertThat(message.getContent()).isEqualTo("Hello there");
     }
 
     @Test
-    public void shouldThrowExceptionWhenTheNewAuthorCharacterNameIsBlank() {
+    public void shouldThrowExceptionWhenTheUpdatedContentIsBlank() {
 
         // given
         var message = MessageFixture.userMessage().build();
 
         // then
-        assertThrows(BusinessRuleViolationException.class, () -> message.renameAuthorCharacter(EMPTY));
+        assertThrows(BusinessRuleViolationException.class, () -> message.updateContent(EMPTY));
     }
 }

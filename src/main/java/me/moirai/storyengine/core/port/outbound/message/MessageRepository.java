@@ -20,10 +20,6 @@ public interface MessageRepository {
 
     void deleteByPublicId(UUID adventurePublicId, UUID messagePublicId);
 
-    void updateContent(UUID adventurePublicId, UUID messagePublicId, String content);
-
-    void updateAuthorCharacterName(Long playerCharacterId, String authorCharacterName);
-
     void deleteNewerThanByPublicId(UUID adventurePublicId, UUID messagePublicId);
 
     void deleteAllByAdventureId(Long adventureId);

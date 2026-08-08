@@ -18,6 +18,7 @@ import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authentication.MoiraiSecurityContext;
 import me.moirai.storyengine.core.port.inbound.message.DeleteMessage;
 import me.moirai.storyengine.core.port.inbound.message.EditMessage;
+import me.moirai.storyengine.core.port.inbound.message.EditMessageAndGenerateOutput;
 import me.moirai.storyengine.core.port.inbound.message.Go;
 import me.moirai.storyengine.core.port.inbound.message.Retry;
 import me.moirai.storyengine.core.port.inbound.message.RetryFromMessage;
@@ -90,7 +91,18 @@ public class AdventureWebSocketController {
             @Payload WebSocketMessageRequest request,
             Principal principal) {
 
-        dispatch(principal, username -> new EditMessage(adventureId, messageId, request.content(), username));
+        dispatch(principal, username -> new EditMessage(adventureId, messageId, request.content()));
+    }
+
+    @MessageMapping("/adventures/{adventureId}/messages/{messageId}/edit-and-generate")
+    public void editMessageAndGenerateOutput(
+            @DestinationVariable UUID adventureId,
+            @DestinationVariable UUID messageId,
+            @Payload WebSocketMessageRequest request,
+            Principal principal) {
+
+        dispatch(principal, username -> new EditMessageAndGenerateOutput(
+                adventureId, messageId, request.content()));
     }
 
     @MessageMapping("/adventures/{adventureId}/messages/{messageId}/delete")

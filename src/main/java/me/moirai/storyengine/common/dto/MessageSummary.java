@@ -1,4 +1,4 @@
-package me.moirai.storyengine.core.port.inbound.adventure;
+package me.moirai.storyengine.common.dto;
 
 import java.time.Instant;
 import java.util.UUID;
