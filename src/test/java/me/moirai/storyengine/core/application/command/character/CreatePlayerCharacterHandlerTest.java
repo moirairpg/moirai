@@ -117,6 +117,23 @@ public class CreatePlayerCharacterHandlerTest {
     }
 
     @Test
+    void shouldReturnBothFlagsAsTrueWhenTheCharacterIsCreated() {
+
+        // given
+        var command = createCommand();
+
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.findById(UserFixture.NUMERIC_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        var result = handler.execute(command);
+
+        // then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isTrue();
+    }
+
+    @Test
     void shouldNotIndexTheCharacterWhenTheOwnerIsNotFound() {
 
         // given

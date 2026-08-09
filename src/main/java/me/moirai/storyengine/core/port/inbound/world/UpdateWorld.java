@@ -22,7 +22,8 @@ public record UpdateWorld(
         Set<PermissionDto> permissions,
         List<LorebookEntryToAdd> lorebookEntriesToAdd,
         List<LorebookEntryToUpdate> lorebookEntriesToUpdate,
-        List<UUID> lorebookEntriesToDelete)
+        List<UUID> lorebookEntriesToDelete,
+        UUID requesterId)
         implements Command<WorldDetails> {
 
     public record LorebookEntryToAdd(String name, String description) {}

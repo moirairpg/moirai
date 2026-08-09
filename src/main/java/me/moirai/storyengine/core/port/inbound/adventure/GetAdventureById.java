@@ -5,6 +5,7 @@ import java.util.UUID;
 import me.moirai.storyengine.common.cqs.query.Query;
 
 public record GetAdventureById(
-        UUID adventureId)
+        UUID adventureId,
+        UUID requesterId)
         implements Query<AdventureDetails> {
 }

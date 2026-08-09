@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import me.moirai.storyengine.common.enums.Visibility;
+import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.inbound.world.UpdateWorld;
 
 public class UpdateWorldTest {
@@ -29,7 +30,8 @@ public class UpdateWorldTest {
                 Set.of(),
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         // Then
         assertThat(result).isNotNull();
@@ -56,7 +58,8 @@ public class UpdateWorldTest {
                 null,
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         // Then
         assertThat(result).isNotNull();

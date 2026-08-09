@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
+import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.inbound.adventure.ContextAttributesDto;
 import me.moirai.storyengine.core.port.inbound.adventure.ModelConfigurationDto;
 import me.moirai.storyengine.core.port.inbound.adventure.UpdateAdventure;
@@ -46,7 +47,8 @@ public class UpdateAdventureTest {
                         adventure.getContextAttributes().bumpFrequency()),
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         // then
         assertThat(updateAdventure.adventureId()).isEqualTo(AdventureFixture.PUBLIC_ID);
@@ -88,7 +90,8 @@ public class UpdateAdventureTest {
                 sample.contextAttributes(),
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         // then
         assertThat(updateAdventure.permissions()).isEmpty();

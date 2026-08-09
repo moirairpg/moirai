@@ -7,6 +7,7 @@ import me.moirai.storyengine.common.enums.ArtificialIntelligenceModel;
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
+import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.inbound.adventure.ContextAttributesDto;
 import me.moirai.storyengine.core.port.inbound.adventure.ModelConfigurationDto;
 import me.moirai.storyengine.core.port.inbound.adventure.UpdateAdventure;
@@ -40,7 +41,8 @@ public class UpdateAdventureFixture {
                         adventure.getContextAttributes().bumpFrequency()),
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
     }
 
     public static UpdateAdventure sampleWithRequesterId(String requesterId) {
@@ -70,7 +72,8 @@ public class UpdateAdventureFixture {
                         adventure.getContextAttributes().bumpFrequency()),
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
     }
 
     public static UpdateAdventure sampleWithModelConfiguration(
@@ -100,7 +103,8 @@ public class UpdateAdventureFixture {
                         adventure.getContextAttributes().bumpFrequency()),
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
     }
 
     public static UpdateAdventure sampleWithVisibility(String requesterId, Visibility visibility) {
@@ -130,7 +134,8 @@ public class UpdateAdventureFixture {
                         adventure.getContextAttributes().bumpFrequency()),
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
     }
 
 }

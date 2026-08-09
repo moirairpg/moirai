@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +19,6 @@ import me.moirai.storyengine.core.port.inbound.world.CreateWorld;
 import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 import me.moirai.storyengine.core.port.outbound.world.WorldRepository;
-import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class CreateWorldHandlerTest {
@@ -58,7 +55,6 @@ public class CreateWorldHandlerTest {
         var command = CreateWorldFixture.createPrivateWorld();
 
         when(repository.save(any(World.class))).thenReturn(world);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // When
         var result = handler.handle(command);
@@ -66,5 +62,24 @@ public class CreateWorldHandlerTest {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(WorldFixture.PUBLIC_ID);
+    }
+
+    @Test
+    public void shouldReturnBothFlagsAsTrueWhenTheWorldIsCreated() {
+
+        // Given
+        var world = WorldFixture.privateWorld().build();
+        ReflectionTestUtils.setField(world, "id", WorldFixture.NUMERIC_ID);
+        ReflectionTestUtils.setField(world, "publicId", WorldFixture.PUBLIC_ID);
+        var command = CreateWorldFixture.createPrivateWorld();
+
+        when(repository.save(any(World.class))).thenReturn(world);
+
+        // When
+        var result = handler.handle(command);
+
+        // Then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isTrue();
     }
 }

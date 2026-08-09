@@ -123,7 +123,7 @@ public class AdventureRestController extends SecurityContextAware {
     public AdventureDetails getAdventureById(
             @PathVariable(required = true) UUID adventureId) {
 
-        var query = new GetAdventureById(adventureId);
+        var query = new GetAdventureById(adventureId, authenticatedUserId());
         return queryRunner.run(query);
     }
 
@@ -216,7 +216,8 @@ public class AdventureRestController extends SecurityContextAware {
                         request.contextAttributes().bumpFrequency()),
                 lorebookEntriesToAdd,
                 lorebookEntriesToUpdate,
-                emptyIfNull(request.lorebookEntriesToDelete()).stream().toList());
+                emptyIfNull(request.lorebookEntriesToDelete()).stream().toList(),
+                authenticatedUserId());
 
         return commandRunner.run(command);
     }

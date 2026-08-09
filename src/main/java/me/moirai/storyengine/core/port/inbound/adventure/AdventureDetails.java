@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.enums.Moderation;
 import me.moirai.storyengine.common.enums.Visibility;
 
@@ -24,14 +23,14 @@ public record AdventureDetails(
         Instant lastUpdateDate,
         ModelConfigurationDto modelConfiguration,
         ContextAttributesDto contextAttributes,
-        Set<PermissionDto> permissions,
+        boolean canManage,
+        boolean isOwner,
         Set<AdventureLorebookEntryDetails> lorebook,
         List<AdventureMembershipSummary> roster,
         Double uiImagePositionX,
         Double uiImagePositionY) {
 
     public AdventureDetails {
-        permissions = Set.copyOf(permissions);
         lorebook = Set.copyOf(lorebook);
         roster = List.copyOf(roster);
     }

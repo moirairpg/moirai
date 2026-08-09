@@ -79,10 +79,12 @@ public class UpdatePlayerCharacterHandler
 
         vectorSearchPort.upsert(saved.getPublicId(), embeddingPort.embed(saved.narrativeDescription()));
 
-        return mapResult(saved, owner.getUsername());
+        var isOwner = owner.getUsername().equals(command.requesterUsername());
+
+        return mapResult(saved, owner.getUsername(), isOwner);
     }
 
-    private PlayerCharacterDetails mapResult(PlayerCharacter character, String ownerUsername) {
+    private PlayerCharacterDetails mapResult(PlayerCharacter character, String ownerUsername, boolean isOwner) {
 
         return new PlayerCharacterDetails(
                 character.getPublicId(),
@@ -95,6 +97,8 @@ public class UpdatePlayerCharacterHandler
                 character.getUiImagePositionX(),
                 character.getUiImagePositionY(),
                 character.getCreationDate(),
-                character.getLastUpdateDate());
+                character.getLastUpdateDate(),
+                true,
+                isOwner);
     }
 }

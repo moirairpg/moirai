@@ -26,7 +26,8 @@ public record UpdateAdventure(
         ContextAttributesDto contextAttributes,
         List<LorebookEntryToAdd> lorebookEntriesToAdd,
         List<LorebookEntryToUpdate> lorebookEntriesToUpdate,
-        List<UUID> lorebookEntriesToDelete)
+        List<UUID> lorebookEntriesToDelete,
+        UUID requesterId)
         implements Command<AdventureDetails> {
 
     public record LorebookEntryToAdd(String name, String description) {}

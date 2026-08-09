@@ -5,6 +5,7 @@ import java.util.UUID;
 import me.moirai.storyengine.common.cqs.query.Query;
 
 public record GetWorldById(
-        UUID worldId)
+        UUID worldId,
+        UUID requesterId)
         implements Query<WorldDetails> {
 }

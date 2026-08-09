@@ -27,6 +27,8 @@ public class GetPlayerCharacterByIdHandler
         var row = reader.getById(query.characterId())
                 .orElseThrow(() -> new NotFoundException("Player character not found"));
 
+        var isOwner = row.ownerUsername().equals(query.requesterUsername());
+
         return new PlayerCharacterDetails(
                 row.id(),
                 row.ownerUsername(),
@@ -38,6 +40,8 @@ public class GetPlayerCharacterByIdHandler
                 row.uiImagePositionX(),
                 row.uiImagePositionY(),
                 row.creationDate(),
-                row.lastUpdateDate());
+                row.lastUpdateDate(),
+                isOwner,
+                isOwner);
     }
 }

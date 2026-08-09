@@ -87,7 +87,7 @@ public class WorldRestController extends SecurityContextAware {
     @Authorize(operation = AuthorizationOperation.VIEW_WORLD, fields = "#worldId")
     public WorldDetails getWorldById(@PathVariable(required = true) UUID worldId) {
 
-        var query = new GetWorldById(worldId);
+        var query = new GetWorldById(worldId, authenticatedUserId());
         return queryRunner.run(query);
     }
 
@@ -149,7 +149,8 @@ public class WorldRestController extends SecurityContextAware {
                 updatePermissions,
                 lorebookEntriesToAdd,
                 lorebookEntriesToUpdate,
-                emptyIfNull(request.lorebookEntriesToDelete()).stream().toList());
+                emptyIfNull(request.lorebookEntriesToDelete()).stream().toList(),
+                authenticatedUserId());
 
         return commandRunner.run(command);
     }

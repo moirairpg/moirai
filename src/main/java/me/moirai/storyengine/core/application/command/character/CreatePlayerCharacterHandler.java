@@ -73,7 +73,9 @@ public class CreatePlayerCharacterHandler
                 character.getUiImagePositionX(),
                 character.getUiImagePositionY(),
                 character.getCreationDate(),
-                character.getLastUpdateDate()
+                character.getLastUpdateDate(),
+                true,
+                true
         );
     }
 }

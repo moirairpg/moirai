@@ -12,6 +12,7 @@ public record UpdatePlayerCharacter(
         String personality,
         String physicalDescription,
         Double uiImagePositionX,
-        Double uiImagePositionY)
+        Double uiImagePositionY,
+        String requesterUsername)
         implements Command<PlayerCharacterDetails> {
 }

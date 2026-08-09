@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.domain.Permission;
-import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.port.inbound.world.CreateWorld;
@@ -75,14 +74,8 @@ public class CreateWorldHandler extends AbstractCommandHandler<CreateWorld, Worl
                 world.getNarratorPersonality(),
                 world.getVisibility().name(),
                 storagePort.resolveUrl(world.getImageKey()),
-                world.getPermissions().stream()
-                        .map(permission -> {
-                            var user = userRepository.findById(permission.userId())
-                                    .orElseThrow(() -> new NotFoundException("User not found"));
-
-                            return new PermissionDto(user.getPublicId(), permission.level());
-                        })
-                        .collect(Collectors.toSet()),
+                true,
+                true,
                 world.getLorebook().stream()
                         .map(entry -> new WorldLorebookEntryDetails(
                                 entry.getPublicId(),

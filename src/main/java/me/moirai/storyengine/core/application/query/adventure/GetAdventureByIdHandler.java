@@ -1,5 +1,8 @@
 package me.moirai.storyengine.core.application.query.adventure;
 
+import static me.moirai.storyengine.common.enums.PermissionLevel.OWNER;
+import static me.moirai.storyengine.common.enums.PermissionLevel.WRITE;
+
 import me.moirai.storyengine.common.annotation.QueryHandler;
 import me.moirai.storyengine.common.cqs.query.AbstractQueryHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -54,6 +57,16 @@ public class GetAdventureByIdHandler extends AbstractQueryHandler<GetAdventureBy
                         storagePort.resolveUrl(row.imageKey())))
                 .toList();
 
+        var permissions = adventure.permissions();
+
+        var isOwner = permissions.stream()
+                .anyMatch(permission -> permission.level() == OWNER
+                        && permission.userId().equals(query.requesterId()));
+
+        var canManage = isOwner || permissions.stream()
+                .anyMatch(permission -> permission.level() == WRITE
+                        && permission.userId().equals(query.requesterId()));
+
         return new AdventureDetails(
                 adventure.id(),
                 adventure.name(),
@@ -69,7 +82,8 @@ public class GetAdventureByIdHandler extends AbstractQueryHandler<GetAdventureBy
                 adventure.lastUpdateDate(),
                 adventure.modelConfiguration(),
                 adventure.contextAttributes(),
-                adventure.permissions(),
+                canManage,
+                isOwner,
                 adventure.lorebook(),
                 roster,
                 adventure.uiImagePositionX(),

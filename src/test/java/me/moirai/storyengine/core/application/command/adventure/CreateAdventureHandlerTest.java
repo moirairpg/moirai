@@ -104,7 +104,6 @@ public class CreateAdventureHandlerTest {
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -140,7 +139,6 @@ public class CreateAdventureHandlerTest {
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -176,7 +174,6 @@ public class CreateAdventureHandlerTest {
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -196,7 +193,6 @@ public class CreateAdventureHandlerTest {
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         AdventureDetails result = handler.handle(command);
@@ -204,6 +200,25 @@ public class CreateAdventureHandlerTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(AdventureFixture.PUBLIC_ID);
+    }
+
+    @Test
+    public void shouldReturnBothFlagsAsTrueWhenTheAdventureIsCreated() {
+
+        // given
+        var command = CreateAdventureFixture.sample();
+        var adventure = AdventureFixture.privateAdventure().build();
+        ReflectionTestUtils.setField(adventure, "id", AdventureFixture.NUMERIC_ID);
+        ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
+
+        when(repository.save(any(Adventure.class))).thenReturn(adventure);
+
+        // when
+        var result = handler.handle(command);
+
+        // then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isTrue();
     }
 
     @Test
@@ -236,7 +251,6 @@ public class CreateAdventureHandlerTest {
 
         when(userRepository.findByPublicId(UserFixture.PUBLIC_ID)).thenReturn(Optional.of(user));
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
 
         // when
         AdventureDetails result = handler.handle(command);
@@ -273,7 +287,6 @@ public class CreateAdventureHandlerTest {
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
         when(embeddingPort.embedAll(anyList())).thenReturn(List.of(new float[]{0.1f, 0.2f}, new float[]{0.3f, 0.4f}));
 
         // when
@@ -295,7 +308,6 @@ public class CreateAdventureHandlerTest {
         ReflectionTestUtils.setField(adventure, "publicId", AdventureFixture.PUBLIC_ID);
 
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         handler.handle(command);

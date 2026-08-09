@@ -1,5 +1,6 @@
 package me.moirai.storyengine.core.application.command.world;
 
+import static me.moirai.storyengine.common.enums.PermissionLevel.OWNER;
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 import java.util.stream.Collectors;
@@ -7,7 +8,6 @@ import java.util.stream.Collectors;
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.domain.Permission;
-import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.port.inbound.world.UpdateWorld;
@@ -22,6 +22,7 @@ public class UpdateWorldHandler extends AbstractCommandHandler<UpdateWorld, Worl
 
     private static final String ID_CANNOT_BE_NULL_OR_EMPTY = "World ID cannot be null or empty";
     private static final String WORLD_NOT_FOUND = "World to be updated was not found";
+    private static final String REQUESTER_NOT_FOUND = "Requester of the world update was not found";
 
     private final WorldRepository repository;
     private final UserRepository userRepository;
@@ -78,10 +79,19 @@ public class UpdateWorldHandler extends AbstractCommandHandler<UpdateWorld, Worl
         command.lorebookEntriesToAdd()
                 .forEach(e -> world.addLorebookEntry(e.name(), e.description()));
 
-        return mapResult(repository.save(world));
+        var saved = repository.save(world);
+
+        var requester = userRepository.findByPublicId(command.requesterId())
+                .orElseThrow(() -> new NotFoundException(REQUESTER_NOT_FOUND));
+
+        var isOwner = saved.getPermissions().stream()
+                .anyMatch(permission -> permission.level() == OWNER
+                        && permission.userId().equals(requester.getId()));
+
+        return mapResult(saved, isOwner);
     }
 
-    private WorldDetails mapResult(World world) {
+    private WorldDetails mapResult(World world, boolean isOwner) {
 
         return new WorldDetails(
                 world.getPublicId(),
@@ -92,14 +102,8 @@ public class UpdateWorldHandler extends AbstractCommandHandler<UpdateWorld, Worl
                 world.getNarratorPersonality(),
                 world.getVisibility().name(),
                 storagePort.resolveUrl(world.getImageKey()),
-                world.getPermissions().stream()
-                        .map(permission -> {
-                            var user = userRepository.findById(permission.userId())
-                                    .orElseThrow(() -> new NotFoundException("User not found"));
-
-                            return new PermissionDto(user.getPublicId(), permission.level());
-                        })
-                        .collect(Collectors.toSet()),
+                true,
+                isOwner,
                 world.getLorebook().stream()
                         .map(entry -> new WorldLorebookEntryDetails(
                                 entry.getPublicId(),

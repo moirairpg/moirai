@@ -18,8 +18,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.enums.ArtificialIntelligenceModel;
 import me.moirai.storyengine.common.enums.CharacterClass;
+import me.moirai.storyengine.common.enums.PermissionLevel;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
@@ -35,6 +37,9 @@ import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 
 @ExtendWith(MockitoExtension.class)
 public class GetAdventureByIdHandlerTest {
+
+    private static final UUID REQUESTER_ID = UUID.fromString("11111111-2222-3333-4444-555555555555");
+    private static final UUID OTHER_USER_ID = UUID.fromString("99999999-8888-7777-6666-555555555555");
 
     @Mock
     private AdventureReader reader;
@@ -52,7 +57,7 @@ public class GetAdventureByIdHandlerTest {
     public void shouldThrowExceptionWhenIdIsNull() {
 
         // Given
-        var query = new GetAdventureById(null);
+        var query = new GetAdventureById(null, REQUESTER_ID);
 
         // Then
         assertThrows(IllegalArgumentException.class, () -> handler.handle(query));
@@ -72,7 +77,7 @@ public class GetAdventureByIdHandlerTest {
     public void shouldThrowExceptionWhenAdventureIsNotFound() {
 
         // Given
-        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID);
+        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID, REQUESTER_ID);
 
         when(reader.getAdventureById(any(UUID.class))).thenReturn(Optional.empty());
 
@@ -109,7 +114,7 @@ public class GetAdventureByIdHandlerTest {
                 null,
                 null);
 
-        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID);
+        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID, REQUESTER_ID);
 
         when(reader.getAdventureById(any(UUID.class))).thenReturn(Optional.of(expectedDetails));
         when(adventureRosterReader.getAllByAdventurePublicId(any(UUID.class))).thenReturn(List.of());
@@ -165,7 +170,7 @@ public class GetAdventureByIdHandlerTest {
                 CharacterClass.PALADIN,
                 "characters/image-key.png");
 
-        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID);
+        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID, REQUESTER_ID);
 
         when(reader.getAdventureById(any(UUID.class))).thenReturn(Optional.of(expectedDetails));
         when(adventureRosterReader.getAllByAdventurePublicId(any(UUID.class))).thenReturn(List.of(rosterRow));
@@ -180,5 +185,111 @@ public class GetAdventureByIdHandlerTest {
         assertThat(result.roster().getFirst().playerUsername()).isEqualTo("john.doe");
         assertThat(result.roster().getFirst().characterClass()).isEqualTo(CharacterClass.PALADIN);
         assertThat(result.roster().getFirst().imageUrl()).isEqualTo("http://image.url");
+    }
+
+    @Test
+    public void shouldReturnBothFlagsAsTrueWhenRequesterIsTheOwner() {
+
+        // given
+        var row = adventureRowWith(Set.of(new PermissionDto(REQUESTER_ID, PermissionLevel.OWNER)));
+        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID, REQUESTER_ID);
+
+        when(reader.getAdventureById(any(UUID.class))).thenReturn(Optional.of(row));
+        when(adventureRosterReader.getAllByAdventurePublicId(any(UUID.class))).thenReturn(List.of());
+
+        // when
+        var result = handler.handle(query);
+
+        // then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isTrue();
+    }
+
+    @Test
+    public void shouldReturnCanManageWithoutOwnershipWhenRequesterHasWritePermission() {
+
+        // given
+        var row = adventureRowWith(Set.of(
+                new PermissionDto(OTHER_USER_ID, PermissionLevel.OWNER),
+                new PermissionDto(REQUESTER_ID, PermissionLevel.WRITE)));
+
+        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID, REQUESTER_ID);
+
+        when(reader.getAdventureById(any(UUID.class))).thenReturn(Optional.of(row));
+        when(adventureRosterReader.getAllByAdventurePublicId(any(UUID.class))).thenReturn(List.of());
+
+        // when
+        var result = handler.handle(query);
+
+        // then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isFalse();
+    }
+
+    @Test
+    public void shouldReturnBothFlagsAsFalseWhenRequesterHasReadPermission() {
+
+        // given
+        var row = adventureRowWith(Set.of(
+                new PermissionDto(OTHER_USER_ID, PermissionLevel.OWNER),
+                new PermissionDto(REQUESTER_ID, PermissionLevel.READ)));
+
+        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID, REQUESTER_ID);
+
+        when(reader.getAdventureById(any(UUID.class))).thenReturn(Optional.of(row));
+        when(adventureRosterReader.getAllByAdventurePublicId(any(UUID.class))).thenReturn(List.of());
+
+        // when
+        var result = handler.handle(query);
+
+        // then
+        assertThat(result.canManage()).isFalse();
+        assertThat(result.isOwner()).isFalse();
+    }
+
+    @Test
+    public void shouldReturnBothFlagsAsFalseWhenRequesterHasNoPermissionEntry() {
+
+        // given
+        var row = adventureRowWith(Set.of(new PermissionDto(OTHER_USER_ID, PermissionLevel.OWNER)));
+        var query = new GetAdventureById(AdventureFixture.PUBLIC_ID, REQUESTER_ID);
+
+        when(reader.getAdventureById(any(UUID.class))).thenReturn(Optional.of(row));
+        when(adventureRosterReader.getAllByAdventurePublicId(any(UUID.class))).thenReturn(List.of());
+
+        // when
+        var result = handler.handle(query);
+
+        // then
+        assertThat(result.canManage()).isFalse();
+        assertThat(result.isOwner()).isFalse();
+    }
+
+    private AdventureDetailsRow adventureRowWith(Set<PermissionDto> permissions) {
+
+        var modelConfiguration = new ModelConfigurationDto(
+                ArtificialIntelligenceModel.GPT54_MINI, 2048, 1.0);
+
+        var contextAttributes = new ContextAttributesDto(null, null, null, null, 0);
+
+        return new AdventureDetailsRow(
+                AdventureFixture.PUBLIC_ID,
+                "Name",
+                "desc",
+                "start",
+                WorldFixture.PUBLIC_ID,
+                "Aria",
+                "A helpful guide",
+                PRIVATE,
+                STRICT,
+                null,
+                null,
+                null,
+                modelConfiguration,
+                contextAttributes,
+                permissions,
+                Set.of(),
+                null,
+                null);
     }
 }
