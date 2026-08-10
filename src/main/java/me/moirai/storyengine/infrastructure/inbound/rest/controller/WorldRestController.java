@@ -3,6 +3,7 @@ package me.moirai.storyengine.infrastructure.inbound.rest.controller;
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,12 @@ import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.core.port.inbound.ImageResult;
 import me.moirai.storyengine.core.port.inbound.world.CreateWorld;
 import me.moirai.storyengine.core.port.inbound.world.DeleteWorld;
+import me.moirai.storyengine.core.port.inbound.AssetMember;
+import me.moirai.storyengine.core.port.inbound.AssetMemberInput;
 import me.moirai.storyengine.core.port.inbound.world.GetWorldById;
+import me.moirai.storyengine.core.port.inbound.world.GetWorldMembers;
+import me.moirai.storyengine.core.port.inbound.world.UpdateWorldPermissions;
+import me.moirai.storyengine.infrastructure.inbound.rest.request.UpdateAssetPermissionsRequest;
 import me.moirai.storyengine.core.port.inbound.world.RemoveWorldImage;
 import me.moirai.storyengine.core.port.inbound.world.SearchWorlds;
 import me.moirai.storyengine.core.port.inbound.world.UpdateWorld;
@@ -162,6 +168,28 @@ public class WorldRestController extends SecurityContextAware {
 
         var command = new DeleteWorld(worldId);
         commandRunner.run(command);
+    }
+
+    @GetMapping("/{worldId}/permissions")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.MANAGE_WORLD_PERMISSIONS, fields = "#worldId")
+    public List<AssetMember> getWorldMembers(@PathVariable(required = true) UUID worldId) {
+
+        return queryRunner.run(new GetWorldMembers(worldId));
+    }
+
+    @PutMapping("/{worldId}/permissions")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.MANAGE_WORLD_PERMISSIONS, fields = "#worldId")
+    public List<AssetMember> updateWorldPermissions(
+            @PathVariable(required = true) UUID worldId,
+            @Valid @RequestBody UpdateAssetPermissionsRequest request) {
+
+        var members = request.members().stream()
+                .map(member -> new AssetMemberInput(member.username(), member.level()))
+                .toList();
+
+        return commandRunner.run(new UpdateWorldPermissions(worldId, members));
     }
 
     @PutMapping(value = "/{worldId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -16,6 +16,8 @@ import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 @MappedSuperclass
 public abstract class ShareableAsset extends Asset {
 
+    private static final String OWNER_CANNOT_BE_OVERWRITTEN = "Owner permission cannot be overwritten";
+
     protected abstract List<Permission> permissions();
 
     @Enumerated(EnumType.STRING)
@@ -39,7 +41,7 @@ public abstract class ShareableAsset extends Asset {
     public void grant(Permission permission) {
         if (permissions().stream()
                 .anyMatch(p -> p.userId().equals(permission.userId()) && p.level() == PermissionLevel.OWNER)) {
-            throw new BusinessRuleViolationException("Owner permission cannot be overwritten");
+            throw new BusinessRuleViolationException(OWNER_CANNOT_BE_OVERWRITTEN);
         }
 
         permissions().removeIf(p -> p.userId().equals(permission.userId()));
@@ -59,6 +61,10 @@ public abstract class ShareableAsset extends Asset {
                 .filter(p -> p.level() == PermissionLevel.OWNER)
                 .findFirst()
                 .orElseThrow();
+
+        if (newPermissions.stream().anyMatch(p -> p.userId().equals(owner.userId()))) {
+            throw new BusinessRuleViolationException(OWNER_CANNOT_BE_OVERWRITTEN);
+        }
 
         permissions().clear();
         permissions().add(owner);

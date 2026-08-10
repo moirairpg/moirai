@@ -1,0 +1,10 @@
+package me.moirai.storyengine.infrastructure.inbound.rest.request;
+
+import java.util.List;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+
+public record UpdateAssetPermissionsRequest(
+        @NotNull(message = "cannot be null") List<@Valid AssetMemberRequest> members) {
+}

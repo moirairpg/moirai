@@ -1,0 +1,67 @@
+package me.moirai.storyengine.core.application.command.world;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import me.moirai.storyengine.common.annotation.CommandHandler;
+import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
+import me.moirai.storyengine.common.domain.Permission;
+import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.core.domain.userdetails.User;
+import me.moirai.storyengine.core.port.inbound.AssetMember;
+import me.moirai.storyengine.core.port.inbound.world.UpdateWorldPermissions;
+import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
+import me.moirai.storyengine.core.port.outbound.world.WorldRepository;
+
+@CommandHandler
+public class UpdateWorldPermissionsHandler
+        extends AbstractCommandHandler<UpdateWorldPermissions, List<AssetMember>> {
+
+    private static final String WORLD_NOT_FOUND = "World to be shared was not found";
+    private static final String USER_NOT_FOUND = "User to be granted access was not found: %s";
+
+    private final WorldRepository repository;
+    private final UserRepository userRepository;
+
+    public UpdateWorldPermissionsHandler(WorldRepository repository, UserRepository userRepository) {
+
+        this.repository = repository;
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public List<AssetMember> execute(UpdateWorldPermissions command) {
+
+        var world = repository.findByPublicId(command.worldId())
+                .orElseThrow(() -> new NotFoundException(WORLD_NOT_FOUND));
+
+        var newPermissions = command.members().stream()
+                .map(member -> {
+                    var user = userRepository.findByUsername(member.username())
+                            .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(member.username())));
+
+                    return new Permission(user.getId(), member.level());
+                })
+                .collect(Collectors.toSet());
+
+        world.updatePermissions(newPermissions);
+
+        var savedWorld = repository.save(world);
+        var savedPermissions = savedWorld.getPermissions();
+
+        var userIds = savedPermissions.stream()
+                .map(Permission::userId)
+                .toList();
+
+        var usersById = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+
+        return savedPermissions.stream()
+                .map(permission -> {
+                    var user = usersById.get(permission.userId());
+
+                    return new AssetMember(user.getPublicId(), user.getUsername(), permission.level());
+                })
+                .toList();
+    }
+}

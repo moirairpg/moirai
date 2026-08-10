@@ -3,6 +3,7 @@ package me.moirai.storyengine.infrastructure.inbound.rest.controller;
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,12 @@ import me.moirai.storyengine.common.dto.CursorResult;
 import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.dto.PaginatedResult;
 import me.moirai.storyengine.common.dto.PermissionDto;
+import me.moirai.storyengine.core.port.inbound.AssetMember;
+import me.moirai.storyengine.core.port.inbound.AssetMemberInput;
 import me.moirai.storyengine.core.port.inbound.ImageResult;
+import me.moirai.storyengine.core.port.inbound.adventure.GetAdventureMembers;
+import me.moirai.storyengine.core.port.inbound.adventure.UpdateAdventurePermissions;
+import me.moirai.storyengine.infrastructure.inbound.rest.request.UpdateAssetPermissionsRequest;
 import me.moirai.storyengine.core.port.inbound.adventure.DeclineAdventureInvitation;
 import me.moirai.storyengine.core.port.inbound.adventure.GetPendingAdventureInvitation;
 import me.moirai.storyengine.core.port.inbound.adventure.InviteUserToAdventure;
@@ -270,6 +276,28 @@ public class AdventureRestController extends SecurityContextAware {
 
         var command = new DeleteAdventure(adventureId);
         commandRunner.run(command);
+    }
+
+    @GetMapping("/{adventureId}/permissions")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.MANAGE_ADVENTURE_PERMISSIONS, fields = "#adventureId")
+    public List<AssetMember> getAdventureMembers(@PathVariable(required = true) UUID adventureId) {
+
+        return queryRunner.run(new GetAdventureMembers(adventureId));
+    }
+
+    @PutMapping("/{adventureId}/permissions")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.MANAGE_ADVENTURE_PERMISSIONS, fields = "#adventureId")
+    public List<AssetMember> updateAdventurePermissions(
+            @PathVariable(required = true) UUID adventureId,
+            @Valid @RequestBody UpdateAssetPermissionsRequest request) {
+
+        var members = request.members().stream()
+                .map(member -> new AssetMemberInput(member.username(), member.level()))
+                .toList();
+
+        return commandRunner.run(new UpdateAdventurePermissions(adventureId, members));
     }
 
     @GetMapping("/{adventureId}/messages")
