@@ -130,10 +130,6 @@ public class WorldRestController extends SecurityContextAware {
     public WorldDetails updateWorld(@PathVariable(required = true) UUID worldId,
             @Valid @RequestBody UpdateWorldRequest request) {
 
-        var updatePermissions = emptyIfNull(request.permissions()).stream()
-                .map(p -> new PermissionDto(p.userId(), p.level()))
-                .collect(Collectors.toSet());
-
         var lorebookEntriesToAdd = emptyIfNull(request.lorebookEntriesToAdd()).stream()
                 .map(e -> new UpdateWorld.LorebookEntryToAdd(e.name(), e.description()))
                 .toList();
@@ -149,10 +145,8 @@ public class WorldRestController extends SecurityContextAware {
                 request.adventureStart(),
                 request.narratorName(),
                 request.narratorPersonality(),
-                request.visibility(),
                 request.uiImagePositionX(),
                 request.uiImagePositionY(),
-                updatePermissions,
                 lorebookEntriesToAdd,
                 lorebookEntriesToUpdate,
                 emptyIfNull(request.lorebookEntriesToDelete()).stream().toList(),
@@ -189,7 +183,7 @@ public class WorldRestController extends SecurityContextAware {
                 .map(member -> new AssetMemberInput(member.username(), member.level()))
                 .toList();
 
-        return commandRunner.run(new UpdateWorldPermissions(worldId, members));
+        return commandRunner.run(new UpdateWorldPermissions(worldId, request.visibility(), members));
     }
 
     @PutMapping(value = "/{worldId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -56,12 +55,8 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
-                List.of(),
+                null,                null,
+                null,                List.of(),
                 List.of(),
                 List.of(),
                 UserFixture.PUBLIC_ID);
@@ -92,12 +87,8 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
-                List.of(),
+                null,                null,
+                null,                List.of(),
                 List.of(),
                 List.of(),
                 UserFixture.PUBLIC_ID);
@@ -128,77 +119,6 @@ public class UpdateWorldHandlerTest {
         var id = WorldFixture.PUBLIC_ID;
         var command = new UpdateWorld(
                 id,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of(),
-                UserFixture.PUBLIC_ID);
-
-        var unchangedWorld = WorldFixture.privateWorld().build();
-
-        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(unchangedWorld));
-        when(repository.save(any(World.class))).thenReturn(unchangedWorld);
-        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-    }
-
-    @Test
-    public void updateWorld_whenPublicToBeMadePrivate_thenWorldIsMadePrivate() {
-
-        // given
-        var id = WorldFixture.PUBLIC_ID;
-        var command = new UpdateWorld(
-                id,
-                null,
-                null,
-                null,
-                null,
-                null,
-                Visibility.PRIVATE,
-                null,
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of(),
-                UserFixture.PUBLIC_ID);
-
-        var unchangedWorld = WorldFixture.publicWorld().build();
-        var expectedWorld = WorldFixture.privateWorld().build();
-
-        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(unchangedWorld));
-        when(repository.save(any(World.class))).thenReturn(expectedWorld);
-        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-    }
-
-    @Test
-    public void updateWorld_whenInvalidVisibility_thenNothingIsChanged() {
-
-        // given
-        var id = WorldFixture.PUBLIC_ID;
-        var command = new UpdateWorld(
-                id,
-                null,
-                null,
                 null,
                 null,
                 null,
@@ -237,8 +157,6 @@ public class UpdateWorldHandlerTest {
                 null,
                 null,
                 null,
-                null,
-                null,
                 List.of(),
                 List.of(),
                 List.of(),
@@ -256,8 +174,6 @@ public class UpdateWorldHandlerTest {
         var command = new UpdateWorld(
                 WorldFixture.PUBLIC_ID,
                 "SomeNewName",
-                null,
-                null,
                 null,
                 null,
                 null,
@@ -286,12 +202,8 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
-                List.of(new UpdateWorld.LorebookEntryToAdd("Hero", "The main character")),
+                null,                null,
+                null,                List.of(new UpdateWorld.LorebookEntryToAdd("Hero", "The main character")),
                 List.of(),
                 List.of(),
                 UserFixture.PUBLIC_ID);
@@ -325,12 +237,8 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
-                List.of(),
+                null,                null,
+                null,                List.of(),
                 List.of(new UpdateWorld.LorebookEntryToUpdate(entryId, "New Name", "New Description")),
                 List.of(),
                 UserFixture.PUBLIC_ID);
@@ -362,12 +270,8 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
-                List.of(),
+                null,                null,
+                null,                List.of(),
                 List.of(),
                 List.of(entryId),
                 UserFixture.PUBLIC_ID);
@@ -395,12 +299,8 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                0.3,
-                0.7,
-                Set.of(),
-                List.of(),
+                null,                0.3,
+                0.7,                List.of(),
                 List.of(),
                 List.of(),
                 UserFixture.PUBLIC_ID);
@@ -429,12 +329,8 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
-                List.of(),
+                null,                null,
+                null,                List.of(),
                 List.of(),
                 List.of(),
                 UserFixture.PUBLIC_ID);
@@ -466,12 +362,8 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
-                List.of(),
+                null,                null,
+                null,                List.of(),
                 List.of(),
                 List.of(),
                 UserFixture.PUBLIC_ID);

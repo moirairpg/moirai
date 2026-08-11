@@ -6,6 +6,8 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -301,6 +303,143 @@ public class WorldTest {
 
         // when
         world.drainEvents();
+
+        // then
+        assertThat(world.drainEvents()).isEmpty();
+    }
+
+    @Test
+    public void shouldRaiseAccessGrantedEventWhenNewMemberIsAdded() {
+
+        // given
+        var userId = 4444L;
+        var world = WorldFixture.privateWorldWithId();
+
+        // when
+        world.updatePermissions(Set.of(new Permission(userId, PermissionLevel.WRITE)));
+
+        // then
+        var events = world.drainEvents();
+
+        assertThat(events).singleElement().isInstanceOf(WorldAccessGrantedEvent.class);
+
+        var event = (WorldAccessGrantedEvent) events.getFirst();
+
+        assertThat(event.getWorldPublicId()).isEqualTo(WorldFixture.PUBLIC_ID);
+        assertThat(event.getWorldName()).isEqualTo("MoirAI");
+        assertThat(event.getUserId()).isEqualTo(userId);
+        assertThat(event.getLevel()).isEqualTo(PermissionLevel.WRITE);
+    }
+
+    @Test
+    public void shouldRaiseAccessLevelChangedEventWhenMemberLevelChanges() {
+
+        // given
+        var userId = 4444L;
+        var world = WorldFixture.privateWorldWithId();
+        world.permissions().add(new Permission(userId, PermissionLevel.READ));
+
+        // when
+        world.updatePermissions(Set.of(new Permission(userId, PermissionLevel.WRITE)));
+
+        // then
+        var events = world.drainEvents();
+
+        assertThat(events).singleElement().isInstanceOf(WorldAccessLevelChangedEvent.class);
+
+        var event = (WorldAccessLevelChangedEvent) events.getFirst();
+
+        assertThat(event.getWorldPublicId()).isEqualTo(WorldFixture.PUBLIC_ID);
+        assertThat(event.getWorldName()).isEqualTo("MoirAI");
+        assertThat(event.getUserId()).isEqualTo(userId);
+        assertThat(event.getLevel()).isEqualTo(PermissionLevel.WRITE);
+    }
+
+    @Test
+    public void shouldRaiseAccessRevokedEventWhenMemberIsRemoved() {
+
+        // given
+        var userId = 4444L;
+        var world = WorldFixture.privateWorldWithId();
+        world.permissions().add(new Permission(userId, PermissionLevel.READ));
+
+        // when
+        world.updatePermissions(Set.of());
+
+        // then
+        var events = world.drainEvents();
+
+        assertThat(events).singleElement().isInstanceOf(WorldAccessRevokedEvent.class);
+
+        var event = (WorldAccessRevokedEvent) events.getFirst();
+
+        assertThat(event.getWorldPublicId()).isEqualTo(WorldFixture.PUBLIC_ID);
+        assertThat(event.getWorldName()).isEqualTo("MoirAI");
+        assertThat(event.getUserId()).isEqualTo(userId);
+    }
+
+    @Test
+    public void shouldRaiseNoEventWhenMemberLevelIsUnchanged() {
+
+        // given
+        var userId = 4444L;
+        var world = WorldFixture.privateWorldWithId();
+        world.permissions().add(new Permission(userId, PermissionLevel.READ));
+
+        // when
+        world.updatePermissions(Set.of(new Permission(userId, PermissionLevel.READ)));
+
+        // then
+        assertThat(world.drainEvents()).isEmpty();
+    }
+
+    @Test
+    public void shouldRaiseNoEventForOwnerLevelEntryWhenPermissionsAreUpdated() {
+
+        // given
+        var userId = 4444L;
+        var world = WorldFixture.privateWorldWithId();
+
+        // when
+        world.updatePermissions(Set.of(new Permission(userId, PermissionLevel.OWNER)));
+
+        // then
+        assertThat(world.drainEvents()).isEmpty();
+        assertThat(world.canRead(userId)).isFalse();
+    }
+
+    @Test
+    public void shouldRaiseASingleAccessGrantedEventAtTheWeakestLevelWhenAUserAppearsTwice() {
+
+        // given
+        var userId = 4444L;
+        var world = WorldFixture.privateWorldWithId();
+
+        // when
+        world.updatePermissions(Set.of(
+                new Permission(userId, PermissionLevel.READ),
+                new Permission(userId, PermissionLevel.WRITE)));
+
+        // then
+        var events = world.drainEvents();
+
+        assertThat(events).singleElement().isInstanceOf(WorldAccessGrantedEvent.class);
+
+        var event = (WorldAccessGrantedEvent) events.getFirst();
+
+        assertThat(event.getUserId()).isEqualTo(userId);
+        assertThat(event.getLevel()).isEqualTo(PermissionLevel.READ);
+    }
+
+    @Test
+    public void shouldRaiseNoEventWhenUpdateNamesOwner() {
+
+        // given
+        var world = WorldFixture.privateWorldWithId();
+        var newPermissions = Set.of(new Permission(WorldFixture.OWNER_ID, PermissionLevel.WRITE));
+
+        // when
+        assertThrows(BusinessRuleViolationException.class, () -> world.updatePermissions(newPermissions));
 
         // then
         assertThat(world.drainEvents()).isEmpty();

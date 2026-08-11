@@ -3,6 +3,8 @@ package me.moirai.storyengine.core.application.command.world;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.domain.Permission;
@@ -22,11 +24,16 @@ public class UpdateWorldPermissionsHandler
 
     private final WorldRepository repository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public UpdateWorldPermissionsHandler(WorldRepository repository, UserRepository userRepository) {
+    public UpdateWorldPermissionsHandler(
+            WorldRepository repository,
+            UserRepository userRepository,
+            ApplicationEventPublisher eventPublisher) {
 
         this.repository = repository;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -44,9 +51,13 @@ public class UpdateWorldPermissionsHandler
                 })
                 .collect(Collectors.toSet());
 
+        world.updateVisibility(command.visibility());
         world.updatePermissions(newPermissions);
 
         var savedWorld = repository.save(world);
+
+        world.drainEvents().forEach(eventPublisher::publishEvent);
+
         var savedPermissions = savedWorld.getPermissions();
 
         var userIds = savedPermissions.stream()

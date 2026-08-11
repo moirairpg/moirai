@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.fasterxml.uuid.Generators;
 
@@ -145,6 +146,36 @@ public class Adventure extends ShareableAsset {
 
     public void communicateAdventureDeleted() {
         domainEvents.add(new AdventureDeletedEvent(this.id, this.publicId, this.imageKey));
+    }
+
+    @Override
+    public void updatePermissions(Set<Permission> newPermissions) {
+
+        var previousLevelsByUserId = getPermissions().stream()
+                .filter(permission -> permission.level() != PermissionLevel.OWNER)
+                .collect(Collectors.toMap(Permission::userId, Permission::level, PermissionLevel::weakest));
+
+        var collapsedPermissions = collapseToWeakestLevel(newPermissions);
+
+        super.updatePermissions(collapsedPermissions);
+
+        collapsedPermissions.stream()
+                .filter(permission -> permission.level() != PermissionLevel.OWNER)
+                .forEach(permission -> {
+                    var previousLevel = previousLevelsByUserId.remove(permission.userId());
+
+                    if (previousLevel == null) {
+                        domainEvents.add(new AdventureAccessGrantedEvent(
+                                this.id, this.publicId, this.name, permission.userId(), permission.level()));
+                    } else if (previousLevel != permission.level()) {
+                        domainEvents.add(new AdventureAccessLevelChangedEvent(
+                                this.id, this.publicId, this.name, permission.userId(), permission.level()));
+                    }
+                });
+
+        previousLevelsByUserId.keySet()
+                .forEach(userId -> domainEvents.add(new AdventureAccessRevokedEvent(
+                        this.id, this.publicId, this.name, userId)));
     }
 
     public Long getId() {

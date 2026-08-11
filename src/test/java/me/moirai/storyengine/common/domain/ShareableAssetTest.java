@@ -96,4 +96,22 @@ public class ShareableAssetTest {
         assertThat(world.getPermissions()).hasSize(1);
         assertThat(world.isOwner(WorldFixture.OWNER_ID)).isTrue();
     }
+
+    @Test
+    void shouldKeepTheWeakestLevelWhenAUserAppearsTwice() {
+
+        // given
+        var world = WorldFixture.privateWorld().build();
+        var newPermissions = Set.of(
+                new Permission(READER_ID, PermissionLevel.READ),
+                new Permission(READER_ID, PermissionLevel.WRITE));
+
+        // when
+        world.updatePermissions(newPermissions);
+
+        // then
+        assertThat(world.getPermissions()).hasSize(2);
+        assertThat(world.canRead(READER_ID)).isTrue();
+        assertThat(world.canWrite(READER_ID)).isFalse();
+    }
 }

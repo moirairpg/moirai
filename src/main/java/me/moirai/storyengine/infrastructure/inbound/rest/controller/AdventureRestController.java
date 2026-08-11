@@ -186,10 +186,6 @@ public class AdventureRestController extends SecurityContextAware {
             @PathVariable(required = true) UUID adventureId,
             @Valid @RequestBody UpdateAdventureRequest request) {
 
-        var updatePermissions = emptyIfNull(request.permissions()).stream()
-                .map(p -> new PermissionDto(p.userId(), p.level()))
-                .collect(Collectors.toSet());
-
         var lorebookEntriesToAdd = emptyIfNull(request.lorebookEntriesToAdd()).stream()
                 .map(e -> new UpdateAdventure.LorebookEntryToAdd(e.name(), e.description()))
                 .toList();
@@ -205,11 +201,9 @@ public class AdventureRestController extends SecurityContextAware {
                 request.adventureStart(),
                 request.narratorName(),
                 request.narratorPersonality(),
-                request.visibility(),
                 request.moderation(),
                 request.uiImagePositionX(),
                 request.uiImagePositionY(),
-                updatePermissions,
                 new ModelConfigurationDto(
                         request.modelConfiguration().aiModel(),
                         request.modelConfiguration().maxTokenLimit(),
@@ -297,7 +291,7 @@ public class AdventureRestController extends SecurityContextAware {
                 .map(member -> new AssetMemberInput(member.username(), member.level()))
                 .toList();
 
-        return commandRunner.run(new UpdateAdventurePermissions(adventureId, members));
+        return commandRunner.run(new UpdateAdventurePermissions(adventureId, request.visibility(), members));
     }
 
     @GetMapping("/{adventureId}/messages")

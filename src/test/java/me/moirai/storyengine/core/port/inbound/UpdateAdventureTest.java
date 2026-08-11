@@ -3,7 +3,6 @@ package me.moirai.storyengine.core.port.inbound;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,11 +29,9 @@ public class UpdateAdventureTest {
                 adventure.getAdventureStart(),
                 adventure.getNarratorName(),
                 adventure.getNarratorPersonality(),
-                adventure.getVisibility(),
                 adventure.getModeration(),
                 null,
                 null,
-                Set.of(),
                 new ModelConfigurationDto(
                         adventure.getModelConfiguration().getAiModel(),
                         adventure.getModelConfiguration().getMaxTokenLimit(),
@@ -56,7 +53,6 @@ public class UpdateAdventureTest {
         assertThat(updateAdventure.description()).isEqualTo(adventure.getDescription());
         assertThat(updateAdventure.name()).isEqualTo(adventure.getName());
         assertThat(updateAdventure.narratorName()).isEqualTo(adventure.getNarratorName());
-        assertThat(updateAdventure.visibility()).isEqualTo(adventure.getVisibility());
         assertThat(updateAdventure.modelConfiguration().temperature()).isEqualTo(adventure.getModelConfiguration().getTemperature());
         assertThat(updateAdventure.modelConfiguration().maxTokenLimit()).isEqualTo(adventure.getModelConfiguration().getMaxTokenLimit());
         assertThat(updateAdventure.contextAttributes().scene()).isEqualTo(adventure.getContextAttributes().scene());
@@ -68,7 +64,7 @@ public class UpdateAdventureTest {
     }
 
     @Test
-    public void updateAdventure_whenPermissionsIsNull_thenSetIsEmpty() {
+    public void updateAdventure_whenLorebookListsAreNull_thenListsAreEmpty() {
 
         // given
         var sample = UpdateAdventureFixture.sample();
@@ -81,19 +77,19 @@ public class UpdateAdventureTest {
                 sample.adventureStart(),
                 sample.narratorName(),
                 sample.narratorPersonality(),
-                sample.visibility(),
                 sample.moderation(),
-                null,
                 null,
                 null,
                 sample.modelConfiguration(),
                 sample.contextAttributes(),
-                List.of(),
-                List.of(),
-                List.of(),
+                null,
+                null,
+                null,
                 UserFixture.PUBLIC_ID);
 
         // then
-        assertThat(updateAdventure.permissions()).isEmpty();
+        assertThat(updateAdventure.lorebookEntriesToAdd()).isEmpty();
+        assertThat(updateAdventure.lorebookEntriesToUpdate()).isEmpty();
+        assertThat(updateAdventure.lorebookEntriesToDelete()).isEmpty();
     }
 }

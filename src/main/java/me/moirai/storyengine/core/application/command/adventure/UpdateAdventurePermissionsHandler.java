@@ -3,6 +3,8 @@ package me.moirai.storyengine.core.application.command.adventure;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.domain.Permission;
@@ -22,11 +24,16 @@ public class UpdateAdventurePermissionsHandler
 
     private final AdventureRepository repository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public UpdateAdventurePermissionsHandler(AdventureRepository repository, UserRepository userRepository) {
+    public UpdateAdventurePermissionsHandler(
+            AdventureRepository repository,
+            UserRepository userRepository,
+            ApplicationEventPublisher eventPublisher) {
 
         this.repository = repository;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -44,9 +51,13 @@ public class UpdateAdventurePermissionsHandler
                 })
                 .collect(Collectors.toSet());
 
+        adventure.updateVisibility(command.visibility());
         adventure.updatePermissions(newPermissions);
 
         var savedAdventure = repository.save(adventure);
+
+        adventure.drainEvents().forEach(eventPublisher::publishEvent);
+
         var savedPermissions = savedAdventure.getPermissions();
 
         var userIds = savedPermissions.stream()

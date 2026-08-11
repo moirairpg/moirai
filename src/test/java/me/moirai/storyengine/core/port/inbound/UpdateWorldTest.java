@@ -3,11 +3,9 @@ package me.moirai.storyengine.core.port.inbound;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.inbound.world.UpdateWorld;
 
@@ -23,11 +21,8 @@ public class UpdateWorldTest {
                 "SomeDesc",
                 "SomeStart",
                 null,
+                null,                null,
                 null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
                 List.of(),
                 List.of(),
                 List.of(),
@@ -38,11 +33,10 @@ public class UpdateWorldTest {
         assertThat(result.name()).isNotNull();
         assertThat(result.adventureStart()).isNotNull();
         assertThat(result.description()).isNotNull();
-        assertThat(result.permissions()).isNotNull().isEmpty();
     }
 
     @Test
-    public void buildObject_whenPermissionsIsNull_thenSetIsEmpty() {
+    public void buildObject_whenLorebookListsAreNull_thenListsAreEmpty() {
 
         // Given
         UpdateWorld result = new UpdateWorld(
@@ -51,21 +45,17 @@ public class UpdateWorldTest {
                 "SomeDesc",
                 "SomeStart",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
+                null,                null,
                 null,
                 null,
-                List.of(),
-                List.of(),
-                List.of(),
+                null,
+                null,
                 UserFixture.PUBLIC_ID);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.name()).isNotNull();
-        assertThat(result.adventureStart()).isNotNull();
-        assertThat(result.description()).isNotNull();
-        assertThat(result.permissions()).isEmpty();
+        assertThat(result.lorebookEntriesToAdd()).isEmpty();
+        assertThat(result.lorebookEntriesToUpdate()).isEmpty();
+        assertThat(result.lorebookEntriesToDelete()).isEmpty();
     }
 }

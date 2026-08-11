@@ -1,13 +1,11 @@
 package me.moirai.storyengine.core.application.command.world;
 
 import static me.moirai.storyengine.common.enums.PermissionLevel.OWNER;
-import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 import java.util.stream.Collectors;
 
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
-import me.moirai.storyengine.common.domain.Permission;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.world.World;
 import me.moirai.storyengine.core.port.inbound.world.UpdateWorld;
@@ -56,19 +54,7 @@ public class UpdateWorldHandler extends AbstractCommandHandler<UpdateWorld, Worl
         world.updateDescription(command.description());
         world.updateAdventureStart(command.adventureStart());
         world.updateNarrator(command.narratorName(), command.narratorPersonality());
-        world.updateVisibility(command.visibility());
         world.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
-
-        var newPermissions = emptyIfNull(command.permissions()).stream()
-                .map(dto -> {
-                    var user = userRepository.findByPublicId(dto.userId())
-                            .orElseThrow(() -> new NotFoundException("User not found"));
-
-                    return new Permission(user.getId(), dto.level());
-                })
-                .collect(Collectors.toSet());
-
-        world.updatePermissions(newPermissions);
 
         command.lorebookEntriesToDelete()
                 .forEach(world::removeLorebookEntry);

@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -69,9 +71,18 @@ public abstract class ShareableAsset extends Asset {
         permissions().clear();
         permissions().add(owner);
 
-        newPermissions.stream()
+        collapseToWeakestLevel(newPermissions).stream()
                 .filter(p -> p.level() != PermissionLevel.OWNER)
                 .forEach(permissions()::add);
+    }
+
+    protected static Set<Permission> collapseToWeakestLevel(Set<Permission> permissions) {
+        return Set.copyOf(permissions.stream()
+                .collect(Collectors.toMap(
+                        Permission::userId,
+                        Function.identity(),
+                        (first, second) -> new Permission(first.userId(), first.level().weakest(second.level()))))
+                .values());
     }
 
     public boolean canWrite(Long userId) {
