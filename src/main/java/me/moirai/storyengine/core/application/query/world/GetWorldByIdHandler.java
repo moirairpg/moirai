@@ -1,5 +1,8 @@
 package me.moirai.storyengine.core.application.query.world;
 
+import static me.moirai.storyengine.common.enums.PermissionLevel.OWNER;
+import static me.moirai.storyengine.common.enums.PermissionLevel.WRITE;
+
 import me.moirai.storyengine.common.annotation.QueryHandler;
 import me.moirai.storyengine.common.cqs.query.AbstractQueryHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -39,6 +42,16 @@ public class GetWorldByIdHandler extends AbstractQueryHandler<GetWorldById, Worl
         var world = reader.getWorldById(query.worldId())
                 .orElseThrow(() -> new NotFoundException(WORLD_NOT_FOUND));
 
+        var permissions = world.permissions();
+
+        var isOwner = permissions.stream()
+                .anyMatch(permission -> permission.level() == OWNER
+                        && permission.userId().equals(query.requesterId()));
+
+        var canManage = isOwner || permissions.stream()
+                .anyMatch(permission -> permission.level() == WRITE
+                        && permission.userId().equals(query.requesterId()));
+
         return new WorldDetails(
                 world.id(),
                 world.name(),
@@ -48,7 +61,8 @@ public class GetWorldByIdHandler extends AbstractQueryHandler<GetWorldById, Worl
                 world.narratorPersonality(),
                 world.visibility(),
                 storagePort.resolveUrl(world.imageKey()),
-                world.permissions(),
+                canManage,
+                isOwner,
                 world.lorebook(),
                 world.creationDate(),
                 world.lastUpdateDate(),

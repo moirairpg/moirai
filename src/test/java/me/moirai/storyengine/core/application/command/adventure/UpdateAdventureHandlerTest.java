@@ -1,6 +1,5 @@
 package me.moirai.storyengine.core.application.command.adventure;
 
-import static me.moirai.storyengine.common.enums.Visibility.PUBLIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -22,11 +20,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.enums.ArtificialIntelligenceModel;
 import me.moirai.storyengine.common.enums.Moderation;
-import me.moirai.storyengine.common.enums.PermissionLevel;
-import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
@@ -66,8 +61,8 @@ public class UpdateAdventureHandlerTest {
         // given
         var command = new UpdateAdventure(
                 null,
-                null, null, null, null, null, null, null,
-                null, null, null, null, null, List.of(), List.of(), List.of());
+                null, null, null, null, null, null,
+                null, null, null, null, List.of(), List.of(), List.of(), UserFixture.PUBLIC_ID);
 
         // then
         assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
@@ -84,7 +79,7 @@ public class UpdateAdventureHandlerTest {
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(expectedUpdatedAdventure));
         when(repository.save(any())).thenReturn(expectedUpdatedAdventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -105,7 +100,7 @@ public class UpdateAdventureHandlerTest {
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         when(repository.save(any())).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         handler.handle(command);
@@ -134,7 +129,7 @@ public class UpdateAdventureHandlerTest {
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         when(repository.save(any())).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         handler.handle(command);
@@ -162,74 +157,6 @@ public class UpdateAdventureHandlerTest {
     }
 
     @Test
-    public void updateAdventure_whenPrivateToBeMadePublic_thenAdventureIsMadePublic() {
-
-        // given
-        var requesterId = "RQSTRID";
-        var command = UpdateAdventureFixture.sampleWithVisibility(requesterId, PUBLIC);
-
-        var unchangedAdventure = AdventureFixture.privateAdventure()
-                .visibility(Visibility.PRIVATE)
-                .build();
-
-        var expectedUpdatedAdventure = AdventureFixture.privateAdventure()
-                .visibility(Visibility.PUBLIC)
-                .build();
-
-        var adventureCaptor = ArgumentCaptor.forClass(Adventure.class);
-
-        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(unchangedAdventure));
-        when(repository.save(adventureCaptor.capture())).thenReturn(expectedUpdatedAdventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
-
-        // when
-        handler.execute(command);
-
-        // then
-        var capturedAdventure = adventureCaptor.getValue();
-        assertThat(capturedAdventure.getVisibility()).isEqualTo(unchangedAdventure.getVisibility());
-    }
-
-    @Test
-    public void shouldOverwritePermissionsWhenUpdateAdventure() {
-
-        // given
-        var permissionDto = new PermissionDto(UserFixture.PUBLIC_ID, PermissionLevel.READ);
-        var sample = UpdateAdventureFixture.sample();
-        var command = new UpdateAdventure(
-                sample.adventureId(),
-                sample.name(),
-                sample.description(),
-                sample.adventureStart(),
-                sample.narratorName(),
-                sample.narratorPersonality(),
-                sample.visibility(),
-                sample.moderation(),
-                null,
-                null,
-                Set.of(permissionDto),
-                sample.modelConfiguration(),
-                sample.contextAttributes(),
-                List.of(),
-                List.of(),
-                List.of());
-
-        var adventure = AdventureFixture.privateAdventure().build();
-        var user = UserFixture.playerWithId();
-
-        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
-        when(userRepository.findByPublicId(UserFixture.PUBLIC_ID)).thenReturn(Optional.of(user));
-        when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
-
-        // when
-        handler.execute(command);
-
-        // then
-        assertThat(adventure.getPermissions()).isNotNull();
-    }
-
-    @Test
     public void shouldUpdateNarratorWhenNarratorFieldsAreProvided() {
 
         // given
@@ -241,22 +168,21 @@ public class UpdateAdventureHandlerTest {
                 sample.adventureStart(),
                 "Elan",
                 "A wise elder narrator",
-                sample.visibility(),
                 sample.moderation(),
                 null,
                 null,
-                Set.of(),
                 sample.modelConfiguration(),
                 sample.contextAttributes(),
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         var adventure = AdventureFixture.privateAdventure().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -277,16 +203,15 @@ public class UpdateAdventureHandlerTest {
                 "Adventure start",
                 null,
                 null,
-                Visibility.PUBLIC,
                 Moderation.PERMISSIVE,
                 null,
                 null,
-                Set.of(),
                 sample.modelConfiguration(),
                 sample.contextAttributes(),
                 List.of(new UpdateAdventure.LorebookEntryToAdd("Hero", "The main character")),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
@@ -298,7 +223,7 @@ public class UpdateAdventureHandlerTest {
             return saved;
         }).when(repository).save(any(Adventure.class));
         when(embeddingPort.embedAll(anyList())).thenReturn(List.of(new float[]{0.1f}));
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -326,16 +251,15 @@ public class UpdateAdventureHandlerTest {
                 "Adventure start",
                 null,
                 null,
-                Visibility.PUBLIC,
                 Moderation.PERMISSIVE,
                 null,
                 null,
-                Set.of(),
                 sample.modelConfiguration(),
                 sample.contextAttributes(),
                 List.of(),
                 List.of(new UpdateAdventure.LorebookEntryToUpdate(entryId, "New Name", "New Description")),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         doAnswer(inv -> {
@@ -344,7 +268,7 @@ public class UpdateAdventureHandlerTest {
             return saved;
         }).when(repository).save(any(Adventure.class));
         when(embeddingPort.embedAll(anyList())).thenReturn(List.of(new float[]{0.1f}));
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -368,16 +292,15 @@ public class UpdateAdventureHandlerTest {
                 "Adventure start",
                 null,
                 null,
-                Visibility.PUBLIC,
                 Moderation.PERMISSIVE,
                 null,
                 null,
-                Set.of(),
                 sample.modelConfiguration(),
                 sample.contextAttributes(),
                 List.of(),
                 List.of(),
-                List.of(entryId));
+                List.of(entryId),
+                UserFixture.PUBLIC_ID);
 
         var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
         var addedEntry = adventure.addLorebookEntry("Entry", "Description");
@@ -385,7 +308,7 @@ public class UpdateAdventureHandlerTest {
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -407,22 +330,20 @@ public class UpdateAdventureHandlerTest {
                 "Adventure start",
                 null,
                 null,
-                Visibility.PUBLIC,
                 Moderation.PERMISSIVE,
                 0.3,
-                0.7,
-                Set.of(),
-                sample.modelConfiguration(),
+                0.7,                sample.modelConfiguration(),
                 sample.contextAttributes(),
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         var adventure = AdventureFixture.privateAdventureWithoutNarrator().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
         when(repository.save(any(Adventure.class))).thenReturn(adventure);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -430,5 +351,46 @@ public class UpdateAdventureHandlerTest {
         // then
         assertThat(result).isNotNull();
         verify(repository).save(any(Adventure.class));
+    }
+
+    @Test
+    public void shouldReturnIsOwnerWhenTheRequesterHoldsTheOwnerPermission() {
+
+        // given
+        var command = UpdateAdventureFixture.sample();
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        var requester = UserFixture.player().build();
+        ReflectionTestUtils.setField(requester, "id", AdventureFixture.OWNER_ID);
+
+        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
+        when(repository.save(any(Adventure.class))).thenReturn(adventure);
+        when(userRepository.findByPublicId(UserFixture.PUBLIC_ID)).thenReturn(Optional.of(requester));
+
+        // when
+        var result = handler.handle(command);
+
+        // then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isTrue();
+    }
+
+    @Test
+    public void shouldNotReturnIsOwnerWhenTheRequesterDoesNotHoldTheOwnerPermission() {
+
+        // given
+        var command = UpdateAdventureFixture.sample();
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
+        when(repository.save(any(Adventure.class))).thenReturn(adventure);
+        when(userRepository.findByPublicId(UserFixture.PUBLIC_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        var result = handler.handle(command);
+
+        // then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isFalse();
     }
 }

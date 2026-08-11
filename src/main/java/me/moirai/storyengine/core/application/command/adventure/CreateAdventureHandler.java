@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.domain.Permission;
-import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.ContextAttributes;
@@ -128,14 +127,8 @@ public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventu
                 adventure.getLastUpdateDate(),
                 modelConfiguration,
                 contextAttributes,
-                adventure.getPermissions().stream()
-                        .map(permission -> {
-                            var user = userRepository.findById(permission.userId())
-                                    .orElseThrow(() -> new NotFoundException("User not found"));
-
-                            return new PermissionDto(user.getPublicId(), permission.level());
-                        })
-                        .collect(Collectors.toSet()),
+                true,
+                true,
                 adventure.getLorebook().stream()
                         .map(entry -> new AdventureLorebookEntryDetails(
                                 entry.getPublicId(),

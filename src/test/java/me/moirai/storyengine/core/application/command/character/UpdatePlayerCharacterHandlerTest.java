@@ -33,6 +33,7 @@ import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 public class UpdatePlayerCharacterHandlerTest {
 
     private static final float[] VECTOR = new float[] { 0.1f, 0.2f };
+    private static final String OWNER_USERNAME = "john.doe";
 
     @Mock
     private PlayerCharacterRepository repository;
@@ -174,6 +175,45 @@ public class UpdatePlayerCharacterHandlerTest {
         verify(vectorSearchPort, never()).upsert(any(), any());
     }
 
+    @Test
+    void shouldReturnBothFlagsAsTrueWhenTheRequesterOwnsTheCharacter() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var command = updateCommand(character.getPublicId(), "Volin", "Brave.", "Tall.", CharacterClass.PALADIN);
+
+        when(repository.findByPublicId(character.getPublicId())).thenReturn(Optional.of(character));
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.findById(character.getPlayerId())).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        var result = handler.execute(command);
+
+        // then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isTrue();
+    }
+
+    @Test
+    void shouldNotReturnIsOwnerWhenTheRequesterDoesNotOwnTheCharacter() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var command = new UpdatePlayerCharacter(
+                character.getPublicId(), "Volin", CharacterClass.PALADIN, "Brave.", "Tall.", 0.25, 0.75, "jane.doe");
+
+        when(repository.findByPublicId(character.getPublicId())).thenReturn(Optional.of(character));
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.findById(character.getPlayerId())).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        var result = handler.execute(command);
+
+        // then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isFalse();
+    }
+
     private UpdatePlayerCharacter updateCommand(
             UUID characterId,
             String name,
@@ -182,6 +222,6 @@ public class UpdatePlayerCharacterHandlerTest {
             CharacterClass characterClass) {
 
         return new UpdatePlayerCharacter(
-                characterId, name, characterClass, personality, physicalDescription, 0.25, 0.75);
+                characterId, name, characterClass, personality, physicalDescription, 0.25, 0.75, OWNER_USERNAME);
     }
 }

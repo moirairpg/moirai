@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -15,6 +17,8 @@ import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 
 @MappedSuperclass
 public abstract class ShareableAsset extends Asset {
+
+    private static final String OWNER_CANNOT_BE_OVERWRITTEN = "Owner permission cannot be overwritten";
 
     protected abstract List<Permission> permissions();
 
@@ -39,7 +43,7 @@ public abstract class ShareableAsset extends Asset {
     public void grant(Permission permission) {
         if (permissions().stream()
                 .anyMatch(p -> p.userId().equals(permission.userId()) && p.level() == PermissionLevel.OWNER)) {
-            throw new BusinessRuleViolationException("Owner permission cannot be overwritten");
+            throw new BusinessRuleViolationException(OWNER_CANNOT_BE_OVERWRITTEN);
         }
 
         permissions().removeIf(p -> p.userId().equals(permission.userId()));
@@ -60,12 +64,25 @@ public abstract class ShareableAsset extends Asset {
                 .findFirst()
                 .orElseThrow();
 
+        if (newPermissions.stream().anyMatch(p -> p.userId().equals(owner.userId()))) {
+            throw new BusinessRuleViolationException(OWNER_CANNOT_BE_OVERWRITTEN);
+        }
+
         permissions().clear();
         permissions().add(owner);
 
-        newPermissions.stream()
+        collapseToWeakestLevel(newPermissions).stream()
                 .filter(p -> p.level() != PermissionLevel.OWNER)
                 .forEach(permissions()::add);
+    }
+
+    protected static Set<Permission> collapseToWeakestLevel(Set<Permission> permissions) {
+        return Set.copyOf(permissions.stream()
+                .collect(Collectors.toMap(
+                        Permission::userId,
+                        Function.identity(),
+                        (first, second) -> new Permission(first.userId(), first.level().weakest(second.level()))))
+                .values());
     }
 
     public boolean canWrite(Long userId) {

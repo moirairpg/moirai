@@ -1,14 +1,12 @@
 package me.moirai.storyengine.core.application.command.adventure;
 
-import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
+import static me.moirai.storyengine.common.enums.PermissionLevel.OWNER;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
-import me.moirai.storyengine.common.domain.Permission;
-import me.moirai.storyengine.common.dto.PermissionDto;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureLorebookEntry;
@@ -28,6 +26,7 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
 
     private static final String ADVENTURE_NOT_FOUND = "Adventure to be updated was not found";
     private static final String ID_CANNOT_BE_NULL_OR_EMPTY = "Adventure ID cannot be null or empty";
+    private static final String REQUESTER_NOT_FOUND = "Requester of the adventure update was not found";
 
     private final AdventureRepository repository;
     private final UserRepository userRepository;
@@ -82,8 +81,6 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
 
         adventure.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
 
-        updatePermissions(command, adventure);
-
         var originalIds = adventure.getLorebook().stream()
                 .map(AdventureLorebookEntry::getPublicId)
                 .collect(Collectors.toSet());
@@ -128,25 +125,17 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
                     .forEach(e -> vectorSearchPort.upsert(saved.getPublicId(), e.getPublicId(), newVectorIterator.next()));
         }
 
-        return mapResult(saved);
+        var requester = userRepository.findByPublicId(command.requesterId())
+                .orElseThrow(() -> new NotFoundException(REQUESTER_NOT_FOUND));
+
+        var isOwner = saved.getPermissions().stream()
+                .anyMatch(permission -> permission.level() == OWNER
+                        && permission.userId().equals(requester.getId()));
+
+        return mapResult(saved, isOwner);
     }
 
-    private void updatePermissions(UpdateAdventure command, Adventure adventure) {
-
-        adventure.updateVisibility(command.visibility());
-        var newPermissions = emptyIfNull(command.permissions()).stream()
-                .map(dto -> {
-                    var user = userRepository.findByPublicId(dto.userId())
-                            .orElseThrow(() -> new NotFoundException("User not found"));
-
-                    return new Permission(user.getId(), dto.level());
-                })
-                .collect(Collectors.toSet());
-
-        adventure.updatePermissions(newPermissions);
-    }
-
-    private AdventureDetails mapResult(Adventure savedAdventure) {
+    private AdventureDetails mapResult(Adventure savedAdventure, boolean isOwner) {
 
         var modelConfiguration = new ModelConfigurationDto(
                 savedAdventure.getModelConfiguration().getAiModel(),
@@ -175,14 +164,8 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
                 savedAdventure.getLastUpdateDate(),
                 modelConfiguration,
                 contextAttributes,
-                savedAdventure.getPermissions().stream()
-                        .map(permission -> {
-                            var user = userRepository.findById(permission.userId())
-                                    .orElseThrow(() -> new NotFoundException("User not found"));
-
-                            return new PermissionDto(user.getPublicId(), permission.level());
-                        })
-                        .collect(Collectors.toSet()),
+                true,
+                isOwner,
                 savedAdventure.getLorebook().stream()
                         .map(entry -> new AdventureLorebookEntryDetails(
                                 entry.getPublicId(),

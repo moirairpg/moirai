@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,6 +30,7 @@ import me.moirai.storyengine.common.domain.DomainEvent;
 import me.moirai.storyengine.common.domain.Narrator;
 import me.moirai.storyengine.common.domain.Permission;
 import me.moirai.storyengine.common.domain.ShareableAsset;
+import me.moirai.storyengine.common.enums.PermissionLevel;
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -111,6 +113,36 @@ public class World extends ShareableAsset {
 
     public void communicateWorldDeleted() {
         domainEvents.add(new WorldDeletedEvent(this.publicId, this.imageKey));
+    }
+
+    @Override
+    public void updatePermissions(Set<Permission> newPermissions) {
+
+        var previousLevelsByUserId = getPermissions().stream()
+                .filter(permission -> permission.level() != PermissionLevel.OWNER)
+                .collect(Collectors.toMap(Permission::userId, Permission::level, PermissionLevel::weakest));
+
+        var collapsedPermissions = collapseToWeakestLevel(newPermissions);
+
+        super.updatePermissions(collapsedPermissions);
+
+        collapsedPermissions.stream()
+                .filter(permission -> permission.level() != PermissionLevel.OWNER)
+                .forEach(permission -> {
+                    var previousLevel = previousLevelsByUserId.remove(permission.userId());
+
+                    if (previousLevel == null) {
+                        domainEvents.add(new WorldAccessGrantedEvent(
+                                this.publicId, this.name, permission.userId(), permission.level()));
+                    } else if (previousLevel != permission.level()) {
+                        domainEvents.add(new WorldAccessLevelChangedEvent(
+                                this.publicId, this.name, permission.userId(), permission.level()));
+                    }
+                });
+
+        previousLevelsByUserId.keySet()
+                .forEach(userId -> domainEvents.add(new WorldAccessRevokedEvent(
+                        this.publicId, this.name, userId)));
     }
 
     public Long getId() {

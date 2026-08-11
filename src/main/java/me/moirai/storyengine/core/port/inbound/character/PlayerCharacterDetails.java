@@ -16,5 +16,7 @@ public record PlayerCharacterDetails(
         Double uiImagePositionX,
         Double uiImagePositionY,
         Instant creationDate,
-        Instant lastUpdateDate) {
+        Instant lastUpdateDate,
+        boolean canManage,
+        boolean isOwner) {
 }

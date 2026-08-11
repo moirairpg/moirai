@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.common.enums.Role;
 import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
@@ -62,7 +63,7 @@ class DeleteWorldAuthorizerTest {
     }
 
     @Test
-    void shouldAuthorizeWhenRequesterIsAllowedToWrite() {
+    void shouldDenyWhenRequesterIsAllowedToWrite() {
 
         // given
         var worldId = WorldFixture.PUBLIC_ID;
@@ -76,11 +77,11 @@ class DeleteWorldAuthorizerTest {
         var result = authorizer.authorize(context);
 
         // then
-        assertThat(result).isTrue();
+        assertThat(result).isFalse();
     }
 
     @Test
-    void shouldDenyWhenRequesterHasNoWriteAccess() {
+    void shouldDenyWhenRequesterIsNotTheOwner() {
 
         // given
         var worldId = WorldFixture.PUBLIC_ID;
@@ -95,6 +96,24 @@ class DeleteWorldAuthorizerTest {
 
         // then
         assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldAuthorizeWhenRequesterIsAdmin() {
+
+        // given
+        var worldId = WorldFixture.PUBLIC_ID;
+        var authData = worldNoPermissions();
+        var principal = adminWithPublicId(UUID.randomUUID());
+        var context = contextWith(worldId, principal);
+
+        when(reader.getAuthorizationData(worldId)).thenReturn(Optional.of(authData));
+
+        // when
+        var result = authorizer.authorize(context);
+
+        // then
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -130,6 +149,19 @@ class DeleteWorldAuthorizerTest {
                 "token",
                 "refresh",
                 null,
+                null);
+    }
+
+    private MoiraiPrincipal adminWithPublicId(UUID publicId) {
+        return new MoiraiPrincipal(
+                publicId,
+                1L,
+                "discordId",
+                "user",
+                "user@test.com",
+                "token",
+                "refresh",
+                Role.ADMIN,
                 null);
     }
 

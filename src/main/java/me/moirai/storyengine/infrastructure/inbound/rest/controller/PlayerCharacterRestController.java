@@ -66,7 +66,7 @@ public class PlayerCharacterRestController extends SecurityContextAware {
     @ResponseStatus(HttpStatus.OK)
     @Authorize(operation = AuthorizationOperation.VIEW_PLAYER_CHARACTER, fields = "#characterId")
     public PlayerCharacterDetails getById(@PathVariable UUID characterId) {
-        return queryRunner.run(new GetPlayerCharacterById(characterId));
+        return queryRunner.run(new GetPlayerCharacterById(characterId, authenticatedUsername()));
     }
 
     @GetMapping("/{characterId}/adventures")
@@ -133,7 +133,8 @@ public class PlayerCharacterRestController extends SecurityContextAware {
                 request.personality(),
                 request.physicalDescription(),
                 request.uiImagePositionX(),
-                request.uiImagePositionY()));
+                request.uiImagePositionY(),
+                authenticatedUsername()));
     }
 
     @DeleteMapping("/{characterId}")

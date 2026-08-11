@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -56,21 +55,18 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
+                null,                null,
+                null,                List.of(),
                 List.of(),
                 List.of(),
-                List.of());
+                UserFixture.PUBLIC_ID);
 
         var expectedUpdatedWorld = WorldFixture.privateWorld().build();
         var unchangedWorld = WorldFixture.privateWorld().name(newName).build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(unchangedWorld));
         when(repository.save(any(World.class))).thenReturn(expectedUpdatedWorld);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -91,14 +87,11 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
+                null,                null,
+                null,                List.of(),
                 List.of(),
                 List.of(),
-                List.of());
+                UserFixture.PUBLIC_ID);
 
         var unchangedWorld = WorldFixture.privateWorld().build();
         var expectedUpdatedWorld = WorldFixture.privateWorld()
@@ -110,7 +103,7 @@ public class UpdateWorldHandlerTest {
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(unchangedWorld));
         when(repository.save(any(World.class))).thenReturn(expectedUpdatedWorld);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -133,84 +126,16 @@ public class UpdateWorldHandlerTest {
                 null,
                 null,
                 null,
-                null,
-                null,
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         var unchangedWorld = WorldFixture.privateWorld().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(unchangedWorld));
         when(repository.save(any(World.class))).thenReturn(unchangedWorld);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-    }
-
-    @Test
-    public void updateWorld_whenPublicToBeMadePrivate_thenWorldIsMadePrivate() {
-
-        // given
-        var id = WorldFixture.PUBLIC_ID;
-        var command = new UpdateWorld(
-                id,
-                null,
-                null,
-                null,
-                null,
-                null,
-                Visibility.PRIVATE,
-                null,
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of());
-
-        var unchangedWorld = WorldFixture.publicWorld().build();
-        var expectedWorld = WorldFixture.privateWorld().build();
-
-        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(unchangedWorld));
-        when(repository.save(any(World.class))).thenReturn(expectedWorld);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
-
-        // when
-        var result = handler.handle(command);
-
-        // then
-        assertThat(result).isNotNull();
-    }
-
-    @Test
-    public void updateWorld_whenInvalidVisibility_thenNothingIsChanged() {
-
-        // given
-        var id = WorldFixture.PUBLIC_ID;
-        var command = new UpdateWorld(
-                id,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of());
-
-        var unchangedWorld = WorldFixture.privateWorld().build();
-
-        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(unchangedWorld));
-        when(repository.save(any(World.class))).thenReturn(unchangedWorld);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -232,11 +157,10 @@ public class UpdateWorldHandlerTest {
                 null,
                 null,
                 null,
-                null,
-                null,
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         // then
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -256,11 +180,10 @@ public class UpdateWorldHandlerTest {
                 null,
                 null,
                 null,
-                null,
-                null,
                 List.of(),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.empty());
 
@@ -279,20 +202,17 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
-                List.of(new UpdateWorld.LorebookEntryToAdd("Hero", "The main character")),
+                null,                null,
+                null,                List.of(new UpdateWorld.LorebookEntryToAdd("Hero", "The main character")),
                 List.of(),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         var world = WorldFixture.privateWorld().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(world));
         when(repository.save(any(World.class))).thenReturn(world);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -317,18 +237,15 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
-                List.of(),
+                null,                null,
+                null,                List.of(),
                 List.of(new UpdateWorld.LorebookEntryToUpdate(entryId, "New Name", "New Description")),
-                List.of());
+                List.of(),
+                UserFixture.PUBLIC_ID);
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(world));
         when(repository.save(any(World.class))).thenReturn(world);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -353,18 +270,15 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                null,
-                null,
-                Set.of(),
+                null,                null,
+                null,                List.of(),
                 List.of(),
-                List.of(),
-                List.of(entryId));
+                List.of(entryId),
+                UserFixture.PUBLIC_ID);
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(world));
         when(repository.save(any(World.class))).thenReturn(world);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -385,20 +299,17 @@ public class UpdateWorldHandlerTest {
                 "This is an RPG world",
                 "As you enter the city, people around you start looking at you.",
                 null,
-                null,
-                Visibility.PUBLIC,
-                0.3,
-                0.7,
-                Set.of(),
+                null,                0.3,
+                0.7,                List.of(),
                 List.of(),
                 List.of(),
-                List.of());
+                UserFixture.PUBLIC_ID);
 
         var world = WorldFixture.privateWorld().build();
 
         when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(world));
         when(repository.save(any(World.class))).thenReturn(world);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
         var result = handler.handle(command);
@@ -406,5 +317,68 @@ public class UpdateWorldHandlerTest {
         // then
         assertThat(result).isNotNull();
         verify(repository).save(any(World.class));
+    }
+
+    @Test
+    public void shouldReturnIsOwnerWhenTheRequesterHoldsTheOwnerPermission() {
+
+        // given
+        var command = new UpdateWorld(
+                WorldFixture.PUBLIC_ID,
+                "MoirAI",
+                "This is an RPG world",
+                "As you enter the city, people around you start looking at you.",
+                null,
+                null,                null,
+                null,                List.of(),
+                List.of(),
+                List.of(),
+                UserFixture.PUBLIC_ID);
+
+        var world = WorldFixture.privateWorld().build();
+
+        var requester = UserFixture.player().build();
+        ReflectionTestUtils.setField(requester, "id", WorldFixture.OWNER_ID);
+
+        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(world));
+        when(repository.save(any(World.class))).thenReturn(world);
+        when(userRepository.findByPublicId(UserFixture.PUBLIC_ID)).thenReturn(Optional.of(requester));
+
+        // when
+        var result = handler.handle(command);
+
+        // then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isTrue();
+    }
+
+    @Test
+    public void shouldNotReturnIsOwnerWhenTheRequesterDoesNotHoldTheOwnerPermission() {
+
+        // given
+        var command = new UpdateWorld(
+                WorldFixture.PUBLIC_ID,
+                "MoirAI",
+                "This is an RPG world",
+                "As you enter the city, people around you start looking at you.",
+                null,
+                null,                null,
+                null,                List.of(),
+                List.of(),
+                List.of(),
+                UserFixture.PUBLIC_ID);
+
+        var world = WorldFixture.privateWorld().build();
+
+        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(world));
+        when(repository.save(any(World.class))).thenReturn(world);
+        when(userRepository.findByPublicId(UserFixture.PUBLIC_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        var result = handler.handle(command);
+
+        // then
+        assertThat(result.canManage()).isTrue();
+        assertThat(result.isOwner()).isFalse();
     }
 }

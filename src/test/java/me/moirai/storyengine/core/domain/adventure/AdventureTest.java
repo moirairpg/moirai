@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -901,5 +902,145 @@ public class AdventureTest {
 
         // when / then
         assertThat(adventure.getEnrolledCharacterIds()).isEmpty();
+    }
+
+    @Test
+    public void shouldRaiseAccessGrantedEventWhenNewMemberIsAdded() {
+
+        // given
+        var userId = 4444L;
+        var adventure = AdventureFixture.privateAdventureWithId();
+
+        // when
+        adventure.updatePermissions(Set.of(new Permission(userId, PermissionLevel.WRITE)));
+
+        // then
+        var events = adventure.drainEvents();
+
+        assertThat(events).singleElement().isInstanceOf(AdventureAccessGrantedEvent.class);
+
+        var event = (AdventureAccessGrantedEvent) events.getFirst();
+
+        assertThat(event.getAdventureId()).isEqualTo(AdventureFixture.NUMERIC_ID);
+        assertThat(event.getAdventurePublicId()).isEqualTo(AdventureFixture.PUBLIC_ID);
+        assertThat(event.getAdventureName()).isEqualTo("Name");
+        assertThat(event.getUserId()).isEqualTo(userId);
+        assertThat(event.getLevel()).isEqualTo(PermissionLevel.WRITE);
+    }
+
+    @Test
+    public void shouldRaiseAccessLevelChangedEventWhenMemberLevelChanges() {
+
+        // given
+        var userId = 4444L;
+        var adventure = AdventureFixture.privateAdventureWithId();
+        adventure.permissions().add(new Permission(userId, PermissionLevel.READ));
+
+        // when
+        adventure.updatePermissions(Set.of(new Permission(userId, PermissionLevel.WRITE)));
+
+        // then
+        var events = adventure.drainEvents();
+
+        assertThat(events).singleElement().isInstanceOf(AdventureAccessLevelChangedEvent.class);
+
+        var event = (AdventureAccessLevelChangedEvent) events.getFirst();
+
+        assertThat(event.getAdventureId()).isEqualTo(AdventureFixture.NUMERIC_ID);
+        assertThat(event.getAdventurePublicId()).isEqualTo(AdventureFixture.PUBLIC_ID);
+        assertThat(event.getAdventureName()).isEqualTo("Name");
+        assertThat(event.getUserId()).isEqualTo(userId);
+        assertThat(event.getLevel()).isEqualTo(PermissionLevel.WRITE);
+    }
+
+    @Test
+    public void shouldRaiseAccessRevokedEventWhenMemberIsRemoved() {
+
+        // given
+        var userId = 4444L;
+        var adventure = AdventureFixture.privateAdventureWithId();
+        adventure.permissions().add(new Permission(userId, PermissionLevel.READ));
+
+        // when
+        adventure.updatePermissions(Set.of());
+
+        // then
+        var events = adventure.drainEvents();
+
+        assertThat(events).singleElement().isInstanceOf(AdventureAccessRevokedEvent.class);
+
+        var event = (AdventureAccessRevokedEvent) events.getFirst();
+
+        assertThat(event.getAdventureId()).isEqualTo(AdventureFixture.NUMERIC_ID);
+        assertThat(event.getAdventurePublicId()).isEqualTo(AdventureFixture.PUBLIC_ID);
+        assertThat(event.getAdventureName()).isEqualTo("Name");
+        assertThat(event.getUserId()).isEqualTo(userId);
+    }
+
+    @Test
+    public void shouldRaiseNoEventWhenMemberLevelIsUnchanged() {
+
+        // given
+        var userId = 4444L;
+        var adventure = AdventureFixture.privateAdventureWithId();
+        adventure.permissions().add(new Permission(userId, PermissionLevel.READ));
+
+        // when
+        adventure.updatePermissions(Set.of(new Permission(userId, PermissionLevel.READ)));
+
+        // then
+        assertThat(adventure.drainEvents()).isEmpty();
+    }
+
+    @Test
+    public void shouldRaiseNoEventForOwnerLevelEntryWhenPermissionsAreUpdated() {
+
+        // given
+        var userId = 4444L;
+        var adventure = AdventureFixture.privateAdventureWithId();
+
+        // when
+        adventure.updatePermissions(Set.of(new Permission(userId, PermissionLevel.OWNER)));
+
+        // then
+        assertThat(adventure.drainEvents()).isEmpty();
+        assertThat(adventure.canRead(userId)).isFalse();
+    }
+
+    @Test
+    public void shouldRaiseASingleAccessGrantedEventAtTheWeakestLevelWhenAUserAppearsTwice() {
+
+        // given
+        var userId = 4444L;
+        var adventure = AdventureFixture.privateAdventureWithId();
+
+        // when
+        adventure.updatePermissions(Set.of(
+                new Permission(userId, PermissionLevel.READ),
+                new Permission(userId, PermissionLevel.WRITE)));
+
+        // then
+        var events = adventure.drainEvents();
+
+        assertThat(events).singleElement().isInstanceOf(AdventureAccessGrantedEvent.class);
+
+        var event = (AdventureAccessGrantedEvent) events.getFirst();
+
+        assertThat(event.getUserId()).isEqualTo(userId);
+        assertThat(event.getLevel()).isEqualTo(PermissionLevel.READ);
+    }
+
+    @Test
+    public void shouldRaiseNoEventWhenUpdateNamesOwner() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var newPermissions = Set.of(new Permission(AdventureFixture.OWNER_ID, PermissionLevel.WRITE));
+
+        // when
+        assertThrows(BusinessRuleViolationException.class, () -> adventure.updatePermissions(newPermissions));
+
+        // then
+        assertThat(adventure.drainEvents()).isEmpty();
     }
 }

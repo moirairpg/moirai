@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.common.enums.Role;
 import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authorization.AuthorizationContext;
 import me.moirai.storyengine.common.security.authorization.AuthorizationOperation;
@@ -62,7 +63,7 @@ class DeleteAdventureAuthorizerTest {
     }
 
     @Test
-    void shouldAuthorizeWhenRequesterIsAllowedToWrite() {
+    void shouldDenyWhenRequesterIsAllowedToWrite() {
 
         // given
         var adventureId = AdventureFixture.PUBLIC_ID;
@@ -76,11 +77,11 @@ class DeleteAdventureAuthorizerTest {
         var result = authorizer.authorize(context);
 
         // then
-        assertThat(result).isTrue();
+        assertThat(result).isFalse();
     }
 
     @Test
-    void shouldDenyWhenRequesterHasNoWriteAccess() {
+    void shouldDenyWhenRequesterIsNotTheOwner() {
 
         // given
         var adventureId = AdventureFixture.PUBLIC_ID;
@@ -95,6 +96,24 @@ class DeleteAdventureAuthorizerTest {
 
         // then
         assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldAuthorizeWhenRequesterIsAdmin() {
+
+        // given
+        var adventureId = AdventureFixture.PUBLIC_ID;
+        var authData = adventureNoPermissions();
+        var principal = adminWithPublicId(UUID.randomUUID());
+        var context = contextWith(adventureId, principal);
+
+        when(reader.getAuthorizationData(adventureId)).thenReturn(Optional.of(authData));
+
+        // when
+        var result = authorizer.authorize(context);
+
+        // then
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -130,6 +149,19 @@ class DeleteAdventureAuthorizerTest {
                 "token",
                 "refresh",
                 null,
+                null);
+    }
+
+    private MoiraiPrincipal adminWithPublicId(UUID publicId) {
+        return new MoiraiPrincipal(
+                publicId,
+                1L,
+                "discordId",
+                "user",
+                "user@test.com",
+                "token",
+                "refresh",
+                Role.ADMIN,
                 null);
     }
 

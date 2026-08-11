@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import me.moirai.storyengine.common.cqs.query.Query;
 
-public record GetPlayerCharacterById(UUID characterId)
+public record GetPlayerCharacterById(
+        UUID characterId,
+        String requesterUsername)
         implements Query<PlayerCharacterDetails> {
 }

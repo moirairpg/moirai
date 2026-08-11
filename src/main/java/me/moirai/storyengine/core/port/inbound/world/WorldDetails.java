@@ -4,8 +4,6 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
-import me.moirai.storyengine.common.dto.PermissionDto;
-
 public record WorldDetails(
         UUID id,
         String name,
@@ -15,7 +13,8 @@ public record WorldDetails(
         String narratorPersonality,
         String visibility,
         String imageUrl,
-        Set<PermissionDto> permissions,
+        boolean canManage,
+        boolean isOwner,
         Set<WorldLorebookEntryDetails> lorebook,
         Instant creationDate,
         Instant lastUpdateDate,
@@ -23,7 +22,6 @@ public record WorldDetails(
         Double uiImagePositionY) {
 
     public WorldDetails {
-        permissions = Set.copyOf(permissions);
         lorebook = Set.copyOf(lorebook);
     }
 }

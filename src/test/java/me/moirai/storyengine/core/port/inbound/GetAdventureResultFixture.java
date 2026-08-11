@@ -2,11 +2,7 @@ package me.moirai.storyengine.core.port.inbound;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
-import me.moirai.storyengine.common.dto.PermissionDto;
-import me.moirai.storyengine.common.enums.PermissionLevel;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.world.WorldFixture;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureDetails;
@@ -31,12 +27,6 @@ public class GetAdventureResultFixture {
                 adventure.getContextAttributes().bump(),
                 adventure.getContextAttributes().bumpFrequency());
 
-        var permissions = adventure.getPermissions().stream()
-                .map(permission -> new PermissionDto(
-                        UUID.fromString("d6622c6c-85bb-41ba-aa53-93fa68681f85"),
-                        PermissionLevel.OWNER))
-                .collect(Collectors.toSet());
-
         return new AdventureDetails(
                 adventure.getPublicId(),
                 adventure.getName(),
@@ -52,7 +42,8 @@ public class GetAdventureResultFixture {
                 adventure.getLastUpdateDate(),
                 modelConfiguration,
                 contextAttributes,
-                permissions,
+                true,
+                true,
                 Set.of(),
                 List.of(),
                 null,
@@ -75,12 +66,6 @@ public class GetAdventureResultFixture {
                 adventure.getContextAttributes().bump(),
                 adventure.getContextAttributes().bumpFrequency());
 
-        var permissions = adventure.getPermissions().stream()
-                .map(permission -> new PermissionDto(
-                        UUID.fromString("d6622c6c-85bb-41ba-aa53-93fa68681f85"),
-                        PermissionLevel.OWNER))
-                .collect(Collectors.toSet());
-
         return new AdventureDetails(
                 adventure.getPublicId(),
                 adventure.getName(),
@@ -96,7 +81,8 @@ public class GetAdventureResultFixture {
                 adventure.getLastUpdateDate(),
                 modelConfiguration,
                 contextAttributes,
-                permissions,
+                true,
+                true,
                 Set.of(),
                 List.of(),
                 null,
