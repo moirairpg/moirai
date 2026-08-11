@@ -1,7 +1,5 @@
 package me.moirai.storyengine.infrastructure.security.authorization.adventure;
 
-import static me.moirai.storyengine.common.enums.Role.ADMIN;
-
 import org.springframework.stereotype.Component;
 
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -35,12 +33,11 @@ public class DeleteAdventureAuthorizer implements OperationAuthorizer {
         var authData = reader.getAuthorizationData(adventureId)
                 .orElseThrow(() -> new NotFoundException("Adventure not found"));
 
-        return canWrite(authData, principal);
+        return isOwner(authData, principal);
     }
 
-    private boolean canWrite(AssetPermissionsData authData, MoiraiPrincipal principal) {
-        return authData.ownerId().equals(principal.publicId())
-                || authData.writers().contains(principal.publicId())
-                || principal.role() == ADMIN;
+    private boolean isOwner(AssetPermissionsData authorizationData, MoiraiPrincipal principal) {
+        return authorizationData.ownerId().equals(principal.publicId())
+                || principal.isAdmin();
     }
 }
