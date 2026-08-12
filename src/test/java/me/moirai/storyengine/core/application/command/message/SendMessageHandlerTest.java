@@ -58,7 +58,7 @@ public class SendMessageHandlerTest {
     public void shouldThrowExceptionWhenAdventureIsNotFound() {
 
         // given
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user", true);
 
         when(adventureRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.empty());
 
@@ -70,7 +70,7 @@ public class SendMessageHandlerTest {
     public void shouldThrowExceptionWhenContentIsBlank() {
 
         // given
-        var command = new SendMessage(UUID.randomUUID(), "   ", "user");
+        var command = new SendMessage(UUID.randomUUID(), "   ", "user", true);
 
         // when / then
         assertThrows(IllegalArgumentException.class, () -> handler.handle(command));
@@ -80,7 +80,7 @@ public class SendMessageHandlerTest {
     public void shouldStoreContentWithoutASpeakerPrefixWhenAMessageIsSent() {
 
         // given
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user", true);
 
         givenAdventureExists();
         givenEnrolledCharacter();
@@ -100,7 +100,7 @@ public class SendMessageHandlerTest {
     public void shouldRecordTheAuthorWhenThePlayerIsEnrolled() {
 
         // given
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user", true);
 
         givenAdventureExists();
         givenEnrolledCharacter();
@@ -121,7 +121,7 @@ public class SendMessageHandlerTest {
     public void shouldRecordTheUsernameAsSpeakerWhenThePlayerIsNotEnrolled() {
 
         // given
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user", true);
 
         givenAdventureExists();
 
@@ -144,7 +144,7 @@ public class SendMessageHandlerTest {
     public void shouldPublishTheAddedMessageBeforeTheFlowEventWhenAMessageIsSent() {
 
         // given
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user", true);
 
         givenAdventureExists();
 
@@ -166,7 +166,7 @@ public class SendMessageHandlerTest {
     public void shouldMarkNarrationAsPendingWhenAMessageIsSent() {
 
         // given
-        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user");
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user", true);
 
         givenAdventureExists();
 
@@ -184,6 +184,72 @@ public class SendMessageHandlerTest {
 
         assertThat(transcriptChange.update().change()).isEqualTo(TranscriptChange.MESSAGE_ADDED);
         assertThat(transcriptChange.update().isNarrationPending()).isTrue();
+    }
+
+    @Test
+    public void shouldNotPublishTheFlowEventWhenNarrationIsNotRequested() {
+
+        // given
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user", false);
+
+        givenAdventureExists();
+
+        when(adventureRepository.findEnrolledCharacter(anyLong(), anyString()))
+                .thenReturn(Optional.empty());
+
+        // when
+        handler.handle(command);
+
+        // then
+        var published = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher, times(1)).publishEvent(published.capture());
+
+        assertThat(published.getAllValues()).hasSize(1);
+        assertThat(published.getAllValues().get(0)).isInstanceOf(MessageTranscriptChangedEvent.class);
+    }
+
+    @Test
+    public void shouldNotMarkNarrationAsPendingWhenNarrationIsNotRequested() {
+
+        // given
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user", false);
+
+        givenAdventureExists();
+
+        when(adventureRepository.findEnrolledCharacter(anyLong(), anyString()))
+                .thenReturn(Optional.empty());
+
+        // when
+        handler.handle(command);
+
+        // then
+        var published = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher, times(1)).publishEvent(published.capture());
+
+        var transcriptChange = (MessageTranscriptChangedEvent) published.getAllValues().get(0);
+
+        assertThat(transcriptChange.update().change()).isEqualTo(TranscriptChange.MESSAGE_ADDED);
+        assertThat(transcriptChange.update().isNarrationPending()).isFalse();
+    }
+
+    @Test
+    public void shouldStoreTheMessageWhenNarrationIsNotRequested() {
+
+        // given
+        var command = new SendMessage(UUID.randomUUID(), "Hello!", "user", false);
+
+        givenAdventureExists();
+        givenEnrolledCharacter();
+
+        // when
+        handler.handle(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).save(saved.capture());
+
+        assertThat(saved.getValue().getContent()).isEqualTo("Hello!");
+        assertThat(saved.getValue().getRole()).isEqualTo(MessageAuthorRole.USER);
     }
 
     private void givenEnrolledCharacter() {

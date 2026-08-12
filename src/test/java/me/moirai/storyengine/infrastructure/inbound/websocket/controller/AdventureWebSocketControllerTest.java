@@ -25,7 +25,7 @@ import me.moirai.storyengine.common.cqs.command.CommandRunner;
 import me.moirai.storyengine.common.security.authentication.MoiraiPrincipal;
 import me.moirai.storyengine.common.security.authentication.MoiraiSecurityContext;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
-import me.moirai.storyengine.infrastructure.inbound.websocket.request.WebSocketMessageRequest;
+import me.moirai.storyengine.infrastructure.inbound.websocket.request.SendMessageRequest;
 
 @ExtendWith(MockitoExtension.class)
 public class AdventureWebSocketControllerTest {
@@ -41,7 +41,7 @@ public class AdventureWebSocketControllerTest {
 
         // given
         var adventureId = UUID.randomUUID();
-        var request = new WebSocketMessageRequest("hello");
+        var request = new SendMessageRequest("hello", false);
         var moiraiPrincipal = new MoiraiPrincipal(UUID.randomUUID(), 99999L, "discordId",
                 "alice", "alice@test.com", "token", "refresh", null, null);
         var principal = new UsernamePasswordAuthenticationToken(moiraiPrincipal, null);
@@ -55,6 +55,7 @@ public class AdventureWebSocketControllerTest {
         assertThat(commandCaptor.getValue().adventureId()).isEqualTo(adventureId);
         assertThat(commandCaptor.getValue().content()).isEqualTo("hello");
         assertThat(commandCaptor.getValue().username()).isEqualTo("alice");
+        assertThat(commandCaptor.getValue().generateNarration()).isFalse();
     }
 
     @AfterEach
@@ -77,7 +78,7 @@ public class AdventureWebSocketControllerTest {
         // when
         controller.sendMessage(
                 UUID.randomUUID(),
-                new WebSocketMessageRequest("hello"),
+                new SendMessageRequest("hello", true),
                 new UsernamePasswordAuthenticationToken(moiraiPrincipal, null));
 
         // then
@@ -90,7 +91,7 @@ public class AdventureWebSocketControllerTest {
         // when
         controller.sendMessage(
                 UUID.randomUUID(),
-                new WebSocketMessageRequest("hello"),
+                new SendMessageRequest("hello", true),
                 new UsernamePasswordAuthenticationToken(principal(), null));
 
         // then
@@ -107,7 +108,7 @@ public class AdventureWebSocketControllerTest {
         assertThatExceptionOfType(IllegalStateException.class)
                 .isThrownBy(() -> controller.sendMessage(
                         UUID.randomUUID(),
-                        new WebSocketMessageRequest("hello"),
+                        new SendMessageRequest("hello", true),
                         new UsernamePasswordAuthenticationToken(principal(), null)));
 
         // then
@@ -123,7 +124,7 @@ public class AdventureWebSocketControllerTest {
         // when
         assertThatExceptionOfType(ClassCastException.class)
                 .isThrownBy(() -> controller.sendMessage(
-                        UUID.randomUUID(), new WebSocketMessageRequest("hello"), foreignPrincipal));
+                        UUID.randomUUID(), new SendMessageRequest("hello", true), foreignPrincipal));
 
         // then
         verifyNoInteractions(commandRunner);
@@ -139,7 +140,7 @@ public class AdventureWebSocketControllerTest {
         assertThatExceptionOfType(ClassCastException.class)
                 .isThrownBy(() -> controller.sendMessage(
                         UUID.randomUUID(),
-                        new WebSocketMessageRequest("hello"),
+                        new SendMessageRequest("hello", true),
                         tokenWithForeignPrincipal));
 
         // then

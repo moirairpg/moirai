@@ -88,9 +88,11 @@ public class SendMessageHandler extends AbstractCommandHandler<SendMessage, Void
                         playerMessage.getStatus(),
                         author.getPublicId(),
                         playerMessage.getAuthorCharacterName(),
-                        playerMessage.getCreationDate()), true)));
+                        playerMessage.getCreationDate()), command.generateNarration())));
 
-        eventPublisher.publishEvent(new MessageSentEvent(adventure.getPublicId()));
+        if (command.generateNarration()) {
+            eventPublisher.publishEvent(new MessageSentEvent(adventure.getPublicId()));
+        }
 
         return null;
     }
