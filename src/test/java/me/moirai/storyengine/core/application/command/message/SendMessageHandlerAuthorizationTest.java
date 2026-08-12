@@ -146,7 +146,7 @@ class SendMessageHandlerAuthorizationTest {
     }
 
     private SendMessage command() {
-        return new SendMessage(ADVENTURE_ID, "content", "caller");
+        return new SendMessage(ADVENTURE_ID, "content", "caller", true);
     }
 
     private MoiraiPrincipal principal() {

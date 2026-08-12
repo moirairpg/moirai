@@ -25,6 +25,7 @@ import me.moirai.storyengine.core.port.inbound.message.RetryFromMessage;
 import me.moirai.storyengine.core.port.inbound.message.Say;
 import me.moirai.storyengine.core.port.inbound.message.SendMessage;
 import me.moirai.storyengine.core.port.inbound.message.StartAdventure;
+import me.moirai.storyengine.infrastructure.inbound.websocket.request.SendMessageRequest;
 import me.moirai.storyengine.infrastructure.inbound.websocket.request.WebSocketMessageRequest;
 import me.moirai.storyengine.infrastructure.inbound.websocket.response.WebSocketErrorResponse;
 
@@ -42,10 +43,11 @@ public class AdventureWebSocketController {
     @MessageMapping("/adventures/{adventureId}/messages")
     public void sendMessage(
             @DestinationVariable UUID adventureId,
-            @Payload WebSocketMessageRequest request,
+            @Payload SendMessageRequest request,
             Principal principal) {
 
-        dispatch(principal, username -> new SendMessage(adventureId, request.content(), username));
+        dispatch(principal, username -> new SendMessage(
+                adventureId, request.content(), username, request.generateNarration()));
     }
 
     @MessageMapping("/adventures/{adventureId}/start")

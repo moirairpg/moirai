@@ -92,6 +92,32 @@ class AdventureWebSocketStompIntegrationTest extends AbstractDatabaseIntegration
         assertThat(command.adventureId()).isEqualTo(ADVENTURE_ID);
         assertThat(command.content()).isEqualTo("hello from the wire");
         assertThat(command.username()).isEqualTo("alice");
+        assertThat(command.generateNarration()).isTrue();
+    }
+
+    @Test
+    void shouldNotRequestNarrationWhenTheFrameSaysSo() throws Exception {
+
+        // given
+        when(userDetailsService.loadUserByUsername(any())).thenReturn(principal());
+
+        var received = new CompletableFuture<SendMessage>();
+        doAnswer(invocation -> {
+            received.complete(invocation.getArgument(0));
+            return null;
+        }).when(commandRunner).run(any());
+
+        session = connect(SESSION_TOKEN);
+
+        // when
+        session.send("/app/adventures/" + ADVENTURE_ID + "/messages",
+                new WebSocketPayloadWithNarrationChoice("quiet message", false));
+
+        // then
+        var command = received.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+        assertThat(command.content()).isEqualTo("quiet message");
+        assertThat(command.generateNarration()).isFalse();
     }
 
     @Test
@@ -150,5 +176,8 @@ class AdventureWebSocketStompIntegrationTest extends AbstractDatabaseIntegration
     }
 
     record WebSocketPayload(String content) {
+    }
+
+    record WebSocketPayloadWithNarrationChoice(String content, boolean generateNarration) {
     }
 }
