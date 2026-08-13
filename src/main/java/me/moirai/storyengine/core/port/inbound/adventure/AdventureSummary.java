@@ -12,5 +12,7 @@ public record AdventureSummary(
         String visibility,
         Instant creationDate,
         String imageUrl,
-        boolean canWrite) {
+        boolean canWrite,
+        Double uiImagePositionX,
+        Double uiImagePositionY) {
 }

@@ -65,7 +65,8 @@ public class SearchWorldsHandlerTest {
         // Given
         var query = new SearchWorlds(null, SearchView.MY_STUFF, null, null, 1, 2, 1L);
 
-        var row = new WorldSearchRow(UUID.randomUUID(), "name", "desc", "PUBLIC", Instant.now(), null, "WRITE");
+        var row = new WorldSearchRow(UUID.randomUUID(), "name", "desc", "PUBLIC", Instant.now(), null, "WRITE", null,
+                null);
 
         when(reader.search(any(SearchWorlds.class)))
                 .thenReturn(PaginatedResult.of(List.of(row), 1L, 1, 2));
@@ -84,7 +85,8 @@ public class SearchWorldsHandlerTest {
         // Given
         var query = new SearchWorlds(null, SearchView.EXPLORE, null, null, 1, 2, null);
 
-        var row = new WorldSearchRow(UUID.randomUUID(), "name", "desc", "PUBLIC", Instant.now(), null, null);
+        var row = new WorldSearchRow(UUID.randomUUID(), "name", "desc", "PUBLIC", Instant.now(), null, null, null,
+                null);
 
         when(reader.search(any(SearchWorlds.class)))
                 .thenReturn(PaginatedResult.of(List.of(row), 1L, 1, 2));
@@ -95,5 +97,26 @@ public class SearchWorldsHandlerTest {
         // Then
         assertThat(result.data()).hasSize(1);
         assertThat(result.data().get(0).canWrite()).isFalse();
+    }
+
+    @Test
+    public void shouldReturnTheSavedImagePositionWhenTheWorldHasOne() {
+
+        // Given
+        var query = new SearchWorlds(null, SearchView.MY_STUFF, null, null, 1, 2, 1L);
+
+        var row = new WorldSearchRow(UUID.randomUUID(), "name", "desc", "PUBLIC", Instant.now(), null, "OWNER", 0.3,
+                0.7);
+
+        when(reader.search(any(SearchWorlds.class)))
+                .thenReturn(PaginatedResult.of(List.of(row), 1L, 1, 2));
+
+        // When
+        var result = handler.handle(query);
+
+        // Then
+        assertThat(result.data()).hasSize(1);
+        assertThat(result.data().get(0).uiImagePositionX()).isEqualTo(0.3);
+        assertThat(result.data().get(0).uiImagePositionY()).isEqualTo(0.7);
     }
 }

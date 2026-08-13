@@ -9,5 +9,7 @@ public record PlayerCharacterSummaryRow(
         String ownerUsername,
         String name,
         CharacterClass characterClass,
-        String imageKey) {
+        String imageKey,
+        Double uiImagePositionX,
+        Double uiImagePositionY) {
 }

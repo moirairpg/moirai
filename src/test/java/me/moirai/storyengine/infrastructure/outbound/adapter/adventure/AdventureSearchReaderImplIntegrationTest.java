@@ -154,4 +154,52 @@ public class AdventureSearchReaderImplIntegrationTest extends AbstractDatabaseIn
         assertThat(result.data()).hasSize(1);
         assertThat(result.data().get(0).userPermission()).isNull();
     }
+
+    @Test
+    public void shouldReturnTheSavedImagePositionWhenSearchingAdventures() {
+
+        // Given
+        var world = insert(WorldFixture.publicWorld().build(), World.class);
+        var adventure = AdventureFixture.publicAdventure()
+                .worldId(world.getPublicId())
+                .build();
+
+        var saved = insert(adventure, Adventure.class);
+        saved.updateUiImagePosition(0.3, 0.7);
+        update(saved, saved.getId(), Adventure.class);
+
+        var query = new SearchAdventures(null, null, null, null,
+                SearchView.MY_STUFF, null, null, null, null, OWNER_ID);
+
+        // When
+        var result = reader.search(query);
+
+        // Then
+        assertThat(result.data()).hasSize(1);
+        assertThat(result.data().get(0).uiImagePositionX()).isEqualTo(0.3);
+        assertThat(result.data().get(0).uiImagePositionY()).isEqualTo(0.7);
+    }
+
+    @Test
+    public void shouldReturnNoImagePositionWhenTheAdventureHasNoneSaved() {
+
+        // Given
+        var world = insert(WorldFixture.publicWorld().build(), World.class);
+        var adventure = AdventureFixture.publicAdventure()
+                .worldId(world.getPublicId())
+                .build();
+
+        insert(adventure, Adventure.class);
+
+        var query = new SearchAdventures(null, null, null, null,
+                SearchView.MY_STUFF, null, null, null, null, OWNER_ID);
+
+        // When
+        var result = reader.search(query);
+
+        // Then
+        assertThat(result.data()).hasSize(1);
+        assertThat(result.data().get(0).uiImagePositionX()).isNull();
+        assertThat(result.data().get(0).uiImagePositionY()).isNull();
+    }
 }

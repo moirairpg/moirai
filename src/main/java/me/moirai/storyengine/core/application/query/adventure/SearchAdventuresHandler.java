@@ -42,7 +42,9 @@ public class SearchAdventuresHandler extends AbstractQueryHandler<SearchAdventur
                             row.visibility(),
                             row.creationDate(),
                             storagePort.resolveUrl(row.imageKey()),
-                            canWrite);
+                            canWrite,
+                            row.uiImagePositionX(),
+                            row.uiImagePositionY());
                 })
                 .toList();
 

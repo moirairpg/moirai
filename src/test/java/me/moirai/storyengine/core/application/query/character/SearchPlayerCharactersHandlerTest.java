@@ -59,13 +59,37 @@ public class SearchPlayerCharactersHandlerTest {
         assertThat(result.data().get(0).imageUrl()).isEqualTo("http://image.url");
     }
 
+    @Test
+    void shouldReturnTheSavedImagePositionWhenTheCharacterHasOne() {
+
+        // given
+        when(reader.search(any(SearchPlayerCharacters.class))).thenReturn(getPages(1, 1, 1));
+
+        // when
+        var result = handler.execute(new SearchPlayerCharacters(
+                null,
+                null,
+                null,
+                null,
+                1,
+                10,
+                123L));
+
+        // then
+        assertThat(result.data()).hasSize(1);
+        assertThat(result.data().get(0).uiImagePositionX()).isEqualTo(0.25);
+        assertThat(result.data().get(0).uiImagePositionY()).isEqualTo(0.75);
+    }
+
     private PlayerCharacterSummaryRow playerCharacter() {
         return new PlayerCharacterSummaryRow(
                 UUID.randomUUID(),
                 "joao.das.couves",
                 "Conan the Barbarian",
                 CharacterClass.BARBARIAN,
-                "conan-image-key");
+                "conan-image-key",
+                0.25,
+                0.75);
     }
 
     private PaginatedResult<PlayerCharacterSummaryRow> getPages(int page, int amountOfResults, int pages) {
