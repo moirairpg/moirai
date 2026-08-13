@@ -1,5 +1,6 @@
 package me.moirai.storyengine.infrastructure.outbound.adapter.adventure;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ import me.moirai.storyengine.common.dbutil.Filters;
 import me.moirai.storyengine.common.dbutil.PaginatedQuery;
 import me.moirai.storyengine.common.dto.PaginatedResult;
 import me.moirai.storyengine.common.enums.SearchView;
+import me.moirai.storyengine.common.util.Functions;
 import me.moirai.storyengine.core.port.inbound.adventure.AdventureSortField;
 import me.moirai.storyengine.core.port.inbound.adventure.SearchAdventures;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureSearchReader;
@@ -30,6 +32,8 @@ public class AdventureSearchReaderImpl implements AdventureSearchReader {
                     a.visibility,
                     a.creation_date,
                     a.image_key,
+                    a.ui_image_position_x,
+                    a.ui_image_position_y,
                     ap_me.permission AS user_permission
                FROM adventure a
                LEFT JOIN world   w ON a.world_id   = w.public_id
@@ -111,6 +115,8 @@ public class AdventureSearchReaderImpl implements AdventureSearchReader {
                 rs.getString("visibility"),
                 rs.getTimestamp("creation_date").toInstant(),
                 rs.getString("image_key"),
-                rs.getString("user_permission"));
+                rs.getString("user_permission"),
+                Functions.mapOrNull(rs.getBigDecimal("ui_image_position_x"), BigDecimal::doubleValue),
+                Functions.mapOrNull(rs.getBigDecimal("ui_image_position_y"), BigDecimal::doubleValue));
     }
 }

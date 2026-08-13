@@ -40,7 +40,9 @@ public class SearchWorldsHandler extends AbstractQueryHandler<SearchWorlds, Pagi
                             row.visibility(),
                             row.creationDate(),
                             storagePort.resolveUrl(row.imageKey()),
-                            canWrite);
+                            canWrite,
+                            row.uiImagePositionX(),
+                            row.uiImagePositionY());
                 })
                 .toList();
 

@@ -158,4 +158,40 @@ public class WorldSearchReaderImplIntegrationTest extends AbstractDatabaseIntegr
         assertThat(result.items()).isEqualTo(0);
         assertThat(result.data()).isEmpty();
     }
+
+    @Test
+    public void shouldReturnTheSavedImagePositionWhenSearchingWorlds() {
+
+        // Given
+        var world = insert(WorldFixture.publicWorld().build(), World.class);
+        world.updateUiImagePosition(0.3, 0.7);
+        update(world, world.getId(), World.class);
+
+        var query = new SearchWorlds(null, SearchView.MY_STUFF, null, null, null, null, OWNER_ID);
+
+        // When
+        var result = reader.search(query);
+
+        // Then
+        assertThat(result.data()).hasSize(1);
+        assertThat(result.data().get(0).uiImagePositionX()).isEqualTo(0.3);
+        assertThat(result.data().get(0).uiImagePositionY()).isEqualTo(0.7);
+    }
+
+    @Test
+    public void shouldReturnNoImagePositionWhenTheWorldHasNoneSaved() {
+
+        // Given
+        insert(WorldFixture.publicWorld().build(), World.class);
+
+        var query = new SearchWorlds(null, SearchView.MY_STUFF, null, null, null, null, OWNER_ID);
+
+        // When
+        var result = reader.search(query);
+
+        // Then
+        assertThat(result.data()).hasSize(1);
+        assertThat(result.data().get(0).uiImagePositionX()).isNull();
+        assertThat(result.data().get(0).uiImagePositionY()).isNull();
+    }
 }

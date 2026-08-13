@@ -31,7 +31,9 @@ public class SearchPlayerCharactersHandler
                         row.ownerUsername(),
                         row.name(),
                         row.characterClass(),
-                        storagePort.resolveUrl(row.imageKey())))
+                        storagePort.resolveUrl(row.imageKey()),
+                        row.uiImagePositionX(),
+                        row.uiImagePositionY()))
                 .toList();
 
         return new PaginatedResult<>(characters, page.items(), page.totalItems(), page.page(), page.totalPages());

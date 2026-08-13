@@ -64,12 +64,29 @@ public class ListPlayerCharactersByNameHandlerTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void shouldReturnTheSavedImagePositionWhenTheCharacterHasOne() {
+
+        // given
+        when(reader.listByName(eq("con"), eq(123L))).thenReturn(List.of(playerCharacter()));
+
+        // when
+        var result = handler.execute(new ListPlayerCharactersByName("con", 123L));
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).uiImagePositionX()).isEqualTo(0.25);
+        assertThat(result.get(0).uiImagePositionY()).isEqualTo(0.75);
+    }
+
     private PlayerCharacterSummaryRow playerCharacter() {
         return new PlayerCharacterSummaryRow(
                 UUID.randomUUID(),
                 "joao.das.couves",
                 "Conan the Barbarian",
                 CharacterClass.BARBARIAN,
-                "conan-image-key");
+                "conan-image-key",
+                0.25,
+                0.75);
     }
 }

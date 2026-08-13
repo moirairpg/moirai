@@ -10,4 +10,6 @@ public record WorldSummary(
         String visibility,
         Instant creationDate,
         String imageUrl,
-        boolean canWrite) {}
+        boolean canWrite,
+        Double uiImagePositionX,
+        Double uiImagePositionY) {}

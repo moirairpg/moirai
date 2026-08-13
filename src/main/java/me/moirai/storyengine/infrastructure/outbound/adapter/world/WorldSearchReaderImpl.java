@@ -1,5 +1,6 @@
 package me.moirai.storyengine.infrastructure.outbound.adapter.world;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ import me.moirai.storyengine.common.dbutil.Filters;
 import me.moirai.storyengine.common.dbutil.PaginatedQuery;
 import me.moirai.storyengine.common.dto.PaginatedResult;
 import me.moirai.storyengine.common.enums.SearchView;
+import me.moirai.storyengine.common.util.Functions;
 import me.moirai.storyengine.core.port.inbound.world.SearchWorlds;
 import me.moirai.storyengine.core.port.inbound.world.WorldSortField;
 import me.moirai.storyengine.core.port.outbound.world.WorldSearchReader;
@@ -28,6 +30,8 @@ public class WorldSearchReaderImpl implements WorldSearchReader {
                    w.visibility,
                    w.creation_date,
                    w.image_key,
+                   w.ui_image_position_x,
+                   w.ui_image_position_y,
                    wp_me.permission AS user_permission
               FROM world w
               LEFT JOIN world_permissions wp_me ON wp_me.world_id = w.id AND wp_me.user_id = :requesterId
@@ -101,6 +105,8 @@ public class WorldSearchReaderImpl implements WorldSearchReader {
                 rs.getString("visibility"),
                 rs.getTimestamp("creation_date").toInstant(),
                 rs.getString("image_key"),
-                rs.getString("user_permission"));
+                rs.getString("user_permission"),
+                Functions.mapOrNull(rs.getBigDecimal("ui_image_position_x"), BigDecimal::doubleValue),
+                Functions.mapOrNull(rs.getBigDecimal("ui_image_position_y"), BigDecimal::doubleValue));
     }
 }

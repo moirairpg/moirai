@@ -1,5 +1,6 @@
 package me.moirai.storyengine.infrastructure.outbound.adapter.character;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,7 +26,9 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
                     owner.username AS owner_username,
                     pc.name,
                     pc.character_class,
-                    pc.image_key
+                    pc.image_key,
+                    pc.ui_image_position_x,
+                    pc.ui_image_position_y
                FROM player_character pc
                JOIN moirai_user owner ON owner.id = pc.player_id
             """;
@@ -35,7 +38,9 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
                     owner.username AS owner_username,
                     pc.name,
                     pc.character_class,
-                    pc.image_key
+                    pc.image_key,
+                    pc.ui_image_position_x,
+                    pc.ui_image_position_y
                FROM player_character pc
                JOIN moirai_user owner
                  ON owner.id = pc.player_id
@@ -108,6 +113,8 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
                 rs.getString("owner_username"),
                 rs.getString("name"),
                 Functions.mapOrNull(rs.getString("character_class"), CharacterClass::valueOf),
-                rs.getString("image_key"));
+                rs.getString("image_key"),
+                Functions.mapOrNull(rs.getBigDecimal("ui_image_position_x"), BigDecimal::doubleValue),
+                Functions.mapOrNull(rs.getBigDecimal("ui_image_position_y"), BigDecimal::doubleValue));
     }
 }

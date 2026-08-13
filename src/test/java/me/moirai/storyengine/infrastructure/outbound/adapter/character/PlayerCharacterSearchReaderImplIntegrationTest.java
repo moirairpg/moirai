@@ -394,6 +394,74 @@ public class PlayerCharacterSearchReaderImplIntegrationTest extends AbstractData
         assertThat(result.get(0).ownerUsername()).isEqualTo("joao.das.couves");
     }
 
+    @Test
+    void shouldReturnTheSavedImagePositionWhenSearchingCharacters() {
+
+        // given
+        var user = insert(UserFixture.player().build(), User.class);
+        var character = PlayerCharacterFixture.samplePlayerCharacter()
+                .name("Conan the Barbarian")
+                .characterClass(CharacterClass.BARBARIAN)
+                .playerId(user.getId())
+                .build();
+
+        character.updateUiImagePosition(0.25, 0.75);
+        insert(character, PlayerCharacter.class);
+
+        // when
+        var result = reader.search(new SearchPlayerCharacters(null, null, null, null, 1, 10, user.getId()));
+
+        // then
+        assertThat(result.data()).hasSize(1);
+        assertThat(result.data().get(0).uiImagePositionX()).isEqualTo(0.25);
+        assertThat(result.data().get(0).uiImagePositionY()).isEqualTo(0.75);
+    }
+
+    @Test
+    void shouldReturnTheSavedImagePositionWhenListingCharactersByName() {
+
+        // given
+        var user = insert(UserFixture.player().build(), User.class);
+        var character = PlayerCharacterFixture.samplePlayerCharacter()
+                .name("Conan the Barbarian")
+                .characterClass(CharacterClass.BARBARIAN)
+                .playerId(user.getId())
+                .build();
+
+        character.updateUiImagePosition(0.25, 0.75);
+        insert(character, PlayerCharacter.class);
+
+        // when
+        var result = reader.listByName("Conan", user.getId());
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).uiImagePositionX()).isEqualTo(0.25);
+        assertThat(result.get(0).uiImagePositionY()).isEqualTo(0.75);
+    }
+
+    @Test
+    void shouldReturnNoImagePositionWhenTheCharacterHasNoneSaved() {
+
+        // given
+        var user = insert(UserFixture.player().build(), User.class);
+        var character = PlayerCharacterFixture.samplePlayerCharacter()
+                .name("Conan the Barbarian")
+                .characterClass(CharacterClass.BARBARIAN)
+                .playerId(user.getId())
+                .build();
+
+        insert(character, PlayerCharacter.class);
+
+        // when
+        var result = reader.search(new SearchPlayerCharacters(null, null, null, null, 1, 10, user.getId()));
+
+        // then
+        assertThat(result.data()).hasSize(1);
+        assertThat(result.data().get(0).uiImagePositionX()).isNull();
+        assertThat(result.data().get(0).uiImagePositionY()).isNull();
+    }
+
     private void insertSameNameCharacters(int amountOfResults, User owner) {
 
         var resolvedOwner = owner != null ? owner : insert(UserFixture.player().build(), User.class);

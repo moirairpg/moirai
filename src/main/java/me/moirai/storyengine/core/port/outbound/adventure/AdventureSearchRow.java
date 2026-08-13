@@ -12,5 +12,7 @@ public record AdventureSearchRow(
         String visibility,
         Instant creationDate,
         String imageKey,
-        String userPermission) {
+        String userPermission,
+        Double uiImagePositionX,
+        Double uiImagePositionY) {
 }

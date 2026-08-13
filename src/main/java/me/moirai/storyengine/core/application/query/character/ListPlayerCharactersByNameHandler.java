@@ -31,7 +31,9 @@ public class ListPlayerCharactersByNameHandler
                         row.ownerUsername(),
                         row.name(),
                         row.characterClass(),
-                        storagePort.resolveUrl(row.imageKey())))
+                        storagePort.resolveUrl(row.imageKey()),
+                        row.uiImagePositionX(),
+                        row.uiImagePositionY()))
                 .toList();
     }
 }
