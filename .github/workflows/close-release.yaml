@@ -1,4 +1,4 @@
-name: Close patch
+name: Close release
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  close-patch:
+  close-release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,8 +16,8 @@ jobs:
     steps:
       - name: Validate branch
         run: |
-          if [[ "${{ github.ref_name }}" != patch/* ]]; then
-            echo "::error::This workflow must be run on a patch/* branch."
+          if [[ "${{ github.ref_name }}" != release/* ]]; then
+            echo "::error::This workflow must be run on a release/* branch."
             exit 1
           fi
 
@@ -28,7 +28,7 @@ jobs:
           app-id: ${{ secrets.GH_APP_ID }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
 
-      - name: Checkout patch branch
+      - name: Checkout release branch
         uses: actions/checkout@v6.0.2
         with:
           ref: ${{ github.ref }}
@@ -99,43 +99,38 @@ jobs:
           }
           HELPER
 
-      - name: Verify open patch branch
+      - name: Verify open release branch
         run: |
-          OPEN_PATCH=$(git ls-remote --heads origin 'patch/*' | sed 's|.*refs/heads/||')
-          if [ "$(printf '%s\n' "$OPEN_PATCH" | grep -c .)" -ne 1 ]; then
-            echo "::error::Expected exactly one open patch branch, found: ${OPEN_PATCH}"
+          OPEN_RELEASE=$(git ls-remote --heads origin 'release/*' | sed 's|.*refs/heads/||')
+          if [ "$(printf '%s\n' "$OPEN_RELEASE" | grep -c .)" -ne 1 ]; then
+            echo "::error::Expected exactly one open release branch, found: ${OPEN_RELEASE}"
             exit 1
           fi
-          if [ "$OPEN_PATCH" != "${{ github.ref_name }}" ]; then
-            echo "::error::The open patch branch is ${OPEN_PATCH}, not ${{ github.ref_name }}."
+          if [ "$OPEN_RELEASE" != "${{ github.ref_name }}" ]; then
+            echo "::error::The open release branch is ${OPEN_RELEASE}, not ${{ github.ref_name }}."
             exit 1
           fi
 
       - name: Resolve version
         run: |
-          VERSION="${GITHUB_REF_NAME#patch/}"
+          VERSION="${GITHUB_REF_NAME#release/}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Merge main into patch branch
-        run: |
-          source "$RUNNER_TEMP/git-merge.sh"
-          git fetch origin main
-          safe_merge origin/main "close patch: merge main into ${{ github.ref_name }}" ours pom.xml
-
-      - name: Merge patch branch into main
-        run: |
-          source "$RUNNER_TEMP/git-merge.sh"
-          git checkout main
-          git pull origin main
-          safe_merge ${{ github.ref_name }} "close patch: merge ${{ github.ref_name }} into main" theirs pom.xml
-
-      - name: Normalize main version
+      - name: Finalize version on release branch
         run: |
           mvn versions:set -DnewVersion=${{ env.VERSION }} -DgenerateBackupPoms=false
           git add pom.xml
           if ! git diff --cached --quiet; then
-            git commit -m "close patch: set version ${{ env.VERSION }}"
+            git commit -m "close release: set version ${{ env.VERSION }}"
           fi
+          git push origin ${{ github.ref_name }}
+
+      - name: Merge release branch into main
+        run: |
+          source "$RUNNER_TEMP/git-merge.sh"
+          git checkout main
+          git pull origin main
+          safe_merge ${{ github.ref_name }} "close release: merge ${{ github.ref_name }} into main" theirs pom.xml
           git push origin main
 
       - name: Tag release from main
@@ -178,37 +173,37 @@ jobs:
       - name: Merge main into develop
         run: |
           source "$RUNNER_TEMP/git-merge.sh"
-          safe_merge origin/main "close patch: merge main into develop after ${{ github.ref_name }}" ours pom.xml
+          safe_merge origin/main "close release: merge main into develop after ${{ env.VERSION }}" ours pom.xml
 
       - name: Restore develop version
         run: |
           mvn versions:set -DnewVersion=${{ env.DEVELOP_VERSION }} -DgenerateBackupPoms=false
           git add pom.xml
           if ! git diff --cached --quiet; then
-            git commit -m "close patch: restore develop version to ${{ env.DEVELOP_VERSION }}"
+            git commit -m "close release: restore develop version to ${{ env.DEVELOP_VERSION }}"
           fi
           git push origin develop
 
-      - name: Merge main into release branch
+      - name: Merge main into patch branch
         run: |
           source "$RUNNER_TEMP/git-merge.sh"
           git fetch origin --prune '+refs/heads/*:refs/remotes/origin/*'
-          RELEASE_BRANCH=$(git ls-remote --heads origin 'release/*' | sed 's|.*refs/heads/||')
-          if [ -z "$RELEASE_BRANCH" ]; then
-            echo "No open release branch; nothing to back-merge."
+          PATCH_BRANCH=$(git ls-remote --heads origin 'patch/*' | sed 's|.*refs/heads/||')
+          if [ -z "$PATCH_BRANCH" ]; then
+            echo "No open patch branch; nothing to back-merge."
           else
-            git checkout "$RELEASE_BRANCH"
-            git pull origin "$RELEASE_BRANCH"
-            RELEASE_BRANCH_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-            safe_merge origin/main "close patch: merge main into ${RELEASE_BRANCH} after ${{ github.ref_name }}" ours pom.xml
-            mvn versions:set -DnewVersion="$RELEASE_BRANCH_VERSION" -DgenerateBackupPoms=false
+            git checkout "$PATCH_BRANCH"
+            git pull origin "$PATCH_BRANCH"
+            PATCH_BRANCH_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            safe_merge origin/main "close release: merge main into ${PATCH_BRANCH} after ${{ env.VERSION }}" ours pom.xml
+            mvn versions:set -DnewVersion="$PATCH_BRANCH_VERSION" -DgenerateBackupPoms=false
             git add pom.xml
             if ! git diff --cached --quiet; then
-              git commit -m "close patch: restore ${RELEASE_BRANCH} version to ${RELEASE_BRANCH_VERSION}"
+              git commit -m "close release: restore ${PATCH_BRANCH} version to ${PATCH_BRANCH_VERSION}"
             fi
-            git push origin "$RELEASE_BRANCH"
+            git push origin "$PATCH_BRANCH"
           fi
 
-      - name: Delete patch branch
+      - name: Delete release branch
         run: |
           git push origin --delete ${{ github.ref_name }}
