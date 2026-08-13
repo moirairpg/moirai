@@ -54,3 +54,12 @@ jobs:
         run: |
           docker build --build-arg APP_VERSION=${{ env.APP_VERSION }} -t ${{ vars.DOCKER_REPO_ADDR }}/${{ vars.DOCKER_REPO }}/${{ vars.DOCKER_IMAGE_NAME }}:bleeding-edge .
           docker push ${{ vars.DOCKER_REPO_ADDR }}/${{ vars.DOCKER_REPO }}/${{ vars.DOCKER_IMAGE_NAME }}:bleeding-edge
+      - name: Prune untagged images from GitHub Container Registry
+        if: github.ref == 'refs/heads/develop'
+        uses: actions/delete-package-versions@v5
+        with:
+          owner: ${{ vars.DOCKER_REPO }}
+          package-name: ${{ vars.DOCKER_IMAGE_NAME }}
+          package-type: container
+          delete-only-untagged-versions: 'true'
+          token: ${{ steps.app-token.outputs.token }}
