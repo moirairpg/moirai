@@ -44,6 +44,7 @@ public class CreatePlayerCharacterHandler
                 .characterClass(command.characterClass())
                 .personality(command.personality())
                 .physicalDescription(command.physicalDescription())
+                .attributes(command.attributes())
                 .playerId(command.requesterId())
                 .build();
 
@@ -69,6 +70,7 @@ public class CreatePlayerCharacterHandler
                 character.getCharacterClass(),
                 character.getPersonality(),
                 character.getPhysicalDescription(),
+                character.getAttributeLevels().asMap(),
                 storagePort.resolveUrl(character.getImageKey()),
                 character.getUiImagePositionX(),
                 character.getUiImagePositionY(),

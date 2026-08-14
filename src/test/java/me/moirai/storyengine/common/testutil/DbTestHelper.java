@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -13,10 +14,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.postgresql.util.PGobject;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
+
+import tools.jackson.databind.json.JsonMapper;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.CollectionTable;
@@ -43,9 +49,11 @@ import jakarta.persistence.Transient;
 public class DbTestHelper {
 
     private final JdbcClient jdbcClient;
+    private final JsonMapper jsonMapper;
 
-    public DbTestHelper(JdbcClient jdbcClient) {
+    public DbTestHelper(JdbcClient jdbcClient, JsonMapper jsonMapper) {
         this.jdbcClient = jdbcClient;
+        this.jsonMapper = jsonMapper;
     }
 
     @SuppressWarnings("unchecked")
@@ -328,7 +336,9 @@ public class DbTestHelper {
                         params.put(resolveColumnName(embeddedField), embeddedValue);
                     }
                 } else {
-                    if (field.isAnnotationPresent(Convert.class) && fieldValue != null) {
+                    if (isJsonMapped(field) && fieldValue != null) {
+                        fieldValue = toJsonb(fieldValue);
+                    } else if (field.isAnnotationPresent(Convert.class) && fieldValue != null) {
                         var converterClass = field.getAnnotation(Convert.class).converter();
                         var converter = (AttributeConverter) converterClass.getDeclaredConstructor().newInstance();
                         fieldValue = converter.convertToDatabaseColumn(fieldValue);
@@ -512,6 +522,22 @@ public class DbTestHelper {
                 }
             }
             current = current.getSuperclass();
+        }
+    }
+
+    private boolean isJsonMapped(Field field) {
+        var jdbcTypeCode = field.getAnnotation(JdbcTypeCode.class);
+        return jdbcTypeCode != null && jdbcTypeCode.value() == SqlTypes.JSON;
+    }
+
+    private PGobject toJsonb(Object value) {
+        try {
+            var jsonb = new PGobject();
+            jsonb.setType("jsonb");
+            jsonb.setValue(jsonMapper.writeValueAsString(value));
+            return jsonb;
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
         }
     }
 

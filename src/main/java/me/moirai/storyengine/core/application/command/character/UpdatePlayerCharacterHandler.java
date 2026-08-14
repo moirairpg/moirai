@@ -58,6 +58,10 @@ public class UpdatePlayerCharacterHandler
         if (command.characterClass() == null) {
             throw new BusinessRuleViolationException("Character class cannot be null");
         }
+
+        if (!command.attributes().isEmpty()) {
+            throw new BusinessRuleViolationException("Character attributes cannot be changed");
+        }
     }
 
     @Override
@@ -93,6 +97,7 @@ public class UpdatePlayerCharacterHandler
                 character.getCharacterClass(),
                 character.getPersonality(),
                 character.getPhysicalDescription(),
+                character.getAttributeLevels().asMap(),
                 storagePort.resolveUrl(character.getImageKey()),
                 character.getUiImagePositionX(),
                 character.getUiImagePositionY(),

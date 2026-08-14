@@ -4,8 +4,11 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.HashMap;
+
 import org.junit.jupiter.api.Test;
 
+import me.moirai.storyengine.common.enums.CharacterAttribute;
 import me.moirai.storyengine.common.enums.CharacterClass;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 
@@ -20,7 +23,8 @@ public class PlayerCharacterTest {
                 .playerId(1111L)
                 .personality("Brave, honorable and disciplined.")
                 .physicalDescription("A tall warrior with long black hair.")
-                .characterClass(CharacterClass.PALADIN);
+                .characterClass(CharacterClass.PALADIN)
+                .attributes(PlayerCharacterFixture.sampleAttributeAllocation());
 
         // when
         var character = builder.build();
@@ -33,6 +37,88 @@ public class PlayerCharacterTest {
         assertThat(character.getPersonality()).isEqualTo("Brave, honorable and disciplined.");
         assertThat(character.getPhysicalDescription()).isEqualTo("A tall warrior with long black hair.");
         assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.PALADIN);
+    }
+
+    @Test
+    public void shouldCreateInstanceWhenAllSixPointsAreDistributedWithinTheCap() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+
+        // when
+        var character = builder.build();
+
+        // then
+        assertThat(character.getAttributeLevels()).isNotNull();
+        assertThat(character.getAttributeLevels().strength()).isEqualTo(3);
+        assertThat(character.getAttributeLevels().agility()).isZero();
+        assertThat(character.getAttributeLevels().vigor()).isEqualTo(2);
+        assertThat(character.getAttributeLevels().intelligence()).isZero();
+        assertThat(character.getAttributeLevels().awareness()).isZero();
+        assertThat(character.getAttributeLevels().charisma()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAttributesAreMissing() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().attributes(null);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAnAttributeHasNoLevel() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        allocation.remove(CharacterAttribute.CHARISMA);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().attributes(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAnAttributeExceedsTheCreationCap() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        allocation.put(CharacterAttribute.STRENGTH, 4);
+        allocation.put(CharacterAttribute.VIGOR, 1);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().attributes(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenTotalPointsExceedTheBudget() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        allocation.put(CharacterAttribute.AGILITY, 1);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().attributes(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenDistributionIsIncomplete() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        allocation.put(CharacterAttribute.CHARISMA, 0);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().attributes(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
     }
 
     @Test

@@ -2,6 +2,10 @@ package me.moirai.storyengine.infrastructure.outbound.adapter.character;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,6 +13,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import me.moirai.storyengine.common.enums.CharacterAttribute;
 import me.moirai.storyengine.common.enums.CharacterClass;
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.common.util.Functions;
@@ -16,6 +21,8 @@ import me.moirai.storyengine.core.port.inbound.AssetPermissionsData;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterDetailsRow;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterReader;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterPermissionsData;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 @Repository
 public class PlayerCharacterReaderImpl implements PlayerCharacterReader {
@@ -27,6 +34,7 @@ public class PlayerCharacterReaderImpl implements PlayerCharacterReader {
                     pc.character_class,
                     pc.personality,
                     pc.physical_description,
+                    pc.attributes,
                     pc.image_key,
                     pc.ui_image_position_x,
                     pc.ui_image_position_y,
@@ -66,9 +74,14 @@ public class PlayerCharacterReaderImpl implements PlayerCharacterReader {
     //@formatter:on
 
     private final JdbcClient jdbcClient;
+    private final JsonMapper jsonMapper;
 
-    public PlayerCharacterReaderImpl(JdbcClient jdbcClient) {
+    public PlayerCharacterReaderImpl(
+            JdbcClient jdbcClient,
+            JsonMapper jsonMapper) {
+
         this.jdbcClient = jdbcClient;
+        this.jsonMapper = jsonMapper;
     }
 
     @Override
@@ -124,10 +137,28 @@ public class PlayerCharacterReaderImpl implements PlayerCharacterReader {
                 Functions.mapOrNull(rs.getString("character_class"), CharacterClass::valueOf),
                 rs.getString("personality"),
                 rs.getString("physical_description"),
+                toAttributes(rs.getString("attributes")),
                 rs.getString("image_key"),
                 Functions.mapOrNull(rs.getBigDecimal("ui_image_position_x"), BigDecimal::doubleValue),
                 Functions.mapOrNull(rs.getBigDecimal("ui_image_position_y"), BigDecimal::doubleValue),
                 rs.getTimestamp("creation_date").toInstant(),
                 rs.getTimestamp("last_update_date").toInstant());
+    }
+
+    private Map<CharacterAttribute, Integer> toAttributes(String json) {
+
+        var levelsByComponentName = Functions.mapOrNull(json,
+                s -> jsonMapper.readValue(s, new TypeReference<Map<String, Integer>>() {
+                }));
+
+        if (levelsByComponentName == null) {
+            return null;
+        }
+
+        var attributes = new EnumMap<CharacterAttribute, Integer>(CharacterAttribute.class);
+        levelsByComponentName.forEach((name, level) -> attributes
+                .put(CharacterAttribute.valueOf(name.toUpperCase(Locale.ROOT)), level));
+
+        return Collections.unmodifiableMap(attributes);
     }
 }

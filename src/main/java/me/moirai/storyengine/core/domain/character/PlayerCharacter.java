@@ -3,8 +3,13 @@ package me.moirai.storyengine.core.domain.character;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.uuid.Generators;
 
@@ -19,6 +24,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import me.moirai.storyengine.common.domain.Asset;
 import me.moirai.storyengine.common.domain.DomainEvent;
+import me.moirai.storyengine.common.enums.CharacterAttribute;
 import me.moirai.storyengine.common.enums.CharacterClass;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 
@@ -49,6 +55,10 @@ public class PlayerCharacter extends Asset {
     @Column(name = "character_class")
     private CharacterClass characterClass;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "attributes", columnDefinition = "jsonb")
+    private AttributeLevels attributeLevels;
+
     @Column(name = "image_key")
     private String imageKey;
 
@@ -75,6 +85,7 @@ public class PlayerCharacter extends Asset {
         this.personality = builder.personality;
         this.physicalDescription = builder.physicalDescription;
         this.characterClass = builder.characterClass;
+        this.attributeLevels = AttributeLevels.of(builder.attributes);
     }
 
     public static Builder builder() {
@@ -117,6 +128,10 @@ public class PlayerCharacter extends Asset {
 
     public CharacterClass getCharacterClass() {
         return characterClass;
+    }
+
+    public AttributeLevels getAttributeLevels() {
+        return attributeLevels;
     }
 
     public String narrativeDescription() {
@@ -190,11 +205,15 @@ public class PlayerCharacter extends Asset {
 
     public static final class Builder {
 
+        private static final int CREATION_ATTRIBUTE_POINTS = 6;
+        private static final int CREATION_ATTRIBUTE_LEVEL_CAP = 3;
+
         private String name;
         private Long playerId;
         private String personality;
         private String physicalDescription;
         private CharacterClass characterClass;
+        private Map<CharacterAttribute, Integer> attributes;
 
         private Builder() {
         }
@@ -229,6 +248,12 @@ public class PlayerCharacter extends Asset {
             return this;
         }
 
+        public Builder attributes(Map<CharacterAttribute, Integer> attributes) {
+
+            this.attributes = attributes;
+            return this;
+        }
+
         public PlayerCharacter build() {
 
             if (isBlank(name)) {
@@ -249,6 +274,30 @@ public class PlayerCharacter extends Asset {
 
             if (characterClass == null) {
                 throw new BusinessRuleViolationException("Character class cannot be null");
+            }
+
+            if (attributes == null) {
+                throw new BusinessRuleViolationException("Character must have attribute levels");
+            }
+
+            var hasMissingAttribute = Arrays.stream(CharacterAttribute.values())
+                    .anyMatch(attribute -> attributes.get(attribute) == null);
+
+            if (hasMissingAttribute) {
+                throw new BusinessRuleViolationException("All six attributes must receive a level");
+            }
+
+            var hasLevelAboveCreationCap = attributes.values().stream()
+                    .anyMatch(level -> level > CREATION_ATTRIBUTE_LEVEL_CAP);
+
+            if (hasLevelAboveCreationCap) {
+                throw new BusinessRuleViolationException("No attribute can be higher than 3 at creation");
+            }
+
+            var totalPoints = attributes.values().stream().mapToInt(Integer::intValue).sum();
+
+            if (totalPoints != CREATION_ATTRIBUTE_POINTS) {
+                throw new BusinessRuleViolationException("All 6 attribute points must be distributed");
             }
 
             return new PlayerCharacter(this);

@@ -36,6 +36,7 @@ public class GetPlayerCharacterByIdHandler
                 row.characterClass(),
                 row.personality(),
                 row.physicalDescription(),
+                row.attributes(),
                 storagePort.resolveUrl(row.imageKey()),
                 row.uiImagePositionX(),
                 row.uiImagePositionY(),

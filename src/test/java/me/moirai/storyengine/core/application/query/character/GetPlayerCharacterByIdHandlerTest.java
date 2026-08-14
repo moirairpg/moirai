@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.storyengine.common.enums.CharacterAttribute;
 import me.moirai.storyengine.common.enums.CharacterClass;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
@@ -81,6 +82,24 @@ public class GetPlayerCharacterByIdHandlerTest {
         assertThat(result.isOwner()).isFalse();
     }
 
+    @Test
+    public void shouldReturnTheAttributeLevelsWhenTheCharacterExists() {
+
+        // given
+        var query = new GetPlayerCharacterById(PlayerCharacterFixture.PUBLIC_ID, OWNER_USERNAME);
+
+        when(reader.getById(any(UUID.class))).thenReturn(Optional.of(characterRow()));
+
+        // when
+        var result = handler.handle(query);
+
+        // then
+        assertThat(result.attributes())
+                .containsEntry(CharacterAttribute.STRENGTH, 3)
+                .containsEntry(CharacterAttribute.VIGOR, 2)
+                .containsEntry(CharacterAttribute.CHARISMA, 1);
+    }
+
     private PlayerCharacterDetailsRow characterRow() {
 
         return new PlayerCharacterDetailsRow(
@@ -90,6 +109,7 @@ public class GetPlayerCharacterByIdHandlerTest {
                 CharacterClass.PALADIN,
                 "Brave.",
                 "Tall.",
+                PlayerCharacterFixture.sampleAttributeAllocation(),
                 null,
                 null,
                 null,

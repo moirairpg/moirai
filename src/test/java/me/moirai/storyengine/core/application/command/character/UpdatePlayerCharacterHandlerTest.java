@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import me.moirai.storyengine.common.enums.CharacterAttribute;
 import me.moirai.storyengine.common.enums.CharacterClass;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -91,6 +92,41 @@ public class UpdatePlayerCharacterHandlerTest {
 
         // then
         assertThrows(BusinessRuleViolationException.class, () -> handler.handle(command));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAttributesAreSentInTheUpdate() {
+
+        // given
+        var command = new UpdatePlayerCharacter(
+                UUID.randomUUID(), "Volin", CharacterClass.PALADIN, "Brave.", "Tall.",
+                PlayerCharacterFixture.sampleAttributeAllocation(), 0.25, 0.75, OWNER_USERNAME);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> handler.handle(command));
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void shouldReturnTheCommittedAttributeLevelsWhenTheCharacterIsUpdated() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var command = updateCommand(character.getPublicId(), "Volin", "Brave.", "Tall.", CharacterClass.PALADIN);
+
+        when(repository.findByPublicId(character.getPublicId())).thenReturn(Optional.of(character));
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.findById(character.getPlayerId())).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        var result = handler.execute(command);
+
+        // then
+        assertThat(result.attributes())
+                .containsEntry(CharacterAttribute.STRENGTH, 3)
+                .containsEntry(CharacterAttribute.VIGOR, 2)
+                .containsEntry(CharacterAttribute.CHARISMA, 1);
     }
 
     @Test
@@ -200,7 +236,8 @@ public class UpdatePlayerCharacterHandlerTest {
         // given
         var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
         var command = new UpdatePlayerCharacter(
-                character.getPublicId(), "Volin", CharacterClass.PALADIN, "Brave.", "Tall.", 0.25, 0.75, "jane.doe");
+                character.getPublicId(), "Volin", CharacterClass.PALADIN, "Brave.", "Tall.", null, 0.25, 0.75,
+                "jane.doe");
 
         when(repository.findByPublicId(character.getPublicId())).thenReturn(Optional.of(character));
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -222,6 +259,6 @@ public class UpdatePlayerCharacterHandlerTest {
             CharacterClass characterClass) {
 
         return new UpdatePlayerCharacter(
-                characterId, name, characterClass, personality, physicalDescription, 0.25, 0.75, OWNER_USERNAME);
+                characterId, name, characterClass, personality, physicalDescription, null, 0.25, 0.75, OWNER_USERNAME);
     }
 }
