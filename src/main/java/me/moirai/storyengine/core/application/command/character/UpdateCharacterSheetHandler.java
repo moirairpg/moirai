@@ -6,8 +6,8 @@ import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
-import me.moirai.storyengine.core.port.inbound.character.CreatePlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.PlayerCharacterDetails;
+import me.moirai.storyengine.core.port.inbound.character.UpdateCharacterSheet;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterRepository;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
@@ -15,8 +15,8 @@ import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
 import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 
 @CommandHandler
-public class CreatePlayerCharacterHandler
-        extends AbstractCommandHandler<CreatePlayerCharacter, PlayerCharacterDetails> {
+public class UpdateCharacterSheetHandler
+        extends AbstractCommandHandler<UpdateCharacterSheet, PlayerCharacterDetails> {
 
     private final PlayerCharacterRepository repository;
     private final UserRepository userRepository;
@@ -24,7 +24,7 @@ public class CreatePlayerCharacterHandler
     private final EmbeddingPort embeddingPort;
     private final StoragePort storagePort;
 
-    public CreatePlayerCharacterHandler(
+    public UpdateCharacterSheetHandler(
             PlayerCharacterRepository repository,
             UserRepository userRepository,
             PlayerCharacterVectorSearchPort vectorSearchPort,
@@ -39,33 +39,27 @@ public class CreatePlayerCharacterHandler
     }
 
     @Override
-    public PlayerCharacterDetails execute(CreatePlayerCharacter command) {
+    public PlayerCharacterDetails execute(UpdateCharacterSheet command) {
 
-        var newCharacter = PlayerCharacter.builder()
-                .name(command.name())
-                .characterClass(command.characterClass())
-                .personality(command.personality())
-                .physicalDescription(command.physicalDescription())
-                .attributes(command.attributes())
-                .skills(command.skills())
-                .signatureSkill(command.signatureSkill())
-                .playerId(command.requesterId())
-                .build();
-
-        newCharacter.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
-
-        var character = repository.save(newCharacter);
+        var character = repository.findByPublicId(command.characterId())
+                .orElseThrow(() -> new NotFoundException("Player character not found"));
 
         var owner = userRepository.findById(character.getPlayerId())
                 .orElseThrow(() -> new NotFoundException("Character owner not found"));
 
-        var vector = embeddingPort.embed(character.narrativeDescription());
-        vectorSearchPort.upsert(character.getPublicId(), vector);
+        character.updateSheet(command.characterClass(), command.attributes(), command.skills(),
+                command.signatureSkill());
 
-        return mapResult(character, owner.getUsername());
+        var saved = repository.save(character);
+
+        vectorSearchPort.upsert(saved.getPublicId(), embeddingPort.embed(saved.narrativeDescription()));
+
+        var isOwner = owner.getUsername().equals(command.requesterUsername());
+
+        return mapResult(saved, owner.getUsername(), isOwner);
     }
 
-    private PlayerCharacterDetails mapResult(PlayerCharacter character, String ownerUsername) {
+    private PlayerCharacterDetails mapResult(PlayerCharacter character, String ownerUsername, boolean isOwner) {
 
         return new PlayerCharacterDetails(
                 character.getPublicId(),
@@ -83,7 +77,6 @@ public class CreatePlayerCharacterHandler
                 character.getCreationDate(),
                 character.getLastUpdateDate(),
                 true,
-                true
-        );
+                isOwner);
     }
 }

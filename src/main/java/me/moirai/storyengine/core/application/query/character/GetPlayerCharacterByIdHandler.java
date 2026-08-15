@@ -1,5 +1,7 @@
 package me.moirai.storyengine.core.application.query.character;
 
+import java.util.Map;
+
 import me.moirai.storyengine.common.annotation.QueryHandler;
 import me.moirai.storyengine.common.cqs.query.AbstractQueryHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
@@ -37,6 +39,10 @@ public class GetPlayerCharacterByIdHandler
                 row.personality(),
                 row.physicalDescription(),
                 row.attributes(),
+                row.skills(),
+                row.characterClass() == null
+                        ? Map.of()
+                        : Map.of(row.characterClass().getSignature(), row.signatureLevel()),
                 storagePort.resolveUrl(row.imageKey()),
                 row.uiImagePositionX(),
                 row.uiImagePositionY(),

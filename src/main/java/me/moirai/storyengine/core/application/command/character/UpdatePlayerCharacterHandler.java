@@ -2,6 +2,7 @@ package me.moirai.storyengine.core.application.command.character;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import java.util.Map;
 
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
@@ -54,14 +55,6 @@ public class UpdatePlayerCharacterHandler
         if (isBlank(command.physicalDescription())) {
             throw new BusinessRuleViolationException("Character physical description cannot be null or empty");
         }
-
-        if (command.characterClass() == null) {
-            throw new BusinessRuleViolationException("Character class cannot be null");
-        }
-
-        if (!command.attributes().isEmpty()) {
-            throw new BusinessRuleViolationException("Character attributes cannot be changed");
-        }
     }
 
     @Override
@@ -73,10 +66,10 @@ public class UpdatePlayerCharacterHandler
         var owner = userRepository.findById(character.getPlayerId())
                 .orElseThrow(() -> new NotFoundException("Character owner not found"));
 
+        character.validateHasClass();
         character.updateName(command.name());
         character.updatePersonality(command.personality());
         character.updatePhysicalDescription(command.physicalDescription());
-        character.updateCharacterClass(command.characterClass());
         character.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
 
         var saved = repository.save(character);
@@ -98,6 +91,8 @@ public class UpdatePlayerCharacterHandler
                 character.getPersonality(),
                 character.getPhysicalDescription(),
                 character.getAttributeLevels().asMap(),
+                character.getSkillLevels().asMap(),
+                Map.of(character.getCharacterClass().getSignature(), character.getSkillLevels().signature()),
                 storagePort.resolveUrl(character.getImageKey()),
                 character.getUiImagePositionX(),
                 character.getUiImagePositionY(),

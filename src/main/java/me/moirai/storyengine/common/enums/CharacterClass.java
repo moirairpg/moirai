@@ -1,23 +1,101 @@
 package me.moirai.storyengine.common.enums;
 
+import java.util.List;
+
 public enum CharacterClass {
 
-    BARD("Bard"),
-    RANGER("Ranger"),
-    BARBARIAN("Barbarian"),
-    PALADIN("Paladin"),
-    MAGE("Mage"),
-    ROGUE("Rogue"),
-    WITCH("Witch"),
-    CLERIC("Cleric");
+    BARD(
+            "Bard",
+            SignatureSkill.INSPIRE,
+            List.of(
+                    CharacterSkill.PERFORMANCE,
+                    CharacterSkill.PERSUASION,
+                    CharacterSkill.ILLUSION,
+                    CharacterSkill.LORE)),
+    RANGER(
+            "Ranger",
+            SignatureSkill.DEADEYE,
+            List.of(
+                    CharacterSkill.SURVIVAL,
+                    CharacterSkill.PERCEPTION,
+                    CharacterSkill.STEALTH,
+                    CharacterSkill.ATHLETICS)),
+    BARBARIAN(
+            "Barbarian",
+            SignatureSkill.BERSERK,
+            List.of(
+                    CharacterSkill.ATHLETICS,
+                    CharacterSkill.ENDURANCE,
+                    CharacterSkill.INTIMIDATION,
+                    CharacterSkill.SURVIVAL)),
+    PALADIN(
+            "Paladin",
+            SignatureSkill.ZEAL,
+            List.of(
+                    CharacterSkill.PERSUASION,
+                    CharacterSkill.ENDURANCE,
+                    CharacterSkill.RESTORATION,
+                    CharacterSkill.ATHLETICS)),
+    MAGE(
+            "Mage",
+            SignatureSkill.SPELLWEAVE,
+            List.of(
+                    CharacterSkill.DESTRUCTION,
+                    CharacterSkill.CONJURATION,
+                    CharacterSkill.ALTERATION,
+                    CharacterSkill.LORE)),
+    ROGUE(
+            "Rogue",
+            SignatureSkill.BACKSTAB,
+            List.of(
+                    CharacterSkill.STEALTH,
+                    CharacterSkill.ACROBATICS,
+                    CharacterSkill.DECEPTION,
+                    CharacterSkill.PERCEPTION)),
+    WITCH(
+            "Witch",
+            SignatureSkill.HEX,
+            List.of(
+                    CharacterSkill.ILLUSION,
+                    CharacterSkill.ALCHEMY,
+                    CharacterSkill.DECEPTION,
+                    CharacterSkill.INTUITION)),
+    CLERIC(
+            "Cleric",
+            SignatureSkill.BLESSING,
+            List.of(
+                    CharacterSkill.RESTORATION,
+                    CharacterSkill.PERSUASION,
+                    CharacterSkill.INTUITION,
+                    CharacterSkill.LORE)),
+    DRUID(
+            "Druid",
+            SignatureSkill.COMMUNE,
+            List.of(
+                    CharacterSkill.SURVIVAL,
+                    CharacterSkill.INTUITION,
+                    CharacterSkill.RESTORATION,
+                    CharacterSkill.PERCEPTION));
 
     private final String label;
+    private final SignatureSkill signature;
+    private final List<CharacterSkill> favoredSkills;
 
-    private CharacterClass(String label) {
+    private CharacterClass(String label, SignatureSkill signature, List<CharacterSkill> favoredSkills) {
         this.label = label;
+        this.signature = signature;
+        this.favoredSkills = favoredSkills;
     }
 
     public String getLabel() {
         return label;
+    }
+
+    public SignatureSkill getSignature() {
+        return signature;
+    }
+
+    public List<CharacterSkill> getFavoredSkills() {
+        return favoredSkills;
     }
 }

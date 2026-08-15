@@ -2,7 +2,9 @@ package me.moirai.storyengine.core.application.command.adventure;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
@@ -73,6 +76,26 @@ public class JoinAdventureWithCharacterHandlerTest {
         InOrder inOrder = inOrder(adventureRepository, eventPublisher);
         inOrder.verify(adventureRepository).save(adventure);
         inOrder.verify(eventPublisher).publishEvent(any(AdventureInvitationAnsweredEvent.class));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenTheCharacterHasNoClass() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var invitation = adventure.invite(REQUESTER_ID, AdventureFixture.OWNER_ID);
+        adventure.drainEvents();
+
+        var character = mock(PlayerCharacter.class);
+        var command = new JoinAdventureWithCharacter(invitation.getPublicId(), UUID.randomUUID(), REQUESTER_ID);
+
+        when(adventureRepository.findByInvitationPublicId(any())).thenReturn(Optional.of(adventure));
+        when(playerCharacterRepository.findByPublicId(any())).thenReturn(Optional.of(character));
+        doThrow(new BusinessRuleViolationException("Character needs a class")).when(character).validateHasClass();
+
+        // then
+        assertThatThrownBy(() -> handler.execute(command)).isInstanceOf(BusinessRuleViolationException.class);
+        verify(adventureRepository, never()).save(any(Adventure.class));
     }
 
     @Test

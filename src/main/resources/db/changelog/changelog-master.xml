@@ -102,4 +102,5 @@
   <include file="db/changelog/migrations/1786139849_alter_table_message_add_author.sql" />
   <include file="db/changelog/migrations/1786139857_update_table_message_backfill_author.sql" />
   <include file="db/changelog/migrations/1786743171_alter_table_player_character_add_attributes.sql" />
+  <include file="db/changelog/migrations/1786747880_alter_table_player_character_add_skills.sql" />
 </databaseChangeLog>

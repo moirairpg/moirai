@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -26,7 +27,10 @@ import me.moirai.storyengine.common.domain.Asset;
 import me.moirai.storyengine.common.domain.DomainEvent;
 import me.moirai.storyengine.common.enums.CharacterAttribute;
 import me.moirai.storyengine.common.enums.CharacterClass;
+import me.moirai.storyengine.common.enums.CharacterSkill;
+import me.moirai.storyengine.common.enums.SignatureSkill;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
+import me.moirai.storyengine.common.rules.CharacterSheetRules;
 
 @Entity
 @Table(name = "player_character")
@@ -59,6 +63,10 @@ public class PlayerCharacter extends Asset {
     @Column(name = "attributes", columnDefinition = "jsonb")
     private AttributeLevels attributeLevels;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "skills", columnDefinition = "jsonb")
+    private SkillLevels skillLevels;
+
     @Column(name = "image_key")
     private String imageKey;
 
@@ -86,6 +94,8 @@ public class PlayerCharacter extends Asset {
         this.physicalDescription = builder.physicalDescription;
         this.characterClass = builder.characterClass;
         this.attributeLevels = AttributeLevels.of(builder.attributes);
+        this.skillLevels = SkillLevels.of(builder.skills,
+                builder.signatureSkill.get(builder.characterClass.getSignature()));
     }
 
     public static Builder builder() {
@@ -134,6 +144,10 @@ public class PlayerCharacter extends Asset {
         return attributeLevels;
     }
 
+    public SkillLevels getSkillLevels() {
+        return skillLevels;
+    }
+
     public String narrativeDescription() {
         return name + ": " + characterClass.name() + "; " + personality + "; " + physicalDescription;
     }
@@ -177,13 +191,24 @@ public class PlayerCharacter extends Asset {
         this.physicalDescription = physicalDescription;
     }
 
-    public void updateCharacterClass(CharacterClass characterClass) {
+    public void updateSheet(
+            CharacterClass characterClass,
+            Map<CharacterAttribute, Integer> attributes,
+            Map<CharacterSkill, Integer> skills,
+            Map<SignatureSkill, Integer> signatureSkill) {
 
-        if (characterClass == null) {
-            throw new BusinessRuleViolationException("Character must have a class");
-        }
+        validateSheet(characterClass, attributes, skills, signatureSkill);
 
         this.characterClass = characterClass;
+        this.attributeLevels = AttributeLevels.of(attributes);
+        this.skillLevels = SkillLevels.of(skills, signatureSkill.get(characterClass.getSignature()));
+    }
+
+    public void validateHasClass() {
+
+        if (characterClass == null) {
+            throw new BusinessRuleViolationException("Character needs a class");
+        }
     }
 
     public void updateImageKey(String imageKey) {
@@ -203,10 +228,96 @@ public class PlayerCharacter extends Asset {
         return this.imageKey;
     }
 
-    public static final class Builder {
+    private static void validateSheet(
+            CharacterClass characterClass,
+            Map<CharacterAttribute, Integer> attributes,
+            Map<CharacterSkill, Integer> skills,
+            Map<SignatureSkill, Integer> signatureSkill) {
 
-        private static final int CREATION_ATTRIBUTE_POINTS = 6;
-        private static final int CREATION_ATTRIBUTE_LEVEL_CAP = 3;
+        if (characterClass == null) {
+            throw new BusinessRuleViolationException("Character class cannot be null");
+        }
+
+        if (attributes == null) {
+            throw new BusinessRuleViolationException("Character must have attribute levels");
+        }
+
+        var hasMissingAttribute = Arrays.stream(CharacterAttribute.values())
+                .anyMatch(attribute -> attributes.get(attribute) == null);
+
+        if (hasMissingAttribute) {
+            throw new BusinessRuleViolationException("All six attributes must receive a level");
+        }
+
+        var hasLevelAboveCreationCap = attributes.values().stream()
+                .anyMatch(level -> level > CharacterSheetRules.ATTRIBUTE_CREATION_LEVEL_CAP);
+
+        if (hasLevelAboveCreationCap) {
+            throw new BusinessRuleViolationException("No attribute can be higher than 3 at creation");
+        }
+
+        var totalPoints = attributes.values().stream().mapToInt(Integer::intValue).sum();
+
+        if (totalPoints != CharacterSheetRules.ATTRIBUTE_CREATION_POINTS) {
+            throw new BusinessRuleViolationException("All 6 attribute points must be distributed");
+        }
+
+        if (skills == null) {
+            throw new BusinessRuleViolationException("Character must have skill levels");
+        }
+
+        var hasMissingSkill = Arrays.stream(CharacterSkill.values())
+                .anyMatch(skill -> skills.get(skill) == null);
+
+        if (hasMissingSkill) {
+            throw new BusinessRuleViolationException("All skills must receive a level");
+        }
+
+        if (signatureSkill == null || signatureSkill.isEmpty()) {
+            throw new BusinessRuleViolationException("Character must have their class's signature skill");
+        }
+
+        var classSignature = characterClass.getSignature();
+        var hasForeignSignature = signatureSkill.keySet().stream()
+                .anyMatch(signature -> signature != classSignature);
+
+        if (hasForeignSignature) {
+            throw new BusinessRuleViolationException("Another class's signature cannot be trained");
+        }
+
+        var signatureLevel = signatureSkill.get(classSignature);
+
+        if (signatureLevel == null || signatureLevel < CharacterSheetRules.SIGNATURE_STARTING_LEVEL) {
+            throw new BusinessRuleViolationException("The signature skill starts at level 1");
+        }
+
+        var hasSkillAboveCreationCap = Stream
+                .concat(skills.values().stream(), Stream.of(signatureLevel))
+                .anyMatch(level -> level > CharacterSheetRules.SKILL_CREATION_LEVEL_CAP);
+
+        if (hasSkillAboveCreationCap) {
+            throw new BusinessRuleViolationException("No skill can be higher than 2 at creation");
+        }
+
+        var spentPoints = skills.entrySet().stream()
+                .mapToInt(entry -> entry.getValue() * costOf(characterClass, entry.getKey()))
+                .sum()
+                + (signatureLevel - CharacterSheetRules.SIGNATURE_STARTING_LEVEL)
+                        * CharacterSheetRules.FAVORED_SKILL_COST;
+
+        if (spentPoints != CharacterSheetRules.SKILL_CREATION_POINTS) {
+            throw new BusinessRuleViolationException("All 4 skill points must be distributed");
+        }
+    }
+
+    private static int costOf(CharacterClass characterClass, CharacterSkill skill) {
+
+        return characterClass.getFavoredSkills().contains(skill)
+                ? CharacterSheetRules.FAVORED_SKILL_COST
+                : CharacterSheetRules.OFF_CLASS_SKILL_COST;
+    }
+
+    public static final class Builder {
 
         private String name;
         private Long playerId;
@@ -214,6 +325,8 @@ public class PlayerCharacter extends Asset {
         private String physicalDescription;
         private CharacterClass characterClass;
         private Map<CharacterAttribute, Integer> attributes;
+        private Map<CharacterSkill, Integer> skills;
+        private Map<SignatureSkill, Integer> signatureSkill;
 
         private Builder() {
         }
@@ -254,6 +367,18 @@ public class PlayerCharacter extends Asset {
             return this;
         }
 
+        public Builder skills(Map<CharacterSkill, Integer> skills) {
+
+            this.skills = skills;
+            return this;
+        }
+
+        public Builder signatureSkill(Map<SignatureSkill, Integer> signatureSkill) {
+
+            this.signatureSkill = signatureSkill;
+            return this;
+        }
+
         public PlayerCharacter build() {
 
             if (isBlank(name)) {
@@ -272,33 +397,7 @@ public class PlayerCharacter extends Asset {
                 throw new BusinessRuleViolationException("Character physical description cannot be null or empty");
             }
 
-            if (characterClass == null) {
-                throw new BusinessRuleViolationException("Character class cannot be null");
-            }
-
-            if (attributes == null) {
-                throw new BusinessRuleViolationException("Character must have attribute levels");
-            }
-
-            var hasMissingAttribute = Arrays.stream(CharacterAttribute.values())
-                    .anyMatch(attribute -> attributes.get(attribute) == null);
-
-            if (hasMissingAttribute) {
-                throw new BusinessRuleViolationException("All six attributes must receive a level");
-            }
-
-            var hasLevelAboveCreationCap = attributes.values().stream()
-                    .anyMatch(level -> level > CREATION_ATTRIBUTE_LEVEL_CAP);
-
-            if (hasLevelAboveCreationCap) {
-                throw new BusinessRuleViolationException("No attribute can be higher than 3 at creation");
-            }
-
-            var totalPoints = attributes.values().stream().mapToInt(Integer::intValue).sum();
-
-            if (totalPoints != CREATION_ATTRIBUTE_POINTS) {
-                throw new BusinessRuleViolationException("All 6 attribute points must be distributed");
-            }
+            validateSheet(characterClass, attributes, skills, signatureSkill);
 
             return new PlayerCharacter(this);
         }

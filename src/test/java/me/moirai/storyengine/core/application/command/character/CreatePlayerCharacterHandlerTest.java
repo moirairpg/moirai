@@ -18,6 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import me.moirai.storyengine.common.enums.CharacterAttribute;
 import me.moirai.storyengine.common.enums.CharacterClass;
+import me.moirai.storyengine.common.enums.CharacterSkill;
+import me.moirai.storyengine.common.enums.SignatureSkill;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
@@ -95,6 +97,46 @@ public class CreatePlayerCharacterHandlerTest {
 
         assertThat(saved.getValue().getAttributeLevels().asMap())
                 .isEqualTo(PlayerCharacterFixture.sampleAttributeAllocation());
+    }
+
+    @Test
+    void shouldSaveTheCharacterWithTheDistributedSkillLevelsWhenTheCharacterIsCreated() {
+
+        // given
+        var command = createCommand();
+
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.findById(UserFixture.NUMERIC_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        handler.execute(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(PlayerCharacter.class);
+        verify(repository).save(saved.capture());
+
+        assertThat(saved.getValue().getSkillLevels().asMap())
+                .isEqualTo(PlayerCharacterFixture.sampleSkillAllocation());
+        assertThat(saved.getValue().getSkillLevels().signature()).isEqualTo(1);
+    }
+
+    @Test
+    void shouldReturnTheSkillAndSignatureLevelsWhenTheCharacterIsCreated() {
+
+        // given
+        var command = createCommand();
+
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.findById(UserFixture.NUMERIC_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        var result = handler.execute(command);
+
+        // then
+        assertThat(result.skills())
+                .containsEntry(CharacterSkill.PERSUASION, 2)
+                .containsEntry(CharacterSkill.ENDURANCE, 2);
+        assertThat(result.signatureSkill()).containsEntry(SignatureSkill.ZEAL, 1);
     }
 
     @Test
@@ -196,7 +238,9 @@ public class CreatePlayerCharacterHandlerTest {
         // given
         var command = new CreatePlayerCharacter(
                 null, CharacterClass.PALADIN, "Brave.", "Tall.",
-                PlayerCharacterFixture.sampleAttributeAllocation(), 0.25, 0.75, UserFixture.NUMERIC_ID);
+                PlayerCharacterFixture.sampleAttributeAllocation(),
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation(), 0.25, 0.75, UserFixture.NUMERIC_ID);
 
         // then
         assertThrows(RuntimeException.class, () -> handler.execute(command));
@@ -214,6 +258,8 @@ public class CreatePlayerCharacterHandlerTest {
                 "Brave.",
                 "Tall.",
                 PlayerCharacterFixture.sampleAttributeAllocation(),
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation(),
                 0.25,
                 0.75,
                 UserFixture.NUMERIC_ID);

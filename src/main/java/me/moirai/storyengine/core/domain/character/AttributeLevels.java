@@ -6,6 +6,7 @@ import java.util.Map;
 
 import me.moirai.storyengine.common.enums.CharacterAttribute;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
+import me.moirai.storyengine.common.rules.CharacterSheetRules;
 
 public record AttributeLevels(
         int strength,
@@ -16,7 +17,6 @@ public record AttributeLevels(
         int charisma) {
 
     private static final int MIN_LEVEL = 0;
-    private static final int MAX_LEVEL = 5;
 
     public AttributeLevels {
 
@@ -54,7 +54,7 @@ public record AttributeLevels(
 
     private static void validateRange(int level) {
 
-        if (level < MIN_LEVEL || level > MAX_LEVEL) {
+        if (level < MIN_LEVEL || level > CharacterSheetRules.ATTRIBUTE_MAX_LEVEL) {
             throw new BusinessRuleViolationException("Attribute levels must be between 0 and 5");
         }
     }

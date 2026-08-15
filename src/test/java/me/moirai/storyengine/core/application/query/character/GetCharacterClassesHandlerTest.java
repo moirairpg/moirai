@@ -2,8 +2,6 @@ package me.moirai.storyengine.core.application.query.character;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Arrays;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,52 +18,51 @@ public class GetCharacterClassesHandlerTest {
     private GetCharacterClassesHandler handler;
 
     @Test
-    public void shouldReturnEveryCharacterClassWhenQueried() {
+    public void shouldReturnAllNineClassesWithSignatureAndFavoredSkills() {
 
         // given
         var query = new GetCharacterClasses();
 
-        var expectedNames = Arrays.stream(CharacterClass.values())
-                .map(CharacterClass::name)
-                .toList();
+        // when
+        var result = handler.execute(query);
+
+        // then
+        assertThat(result).hasSize(CharacterClass.values().length);
+
+        var druid = result.stream()
+                .filter(characterClass -> characterClass.name().equals("DRUID"))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(druid.label()).isEqualTo("Druid");
+        assertThat(druid.signatureSkill().name()).isEqualTo("COMMUNE");
+        assertThat(druid.signatureSkill().label()).isEqualTo("Commune");
+        assertThat(druid.signatureSkill().attribute()).isEqualTo("AWARENESS");
+        assertThat(druid.favoredSkills())
+                .containsExactly("SURVIVAL", "INTUITION", "RESTORATION", "PERCEPTION");
+    }
+
+    @Test
+    public void shouldReturnTheClassesInEnumOrderWhenListingThem() {
+
+        // given
+        var query = new GetCharacterClasses();
 
         // when
-        var result = handler.handle(query);
+        var result = handler.execute(query);
 
         // then
         assertThat(result)
                 .extracting(CharacterClassResult::name)
-                .containsExactlyElementsOf(expectedNames);
-    }
-
-    @Test
-    public void shouldReturnTheLabelOfEachClassWhenQueried() {
-
-        // given
-        var query = new GetCharacterClasses();
-
-        // when
-        var result = handler.handle(query);
-
-        // then
-        assertThat(result).allSatisfy(characterClass -> {
-            assertThat(characterClass.label()).isNotBlank();
-            assertThat(characterClass.label()).isEqualTo(CharacterClass.valueOf(characterClass.name()).getLabel());
-        });
-    }
-
-    @Test
-    public void shouldReturnNamesThatMapBackToTheEnumWhenQueried() {
-
-        // given
-        var query = new GetCharacterClasses();
-
-        // when
-        var result = handler.handle(query);
-
-        // then
-        assertThat(result).isNotEmpty();
-        assertThat(result)
-                .allSatisfy(characterClass -> assertThat(CharacterClass.valueOf(characterClass.name())).isNotNull());
+                .containsExactly(
+                        "BARD",
+                        "RANGER",
+                        "BARBARIAN",
+                        "PALADIN",
+                        "MAGE",
+                        "ROGUE",
+                        "WITCH",
+                        "CLERIC",
+                        "DRUID");
     }
 }
