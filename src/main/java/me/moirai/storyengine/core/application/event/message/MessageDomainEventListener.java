@@ -28,6 +28,7 @@ import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.common.util.StringProcessor;
+import me.moirai.storyengine.core.application.service.CheckEvaluationService;
 import me.moirai.storyengine.core.application.service.StoryContextService;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureDeletedEvent;
@@ -49,6 +50,7 @@ public class MessageDomainEventListener {
     private final AdventureRepository adventureRepository;
     private final TextCompletionPort textCompletionPort;
     private final StoryContextService storyContextService;
+    private final CheckEvaluationService checkEvaluationService;
     private final ApplicationEventPublisher eventPublisher;
     private final int messageWindowSize;
 
@@ -57,6 +59,7 @@ public class MessageDomainEventListener {
             AdventureRepository adventureRepository,
             TextCompletionPort textCompletionPort,
             StoryContextService storyContextService,
+            CheckEvaluationService checkEvaluationService,
             ApplicationEventPublisher eventPublisher,
             @Value("${moirai.adventure.message-window-size}") int messageWindowSize) {
 
@@ -64,6 +67,7 @@ public class MessageDomainEventListener {
         this.adventureRepository = adventureRepository;
         this.textCompletionPort = textCompletionPort;
         this.storyContextService = storyContextService;
+        this.checkEvaluationService = checkEvaluationService;
         this.eventPublisher = eventPublisher;
         this.messageWindowSize = messageWindowSize;
     }
@@ -80,6 +84,7 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onMessageSent(MessageSentEvent event) {
 
+        checkEvaluationService.evaluateLatestPlayerAction(event.adventurePublicId());
         narrate(event.adventurePublicId(), "");
     }
 

@@ -20,6 +20,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.enums.MessagePrompt;
 import me.moirai.storyengine.common.enums.TranscriptChange;
+import me.moirai.storyengine.core.application.service.CheckEvaluationService;
 import me.moirai.storyengine.core.application.service.StoryContext;
 import me.moirai.storyengine.core.application.service.StoryContextService;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
@@ -50,6 +51,9 @@ public class MessageDomainEventListenerTest {
     private StoryContextService storyContextService;
 
     @Mock
+    private CheckEvaluationService checkEvaluationService;
+
+    @Mock
     private ApplicationEventPublisher eventPublisher;
 
     private MessageDomainEventListener listener;
@@ -61,8 +65,37 @@ public class MessageDomainEventListenerTest {
                 adventureRepository,
                 textCompletionPort,
                 storyContextService,
+                checkEvaluationService,
                 eventPublisher,
                 10);
+    }
+
+    @Test
+    public void shouldEvaluateThePlayerActionWhenAMessageIsSent() {
+
+        // given
+        listener = listener();
+        givenNarrationSucceeds();
+
+        // when
+        listener.onMessageSent(new MessageSentEvent(ADVENTURE_ID));
+
+        // then
+        verify(checkEvaluationService).evaluateLatestPlayerAction(ADVENTURE_ID);
+    }
+
+    @Test
+    public void shouldNotEvaluateWhenTheStoryIsContinued() {
+
+        // given
+        listener = listener();
+        givenNarrationSucceeds();
+
+        // when
+        listener.onStoryContinued(new StoryContinuedEvent(ADVENTURE_ID));
+
+        // then
+        verify(checkEvaluationService, never()).evaluateLatestPlayerAction(any());
     }
 
     @Test
