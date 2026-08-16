@@ -83,8 +83,30 @@ public class AdventureReaderImplIntegrationTest extends AbstractDatabaseIntegrat
         assertThat(result.get().contextAttributes().scene()).isEqualTo("Scene");
         assertThat(result.get().contextAttributes().bump()).isEqualTo("Bump");
         assertThat(result.get().contextAttributes().bumpFrequency()).isEqualTo(1);
+        assertThat(result.get().rpgMechanicsEnabled()).isTrue();
         assertThat(result.get().uiImagePositionX()).isNull();
         assertThat(result.get().uiImagePositionY()).isNull();
+    }
+
+    @Test
+    public void getAdventureById_whenRpgMechanicsDisabled_thenReturnFlagOff() {
+
+        // Given
+        var world = insert(WorldFixture.publicWorld().build(), World.class);
+        var adventure = AdventureFixture.privateAdventure()
+                .worldId(world.getPublicId())
+                .build();
+
+        adventure.updateRpgMechanicsEnabled(false);
+
+        insert(adventure, Adventure.class);
+
+        // When
+        var result = reader.getAdventureById(adventure.getPublicId());
+
+        // Then
+        assertThat(result).isNotEmpty();
+        assertThat(result.get().rpgMechanicsEnabled()).isFalse();
     }
 
     @Test

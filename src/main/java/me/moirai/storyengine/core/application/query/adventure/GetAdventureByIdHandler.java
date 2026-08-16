@@ -77,6 +77,7 @@ public class GetAdventureByIdHandler extends AbstractQueryHandler<GetAdventureBy
                 adventure.narratorPersonality(),
                 adventure.visibility(),
                 adventure.moderation(),
+                adventure.rpgMechanicsEnabled(),
                 storagePort.resolveUrl(adventure.imageKey()),
                 adventure.creationDate(),
                 adventure.lastUpdateDate(),

@@ -23,6 +23,67 @@ public class UpdateAdventureFixture {
                 "Aria",
                 "A helpful guide",
                 adventure.getModeration(),
+                true,
+                null,
+                null,
+                new ModelConfigurationDto(
+                        adventure.getModelConfiguration().getAiModel(),
+                        adventure.getModelConfiguration().getMaxTokenLimit(),
+                        adventure.getModelConfiguration().getTemperature()),
+                new ContextAttributesDto(
+                        adventure.getContextAttributes().nudge(),
+                        adventure.getContextAttributes().authorsNote(),
+                        adventure.getContextAttributes().scene(),
+                        adventure.getContextAttributes().bump(),
+                        adventure.getContextAttributes().bumpFrequency()),
+                List.of(),
+                List.of(),
+                List.of(),
+                UserFixture.PUBLIC_ID);
+    }
+
+    public static UpdateAdventure sampleWithRpgMechanicsDisabled() {
+
+        var adventure = AdventureFixture.privateAdventure().build();
+        return new UpdateAdventure(
+                AdventureFixture.PUBLIC_ID,
+                adventure.getName(),
+                adventure.getDescription(),
+                adventure.getAdventureStart(),
+                "Aria",
+                "A helpful guide",
+                adventure.getModeration(),
+                false,
+                null,
+                null,
+                new ModelConfigurationDto(
+                        adventure.getModelConfiguration().getAiModel(),
+                        adventure.getModelConfiguration().getMaxTokenLimit(),
+                        adventure.getModelConfiguration().getTemperature()),
+                new ContextAttributesDto(
+                        adventure.getContextAttributes().nudge(),
+                        adventure.getContextAttributes().authorsNote(),
+                        adventure.getContextAttributes().scene(),
+                        adventure.getContextAttributes().bump(),
+                        adventure.getContextAttributes().bumpFrequency()),
+                List.of(),
+                List.of(),
+                List.of(),
+                UserFixture.PUBLIC_ID);
+    }
+
+    public static UpdateAdventure sampleWithRpgMechanicsNull() {
+
+        var adventure = AdventureFixture.privateAdventure().build();
+        return new UpdateAdventure(
+                AdventureFixture.PUBLIC_ID,
+                adventure.getName(),
+                adventure.getDescription(),
+                adventure.getAdventureStart(),
+                "Aria",
+                "A helpful guide",
+                adventure.getModeration(),
+                null,
                 null,
                 null,
                 new ModelConfigurationDto(
@@ -52,6 +113,7 @@ public class UpdateAdventureFixture {
                 "Aria",
                 "A helpful guide",
                 adventure.getModeration(),
+                true,
                 null,
                 null,
                 new ModelConfigurationDto(
@@ -84,6 +146,7 @@ public class UpdateAdventureFixture {
                 "Aria",
                 "A helpful guide",
                 adventure.getModeration(),
+                true,
                 null,
                 null,
                 new ModelConfigurationDto(aiModel, maxTokenLimit, temperature),

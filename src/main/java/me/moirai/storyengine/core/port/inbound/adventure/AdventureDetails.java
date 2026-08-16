@@ -18,6 +18,7 @@ public record AdventureDetails(
         String narratorPersonality,
         Visibility visibility,
         Moderation moderation,
+        boolean rpgMechanicsEnabled,
         String imageUrl,
         Instant creationDate,
         Instant lastUpdateDate,

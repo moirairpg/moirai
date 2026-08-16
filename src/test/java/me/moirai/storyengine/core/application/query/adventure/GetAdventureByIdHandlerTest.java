@@ -104,6 +104,7 @@ public class GetAdventureByIdHandlerTest {
                 "A helpful guide",
                 PRIVATE,
                 STRICT,
+                true,
                 null,
                 null,
                 null,
@@ -128,6 +129,7 @@ public class GetAdventureByIdHandlerTest {
         assertThat(result.worldId()).isEqualTo(WorldFixture.PUBLIC_ID);
         assertThat(result.narratorName()).isEqualTo("Aria");
         assertThat(result.narratorPersonality()).isEqualTo("A helpful guide");
+        assertThat(result.rpgMechanicsEnabled()).isTrue();
     }
 
     @Test
@@ -149,6 +151,7 @@ public class GetAdventureByIdHandlerTest {
                 "A helpful guide",
                 PRIVATE,
                 STRICT,
+                true,
                 null,
                 null,
                 null,
@@ -282,6 +285,7 @@ public class GetAdventureByIdHandlerTest {
                 "A helpful guide",
                 PRIVATE,
                 STRICT,
+                true,
                 null,
                 null,
                 null,
