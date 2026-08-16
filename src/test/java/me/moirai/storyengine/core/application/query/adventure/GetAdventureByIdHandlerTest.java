@@ -171,7 +171,9 @@ public class GetAdventureByIdHandlerTest {
                 "john.doe",
                 "Volin Habar",
                 CharacterClass.PALADIN,
-                "characters/image-key.png");
+                "characters/image-key.png",
+                0.25,
+                0.75);
 
         var query = new GetAdventureById(AdventureFixture.PUBLIC_ID, REQUESTER_ID);
 
@@ -188,6 +190,8 @@ public class GetAdventureByIdHandlerTest {
         assertThat(result.roster().getFirst().playerUsername()).isEqualTo("john.doe");
         assertThat(result.roster().getFirst().characterClass()).isEqualTo(CharacterClass.PALADIN);
         assertThat(result.roster().getFirst().imageUrl()).isEqualTo("http://image.url");
+        assertThat(result.roster().getFirst().uiImagePositionX()).isEqualTo(0.25);
+        assertThat(result.roster().getFirst().uiImagePositionY()).isEqualTo(0.75);
     }
 
     @Test

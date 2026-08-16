@@ -54,7 +54,9 @@ public class GetAdventureByIdHandler extends AbstractQueryHandler<GetAdventureBy
                         row.playerUsername(),
                         row.name(),
                         row.characterClass(),
-                        storagePort.resolveUrl(row.imageKey())))
+                        storagePort.resolveUrl(row.imageKey()),
+                        row.uiImagePositionX(),
+                        row.uiImagePositionY()))
                 .toList();
 
         var permissions = adventure.permissions();

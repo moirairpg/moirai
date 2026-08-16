@@ -40,8 +40,9 @@ public class GetPlayerCharacterAdventuresHandlerTest {
 
         when(adventureRosterReader.getAdventuresByPlayerCharacterPublicId(any(UUID.class)))
                 .thenReturn(List.of(
-                        new CharacterAdventureSummaryRow(firstAdventureId, "Dragon Hunt", "dragon-key"),
-                        new CharacterAdventureSummaryRow(secondAdventureId, "The Sunken City", "sunken-key")));
+                        new CharacterAdventureSummaryRow(firstAdventureId, "Dragon Hunt", "dragon-key", 0.3, 0.7),
+                        new CharacterAdventureSummaryRow(secondAdventureId, "The Sunken City", "sunken-key", null,
+                                null)));
         when(storagePort.resolveUrl(any())).thenReturn("http://image.url");
 
         // when
@@ -54,6 +55,10 @@ public class GetPlayerCharacterAdventuresHandlerTest {
         assertThat(result.get(0).imageUrl()).isEqualTo("http://image.url");
         assertThat(result.get(1).publicId()).isEqualTo(secondAdventureId);
         assertThat(result.get(1).name()).isEqualTo("The Sunken City");
+        assertThat(result.get(0).uiImagePositionX()).isEqualTo(0.3);
+        assertThat(result.get(0).uiImagePositionY()).isEqualTo(0.7);
+        assertThat(result.get(1).uiImagePositionX()).isNull();
+        assertThat(result.get(1).uiImagePositionY()).isNull();
     }
 
     @Test
