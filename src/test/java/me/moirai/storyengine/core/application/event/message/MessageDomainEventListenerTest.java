@@ -2,6 +2,7 @@ package me.moirai.storyengine.core.application.event.message;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,7 +21,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.enums.MessagePrompt;
 import me.moirai.storyengine.common.enums.TranscriptChange;
-import me.moirai.storyengine.core.application.service.CheckEvaluationService;
+import me.moirai.storyengine.core.application.service.ActionEvaluationService;
 import me.moirai.storyengine.core.application.service.StoryContext;
 import me.moirai.storyengine.core.application.service.StoryContextService;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
@@ -51,7 +52,7 @@ public class MessageDomainEventListenerTest {
     private StoryContextService storyContextService;
 
     @Mock
-    private CheckEvaluationService checkEvaluationService;
+    private ActionEvaluationService actionEvaluationService;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -65,7 +66,7 @@ public class MessageDomainEventListenerTest {
                 adventureRepository,
                 textCompletionPort,
                 storyContextService,
-                checkEvaluationService,
+                actionEvaluationService,
                 eventPublisher,
                 10);
     }
@@ -81,7 +82,7 @@ public class MessageDomainEventListenerTest {
         listener.onMessageSent(new MessageSentEvent(ADVENTURE_ID));
 
         // then
-        verify(checkEvaluationService).evaluateLatestPlayerAction(ADVENTURE_ID);
+        verify(actionEvaluationService).evaluateLatestPlayerAction(ADVENTURE_ID);
     }
 
     @Test
@@ -95,7 +96,7 @@ public class MessageDomainEventListenerTest {
         listener.onStoryContinued(new StoryContinuedEvent(ADVENTURE_ID));
 
         // then
-        verify(checkEvaluationService, never()).evaluateLatestPlayerAction(any());
+        verify(actionEvaluationService, never()).evaluateLatestPlayerAction(any());
     }
 
     @Test
@@ -110,6 +111,22 @@ public class MessageDomainEventListenerTest {
 
         // then
         assertThat(capturedInstructions()).doesNotContain(MessagePrompt.CONTINUE_GENERATION.getText());
+        assertThat(capturedInstructions()).doesNotContain(MessagePrompt.ACTION_OUTCOME_INSTRUCTION.getText());
+    }
+
+    @Test
+    public void shouldPassTheOutcomeLineIntoTheNarrationWhenAMessageIsSent() {
+
+        // given
+        listener = listener();
+        givenNarrationSucceedsWithOutcome("[Dice check: outcome]");
+
+        // when
+        listener.onMessageSent(new MessageSentEvent(ADVENTURE_ID));
+
+        // then
+        verify(storyContextService).assembleStoryContext(any(), eq("[Dice check: outcome]"));
+        assertThat(capturedInstructions()).contains(MessagePrompt.ACTION_OUTCOME_INSTRUCTION.getText());
     }
 
     @Test
@@ -194,7 +211,7 @@ public class MessageDomainEventListenerTest {
 
         when(adventureRepository.findByPublicId(any(UUID.class)))
                 .thenReturn(Optional.of(AdventureFixture.privateAdventureWithId()));
-        when(storyContextService.build(any())).thenReturn(storyContext());
+        when(storyContextService.assembleStoryContext(any())).thenReturn(storyContext());
         when(textCompletionPort.generateTextFrom(any())).thenThrow(new IllegalStateException("boom"));
 
         // when
@@ -280,7 +297,22 @@ public class MessageDomainEventListenerTest {
 
         when(adventureRepository.findByPublicId(any(UUID.class)))
                 .thenReturn(Optional.of(AdventureFixture.privateAdventureWithId()));
-        when(storyContextService.build(any())).thenReturn(storyContext());
+        when(storyContextService.assembleStoryContext(any())).thenReturn(storyContext());
+        when(textCompletionPort.generateTextFrom(any()))
+                .thenReturn(TextGenerationResult.builder().outputText("A door opens.").build());
+        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
+    }
+
+    private void givenNarrationSucceedsWithOutcome(String actionOutcomeLine) {
+
+        var savedMessage = MessageFixture.assistantMessage().build();
+
+        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
+
+        when(adventureRepository.findByPublicId(any(UUID.class)))
+                .thenReturn(Optional.of(AdventureFixture.privateAdventureWithId()));
+        when(actionEvaluationService.evaluateLatestPlayerAction(ADVENTURE_ID)).thenReturn(actionOutcomeLine);
+        when(storyContextService.assembleStoryContext(any(), eq(actionOutcomeLine))).thenReturn(storyContext());
         when(textCompletionPort.generateTextFrom(any()))
                 .thenReturn(TextGenerationResult.builder().outputText("A door opens.").build());
         when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);

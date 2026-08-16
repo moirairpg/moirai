@@ -78,7 +78,26 @@ public enum MessagePrompt {
             "I hold the falling portcullis up while the others crawl under" -> CHECK, STRENGTH, HARD: raw might with lives at stake, no skill fits.
             "I lift the castle gate barehanded and hurl it into the sea" -> IMPOSSIBLE: beyond any mortal ability.
             "I flap my arms and fly over the city walls" -> IMPOSSIBLE: physics forbids it, no roll can help.
-            """);
+            """),
+
+    ACTION_OUTCOME_CRITICAL_FAILURE("[Dice check: %s attempted %s and CRITICALLY FAILED."
+            + " Narrate a dramatic failure with real, lasting consequences.]"),
+
+    ACTION_OUTCOME_FAILURE("[Dice check: %s attempted %s and failed."
+            + " Narrate the attempt not working; the situation may worsen.]"),
+
+    ACTION_OUTCOME_SUCCESS("[Dice check: %s attempted %s and succeeded."
+            + " Narrate the attempt working.]"),
+
+    ACTION_OUTCOME_CRITICAL_SUCCESS("[Dice check: %s attempted %s and CRITICALLY SUCCEEDED."
+            + " Narrate a spectacular success beyond what was hoped for.]"),
+
+    ACTION_OUTCOME_IMPOSSIBLE("[Dice check: %s attempted %s, which is impossible."
+            + " Narrate it as a critical failure - the attempt cannot succeed and backfires.]"),
+
+    ACTION_OUTCOME_INSTRUCTION(" A dice check result is included in the context as a system line."
+            + " The narration MUST follow that outcome exactly - never contradict it, never soften it,"
+            + " and never mention dice, checks, or game mechanics in the story text.");
 
     private final String text;
 

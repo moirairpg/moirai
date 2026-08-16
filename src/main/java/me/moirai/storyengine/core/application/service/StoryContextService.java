@@ -76,7 +76,15 @@ public class StoryContextService {
         this.playerCharacterTopK = playerCharacterTopK;
     }
 
-    public StoryContext build(Adventure adventure) {
+    public StoryContext assembleStoryContext(Adventure adventure) {
+        return assembleStoryContext(adventure, List.of());
+    }
+
+    public StoryContext assembleStoryContext(Adventure adventure, String actionOutcomeLine) {
+        return assembleStoryContext(adventure, List.of(ChatMessage.asSystem(actionOutcomeLine)));
+    }
+
+    private StoryContext assembleStoryContext(Adventure adventure, List<ChatMessage> outcomeMessages) {
 
         var activeHistory = messageRepository.findAllActiveByAdventureId(adventure.getId());
         var history = topUpHistory(adventure.getId(), activeHistory);
@@ -98,6 +106,8 @@ public class StoryContextService {
         messages.addAll(interleaveBumps(
                 history.stream().map(this::toChatMessage).toList(),
                 adventure.getContextAttributes()));
+
+        messages.addAll(outcomeMessages);
 
         adventure.getContextAttributes().asText().stream()
                 .map(ChatMessage::asSystem)
