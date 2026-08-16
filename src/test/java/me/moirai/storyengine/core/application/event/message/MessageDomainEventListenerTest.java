@@ -130,6 +130,54 @@ public class MessageDomainEventListenerTest {
     }
 
     @Test
+    public void shouldInjectTheRecalledOutcomeWhenNarrationIsRetried() {
+
+        // given
+        listener = listener();
+        givenNarrationSucceedsWithRecalledOutcome("[Dice check: outcome]");
+
+        // when
+        listener.onNarrationRetried(new NarrationRetriedEvent(ADVENTURE_ID));
+
+        // then
+        verify(actionEvaluationService, never()).evaluateLatestPlayerAction(any());
+        verify(storyContextService).assembleStoryContext(any(), eq("[Dice check: outcome]"));
+        assertThat(capturedInstructions()).contains(MessagePrompt.ACTION_OUTCOME_INSTRUCTION.getText());
+    }
+
+    @Test
+    public void shouldInjectTheRecalledOutcomeWhenNarrationIsRetriedFromAMessage() {
+
+        // given
+        listener = listener();
+        givenNarrationSucceedsWithRecalledOutcome("[Dice check: outcome]");
+
+        // when
+        listener.onNarrationRetriedFromMessage(new NarrationRetriedFromMessageEvent(ADVENTURE_ID));
+
+        // then
+        verify(actionEvaluationService, never()).evaluateLatestPlayerAction(any());
+        verify(storyContextService).assembleStoryContext(any(), eq("[Dice check: outcome]"));
+        assertThat(capturedInstructions()).contains(MessagePrompt.ACTION_OUTCOME_INSTRUCTION.getText());
+    }
+
+    @Test
+    public void shouldReevaluateTheActionWhenAMessageIsEditedWithGeneration() {
+
+        // given
+        listener = listener();
+        givenNarrationSucceedsWithOutcome("[Dice check: outcome]");
+
+        // when
+        listener.onMessageEdited(new MessageEditedEvent(ADVENTURE_ID));
+
+        // then
+        verify(actionEvaluationService).evaluateLatestPlayerAction(ADVENTURE_ID);
+        verify(storyContextService).assembleStoryContext(any(), eq("[Dice check: outcome]"));
+        assertThat(capturedInstructions()).contains(MessagePrompt.ACTION_OUTCOME_INSTRUCTION.getText());
+    }
+
+    @Test
     public void shouldIncludeContinueGenerationInInstructionsWhenTheAdventureWasStarted() {
 
         // given
@@ -312,6 +360,21 @@ public class MessageDomainEventListenerTest {
         when(adventureRepository.findByPublicId(any(UUID.class)))
                 .thenReturn(Optional.of(AdventureFixture.privateAdventureWithId()));
         when(actionEvaluationService.evaluateLatestPlayerAction(ADVENTURE_ID)).thenReturn(actionOutcomeLine);
+        when(storyContextService.assembleStoryContext(any(), eq(actionOutcomeLine))).thenReturn(storyContext());
+        when(textCompletionPort.generateTextFrom(any()))
+                .thenReturn(TextGenerationResult.builder().outputText("A door opens.").build());
+        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
+    }
+
+    private void givenNarrationSucceedsWithRecalledOutcome(String actionOutcomeLine) {
+
+        var savedMessage = MessageFixture.assistantMessage().build();
+
+        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
+
+        when(adventureRepository.findByPublicId(any(UUID.class)))
+                .thenReturn(Optional.of(AdventureFixture.privateAdventureWithId()));
+        when(actionEvaluationService.recallRecordedOutcome(ADVENTURE_ID)).thenReturn(actionOutcomeLine);
         when(storyContextService.assembleStoryContext(any(), eq(actionOutcomeLine))).thenReturn(storyContext());
         when(textCompletionPort.generateTextFrom(any()))
                 .thenReturn(TextGenerationResult.builder().outputText("A door opens.").build());

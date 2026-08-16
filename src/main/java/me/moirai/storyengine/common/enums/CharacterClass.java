@@ -18,16 +18,16 @@ public enum CharacterClass {
             List.of(
                     CharacterSkill.SURVIVAL,
                     CharacterSkill.PERCEPTION,
-                    CharacterSkill.STEALTH,
+                    CharacterSkill.MARKSMANSHIP,
                     CharacterSkill.ATHLETICS)),
     BARBARIAN(
             "Barbarian",
             SignatureSkill.BERSERK,
             List.of(
-                    CharacterSkill.ATHLETICS,
+                    CharacterSkill.MELEE,
+                    CharacterSkill.BRAWL,
                     CharacterSkill.ENDURANCE,
-                    CharacterSkill.INTIMIDATION,
-                    CharacterSkill.SURVIVAL)),
+                    CharacterSkill.INTIMIDATION)),
     PALADIN(
             "Paladin",
             SignatureSkill.ZEAL,
@@ -35,7 +35,7 @@ public enum CharacterClass {
                     CharacterSkill.PERSUASION,
                     CharacterSkill.ENDURANCE,
                     CharacterSkill.RESTORATION,
-                    CharacterSkill.ATHLETICS)),
+                    CharacterSkill.MELEE)),
     MAGE(
             "Mage",
             SignatureSkill.SPELLWEAVE,
@@ -65,7 +65,7 @@ public enum CharacterClass {
             SignatureSkill.BLESSING,
             List.of(
                     CharacterSkill.RESTORATION,
-                    CharacterSkill.PERSUASION,
+                    CharacterSkill.MELEE,
                     CharacterSkill.INTUITION,
                     CharacterSkill.LORE)),
     DRUID(

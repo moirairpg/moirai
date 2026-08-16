@@ -11,6 +11,9 @@ import me.moirai.storyengine.common.rules.CharacterSheetRules;
 public record SkillLevels(
         int athletics,
         int acrobatics,
+        int melee,
+        int marksmanship,
+        int brawl,
         int stealth,
         int endurance,
         int lore,
@@ -35,6 +38,9 @@ public record SkillLevels(
 
         validateRange(athletics);
         validateRange(acrobatics);
+        validateRange(melee);
+        validateRange(marksmanship);
+        validateRange(brawl);
         validateRange(stealth);
         validateRange(endurance);
         validateRange(lore);
@@ -59,6 +65,9 @@ public record SkillLevels(
         return new SkillLevels(
                 levels.get(CharacterSkill.ATHLETICS),
                 levels.get(CharacterSkill.ACROBATICS),
+                levels.get(CharacterSkill.MELEE),
+                levels.get(CharacterSkill.MARKSMANSHIP),
+                levels.get(CharacterSkill.BRAWL),
                 levels.get(CharacterSkill.STEALTH),
                 levels.get(CharacterSkill.ENDURANCE),
                 levels.get(CharacterSkill.LORE),
@@ -83,6 +92,9 @@ public record SkillLevels(
         var levels = new EnumMap<CharacterSkill, Integer>(CharacterSkill.class);
         levels.put(CharacterSkill.ATHLETICS, athletics);
         levels.put(CharacterSkill.ACROBATICS, acrobatics);
+        levels.put(CharacterSkill.MELEE, melee);
+        levels.put(CharacterSkill.MARKSMANSHIP, marksmanship);
+        levels.put(CharacterSkill.BRAWL, brawl);
         levels.put(CharacterSkill.STEALTH, stealth);
         levels.put(CharacterSkill.ENDURANCE, endurance);
         levels.put(CharacterSkill.LORE, lore);

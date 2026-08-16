@@ -5,5 +5,6 @@ public enum ActionOutcome {
     CRITICAL_FAILURE,
     FAILURE,
     SUCCESS,
-    CRITICAL_SUCCESS
+    CRITICAL_SUCCESS,
+    IMPOSSIBLE
 }

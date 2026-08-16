@@ -15,7 +15,7 @@ public class SkillLevelsTest {
 
         // then
         assertThrows(BusinessRuleViolationException.class,
-                () -> new SkillLevels(-1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1));
+                () -> new SkillLevels(-1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1));
     }
 
     @Test
@@ -26,23 +26,24 @@ public class SkillLevelsTest {
 
         // then
         assertThrows(BusinessRuleViolationException.class,
-                () -> new SkillLevels(levelAboveRange, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1));
+                () -> new SkillLevels(levelAboveRange, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1));
     }
 
     @Test
     public void shouldReturnPoolLevelsAsMapWhenBuilt() {
 
         // given
-        var levels = new SkillLevels(0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1);
+        var levels = new SkillLevels(0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1);
 
         // when
         var map = levels.asMap();
 
         // then
         assertThat(map)
-                .hasSize(18)
+                .hasSize(21)
                 .containsEntry(CharacterSkill.ENDURANCE, 2)
                 .containsEntry(CharacterSkill.PERSUASION, 2)
+                .containsEntry(CharacterSkill.MELEE, 0)
                 .containsEntry(CharacterSkill.ATHLETICS, 0);
     }
 }

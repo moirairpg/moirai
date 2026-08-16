@@ -19,6 +19,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import me.moirai.storyengine.common.domain.Asset;
 import me.moirai.storyengine.common.domain.DomainEvent;
+import me.moirai.storyengine.common.enums.ActionOutcome;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.enums.MessageStatus;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
@@ -56,6 +57,13 @@ public class Message extends Asset {
 
     @Column(name = "author_character_name")
     private String authorCharacterName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "action_outcome")
+    private ActionOutcome actionOutcome;
+
+    @Column(name = "action_target")
+    private String actionTarget;
 
     @Transient
     private List<DomainEvent> domainEvents = new ArrayList<>();
@@ -126,6 +134,24 @@ public class Message extends Asset {
 
     public String getAuthorCharacterName() {
         return authorCharacterName;
+    }
+
+    public ActionOutcome getActionOutcome() {
+        return actionOutcome;
+    }
+
+    public String getActionTarget() {
+        return actionTarget;
+    }
+
+    public void recordActionOutcome(ActionOutcome outcome, String actionTarget) {
+        this.actionOutcome = outcome;
+        this.actionTarget = actionTarget;
+    }
+
+    public void clearActionOutcome() {
+        this.actionOutcome = null;
+        this.actionTarget = null;
     }
 
     public void markAsChronicled() {

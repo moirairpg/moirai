@@ -564,7 +564,7 @@ public class PlayerCharacterTest {
         skills.put(CharacterSkill.PERSUASION, 0);
         skills.put(CharacterSkill.ENDURANCE, 0);
         skills.put(CharacterSkill.RESTORATION, 2);
-        skills.put(CharacterSkill.ATHLETICS, 2);
+        skills.put(CharacterSkill.MELEE, 2);
 
         // when
         character.updateSheet(
@@ -576,7 +576,7 @@ public class PlayerCharacterTest {
         // then
         assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.PALADIN);
         assertThat(character.getSkillLevels().restoration()).isEqualTo(2);
-        assertThat(character.getSkillLevels().athletics()).isEqualTo(2);
+        assertThat(character.getSkillLevels().melee()).isEqualTo(2);
         assertThat(character.getSkillLevels().persuasion()).isZero();
     }
 

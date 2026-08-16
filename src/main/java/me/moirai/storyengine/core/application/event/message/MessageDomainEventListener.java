@@ -103,7 +103,8 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onMessageEdited(MessageEditedEvent event) {
 
-        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), null);
+        var actionOutcomeLine = actionEvaluationService.evaluateLatestPlayerAction(event.adventurePublicId());
+        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), actionOutcomeLine);
     }
 
     @Async
@@ -119,7 +120,8 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onNarrationRetried(NarrationRetriedEvent event) {
 
-        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), null);
+        var actionOutcomeLine = actionEvaluationService.recallRecordedOutcome(event.adventurePublicId());
+        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), actionOutcomeLine);
     }
 
     @Async
@@ -127,7 +129,8 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onNarrationRetriedFromMessage(NarrationRetriedFromMessageEvent event) {
 
-        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), null);
+        var actionOutcomeLine = actionEvaluationService.recallRecordedOutcome(event.adventurePublicId());
+        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), actionOutcomeLine);
     }
 
     private void narrate(UUID adventurePublicId, String additionalPrompt, String actionOutcomeLine) {

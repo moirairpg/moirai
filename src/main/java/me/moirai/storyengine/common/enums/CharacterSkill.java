@@ -4,6 +4,9 @@ public enum CharacterSkill {
 
     ATHLETICS("Athletics", CharacterAttribute.STRENGTH),
     ACROBATICS("Acrobatics", CharacterAttribute.AGILITY),
+    MELEE("Melee", CharacterAttribute.STRENGTH),
+    MARKSMANSHIP("Marksmanship", CharacterAttribute.AGILITY),
+    BRAWL("Brawl", CharacterAttribute.VIGOR),
     STEALTH("Stealth", CharacterAttribute.AGILITY),
     ENDURANCE("Endurance", CharacterAttribute.VIGOR),
     LORE("Lore", CharacterAttribute.INTELLIGENCE),

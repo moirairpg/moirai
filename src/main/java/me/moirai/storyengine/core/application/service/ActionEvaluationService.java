@@ -2,6 +2,7 @@ package me.moirai.storyengine.core.application.service;
 
 import static me.moirai.storyengine.common.util.DefaultStringProcessors.addChatPrefix;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import me.moirai.storyengine.common.dto.DiceRollSummary;
+import me.moirai.storyengine.common.dto.ImpossibleActionSummary;
 import me.moirai.storyengine.common.enums.ActionOutcome;
 import me.moirai.storyengine.common.enums.ActionVerdict;
 import me.moirai.storyengine.common.enums.CharacterAttribute;
@@ -41,6 +43,7 @@ public class ActionEvaluationService {
 
     private static final int RECENT_HISTORY_SIZE = 10;
     private static final String EVALUATION_FAILED = "Action evaluation failed for adventure {}";
+    private static final String RECALL_FAILED = "Action outcome recall failed for adventure {}";
 
     private final AdventureRepository adventureRepository;
     private final MessageRepository messageRepository;
@@ -71,6 +74,91 @@ public class ActionEvaluationService {
             var adventure = adventureRepository.findByPublicId(adventurePublicId)
                     .orElseThrow(() -> new NotFoundException("Adventure not found"));
 
+            var history = messageRepository.findAllActiveByAdventureId(adventure.getId());
+
+            if (history.isEmpty() || history.getLast().getRole() != MessageAuthorRole.USER) {
+                return null;
+            }
+
+            var playerMessage = history.getLast();
+
+            playerMessage.clearActionOutcome();
+            messageRepository.save(playerMessage);
+
+            if (!adventure.isRpgMechanicsEnabled()) {
+                return null;
+            }
+
+            var character = playerCharacterRepository.findById(playerMessage.getAuthorCharacterId())
+                    .orElseThrow(() -> new NotFoundException("Acting character not found"));
+
+            var context = new ArrayList<ChatMessage>();
+            context.add(ChatMessage.asSystem("Acting character: " + character.narrativeDescription()));
+            context.addAll(toRecentContext(history));
+
+            var evaluation = actionEvaluationPort.evaluateAction(new ActionEvaluationRequest(
+                    MessagePrompt.ACTION_EVALUATOR.getText(), context));
+
+            if (evaluation.verdict() == ActionVerdict.NO_CHECK) {
+                return null;
+            }
+
+            var actionTarget = resolveActionTarget(evaluation);
+
+            if (evaluation.verdict() == ActionVerdict.IMPOSSIBLE) {
+                playerMessage.recordActionOutcome(ActionOutcome.IMPOSSIBLE, actionTarget);
+                messageRepository.save(playerMessage);
+
+                adventureMessagePort.send(adventurePublicId, AdventureMessageUpdate.impossibleActionAttempted(
+                        playerMessage.getPublicId(),
+                        new ImpossibleActionSummary(
+                                playerMessage.getAuthorCharacterName(),
+                                Functions.mapOrNull(evaluation.attribute(), Enum::name),
+                                evaluation.skill())));
+
+                return formatOutcomeLine(ActionOutcome.IMPOSSIBLE, playerMessage.getAuthorCharacterName(),
+                        actionTarget);
+            }
+
+            var rollModifier = calculateRollModifier(character, evaluation.attribute(), evaluation.skill());
+            var modifier = rollModifier.attributeLevel() + rollModifier.skillLevel();
+            var naturalRoll = randomGenerator.nextInt(1, 21);
+            var total = naturalRoll + modifier;
+            var dc = evaluation.difficulty().getDc();
+            var outcome = determineOutcome(naturalRoll, total, dc);
+
+            playerMessage.recordActionOutcome(outcome, actionTarget);
+            messageRepository.save(playerMessage);
+
+            adventureMessagePort.send(adventurePublicId, AdventureMessageUpdate.diceRolled(
+                    playerMessage.getPublicId(),
+                    new DiceRollSummary(
+                            playerMessage.getAuthorCharacterName(),
+                            Functions.mapOrNull(rollModifier.attribute(), Enum::name),
+                            rollModifier.attributeLevel(),
+                            evaluation.skill(),
+                            rollModifier.skillLevel(),
+                            evaluation.difficulty(),
+                            dc,
+                            naturalRoll,
+                            modifier,
+                            total,
+                            outcome)));
+
+            return formatOutcomeLine(outcome, playerMessage.getAuthorCharacterName(), actionTarget);
+
+        } catch (RuntimeException e) {
+            LOG.error(EVALUATION_FAILED, adventurePublicId, e);
+            return null;
+        }
+    }
+
+    public String recallRecordedOutcome(UUID adventurePublicId) {
+
+        try {
+            var adventure = adventureRepository.findByPublicId(adventurePublicId)
+                    .orElseThrow(() -> new NotFoundException("Adventure not found"));
+
             if (!adventure.isRpgMechanicsEnabled()) {
                 return null;
             }
@@ -81,45 +169,17 @@ public class ActionEvaluationService {
                 return null;
             }
 
-            var evaluation = actionEvaluationPort.evaluateAction(new ActionEvaluationRequest(
-                    MessagePrompt.ACTION_EVALUATOR.getText(),
-                    toRecentContext(history)));
+            var playerMessage = history.getLast();
 
-            if (evaluation.verdict() == ActionVerdict.NO_CHECK) {
+            if (playerMessage.getActionOutcome() == null) {
                 return null;
             }
 
-            var playerMessage = history.getLast();
-
-            if (evaluation.verdict() == ActionVerdict.IMPOSSIBLE) {
-                return MessagePrompt.ACTION_OUTCOME_IMPOSSIBLE.formatted(
-                        playerMessage.getAuthorCharacterName(), resolveActionTarget(evaluation));
-            }
-
-            var character = playerCharacterRepository.findById(playerMessage.getAuthorCharacterId())
-                    .orElseThrow(() -> new NotFoundException("Acting character not found"));
-
-            var modifier = calculateRollModifier(character, evaluation.attribute(), evaluation.skill());
-            var naturalRoll = randomGenerator.nextInt(1, 21);
-            var total = naturalRoll + modifier;
-            var dc = evaluation.difficulty().getDc();
-            var outcome = determineOutcome(naturalRoll, total, dc);
-
-            adventureMessagePort.send(adventurePublicId, AdventureMessageUpdate.diceRolled(new DiceRollSummary(
-                    playerMessage.getAuthorCharacterName(),
-                    Functions.mapOrNull(evaluation.attribute(), Enum::name),
-                    evaluation.skill(),
-                    evaluation.difficulty(),
-                    dc,
-                    naturalRoll,
-                    modifier,
-                    total,
-                    outcome)));
-
-            return formatOutcomeLine(outcome, playerMessage.getAuthorCharacterName(), resolveActionTarget(evaluation));
+            return formatOutcomeLine(playerMessage.getActionOutcome(), playerMessage.getAuthorCharacterName(),
+                    playerMessage.getActionTarget());
 
         } catch (RuntimeException e) {
-            LOG.error(EVALUATION_FAILED, adventurePublicId, e);
+            LOG.error(RECALL_FAILED, adventurePublicId, e);
             return null;
         }
     }
@@ -134,14 +194,16 @@ public class ActionEvaluationService {
                 .toList();
     }
 
-    private int calculateRollModifier(PlayerCharacter character, CharacterAttribute attribute, String skillName) {
+    private RollModifier calculateRollModifier(PlayerCharacter character, CharacterAttribute attribute,
+            String skillName) {
 
         var attributes = character.getAttributeLevels();
         var skills = character.getSkillLevels();
 
         if (skillName != null && EnumUtils.isValidEnum(CharacterSkill.class, skillName)) {
             var skill = CharacterSkill.valueOf(skillName);
-            return getAttributeLevel(attributes, skill.getAttribute()) + skills.asMap().get(skill);
+            return new RollModifier(skill.getAttribute(),
+                    getAttributeLevel(attributes, skill.getAttribute()), skills.asMap().get(skill));
         }
 
         if (skillName != null && EnumUtils.isValidEnum(SignatureSkill.class, skillName)) {
@@ -150,14 +212,18 @@ public class ActionEvaluationService {
                     ? skills.signature()
                     : 0;
 
-            return getAttributeLevel(attributes, signature.getAttribute()) + signatureLevel;
+            return new RollModifier(signature.getAttribute(),
+                    getAttributeLevel(attributes, signature.getAttribute()), signatureLevel);
         }
 
         if (attribute != null) {
-            return getAttributeLevel(attributes, attribute);
+            return new RollModifier(attribute, getAttributeLevel(attributes, attribute), 0);
         }
 
-        return 0;
+        return new RollModifier(null, 0, 0);
+    }
+
+    private record RollModifier(CharacterAttribute attribute, int attributeLevel, int skillLevel) {
     }
 
     private int getAttributeLevel(AttributeLevels attributes, CharacterAttribute attribute) {
@@ -171,6 +237,7 @@ public class ActionEvaluationService {
             case FAILURE -> MessagePrompt.ACTION_OUTCOME_FAILURE;
             case SUCCESS -> MessagePrompt.ACTION_OUTCOME_SUCCESS;
             case CRITICAL_SUCCESS -> MessagePrompt.ACTION_OUTCOME_CRITICAL_SUCCESS;
+            case IMPOSSIBLE -> MessagePrompt.ACTION_OUTCOME_IMPOSSIBLE;
         };
 
         return template.formatted(characterName, actionTarget);

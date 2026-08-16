@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,10 +68,14 @@ public class ActionEvaluationServiceTest {
 
         // given
         var adventure = AdventureFixture.privateAdventureWithId();
-        var history = List.of(MessageFixture.assistantMessage().build(), MessageFixture.userMessage().build());
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.assistantMessage().build(),
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
 
         when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
         when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
         when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
                 ActionVerdict.NO_CHECK, null, null, null, "Trivial."));
 
@@ -82,7 +87,10 @@ public class ActionEvaluationServiceTest {
         verify(actionEvaluationPort).evaluateAction(request.capture());
 
         assertThat(request.getValue().instructions()).isEqualTo(MessagePrompt.ACTION_EVALUATOR.getText());
-        assertThat(request.getValue().messages()).hasSize(2);
+        assertThat(request.getValue().messages()).hasSize(3);
+        assertThat(request.getValue().messages().getFirst().content())
+                .startsWith("Acting character: ")
+                .contains(character.narrativeDescription());
     }
 
     @Test
@@ -161,14 +169,16 @@ public class ActionEvaluationServiceTest {
         verify(adventureMessagePort).send(eq(adventure.getPublicId()), update.capture());
 
         assertThat(update.getValue().change()).isEqualTo(TranscriptChange.DICE_ROLLED);
-        assertThat(update.getValue().messageId()).isNull();
+        assertThat(update.getValue().messageId()).isEqualTo(history.getLast().getPublicId());
         assertThat(update.getValue().message()).isNull();
         assertThat(update.getValue().isNarrationPending()).isTrue();
 
         var roll = update.getValue().roll();
         assertThat(roll.characterName()).isEqualTo("Aria");
-        assertThat(roll.attribute()).isNull();
+        assertThat(roll.attribute()).isEqualTo("CHARISMA");
+        assertThat(roll.attributeLevel()).isEqualTo(1);
         assertThat(roll.skill()).isEqualTo("PERSUASION");
+        assertThat(roll.skillLevel()).isEqualTo(2);
         assertThat(roll.difficulty()).isEqualTo(ActionDifficulty.HARD);
         assertThat(roll.dc()).isEqualTo(16);
         assertThat(roll.naturalRoll()).isEqualTo(10);
@@ -229,6 +239,36 @@ public class ActionEvaluationServiceTest {
 
         assertThat(update.getValue().roll().total()).isEqualTo(20);
         assertThat(update.getValue().roll().outcome()).isEqualTo(ActionOutcome.CRITICAL_SUCCESS);
+    }
+
+    @Test
+    public void shouldResolveACombatSkillCheckWithItsGoverningAttribute() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.CHECK, null, "MELEE", ActionDifficulty.MEDIUM, "Real stakes."));
+        when(randomGenerator.nextInt(1, 21)).thenReturn(10);
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        var update = ArgumentCaptor.forClass(AdventureMessageUpdate.class);
+        verify(adventureMessagePort).send(eq(adventure.getPublicId()), update.capture());
+
+        var roll = update.getValue().roll();
+        assertThat(roll.attribute()).isEqualTo("STRENGTH");
+        assertThat(roll.attributeLevel()).isEqualTo(3);
+        assertThat(roll.skillLevel()).isZero();
+        assertThat(roll.modifier()).isEqualTo(3);
     }
 
     @Test
@@ -314,10 +354,13 @@ public class ActionEvaluationServiceTest {
 
         // given
         var adventure = AdventureFixture.privateAdventureWithId();
-        var history = List.of(MessageFixture.userMessage().build());
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
 
         when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
         when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
         when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
                 ActionVerdict.NO_CHECK, null, null, null, "Trivial."));
 
@@ -330,22 +373,40 @@ public class ActionEvaluationServiceTest {
     }
 
     @Test
-    public void shouldNotDispatchWhenTheVerdictIsImpossible() {
+    public void shouldDispatchTheImpossibleCardWhenTheVerdictIsImpossible() {
 
         // given
         var adventure = AdventureFixture.privateAdventureWithId();
-        var history = List.of(MessageFixture.userMessage().build());
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
 
         when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
         when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
         when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
-                ActionVerdict.IMPOSSIBLE, null, null, null, "Cannot be done."));
+                ActionVerdict.IMPOSSIBLE, null, "ATHLETICS", null, "Cannot be done."));
 
         // when
-        service.evaluateLatestPlayerAction(adventure.getPublicId());
+        var line = service.evaluateLatestPlayerAction(adventure.getPublicId());
 
         // then
-        verify(adventureMessagePort, never()).send(any(), any());
+        var update = ArgumentCaptor.forClass(AdventureMessageUpdate.class);
+        verify(adventureMessagePort).send(eq(adventure.getPublicId()), update.capture());
+
+        assertThat(update.getValue().change()).isEqualTo(TranscriptChange.IMPOSSIBLE_ACTION_ATTEMPTED);
+        assertThat(update.getValue().messageId()).isEqualTo(history.getLast().getPublicId());
+        assertThat(update.getValue().roll()).isNull();
+        assertThat(update.getValue().isNarrationPending()).isTrue();
+
+        var impossibleAction = update.getValue().impossibleAction();
+        assertThat(impossibleAction.characterName()).isEqualTo("Aria");
+        assertThat(impossibleAction.attribute()).isNull();
+        assertThat(impossibleAction.skill()).isEqualTo("ATHLETICS");
+
+        assertThat(line).contains("Aria");
+        assertThat(line).contains("ATHLETICS");
+        assertThat(line).contains("impossible");
     }
 
     @Test
@@ -374,27 +435,6 @@ public class ActionEvaluationServiceTest {
     }
 
     @Test
-    public void shouldReturnTheImpossibleLineWithoutDispatchingWhenTheVerdictIsImpossible() {
-
-        // given
-        var adventure = AdventureFixture.privateAdventureWithId();
-        var history = List.of(MessageFixture.userMessage().build());
-
-        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
-        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
-        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
-                ActionVerdict.IMPOSSIBLE, null, null, null, "Cannot be done."));
-
-        // when
-        var line = service.evaluateLatestPlayerAction(adventure.getPublicId());
-
-        // then
-        assertThat(line).contains("Aria");
-        assertThat(line).contains("impossible");
-        verify(adventureMessagePort, never()).send(any(), any());
-    }
-
-    @Test
     public void shouldSwallowTheFailureWhenTheActingCharacterIsNotFound() {
 
         // given
@@ -404,8 +444,6 @@ public class ActionEvaluationServiceTest {
 
         when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
         when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
-        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
-                ActionVerdict.CHECK, null, "PERSUASION", ActionDifficulty.HARD, "Real stakes."));
         when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.empty());
 
         // then
@@ -413,11 +451,174 @@ public class ActionEvaluationServiceTest {
                 .doesNotThrowAnyException();
 
         assertThat(service.evaluateLatestPlayerAction(adventure.getPublicId())).isNull();
+        verify(actionEvaluationPort, never()).evaluateAction(any());
         verify(adventureMessagePort, never()).send(any(), any());
     }
 
     @Test
-    public void shouldSwallowTheFailureWhenTheEvaluationThrows() {
+    public void shouldRecordTheOutcomeOnThePlayerMessageWhenACheckResolves() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.CHECK, null, "PERSUASION", ActionDifficulty.HARD, "Real stakes."));
+        when(randomGenerator.nextInt(1, 21)).thenReturn(10);
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        var playerMessage = history.getLast();
+
+        assertThat(playerMessage.getActionOutcome()).isEqualTo(ActionOutcome.FAILURE);
+        assertThat(playerMessage.getActionTarget()).isEqualTo("PERSUASION");
+        verify(messageRepository, times(2)).save(playerMessage);
+    }
+
+    @Test
+    public void shouldRecordTheOutcomeOnThePlayerMessageWhenTheVerdictIsImpossible() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.IMPOSSIBLE, null, "ATHLETICS", null, "Cannot be done."));
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        var playerMessage = history.getLast();
+
+        assertThat(playerMessage.getActionOutcome()).isEqualTo(ActionOutcome.IMPOSSIBLE);
+        assertThat(playerMessage.getActionTarget()).isEqualTo("ATHLETICS");
+    }
+
+    @Test
+    public void shouldClearTheRecordWhenTheVerdictIsNoCheck() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var playerMessage = MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build();
+
+        playerMessage.recordActionOutcome(ActionOutcome.SUCCESS, "PERSUASION");
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(List.of(playerMessage));
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.NO_CHECK, null, null, null, "Trivial."));
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        assertThat(playerMessage.getActionOutcome()).isNull();
+        assertThat(playerMessage.getActionTarget()).isNull();
+        verify(messageRepository).save(playerMessage);
+    }
+
+    @Test
+    public void shouldClearTheRecordWhenRpgMechanicsAreOff() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var playerMessage = MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build();
+
+        adventure.updateRpgMechanicsEnabled(false);
+        playerMessage.recordActionOutcome(ActionOutcome.SUCCESS, "PERSUASION");
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(List.of(playerMessage));
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        assertThat(playerMessage.getActionOutcome()).isNull();
+        verify(actionEvaluationPort, never()).evaluateAction(any());
+        verify(messageRepository).save(playerMessage);
+    }
+
+    @Test
+    public void shouldClearTheRecordWhenTheEvaluationThrows() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var playerMessage = MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build();
+
+        playerMessage.recordActionOutcome(ActionOutcome.SUCCESS, "PERSUASION");
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(List.of(playerMessage));
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(actionEvaluationPort.evaluateAction(any())).thenThrow(new RuntimeException("model unavailable"));
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        assertThat(playerMessage.getActionOutcome()).isNull();
+        assertThat(playerMessage.getActionTarget()).isNull();
+    }
+
+    @Test
+    public void shouldRecallTheRecordedOutcomeLineWhenTheLastMessageCarriesOne() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var playerMessage = MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build();
+
+        playerMessage.recordActionOutcome(ActionOutcome.FAILURE, "PERSUASION");
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(List.of(playerMessage));
+
+        // when
+        var line = service.recallRecordedOutcome(adventure.getPublicId());
+
+        // then
+        assertThat(line).contains("Aria");
+        assertThat(line).contains("PERSUASION");
+        assertThat(line).contains("failed");
+        verify(actionEvaluationPort, never()).evaluateAction(any());
+        verify(adventureMessagePort, never()).send(any(), any());
+    }
+
+    @Test
+    public void shouldRecallNothingWhenTheLastMessageIsFromTheAssistant() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var history = List.of(MessageFixture.userMessage().build(), MessageFixture.assistantMessage().build());
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+
+        // when
+        var line = service.recallRecordedOutcome(adventure.getPublicId());
+
+        // then
+        assertThat(line).isNull();
+    }
+
+    @Test
+    public void shouldRecallNothingWhenTheLastMessageHasNoRecord() {
 
         // given
         var adventure = AdventureFixture.privateAdventureWithId();
@@ -425,6 +626,45 @@ public class ActionEvaluationServiceTest {
 
         when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
         when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+
+        // when
+        var line = service.recallRecordedOutcome(adventure.getPublicId());
+
+        // then
+        assertThat(line).isNull();
+    }
+
+    @Test
+    public void shouldRecallNothingWhenRpgMechanicsAreOff() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var playerMessage = MessageFixture.userMessage().build();
+
+        adventure.updateRpgMechanicsEnabled(false);
+        playerMessage.recordActionOutcome(ActionOutcome.FAILURE, "PERSUASION");
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+
+        // when
+        var line = service.recallRecordedOutcome(adventure.getPublicId());
+
+        // then
+        assertThat(line).isNull();
+    }
+
+    @Test
+    public void shouldSwallowTheFailureWhenTheEvaluationThrows() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
         when(actionEvaluationPort.evaluateAction(any())).thenThrow(new RuntimeException("model unavailable"));
 
         // then
