@@ -67,6 +67,18 @@ public class PlayerCharacter extends Asset {
     @Column(name = "skills", columnDefinition = "jsonb")
     private SkillLevels skillLevels;
 
+    @Column(name = "xp")
+    private int xp;
+
+    @Column(name = "level")
+    private int level = 1;
+
+    @Column(name = "unspent_attribute_points")
+    private int unspentAttributePoints;
+
+    @Column(name = "unspent_skill_points")
+    private int unspentSkillPoints;
+
     @Column(name = "image_key")
     private String imageKey;
 
@@ -148,6 +160,48 @@ public class PlayerCharacter extends Asset {
         return skillLevels;
     }
 
+    public int getXp() {
+        return xp;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public int getUnspentAttributePoints() {
+        return unspentAttributePoints;
+    }
+
+    public int getUnspentSkillPoints() {
+        return unspentSkillPoints;
+    }
+
+    public void awardXp(int amount) {
+
+        this.xp += amount;
+
+        while (this.xp >= CharacterSheetRules.LEVEL_UP_XP_THRESHOLD) {
+            this.xp -= CharacterSheetRules.LEVEL_UP_XP_THRESHOLD;
+            this.level++;
+            this.unspentAttributePoints += CharacterSheetRules.ATTRIBUTE_POINTS_PER_LEVEL;
+            this.unspentSkillPoints += CharacterSheetRules.SKILL_POINTS_PER_LEVEL;
+
+            domainEvents.add(new CharacterLeveledUpEvent(id, publicId, playerId, name, level));
+        }
+    }
+
+    public boolean isFullyTrained() {
+
+        var allAttributesMaxed = attributeLevels.asMap().values().stream()
+                .allMatch(attributeLevel -> attributeLevel == CharacterSheetRules.ATTRIBUTE_MAX_LEVEL);
+
+        var allSkillsMaxed = skillLevels.asMap().values().stream()
+                .allMatch(skillLevel -> skillLevel == CharacterSheetRules.SKILL_MAX_LEVEL);
+
+        return allAttributesMaxed && allSkillsMaxed
+                && skillLevels.signature() == CharacterSheetRules.SKILL_MAX_LEVEL;
+    }
+
     public String narrativeDescription() {
         return name + ": " + characterClass.name() + "; " + personality + "; " + physicalDescription;
     }
@@ -197,11 +251,40 @@ public class PlayerCharacter extends Asset {
             Map<CharacterSkill, Integer> skills,
             Map<SignatureSkill, Integer> signatureSkill) {
 
-        validateSheet(characterClass, attributes, skills, signatureSkill);
+        if (this.characterClass == null) {
+            validateSheet(characterClass, attributes, skills, signatureSkill);
 
+            this.characterClass = characterClass;
+            this.attributeLevels = AttributeLevels.of(attributes);
+            this.skillLevels = SkillLevels.of(skills, signatureSkill.get(characterClass.getSignature()));
+
+            return;
+        }
+
+        validateSheetStructure(characterClass, attributes, skills, signatureSkill);
+
+        var signatureLevel = signatureSkill.get(characterClass.getSignature());
+        var newAttributeLevels = AttributeLevels.of(attributes);
+        var newSkillLevels = SkillLevels.of(skills, signatureLevel);
+
+        var attributeConsumed = calculateSpentAttributePoints(attributes)
+                - calculateSpentAttributePoints(attributeLevels.asMap());
+        var skillConsumed = calculateSpentSkillPoints(characterClass, skills, signatureLevel)
+                - calculateSpentSkillPoints(this.characterClass, skillLevels.asMap(), skillLevels.signature());
+
+        if (attributeConsumed < 0 || skillConsumed < 0) {
+            throw new BusinessRuleViolationException("The sheet cannot lose points");
+        }
+
+        if (attributeConsumed > unspentAttributePoints || skillConsumed > unspentSkillPoints) {
+            throw new BusinessRuleViolationException("Not enough unspent points");
+        }
+
+        this.unspentAttributePoints -= attributeConsumed;
+        this.unspentSkillPoints -= skillConsumed;
         this.characterClass = characterClass;
-        this.attributeLevels = AttributeLevels.of(attributes);
-        this.skillLevels = SkillLevels.of(skills, signatureSkill.get(characterClass.getSignature()));
+        this.attributeLevels = newAttributeLevels;
+        this.skillLevels = newSkillLevels;
     }
 
     public void validateHasClass() {
@@ -228,7 +311,7 @@ public class PlayerCharacter extends Asset {
         return this.imageKey;
     }
 
-    private static void validateSheet(
+    private static void validateSheetStructure(
             CharacterClass characterClass,
             Map<CharacterAttribute, Integer> attributes,
             Map<CharacterSkill, Integer> skills,
@@ -247,19 +330,6 @@ public class PlayerCharacter extends Asset {
 
         if (hasMissingAttribute) {
             throw new BusinessRuleViolationException("All six attributes must receive a level");
-        }
-
-        var hasLevelAboveCreationCap = attributes.values().stream()
-                .anyMatch(level -> level > CharacterSheetRules.ATTRIBUTE_CREATION_LEVEL_CAP);
-
-        if (hasLevelAboveCreationCap) {
-            throw new BusinessRuleViolationException("No attribute can be higher than 3 at creation");
-        }
-
-        var totalPoints = attributes.values().stream().mapToInt(Integer::intValue).sum();
-
-        if (totalPoints != CharacterSheetRules.ATTRIBUTE_CREATION_POINTS) {
-            throw new BusinessRuleViolationException("All 6 attribute points must be distributed");
         }
 
         if (skills == null) {
@@ -290,6 +360,30 @@ public class PlayerCharacter extends Asset {
         if (signatureLevel == null || signatureLevel < CharacterSheetRules.SIGNATURE_STARTING_LEVEL) {
             throw new BusinessRuleViolationException("The signature skill starts at level 1");
         }
+    }
+
+    private static void validateSheet(
+            CharacterClass characterClass,
+            Map<CharacterAttribute, Integer> attributes,
+            Map<CharacterSkill, Integer> skills,
+            Map<SignatureSkill, Integer> signatureSkill) {
+
+        validateSheetStructure(characterClass, attributes, skills, signatureSkill);
+
+        var hasLevelAboveCreationCap = attributes.values().stream()
+                .anyMatch(level -> level > CharacterSheetRules.ATTRIBUTE_CREATION_LEVEL_CAP);
+
+        if (hasLevelAboveCreationCap) {
+            throw new BusinessRuleViolationException("No attribute can be higher than 3 at creation");
+        }
+
+        var totalPoints = attributes.values().stream().mapToInt(Integer::intValue).sum();
+
+        if (totalPoints != CharacterSheetRules.ATTRIBUTE_CREATION_POINTS) {
+            throw new BusinessRuleViolationException("All 6 attribute points must be distributed");
+        }
+
+        var signatureLevel = signatureSkill.get(characterClass.getSignature());
 
         var hasSkillAboveCreationCap = Stream
                 .concat(skills.values().stream(), Stream.of(signatureLevel))
@@ -299,18 +393,35 @@ public class PlayerCharacter extends Asset {
             throw new BusinessRuleViolationException("No skill can be higher than 2 at creation");
         }
 
-        var spentPoints = skills.entrySet().stream()
-                .mapToInt(entry -> entry.getValue() * costOf(characterClass, entry.getKey()))
-                .sum()
-                + (signatureLevel - CharacterSheetRules.SIGNATURE_STARTING_LEVEL)
-                        * CharacterSheetRules.FAVORED_SKILL_COST;
+        var spentPoints = calculateSpentSkillPoints(characterClass, skills, signatureLevel);
 
         if (spentPoints != CharacterSheetRules.SKILL_CREATION_POINTS) {
             throw new BusinessRuleViolationException("All 4 skill points must be distributed");
         }
     }
 
-    private static int costOf(CharacterClass characterClass, CharacterSkill skill) {
+    private static int calculateSpentAttributePoints(Map<CharacterAttribute, Integer> attributes) {
+
+        return attributes.values().stream()
+                .mapToInt(level -> Math.min(level, CharacterSheetRules.ATTRIBUTE_CREATION_LEVEL_CAP)
+                        + Math.max(0, level - CharacterSheetRules.ATTRIBUTE_CREATION_LEVEL_CAP)
+                                * CharacterSheetRules.ATTRIBUTE_HIGH_LEVEL_COST)
+                .sum();
+    }
+
+    private static int calculateSpentSkillPoints(
+            CharacterClass characterClass,
+            Map<CharacterSkill, Integer> skills,
+            int signatureLevel) {
+
+        return skills.entrySet().stream()
+                .mapToInt(entry -> entry.getValue() * resolveSkillCost(characterClass, entry.getKey()))
+                .sum()
+                + (signatureLevel - CharacterSheetRules.SIGNATURE_STARTING_LEVEL)
+                        * CharacterSheetRules.FAVORED_SKILL_COST;
+    }
+
+    private static int resolveSkillCost(CharacterClass characterClass, CharacterSkill skill) {
 
         return characterClass.getFavoredSkills().contains(skill)
                 ? CharacterSheetRules.FAVORED_SKILL_COST

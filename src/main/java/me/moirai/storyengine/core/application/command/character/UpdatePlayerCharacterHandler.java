@@ -8,6 +8,7 @@ import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.common.rules.CharacterSheetRules;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.PlayerCharacterDetails;
 import me.moirai.storyengine.core.port.inbound.character.UpdatePlayerCharacter;
@@ -93,6 +94,11 @@ public class UpdatePlayerCharacterHandler
                 character.getAttributeLevels().asMap(),
                 character.getSkillLevels().asMap(),
                 Map.of(character.getCharacterClass().getSignature(), character.getSkillLevels().signature()),
+                character.getXp(),
+                character.getLevel(),
+                character.getUnspentAttributePoints(),
+                character.getUnspentSkillPoints(),
+                CharacterSheetRules.LEVEL_UP_XP_THRESHOLD,
                 storagePort.resolveUrl(character.getImageKey()),
                 character.getUiImagePositionX(),
                 character.getUiImagePositionY(),

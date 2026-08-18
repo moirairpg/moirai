@@ -35,11 +35,11 @@ moirai:
     port: ${QDRANT_PORT}
   rag:
     lorebook:
-      top-k: 10
+      top-k: 15
       collection-name: lorebook
       vector-size: 1536
     chronicle:
-      top-k: 10
+      top-k: 15
       collection-name: chronicle
       vector-size: 1536
     player-character:

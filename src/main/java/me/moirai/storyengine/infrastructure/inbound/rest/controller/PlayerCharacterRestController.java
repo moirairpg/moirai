@@ -168,7 +168,7 @@ public class PlayerCharacterRestController extends SecurityContextAware {
 
     @PatchMapping("/{characterId}/sheet")
     @ResponseStatus(HttpStatus.OK)
-    @Authorize(operation = AuthorizationOperation.UPDATE_PLAYER_CHARACTER, fields = "#characterId")
+    @Authorize(operation = AuthorizationOperation.UPDATE_CHARACTER_SHEET, fields = "#characterId")
     public PlayerCharacterDetails updateSheet(
             @PathVariable UUID characterId,
             @Valid @RequestBody UpdateCharacterSheetRequest request) {

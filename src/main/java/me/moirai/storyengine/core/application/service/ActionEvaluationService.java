@@ -10,10 +10,14 @@ import java.util.random.RandomGenerator;
 import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import me.moirai.storyengine.common.dto.DiceRollSummary;
 import me.moirai.storyengine.common.dto.ImpossibleActionSummary;
+import me.moirai.storyengine.common.dto.LevelUpSummary;
+import me.moirai.storyengine.common.dto.XpGainSummary;
+import me.moirai.storyengine.common.enums.ActionDifficulty;
 import me.moirai.storyengine.common.enums.ActionOutcome;
 import me.moirai.storyengine.common.enums.ActionVerdict;
 import me.moirai.storyengine.common.enums.CharacterAttribute;
@@ -22,8 +26,10 @@ import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.enums.MessagePrompt;
 import me.moirai.storyengine.common.enums.SignatureSkill;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.common.rules.CharacterSheetRules;
 import me.moirai.storyengine.common.util.Functions;
 import me.moirai.storyengine.core.domain.character.AttributeLevels;
+import me.moirai.storyengine.core.domain.character.CharacterLeveledUpEvent;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.domain.message.Message;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
@@ -35,6 +41,7 @@ import me.moirai.storyengine.core.port.outbound.generation.ChatMessage;
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessagePort;
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
+import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 
 @Service
 public class ActionEvaluationService {
@@ -48,24 +55,30 @@ public class ActionEvaluationService {
     private final AdventureRepository adventureRepository;
     private final MessageRepository messageRepository;
     private final PlayerCharacterRepository playerCharacterRepository;
+    private final UserRepository userRepository;
     private final ActionEvaluationPort actionEvaluationPort;
     private final AdventureMessagePort adventureMessagePort;
     private final RandomGenerator randomGenerator;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ActionEvaluationService(
             AdventureRepository adventureRepository,
             MessageRepository messageRepository,
             PlayerCharacterRepository playerCharacterRepository,
+            UserRepository userRepository,
             ActionEvaluationPort actionEvaluationPort,
             AdventureMessagePort adventureMessagePort,
-            RandomGenerator randomGenerator) {
+            RandomGenerator randomGenerator,
+            ApplicationEventPublisher eventPublisher) {
 
         this.adventureRepository = adventureRepository;
         this.messageRepository = messageRepository;
         this.playerCharacterRepository = playerCharacterRepository;
+        this.userRepository = userRepository;
         this.actionEvaluationPort = actionEvaluationPort;
         this.adventureMessagePort = adventureMessagePort;
         this.randomGenerator = randomGenerator;
+        this.eventPublisher = eventPublisher;
     }
 
     public String evaluateLatestPlayerAction(UUID adventurePublicId) {
@@ -126,6 +139,16 @@ public class ActionEvaluationService {
             var total = naturalRoll + modifier;
             var dc = evaluation.difficulty().getDc();
             var outcome = determineOutcome(naturalRoll, total, dc);
+            var alreadyPaidXp = playerMessage.getActionXpAwarded() > 0;
+            var xpAward = alreadyPaidXp || character.isFullyTrained()
+                    ? 0
+                    : calculateXpAward(evaluation.difficulty(), outcome);
+
+            if (xpAward > 0) {
+                character.awardXp(xpAward);
+                playerCharacterRepository.save(character);
+                playerMessage.recordXpAward(xpAward);
+            }
 
             playerMessage.recordActionOutcome(outcome, actionTarget);
             messageRepository.save(playerMessage);
@@ -144,6 +167,29 @@ public class ActionEvaluationService {
                             modifier,
                             total,
                             outcome)));
+
+            if (xpAward > 0) {
+                var earner = userRepository.findById(character.getPlayerId())
+                        .orElseThrow(() -> new NotFoundException("Character owner not found"));
+
+                adventureMessagePort.sendToPlayer(earner.getUsername(), adventurePublicId,
+                        AdventureMessageUpdate.xpGained(playerMessage.getPublicId(), new XpGainSummary(
+                                xpAward, character.getXp(), CharacterSheetRules.LEVEL_UP_XP_THRESHOLD)));
+            }
+
+            for (var domainEvent : character.drainEvents()) {
+                if (domainEvent instanceof CharacterLeveledUpEvent leveledUp) {
+                    adventureMessagePort.send(adventurePublicId, AdventureMessageUpdate.leveledUp(
+                            playerMessage.getPublicId(),
+                            new LevelUpSummary(
+                                    leveledUp.getCharacterName(),
+                                    leveledUp.getNewLevel(),
+                                    CharacterSheetRules.ATTRIBUTE_POINTS_PER_LEVEL,
+                                    CharacterSheetRules.SKILL_POINTS_PER_LEVEL)));
+                }
+
+                eventPublisher.publishEvent(domainEvent);
+            }
 
             return formatOutcomeLine(outcome, playerMessage.getAuthorCharacterName(), actionTarget);
 
@@ -229,6 +275,16 @@ public class ActionEvaluationService {
     private int getAttributeLevel(AttributeLevels attributes, CharacterAttribute attribute) {
         return attributes.asMap().get(attribute);
     }
+
+    private int calculateXpAward(ActionDifficulty difficulty, ActionOutcome outcome) {
+
+        return switch (outcome) {
+            case SUCCESS, CRITICAL_SUCCESS -> difficulty.getSuccessXp();
+            case FAILURE, CRITICAL_FAILURE -> difficulty.getFailureXp();
+            case IMPOSSIBLE -> 0;
+        };
+    }
+
 
     private String formatOutcomeLine(ActionOutcome outcome, String characterName, String actionTarget) {
 

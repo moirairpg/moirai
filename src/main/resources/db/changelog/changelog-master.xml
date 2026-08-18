@@ -105,4 +105,7 @@
   <include file="db/changelog/migrations/1786747880_alter_table_player_character_add_skills.sql" />
   <include file="db/changelog/migrations/1786833751_alter_table_adventure_add_rpg_mechanics_enabled.sql" />
   <include file="db/changelog/migrations/1786888515_update_table_message_add_action_outcome.sql" />
+  <include file="db/changelog/migrations/1786914307_alter_table_character_add_xp.sql" />
+  <include file="db/changelog/migrations/1786929145_update_tables_player_character_message_add_xp.sql" />
+  <include file="db/changelog/migrations/1786929145_update_table_player_character_add_level_and_unspent_points.sql" />
 </databaseChangeLog>

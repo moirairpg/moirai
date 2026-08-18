@@ -20,6 +20,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.common.enums.ActionDifficulty;
 import me.moirai.storyengine.common.enums.ActionOutcome;
@@ -28,8 +30,12 @@ import me.moirai.storyengine.common.enums.CharacterAttribute;
 import me.moirai.storyengine.common.enums.MessagePrompt;
 import me.moirai.storyengine.common.enums.TranscriptChange;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
+import me.moirai.storyengine.core.domain.character.AttributeLevels;
+import me.moirai.storyengine.core.domain.character.CharacterLeveledUpEvent;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
+import me.moirai.storyengine.core.domain.character.SkillLevels;
 import me.moirai.storyengine.core.domain.message.MessageFixture;
+import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.port.outbound.adventure.AdventureRepository;
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterRepository;
 import me.moirai.storyengine.core.port.outbound.generation.ActionEvaluationPort;
@@ -38,6 +44,7 @@ import me.moirai.storyengine.core.port.outbound.generation.ActionEvaluationResul
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessagePort;
 import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 import me.moirai.storyengine.core.port.outbound.message.MessageRepository;
+import me.moirai.storyengine.core.port.outbound.userdetails.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class ActionEvaluationServiceTest {
@@ -58,7 +65,13 @@ public class ActionEvaluationServiceTest {
     private AdventureMessagePort adventureMessagePort;
 
     @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private RandomGenerator randomGenerator;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private ActionEvaluationService service;
@@ -159,6 +172,7 @@ public class ActionEvaluationServiceTest {
         when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
                 ActionVerdict.CHECK, null, "PERSUASION", ActionDifficulty.HARD, "Real stakes."));
         when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
         when(randomGenerator.nextInt(1, 21)).thenReturn(10);
 
         // when
@@ -201,6 +215,7 @@ public class ActionEvaluationServiceTest {
         when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
                 ActionVerdict.CHECK, CharacterAttribute.STRENGTH, null, ActionDifficulty.EASY, "Real stakes."));
         when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
         when(randomGenerator.nextInt(1, 21)).thenReturn(1);
 
         // when
@@ -228,6 +243,7 @@ public class ActionEvaluationServiceTest {
                 ActionVerdict.CHECK, CharacterAttribute.INTELLIGENCE, null, ActionDifficulty.FORMIDABLE,
                 "Real stakes."));
         when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
         when(randomGenerator.nextInt(1, 21)).thenReturn(20);
 
         // when
@@ -285,6 +301,7 @@ public class ActionEvaluationServiceTest {
         when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
                 ActionVerdict.CHECK, null, "ZEAL", ActionDifficulty.MEDIUM, "Real stakes."));
         when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
         when(randomGenerator.nextInt(1, 21)).thenReturn(10);
 
         // when
@@ -311,6 +328,7 @@ public class ActionEvaluationServiceTest {
         when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
                 ActionVerdict.CHECK, null, "HEX", ActionDifficulty.MEDIUM, "Real stakes."));
         when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
         when(randomGenerator.nextInt(1, 21)).thenReturn(10);
 
         // when
@@ -337,6 +355,7 @@ public class ActionEvaluationServiceTest {
         when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
                 ActionVerdict.CHECK, CharacterAttribute.STRENGTH, null, ActionDifficulty.MEDIUM, "Real stakes."));
         when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
         when(randomGenerator.nextInt(1, 21)).thenReturn(10);
 
         // when
@@ -423,6 +442,7 @@ public class ActionEvaluationServiceTest {
         when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
                 ActionVerdict.CHECK, null, "PERSUASION", ActionDifficulty.HARD, "Real stakes."));
         when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
         when(randomGenerator.nextInt(1, 21)).thenReturn(10);
 
         // when
@@ -508,6 +528,216 @@ public class ActionEvaluationServiceTest {
     }
 
     @Test
+    public void shouldAwardBandXpToTheActingCharacterWhenACheckSucceeds() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.CHECK, null, "PERSUASION", ActionDifficulty.HARD, "Real stakes."));
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(randomGenerator.nextInt(1, 21)).thenReturn(15);
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        var update = ArgumentCaptor.forClass(AdventureMessageUpdate.class);
+        verify(adventureMessagePort).sendToPlayer(eq("john.doe"), eq(adventure.getPublicId()), update.capture());
+
+        assertThat(character.getXp()).isEqualTo(20);
+        assertThat(history.getLast().getActionXpAwarded()).isEqualTo(20);
+        assertThat(update.getValue().change()).isEqualTo(TranscriptChange.XP_GAINED);
+        assertThat(update.getValue().messageId()).isEqualTo(history.getLast().getPublicId());
+        assertThat(update.getValue().xpGain().amount()).isEqualTo(20);
+        assertThat(update.getValue().xpGain().total()).isEqualTo(20);
+        assertThat(update.getValue().xpGain().levelUpTarget()).isEqualTo(100);
+
+        var topicUpdate = ArgumentCaptor.forClass(AdventureMessageUpdate.class);
+        verify(adventureMessagePort).send(eq(adventure.getPublicId()), topicUpdate.capture());
+        assertThat(topicUpdate.getValue().change()).isEqualTo(TranscriptChange.DICE_ROLLED);
+    }
+
+    @Test
+    public void shouldAwardHalfXpWhenACheckFails() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.CHECK, null, "PERSUASION", ActionDifficulty.HARD, "Real stakes."));
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(randomGenerator.nextInt(1, 21)).thenReturn(10);
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        var update = ArgumentCaptor.forClass(AdventureMessageUpdate.class);
+        verify(adventureMessagePort).sendToPlayer(eq("john.doe"), eq(adventure.getPublicId()), update.capture());
+
+        assertThat(character.getXp()).isEqualTo(10);
+        assertThat(update.getValue().xpGain().amount()).isEqualTo(10);
+    }
+
+    @Test
+    public void shouldAwardTheBaseTierXpWhenTheOutcomeIsCritical() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.CHECK, null, "PERSUASION", ActionDifficulty.FORMIDABLE, "Real stakes."));
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(randomGenerator.nextInt(1, 21)).thenReturn(20);
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        assertThat(character.getXp()).isEqualTo(50);
+    }
+
+    @Test
+    public void shouldAwardNothingWhenTheCharacterIsFullyTrained() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
+
+        ReflectionTestUtils.setField(character, "attributeLevels", new AttributeLevels(5, 5, 5, 5, 5, 5));
+        ReflectionTestUtils.setField(character, "skillLevels", new SkillLevels(
+                4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4));
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.CHECK, null, "PERSUASION", ActionDifficulty.HARD, "Real stakes."));
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(randomGenerator.nextInt(1, 21)).thenReturn(10);
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        assertThat(character.getXp()).isZero();
+        verify(adventureMessagePort, never()).sendToPlayer(any(), any(), any());
+        verify(adventureMessagePort).send(eq(adventure.getPublicId()), any());
+    }
+
+    @Test
+    public void shouldNotAwardXpAgainWhenTheMessageAlreadyPaid() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var playerMessage = MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build();
+
+        character.awardXp(20);
+        playerMessage.recordActionOutcome(ActionOutcome.SUCCESS, "PERSUASION");
+        playerMessage.recordXpAward(20);
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(List.of(playerMessage));
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.CHECK, null, "PERSUASION", ActionDifficulty.HARD, "Real stakes."));
+        when(randomGenerator.nextInt(1, 21)).thenReturn(15);
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        assertThat(character.getXp()).isEqualTo(20);
+        assertThat(playerMessage.getActionXpAwarded()).isEqualTo(20);
+        verify(adventureMessagePort, never()).sendToPlayer(any(), any(), any());
+        verify(playerCharacterRepository, never()).save(character);
+    }
+
+    @Test
+    public void shouldKeepTheXpMemoWhenTheOutcomeIsCleared() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var playerMessage = MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build();
+
+        playerMessage.recordActionOutcome(ActionOutcome.SUCCESS, "PERSUASION");
+        playerMessage.recordXpAward(20);
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(List.of(playerMessage));
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.NO_CHECK, null, null, null, "Trivial."));
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        assertThat(playerMessage.getActionOutcome()).isNull();
+        assertThat(playerMessage.getActionXpAwarded()).isEqualTo(20);
+        assertThat(character.getXp()).isZero();
+    }
+
+    @Test
+    public void shouldDispatchThePublicLevelUpCardAndTheNotificationEventWhenACharacterLevelsUp() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventureWithId();
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        var history = List.of(
+                MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build());
+
+        character.awardXp(90);
+
+        when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
+        when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(history);
+        when(actionEvaluationPort.evaluateAction(any())).thenReturn(new ActionEvaluationResult(
+                ActionVerdict.CHECK, null, "PERSUASION", ActionDifficulty.MEDIUM, "Real stakes."));
+        when(playerCharacterRepository.findById(PlayerCharacterFixture.NUMERIC_ID)).thenReturn(Optional.of(character));
+        when(userRepository.findById(PlayerCharacterFixture.PLAYER_ID)).thenReturn(Optional.of(UserFixture.playerWithId()));
+        when(randomGenerator.nextInt(1, 21)).thenReturn(15);
+
+        // when
+        service.evaluateLatestPlayerAction(adventure.getPublicId());
+
+        // then
+        var updates = ArgumentCaptor.forClass(AdventureMessageUpdate.class);
+        verify(adventureMessagePort, times(2)).send(eq(adventure.getPublicId()), updates.capture());
+
+        var levelUpUpdate = updates.getAllValues().getLast();
+        assertThat(levelUpUpdate.change()).isEqualTo(TranscriptChange.LEVEL_UP);
+        assertThat(levelUpUpdate.levelUp().characterName()).isEqualTo("Volin Habar");
+        assertThat(levelUpUpdate.levelUp().newLevel()).isEqualTo(2);
+        assertThat(levelUpUpdate.levelUp().attributePoints()).isEqualTo(1);
+        assertThat(levelUpUpdate.levelUp().skillPoints()).isEqualTo(2);
+
+        assertThat(character.getLevel()).isEqualTo(2);
+        verify(eventPublisher).publishEvent(any(CharacterLeveledUpEvent.class));
+    }
+
+    @Test
     public void shouldClearTheRecordWhenTheVerdictIsNoCheck() {
 
         // given
@@ -516,6 +746,7 @@ public class ActionEvaluationServiceTest {
         var playerMessage = MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build();
 
         playerMessage.recordActionOutcome(ActionOutcome.SUCCESS, "PERSUASION");
+        playerMessage.recordXpAward(20);
 
         when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
         when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(List.of(playerMessage));
@@ -541,6 +772,7 @@ public class ActionEvaluationServiceTest {
 
         adventure.updateRpgMechanicsEnabled(false);
         playerMessage.recordActionOutcome(ActionOutcome.SUCCESS, "PERSUASION");
+        playerMessage.recordXpAward(20);
 
         when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
         when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(List.of(playerMessage));
@@ -563,6 +795,7 @@ public class ActionEvaluationServiceTest {
         var playerMessage = MessageFixture.userMessage().authorCharacterId(PlayerCharacterFixture.NUMERIC_ID).build();
 
         playerMessage.recordActionOutcome(ActionOutcome.SUCCESS, "PERSUASION");
+        playerMessage.recordXpAward(20);
 
         when(adventureRepository.findByPublicId(adventure.getPublicId())).thenReturn(Optional.of(adventure));
         when(messageRepository.findAllActiveByAdventureId(adventure.getId())).thenReturn(List.of(playerMessage));

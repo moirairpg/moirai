@@ -65,6 +65,9 @@ public class Message extends Asset {
     @Column(name = "action_target")
     private String actionTarget;
 
+    @Column(name = "action_xp_awarded")
+    private Integer actionXpAwarded;
+
     @Transient
     private List<DomainEvent> domainEvents = new ArrayList<>();
 
@@ -144,9 +147,17 @@ public class Message extends Asset {
         return actionTarget;
     }
 
+    public int getActionXpAwarded() {
+        return actionXpAwarded == null ? 0 : actionXpAwarded;
+    }
+
     public void recordActionOutcome(ActionOutcome outcome, String actionTarget) {
         this.actionOutcome = outcome;
         this.actionTarget = actionTarget;
+    }
+
+    public void recordXpAward(int amount) {
+        this.actionXpAwarded = amount;
     }
 
     public void clearActionOutcome() {

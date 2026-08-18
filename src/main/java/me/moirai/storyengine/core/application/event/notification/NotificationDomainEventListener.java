@@ -18,6 +18,7 @@ import me.moirai.storyengine.core.domain.adventure.AdventureAccessGrantedEvent;
 import me.moirai.storyengine.core.domain.adventure.AdventureAccessLevelChangedEvent;
 import me.moirai.storyengine.core.domain.adventure.AdventureAccessRevokedEvent;
 import me.moirai.storyengine.core.domain.adventure.AdventureDeletedEvent;
+import me.moirai.storyengine.core.domain.character.CharacterLeveledUpEvent;
 import me.moirai.storyengine.core.domain.notification.Notification;
 import me.moirai.storyengine.core.domain.userdetails.UserDeletedEvent;
 import me.moirai.storyengine.core.domain.world.WorldAccessGrantedEvent;
@@ -52,6 +53,24 @@ public class NotificationDomainEventListener {
 
         notificationRepository.findAllInvolving(event.getUserId())
                 .forEach(notification -> withdrawUserFrom(notification, event.getUserId()));
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    @EventListener
+    public void onCharacterLeveledUp(CharacterLeveledUpEvent event) {
+
+        publish(Notification.builder()
+                .type(NotificationType.SYSTEM)
+                .level(NotificationLevel.INFO)
+                .message(event.getCharacterName() + " reached level " + event.getNewLevel())
+                .isInteractable(true)
+                .metadata(Map.<String, Object>of(
+                        "kind", NotificationKind.CHARACTER_LEVEL_UP.name(),
+                        "characterId", event.getCharacterPublicId().toString(),
+                        "characterName", event.getCharacterName(),
+                        "newLevel", event.getNewLevel()))
+                .recipientUserId(event.getPlayerId())
+                .build());
     }
 
     @Transactional(propagation = Propagation.MANDATORY)

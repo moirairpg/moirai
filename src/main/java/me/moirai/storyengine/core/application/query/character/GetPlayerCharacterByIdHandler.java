@@ -3,6 +3,7 @@ package me.moirai.storyengine.core.application.query.character;
 import java.util.Map;
 
 import me.moirai.storyengine.common.annotation.QueryHandler;
+import me.moirai.storyengine.common.rules.CharacterSheetRules;
 import me.moirai.storyengine.common.cqs.query.AbstractQueryHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.core.port.inbound.character.GetPlayerCharacterById;
@@ -43,6 +44,11 @@ public class GetPlayerCharacterByIdHandler
                 row.characterClass() == null
                         ? Map.of()
                         : Map.of(row.characterClass().getSignature(), row.signatureLevel()),
+                row.xp(),
+                row.level(),
+                row.unspentAttributePoints(),
+                row.unspentSkillPoints(),
+                CharacterSheetRules.LEVEL_UP_XP_THRESHOLD,
                 storagePort.resolveUrl(row.imageKey()),
                 row.uiImagePositionX(),
                 row.uiImagePositionY(),

@@ -646,4 +646,149 @@ public class PlayerCharacterTest {
         // then
         assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.PALADIN);
     }
+
+    @Test
+    public void shouldLevelUpAndCarryTheRemainderWhenXpReachesTheThreshold() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+        character.awardXp(95);
+
+        // when
+        character.awardXp(10);
+
+        // then
+        assertThat(character.getLevel()).isEqualTo(2);
+        assertThat(character.getXp()).isEqualTo(5);
+        assertThat(character.getUnspentAttributePoints()).isEqualTo(1);
+        assertThat(character.getUnspentSkillPoints()).isEqualTo(2);
+        assertThat(character.drainEvents()).hasSize(1);
+    }
+
+    @Test
+    public void shouldStackBalancesAcrossLevelUps() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // when
+        character.awardXp(100);
+        character.awardXp(100);
+
+        // then
+        assertThat(character.getLevel()).isEqualTo(3);
+        assertThat(character.getUnspentAttributePoints()).isEqualTo(2);
+        assertThat(character.getUnspentSkillPoints()).isEqualTo(4);
+        assertThat(character.drainEvents()).hasSize(2);
+    }
+
+    @Test
+    public void shouldNotLevelUpBelowTheThreshold() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // when
+        character.awardXp(99);
+
+        // then
+        assertThat(character.getLevel()).isEqualTo(1);
+        assertThat(character.getXp()).isEqualTo(99);
+        assertThat(character.drainEvents()).isEmpty();
+    }
+
+    @Test
+    public void shouldConsumeUnspentPointsWhenTheSheetGrowsInValue() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+        character.awardXp(200);
+
+        var attributes = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        attributes.put(CharacterAttribute.STRENGTH, 4);
+
+        // when
+        character.updateSheet(
+                CharacterClass.PALADIN,
+                attributes,
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation());
+
+        // then
+        assertThat(character.getAttributeLevels().strength()).isEqualTo(4);
+        assertThat(character.getUnspentAttributePoints()).isZero();
+        assertThat(character.getUnspentSkillPoints()).isEqualTo(4);
+    }
+
+    @Test
+    public void shouldRejectTheSheetWhenItLosesValue() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        var attributes = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        attributes.put(CharacterAttribute.STRENGTH, 2);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateSheet(
+                CharacterClass.PALADIN,
+                attributes,
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation()));
+    }
+
+    @Test
+    public void shouldRejectTheSheetWhenGrowthExceedsTheBalances() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        var attributes = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        attributes.put(CharacterAttribute.STRENGTH, 4);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateSheet(
+                CharacterClass.PALADIN,
+                attributes,
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation()));
+    }
+
+    @Test
+    public void shouldAcceptAnEqualValueRedistributionWithoutTouchingBalances() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+        character.awardXp(100);
+
+        // when
+        character.updateSheet(
+                CharacterClass.MAGE,
+                PlayerCharacterFixture.sampleAttributeAllocation(),
+                PlayerCharacterFixture.skillAllocationFor(CharacterClass.MAGE),
+                PlayerCharacterFixture.signatureAllocationFor(CharacterClass.MAGE));
+
+        // then
+        assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.MAGE);
+        assertThat(character.getUnspentAttributePoints()).isEqualTo(1);
+        assertThat(character.getUnspentSkillPoints()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldRejectLevelsAboveTheAbsoluteCaps() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+        character.awardXp(500);
+
+        var attributes = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        attributes.put(CharacterAttribute.STRENGTH, 6);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateSheet(
+                CharacterClass.PALADIN,
+                attributes,
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation()));
+    }
 }

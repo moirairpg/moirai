@@ -11,6 +11,10 @@ public final class CharacterSheetRules {
     public static final int SIGNATURE_STARTING_LEVEL = 1;
     public static final int FAVORED_SKILL_COST = 1;
     public static final int OFF_CLASS_SKILL_COST = 2;
+    public static final int ATTRIBUTE_HIGH_LEVEL_COST = 2;
+    public static final int LEVEL_UP_XP_THRESHOLD = 100;
+    public static final int ATTRIBUTE_POINTS_PER_LEVEL = 1;
+    public static final int SKILL_POINTS_PER_LEVEL = 2;
 
     private CharacterSheetRules() {
     }

@@ -12,6 +12,7 @@ import me.moirai.storyengine.core.port.outbound.message.AdventureMessageUpdate;
 public class AdventureMessageAdapter implements AdventureMessagePort {
 
     private static final String ADVENTURE_TOPIC = "/topic/adventures/";
+    private static final String PLAYER_EVENT_QUEUE = "/queue/adventures/";
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -23,5 +24,11 @@ public class AdventureMessageAdapter implements AdventureMessagePort {
     public void send(UUID adventurePublicId, AdventureMessageUpdate update) {
 
         messagingTemplate.convertAndSend(ADVENTURE_TOPIC + adventurePublicId, update);
+    }
+
+    @Override
+    public void sendToPlayer(String username, UUID adventurePublicId, AdventureMessageUpdate update) {
+
+        messagingTemplate.convertAndSendToUser(username, PLAYER_EVENT_QUEUE + adventurePublicId + "/events", update);
     }
 }
