@@ -1,5 +1,6 @@
 package me.moirai.storyengine.core.application.event.message;
 
+import static me.moirai.storyengine.common.enums.MessagePrompt.ACTION_OUTCOME_INSTRUCTION;
 import static me.moirai.storyengine.common.enums.MessagePrompt.CONTINUE_GENERATION;
 import static me.moirai.storyengine.common.enums.MessagePrompt.NARRATION_SCOPE;
 import static me.moirai.storyengine.common.enums.MessagePrompt.PLAYER_CHARACTER_HEADING;
@@ -28,6 +29,8 @@ import me.moirai.storyengine.common.dto.MessageSummary;
 import me.moirai.storyengine.common.enums.MessageAuthorRole;
 import me.moirai.storyengine.common.exception.NotFoundException;
 import me.moirai.storyengine.common.util.StringProcessor;
+import me.moirai.storyengine.core.application.service.ActionEvaluationService;
+import me.moirai.storyengine.core.application.service.StoryContext;
 import me.moirai.storyengine.core.application.service.StoryContextService;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureDeletedEvent;
@@ -49,6 +52,7 @@ public class MessageDomainEventListener {
     private final AdventureRepository adventureRepository;
     private final TextCompletionPort textCompletionPort;
     private final StoryContextService storyContextService;
+    private final ActionEvaluationService actionEvaluationService;
     private final ApplicationEventPublisher eventPublisher;
     private final int messageWindowSize;
 
@@ -57,6 +61,7 @@ public class MessageDomainEventListener {
             AdventureRepository adventureRepository,
             TextCompletionPort textCompletionPort,
             StoryContextService storyContextService,
+            ActionEvaluationService actionEvaluationService,
             ApplicationEventPublisher eventPublisher,
             @Value("${moirai.adventure.message-window-size}") int messageWindowSize) {
 
@@ -64,6 +69,7 @@ public class MessageDomainEventListener {
         this.adventureRepository = adventureRepository;
         this.textCompletionPort = textCompletionPort;
         this.storyContextService = storyContextService;
+        this.actionEvaluationService = actionEvaluationService;
         this.eventPublisher = eventPublisher;
         this.messageWindowSize = messageWindowSize;
     }
@@ -80,7 +86,8 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onMessageSent(MessageSentEvent event) {
 
-        narrate(event.adventurePublicId(), "");
+        var actionOutcomeLine = actionEvaluationService.evaluateLatestPlayerAction(event.adventurePublicId());
+        narrate(event.adventurePublicId(), "", actionOutcomeLine);
     }
 
     @Async
@@ -88,7 +95,7 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onAdventureStarted(AdventureStartedEvent event) {
 
-        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText());
+        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), null);
     }
 
     @Async
@@ -96,7 +103,8 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onMessageEdited(MessageEditedEvent event) {
 
-        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText());
+        var actionOutcomeLine = actionEvaluationService.evaluateLatestPlayerAction(event.adventurePublicId());
+        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), actionOutcomeLine);
     }
 
     @Async
@@ -104,7 +112,7 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onStoryContinued(StoryContinuedEvent event) {
 
-        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText());
+        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), null);
     }
 
     @Async
@@ -112,7 +120,8 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onNarrationRetried(NarrationRetriedEvent event) {
 
-        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText());
+        var actionOutcomeLine = actionEvaluationService.recallRecordedOutcome(event.adventurePublicId());
+        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), actionOutcomeLine);
     }
 
     @Async
@@ -120,21 +129,29 @@ public class MessageDomainEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onNarrationRetriedFromMessage(NarrationRetriedFromMessageEvent event) {
 
-        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText());
+        var actionOutcomeLine = actionEvaluationService.recallRecordedOutcome(event.adventurePublicId());
+        narrate(event.adventurePublicId(), CONTINUE_GENERATION.getText(), actionOutcomeLine);
     }
 
-    private void narrate(UUID adventurePublicId, String additionalPrompt) {
+    private void narrate(UUID adventurePublicId, String additionalPrompt, String actionOutcomeLine) {
 
         try {
             var adventure = adventureRepository.findByPublicId(adventurePublicId)
                     .orElseThrow(() -> new NotFoundException("Adventure not found"));
 
-            var storyContext = storyContextService.build(adventure);
             var modelConfiguration = adventure.getModelConfiguration();
 
+            StoryContext storyContext;
             var instructions = defaultString(adventure.getNarratorPersonality())
                     + additionalPrompt
                     + NARRATION_SCOPE.formatted(PLAYER_CHARACTER_HEADING.getText());
+
+            if (actionOutcomeLine != null) {
+                storyContext = storyContextService.assembleStoryContext(adventure, actionOutcomeLine);
+                instructions += ACTION_OUTCOME_INSTRUCTION.getText();
+            } else {
+                storyContext = storyContextService.assembleStoryContext(adventure);
+            }
 
             var generationResult = textCompletionPort.generateTextFrom(new TextGenerationRequest(
                     modelConfiguration.getAiModel().getOfficialModelName(),

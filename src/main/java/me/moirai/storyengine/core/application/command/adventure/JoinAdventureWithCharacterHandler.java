@@ -35,6 +35,7 @@ public class JoinAdventureWithCharacterHandler extends AbstractCommandHandler<Jo
         var character = playerCharacterRepository.findByPublicId(command.playerCharacterId())
                 .orElseThrow(() -> new NotFoundException("Player character not found"));
 
+        character.validateHasClass();
         adventure.acceptInvitation(command.invitationId(), character.getId(), command.requesterId());
         adventureRepository.save(adventure);
         adventure.drainEvents().forEach(eventPublisher::publishEvent);

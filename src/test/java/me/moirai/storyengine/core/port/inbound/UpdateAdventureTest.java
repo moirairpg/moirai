@@ -30,6 +30,7 @@ public class UpdateAdventureTest {
                 adventure.getNarratorName(),
                 adventure.getNarratorPersonality(),
                 adventure.getModeration(),
+                true,
                 null,
                 null,
                 new ModelConfigurationDto(
@@ -78,6 +79,7 @@ public class UpdateAdventureTest {
                 sample.narratorName(),
                 sample.narratorPersonality(),
                 sample.moderation(),
+                true,
                 null,
                 null,
                 sample.modelConfiguration(),

@@ -31,7 +31,9 @@ public class GetPlayerCharacterAdventuresHandler
                 .map(adventure -> new CharacterAdventureSummary(
                         adventure.publicId(),
                         adventure.name(),
-                        storagePort.resolveUrl(adventure.imageKey())))
+                        storagePort.resolveUrl(adventure.imageKey()),
+                        adventure.uiImagePositionX(),
+                        adventure.uiImagePositionY()))
                 .toList();
     }
 }

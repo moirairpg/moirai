@@ -402,6 +402,8 @@ public class PlayerCharacterSearchReaderImplIntegrationTest extends AbstractData
         var character = PlayerCharacterFixture.samplePlayerCharacter()
                 .name("Conan the Barbarian")
                 .characterClass(CharacterClass.BARBARIAN)
+                .skills(PlayerCharacterFixture.skillAllocationFor(CharacterClass.BARBARIAN))
+                .signatureSkill(PlayerCharacterFixture.signatureAllocationFor(CharacterClass.BARBARIAN))
                 .playerId(user.getId())
                 .build();
 
@@ -425,6 +427,8 @@ public class PlayerCharacterSearchReaderImplIntegrationTest extends AbstractData
         var character = PlayerCharacterFixture.samplePlayerCharacter()
                 .name("Conan the Barbarian")
                 .characterClass(CharacterClass.BARBARIAN)
+                .skills(PlayerCharacterFixture.skillAllocationFor(CharacterClass.BARBARIAN))
+                .signatureSkill(PlayerCharacterFixture.signatureAllocationFor(CharacterClass.BARBARIAN))
                 .playerId(user.getId())
                 .build();
 
@@ -448,6 +452,8 @@ public class PlayerCharacterSearchReaderImplIntegrationTest extends AbstractData
         var character = PlayerCharacterFixture.samplePlayerCharacter()
                 .name("Conan the Barbarian")
                 .characterClass(CharacterClass.BARBARIAN)
+                .skills(PlayerCharacterFixture.skillAllocationFor(CharacterClass.BARBARIAN))
+                .signatureSkill(PlayerCharacterFixture.signatureAllocationFor(CharacterClass.BARBARIAN))
                 .playerId(user.getId())
                 .build();
 
@@ -469,6 +475,8 @@ public class PlayerCharacterSearchReaderImplIntegrationTest extends AbstractData
             var character = PlayerCharacterFixture.samplePlayerCharacter()
                     .name("Conan the Barbarian")
                     .characterClass(CharacterClass.BARBARIAN)
+                    .skills(PlayerCharacterFixture.skillAllocationFor(CharacterClass.BARBARIAN))
+                    .signatureSkill(PlayerCharacterFixture.signatureAllocationFor(CharacterClass.BARBARIAN))
                     .personality("Brave and strong")
                     .physicalDescription("Tall and muscular")
                     .playerId(resolvedOwner.getId())
@@ -484,6 +492,8 @@ public class PlayerCharacterSearchReaderImplIntegrationTest extends AbstractData
         var character = PlayerCharacterFixture.samplePlayerCharacter()
                 .name(name)
                 .characterClass(characterClass)
+                .skills(PlayerCharacterFixture.skillAllocationFor(characterClass))
+                .signatureSkill(PlayerCharacterFixture.signatureAllocationFor(characterClass))
                 .playerId(owner.getId())
                 .build();
 

@@ -3,6 +3,7 @@ package me.moirai.storyengine.infrastructure.outbound.adapter.generation;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,6 +24,10 @@ public class OpenAiResponsesApiRequest {
     @JsonProperty("temperature")
     private Double temperature;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("text")
+    private OpenAiTextOptions text;
+
     public OpenAiResponsesApiRequest() {
     }
 
@@ -33,6 +38,7 @@ public class OpenAiResponsesApiRequest {
         this.input = builder.input;
         this.maxOutputTokens = builder.maxOutputTokens;
         this.temperature = builder.temperature;
+        this.text = builder.text;
     }
 
     public static Builder builder() {
@@ -59,6 +65,10 @@ public class OpenAiResponsesApiRequest {
         return temperature;
     }
 
+    public OpenAiTextOptions getText() {
+        return text;
+    }
+
     public void setModel(String model) {
         this.model = model;
     }
@@ -79,6 +89,10 @@ public class OpenAiResponsesApiRequest {
         this.temperature = temperature;
     }
 
+    public void setText(OpenAiTextOptions text) {
+        this.text = text;
+    }
+
     public static final class Builder {
 
         private String model;
@@ -86,6 +100,7 @@ public class OpenAiResponsesApiRequest {
         private List<OpenAiInputMessage> input;
         private Integer maxOutputTokens;
         private Double temperature;
+        private OpenAiTextOptions text;
 
         private Builder() {
         }
@@ -112,6 +127,11 @@ public class OpenAiResponsesApiRequest {
 
         public Builder temperature(Double temperature) {
             this.temperature = temperature;
+            return this;
+        }
+
+        public Builder text(OpenAiTextOptions text) {
+            this.text = text;
             return this;
         }
 

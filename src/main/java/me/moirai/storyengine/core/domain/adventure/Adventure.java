@@ -78,6 +78,9 @@ public class Adventure extends ShareableAsset {
     @Column(name = "moderation")
     private Moderation moderation;
 
+    @Column(name = "rpg_mechanics_enabled")
+    private boolean rpgMechanicsEnabled = true;
+
     @Embedded
     private ContextAttributes contextAttributes;
 
@@ -132,6 +135,7 @@ public class Adventure extends ShareableAsset {
         this.modelConfiguration = builder.modelConfiguration;
         this.moderation = builder.moderation;
         this.permissions.addAll(builder.permissions);
+        updateRpgMechanicsEnabled(builder.rpgMechanicsEnabled);
     }
 
     protected Adventure() {
@@ -231,6 +235,10 @@ public class Adventure extends ShareableAsset {
 
     public Moderation getModeration() {
         return moderation;
+    }
+
+    public boolean isRpgMechanicsEnabled() {
+        return rpgMechanicsEnabled;
     }
 
     public ContextAttributes getContextAttributes() {
@@ -464,6 +472,11 @@ public class Adventure extends ShareableAsset {
         this.moderation = moderation;
     }
 
+    public void updateRpgMechanicsEnabled(Boolean rpgMechanicsEnabled) {
+
+        this.rpgMechanicsEnabled = rpgMechanicsEnabled == null || rpgMechanicsEnabled;
+    }
+
     public void updateModelConfiguration(
             ArtificialIntelligenceModel aiModel,
             Integer maxTokenLimit,
@@ -562,6 +575,7 @@ public class Adventure extends ShareableAsset {
         private ContextAttributes contextAttributes;
         private ModelConfiguration modelConfiguration;
         private Moderation moderation;
+        private Boolean rpgMechanicsEnabled;
         private Visibility visibility;
         private Set<Permission> permissions = new HashSet<>();
 
@@ -608,6 +622,12 @@ public class Adventure extends ShareableAsset {
         public Builder moderation(Moderation moderation) {
 
             this.moderation = moderation;
+            return this;
+        }
+
+        public Builder rpgMechanicsEnabled(Boolean rpgMechanicsEnabled) {
+
+            this.rpgMechanicsEnabled = rpgMechanicsEnabled;
             return this;
         }
 

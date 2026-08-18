@@ -20,17 +20,7 @@ SELECT al.public_id,
        JOIN moirai_user u ON u.discord_id = al.player_id
  WHERE al.is_player_character = TRUE;
 
-INSERT INTO adventure_membership (adventure_id, player_character_id, player_id)
-SELECT al.adventure_id,
-       pc.id,
-       u.id
-  FROM adventure_lorebook al
-       JOIN moirai_user u        ON u.discord_id = al.player_id
-       JOIN player_character pc  ON pc.public_id = al.public_id
- WHERE al.is_player_character = TRUE;
-
 DELETE FROM adventure_lorebook
  WHERE is_player_character = TRUE;
 
---rollback DELETE FROM adventure_membership;
 --rollback DELETE FROM player_character;

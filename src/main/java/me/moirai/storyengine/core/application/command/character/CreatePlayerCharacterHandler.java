@@ -1,8 +1,11 @@
 package me.moirai.storyengine.core.application.command.character;
 
+import java.util.Map;
+
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.common.rules.CharacterSheetRules;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.CreatePlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.PlayerCharacterDetails;
@@ -44,6 +47,9 @@ public class CreatePlayerCharacterHandler
                 .characterClass(command.characterClass())
                 .personality(command.personality())
                 .physicalDescription(command.physicalDescription())
+                .attributes(command.attributes())
+                .skills(command.skills())
+                .signatureSkill(command.signatureSkill())
                 .playerId(command.requesterId())
                 .build();
 
@@ -69,6 +75,14 @@ public class CreatePlayerCharacterHandler
                 character.getCharacterClass(),
                 character.getPersonality(),
                 character.getPhysicalDescription(),
+                character.getAttributeLevels().asMap(),
+                character.getSkillLevels().asMap(),
+                Map.of(character.getCharacterClass().getSignature(), character.getSkillLevels().signature()),
+                character.getXp(),
+                character.getLevel(),
+                character.getUnspentAttributePoints(),
+                character.getUnspentSkillPoints(),
+                CharacterSheetRules.LEVEL_UP_XP_THRESHOLD,
                 storagePort.resolveUrl(character.getImageKey()),
                 character.getUiImagePositionX(),
                 character.getUiImagePositionY(),

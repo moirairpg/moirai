@@ -4,9 +4,15 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
+import me.moirai.storyengine.common.enums.CharacterAttribute;
 import me.moirai.storyengine.common.enums.CharacterClass;
+import me.moirai.storyengine.common.enums.CharacterSkill;
+import me.moirai.storyengine.common.enums.SignatureSkill;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 
 public class PlayerCharacterTest {
@@ -20,7 +26,10 @@ public class PlayerCharacterTest {
                 .playerId(1111L)
                 .personality("Brave, honorable and disciplined.")
                 .physicalDescription("A tall warrior with long black hair.")
-                .characterClass(CharacterClass.PALADIN);
+                .characterClass(CharacterClass.PALADIN)
+                .attributes(PlayerCharacterFixture.sampleAttributeAllocation())
+                .skills(PlayerCharacterFixture.sampleSkillAllocation())
+                .signatureSkill(PlayerCharacterFixture.sampleSignatureAllocation());
 
         // when
         var character = builder.build();
@@ -33,6 +42,236 @@ public class PlayerCharacterTest {
         assertThat(character.getPersonality()).isEqualTo("Brave, honorable and disciplined.");
         assertThat(character.getPhysicalDescription()).isEqualTo("A tall warrior with long black hair.");
         assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.PALADIN);
+    }
+
+    @Test
+    public void shouldCreateInstanceWhenAllSixPointsAreDistributedWithinTheCap() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+
+        // when
+        var character = builder.build();
+
+        // then
+        assertThat(character.getAttributeLevels()).isNotNull();
+        assertThat(character.getAttributeLevels().strength()).isEqualTo(3);
+        assertThat(character.getAttributeLevels().agility()).isZero();
+        assertThat(character.getAttributeLevels().vigor()).isEqualTo(2);
+        assertThat(character.getAttributeLevels().intelligence()).isZero();
+        assertThat(character.getAttributeLevels().awareness()).isZero();
+        assertThat(character.getAttributeLevels().charisma()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAttributesAreMissing() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().attributes(null);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAnAttributeHasNoLevel() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        allocation.remove(CharacterAttribute.CHARISMA);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().attributes(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAnAttributeExceedsTheCreationCap() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        allocation.put(CharacterAttribute.STRENGTH, 4);
+        allocation.put(CharacterAttribute.VIGOR, 1);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().attributes(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenTotalPointsExceedTheBudget() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        allocation.put(CharacterAttribute.AGILITY, 1);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().attributes(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenDistributionIsIncomplete() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        allocation.put(CharacterAttribute.CHARISMA, 0);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().attributes(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldCreateInstanceWhenAllFourSkillPointsAreDistributedWithinTheCap() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter();
+
+        // when
+        var character = builder.build();
+
+        // then
+        assertThat(character.getSkillLevels()).isNotNull();
+        assertThat(character.getSkillLevels().persuasion()).isEqualTo(2);
+        assertThat(character.getSkillLevels().endurance()).isEqualTo(2);
+        assertThat(character.getSkillLevels().athletics()).isZero();
+        assertThat(character.getSkillLevels().signature()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldCreateInstanceWhenPointsAreSpentOnAnOffClassSkill() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleSkillAllocation());
+        allocation.put(CharacterSkill.PERSUASION, 0);
+        allocation.put(CharacterSkill.ENDURANCE, 0);
+        allocation.put(CharacterSkill.STEALTH, 2);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().skills(allocation);
+
+        // when
+        var character = builder.build();
+
+        // then
+        assertThat(character.getSkillLevels().stealth()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldCreateInstanceWhenTheSignatureIsRaisedAtCreation() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleSkillAllocation());
+        allocation.put(CharacterSkill.ENDURANCE, 1);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter()
+                .skills(allocation)
+                .signatureSkill(Map.of(SignatureSkill.ZEAL, 2));
+
+        // when
+        var character = builder.build();
+
+        // then
+        assertThat(character.getSkillLevels().signature()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenSkillsAreMissing() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().skills(null);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenASkillHasNoLevel() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleSkillAllocation());
+        allocation.remove(CharacterSkill.LORE);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().skills(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenASkillExceedsTheCreationCap() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleSkillAllocation());
+        allocation.put(CharacterSkill.PERSUASION, 3);
+        allocation.put(CharacterSkill.ENDURANCE, 1);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().skills(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenSkillPointsExceedTheBudget() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleSkillAllocation());
+        allocation.put(CharacterSkill.RESTORATION, 1);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().skills(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenSkillDistributionIsIncomplete() {
+
+        // given
+        var allocation = new HashMap<>(PlayerCharacterFixture.sampleSkillAllocation());
+        allocation.put(CharacterSkill.ENDURANCE, 1);
+
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().skills(allocation);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAnotherClassSignatureIsTrained() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter()
+                .signatureSkill(Map.of(SignatureSkill.HEX, 1));
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenTheSignatureIsMissing() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().signatureSkill(Map.of());
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenTheSignatureIsBelowItsStartingLevel() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter()
+                .signatureSkill(Map.of(SignatureSkill.ZEAL, 0));
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
     }
 
     @Test
@@ -103,19 +342,6 @@ public class PlayerCharacterTest {
         // then
         assertThrows(BusinessRuleViolationException.class,
                 () -> character.updatePhysicalDescription(EMPTY));
-    }
-
-    @Test
-    public void shouldUpdateCharacterClassWhenNewValueIsProvided() {
-
-        // given
-        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
-
-        // when
-        character.updateCharacterClass(CharacterClass.MAGE);
-
-        // then
-        assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.MAGE);
     }
 
     @Test
@@ -306,5 +532,263 @@ public class PlayerCharacterTest {
 
         // then
         assertThrows(BusinessRuleViolationException.class, () -> character.updateName(EMPTY));
+    }
+
+    @Test
+    public void shouldReplaceClassAndSheetWhenTheSheetIsUpdated() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // when
+        character.updateSheet(
+                CharacterClass.MAGE,
+                PlayerCharacterFixture.sampleAttributeAllocation(),
+                PlayerCharacterFixture.skillAllocationFor(CharacterClass.MAGE),
+                PlayerCharacterFixture.signatureAllocationFor(CharacterClass.MAGE));
+
+        // then
+        assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.MAGE);
+        assertThat(character.getSkillLevels().destruction()).isEqualTo(2);
+        assertThat(character.getSkillLevels().conjuration()).isEqualTo(2);
+        assertThat(character.getSkillLevels().persuasion()).isZero();
+        assertThat(character.getSkillLevels().signature()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldReplaceTheSheetWhenTheClassIsUnchanged() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+        var skills = new HashMap<>(PlayerCharacterFixture.skillAllocationFor(CharacterClass.PALADIN));
+        skills.put(CharacterSkill.PERSUASION, 0);
+        skills.put(CharacterSkill.ENDURANCE, 0);
+        skills.put(CharacterSkill.RESTORATION, 2);
+        skills.put(CharacterSkill.MELEE, 2);
+
+        // when
+        character.updateSheet(
+                CharacterClass.PALADIN,
+                PlayerCharacterFixture.sampleAttributeAllocation(),
+                skills,
+                PlayerCharacterFixture.sampleSignatureAllocation());
+
+        // then
+        assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.PALADIN);
+        assertThat(character.getSkillLevels().restoration()).isEqualTo(2);
+        assertThat(character.getSkillLevels().melee()).isEqualTo(2);
+        assertThat(character.getSkillLevels().persuasion()).isZero();
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenTheSheetIsUpdatedWithoutAClass() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateSheet(
+                null,
+                PlayerCharacterFixture.sampleAttributeAllocation(),
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation()));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenTheUpdatedSheetViolatesTheSkillBudget() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+        var skills = new HashMap<>(PlayerCharacterFixture.skillAllocationFor(CharacterClass.MAGE));
+        skills.put(CharacterSkill.LORE, 1);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateSheet(
+                CharacterClass.MAGE,
+                PlayerCharacterFixture.sampleAttributeAllocation(),
+                skills,
+                PlayerCharacterFixture.signatureAllocationFor(CharacterClass.MAGE)));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenTheUpdatedSheetTrainsAnotherClassSignature() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateSheet(
+                CharacterClass.MAGE,
+                PlayerCharacterFixture.sampleAttributeAllocation(),
+                PlayerCharacterFixture.skillAllocationFor(CharacterClass.MAGE),
+                Map.of(SignatureSkill.HEX, 1)));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAClasslessCharacterIsValidatedForHavingAClass() {
+
+        // given
+        var character = new PlayerCharacter();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, character::validateHasClass);
+    }
+
+    @Test
+    public void shouldNotThrowExceptionWhenACharacterWithAClassIsValidatedForHavingAClass() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // when
+        character.validateHasClass();
+
+        // then
+        assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.PALADIN);
+    }
+
+    @Test
+    public void shouldLevelUpAndCarryTheRemainderWhenXpReachesTheThreshold() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+        character.awardXp(95);
+
+        // when
+        character.awardXp(10);
+
+        // then
+        assertThat(character.getLevel()).isEqualTo(2);
+        assertThat(character.getXp()).isEqualTo(5);
+        assertThat(character.getUnspentAttributePoints()).isEqualTo(1);
+        assertThat(character.getUnspentSkillPoints()).isEqualTo(2);
+        assertThat(character.drainEvents()).hasSize(1);
+    }
+
+    @Test
+    public void shouldStackBalancesAcrossLevelUps() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // when
+        character.awardXp(100);
+        character.awardXp(100);
+
+        // then
+        assertThat(character.getLevel()).isEqualTo(3);
+        assertThat(character.getUnspentAttributePoints()).isEqualTo(2);
+        assertThat(character.getUnspentSkillPoints()).isEqualTo(4);
+        assertThat(character.drainEvents()).hasSize(2);
+    }
+
+    @Test
+    public void shouldNotLevelUpBelowTheThreshold() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // when
+        character.awardXp(99);
+
+        // then
+        assertThat(character.getLevel()).isEqualTo(1);
+        assertThat(character.getXp()).isEqualTo(99);
+        assertThat(character.drainEvents()).isEmpty();
+    }
+
+    @Test
+    public void shouldConsumeUnspentPointsWhenTheSheetGrowsInValue() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+        character.awardXp(200);
+
+        var attributes = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        attributes.put(CharacterAttribute.STRENGTH, 4);
+
+        // when
+        character.updateSheet(
+                CharacterClass.PALADIN,
+                attributes,
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation());
+
+        // then
+        assertThat(character.getAttributeLevels().strength()).isEqualTo(4);
+        assertThat(character.getUnspentAttributePoints()).isZero();
+        assertThat(character.getUnspentSkillPoints()).isEqualTo(4);
+    }
+
+    @Test
+    public void shouldRejectTheSheetWhenItLosesValue() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        var attributes = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        attributes.put(CharacterAttribute.STRENGTH, 2);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateSheet(
+                CharacterClass.PALADIN,
+                attributes,
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation()));
+    }
+
+    @Test
+    public void shouldRejectTheSheetWhenGrowthExceedsTheBalances() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        var attributes = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        attributes.put(CharacterAttribute.STRENGTH, 4);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateSheet(
+                CharacterClass.PALADIN,
+                attributes,
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation()));
+    }
+
+    @Test
+    public void shouldAcceptAnEqualValueRedistributionWithoutTouchingBalances() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+        character.awardXp(100);
+
+        // when
+        character.updateSheet(
+                CharacterClass.MAGE,
+                PlayerCharacterFixture.sampleAttributeAllocation(),
+                PlayerCharacterFixture.skillAllocationFor(CharacterClass.MAGE),
+                PlayerCharacterFixture.signatureAllocationFor(CharacterClass.MAGE));
+
+        // then
+        assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.MAGE);
+        assertThat(character.getUnspentAttributePoints()).isEqualTo(1);
+        assertThat(character.getUnspentSkillPoints()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldRejectLevelsAboveTheAbsoluteCaps() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+        character.awardXp(500);
+
+        var attributes = new HashMap<>(PlayerCharacterFixture.sampleAttributeAllocation());
+        attributes.put(CharacterAttribute.STRENGTH, 6);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateSheet(
+                CharacterClass.PALADIN,
+                attributes,
+                PlayerCharacterFixture.sampleSkillAllocation(),
+                PlayerCharacterFixture.sampleSignatureAllocation()));
     }
 }

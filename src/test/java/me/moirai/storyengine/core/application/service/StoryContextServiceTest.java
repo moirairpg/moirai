@@ -82,7 +82,7 @@ public class StoryContextServiceTest {
                 .build());
 
         // when
-        var context = service().build(AdventureFixture.privateAdventureWithId());
+        var context = service().assembleStoryContext(AdventureFixture.privateAdventureWithId());
 
         // then
         assertThat(contentsOf(context)).contains("Aria said: I look around.");
@@ -98,7 +98,7 @@ public class StoryContextServiceTest {
                 .build());
 
         // when
-        var context = service().build(AdventureFixture.privateAdventureWithId());
+        var context = service().assembleStoryContext(AdventureFixture.privateAdventureWithId());
 
         // then
         assertThat(contentsOf(context)).contains("Storyteller said: A door opens.");
@@ -114,13 +114,50 @@ public class StoryContextServiceTest {
                 .build());
 
         // when
-        service().build(AdventureFixture.privateAdventureWithId());
+        service().assembleStoryContext(AdventureFixture.privateAdventureWithId());
 
         // then
         var primed = capturedRagMessages();
 
         assertThat(primed.getLast().role()).isEqualTo(MessageAuthorRole.ASSISTANT);
         assertThat(primed.get(primed.size() - 2).role()).isEqualTo(MessageAuthorRole.USER);
+    }
+
+    @Test
+    public void shouldInjectTheOutcomeLineAfterTheHistoryWhenOneIsProvided() {
+
+        // given
+        givenHistory(MessageFixture.userMessage()
+                .content("I look around.")
+                .authorCharacterName("Aria")
+                .build());
+
+        // when
+        var context = service().assembleStoryContext(AdventureFixture.privateAdventureWithId(), "[Dice check: outcome]");
+
+        // then
+        var contents = contentsOf(context);
+
+        assertThat(contents.indexOf("[Dice check: outcome]"))
+                .isGreaterThan(contents.indexOf("Aria said: I look around."));
+    }
+
+    @Test
+    public void shouldBuildAnIdenticalContextWhenNoOutcomeLineIsProvided() {
+
+        // given
+        givenHistory(MessageFixture.userMessage()
+                .content("I look around.")
+                .authorCharacterName("Aria")
+                .build());
+
+        // when
+        var contextWithOutcome = service().assembleStoryContext(AdventureFixture.privateAdventureWithId(), "[Dice check: outcome]");
+        var contextWithoutOutcome = service().assembleStoryContext(AdventureFixture.privateAdventureWithId());
+
+        // then
+        assertThat(contentsOf(contextWithoutOutcome)).doesNotContain("[Dice check: outcome]");
+        assertThat(contextWithoutOutcome.messages()).hasSize(contextWithOutcome.messages().size() - 1);
     }
 
     private void givenHistory(Message message) {

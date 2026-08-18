@@ -65,6 +65,7 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
         adventure.updateName(command.name());
         adventure.updateNarrator(command.narratorName(), command.narratorPersonality());
         adventure.updateModeration(command.moderation());
+        adventure.updateRpgMechanicsEnabled(command.rpgMechanicsEnabled());
 
         adventure.updateModelConfiguration(
                 command.modelConfiguration().aiModel(),
@@ -159,6 +160,7 @@ public class UpdateAdventureHandler extends AbstractCommandHandler<UpdateAdventu
                 savedAdventure.getNarratorPersonalityTemplate(),
                 savedAdventure.getVisibility(),
                 savedAdventure.getModeration(),
+                savedAdventure.isRpgMechanicsEnabled(),
                 storagePort.resolveUrl(savedAdventure.getImageKey()),
                 savedAdventure.getCreationDate(),
                 savedAdventure.getLastUpdateDate(),

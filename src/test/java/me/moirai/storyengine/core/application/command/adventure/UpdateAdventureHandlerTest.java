@@ -61,7 +61,7 @@ public class UpdateAdventureHandlerTest {
         // given
         var command = new UpdateAdventure(
                 null,
-                null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
                 null, null, null, null, List.of(), List.of(), List.of(), UserFixture.PUBLIC_ID);
 
         // then
@@ -144,6 +144,74 @@ public class UpdateAdventureHandlerTest {
     }
 
     @Test
+    public void shouldDisableRpgMechanicsWhenTheAdventureIsUpdatedWithTheFlagOff() {
+
+        // given
+        var command = UpdateAdventureFixture.sampleWithRpgMechanicsDisabled();
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
+        when(repository.save(any(Adventure.class))).thenReturn(adventure);
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        var result = handler.handle(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(Adventure.class);
+        verify(repository).save(saved.capture());
+
+        assertThat(saved.getValue().isRpgMechanicsEnabled()).isFalse();
+        assertThat(result.rpgMechanicsEnabled()).isFalse();
+    }
+
+    @Test
+    public void shouldKeepRpgMechanicsEnabledWhenTheAdventureIsUpdatedWithTheFlagOn() {
+
+        // given
+        var command = UpdateAdventureFixture.sample();
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
+        when(repository.save(any(Adventure.class))).thenReturn(adventure);
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        var result = handler.handle(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(Adventure.class);
+        verify(repository).save(saved.capture());
+
+        assertThat(saved.getValue().isRpgMechanicsEnabled()).isTrue();
+        assertThat(result.rpgMechanicsEnabled()).isTrue();
+    }
+
+    @Test
+    public void shouldEnableRpgMechanicsWhenTheFlagIsNull() {
+
+        // given
+        var command = UpdateAdventureFixture.sampleWithRpgMechanicsNull();
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        adventure.updateRpgMechanicsEnabled(false);
+
+        when(repository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(adventure));
+        when(repository.save(any(Adventure.class))).thenReturn(adventure);
+        when(userRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(UserFixture.playerWithId()));
+
+        // when
+        var result = handler.handle(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(Adventure.class);
+        verify(repository).save(saved.capture());
+
+        assertThat(saved.getValue().isRpgMechanicsEnabled()).isTrue();
+        assertThat(result.rpgMechanicsEnabled()).isTrue();
+    }
+
+    @Test
     public void updateAdventure_whenAdventureToUpdateNotFound_thenThrowException() {
 
         // given
@@ -169,6 +237,7 @@ public class UpdateAdventureHandlerTest {
                 "Elan",
                 "A wise elder narrator",
                 sample.moderation(),
+                true,
                 null,
                 null,
                 sample.modelConfiguration(),
@@ -204,6 +273,7 @@ public class UpdateAdventureHandlerTest {
                 null,
                 null,
                 Moderation.PERMISSIVE,
+                true,
                 null,
                 null,
                 sample.modelConfiguration(),
@@ -252,6 +322,7 @@ public class UpdateAdventureHandlerTest {
                 null,
                 null,
                 Moderation.PERMISSIVE,
+                true,
                 null,
                 null,
                 sample.modelConfiguration(),
@@ -293,6 +364,7 @@ public class UpdateAdventureHandlerTest {
                 null,
                 null,
                 Moderation.PERMISSIVE,
+                true,
                 null,
                 null,
                 sample.modelConfiguration(),
@@ -331,8 +403,10 @@ public class UpdateAdventureHandlerTest {
                 null,
                 null,
                 Moderation.PERMISSIVE,
+                true,
                 0.3,
-                0.7,                sample.modelConfiguration(),
+                0.7,
+                sample.modelConfiguration(),
                 sample.contextAttributes(),
                 List.of(),
                 List.of(),

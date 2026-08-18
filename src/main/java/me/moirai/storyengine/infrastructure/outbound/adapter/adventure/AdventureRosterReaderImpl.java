@@ -1,5 +1,6 @@
 package me.moirai.storyengine.infrastructure.outbound.adapter.adventure;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,9 +19,11 @@ public class AdventureRosterReaderImpl implements AdventureRosterReader {
 
     //@formatter:off
     private static final String SELECT_ADVENTURES_BY_CHARACTER = """
-            SELECT a.public_id AS adventure_public_id,
-                   a.name      AS adventure_name,
-                   a.image_key AS adventure_image_key
+            SELECT a.public_id           AS adventure_public_id,
+                   a.name                AS adventure_name,
+                   a.image_key           AS adventure_image_key,
+                   a.ui_image_position_x AS adventure_ui_image_position_x,
+                   a.ui_image_position_y AS adventure_ui_image_position_y
               FROM adventure_membership am
                    JOIN adventure a         ON a.id  = am.adventure_id
                    JOIN player_character pc ON pc.id = am.player_character_id
@@ -28,12 +31,14 @@ public class AdventureRosterReaderImpl implements AdventureRosterReader {
             """;
 
     private static final String SELECT_BY_ADVENTURE = """
-            SELECT pc.public_id          AS player_character_public_id,
-                   u.public_id           AS player_public_id,
-                   u.username            AS player_username,
-                   pc.name               AS name,
-                   pc.character_class    AS character_class,
-                   pc.image_key          AS image_key
+            SELECT pc.public_id            AS player_character_public_id,
+                   u.public_id             AS player_public_id,
+                   u.username              AS player_username,
+                   pc.name                 AS name,
+                   pc.character_class      AS character_class,
+                   pc.image_key            AS image_key,
+                   pc.ui_image_position_x  AS ui_image_position_x,
+                   pc.ui_image_position_y  AS ui_image_position_y
               FROM adventure_membership am
                    JOIN adventure a          ON a.id  = am.adventure_id
                    JOIN player_character pc  ON pc.id = am.player_character_id
@@ -71,7 +76,9 @@ public class AdventureRosterReaderImpl implements AdventureRosterReader {
         return (rs, _) -> new CharacterAdventureSummaryRow(
                 rs.getObject("adventure_public_id", UUID.class),
                 rs.getString("adventure_name"),
-                rs.getString("adventure_image_key"));
+                rs.getString("adventure_image_key"),
+                Functions.mapOrNull(rs.getBigDecimal("adventure_ui_image_position_x"), BigDecimal::doubleValue),
+                Functions.mapOrNull(rs.getBigDecimal("adventure_ui_image_position_y"), BigDecimal::doubleValue));
     }
 
     private RowMapper<AdventureMembershipSummaryRow> toAdventureMembershipSummaryRow() {
@@ -82,6 +89,8 @@ public class AdventureRosterReaderImpl implements AdventureRosterReader {
                 rs.getString("player_username"),
                 rs.getString("name"),
                 Functions.mapOrNull(rs.getString("character_class"), CharacterClass::valueOf),
-                rs.getString("image_key"));
+                rs.getString("image_key"),
+                Functions.mapOrNull(rs.getBigDecimal("ui_image_position_x"), BigDecimal::doubleValue),
+                Functions.mapOrNull(rs.getBigDecimal("ui_image_position_y"), BigDecimal::doubleValue));
     }
 }

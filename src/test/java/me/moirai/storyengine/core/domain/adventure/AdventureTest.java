@@ -1043,4 +1043,45 @@ public class AdventureTest {
         // then
         assertThat(adventure.drainEvents()).isEmpty();
     }
+
+    @Test
+    public void shouldCreateAdventureWithRpgMechanicsEnabledWhenTheBuilderReceivesNoFlag() {
+
+        // given
+        var builder = AdventureFixture.privateAdventure();
+
+        // when
+        var adventure = builder.build();
+
+        // then
+        assertThat(adventure.isRpgMechanicsEnabled()).isTrue();
+    }
+
+    @Test
+    public void shouldDisableRpgMechanicsWhenUpdatedWithFalse() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        // when
+        adventure.updateRpgMechanicsEnabled(false);
+
+        // then
+        assertThat(adventure.isRpgMechanicsEnabled()).isFalse();
+    }
+
+    @Test
+    public void shouldEnableRpgMechanicsWhenUpdatedWithNull() {
+
+        // given
+        var adventure = AdventureFixture.privateAdventure().build();
+
+        adventure.updateRpgMechanicsEnabled(false);
+
+        // when
+        adventure.updateRpgMechanicsEnabled(null);
+
+        // then
+        assertThat(adventure.isRpgMechanicsEnabled()).isTrue();
+    }
 }

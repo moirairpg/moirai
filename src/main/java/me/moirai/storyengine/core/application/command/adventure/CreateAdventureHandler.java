@@ -69,6 +69,7 @@ public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventu
                 .worldId(command.worldId())
                 .visibility(command.visibility())
                 .moderation(command.moderation())
+                .rpgMechanicsEnabled(command.rpgMechanicsEnabled())
                 .adventureStart(command.adventureStart())
                 .contextAttributes(contextAttributes)
                 .description(command.description())
@@ -122,6 +123,7 @@ public class CreateAdventureHandler extends AbstractCommandHandler<CreateAdventu
                 adventure.getNarratorPersonalityTemplate(),
                 adventure.getVisibility(),
                 adventure.getModeration(),
+                adventure.isRpgMechanicsEnabled(),
                 storagePort.resolveUrl(adventure.getImageKey()),
                 adventure.getCreationDate(),
                 adventure.getLastUpdateDate(),

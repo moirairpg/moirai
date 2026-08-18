@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,8 +32,14 @@ import me.moirai.storyengine.common.security.authorization.AuthorizationOperatio
 import me.moirai.storyengine.common.web.SecurityContextAware;
 import me.moirai.storyengine.core.port.inbound.ImageResult;
 import me.moirai.storyengine.core.port.inbound.adventure.CharacterAdventureSummary;
+import me.moirai.storyengine.core.port.inbound.character.CharacterAttributesResult;
+import me.moirai.storyengine.core.port.inbound.character.CharacterClassResult;
+import me.moirai.storyengine.core.port.inbound.character.CharacterSkillsResult;
 import me.moirai.storyengine.core.port.inbound.character.CreatePlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.DeletePlayerCharacter;
+import me.moirai.storyengine.core.port.inbound.character.GetCharacterAttributes;
+import me.moirai.storyengine.core.port.inbound.character.GetCharacterClasses;
+import me.moirai.storyengine.core.port.inbound.character.GetCharacterSkills;
 import me.moirai.storyengine.core.port.inbound.character.GetPlayerCharacterAdventures;
 import me.moirai.storyengine.core.port.inbound.character.GetPlayerCharacterById;
 import me.moirai.storyengine.core.port.inbound.character.ListPlayerCharactersByName;
@@ -40,9 +47,11 @@ import me.moirai.storyengine.core.port.inbound.character.PlayerCharacterDetails;
 import me.moirai.storyengine.core.port.inbound.character.PlayerCharacterSummary;
 import me.moirai.storyengine.core.port.inbound.character.RemovePlayerCharacterImage;
 import me.moirai.storyengine.core.port.inbound.character.SearchPlayerCharacters;
+import me.moirai.storyengine.core.port.inbound.character.UpdateCharacterSheet;
 import me.moirai.storyengine.core.port.inbound.character.UpdatePlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.UploadPlayerCharacterImage;
 import me.moirai.storyengine.infrastructure.inbound.rest.request.CreatePlayerCharacterRequest;
+import me.moirai.storyengine.infrastructure.inbound.rest.request.UpdateCharacterSheetRequest;
 import me.moirai.storyengine.infrastructure.inbound.rest.request.UpdatePlayerCharacterRequest;
 import me.moirai.storyengine.infrastructure.inbound.rest.request.UploadImageRequest;
 
@@ -60,6 +69,24 @@ public class PlayerCharacterRestController extends SecurityContextAware {
 
         this.queryRunner = queryRunner;
         this.commandRunner = commandRunner;
+    }
+
+    @GetMapping("/attributes")
+    @ResponseStatus(HttpStatus.OK)
+    public CharacterAttributesResult getAttributes() {
+        return queryRunner.run(new GetCharacterAttributes());
+    }
+
+    @GetMapping("/skills")
+    @ResponseStatus(HttpStatus.OK)
+    public CharacterSkillsResult getSkills() {
+        return queryRunner.run(new GetCharacterSkills());
+    }
+
+    @GetMapping("/classes")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CharacterClassResult> getClasses() {
+        return queryRunner.run(new GetCharacterClasses());
     }
 
     @GetMapping("/{characterId}")
@@ -114,6 +141,9 @@ public class PlayerCharacterRestController extends SecurityContextAware {
                 request.characterClass(),
                 request.personality(),
                 request.physicalDescription(),
+                request.attributes(),
+                request.skills(),
+                request.signatureSkill(),
                 request.uiImagePositionX(),
                 request.uiImagePositionY(),
                 getAuthenticatedUser().id()));
@@ -129,11 +159,26 @@ public class PlayerCharacterRestController extends SecurityContextAware {
         return commandRunner.run(new UpdatePlayerCharacter(
                 characterId,
                 request.name(),
-                request.characterClass(),
                 request.personality(),
                 request.physicalDescription(),
                 request.uiImagePositionX(),
                 request.uiImagePositionY(),
+                authenticatedUsername()));
+    }
+
+    @PatchMapping("/{characterId}/sheet")
+    @ResponseStatus(HttpStatus.OK)
+    @Authorize(operation = AuthorizationOperation.UPDATE_CHARACTER_SHEET, fields = "#characterId")
+    public PlayerCharacterDetails updateSheet(
+            @PathVariable UUID characterId,
+            @Valid @RequestBody UpdateCharacterSheetRequest request) {
+
+        return commandRunner.run(new UpdateCharacterSheet(
+                characterId,
+                request.characterClass(),
+                request.attributes(),
+                request.skills(),
+                request.signatureSkill(),
                 authenticatedUsername()));
     }
 

@@ -188,6 +188,7 @@ public class AdventureCatchUpHandlerTest {
                 null,
                 Visibility.PRIVATE,
                 Moderation.STRICT,
+                true,
                 null,
                 null,
                 null,

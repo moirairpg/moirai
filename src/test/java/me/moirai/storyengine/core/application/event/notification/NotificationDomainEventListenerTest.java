@@ -28,6 +28,8 @@ import me.moirai.storyengine.core.domain.adventure.AdventureAccessGrantedEvent;
 import me.moirai.storyengine.core.domain.adventure.AdventureAccessLevelChangedEvent;
 import me.moirai.storyengine.core.domain.adventure.AdventureAccessRevokedEvent;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
+import me.moirai.storyengine.core.domain.character.CharacterLeveledUpEvent;
+import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
 import me.moirai.storyengine.core.domain.notification.Notification;
 import me.moirai.storyengine.core.domain.notification.NotificationFixture;
 import me.moirai.storyengine.core.domain.userdetails.UserDeletedEvent;
@@ -53,6 +55,34 @@ public class NotificationDomainEventListenerTest {
 
     @InjectMocks
     private NotificationDomainEventListener listener;
+
+    @Test
+    void shouldCreateAPersistentInteractableNotificationWhenACharacterLevelsUp() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
+        character.awardXp(100);
+        var event = (CharacterLeveledUpEvent) character.drainEvents().getFirst();
+
+        when(notificationRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        listener.onCharacterLeveledUp(event);
+
+        // then
+        var notification = captureSavedNotification();
+
+        assertThat(notification.getMessage()).isEqualTo("Volin Habar reached level 2");
+        assertThat(notification.getRecipientUserIds()).containsExactly(PlayerCharacterFixture.PLAYER_ID);
+        assertThat(notification.getMetadata())
+                .containsEntry("kind", NotificationKind.CHARACTER_LEVEL_UP.name())
+                .containsEntry("characterId", PlayerCharacterFixture.PUBLIC_ID.toString())
+                .containsEntry("characterName", "Volin Habar")
+                .containsEntry("newLevel", 2);
+        assertThat(notification.getType()).isEqualTo(NotificationType.SYSTEM);
+        assertThat(notification.getLevel()).isEqualTo(NotificationLevel.INFO);
+        assertThat(notification.isInteractable()).isTrue();
+    }
 
     @Test
     void shouldDropTheRecipientAndKeepTheNotificationWhenOtherRecipientsRemain() {

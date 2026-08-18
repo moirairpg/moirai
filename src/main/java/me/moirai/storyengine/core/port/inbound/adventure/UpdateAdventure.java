@@ -15,6 +15,7 @@ public record UpdateAdventure(
         String narratorName,
         String narratorPersonality,
         Moderation moderation,
+        Boolean rpgMechanicsEnabled,
         Double uiImagePositionX,
         Double uiImagePositionY,
         ModelConfigurationDto modelConfiguration,

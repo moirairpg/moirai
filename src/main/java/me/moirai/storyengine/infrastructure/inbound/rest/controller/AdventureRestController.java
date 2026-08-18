@@ -160,6 +160,7 @@ public class AdventureRestController extends SecurityContextAware {
                 request.narratorPersonality(),
                 request.visibility(),
                 request.moderation(),
+                request.rpgMechanicsEnabled(),
                 request.adventureStart(),
                 lorebookEntries,
                 request.uiImagePositionX(),
@@ -202,6 +203,7 @@ public class AdventureRestController extends SecurityContextAware {
                 request.narratorName(),
                 request.narratorPersonality(),
                 request.moderation(),
+                request.rpgMechanicsEnabled(),
                 request.uiImagePositionX(),
                 request.uiImagePositionY(),
                 new ModelConfigurationDto(

@@ -19,6 +19,7 @@ import me.moirai.storyengine.core.port.outbound.adventure.LorebookVectorSearchPo
 import me.moirai.storyengine.core.port.outbound.character.PlayerCharacterVectorSearchPort;
 import me.moirai.storyengine.core.port.outbound.discord.DiscordAuthenticationPort;
 import me.moirai.storyengine.core.port.outbound.generation.EmbeddingPort;
+import me.moirai.storyengine.core.port.outbound.generation.ActionEvaluationPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextCompletionPort;
 import me.moirai.storyengine.core.port.outbound.generation.TextModerationPort;
 import me.moirai.storyengine.core.port.outbound.storage.StoragePort;
@@ -39,6 +40,9 @@ public abstract class AbstractDatabaseIntegrationTest {
 
     @MockitoBean
     private TextCompletionPort textCompletionPort;
+
+    @MockitoBean
+    private ActionEvaluationPort actionEvaluationPort;
 
     @MockitoBean
     private TextModerationPort textModerationPort;

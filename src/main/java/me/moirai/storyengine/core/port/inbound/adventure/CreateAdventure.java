@@ -17,6 +17,7 @@ public record CreateAdventure(
         String narratorPersonality,
         Visibility visibility,
         Moderation moderation,
+        Boolean rpgMechanicsEnabled,
         String adventureStart,
         Set<AdventureLorebookEntryDetails> lorebookEntries,
         Double uiImagePositionX,

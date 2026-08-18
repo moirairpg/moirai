@@ -3,21 +3,26 @@ package me.moirai.storyengine.infrastructure.outbound.adapter.character;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import me.moirai.storyengine.AbstractDatabaseIntegrationTest;
 import me.moirai.storyengine.common.domain.Permission;
+import me.moirai.storyengine.common.enums.CharacterSkill;
 import me.moirai.storyengine.common.enums.PermissionLevel;
 import me.moirai.storyengine.common.enums.Visibility;
 import me.moirai.storyengine.core.domain.adventure.Adventure;
 import me.moirai.storyengine.core.domain.adventure.AdventureFixture;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.domain.character.PlayerCharacterFixture;
+import me.moirai.storyengine.core.domain.character.SkillLevels;
 import me.moirai.storyengine.core.domain.userdetails.User;
 import me.moirai.storyengine.core.domain.userdetails.UserFixture;
 import me.moirai.storyengine.core.domain.world.World;
@@ -58,6 +63,76 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
         assertThat(result).isPresent()
                 .get()
                 .extracting(PlayerCharacterDetailsRow::id).isEqualTo(character.getPublicId());
+    }
+
+    @Test
+    void shouldReturnTheAttributeLevelsWhenGettingTheCharacterById() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var character = PlayerCharacterFixture.samplePlayerCharacter()
+                .playerId(owner.getId())
+                .build();
+
+        insert(character, PlayerCharacter.class);
+
+        // when
+        var result = reader.getById(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent()
+                .get()
+                .extracting(PlayerCharacterDetailsRow::attributes)
+                .isEqualTo(PlayerCharacterFixture.sampleAttributeAllocation());
+    }
+
+    @Test
+    void shouldReturnTheSkillLevelsAndSignatureLevelWhenGettingTheCharacterById() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var character = PlayerCharacterFixture.samplePlayerCharacter()
+                .playerId(owner.getId())
+                .build();
+
+        insert(character, PlayerCharacter.class);
+
+        // when
+        var result = reader.getById(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent().get().satisfies(row -> {
+            assertThat(row.skills()).isEqualTo(PlayerCharacterFixture.sampleSkillAllocation());
+            assertThat(row.signatureLevel()).isEqualTo(1);
+        });
+    }
+
+    @Test
+    void shouldReturnTheEmptySheetWhenTheCharacterHasNoClass() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var character = PlayerCharacterFixture.samplePlayerCharacter()
+                .playerId(owner.getId())
+                .build();
+
+        var untrained = new EnumMap<CharacterSkill, Integer>(CharacterSkill.class);
+        Arrays.stream(CharacterSkill.values()).forEach(skill -> untrained.put(skill, 0));
+
+        ReflectionTestUtils.setField(character, "characterClass", null);
+        ReflectionTestUtils.setField(character, "skillLevels", SkillLevels.of(untrained, 0));
+
+        insert(character, PlayerCharacter.class);
+
+        // when
+        var result = reader.getById(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent().get().satisfies(row -> {
+            assertThat(row.characterClass()).isNull();
+            assertThat(row.skills()).isEqualTo(untrained);
+            assertThat(row.signatureLevel()).isZero();
+        });
     }
 
     @Test

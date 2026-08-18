@@ -17,6 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -91,6 +92,7 @@ public class CreateAdventureHandlerTest {
                 "A helpful guide",
                 sample.visibility(),
                 sample.moderation(),
+                true,
                 sample.adventureStart(),
                 Set.of(),
                 null,
@@ -126,6 +128,7 @@ public class CreateAdventureHandlerTest {
                 null,
                 sample.visibility(),
                 sample.moderation(),
+                true,
                 sample.adventureStart(),
                 Set.of(),
                 null,
@@ -161,6 +164,7 @@ public class CreateAdventureHandlerTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
+                true,
                 sample.adventureStart(),
                 Set.of(),
                 null,
@@ -235,6 +239,7 @@ public class CreateAdventureHandlerTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
+                true,
                 sample.adventureStart(),
                 Set.of(),
                 null,
@@ -274,6 +279,7 @@ public class CreateAdventureHandlerTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
+                true,
                 sample.adventureStart(),
                 Set.of(lorebookEntry1, lorebookEntry2),
                 null,
@@ -331,6 +337,7 @@ public class CreateAdventureHandlerTest {
                 sample.narratorPersonality(),
                 sample.visibility(),
                 sample.moderation(),
+                true,
                 sample.adventureStart(),
                 Set.of(),
                 null,
@@ -343,5 +350,75 @@ public class CreateAdventureHandlerTest {
 
         // then
         assertThrows(NotFoundException.class, () -> handler.handle(command));
+    }
+
+    @Test
+    public void shouldCreateAdventureWithRpgMechanicsEnabledWhenTheFlagIsNull() {
+
+        // given
+        var sample = CreateAdventureFixture.sample();
+        var command = new CreateAdventure(
+                sample.name(),
+                sample.description(),
+                sample.worldId(),
+                sample.narratorName(),
+                sample.narratorPersonality(),
+                sample.visibility(),
+                sample.moderation(),
+                null,
+                sample.adventureStart(),
+                Set.of(),
+                null,
+                null,
+                Set.of(),
+                sample.modelConfiguration(),
+                sample.contextAttributes());
+
+        when(repository.save(any(Adventure.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        var result = handler.handle(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(Adventure.class);
+        verify(repository, times(2)).save(saved.capture());
+
+        assertThat(saved.getValue().isRpgMechanicsEnabled()).isTrue();
+        assertThat(result.rpgMechanicsEnabled()).isTrue();
+    }
+
+    @Test
+    public void shouldCreateAdventureWithRpgMechanicsDisabledWhenTheFlagIsOff() {
+
+        // given
+        var sample = CreateAdventureFixture.sample();
+        var command = new CreateAdventure(
+                sample.name(),
+                sample.description(),
+                sample.worldId(),
+                sample.narratorName(),
+                sample.narratorPersonality(),
+                sample.visibility(),
+                sample.moderation(),
+                false,
+                sample.adventureStart(),
+                Set.of(),
+                null,
+                null,
+                Set.of(),
+                sample.modelConfiguration(),
+                sample.contextAttributes());
+
+        when(repository.save(any(Adventure.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        var result = handler.handle(command);
+
+        // then
+        var saved = ArgumentCaptor.forClass(Adventure.class);
+        verify(repository, times(2)).save(saved.capture());
+
+        assertThat(saved.getValue().isRpgMechanicsEnabled()).isFalse();
+        assertThat(result.rpgMechanicsEnabled()).isFalse();
     }
 }

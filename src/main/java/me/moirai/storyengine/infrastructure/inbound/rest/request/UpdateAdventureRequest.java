@@ -16,6 +16,7 @@ public record UpdateAdventureRequest(
         @Moderated String narratorName,
         @Moderated String narratorPersonality,
         @NotNull(message = "cannot be empty") Moderation moderation,
+        Boolean rpgMechanicsEnabled,
         Double uiImagePositionX,
         Double uiImagePositionY,
         @Moderated String adventureStart,

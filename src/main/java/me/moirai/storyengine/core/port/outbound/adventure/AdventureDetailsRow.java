@@ -21,6 +21,7 @@ public record AdventureDetailsRow(
         String narratorPersonality,
         Visibility visibility,
         Moderation moderation,
+        boolean rpgMechanicsEnabled,
         String imageKey,
         Instant creationDate,
         Instant lastUpdateDate,

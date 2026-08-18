@@ -10,5 +10,7 @@ public record AdventureMembershipSummary(
         String playerUsername,
         String name,
         CharacterClass characterClass,
-        String imageUrl) {
+        String imageUrl,
+        Double uiImagePositionX,
+        Double uiImagePositionY) {
 }

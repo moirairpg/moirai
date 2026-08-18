@@ -2,11 +2,13 @@ package me.moirai.storyengine.core.application.command.character;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import java.util.Map;
 
 import me.moirai.storyengine.common.annotation.CommandHandler;
 import me.moirai.storyengine.common.cqs.command.AbstractCommandHandler;
 import me.moirai.storyengine.common.exception.BusinessRuleViolationException;
 import me.moirai.storyengine.common.exception.NotFoundException;
+import me.moirai.storyengine.common.rules.CharacterSheetRules;
 import me.moirai.storyengine.core.domain.character.PlayerCharacter;
 import me.moirai.storyengine.core.port.inbound.character.PlayerCharacterDetails;
 import me.moirai.storyengine.core.port.inbound.character.UpdatePlayerCharacter;
@@ -54,10 +56,6 @@ public class UpdatePlayerCharacterHandler
         if (isBlank(command.physicalDescription())) {
             throw new BusinessRuleViolationException("Character physical description cannot be null or empty");
         }
-
-        if (command.characterClass() == null) {
-            throw new BusinessRuleViolationException("Character class cannot be null");
-        }
     }
 
     @Override
@@ -69,10 +67,10 @@ public class UpdatePlayerCharacterHandler
         var owner = userRepository.findById(character.getPlayerId())
                 .orElseThrow(() -> new NotFoundException("Character owner not found"));
 
+        character.validateHasClass();
         character.updateName(command.name());
         character.updatePersonality(command.personality());
         character.updatePhysicalDescription(command.physicalDescription());
-        character.updateCharacterClass(command.characterClass());
         character.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
 
         var saved = repository.save(character);
@@ -93,6 +91,14 @@ public class UpdatePlayerCharacterHandler
                 character.getCharacterClass(),
                 character.getPersonality(),
                 character.getPhysicalDescription(),
+                character.getAttributeLevels().asMap(),
+                character.getSkillLevels().asMap(),
+                Map.of(character.getCharacterClass().getSignature(), character.getSkillLevels().signature()),
+                character.getXp(),
+                character.getLevel(),
+                character.getUnspentAttributePoints(),
+                character.getUnspentSkillPoints(),
+                CharacterSheetRules.LEVEL_UP_XP_THRESHOLD,
                 storagePort.resolveUrl(character.getImageKey()),
                 character.getUiImagePositionX(),
                 character.getUiImagePositionY(),
