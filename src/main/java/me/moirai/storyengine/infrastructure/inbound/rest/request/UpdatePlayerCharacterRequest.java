@@ -7,6 +7,7 @@ public record UpdatePlayerCharacterRequest(
         @NotEmpty(message = "cannot be null") @Moderated String name,
         @NotEmpty(message = "cannot be null") @Moderated String personality,
         @NotEmpty(message = "cannot be null") @Moderated String physicalDescription,
+        @NotEmpty(message = "cannot be null") @Moderated String background,
         Double uiImagePositionX,
         Double uiImagePositionY) {
 }

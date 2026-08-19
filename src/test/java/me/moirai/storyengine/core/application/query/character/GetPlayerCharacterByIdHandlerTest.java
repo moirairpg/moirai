@@ -68,6 +68,7 @@ public class GetPlayerCharacterByIdHandlerTest {
         // then
         assertThat(result.canManage()).isTrue();
         assertThat(result.isOwner()).isTrue();
+        assertThat(result.background()).isEqualTo("Orphaned.");
     }
 
     @Test
@@ -137,6 +138,7 @@ public class GetPlayerCharacterByIdHandlerTest {
                 null,
                 "Brave.",
                 "Tall.",
+                "Orphaned.",
                 PlayerCharacterFixture.sampleAttributeAllocation(),
                 skills,
                 0,
@@ -169,6 +171,7 @@ public class GetPlayerCharacterByIdHandlerTest {
                 CharacterClass.PALADIN,
                 "Brave.",
                 "Tall.",
+                "Orphaned.",
                 PlayerCharacterFixture.sampleAttributeAllocation(),
                 PlayerCharacterFixture.sampleSkillAllocation(),
                 1,

@@ -55,6 +55,9 @@ public class PlayerCharacter extends Asset {
     @Column(name = "physical_description")
     private String physicalDescription;
 
+    @Column(name = "background")
+    private String background;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "character_class")
     private CharacterClass characterClass;
@@ -104,6 +107,7 @@ public class PlayerCharacter extends Asset {
         this.playerId = builder.playerId;
         this.personality = builder.personality;
         this.physicalDescription = builder.physicalDescription;
+        this.background = builder.background;
         this.characterClass = builder.characterClass;
         this.attributeLevels = AttributeLevels.of(builder.attributes);
         this.skillLevels = SkillLevels.of(builder.skills,
@@ -146,6 +150,10 @@ public class PlayerCharacter extends Asset {
 
     public String getPhysicalDescription() {
         return physicalDescription;
+    }
+
+    public String getBackground() {
+        return background;
     }
 
     public CharacterClass getCharacterClass() {
@@ -203,7 +211,8 @@ public class PlayerCharacter extends Asset {
     }
 
     public String narrativeDescription() {
-        return name + ": " + characterClass.name() + "; " + personality + "; " + physicalDescription;
+        return name + ": " + characterClass.name() + "; " + personality + "; " + physicalDescription
+                + "; " + background;
     }
 
     public String getImageKey() {
@@ -243,6 +252,15 @@ public class PlayerCharacter extends Asset {
         }
 
         this.physicalDescription = physicalDescription;
+    }
+
+    public void updateBackground(String background) {
+
+        if (isBlank(background)) {
+            throw new BusinessRuleViolationException("Character background cannot be null or empty");
+        }
+
+        this.background = background;
     }
 
     public void updateSheet(
@@ -434,6 +452,7 @@ public class PlayerCharacter extends Asset {
         private Long playerId;
         private String personality;
         private String physicalDescription;
+        private String background;
         private CharacterClass characterClass;
         private Map<CharacterAttribute, Integer> attributes;
         private Map<CharacterSkill, Integer> skills;
@@ -463,6 +482,12 @@ public class PlayerCharacter extends Asset {
         public Builder physicalDescription(String physicalDescription) {
 
             this.physicalDescription = physicalDescription;
+            return this;
+        }
+
+        public Builder background(String background) {
+
+            this.background = background;
             return this;
         }
 
@@ -506,6 +531,10 @@ public class PlayerCharacter extends Asset {
 
             if (isBlank(physicalDescription)) {
                 throw new BusinessRuleViolationException("Character physical description cannot be null or empty");
+            }
+
+            if (isBlank(background)) {
+                throw new BusinessRuleViolationException("Character background cannot be null or empty");
             }
 
             validateSheet(characterClass, attributes, skills, signatureSkill);

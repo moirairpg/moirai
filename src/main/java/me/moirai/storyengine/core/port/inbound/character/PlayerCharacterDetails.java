@@ -17,6 +17,7 @@ public record PlayerCharacterDetails(
         CharacterClass characterClass,
         String personality,
         String physicalDescription,
+        String background,
         Map<CharacterAttribute, Integer> attributes,
         Map<CharacterSkill, Integer> skills,
         Map<SignatureSkill, Integer> signatureSkill,

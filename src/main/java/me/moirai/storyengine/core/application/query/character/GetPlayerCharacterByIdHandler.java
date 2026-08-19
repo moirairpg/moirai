@@ -39,6 +39,7 @@ public class GetPlayerCharacterByIdHandler
                 row.characterClass(),
                 row.personality(),
                 row.physicalDescription(),
+                row.background(),
                 row.attributes(),
                 row.skills(),
                 row.characterClass() == null

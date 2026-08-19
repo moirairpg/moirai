@@ -66,6 +66,27 @@ public class PlayerCharacterReaderImplIntegrationTest extends AbstractDatabaseIn
     }
 
     @Test
+    void shouldReturnTheBackgroundWhenGettingTheCharacterById() {
+
+        // given
+        var owner = insert(UserFixture.player().build(), User.class);
+        var character = PlayerCharacterFixture.samplePlayerCharacter()
+                .playerId(owner.getId())
+                .build();
+
+        insert(character, PlayerCharacter.class);
+
+        // when
+        var result = reader.getById(character.getPublicId());
+
+        // then
+        assertThat(result).isPresent()
+                .get()
+                .extracting(PlayerCharacterDetailsRow::background)
+                .isEqualTo("Raised in a cliffside monastery, he took the oath after his village burned.");
+    }
+
+    @Test
     void shouldReturnTheAttributeLevelsWhenGettingTheCharacterById() {
 
         // given

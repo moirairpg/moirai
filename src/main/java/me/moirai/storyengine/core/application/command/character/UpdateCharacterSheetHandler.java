@@ -69,6 +69,7 @@ public class UpdateCharacterSheetHandler
                 character.getCharacterClass(),
                 character.getPersonality(),
                 character.getPhysicalDescription(),
+                character.getBackground(),
                 character.getAttributeLevels().asMap(),
                 character.getSkillLevels().asMap(),
                 Map.of(character.getCharacterClass().getSignature(), character.getSkillLevels().signature()),
