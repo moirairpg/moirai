@@ -144,7 +144,7 @@ public class MessageDomainEventListener {
             StoryContext storyContext;
             var instructions = defaultString(adventure.getNarratorPersonality())
                     + additionalPrompt
-                    + NARRATION_SCOPE.formatted(PLAYER_CHARACTER_HEADING.getText());
+                    + NARRATION_SCOPE.formatted(PLAYER_CHARACTER_HEADING.getText(), adventure.getNarratorName());
 
             if (actionOutcomeLine != null) {
                 storyContext = storyContextService.assembleStoryContext(adventure, actionOutcomeLine);
