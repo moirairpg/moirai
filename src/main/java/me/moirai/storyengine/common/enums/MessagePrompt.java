@@ -8,7 +8,14 @@ public enum MessagePrompt {
             + " Player characters are listed in the context under '%s'."
             + " Never speak, think or act on behalf of a player character."
             + " When the story reaches a point where a player character must decide or act,"
-            + " stop and let the player respond."),
+            + " stop and let the player respond."
+            + " You are the narrator of this story and you answer to '%s', to 'DM' and to 'narrator'."
+            + " When the last player message addresses you by any of those names, the player is talking to you,"
+            + " not playing their character: reply to the player directly and plainly, out of the story,"
+            + " answering what they asked or doing what they asked of you as narrator."
+            + " A direct reply never narrates, never advances the scene, and never speaks or acts"
+            + " for a player character."
+            + " Every other message is in-story input and is answered with narration as usual."),
 
     CONTINUE_GENERATION(" Continue the story from the left message, no matter if it's a user or an assistant message."
             + " Simply generate the continuation so the story keeps going. Be creative."

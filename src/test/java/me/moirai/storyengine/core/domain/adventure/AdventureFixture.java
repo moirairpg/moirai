@@ -44,9 +44,26 @@ public class AdventureFixture {
         return builder;
     }
 
+    public static Adventure.Builder privateAdventureWithUnnamedNarrator() {
+
+        var builder = baseAdventure();
+        builder.narrator(null, "A helpful guide");
+        builder.visibility(Visibility.fromString("PRIVATE"));
+
+        return builder;
+    }
+
     public static Adventure privateAdventureWithId() {
 
         var adventure = privateAdventure().build();
+        ReflectionTestUtils.setField(adventure, "id", NUMERIC_ID);
+        ReflectionTestUtils.setField(adventure, "publicId", PUBLIC_ID);
+        return adventure;
+    }
+
+    public static Adventure privateAdventureWithUnnamedNarratorWithId() {
+
+        var adventure = privateAdventureWithUnnamedNarrator().build();
         ReflectionTestUtils.setField(adventure, "id", NUMERIC_ID);
         ReflectionTestUtils.setField(adventure, "publicId", PUBLIC_ID);
         return adventure;

@@ -234,6 +234,36 @@ public class MessageDomainEventListenerTest {
     }
 
     @Test
+    public void shouldTellTheNarratorItsOwnNameWhenNarrationIsRequested() {
+
+        // given
+        listener = listener();
+        givenNarrationSucceeds();
+
+        // when
+        listener.onMessageSent(new MessageSentEvent(ADVENTURE_ID));
+
+        // then
+        assertThat(capturedInstructions()).contains(MessagePrompt.NARRATION_SCOPE.formatted(
+                MessagePrompt.PLAYER_CHARACTER_HEADING.getText(), "Aria"));
+    }
+
+    @Test
+    public void shouldTellTheNarratorItsDefaultNameWhenTheNarratorHasNoName() {
+
+        // given
+        listener = listener();
+        givenNarrationSucceedsForAnUnnamedNarrator();
+
+        // when
+        listener.onMessageSent(new MessageSentEvent(ADVENTURE_ID));
+
+        // then
+        assertThat(capturedInstructions()).contains(MessagePrompt.NARRATION_SCOPE.formatted(
+                MessagePrompt.PLAYER_CHARACTER_HEADING.getText(), "Narrator"));
+    }
+
+    @Test
     public void shouldPublishTheAddedMessageWithoutMarkingNarrationAsPendingWhenNarrationSucceeds() {
 
         // given
@@ -345,6 +375,20 @@ public class MessageDomainEventListenerTest {
 
         when(adventureRepository.findByPublicId(any(UUID.class)))
                 .thenReturn(Optional.of(AdventureFixture.privateAdventureWithId()));
+        when(storyContextService.assembleStoryContext(any())).thenReturn(storyContext());
+        when(textCompletionPort.generateTextFrom(any()))
+                .thenReturn(TextGenerationResult.builder().outputText("A door opens.").build());
+        when(messageRepository.save(any(Message.class))).thenReturn(savedMessage);
+    }
+
+    private void givenNarrationSucceedsForAnUnnamedNarrator() {
+
+        var savedMessage = MessageFixture.assistantMessage().build();
+
+        ReflectionTestUtils.setField(savedMessage, "publicId", UUID.randomUUID());
+
+        when(adventureRepository.findByPublicId(any(UUID.class)))
+                .thenReturn(Optional.of(AdventureFixture.privateAdventureWithUnnamedNarratorWithId()));
         when(storyContextService.assembleStoryContext(any())).thenReturn(storyContext());
         when(textCompletionPort.generateTextFrom(any()))
                 .thenReturn(TextGenerationResult.builder().outputText("A door opens.").build());
