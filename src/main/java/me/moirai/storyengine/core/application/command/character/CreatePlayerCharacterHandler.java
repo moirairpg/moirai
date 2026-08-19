@@ -47,6 +47,7 @@ public class CreatePlayerCharacterHandler
                 .characterClass(command.characterClass())
                 .personality(command.personality())
                 .physicalDescription(command.physicalDescription())
+                .background(command.background())
                 .attributes(command.attributes())
                 .skills(command.skills())
                 .signatureSkill(command.signatureSkill())
@@ -75,6 +76,7 @@ public class CreatePlayerCharacterHandler
                 character.getCharacterClass(),
                 character.getPersonality(),
                 character.getPhysicalDescription(),
+                character.getBackground(),
                 character.getAttributeLevels().asMap(),
                 character.getSkillLevels().asMap(),
                 Map.of(character.getCharacterClass().getSignature(), character.getSkillLevels().signature()),

@@ -40,6 +40,7 @@ public class UpdatePlayerCharacterHandlerTest {
 
     private static final float[] VECTOR = new float[] { 0.1f, 0.2f };
     private static final String OWNER_USERNAME = "john.doe";
+    private static final String BACKGROUND = "Orphaned.";
 
     @Mock
     private PlayerCharacterRepository repository;
@@ -90,6 +91,17 @@ public class UpdatePlayerCharacterHandlerTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenTheBackgroundIsBlank() {
+
+        // given
+        var command = new UpdatePlayerCharacter(
+                UUID.randomUUID(), "Volin", "Brave.", "Tall.", "", 0.25, 0.75, OWNER_USERNAME);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> handler.handle(command));
+    }
+
+    @Test
     void shouldApplyEveryUpdatedFieldWhenTheCharacterIsUpdated() {
 
         // given
@@ -101,12 +113,14 @@ public class UpdatePlayerCharacterHandlerTest {
         when(userRepository.findById(character.getPlayerId())).thenReturn(Optional.of(UserFixture.playerWithId()));
 
         // when
-        handler.execute(command);
+        var result = handler.execute(command);
 
         // then
+        assertThat(result.background()).isEqualTo(BACKGROUND);
         assertThat(character.getName()).isEqualTo("Volin the Bold");
         assertThat(character.getPersonality()).isEqualTo("Reckless.");
         assertThat(character.getPhysicalDescription()).isEqualTo("Short.");
+        assertThat(character.getBackground()).isEqualTo(BACKGROUND);
         assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.PALADIN);
         assertThat(character.getUiImagePositionX()).isEqualTo(0.25);
         assertThat(character.getUiImagePositionY()).isEqualTo(0.75);
@@ -131,7 +145,7 @@ public class UpdatePlayerCharacterHandlerTest {
         var embedded = ArgumentCaptor.forClass(String.class);
         verify(embeddingPort).embed(embedded.capture());
 
-        assertThat(embedded.getValue()).isEqualTo("Volin the Bold: PALADIN; Reckless.; Short.");
+        assertThat(embedded.getValue()).isEqualTo("Volin the Bold: PALADIN; Reckless.; Short.; Orphaned.");
 
         verify(vectorSearchPort).upsert(character.getPublicId(), VECTOR);
     }
@@ -256,7 +270,7 @@ public class UpdatePlayerCharacterHandlerTest {
         // given
         var character = PlayerCharacterFixture.samplePlayerCharacterWithId();
         var command = new UpdatePlayerCharacter(
-                character.getPublicId(), "Volin", "Brave.", "Tall.", 0.25, 0.75, "jane.doe");
+                character.getPublicId(), "Volin", "Brave.", "Tall.", BACKGROUND, 0.25, 0.75, "jane.doe");
 
         when(repository.findByPublicId(character.getPublicId())).thenReturn(Optional.of(character));
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -277,6 +291,6 @@ public class UpdatePlayerCharacterHandlerTest {
             String physicalDescription) {
 
         return new UpdatePlayerCharacter(
-                characterId, name, personality, physicalDescription, 0.25, 0.75, OWNER_USERNAME);
+                characterId, name, personality, physicalDescription, BACKGROUND, 0.25, 0.75, OWNER_USERNAME);
     }
 }

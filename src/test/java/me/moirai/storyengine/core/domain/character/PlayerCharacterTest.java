@@ -26,6 +26,7 @@ public class PlayerCharacterTest {
                 .playerId(1111L)
                 .personality("Brave, honorable and disciplined.")
                 .physicalDescription("A tall warrior with long black hair.")
+                .background("Raised in a cliffside monastery.")
                 .characterClass(CharacterClass.PALADIN)
                 .attributes(PlayerCharacterFixture.sampleAttributeAllocation())
                 .skills(PlayerCharacterFixture.sampleSkillAllocation())
@@ -41,6 +42,7 @@ public class PlayerCharacterTest {
         assertThat(character.getPlayerId()).isEqualTo(1111L);
         assertThat(character.getPersonality()).isEqualTo("Brave, honorable and disciplined.");
         assertThat(character.getPhysicalDescription()).isEqualTo("A tall warrior with long black hair.");
+        assertThat(character.getBackground()).isEqualTo("Raised in a cliffside monastery.");
         assertThat(character.getCharacterClass()).isEqualTo(CharacterClass.PALADIN);
     }
 
@@ -314,6 +316,19 @@ public class PlayerCharacterTest {
     }
 
     @Test
+    public void shouldUpdateBackgroundWhenNewValueIsProvided() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // when
+        character.updateBackground("New Background");
+
+        // then
+        assertThat(character.getBackground()).isEqualTo("New Background");
+    }
+
+    @Test
     public void shouldThrowExceptionWhenNameIsUpdatedToBlank() {
 
         // given
@@ -342,6 +357,16 @@ public class PlayerCharacterTest {
         // then
         assertThrows(BusinessRuleViolationException.class,
                 () -> character.updatePhysicalDescription(EMPTY));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenBackgroundIsUpdatedToBlank() {
+
+        // given
+        var character = PlayerCharacterFixture.samplePlayerCharacter().build();
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, () -> character.updateBackground(EMPTY));
     }
 
     @Test
@@ -428,6 +453,26 @@ public class PlayerCharacterTest {
     }
 
     @Test
+    public void shouldThrowExceptionWhenBackgroundIsNull() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().background(null);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenBackgroundIsEmpty() {
+
+        // given
+        var builder = PlayerCharacterFixture.samplePlayerCharacter().background(EMPTY);
+
+        // then
+        assertThrows(BusinessRuleViolationException.class, builder::build);
+    }
+
+    @Test
     public void shouldThrowExceptionWhenCharacterClassIsNull() {
 
         // given
@@ -483,7 +528,7 @@ public class PlayerCharacterTest {
     }
 
     @Test
-    public void shouldJoinNameClassPersonalityAndDescriptionWhenBuildingTheNarrativeDescription() {
+    public void shouldJoinNameClassPersonalityDescriptionAndBackgroundWhenBuildingTheNarrativeDescription() {
 
         // given
         var character = PlayerCharacterFixture.samplePlayerCharacter().build();
@@ -494,7 +539,8 @@ public class PlayerCharacterTest {
         // then
         assertThat(description).isEqualTo(
                 "Volin Habar: PALADIN; Brave, honorable and disciplined."
-                        + "; A tall warrior with long black hair and a scar across his left cheek.");
+                        + "; A tall warrior with long black hair and a scar across his left cheek."
+                        + "; Raised in a cliffside monastery, he took the oath after his village burned.");
     }
 
     @Test

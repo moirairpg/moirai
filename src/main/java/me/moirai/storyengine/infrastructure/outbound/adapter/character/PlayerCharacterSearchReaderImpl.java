@@ -26,6 +26,7 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
                     owner.username AS owner_username,
                     pc.name,
                     pc.character_class,
+                    pc.background,
                     pc.image_key,
                     pc.ui_image_position_x,
                     pc.ui_image_position_y
@@ -38,6 +39,7 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
                     owner.username AS owner_username,
                     pc.name,
                     pc.character_class,
+                    pc.background,
                     pc.image_key,
                     pc.ui_image_position_x,
                     pc.ui_image_position_y
@@ -113,6 +115,7 @@ public class PlayerCharacterSearchReaderImpl implements PlayerCharacterSearchRea
                 rs.getString("owner_username"),
                 rs.getString("name"),
                 Functions.mapOrNull(rs.getString("character_class"), CharacterClass::valueOf),
+                rs.getString("background"),
                 rs.getString("image_key"),
                 Functions.mapOrNull(rs.getBigDecimal("ui_image_position_x"), BigDecimal::doubleValue),
                 Functions.mapOrNull(rs.getBigDecimal("ui_image_position_y"), BigDecimal::doubleValue));

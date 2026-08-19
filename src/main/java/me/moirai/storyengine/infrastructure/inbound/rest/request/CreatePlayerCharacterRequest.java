@@ -15,6 +15,7 @@ public record CreatePlayerCharacterRequest(
         @NotNull(message = "cannot be null") CharacterClass characterClass,
         @NotEmpty(message = "cannot be null") @Moderated String personality,
         @NotEmpty(message = "cannot be null") @Moderated String physicalDescription,
+        @NotEmpty(message = "cannot be null") @Moderated String background,
         @NotNull(message = "cannot be null") Map<CharacterAttribute, Integer> attributes,
         @NotNull(message = "cannot be null") Map<CharacterSkill, Integer> skills,
         @NotNull(message = "cannot be null") Map<SignatureSkill, Integer> signatureSkill,

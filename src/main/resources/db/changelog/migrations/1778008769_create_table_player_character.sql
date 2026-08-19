@@ -9,6 +9,7 @@ CREATE TABLE player_character (
     player_id BIGINT NOT NULL,
     personality VARCHAR NOT NULL,
     physical_description VARCHAR NOT NULL,
+    background VARCHAR NOT NULL,
     character_class VARCHAR(20),
     image_key VARCHAR,
     ui_image_position_x DECIMAL,

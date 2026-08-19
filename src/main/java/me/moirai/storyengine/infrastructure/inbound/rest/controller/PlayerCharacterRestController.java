@@ -141,6 +141,7 @@ public class PlayerCharacterRestController extends SecurityContextAware {
                 request.characterClass(),
                 request.personality(),
                 request.physicalDescription(),
+                request.background(),
                 request.attributes(),
                 request.skills(),
                 request.signatureSkill(),
@@ -161,6 +162,7 @@ public class PlayerCharacterRestController extends SecurityContextAware {
                 request.name(),
                 request.personality(),
                 request.physicalDescription(),
+                request.background(),
                 request.uiImagePositionX(),
                 request.uiImagePositionY(),
                 authenticatedUsername()));

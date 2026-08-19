@@ -25,6 +25,7 @@ public class PlayerCharacterFixture {
         builder.playerId(PLAYER_ID);
         builder.personality("Brave, honorable and disciplined.");
         builder.physicalDescription("A tall warrior with long black hair and a scar across his left cheek.");
+        builder.background("Raised in a cliffside monastery, he took the oath after his village burned.");
         builder.characterClass(CharacterClass.PALADIN);
         builder.attributes(sampleAttributeAllocation());
         builder.skills(sampleSkillAllocation());

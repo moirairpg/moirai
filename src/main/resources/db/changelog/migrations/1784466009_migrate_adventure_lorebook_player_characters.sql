@@ -3,13 +3,14 @@
 --preconditions onFail:HALT, onError:HALT
 
 INSERT INTO player_character (
-    public_id, name, player_id, personality, physical_description,
+    public_id, name, player_id, personality, physical_description, background,
     character_class, version, created_by, creation_date, last_update_date
 )
 SELECT al.public_id,
        al.name,
        u.id,
        al.description,
+       '',
        '',
        NULL,
        0,

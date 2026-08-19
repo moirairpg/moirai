@@ -80,6 +80,7 @@ public class UpdateCharacterSheetHandlerTest {
                 .containsEntry(CharacterSkill.DESTRUCTION, 2)
                 .containsEntry(CharacterSkill.CONJURATION, 2);
         assertThat(result.signatureSkill()).containsEntry(SignatureSkill.SPELLWEAVE, 1);
+        assertThat(result.background()).isEqualTo(character.getBackground());
 
         verify(vectorSearchPort).upsert(character.getPublicId(), VECTOR);
     }

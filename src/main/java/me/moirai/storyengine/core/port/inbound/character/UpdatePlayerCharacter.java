@@ -9,6 +9,7 @@ public record UpdatePlayerCharacter(
         String name,
         String personality,
         String physicalDescription,
+        String background,
         Double uiImagePositionX,
         Double uiImagePositionY,
         String requesterUsername)

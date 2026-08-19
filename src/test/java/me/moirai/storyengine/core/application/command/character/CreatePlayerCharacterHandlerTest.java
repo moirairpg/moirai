@@ -74,6 +74,7 @@ public class CreatePlayerCharacterHandlerTest {
         assertThat(saved.getValue().getCharacterClass()).isEqualTo(CharacterClass.PALADIN);
         assertThat(saved.getValue().getPersonality()).isEqualTo("Brave.");
         assertThat(saved.getValue().getPhysicalDescription()).isEqualTo("Tall.");
+        assertThat(saved.getValue().getBackground()).isEqualTo("Orphaned.");
         assertThat(saved.getValue().getPlayerId()).isEqualTo(UserFixture.NUMERIC_ID);
         assertThat(saved.getValue().getUiImagePositionX()).isEqualTo(0.25);
         assertThat(saved.getValue().getUiImagePositionY()).isEqualTo(0.75);
@@ -175,7 +176,7 @@ public class CreatePlayerCharacterHandlerTest {
         var embedded = ArgumentCaptor.forClass(String.class);
         verify(embeddingPort).embed(embedded.capture());
 
-        assertThat(embedded.getValue()).isEqualTo("Volin Habar: PALADIN; Brave.; Tall.");
+        assertThat(embedded.getValue()).isEqualTo("Volin Habar: PALADIN; Brave.; Tall.; Orphaned.");
 
         var saved = ArgumentCaptor.forClass(PlayerCharacter.class);
         verify(repository).save(saved.capture());
@@ -197,6 +198,7 @@ public class CreatePlayerCharacterHandlerTest {
         // then
         assertThat(result.ownerUsername()).isEqualTo("john.doe");
         assertThat(result.name()).isEqualTo("Volin Habar");
+        assertThat(result.background()).isEqualTo("Orphaned.");
     }
 
     @Test
@@ -237,7 +239,7 @@ public class CreatePlayerCharacterHandlerTest {
 
         // given
         var command = new CreatePlayerCharacter(
-                null, CharacterClass.PALADIN, "Brave.", "Tall.",
+                null, CharacterClass.PALADIN, "Brave.", "Tall.", "Orphaned.",
                 PlayerCharacterFixture.sampleAttributeAllocation(),
                 PlayerCharacterFixture.sampleSkillAllocation(),
                 PlayerCharacterFixture.sampleSignatureAllocation(), 0.25, 0.75, UserFixture.NUMERIC_ID);
@@ -257,6 +259,7 @@ public class CreatePlayerCharacterHandlerTest {
                 CharacterClass.PALADIN,
                 "Brave.",
                 "Tall.",
+                "Orphaned.",
                 PlayerCharacterFixture.sampleAttributeAllocation(),
                 PlayerCharacterFixture.sampleSkillAllocation(),
                 PlayerCharacterFixture.sampleSignatureAllocation(),

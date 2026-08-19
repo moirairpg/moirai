@@ -48,6 +48,7 @@ public class ListPlayerCharactersByNameHandlerTest {
         assertThat(result.get(0).ownerUsername()).isEqualTo("joao.das.couves");
         assertThat(result.get(0).name()).isEqualTo("Conan the Barbarian");
         assertThat(result.get(0).characterClass()).isEqualTo(CharacterClass.BARBARIAN);
+        assertThat(result.get(0).background()).isEqualTo("Orphaned.");
         assertThat(result.get(0).imageUrl()).isEqualTo("http://image.url");
     }
 
@@ -85,6 +86,7 @@ public class ListPlayerCharactersByNameHandlerTest {
                 "joao.das.couves",
                 "Conan the Barbarian",
                 CharacterClass.BARBARIAN,
+                "Orphaned.",
                 "conan-image-key",
                 0.25,
                 0.75);

@@ -56,6 +56,10 @@ public class UpdatePlayerCharacterHandler
         if (isBlank(command.physicalDescription())) {
             throw new BusinessRuleViolationException("Character physical description cannot be null or empty");
         }
+
+        if (isBlank(command.background())) {
+            throw new BusinessRuleViolationException("Character background cannot be null or empty");
+        }
     }
 
     @Override
@@ -71,6 +75,7 @@ public class UpdatePlayerCharacterHandler
         character.updateName(command.name());
         character.updatePersonality(command.personality());
         character.updatePhysicalDescription(command.physicalDescription());
+        character.updateBackground(command.background());
         character.updateUiImagePosition(command.uiImagePositionX(), command.uiImagePositionY());
 
         var saved = repository.save(character);
@@ -91,6 +96,7 @@ public class UpdatePlayerCharacterHandler
                 character.getCharacterClass(),
                 character.getPersonality(),
                 character.getPhysicalDescription(),
+                character.getBackground(),
                 character.getAttributeLevels().asMap(),
                 character.getSkillLevels().asMap(),
                 Map.of(character.getCharacterClass().getSignature(), character.getSkillLevels().signature()),

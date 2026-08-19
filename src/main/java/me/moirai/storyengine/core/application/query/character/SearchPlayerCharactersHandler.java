@@ -31,6 +31,7 @@ public class SearchPlayerCharactersHandler
                         row.ownerUsername(),
                         row.name(),
                         row.characterClass(),
+                        row.background(),
                         storagePort.resolveUrl(row.imageKey()),
                         row.uiImagePositionX(),
                         row.uiImagePositionY()))
